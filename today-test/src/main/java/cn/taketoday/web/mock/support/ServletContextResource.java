@@ -29,14 +29,14 @@ import cn.taketoday.core.io.ContextResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.ServletUtils;
-import cn.taketoday.mock.api.ServletContext;
 
 /**
  * {@link cn.taketoday.core.io.Resource} implementation for
- * {@link cn.taketoday.mock.api.ServletContext} resources, interpreting
+ * {@link MockContext} resources, interpreting
  * relative paths within the web application root directory.
  *
  * <p>Always supports stream access and URL access, but only allows
@@ -45,14 +45,14 @@ import cn.taketoday.mock.api.ServletContext;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.mock.api.ServletContext#getResourceAsStream
- * @see cn.taketoday.mock.api.ServletContext#getResource
- * @see cn.taketoday.mock.api.ServletContext#getRealPath
+ * @see MockContext#getResourceAsStream
+ * @see MockContext#getResource
+ * @see MockContext#getRealPath
  * @since 4.0 2022/2/20 16:27
  */
 public class ServletContextResource extends AbstractFileResolvingResource implements ContextResource {
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   private final String path;
 
@@ -63,13 +63,13 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * Consequently, the given path will be prepended with a slash if it
    * doesn't already start with one.
    *
-   * @param servletContext the ServletContext to load from
+   * @param mockContext the ServletContext to load from
    * @param path the path of the resource
    */
-  public ServletContextResource(ServletContext servletContext, String path) {
+  public ServletContextResource(MockContext mockContext, String path) {
     // check ServletContext
-    Assert.notNull(servletContext, "Cannot resolve ServletContextResource without ServletContext");
-    this.servletContext = servletContext;
+    Assert.notNull(mockContext, "Cannot resolve ServletContextResource without ServletContext");
+    this.mockContext = mockContext;
 
     // check path
     Assert.notNull(path, "Path is required");
@@ -83,8 +83,8 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   /**
    * Return the ServletContext for this resource.
    */
-  public final ServletContext getServletContext() {
-    return this.servletContext;
+  public final MockContext getServletContext() {
+    return this.mockContext;
   }
 
   /**
@@ -97,12 +97,12 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   /**
    * This implementation checks {@code ServletContext.getResource}.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getResource(String)
+   * @see MockContext#getResource(String)
    */
   @Override
   public boolean exists() {
     try {
-      return servletContext.getResource(path) != null;
+      return mockContext.getResource(path) != null;
     }
     catch (MalformedURLException ex) {
       return false;
@@ -113,11 +113,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResourceAsStream},
    * which returns {@code null} in case of a non-readable resource (e.g. a directory).
    *
-   * @see cn.taketoday.mock.api.ServletContext#getResourceAsStream(String)
+   * @see MockContext#getResourceAsStream(String)
    */
   @Override
   public boolean isReadable() {
-    InputStream is = servletContext.getResourceAsStream(path);
+    InputStream is = mockContext.getResourceAsStream(path);
     if (is != null) {
       try {
         is.close();
@@ -135,12 +135,12 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   public boolean isFile() {
     try {
-      URL url = servletContext.getResource(path);
+      URL url = mockContext.getResource(path);
       if (url != null && ResourceUtils.isFileURL(url)) {
         return true;
       }
       else {
-        String realPath = servletContext.getRealPath(path);
+        String realPath = mockContext.getRealPath(path);
         if (realPath == null) {
           return false;
         }
@@ -157,11 +157,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResourceAsStream},
    * but throws a FileNotFoundException if no resource found.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getResourceAsStream(String)
+   * @see MockContext#getResourceAsStream(String)
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    InputStream is = servletContext.getResourceAsStream(path);
+    InputStream is = mockContext.getResourceAsStream(path);
     if (is == null) {
       throw new FileNotFoundException("Could not open " + this);
     }
@@ -172,11 +172,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResource},
    * but throws a FileNotFoundException if no resource found.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getResource(String)
+   * @see MockContext#getResource(String)
    */
   @Override
   public URL getURL() throws IOException {
-    URL url = servletContext.getResource(path);
+    URL url = mockContext.getResource(path);
     if (url == null) {
       throw new FileNotFoundException(
               this + " cannot be resolved to URL because it does not exist");
@@ -189,18 +189,18 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * {@code ServletContext.getRealPath}, throwing a FileNotFoundException
    * if not found or not resolvable.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getResource(String)
-   * @see cn.taketoday.mock.api.ServletContext#getRealPath(String)
+   * @see MockContext#getResource(String)
+   * @see MockContext#getRealPath(String)
    */
   @Override
   public File getFile() throws IOException {
-    URL url = servletContext.getResource(path);
+    URL url = mockContext.getResource(path);
     if (url != null && ResourceUtils.isFileURL(url)) {
       // Proceed with file system resolution...
       return super.getFile();
     }
     else {
-      String realPath = ServletUtils.getRealPath(servletContext, path);
+      String realPath = ServletUtils.getRealPath(mockContext, path);
       return new File(realPath);
     }
   }
@@ -214,7 +214,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   public Resource createRelative(String relativePath) {
     String pathToUse = StringUtils.applyRelativePath(path, relativePath);
-    return new ServletContextResource(servletContext, pathToUse);
+    return new ServletContextResource(mockContext, pathToUse);
   }
 
   /**
@@ -254,7 +254,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
     if (!(other instanceof ServletContextResource otherRes)) {
       return false;
     }
-    return servletContext.equals(otherRes.servletContext) && path.equals(otherRes.path);
+    return mockContext.equals(otherRes.mockContext) && path.equals(otherRes.path);
   }
 
   /**

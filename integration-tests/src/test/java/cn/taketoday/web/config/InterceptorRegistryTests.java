@@ -32,7 +32,7 @@ import cn.taketoday.web.InterceptorChain;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MappedInterceptor;
 import cn.taketoday.web.i18n.LocaleChangeInterceptor;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ class InterceptorRegistryTests {
 
   private TestWebRequestInterceptor webInterceptor2;
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 

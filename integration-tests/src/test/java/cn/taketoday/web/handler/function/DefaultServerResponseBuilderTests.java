@@ -41,7 +41,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -226,7 +226,7 @@ class DefaultServerResponseBuilderTests {
             .cookie(cookie)
             .build();
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 
     Object mav = getObject(response, mockRequest, mockResponse);
@@ -239,7 +239,7 @@ class DefaultServerResponseBuilderTests {
 
   @Nullable
   private static Object getObject(
-          ServerResponse response, MockHttpServletRequest mockRequest, MockHttpServletResponse mockResponse) throws Throwable {
+          ServerResponse response, HttpMockRequestImpl mockRequest, MockHttpServletResponse mockResponse) throws Throwable {
     ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
     try {
       return response.writeTo(context, EMPTY_CONTEXT);
@@ -256,7 +256,7 @@ class DefaultServerResponseBuilderTests {
             .eTag(etag)
             .body("bar");
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
 
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -275,7 +275,7 @@ class DefaultServerResponseBuilderTests {
             .lastModified(oneMinuteBeforeNow)
             .body("bar");
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -289,7 +289,7 @@ class DefaultServerResponseBuilderTests {
     String body = "foo";
     ServerResponse response = ServerResponse.ok().body(body);
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
     ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
@@ -307,7 +307,7 @@ class DefaultServerResponseBuilderTests {
     body.add("bar");
     ServerResponse response = ServerResponse.ok().body(body, new ParameterizedTypeReference<List<String>>() { });
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
 
@@ -325,7 +325,7 @@ class DefaultServerResponseBuilderTests {
     CompletionStage<String> completionStage = CompletableFuture.completedFuture(body);
     ServerResponse response = ServerResponse.ok().body(completionStage);
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
     mockRequest.setAsyncSupported(true);
 
@@ -345,7 +345,7 @@ class DefaultServerResponseBuilderTests {
     Publisher<String> publisher = Mono.just(body);
     ServerResponse response = ServerResponse.ok().body(publisher);
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
     mockRequest.setAsyncSupported(true);
 

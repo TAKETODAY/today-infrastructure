@@ -143,7 +143,7 @@ following example shows a `personForm` view:
 object (it is 'command', unless you changed it in your controller configuration) followed
 by a period and the name of the field on the command object to which you wish to bind. You
 can also use nested fields, such as `command.address.street`. The `bind` macro assumes the
-default HTML escaping behavior specified by the `ServletContext` parameter
+default HTML escaping behavior specified by the `MockContextImpl` parameter
 `defaultHtmlEscape` in `web.xml`.
 
 An alternative form of the macro called `<@spring.bindEscaped>` takes a second argument

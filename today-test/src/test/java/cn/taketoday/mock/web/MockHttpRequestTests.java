@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Unit tests for {@link MockHttpServletRequest}.
+ * Unit tests for {@link HttpMockRequestImpl}.
  *
  * @author Rick Evans
  * @author Mark Fisher
@@ -57,16 +57,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Jakub Narloch
  * @author Av Pinzur
  */
-class MockHttpServletRequestTests {
+class MockHttpRequestTests {
 
   private static final String HOST = "Host";
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   @Test
   void protocolAndScheme() {
-    assertThat(request.getProtocol()).isEqualTo(MockHttpServletRequest.DEFAULT_PROTOCOL);
-    assertThat(request.getScheme()).isEqualTo(MockHttpServletRequest.DEFAULT_SCHEME);
+    assertThat(request.getProtocol()).isEqualTo(HttpMockRequestImpl.DEFAULT_PROTOCOL);
+    assertThat(request.getScheme()).isEqualTo(HttpMockRequestImpl.DEFAULT_SCHEME);
     request.setProtocol("HTTP/2.0");
     request.setScheme("https");
     assertThat(request.getProtocol()).isEqualTo("HTTP/2.0");
@@ -87,11 +87,11 @@ class MockHttpServletRequestTests {
 
   @Test
   void readEmptyInputStreamWorksAcrossRequests() throws IOException {
-    MockHttpServletRequest firstRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl firstRequest = new HttpMockRequestImpl();
     firstRequest.getInputStream().readAllBytes();
     firstRequest.getInputStream().close();
 
-    MockHttpServletRequest secondRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl secondRequest = new HttpMockRequestImpl();
     secondRequest.getInputStream().readAllBytes();
     secondRequest.getInputStream().close();
   }
@@ -331,7 +331,7 @@ class MockHttpServletRequestTests {
       Locale newDefaultLocale = originalDefaultLocale.equals(Locale.GERMANY) ? Locale.FRANCE : Locale.GERMANY;
       Locale.setDefault(newDefaultLocale);
       // Create the request after changing the default locale.
-      MockHttpServletRequest request = new MockHttpServletRequest();
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
       assertThat(newDefaultLocale.equals(request.getLocale())).isFalse();
       assertThat(request.getLocale()).isEqualTo(Locale.ENGLISH);
     }

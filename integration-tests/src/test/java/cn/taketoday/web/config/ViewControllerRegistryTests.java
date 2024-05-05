@@ -28,7 +28,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.view.RedirectView;
 
@@ -42,14 +42,14 @@ class ViewControllerRegistryTests {
 
   private ViewControllerRegistry registry;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
   @BeforeEach
   public void setup() {
     this.registry = new ViewControllerRegistry(new StaticApplicationContext());
-    this.request = new MockHttpServletRequest("GET", "/");
+    this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpServletResponse();
   }
 

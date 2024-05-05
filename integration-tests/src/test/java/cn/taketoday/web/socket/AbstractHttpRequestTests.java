@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -38,7 +38,7 @@ public abstract class AbstractHttpRequestTests {
 
   protected RequestContext request;
 
-  protected MockHttpServletRequest servletRequest;
+  protected HttpMockRequestImpl servletRequest;
 
   protected MockHttpServletResponse servletResponse;
 
@@ -59,7 +59,7 @@ public abstract class AbstractHttpRequestTests {
   }
 
   protected void resetRequest() {
-    this.servletRequest = new MockHttpServletRequest();
+    this.servletRequest = new HttpMockRequestImpl();
     this.servletRequest.setAsyncSupported(true);
     this.request = new ServletRequestContext(null, this.servletRequest, servletResponse);
   }

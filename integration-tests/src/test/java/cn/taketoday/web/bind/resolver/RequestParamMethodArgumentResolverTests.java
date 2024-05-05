@@ -40,9 +40,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -59,7 +59,7 @@ class RequestParamMethodArgumentResolverTests {
 
   private RequestParamMethodArgumentResolver resolver = new RequestParamMethodArgumentResolver(null, true);
 
-  private MockHttpServletRequest request = new MockHttpServletRequest();
+  private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
@@ -160,7 +160,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFile() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addFile(expected);
     webRequest = new ServletRequestContext(null, request, null);
@@ -175,7 +175,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileList() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
     MultipartFile expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
     request.addFile(expected1);
@@ -194,7 +194,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileListMissing() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
@@ -206,7 +206,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileArray() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected1 = new MockMultipartFile("mfilearray", "Hello World 1".getBytes());
     MultipartFile expected2 = new MockMultipartFile("mfilearray", "Hello World 2".getBytes());
     request.addFile(expected1);
@@ -228,7 +228,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileArrayMissing() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new ServletRequestContext(null, request, null);
     webRequest.setBinding(new BindingContext());
@@ -240,7 +240,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
     request.addFile(expected);
     ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
@@ -256,7 +256,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void resolveMultipartFileListNotannot() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected1 = new MockMultipartFile("multipartFileList", "Hello World 1".getBytes());
     MultipartFile expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
     request.addFile(expected1);
@@ -282,7 +282,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test  // SPR-9079
   public void isMultipartRequestHttpPut() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
     request.addFile(expected);
     request.setMethod("PUT");
@@ -584,7 +584,7 @@ class RequestParamMethodArgumentResolverTests {
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
 
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addFile(expected);
     webRequest = new ServletRequestContext(null, request, null);

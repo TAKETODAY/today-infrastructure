@@ -3,7 +3,7 @@
 
 `DispatcherServlet` expects a `WebApplicationContext` (an extension of a plain
 `ApplicationContext`) for its own configuration. `WebApplicationContext` has a link to the
-`ServletContext` and the `Servlet` with which it is associated. It is also bound to the `ServletContext`
+`MockContextImpl` and the `Servlet` with which it is associated. It is also bound to the `MockContextImpl`
 such that applications can use static methods on `RequestContextUtils` to look up the
 `WebApplicationContext` if they need access to it.
 

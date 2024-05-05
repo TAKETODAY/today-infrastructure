@@ -23,7 +23,7 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.Filter;
-import cn.taketoday.mock.web.MockServletConfig;
+import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -44,11 +44,11 @@ import cn.taketoday.web.mock.WebApplicationContext;
 public abstract class MockMvcBuilderSupport {
 
   /**
-   * Delegates to {@link #createMockMvc(Filter[], MockServletConfig, ApplicationContext, RequestBuilder, List, List, List)}
+   * Delegates to {@link #createMockMvc(Filter[], MockMockConfig, ApplicationContext, RequestBuilder, List, List, List)}
    * for creation of the {@link MockMvc} instance and configures that instance
    * with the supplied {@code defaultResponseCharacterEncoding}.
    */
-  protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
+  protected final MockMvc createMockMvc(Filter[] filters, MockMockConfig servletConfig,
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
@@ -61,7 +61,7 @@ public abstract class MockMvcBuilderSupport {
     return mockMvc;
   }
 
-  protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
+  protected final MockMvc createMockMvc(Filter[] filters, MockMockConfig servletConfig,
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {

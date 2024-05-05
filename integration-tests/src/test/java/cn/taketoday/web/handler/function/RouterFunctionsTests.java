@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Optional;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
@@ -111,7 +111,7 @@ public class RouterFunctionsTests {
     RouterFunction<ServerResponse> result = RouterFunctions.nest(RequestPredicates.path("/{foo}"), nestedFunction);
     assertThat(result).isNotNull();
 
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", "/bar");
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/bar");
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);

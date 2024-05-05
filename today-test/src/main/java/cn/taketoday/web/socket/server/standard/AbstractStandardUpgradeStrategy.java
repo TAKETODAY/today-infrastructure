@@ -36,8 +36,8 @@ import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import jakarta.websocket.Endpoint;
 import jakarta.websocket.Extension;
 import jakarta.websocket.WebSocketContainer;
@@ -65,10 +65,10 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
     this.sessionDecorator = sessionDecorator;
   }
 
-  protected ServerContainer getContainer(HttpServletRequest request) {
-    ServletContext servletContext = request.getServletContext();
+  protected ServerContainer getContainer(HttpMockRequest request) {
+    MockContext mockContext = request.getServletContext();
     String attrName = "jakarta.websocket.server.ServerContainer";
-    ServerContainer container = (ServerContainer) servletContext.getAttribute(attrName);
+    ServerContainer container = (ServerContainer) mockContext.getAttribute(attrName);
     Assert.notNull(container, "No 'jakarta.websocket.server.ServerContainer' ServletContext attribute. " +
             "Are you running in a Servlet container that supports JSR-356?");
     return container;
@@ -78,7 +78,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   public List<WebSocketExtension> getSupportedExtensions(RequestContext request) {
     List<WebSocketExtension> extensions = this.extensions;
     if (extensions == null) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+      HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
       extensions = getInstalledExtensions(getContainer(servletRequest));
       this.extensions = extensions;
     }

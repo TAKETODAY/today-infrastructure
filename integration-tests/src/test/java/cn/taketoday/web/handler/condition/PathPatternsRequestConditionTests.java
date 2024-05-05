@@ -19,8 +19,8 @@ package cn.taketoday.web.handler.condition;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
@@ -87,7 +87,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchDirectPath() {
-    MockHttpServletRequest request = createRequest("/foo");
+    HttpMockRequestImpl request = createRequest("/foo");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -97,7 +97,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPattern() {
-    MockHttpServletRequest request = createRequest("/foo/bar");
+    HttpMockRequestImpl request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -107,7 +107,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPatternWithContextPath() {
-    MockHttpServletRequest request = createRequest("", "/foo/bar");
+    HttpMockRequestImpl request = createRequest("", "/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -117,7 +117,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchSortPatterns() {
-    MockHttpServletRequest request = createRequest("/foo/bar");
+    HttpMockRequestImpl request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/**", "/foo/bar", "/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -128,7 +128,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchTrailingSlash() {
-    MockHttpServletRequest request = createRequest("/foo/");
+    HttpMockRequestImpl request = createRequest("/foo/");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -147,7 +147,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPatternContainsExtension() {
-    MockHttpServletRequest request = createRequest("/foo.html");
+    HttpMockRequestImpl request = createRequest("/foo.html");
     PathPatternsRequestCondition match = createCondition("/foo.jpg")
             .getMatchingCondition(new ServletRequestContext(null, request, null));
 
@@ -184,7 +184,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void compareNumberOfMatchingPatterns() {
-    HttpServletRequest request = createRequest("/foo");
+    HttpMockRequest request = createRequest("/foo");
 
     PathPatternsRequestCondition c1 = createCondition("/foo", "/bar");
     PathPatternsRequestCondition c2 = createCondition("/foo", "/f*");
@@ -195,7 +195,7 @@ public class PathPatternsRequestConditionTests {
     assertThat(match1.compareTo(match2, new ServletRequestContext(null, request, null))).isEqualTo(1);
   }
 
-  private MockHttpServletRequest createRequest(String requestURI) {
+  private HttpMockRequestImpl createRequest(String requestURI) {
     return createRequest("", requestURI);
   }
 
@@ -207,8 +207,8 @@ public class PathPatternsRequestConditionTests {
     return new ServletRequestContext(null, createRequest(contextPath, requestURI), null);
   }
 
-  private MockHttpServletRequest createRequest(String contextPath, String requestURI) {
-    return new MockHttpServletRequest("GET", requestURI);
+  private HttpMockRequestImpl createRequest(String contextPath, String requestURI) {
+    return new HttpMockRequestImpl("GET", requestURI);
   }
 
   private PathPatternsRequestCondition createCondition(String... patterns) {

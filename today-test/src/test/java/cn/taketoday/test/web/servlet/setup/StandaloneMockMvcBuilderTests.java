@@ -27,7 +27,7 @@ import java.util.EnumSet;
 import java.util.Map;
 
 import cn.taketoday.http.converter.json.BeanFactoryHandlerInstantiator;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -65,7 +65,7 @@ class StandaloneMockMvcBuilderTests {
 
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
             request, new MockHttpServletResponse()));
 
@@ -80,13 +80,13 @@ class StandaloneMockMvcBuilderTests {
 
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/persons");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/persons");
     HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
             request, new MockHttpServletResponse()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
-    request = new MockHttpServletRequest("GET", "/persons.xml");
+    request = new HttpMockRequestImpl("GET", "/persons.xml");
     chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
             request, new MockHttpServletResponse()));
     assertThat(chain).isNull();

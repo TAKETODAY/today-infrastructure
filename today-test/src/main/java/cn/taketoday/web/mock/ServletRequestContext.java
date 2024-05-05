@@ -43,9 +43,9 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
@@ -71,7 +71,7 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final HttpServletRequest request;
+  private final HttpMockRequest request;
   private final HttpServletResponse response;
   private final long requestTimeMillis = System.currentTimeMillis();
 
@@ -83,19 +83,19 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
   }
 
   public ServletRequestContext(ApplicationContext context) {
-    this(context, new MockHttpServletRequest(), new MockHttpServletResponse());
+    this(context, new HttpMockRequestImpl(), new MockHttpServletResponse());
   }
 
-  public ServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
+  public ServletRequestContext(HttpMockRequest request, HttpServletResponse response) {
     this(null, request, response);
   }
 
   public ServletRequestContext(ApplicationContext context,
-          HttpServletRequest request, HttpServletResponse response) {
+          HttpMockRequest request, HttpServletResponse response) {
     this(context, request, response, null);
   }
 
-  public ServletRequestContext(ApplicationContext context, HttpServletRequest request,
+  public ServletRequestContext(ApplicationContext context, HttpMockRequest request,
           HttpServletResponse response, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.request = request;
@@ -103,7 +103,7 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
   }
 
   @Override
-  public HttpServletRequest getRequest() {
+  public HttpMockRequest getRequest() {
     return request;
   }
 
@@ -321,6 +321,7 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
       servletCookie.setSecure(responseCookie.isSecure());
       servletCookie.setHttpOnly(responseCookie.isHttpOnly());
       servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
+      servletCookie.setAttribute("SameSite", responseCookie.getSameSite());
     }
 
     response.addCookie(servletCookie);
@@ -426,26 +427,6 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
       long contentLength = headers.getContentLength();
       if (contentLength != -1) {
         response.setContentLengthLong(contentLength);
-      }
-
-      // apply cookies
-      ArrayList<HttpCookie> responseCookies = this.responseCookies;
-      if (responseCookies != null) {
-        for (HttpCookie cookie : responseCookies) {
-          Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-          if (cookie instanceof ResponseCookie responseCookie) {
-            servletCookie.setPath(responseCookie.getPath());
-            if (responseCookie.getDomain() != null) {
-              servletCookie.setDomain(responseCookie.getDomain());
-            }
-            servletCookie.setSecure(responseCookie.isSecure());
-            servletCookie.setHttpOnly(responseCookie.isHttpOnly());
-            servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
-            servletCookie.setAttribute("SameSite", responseCookie.getSameSite());
-          }
-
-          response.addCookie(servletCookie);
-        }
       }
 
       this.headersWritten = true;

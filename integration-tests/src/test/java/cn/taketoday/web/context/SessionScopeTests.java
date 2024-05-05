@@ -44,7 +44,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.session.CookieSessionIdResolver;
 import cn.taketoday.session.MapSession;
@@ -93,7 +93,7 @@ public class SessionScopeTests {
 
   @Test
   public void getFromScope() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = getContext(request);
     WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
 
@@ -114,7 +114,7 @@ public class SessionScopeTests {
   @Test
   public void destructionAtSessionTermination() throws Exception {
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ServletRequestContext requestAttributes = getContext(request);
     WebSession session = RequestContextUtils.getSession(requestAttributes);
@@ -129,7 +129,7 @@ public class SessionScopeTests {
     assertThat(bean.wasDestroyed()).isTrue();
   }
 
-  private ServletRequestContext getContext(MockHttpServletRequest request) {
+  private ServletRequestContext getContext(HttpMockRequestImpl request) {
     ServletRequestContext requestAttributes = new ServletRequestContext(
             context, request, new MockHttpServletResponse());
     RequestContextHolder.set(requestAttributes);
@@ -155,7 +155,7 @@ public class SessionScopeTests {
 
   private void doTestDestructionWithSessionSerialization(boolean beanNameReset) throws Exception {
     Serializable serializedState = null;
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ServletRequestContext requestAttributes = getContext(request);
     WebSession session = RequestContextUtils.getRequiredSession(requestAttributes);
@@ -182,7 +182,7 @@ public class SessionScopeTests {
 
     WebSession finalSession = session;
     sessions.replaceAll((s, webSession) -> finalSession);
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
 
     requestAttributes = getContext(request);
 

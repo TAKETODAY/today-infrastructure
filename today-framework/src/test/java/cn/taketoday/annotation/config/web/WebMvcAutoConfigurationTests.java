@@ -64,7 +64,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.Validator;
@@ -284,7 +284,7 @@ public class WebMvcAutoConfigurationTests {
     this.contextRunner.withPropertyValues("web.locale:en_UK", "web.locale-resolver=fixed")
             .run((loader) -> {
               // mock request and set user preferred locale
-              MockHttpServletRequest request = new MockHttpServletRequest();
+              HttpMockRequestImpl request = new HttpMockRequestImpl();
               request.addPreferredLocale(StringUtils.parseLocaleString("nl_NL"));
               request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
               LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
@@ -300,7 +300,7 @@ public class WebMvcAutoConfigurationTests {
   void useAcceptHeaderLocale() {
     this.contextRunner.withPropertyValues("web.locale:en_UK").run((loader) -> {
       // mock request and set user preferred locale
-      MockHttpServletRequest request = new MockHttpServletRequest();
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
       request.addPreferredLocale(StringUtils.parseLocaleString("nl_NL"));
       request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
       LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
@@ -315,7 +315,7 @@ public class WebMvcAutoConfigurationTests {
   void useDefaultLocaleIfAcceptHeaderNoSet() {
     this.contextRunner.withPropertyValues("web.locale:en_UK").run((context) -> {
       // mock request and set user preferred locale
-      MockHttpServletRequest request = new MockHttpServletRequest();
+      HttpMockRequestImpl request = new HttpMockRequestImpl();
       LocaleResolver localeResolver = context.getBean(LocaleResolver.class);
       assertThat(localeResolver).isInstanceOf(AcceptHeaderLocaleResolver.class);
       Locale locale = localeResolver.resolveLocale(new ServletRequestContext(null, request, null));

@@ -26,9 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.mock.api.annotation.MultipartConfig;
-import cn.taketoday.mock.api.annotation.ServletSecurity;
+import cn.taketoday.mock.api.annotation.MockSecurity;
 import cn.taketoday.mock.api.annotation.WebListener;
-import cn.taketoday.mock.api.http.HttpServletRequest;
 import cn.taketoday.mock.api.http.HttpSessionAttributeListener;
 import cn.taketoday.mock.api.http.HttpSessionIdListener;
 import cn.taketoday.mock.api.http.HttpSessionListener;
@@ -48,71 +47,14 @@ import cn.taketoday.mock.api.http.HttpSessionListener;
  * information (because the information won't be truly global). Use an external resource like a database instead.
  *
  * <p>
- * The <code>ServletContext</code> object is contained within the {@link ServletConfig} object, which the Web server
+ * The <code>ServletContext</code> object is contained within the {@link MockConfig} object, which the Web server
  * provides the servlet when the servlet is initialized.
  *
  * @author Various
  * @see Servlet#getServletConfig
- * @see ServletConfig#getServletContext
+ * @see MockConfig#getMockContext
  */
-public interface ServletContext {
-
-  /**
-   * The name of the <tt>ServletContext</tt> attribute which stores the private temporary directory (of type
-   * <tt>java.io.File</tt>) provided by the servlet container for the <tt>ServletContext</tt>
-   */
-  String TEMPDIR = "cn.taketoday.mock.api.context.tempdir";
-
-  /**
-   * The name of the <code>ServletContext</code> attribute whose value (of type
-   * <code>java.util.List&lt;java.lang.String&gt;</code>) contains the list of names of JAR files in
-   * <code>WEB-INF/lib</code> ordered by their web fragment names (with possible exclusions if
-   * <code>&lt;absolute-ordering&gt;</code> without any <code>&lt;others/&gt;</code> is being used), or null if no
-   * absolute or relative ordering has been specified
-   *
-   * @since Servlet 3.0
-   */
-  String ORDERED_LIBS = "cn.taketoday.mock.api.context.orderedLibs";
-
-  /**
-   * Returns the context path of the web application.
-   *
-   * <p>
-   * The context path is the portion of the request URI that is used to select the context of the request. The context
-   * path always comes first in a request URI. If this context is the "root" context rooted at the base of the Web
-   * server's URL name space, this path will be an empty string. Otherwise, if the context is not rooted at the root of
-   * the server's name space, the path starts with a / character but does not end with a / character.
-   *
-   * <p>
-   * It is possible that a servlet container may match a context by more than one context path. In such cases the
-   * {@link HttpServletRequest#getContextPath()} will return the actual context path used by the
-   * request and it may differ from the path returned by this method. The context path returned by this method should be
-   * considered as the prime or preferred context path of the application.
-   *
-   * @return The context path of the web application, or "" for the root context
-   * @see HttpServletRequest#getContextPath()
-   * @since Servlet 2.5
-   */
-  String getContextPath();
-
-  /**
-   * Returns a <code>ServletContext</code> object that corresponds to a specified URL on the server.
-   *
-   * <p>
-   * This method allows servlets to gain access to the context for various parts of the server, and as needed obtain
-   * {@link RequestDispatcher} objects from the context. The given path must be begin with <tt>/</tt>, is interpreted
-   * relative to the server's document root and is matched against the context roots of other web applications hosted on
-   * this container.
-   *
-   * <p>
-   * In a security conscious environment, the servlet container may return <code>null</code> for a given URL.
-   *
-   * @param uripath a <code>String</code> specifying the context path of another web application in the container.
-   * @return the <code>ServletContext</code> object that corresponds to the named URL, or null if either none exists or
-   * the container wishes to restrict this access.
-   * @see RequestDispatcher
-   */
-  ServletContext getContext(String uripath);
+public interface MockContext {
 
   /**
    * Returns the major version of Jakarta Servlet specification that this container supports. All implementations that
@@ -140,7 +82,6 @@ public interface ServletContext {
    *
    * @return the major version of the Servlet specification that the application represented by this ServletContext is
    * based on
-   * @since Servlet 3.0
    */
   int getEffectiveMajorVersion();
 
@@ -154,7 +95,6 @@ public interface ServletContext {
    *
    * @return the minor version of the Servlet specification that the application represented by this ServletContext is
    * based on
-   * @since Servlet 3.0
    */
   int getEffectiveMinorVersion();
 
@@ -209,7 +149,6 @@ public interface ServletContext {
    * @param path the partial path used to match the resources, which must start with a <tt>/</tt>
    * @return a Set containing the directory listing, or null if there are no resources in the web application whose path
    * begins with the supplied path.
-   * @since Servlet 2.3
    */
   Set<String> getResourcePaths(String path);
 
@@ -305,7 +244,6 @@ public interface ServletContext {
    * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the resource at the specified path, or
    * <code>null</code> if the <code>ServletContext</code> cannot return a <code>RequestDispatcher</code>
    * @see RequestDispatcher
-   * @see ServletContext#getContext
    */
   RequestDispatcher getRequestDispatcher(String path);
 
@@ -314,7 +252,7 @@ public interface ServletContext {
    *
    * <p>
    * Servlets (and JSP pages also) may be given names via server administration or via a web application deployment
-   * descriptor. A servlet instance can determine its name using {@link ServletConfig#getServletName}.
+   * descriptor. A servlet instance can determine its name using {@link MockConfig#getMockName}.
    *
    * <p>
    * This method returns <code>null</code> if the <code>ServletContext</code> cannot return a
@@ -324,8 +262,7 @@ public interface ServletContext {
    * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the named servlet, or <code>null</code> if
    * the <code>ServletContext</code> cannot return a <code>RequestDispatcher</code>
    * @see RequestDispatcher
-   * @see ServletContext#getContext
-   * @see ServletConfig#getServletName
+   * @see MockConfig#getMockName
    */
   RequestDispatcher getNamedDispatcher(String name);
 
@@ -405,7 +342,7 @@ public interface ServletContext {
    * @return a <code>String</code> containing the value of the context's initialization parameter, or <code>null</code> if
    * the context's initialization parameter does not exist.
    * @throws NullPointerException if the argument {@code name} is {@code null}
-   * @see ServletConfig#getInitParameter
+   * @see MockConfig#getInitParameter
    */
   String getInitParameter(String name);
 
@@ -415,7 +352,7 @@ public interface ServletContext {
    *
    * @return an <code>Enumeration</code> of <code>String</code> objects containing the names of the context's
    * initialization parameters
-   * @see ServletConfig#getInitParameter
+   * @see MockConfig#getInitParameter
    */
   Enumeration<String> getInitParameterNames();
 
@@ -433,7 +370,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   boolean setInitParameter(String name, String value);
 
@@ -457,7 +393,7 @@ public interface ServletContext {
    * @return an <code>Object</code> containing the value of the attribute, or <code>null</code> if no attribute exists
    * matching the given name.
    * @throws NullPointerException if the argument {@code name} is {@code null}
-   * @see ServletContext#getAttributeNames
+   * @see MockContext#getAttributeNames
    */
   Object getAttribute(String name);
 
@@ -506,7 +442,6 @@ public interface ServletContext {
    * descriptor for this web application by the display-name element.
    *
    * @return The name of the web application or null if no name has been declared in the deployment descriptor.
-   * @since Servlet 2.3
    */
   String getServletContextName();
 
@@ -526,7 +461,7 @@ public interface ServletContext {
    *
    * <p>
    * This method introspects the class with the given <tt>className</tt> for the
-   * {@link ServletSecurity}, {@link MultipartConfig},
+   * {@link MockSecurity}, {@link MultipartConfig},
    * <tt>jakarta.annotation.security.RunAs</tt>, and <tt>jakarta.annotation.security.DeclareRoles</tt> annotations. In
    * addition, this method supports resource injection if the class with the given <tt>className</tt> represents a Managed
    * Bean. See the Jakarta EE platform and CDI specifications for additional details about Managed Beans and resource
@@ -543,7 +478,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   ServletRegistration.Dynamic addServlet(String servletName, String className);
 
@@ -569,7 +503,6 @@ public interface ServletContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if <code>servletName</code> is null or an empty String
-   * @since Servlet 3.0
    */
   ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet);
 
@@ -585,7 +518,7 @@ public interface ServletContext {
    * returned.
    *
    * <p>
-   * This method introspects the given <tt>servletClass</tt> for the {@link ServletSecurity},
+   * This method introspects the given <tt>servletClass</tt> for the {@link MockSecurity},
    * {@link MultipartConfig}, <tt>jakarta.annotation.security.RunAs</tt>, and
    * <tt>jakarta.annotation.security.DeclareRoles</tt> annotations. In addition, this method supports resource injection
    * if the given <tt>servletClass</tt> represents a Managed Bean. See the Jakarta EE platform and CDI specifications for
@@ -601,7 +534,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass);
 
@@ -617,7 +549,7 @@ public interface ServletContext {
    *
    * <p>
    * This method introspects the given <tt>clazz</tt> for the following annotations:
-   * {@link ServletSecurity}, {@link MultipartConfig},
+   * {@link MockSecurity}, {@link MultipartConfig},
    * <tt>jakarta.annotation.security.RunAs</tt>, and <tt>jakarta.annotation.security.DeclareRoles</tt>. In addition, this
    * method supports resource injection if the given <tt>clazz</tt> represents a Managed Bean. See the Jakarta EE platform
    * and CDI specifications for additional details about Managed Beans and resource injection.
@@ -630,7 +562,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException;
 
@@ -644,7 +575,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   ServletRegistration getServletRegistration(String servletName);
 
@@ -666,7 +596,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   Map<String, ? extends ServletRegistration> getServletRegistrations();
 
@@ -698,7 +627,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   FilterRegistration.Dynamic addFilter(String filterName, String className);
 
@@ -724,7 +652,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   FilterRegistration.Dynamic addFilter(String filterName, Filter filter);
 
@@ -753,7 +680,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass);
 
@@ -779,7 +705,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   <T extends Filter> T createFilter(Class<T> clazz) throws ServletException;
 
@@ -793,7 +718,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   FilterRegistration getFilterRegistration(String filterName);
 
@@ -815,7 +739,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   Map<String, ? extends FilterRegistration> getFilterRegistrations();
 
@@ -832,7 +755,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   SessionCookieConfig getSessionCookieConfig();
 
@@ -852,7 +774,6 @@ public interface ServletContext {
    * @throws IllegalArgumentException if <tt>sessionTrackingModes</tt> specifies a combination of
    * <tt>SessionTrackingMode.SSL</tt> with a session tracking mode other than <tt>SessionTrackingMode.SSL</tt>, or if
    * <tt>sessionTrackingModes</tt> specifies a session tracking mode that is not supported by the servlet container
-   * @since Servlet 3.0
    */
   void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes);
 
@@ -865,7 +786,6 @@ public interface ServletContext {
    * </p>
    *
    * @return set of the session tracking modes supported by default for this <tt>ServletContext</tt>
-   * @since Servlet 3.0
    */
   Set<SessionTrackingMode> getDefaultSessionTrackingModes();
 
@@ -881,7 +801,6 @@ public interface ServletContext {
    * </p>
    *
    * @return set of the session tracking modes in effect for this <tt>ServletContext</tt>
-   * @since Servlet 3.0
    */
   Set<SessionTrackingMode> getEffectiveSessionTrackingModes();
 
@@ -927,7 +846,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   void addListener(String className);
 
@@ -965,7 +883,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   <T extends EventListener> void addListener(T t);
 
@@ -1006,7 +923,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 3.0
    */
   void addListener(Class<? extends EventListener> listenerClass);
 
@@ -1042,7 +958,6 @@ public interface ServletContext {
    * {@link ServletContextListener}, {@link ServletContextAttributeListener}, {@link ServletRequestListener},
    * {@link ServletRequestAttributeListener}, {@link HttpSessionAttributeListener},
    * {@link HttpSessionIdListener}, or {@link HttpSessionListener} interfaces.
-   * @since Servlet 3.0
    */
   <T extends EventListener> T createListener(Class<T> clazz) throws ServletException;
 
@@ -1057,7 +972,6 @@ public interface ServletContext {
    *
    * @return the class loader of the web application represented by this ServletContext
    * @throws SecurityException if a security manager denies access to the requested class loader
-   * @since Servlet 3.0
    */
   ClassLoader getClassLoader();
 
@@ -1077,7 +991,6 @@ public interface ServletContext {
    * {@link WebListener}
    * @throws IllegalArgumentException if any of the argument roleNames is null or the empty string
    * @throws IllegalStateException if the ServletContext has already been initialized
-   * @since Servlet 3.0
    */
   void declareRoles(String... roleNames);
 
@@ -1091,7 +1004,6 @@ public interface ServletContext {
    *
    * @return a <code>String</code> containing the configuration name of the logical host on which the servlet context is
    * deployed.
-   * @since Servlet 3.1
    */
   String getVirtualServerName();
 
@@ -1099,7 +1011,6 @@ public interface ServletContext {
    * Gets the session timeout in minutes that are supported by default for this <tt>ServletContext</tt>.
    *
    * @return the session timeout in minutes that are supported by default for this <tt>ServletContext</tt>
-   * @since Servlet 4.0
    */
   int getSessionTimeout();
 
@@ -1112,7 +1023,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 4.0
    */
   void setSessionTimeout(int sessionTimeout);
 
@@ -1122,7 +1032,6 @@ public interface ServletContext {
    * specific configuration (for all web applications in the container).
    *
    * @return the request character encoding that are supported by default for this <tt>ServletContext</tt>
-   * @since Servlet 4.0
    */
   String getRequestCharacterEncoding();
 
@@ -1135,7 +1044,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 4.0
    */
   void setRequestCharacterEncoding(String encoding);
 
@@ -1145,7 +1053,6 @@ public interface ServletContext {
    * specific configuration (for all web applications in the container).
    *
    * @return the request character encoding that are supported by default for this <tt>ServletContext</tt>
-   * @since Servlet 4.0
    */
   String getResponseCharacterEncoding();
 
@@ -1158,7 +1065,6 @@ public interface ServletContext {
    * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
-   * @since Servlet 4.0
    */
   void setResponseCharacterEncoding(String encoding);
 }

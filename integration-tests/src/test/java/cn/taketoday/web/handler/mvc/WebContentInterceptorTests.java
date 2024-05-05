@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WebContentInterceptorTests {
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
-  MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
@@ -45,7 +45,7 @@ class WebContentInterceptorTests {
   RequestContext context = new ServletRequestContext(null, servletRequest, response);
 
   Function<String, RequestContext> requestFactory = path -> {
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", path);
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", path);
     return new ServletRequestContext(null, servletRequest, response);
   };
 

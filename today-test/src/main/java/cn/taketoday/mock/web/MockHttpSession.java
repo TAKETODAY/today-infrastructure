@@ -28,7 +28,7 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.api.http.HttpSessionBindingEvent;
 import cn.taketoday.mock.api.http.HttpSessionBindingListener;
@@ -63,7 +63,7 @@ public class MockHttpSession implements HttpSession {
 
   private long lastAccessedTime = System.currentTimeMillis();
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
@@ -72,9 +72,9 @@ public class MockHttpSession implements HttpSession {
   private boolean isNew = true;
 
   /**
-   * Create a new MockHttpSession with a default {@link MockServletContext}.
+   * Create a new MockHttpSession with a default {@link MockContextImpl}.
    *
-   * @see MockServletContext
+   * @see MockContextImpl
    */
   public MockHttpSession() {
     this(null);
@@ -83,20 +83,20 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param servletContext the ServletContext that the session runs in
+   * @param mockContext the ServletContext that the session runs in
    */
-  public MockHttpSession(@Nullable ServletContext servletContext) {
-    this(servletContext, null);
+  public MockHttpSession(@Nullable MockContext mockContext) {
+    this(mockContext, null);
   }
 
   /**
    * Create a new MockHttpSession.
    *
-   * @param servletContext the ServletContext that the session runs in
+   * @param mockContext the ServletContext that the session runs in
    * @param id a unique identifier for this session
    */
-  public MockHttpSession(@Nullable ServletContext servletContext, @Nullable String id) {
-    this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
+  public MockHttpSession(@Nullable MockContext mockContext, @Nullable String id) {
+    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
     this.id = (id != null ? id : Integer.toString(nextId++));
   }
 
@@ -133,8 +133,8 @@ public class MockHttpSession implements HttpSession {
   }
 
   @Override
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   @Override

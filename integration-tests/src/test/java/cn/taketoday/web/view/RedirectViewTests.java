@@ -31,7 +31,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 
@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class RedirectViewTests {
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -61,7 +61,7 @@ public class RedirectViewTests {
   public void setUp() throws Exception {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-    this.request = new MockHttpServletRequest();
+    this.request = new HttpMockRequestImpl();
     this.response = new MockHttpServletResponse();
 
     context.refresh();

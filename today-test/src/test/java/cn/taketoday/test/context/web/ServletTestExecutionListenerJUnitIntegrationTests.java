@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.mock.ServletUtils;
@@ -43,7 +43,7 @@ class ServletTestExecutionListenerJUnitIntegrationTests {
   }
 
   @Autowired
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   /**
    * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.

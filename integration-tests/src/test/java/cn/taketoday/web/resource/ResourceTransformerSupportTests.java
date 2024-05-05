@@ -29,7 +29,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,7 @@ public class ResourceTransformerSupportTests {
 
   private TestResourceTransformerSupport transformer;
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
 
   @BeforeEach
   public void setUp() {
@@ -106,11 +106,11 @@ public class ResourceTransformerSupportTests {
   @Test
   public void toAbsolutePath() {
     String absolute = this.transformer.toAbsolutePath("img/image.png",
-            new ServletRequestContext(null, new MockHttpServletRequest("GET", "/resources/style.css"), null));
+            new ServletRequestContext(null, new HttpMockRequestImpl("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/resources/img/image.png");
 
     absolute = this.transformer.toAbsolutePath("/img/image.png",
-            new ServletRequestContext(null, new MockHttpServletRequest("GET", "/resources/style.css"), null));
+            new ServletRequestContext(null, new HttpMockRequestImpl("GET", "/resources/style.css"), null));
     assertThat(absolute).isEqualTo("/img/image.png");
   }
 

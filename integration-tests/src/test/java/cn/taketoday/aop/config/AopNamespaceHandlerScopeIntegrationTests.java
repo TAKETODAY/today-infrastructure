@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.ImportResource;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
@@ -89,8 +89,8 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
   @Test
   void testRequestScoping() throws Exception {
-    MockHttpServletRequest oldRequest = new MockHttpServletRequest();
-    MockHttpServletRequest newRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl oldRequest = new HttpMockRequestImpl();
+    HttpMockRequestImpl newRequest = new HttpMockRequestImpl();
     RequestContextHolder.set(new ServletRequestContext(null, oldRequest, null));
 
     assertThat(AopUtils.isAopProxy(requestScoped)).as("Should be AOP proxy").isTrue();
@@ -116,7 +116,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
   @Test
   void testSessionScoping() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     RequestContextHolder.set(new ServletRequestContext(null, request, new MockHttpServletResponse()));
 
     assertThat(AopUtils.isAopProxy(sessionScoped)).as("Should be AOP proxy").isTrue();

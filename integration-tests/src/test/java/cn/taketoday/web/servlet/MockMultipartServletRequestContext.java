@@ -18,7 +18,7 @@
 package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
@@ -30,14 +30,14 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class MockMultipartServletRequestContext extends ServletRequestContext {
 
-  private final MockMultipartHttpServletRequest request;
+  private final MockMultipartHttpMockRequest request;
 
-  public MockMultipartServletRequestContext(MockMultipartHttpServletRequest request, HttpServletResponse response) {
+  public MockMultipartServletRequestContext(MockMultipartHttpMockRequest request, HttpServletResponse response) {
     super(request, response);
     this.request = request;
   }
 
-  public MockMultipartServletRequestContext(ApplicationContext applicationContext, MockMultipartHttpServletRequest request, HttpServletResponse response) {
+  public MockMultipartServletRequestContext(ApplicationContext applicationContext, MockMultipartHttpMockRequest request, HttpServletResponse response) {
     super(applicationContext, request, response);
     this.request = request;
   }

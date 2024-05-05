@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * Defines an object to provide client request information to a servlet. The servlet container creates a
@@ -33,12 +33,12 @@ import cn.taketoday.mock.api.http.HttpServletRequest;
  * <p>
  * A <code>ServletRequest</code> object provides data including parameter name and values, attributes, and an input
  * stream. Interfaces that extend <code>ServletRequest</code> can provide additional protocol-specific data (for
- * example, HTTP data is provided by {@link HttpServletRequest}.
+ * example, HTTP data is provided by {@link HttpMockRequest}.
  *
  * @author Various
- * @see HttpServletRequest
+ * @see HttpMockRequest
  */
-public interface ServletRequest {
+public interface MockRequest {
 
   /**
    * Returns the value of the named attribute as an <code>Object</code>, or <code>null</code> if no attribute of the given
@@ -48,7 +48,7 @@ public interface ServletRequest {
    * Attributes can be set two ways. The servlet container may set attributes to make available custom information about a
    * request. For example, for requests made using HTTPS, the attribute
    * <code>cn.taketoday.mock.api.request.X509Certificate</code> can be used to retrieve information on the certificate of the
-   * client. Attributes can also be set programmatically using {@link ServletRequest#setAttribute}. This allows
+   * client. Attributes can also be set programmatically using {@link MockRequest#setAttribute}. This allows
    * information to be embedded into a request before a {@link RequestDispatcher} call.
    *
    * <p>
@@ -73,7 +73,7 @@ public interface ServletRequest {
    * Returns the name of the character encoding used in the body of this request. This method returns <code>null</code> if
    * no request encoding character encoding has been specified. The following methods for specifying the request character
    * encoding are consulted, in decreasing order of priority: per request, per web app (using
-   * {@link ServletContext#setRequestCharacterEncoding}, deployment descriptor), and per container (for all web
+   * {@link MockContext#setRequestCharacterEncoding}, deployment descriptor), and per container (for all web
    * applications deployed in that container, using vendor specific configuration).
    *
    * @return a <code>String</code> containing the name of the character encoding, or <code>null</code> if the request does
@@ -320,7 +320,7 @@ public interface ServletRequest {
    * create a security vulnerability in the application.
    *
    * <p>
-   * The difference between this method and {@link ServletContext#getRequestDispatcher} is that this method can take a
+   * The difference between this method and {@link MockContext#getRequestDispatcher} is that this method can take a
    * relative path.
    *
    * @param path a <code>String</code> specifying the pathname to the resource. If it is relative, it must be relative
@@ -328,7 +328,7 @@ public interface ServletRequest {
    * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the resource at the specified path, or
    * <code>null</code> if the servlet container cannot return a <code>RequestDispatcher</code>
    * @see RequestDispatcher
-   * @see ServletContext#getRequestDispatcher
+   * @see MockContext#getRequestDispatcher
    */
   public RequestDispatcher getRequestDispatcher(String path);
 
@@ -378,7 +378,7 @@ public interface ServletRequest {
    * @return the servlet context to which this ServletRequest was last dispatched
    * @since Servlet 3.0
    */
-  public ServletContext getServletContext();
+  public MockContext getServletContext();
 
   /**
    * Puts this request into asynchronous mode, and initializes its {@link AsyncContext} with the original (unwrapped)
@@ -421,7 +421,7 @@ public interface ServletRequest {
    *
    * <p>
    * The ServletRequest and ServletResponse arguments must be the same instances, or instances of
-   * {@link ServletRequestWrapper} and {@link ServletResponseWrapper} that wrap them, that were passed to the
+   * {@link MockRequestWrapper} and {@link ServletResponseWrapper} that wrap them, that were passed to the
    * {@link Servlet#service service} method of the Servlet or the {@link Filter#doFilter doFilter} method of the Filter,
    * respectively, in whose scope this method is being called.
    *
@@ -452,7 +452,7 @@ public interface ServletRequest {
    * specified (and possibly wrapped) request and response objects will remain <i>locked in</i> on the returned
    * AsyncContext.
    *
-   * @param servletRequest the ServletRequest used to initialize the AsyncContext
+   * @param mockRequest the ServletRequest used to initialize the AsyncContext
    * @param servletResponse the ServletResponse used to initialize the AsyncContext
    * @return the (re)initialized AsyncContext
    * @throws IllegalStateException if this request is within the scope of a filter or servlet that does not support
@@ -462,7 +462,7 @@ public interface ServletRequest {
    * been closed
    * @since Servlet 3.0
    */
-  public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+  public AsyncContext startAsync(MockRequest mockRequest, ServletResponse servletResponse)
           throws IllegalStateException;
 
   /**
@@ -470,15 +470,15 @@ public interface ServletRequest {
    *
    * <p>
    * A ServletRequest is put into asynchronous mode by calling {@link #startAsync} or
-   * {@link #startAsync(ServletRequest, ServletResponse)} on it.
+   * {@link #startAsync(MockRequest, ServletResponse)} on it.
    *
    * <p>
    * This method returns <tt>false</tt> if this request was put into asynchronous mode, but has since been dispatched
    * using one of the {@link AsyncContext#dispatch} methods or released from asynchronous mode via a call to
    * {@link AsyncContext#complete}. If {@link AsyncContext#dispatch} or {@link AsyncContext#complete} is called before the
-   * container-initiated dispatch that called {@link ServletRequest#startAsync()} has returned to the container then this
+   * container-initiated dispatch that called {@link MockRequest#startAsync()} has returned to the container then this
    * method must return {@code true} until the container-initiated dispatch that called
-   * {@link ServletRequest#startAsync()} has returned to the container.
+   * {@link MockRequest#startAsync()} has returned to the container.
    *
    * @return true if this request has been put into asynchronous mode, false otherwise
    * @since Servlet 3.0
@@ -499,12 +499,12 @@ public interface ServletRequest {
 
   /**
    * Gets the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(ServletRequest, ServletResponse)} on this request.
+   * {@link #startAsync(MockRequest, ServletResponse)} on this request.
    *
    * @return the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(ServletRequest, ServletResponse)} on this request
+   * {@link #startAsync(MockRequest, ServletResponse)} on this request
    * @throws IllegalStateException if this request has not been put into asynchronous mode, i.e., if neither
-   * {@link #startAsync} nor {@link #startAsync(ServletRequest, ServletResponse)} has been called
+   * {@link #startAsync} nor {@link #startAsync(MockRequest, ServletResponse)} has been called
    * @since Servlet 3.0
    */
   public AsyncContext getAsyncContext();
@@ -522,8 +522,8 @@ public interface ServletRequest {
    *
    * <p>
    * The initial dispatcher type of a request is defined as <code>DispatcherType.REQUEST</code>. The dispatcher type of a
-   * request dispatched via {@link RequestDispatcher#forward(ServletRequest, ServletResponse)} or
-   * {@link RequestDispatcher#include(ServletRequest, ServletResponse)} is given as <code>DispatcherType.FORWARD</code> or
+   * request dispatched via {@link RequestDispatcher#forward(MockRequest, ServletResponse)} or
+   * {@link RequestDispatcher#include(MockRequest, ServletResponse)} is given as <code>DispatcherType.FORWARD</code> or
    * <code>DispatcherType.INCLUDE</code>, respectively, while the dispatcher type of an asynchronous request dispatched
    * via one of the {@link AsyncContext#dispatch} methods is given as <code>DispatcherType.ASYNC</code>. Finally, the
    * dispatcher type of a request dispatched to an error page by the container's error handling mechanism is given as

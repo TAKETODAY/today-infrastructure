@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.StubMvcResult;
@@ -43,7 +43,7 @@ public class HeaderResultMatchersTests {
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 
   private final MvcResult mvcResult =
-          new StubMvcResult(new MockHttpServletRequest(), null, null, null, null, null, this.response);
+          new StubMvcResult(new HttpMockRequestImpl(), null, null, null, null, null, this.response);
 
   @Test // SPR-17330
   public void matchDateFormattedWithHttpHeaders() throws Exception {

@@ -31,15 +31,15 @@ import cn.taketoday.mock.api.http.HttpServletMapping;
  * objects to wrap any type of resource.
  *
  * @author Various
- * @see ServletContext#getRequestDispatcher(String)
- * @see ServletContext#getNamedDispatcher(String)
- * @see ServletRequest#getRequestDispatcher(String)
+ * @see MockContext#getRequestDispatcher(String)
+ * @see MockContext#getNamedDispatcher(String)
+ * @see MockRequest#getRequestDispatcher(String)
  */
 public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original request URI is made available to the target of a
-   * {@link #forward(ServletRequest, ServletResponse) forward}
+   * {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 3.0
    */
@@ -47,7 +47,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original context path is made available to the target of a
-   * {@link #forward(ServletRequest, ServletResponse) forward}
+   * {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 3.0
    */
@@ -55,7 +55,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original {@link HttpServletMapping} is made
-   * available to the target of a {@link #forward(ServletRequest, ServletResponse) forward}
+   * available to the target of a {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 4.0
    */
@@ -63,7 +63,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a
-   * {@link #forward(ServletRequest, ServletResponse) forward}
+   * {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 3.0
    */
@@ -71,7 +71,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original servlet path is made available to the target of a
-   * {@link #forward(ServletRequest, ServletResponse) forward}
+   * {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 3.0
    */
@@ -79,7 +79,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the original query string is made available to the target of a
-   * {@link #forward(ServletRequest, ServletResponse) forward}
+   * {@link #forward(MockRequest, ServletResponse) forward}
    *
    * @since Servlet 3.0
    */
@@ -87,7 +87,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the request URI of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 3.0
    */
@@ -95,7 +95,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the context path of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 3.0
    */
@@ -103,7 +103,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the path info of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 3.0
    */
@@ -111,7 +111,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the {@link HttpServletMapping} of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 4.0
    */
@@ -119,7 +119,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the servlet path of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 3.0
    */
@@ -127,7 +127,7 @@ public interface RequestDispatcher {
 
   /**
    * The name of the request attribute under which the query string of the target of an
-   * {@link #include(ServletRequest, ServletResponse) include} is stored
+   * {@link #include(MockRequest, ServletResponse) include} is stored
    *
    * @since Servlet 3.0
    */
@@ -194,20 +194,20 @@ public interface RequestDispatcher {
    *
    * <p>
    * The request and response parameters must be either the same objects as were passed to the calling servlet's service
-   * method or be subclasses of the {@link ServletRequestWrapper} or {@link ServletResponseWrapper} classes that wrap
+   * method or be subclasses of the {@link MockRequestWrapper} or {@link ServletResponseWrapper} classes that wrap
    * them.
    *
    * <p>
    * This method sets the dispatcher type of the given request to <code>DispatcherType.FORWARD</code>.
    *
-   * @param request a {@link ServletRequest} object that represents the request the client makes of the servlet
+   * @param request a {@link MockRequest} object that represents the request the client makes of the servlet
    * @param response a {@link ServletResponse} object that represents the response the servlet returns to the client
    * @throws ServletException if the target resource throws this exception
    * @throws IOException if the target resource throws this exception
    * @throws IllegalStateException if the response was already committed
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    */
-  public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException;
+  public void forward(MockRequest request, ServletResponse response) throws ServletException, IOException;
 
   /**
    * Includes the content of a resource (servlet, JSP page, HTML file) in the response. In essence, this method enables
@@ -219,17 +219,17 @@ public interface RequestDispatcher {
    *
    * <p>
    * The request and response parameters must be either the same objects as were passed to the calling servlet's service
-   * method or be subclasses of the {@link ServletRequestWrapper} or {@link ServletResponseWrapper} classes that wrap
+   * method or be subclasses of the {@link MockRequestWrapper} or {@link ServletResponseWrapper} classes that wrap
    * them.
    *
    * <p>
    * This method sets the dispatcher type of the given request to <code>DispatcherType.INCLUDE</code>.
    *
-   * @param request a {@link ServletRequest} object that contains the client's request
+   * @param request a {@link MockRequest} object that contains the client's request
    * @param response a {@link ServletResponse} object that contains the servlet's response
    * @throws ServletException if the included resource throws this exception
    * @throws IOException if the included resource throws this exception
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    */
-  public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException;
+  public void include(MockRequest request, ServletResponse response) throws ServletException, IOException;
 }

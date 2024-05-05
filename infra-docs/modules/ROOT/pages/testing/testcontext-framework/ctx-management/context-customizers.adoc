@@ -18,7 +18,7 @@ implementation which is registered by default:
   `MockServerContainerContextCustomizer` if WebSocket support is present in the classpath
   and the test class or one of its enclosing classes is annotated or meta-annotated with
   `@WebAppConfiguration`. `MockServerContainerContextCustomizer` instantiates a new
-  `MockServerContainer` and stores it in the `ServletContext` under the attribute named
+  `MockServerContainer` and stores it in the `MockContextImpl` under the attribute named
   `jakarta.websocket.server.ServerContainer`.
 
 

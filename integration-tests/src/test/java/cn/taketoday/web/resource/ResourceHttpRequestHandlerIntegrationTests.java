@@ -33,10 +33,10 @@ import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletConfig;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
@@ -55,9 +55,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResourceHttpRequestHandlerIntegrationTests {
 
-  private final MockServletContext servletContext = new MockServletContext();
+  private final MockContextImpl servletContext = new MockContextImpl();
 
-  private final MockServletConfig servletConfig = new MockServletConfig(this.servletContext);
+  private final MockMockConfig servletConfig = new MockMockConfig(this.servletContext);
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
@@ -70,7 +70,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @ParameterizedTest
   @MethodSource("argumentSource")
   void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
-    MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo.css");
+    HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo.css");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
@@ -85,7 +85,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @ParameterizedTest
   @MethodSource("argumentSource")
   void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
-    MockHttpServletRequest request = initRequest(pathPrefix + "/test/foo with spaces.css");
+    HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
@@ -109,7 +109,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     servlet.setApplicationContext(context);
     servlet.init(this.servletConfig);
 
-    MockHttpServletRequest request = initRequest("/cp/non-existing");
+    HttpMockRequestImpl request = initRequest("/cp/non-existing");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     servlet.service(request, response);
@@ -136,9 +136,9 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     return servlet;
   }
 
-  private MockHttpServletRequest initRequest(String path) {
+  private HttpMockRequestImpl initRequest(String path) {
     path = UriUtils.encodePath(path, StandardCharsets.UTF_8);
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
     request.setCharacterEncoding(StandardCharsets.UTF_8.name());
     return request;
   }

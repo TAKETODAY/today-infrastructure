@@ -30,7 +30,7 @@ import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultHandler;
@@ -45,7 +45,7 @@ import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpSession;
 
 /**
@@ -115,7 +115,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the request.
    */
-  protected void printRequest(MockHttpServletRequest request) throws Exception {
+  protected void printRequest(HttpMockRequestImpl request) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
             request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
@@ -127,7 +127,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Session Attrs", getSessionAttributes(request));
   }
 
-  protected final HttpHeaders getRequestHeaders(MockHttpServletRequest request) {
+  protected final HttpHeaders getRequestHeaders(HttpMockRequestImpl request) {
     HttpHeaders headers = HttpHeaders.forWritable();
     Enumeration<String> names = request.getHeaderNames();
     while (names.hasMoreElements()) {
@@ -137,7 +137,7 @@ public class PrintingResultHandler implements ResultHandler {
     return headers;
   }
 
-  protected final MultiValueMap<String, String> getParamsMultiValueMap(MockHttpServletRequest request) {
+  protected final MultiValueMap<String, String> getParamsMultiValueMap(HttpMockRequestImpl request) {
     Map<String, String[]> params = request.getParameterMap();
     MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
     params.forEach((name, values) -> {
@@ -150,7 +150,7 @@ public class PrintingResultHandler implements ResultHandler {
     return multiValueMap;
   }
 
-  protected final Map<String, Object> getSessionAttributes(MockHttpServletRequest request) {
+  protected final Map<String, Object> getSessionAttributes(HttpMockRequestImpl request) {
     HttpSession session = request.getSession(false);
     if (session != null) {
       Enumeration<String> attrNames = session.getAttributeNames();
@@ -163,7 +163,7 @@ public class PrintingResultHandler implements ResultHandler {
   }
 
   protected void printAsyncResult(MvcResult result) throws Exception {
-    HttpServletRequest request = result.getRequest();
+    HttpMockRequest request = result.getRequest();
     this.printer.printValue("Async started", request.isAsyncStarted());
     Object asyncResult = null;
     try {

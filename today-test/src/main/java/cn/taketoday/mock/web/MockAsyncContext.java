@@ -24,16 +24,16 @@ import java.util.List;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -44,7 +44,7 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  */
 public class MockAsyncContext implements AsyncContext {
 
-  private final HttpServletRequest request;
+  private final HttpMockRequest request;
 
   @Nullable
   private final HttpServletResponse response;
@@ -58,8 +58,8 @@ public class MockAsyncContext implements AsyncContext {
 
   private final List<Runnable> dispatchHandlers = new ArrayList<>();
 
-  public MockAsyncContext(ServletRequest request, @Nullable ServletResponse response) {
-    this.request = (HttpServletRequest) request;
+  public MockAsyncContext(MockRequest request, @Nullable ServletResponse response) {
+    this.request = (HttpMockRequest) request;
     this.response = (HttpServletResponse) response;
   }
 
@@ -76,7 +76,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public ServletRequest getRequest() {
+  public MockRequest getRequest() {
     return this.request;
   }
 
@@ -88,7 +88,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public boolean hasOriginalRequestAndResponse() {
-    return (this.request instanceof MockHttpServletRequest && this.response instanceof MockHttpServletResponse);
+    return (this.request instanceof HttpMockRequestImpl && this.response instanceof MockHttpServletResponse);
   }
 
   @Override
@@ -102,7 +102,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public void dispatch(@Nullable ServletContext context, String path) {
+  public void dispatch(@Nullable MockContext context, String path) {
     synchronized(this) {
       this.dispatchedPath = path;
       this.dispatchHandlers.forEach(Runnable::run);
@@ -116,7 +116,7 @@ public class MockAsyncContext implements AsyncContext {
 
   @Override
   public void complete() {
-    MockHttpServletRequest mockRequest = ServletUtils.getNativeRequest(this.request, MockHttpServletRequest.class);
+    HttpMockRequestImpl mockRequest = ServletUtils.getNativeRequest(this.request, HttpMockRequestImpl.class);
     if (mockRequest != null) {
       mockRequest.setAsyncStarted(false);
     }
@@ -141,7 +141,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public void addListener(AsyncListener listener, ServletRequest request, ServletResponse response) {
+  public void addListener(AsyncListener listener, MockRequest request, ServletResponse response) {
     this.listeners.add(listener);
   }
 

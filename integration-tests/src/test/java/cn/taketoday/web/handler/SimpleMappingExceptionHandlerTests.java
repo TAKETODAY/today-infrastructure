@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.mock.api.http.HttpServletResponse;
@@ -39,7 +39,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class SimpleMappingExceptionHandlerTests {
 
   private SimpleMappingExceptionHandler exceptionHandler;
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
   private MockHttpServletResponse response;
   private Object handler1;
   private Object handler2;
@@ -50,7 +50,7 @@ class SimpleMappingExceptionHandlerTests {
     exceptionHandler = new SimpleMappingExceptionHandler();
     handler1 = new String();
     handler2 = new Object();
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     response = new MockHttpServletResponse();
     request.setMethod("GET");
     genericException = new Exception();

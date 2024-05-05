@@ -30,7 +30,7 @@ import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
 /**
@@ -41,7 +41,7 @@ import cn.taketoday.mock.api.http.Part;
  */
 public class ServletMultipartRequest extends AbstractMultipartRequest {
 
-  private final HttpServletRequest request;
+  private final HttpMockRequest request;
 
   /**
    * Create a new ServletMultipartRequest wrapper for the given request,
@@ -50,7 +50,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
    * @param request the servlet request to wrap
    * @throws MultipartException if parsing failed
    */
-  public ServletMultipartRequest(HttpServletRequest request) throws MultipartException {
+  public ServletMultipartRequest(HttpMockRequest request) throws MultipartException {
     this(request, true);
   }
 
@@ -62,14 +62,14 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
    * first access of multipart files or parameters
    * @throws MultipartException if an immediate parsing attempt failed
    */
-  public ServletMultipartRequest(HttpServletRequest request, boolean lazyParsing) throws MultipartException {
+  public ServletMultipartRequest(HttpMockRequest request, boolean lazyParsing) throws MultipartException {
     this.request = request;
     if (!lazyParsing) {
       parseRequest(request);
     }
   }
 
-  private MultiValueMap<String, Multipart> parseRequest(HttpServletRequest request) {
+  private MultiValueMap<String, Multipart> parseRequest(HttpMockRequest request) {
     try {
       Collection<Part> parts = request.getParts();
       LinkedMultiValueMap<String, Multipart> files = new LinkedMultiValueMap<>(parts.size());

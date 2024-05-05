@@ -35,12 +35,12 @@ public interface FilterConfig {
   public String getFilterName();
 
   /**
-   * Returns a reference to the {@link ServletContext} in which the caller is executing.
+   * Returns a reference to the {@link MockContext} in which the caller is executing.
    *
-   * @return a {@link ServletContext} object, used by the caller to interact with its servlet container
-   * @see ServletContext
+   * @return a {@link MockContext} object, used by the caller to interact with its servlet container
+   * @see MockContext
    */
-  public ServletContext getServletContext();
+  public MockContext getServletContext();
 
   /**
    * Returns a <code>String</code> containing the value of the named initialization parameter, or <code>null</code> if the

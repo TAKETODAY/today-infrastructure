@@ -17,7 +17,7 @@ and others) and is equivalent to `required=false`.
   use of the Servlet API.
 
 | `jakarta.servlet.ServletRequest`, `jakarta.servlet.ServletResponse`
-| Choose any specific request or response type -- for example, `ServletRequest`, `HttpServletRequest`,
+| Choose any specific request or response type -- for example, `MockRequest`, `HttpMockRequest`,
   or Infra `MultipartRequest`, `MultipartHttpServletRequest`.
 
 | `jakarta.servlet.http.HttpSession`

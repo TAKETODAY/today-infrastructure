@@ -27,12 +27,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
 import cn.taketoday.mock.web.MockFilterChain;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -74,7 +74,7 @@ public final class MockMvc {
 
   private final Filter[] filters;
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   @Nullable
   private RequestBuilder defaultRequestBuilder;
@@ -98,7 +98,7 @@ public final class MockMvc {
 
     this.servlet = servlet;
     this.filters = filters;
-    this.servletContext = servlet.getServletContext();
+    this.mockContext = servlet.getMockContext();
   }
 
   /**
@@ -169,7 +169,7 @@ public final class MockMvc {
       requestBuilder = (RequestBuilder) mergeable.merge(this.defaultRequestBuilder);
     }
 
-    MockHttpServletRequest request = requestBuilder.buildRequest(this.servletContext);
+    HttpMockRequestImpl request = requestBuilder.buildRequest(this.mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
     MockHttpServletResponse mockResponse;

@@ -34,7 +34,7 @@ import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import jakarta.xml.bind.JAXBElement;
 
@@ -79,7 +79,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(true);
@@ -100,7 +100,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, new JAXBElement<>(new QName("model"), String.class, toBeMarshalled));
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(String.class)).willReturn(true);
@@ -121,7 +121,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     RequestContext context = new ServletRequestContext(null, request, response);
@@ -139,7 +139,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, null);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     RequestContext context = new ServletRequestContext(null, request, response);
@@ -158,7 +158,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(false);
@@ -176,7 +176,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(true);
@@ -197,7 +197,7 @@ class MarshallingViewTests {
     model.put(BindingResult.MODEL_KEY_PREFIX + modelKey, new BeanPropertyBindingResult(toBeMarshalled, modelKey));
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(BeanPropertyBindingResult.class)).willReturn(true);
@@ -218,7 +218,7 @@ class MarshallingViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put(modelKey, toBeMarshalled);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     given(marshallerMock.supports(Object.class)).willReturn(false);

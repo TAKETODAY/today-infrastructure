@@ -31,8 +31,8 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletUtils;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpSession;
@@ -44,7 +44,7 @@ import cn.taketoday.mock.api.http.HttpSession;
 public class ServletParameterResolvers {
 
   public static void register(ConfigurableBeanFactory beanFactory,
-          ParameterResolvingStrategies resolvers, ServletContext context) {
+          ParameterResolvingStrategies resolvers, MockContext context) {
     resolvers.add(new ServletRequestMethodArgumentResolver());
     // Servlet cookies parameter
     // ----------------------------
@@ -68,7 +68,7 @@ public class ServletParameterResolvers {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isInterface() && parameter.isAssignableTo(ServletRequest.class);
+      return parameter.isInterface() && parameter.isAssignableTo(MockRequest.class);
     }
 
     @Override
@@ -123,20 +123,20 @@ public class ServletParameterResolvers {
 
   static class ForServletContext implements ParameterResolvingStrategy {
 
-    private final ServletContext servletContext;
+    private final MockContext mockContext;
 
-    public ForServletContext(ServletContext servletContext) {
-      this.servletContext = servletContext;
+    public ForServletContext(MockContext mockContext) {
+      this.mockContext = mockContext;
     }
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.is(ServletContext.class);
+      return parameter.is(MockContext.class);
     }
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return servletContext;
+      return mockContext;
     }
   }
 
@@ -217,11 +217,11 @@ public class ServletParameterResolvers {
   }
 
   static class ForServletContextAttribute extends AbstractNamedValueResolvingStrategy {
-    private final ServletContext servletContext;
+    private final MockContext mockContext;
 
-    public ForServletContextAttribute(ConfigurableBeanFactory beanFactory, ServletContext servletContext) {
+    public ForServletContextAttribute(ConfigurableBeanFactory beanFactory, MockContext mockContext) {
       super(beanFactory);
-      this.servletContext = servletContext;
+      this.mockContext = mockContext;
     }
 
     @Override
@@ -232,7 +232,7 @@ public class ServletParameterResolvers {
     @Nullable
     @Override
     protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-      return servletContext.getAttribute(name);
+      return mockContext.getAttribute(name);
     }
 
   }

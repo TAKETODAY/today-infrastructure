@@ -19,7 +19,7 @@ methods to support form field access only for HTTP POST.
 
 The `today-web` module provides `FormContentFilter` to intercept HTTP PUT, PATCH, and DELETE
 requests with a content type of `application/x-www-form-urlencoded`, read the form data from
-the body of the request, and wrap the `ServletRequest` to make the form data
+the body of the request, and wrap the `MockRequest` to make the form data
 available through the `ServletRequest.getParameter{asterisk}()` family of methods.
 
 

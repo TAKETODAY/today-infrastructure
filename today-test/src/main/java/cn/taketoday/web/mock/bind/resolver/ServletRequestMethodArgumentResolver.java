@@ -25,8 +25,8 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.ServletUtils;
-import cn.taketoday.mock.api.ServletRequest;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.api.http.PushBuilder;
 
@@ -34,7 +34,7 @@ import cn.taketoday.mock.api.http.PushBuilder;
  * Resolves servlet backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
- * <li>{@link ServletRequest}
+ * <li>{@link MockRequest}
  * <li>{@link HttpSession}
  * <li>{@link PushBuilder}
  * <li>{@link Principal} but only if not annotated in order to allow custom
@@ -53,7 +53,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
-    return ServletRequest.class.isAssignableFrom(paramType)
+    return MockRequest.class.isAssignableFrom(paramType)
             || HttpSession.class.isAssignableFrom(paramType)
             || PushBuilder.class.isAssignableFrom(paramType)
             || (Principal.class.isAssignableFrom(paramType) && !resolvable.hasParameterAnnotations());
@@ -62,7 +62,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpServletRequest request = ((ServletRequestContext) context).getRequest();
+    HttpMockRequest request = ((ServletRequestContext) context).getRequest();
 
     Class<?> paramType = resolvable.getParameterType();
     if (HttpSession.class.isAssignableFrom(paramType)) {

@@ -29,13 +29,13 @@ import java.util.Map;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.mock.api.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,13 +50,13 @@ public class NashornScriptTemplateTests {
 
   private WebApplicationContext webAppContext;
 
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   @BeforeEach
   public void setup() {
     this.webAppContext = Mockito.mock(WebApplicationContext.class);
-    this.servletContext = new MockServletContext();
-    this.servletContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
+    this.mockContext = new MockContextImpl();
+    this.mockContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class NashornScriptTemplateTests {
 
     ScriptTemplateView view = createViewWithUrl(viewUrl, configuration);
     MockHttpServletResponse response = new MockHttpServletResponse();
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     view.renderMergedOutputModel(model, new ServletRequestContext(webAppContext, request, response));
     return response;
   }

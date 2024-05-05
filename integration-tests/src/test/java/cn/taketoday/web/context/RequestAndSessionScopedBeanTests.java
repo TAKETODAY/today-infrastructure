@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.session.config.EnableWebSession;
@@ -32,7 +32,7 @@ import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -55,7 +55,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.registerBeanDefinition(targetBeanName, bd);
     wac.refresh();
 
-    HttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequest request = new HttpMockRequestImpl();
     RequestContextHolder.set(new ServletRequestContext(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
@@ -66,7 +66,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(target).isSameAs(target2);
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     RequestContextHolder.set(new ServletRequestContext(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
@@ -82,7 +82,7 @@ public class RequestAndSessionScopedBeanTests {
   @SuppressWarnings("resource")
   public void testPutBeanInSession() {
     String targetBeanName = "target";
-    HttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequest request = new HttpMockRequestImpl();
 
     AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
 

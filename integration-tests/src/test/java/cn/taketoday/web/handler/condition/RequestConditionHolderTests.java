@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -64,7 +64,7 @@ public class RequestConditionHolderTests {
 
   @Test
   public void match() {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setParameter("name1", "value1");
 
     RequestMethodsRequestCondition rm = new RequestMethodsRequestCondition(HttpMethod.GET, HttpMethod.POST);
@@ -76,7 +76,7 @@ public class RequestConditionHolderTests {
 
   @Test
   public void noMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
 
     RequestMethodsRequestCondition rm = new RequestMethodsRequestCondition(HttpMethod.POST);
     RequestConditionHolder custom = new RequestConditionHolder(rm);
@@ -87,12 +87,12 @@ public class RequestConditionHolderTests {
   @Test
   public void matchEmpty() {
     RequestConditionHolder empty = new RequestConditionHolder(null);
-    assertThat(empty.getMatchingCondition(createContext(new MockHttpServletRequest()))).isSameAs(empty);
+    assertThat(empty.getMatchingCondition(createContext(new HttpMockRequestImpl()))).isSameAs(empty);
   }
 
   @Test
   public void compare() {
-    HttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequest request = new HttpMockRequestImpl();
 
     RequestConditionHolder params11 = new RequestConditionHolder(new ParamsRequestCondition("1"));
     RequestConditionHolder params12 = new RequestConditionHolder(new ParamsRequestCondition("1", "2"));
@@ -103,7 +103,7 @@ public class RequestConditionHolderTests {
 
   @Test
   public void compareEmpty() {
-    HttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequest request = new HttpMockRequestImpl();
 
     RequestConditionHolder empty = new RequestConditionHolder(null);
     RequestConditionHolder empty2 = new RequestConditionHolder(null);
@@ -115,7 +115,7 @@ public class RequestConditionHolderTests {
   }
 
   @NonNull
-  private ServletRequestContext createContext(HttpServletRequest request) {
+  private ServletRequestContext createContext(HttpMockRequest request) {
     return new ServletRequestContext(null, request, null);
   }
 
@@ -124,7 +124,7 @@ public class RequestConditionHolderTests {
     RequestConditionHolder params = new RequestConditionHolder(new ParamsRequestCondition("name"));
     RequestConditionHolder headers = new RequestConditionHolder(new HeadersRequestCondition("name"));
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
-            params.compareTo(headers, createContext(new MockHttpServletRequest())));
+            params.compareTo(headers, createContext(new HttpMockRequestImpl())));
   }
 
 }

@@ -45,8 +45,8 @@ import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.env.MockPropertySource;
-import cn.taketoday.mock.web.MockServletConfig;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.mock.support.AbstractRefreshableWebApplicationContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
@@ -373,11 +373,11 @@ public class EnvironmentSystemIntegrationTests {
 
   @Test
   void registerServletParamPropertySources_AbstractRefreshableWebApplicationContext() {
-    MockServletContext servletContext = new MockServletContext();
+    MockContextImpl servletContext = new MockContextImpl();
     servletContext.addInitParameter("pCommon", "pCommonContextValue");
     servletContext.addInitParameter("pContext1", "pContext1Value");
 
-    MockServletConfig servletConfig = new MockServletConfig(servletContext);
+    MockMockConfig servletConfig = new MockMockConfig(servletContext);
     servletConfig.addInitParameter("pCommon", "pCommonConfigValue");
     servletConfig.addInitParameter("pConfig1", "pConfig1Value");
 

@@ -25,10 +25,10 @@ import java.util.Map;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBeanTests.TestServletContext;
+import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBeanTests.TestMockContext;
 import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class PathExtensionContentNegotiationStrategyTests {
 
-  private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
   private final RequestContext webRequest = new ServletRequestContext(null, servletRequest, null);
 
@@ -113,7 +113,7 @@ class PathExtensionContentNegotiationStrategyTests {
     assertThatThrownBy(() -> strategy.getMediaTypeForResource(null))
             .isInstanceOf(IllegalArgumentException.class).hasMessage("Resource is required");
 
-    TestServletContext context = new TestServletContext();
+    TestMockContext context = new TestMockContext();
     context.getMimeTypes().put("foo", "application/foo");
 
     strategy = new PathExtensionContentNegotiationStrategy(null);

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.BindingContext;
@@ -40,7 +40,6 @@ import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
-import static cn.taketoday.web.bind.resolver.MvcAnnotationPredicates.matrixAttribute;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -60,7 +59,7 @@ class MatrixParamMapMethodArgumentResolverTests {
     this.resolver = new MatrixParamMapMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
-    this.webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    this.webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(binding);
 
     PathMatchInfo info = new MockPathMatchInfo();

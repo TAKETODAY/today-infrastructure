@@ -37,7 +37,7 @@ import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
@@ -57,7 +57,7 @@ class HttpEntityMethodProcessorTests {
 
   private ResolvableMethodParameter paramSimpleBean;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private ServletRequestContext webRequest;
 
@@ -69,7 +69,7 @@ class HttpEntityMethodProcessorTests {
     paramList = new ResolvableMethodParameter(new MethodParameter(method, 0));
     paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
 
-    servletRequest = new MockHttpServletRequest();
+    servletRequest = new HttpMockRequestImpl();
     servletResponse = new MockHttpServletResponse();
     servletRequest.setMethod("POST");
     webRequest = new ServletRequestContext(null, servletRequest, servletResponse);

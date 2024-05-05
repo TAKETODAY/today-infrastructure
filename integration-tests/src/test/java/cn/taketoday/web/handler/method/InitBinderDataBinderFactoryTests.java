@@ -24,7 +24,7 @@ import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
@@ -49,7 +49,7 @@ class InitBinderDataBinderFactoryTests {
   private final ParameterResolvingRegistry argumentResolvers =
           new ParameterResolvingRegistry();
 
-  MockHttpServletRequest request = new MockHttpServletRequest();
+  HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private final ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
 

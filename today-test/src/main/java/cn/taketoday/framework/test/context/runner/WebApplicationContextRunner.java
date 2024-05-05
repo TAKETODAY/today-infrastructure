@@ -19,10 +19,10 @@ package cn.taketoday.framework.test.context.runner;
 
 import java.util.function.Supplier;
 
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.mock.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
@@ -44,7 +44,7 @@ public final class WebApplicationContextRunner
   /**
    * Create a new {@link WebApplicationContextRunner} instance using an
    * {@link AnnotationConfigServletWebApplicationContext} with a
-   * {@link MockServletContext} as the underlying source.
+   * {@link MockContextImpl} as the underlying source.
    *
    * @see #withMockServletContext(Supplier)
    */
@@ -67,17 +67,17 @@ public final class WebApplicationContextRunner
   }
 
   /**
-   * Decorate the specified {@code contextFactory} to set a {@link MockServletContext}
+   * Decorate the specified {@code contextFactory} to set a {@link MockContextImpl}
    * on each newly created {@link WebApplicationContext}.
    *
    * @param contextFactory the context factory to decorate
-   * @return an updated supplier that will set the {@link MockServletContext}
+   * @return an updated supplier that will set the {@link MockContextImpl}
    */
   public static Supplier<ConfigurableWebApplicationContext> withMockServletContext(
           Supplier<ConfigurableWebApplicationContext> contextFactory) {
     return (contextFactory != null) ? () -> {
       ConfigurableWebApplicationContext context = contextFactory.get();
-      context.setServletContext(new MockServletContext());
+      context.setServletContext(new MockContextImpl());
       return context;
     } : null;
   }

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -57,7 +57,7 @@ public class WebSocketHttpRequestHandlerTests {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
     ServletRequestContext request = new ServletRequestContext(
-            null, new MockHttpServletRequest(), this.response);
+            null, new HttpMockRequestImpl(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();
 
@@ -74,7 +74,7 @@ public class WebSocketHttpRequestHandlerTests {
             .willThrow(new IllegalStateException("bad state"));
 
     ServletRequestContext request = new ServletRequestContext(
-            null, new MockHttpServletRequest(), this.response);
+            null, new HttpMockRequestImpl(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
             .isInstanceOf(HandshakeFailureException.class)
             .hasRootCauseInstanceOf(IllegalStateException.class)
@@ -92,7 +92,7 @@ public class WebSocketHttpRequestHandlerTests {
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 
     ServletRequestContext request = new ServletRequestContext(
-            null, new MockHttpServletRequest(), this.response);
+            null, new HttpMockRequestImpl(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();
 

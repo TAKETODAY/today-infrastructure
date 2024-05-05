@@ -24,13 +24,13 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
 import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.mock.WebApplicationContext;
-import cn.taketoday.mock.api.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,14 +89,14 @@ class ControllerIntegrationTests {
     WebApplicationContext root = (WebApplicationContext) parent;
     assertThat(root.getBeansOfType(String.class).containsKey("bar")).isFalse();
 
-    ServletContext childServletContext = wac.getServletContext();
-    assertThat(childServletContext).isNotNull();
-    ServletContext rootServletContext = root.getServletContext();
-    assertThat(rootServletContext).isNotNull();
-    assertThat(rootServletContext).isSameAs(childServletContext);
+    MockContext childMockContext = wac.getServletContext();
+    assertThat(childMockContext).isNotNull();
+    MockContext rootMockContext = root.getServletContext();
+    assertThat(rootMockContext).isNotNull();
+    assertThat(rootMockContext).isSameAs(childMockContext);
 
-    assertThat(rootServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
-    assertThat(childServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(rootMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(childMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
   }
 
 }

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.BindException;
@@ -52,7 +52,7 @@ class DefaultErrorAttributesTests {
 
   private final DefaultErrorAttributes errorAttributes = new DefaultErrorAttributes();
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private final RequestContext webRequest = new ServletRequestContext(
           null, this.request, new MockHttpServletResponse());

@@ -32,7 +32,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockServletConfig;
+import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
@@ -113,10 +113,10 @@ public abstract class AbstractServletHandlerMethodTests {
       }
     };
 
-    MockServletConfig config = new MockServletConfig();
+    MockMockConfig config = new MockMockConfig();
     config.addInitParameter("cn.taketoday.mock.api.http.legacyDoHead", "true");
     wac.setServletConfig(config);
-    wac.setServletContext(config.getServletContext());
+    wac.setServletContext(config.getMockContext());
 
     servlet.init(config);
     return wac;

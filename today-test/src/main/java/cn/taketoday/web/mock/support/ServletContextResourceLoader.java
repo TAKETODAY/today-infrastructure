@@ -19,7 +19,7 @@ package cn.taketoday.web.mock.support;
 
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -40,15 +40,15 @@ import cn.taketoday.web.mock.WebApplicationContext;
  */
 public class ServletContextResourceLoader extends DefaultResourceLoader {
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   /**
    * Create a new ServletContextResourceLoader.
    *
-   * @param servletContext the ServletContext to load resources with
+   * @param mockContext the ServletContext to load resources with
    */
-  public ServletContextResourceLoader(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public ServletContextResourceLoader(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   /**
@@ -58,7 +58,7 @@ public class ServletContextResourceLoader extends DefaultResourceLoader {
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    return new ServletContextResource(servletContext, path);
+    return new ServletContextResource(mockContext, path);
   }
 
 }

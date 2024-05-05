@@ -34,7 +34,7 @@ import java.util.Locale;
  *
  * <p>
  * The charset for the MIME body response can be specified explicitly using any of the following techniques: per
- * request, per web-app (using {@link ServletContext#setRequestCharacterEncoding}, deployment descriptor), and per
+ * request, per web-app (using {@link MockContext#setRequestCharacterEncoding}, deployment descriptor), and per
  * container (for all web applications deployed in that container, using vendor specific configuration). If multiple of
  * the preceding techniques have been employed, the priority is the order listed. For per request, the charset for the
  * response can be specified explicitly using the {@link #setCharacterEncoding} and {@link #setContentType} methods, or
@@ -55,7 +55,7 @@ public interface ServletResponse {
   /**
    * Returns the name of the character encoding (MIME charset) used for the body sent in this response. The following
    * methods for specifying the response character encoding are consulted, in decreasing order of priority: per request,
-   * perweb-app (using {@link ServletContext#setResponseCharacterEncoding}, deployment descriptor), and per container (for
+   * perweb-app (using {@link MockContext#setResponseCharacterEncoding}, deployment descriptor), and per container (for
    * all web applications deployed in that container, using vendor specific configuration). The first one of these methods
    * that yields a result is returned. Per-request, the charset for the response can be specified explicitly using the
    * {@link #setCharacterEncoding} and {@link #setContentType} methods, or implicitly using the
@@ -125,7 +125,7 @@ public interface ServletResponse {
 
   /**
    * Sets the character encoding (MIME charset) of the response being sent to the client, for example, to UTF-8. If the
-   * response character encoding has already been set by {@link ServletContext#setResponseCharacterEncoding}, the
+   * response character encoding has already been set by {@link MockContext#setResponseCharacterEncoding}, the
    * deployment descriptor, or using the {@link #setContentType} or {@link #setLocale} methods, the value set in this
    * method overrides all of those values. Calling {@link #setContentType} with the <code>String</code> of
    * <code>text/html</code> and calling this method with the <code>String</code> of <code>UTF-8</code> is equivalent to
@@ -136,7 +136,7 @@ public interface ServletResponse {
    * <p>
    * If calling this method has an effect (as per the previous paragraph), calling this method with {@code null} clears
    * any character encoding set via a previous call to this method, {@link #setContentType} or {@link #setLocale} but does
-   * not affect any default character encoding configured via {@link ServletContext#setResponseCharacterEncoding} or the
+   * not affect any default character encoding configured via {@link MockContext#setResponseCharacterEncoding} or the
    * deployment descriptor.
    * <p>
    * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
@@ -190,7 +190,7 @@ public interface ServletResponse {
    * If calling this method has an effect (as per the previous paragraph), calling this method with {@code null} clears
    * any content type set via a previous call to this method and clears any character encoding set via a previous call to
    * this method, {@link #setCharacterEncoding} or {@link #setLocale} but does not affect any default character encoding
-   * configured via {@link ServletContext#setResponseCharacterEncoding} or the deployment descriptor.
+   * configured via {@link MockContext#setResponseCharacterEncoding} or the deployment descriptor.
    * <p>
    * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
    * {@link #getWriter()} will throw a {@link UnsupportedEncodingException}. Content for an unknown encoding can be sent

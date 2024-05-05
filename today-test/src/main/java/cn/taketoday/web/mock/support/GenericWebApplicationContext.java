@@ -26,13 +26,13 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.ConfigurableWebEnvironment;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.ServletContextAwareProcessor;
 
 /**
@@ -72,7 +72,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
         implements ConfigurableWebApplicationContext {
 
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   /**
    * Create a new {@code GenericWebApplicationContext}.
@@ -98,47 +98,42 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   }
 
   /**
-   * Create a new {@code GenericWebApplicationContext} for the given {@link ServletContext}.
+   * Create a new {@code GenericWebApplicationContext} for the given {@link MockContext}.
    *
-   * @param servletContext the {@code ServletContext} to run in
+   * @param mockContext the {@code ServletContext} to run in
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebApplicationContext(@Nullable ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public GenericWebApplicationContext(@Nullable MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   /**
    * Create a new {@code GenericWebApplicationContext} with the given {@link StandardBeanFactory}
-   * and {@link ServletContext}.
+   * and {@link MockContext}.
    *
    * @param beanFactory the {@code StandardBeanFactory} instance to use for this context
-   * @param servletContext the {@code ServletContext} to run in
+   * @param mockContext the {@code ServletContext} to run in
    * @see #registerBeanDefinition
    * @see #refresh
    */
-  public GenericWebApplicationContext(StandardBeanFactory beanFactory, @Nullable ServletContext servletContext) {
+  public GenericWebApplicationContext(StandardBeanFactory beanFactory, @Nullable MockContext mockContext) {
     super(beanFactory);
-    this.servletContext = servletContext;
+    this.mockContext = mockContext;
   }
 
   /**
-   * Set the {@link ServletContext} that this {@code WebApplicationContext} runs in.
+   * Set the {@link MockContext} that this {@code WebApplicationContext} runs in.
    */
   @Override
-  public void setServletContext(@Nullable ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setServletContext(@Nullable MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Override
   @Nullable
-  public ServletContext getServletContext() {
-    return this.servletContext;
-  }
-
-  @Override
-  public String getApplicationName() {
-    return servletContext != null ? servletContext.getContextPath() : "";
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   /**
@@ -150,14 +145,14 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   }
 
   /**
-   * This implementation supports file paths beneath the root of the {@link ServletContext}.
+   * This implementation supports file paths beneath the root of the {@link MockContext}.
    *
    * @see ServletContextResource
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    Assert.state(this.servletContext != null, "No ServletContext available");
-    return new ServletContextResource(this.servletContext, path);
+    Assert.state(this.mockContext != null, "No ServletContext available");
+    return new ServletContextResource(this.mockContext, path);
   }
 
   /**
@@ -176,12 +171,12 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    if (this.servletContext != null) {
-      beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext));
-      beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+    if (this.mockContext != null) {
+      beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.mockContext));
+      beanFactory.ignoreDependencyInterface(MockContextAware.class);
     }
-    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
-    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext);
+    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
+    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext);
   }
 
   /**
@@ -192,7 +187,7 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   protected void initPropertySources() {
     ConfigurableEnvironment env = getEnvironment();
     if (env instanceof ConfigurableWebEnvironment) {
-      ((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, null);
+      ((ConfigurableWebEnvironment) env).initPropertySources(this.mockContext, null);
     }
   }
 
@@ -201,13 +196,13 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   // ---------------------------------------------------------------------
 
   @Override
-  public void setServletConfig(@Nullable ServletConfig servletConfig) {
+  public void setServletConfig(@Nullable MockConfig mockConfig) {
     // no-op
   }
 
   @Override
   @Nullable
-  public ServletConfig getServletConfig() {
+  public MockConfig getServletConfig() {
     throw new UnsupportedOperationException(
             "GenericWebApplicationContext does not support getServletConfig()");
   }

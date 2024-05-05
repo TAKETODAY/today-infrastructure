@@ -25,15 +25,15 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
@@ -46,8 +46,8 @@ import cn.taketoday.web.mock.WebApplicationContext;
  * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
- * MockHttpServletRequest}, {@link MockHttpServletResponse}, and
- * {@link cn.taketoday.web.RequestContext} based on the {@link MockServletContext} present in
+ * HttpMockRequestImpl}, {@link MockHttpServletResponse}, and
+ * {@link cn.taketoday.web.RequestContext} based on the {@link MockContextImpl} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
  * {@code MockHttpServletResponse} and {@code ServletWebRequest} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
@@ -85,7 +85,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Attribute name for a request attribute which indicates that the
-   * {@link MockHttpServletRequest} stored in the {@link cn.taketoday.web.RequestContext}
+   * {@link HttpMockRequestImpl} stored in the {@link cn.taketoday.web.RequestContext}
    * in Infra Web's {@link RequestContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
@@ -185,16 +185,16 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
     ApplicationContext context = testContext.getApplicationContext();
 
     if (context instanceof WebApplicationContext wac) {
-      ServletContext servletContext = wac.getServletContext();
-      Assert.state(servletContext instanceof MockServletContext,
+      MockContext mockContext = wac.getServletContext();
+      Assert.state(mockContext instanceof MockContextImpl,
               () -> String.format(
                       "The WebApplicationContext for test context %s must be configured with a MockServletContext.", testContext));
 
       logger.debug("Setting up MockHttpServletRequest, MockHttpServletResponse, ServletWebRequest, and RequestContextHolder for test context .",
               testContext);
 
-      MockServletContext mockServletContext = (MockServletContext) servletContext;
-      MockHttpServletRequest request = new MockHttpServletRequest(mockServletContext);
+      MockContextImpl mockServletContext = (MockContextImpl) mockContext;
+      HttpMockRequestImpl request = new HttpMockRequestImpl(mockServletContext);
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
       MockHttpServletResponse response = new MockHttpServletResponse();
 

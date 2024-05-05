@@ -22,7 +22,7 @@ import java.io.InputStream;
 
 import cn.taketoday.mock.api.fileupload.FileUploadBase;
 import cn.taketoday.mock.api.fileupload.UploadContext;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * <p>Provides access to the request information needed for a request made to
@@ -37,7 +37,7 @@ public class MockRequestContext implements UploadContext {
   /**
    * The request for which the context is being provided.
    */
-  private final HttpServletRequest request;
+  private final HttpMockRequest request;
 
   // ----------------------------------------------------------- Constructors
 
@@ -46,7 +46,7 @@ public class MockRequestContext implements UploadContext {
    *
    * @param request The request to which this context applies.
    */
-  public MockRequestContext(final HttpServletRequest request) {
+  public MockRequestContext(final HttpMockRequest request) {
     this.request = request;
   }
 

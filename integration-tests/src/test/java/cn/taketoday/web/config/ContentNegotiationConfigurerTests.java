@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;
@@ -43,11 +43,11 @@ class ContentNegotiationConfigurerTests {
 
   private RequestContext webRequest;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   @BeforeEach
   public void setup() {
-    this.servletRequest = new MockHttpServletRequest();
+    this.servletRequest = new HttpMockRequestImpl();
     this.webRequest = new ServletRequestContext(this.servletRequest, null);
     this.configurer = new ContentNegotiationConfigurer();
   }

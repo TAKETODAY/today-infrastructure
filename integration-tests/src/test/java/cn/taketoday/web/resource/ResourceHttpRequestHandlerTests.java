@@ -38,9 +38,9 @@ import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.handler.SimpleNotFoundHandler;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
@@ -71,18 +71,18 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private MockHttpServletRequest request;
+    private HttpMockRequestImpl request;
 
     private MockHttpServletResponse response;
     private ServletRequestContext requestContext;
 
     @BeforeEach
     void setup() throws Throwable {
-      TestServletContext servletContext = new TestServletContext();
+      TestMockContext servletContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new MockHttpServletRequest(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
       this.response = new MockHttpServletResponse();
       requestContext = new ServletRequestContext(null, request, response);
     }
@@ -172,7 +172,7 @@ public class ResourceHttpRequestHandlerTests {
 
     @Test
     void getResourceWithMediaTypeResolvedThroughServletContext() throws Throwable {
-      MockServletContext servletContext = new MockServletContext() {
+      MockContextImpl servletContext = new MockContextImpl() {
         @Override
         public String getMimeType(String filePath) {
           return "foo/bar";
@@ -185,7 +185,7 @@ public class ResourceHttpRequestHandlerTests {
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
-      MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "");
+      HttpMockRequestImpl request = new HttpMockRequestImpl(servletContext, "GET", "");
       request.setRequestURI("foo.css");
       handler.handleRequest(new ServletRequestContext(null, request, response));
 
@@ -204,7 +204,7 @@ public class ResourceHttpRequestHandlerTests {
     @Test
     void testResourceNotFound() throws Throwable {
       for (HttpMethod method : HttpMethod.values()) {
-        this.request = new MockHttpServletRequest("GET", "");
+        this.request = new HttpMockRequestImpl("GET", "");
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
         this.response = new MockHttpServletResponse();
@@ -221,7 +221,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private MockHttpServletRequest request;
+    private HttpMockRequestImpl request;
 
     private MockHttpServletResponse response;
 
@@ -229,11 +229,11 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestServletContext servletContext = new TestServletContext();
+      TestMockContext servletContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new MockHttpServletRequest(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
       this.response = new MockHttpServletResponse();
       requestContext = new ServletRequestContext(null, request, response);
     }
@@ -416,17 +416,17 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private MockHttpServletRequest request;
+    private HttpMockRequestImpl request;
 
     private MockHttpServletResponse response;
     private ServletRequestContext requestContext;
 
     @BeforeEach
     void setup() {
-      TestServletContext servletContext = new TestServletContext();
+      TestMockContext servletContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new MockHttpServletRequest(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
       this.response = new MockHttpServletResponse();
       requestContext = new ServletRequestContext(null, request, response);
     }
@@ -564,7 +564,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private ResourceHttpRequestHandler handler;
 
-    private MockHttpServletRequest request;
+    private HttpMockRequestImpl request;
 
     private MockHttpServletResponse response;
 
@@ -572,10 +572,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestServletContext servletContext = new TestServletContext();
+      TestMockContext servletContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new MockHttpServletRequest(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
       this.response = new MockHttpServletResponse();
       requestContext = new ServletRequestContext(null, request, response);
     }
@@ -674,7 +674,7 @@ public class ResourceHttpRequestHandlerTests {
     void shouldRejectPathWithTraversal() throws Throwable {
       this.handler.afterPropertiesSet();
       for (HttpMethod method : HttpMethod.values()) {
-        this.request = new MockHttpServletRequest("GET", "");
+        this.request = new HttpMockRequestImpl("GET", "");
         this.response = new MockHttpServletResponse();
         shouldRejectPathWithTraversal(method);
       }
@@ -827,7 +827,7 @@ public class ResourceHttpRequestHandlerTests {
 
   }
 
-  private static class TestServletContext extends MockServletContext {
+  private static class TestMockContext extends MockContextImpl {
 
     @Override
     public String getMimeType(String filePath) {

@@ -18,14 +18,14 @@
 package cn.taketoday.mock.api;
 
 import cn.taketoday.mock.api.http.HttpServletMapping;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * Class representing the execution context for an asynchronous operation that was initiated on a ServletRequest.
  *
  * <p>
- * An AsyncContext is created and initialized by a call to {@link ServletRequest#startAsync()} or
- * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}. Repeated invocations of these methods will return
+ * An AsyncContext is created and initialized by a call to {@link MockRequest#startAsync()} or
+ * {@link MockRequest#startAsync(MockRequest, ServletResponse)}. Repeated invocations of these methods will return
  * the same AsyncContext instance, reinitialized as appropriate.
  *
  * <p>
@@ -45,53 +45,53 @@ public interface AsyncContext {
 
   /**
    * The name of the request attribute under which the original request URI is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_REQUEST_URI = "cn.taketoday.mock.api.async.request_uri";
 
   /**
    * The name of the request attribute under which the original context path is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_CONTEXT_PATH = "cn.taketoday.mock.api.async.context_path";
 
   /**
    * The name of the request attribute under which the original {@link HttpServletMapping} is made
-   * available to the target of a {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * available to the target of a {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_MAPPING = "cn.taketoday.mock.api.async.mapping";
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_PATH_INFO = "cn.taketoday.mock.api.async.path_info";
 
   /**
    * The name of the request attribute under which the original servlet path is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_SERVLET_PATH = "cn.taketoday.mock.api.async.servlet_path";
 
   /**
    * The name of the request attribute under which the original query string is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(ServletContext, String)}
+   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_QUERY_STRING = "cn.taketoday.mock.api.async.query_string";
 
   /**
-   * Gets the request that was used to initialize this AsyncContext by calling {@link ServletRequest#startAsync()} or
-   * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}.
+   * Gets the request that was used to initialize this AsyncContext by calling {@link MockRequest#startAsync()} or
+   * {@link MockRequest#startAsync(MockRequest, ServletResponse)}.
    *
    * @return the request that was used to initialize this AsyncContext
    * @throws IllegalStateException if {@link #complete} or any of the {@link #dispatch} methods has been called in the
    * asynchronous cycle
    */
-  public ServletRequest getRequest();
+  public MockRequest getRequest();
 
   /**
-   * Gets the response that was used to initialize this AsyncContext by calling {@link ServletRequest#startAsync()} or
-   * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}.
+   * Gets the response that was used to initialize this AsyncContext by calling {@link MockRequest#startAsync()} or
+   * {@link MockRequest#startAsync(MockRequest, ServletResponse)}.
    *
    * @return the response that was used to initialize this AsyncContext
    * @throws IllegalStateException if {@link #complete} or any of the {@link #dispatch} methods has been called in the
@@ -108,8 +108,8 @@ public interface AsyncContext {
    * <i>inbound</i> invocation need to be preserved for the duration of the asynchronous operation, or may be released.
    *
    * @return true if this AsyncContext was initialized with the original request and response objects by calling
-   * {@link ServletRequest#startAsync()}, or if it was initialized by calling
-   * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}, and neither the ServletRequest nor
+   * {@link MockRequest#startAsync()}, or if it was initialized by calling
+   * {@link MockRequest#startAsync(MockRequest, ServletResponse)}, and neither the ServletRequest nor
    * ServletResponse arguments carried any application-provided wrappers; false otherwise
    */
   public boolean hasOriginalRequestAndResponse();
@@ -118,9 +118,9 @@ public interface AsyncContext {
    * Dispatches the request and response objects of this AsyncContext to the servlet container.
    *
    * <p>
-   * If the asynchronous cycle was started with {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}, and
+   * If the asynchronous cycle was started with {@link MockRequest#startAsync(MockRequest, ServletResponse)}, and
    * the request passed is an instance of HttpServletRequest, then the dispatch is to the URI returned by
-   * {@link HttpServletRequest#getRequestURI}. Otherwise, the dispatch is to the URI of the request
+   * {@link HttpMockRequest#getRequestURI}. Otherwise, the dispatch is to the URI of the request
    * when it was last dispatched by the container.
    *
    * <p>
@@ -161,13 +161,13 @@ public interface AsyncContext {
    *
    * <p>
    * The dispatcher type of the request is set to <tt>DispatcherType.ASYNC</tt>. Unlike
-   * {@link RequestDispatcher#forward(ServletRequest, ServletResponse) forward dispatches}, the response buffer and
+   * {@link RequestDispatcher#forward(MockRequest, ServletResponse) forward dispatches}, the response buffer and
    * headers will not be reset, and it is legal to dispatch even if the response has already been committed.
    *
    * <p>
    * Control over the request and response is delegated to the dispatch target, and the response will be closed when the
-   * dispatch target has completed execution, unless {@link ServletRequest#startAsync()} or
-   * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)} are called.
+   * dispatch target has completed execution, unless {@link MockRequest#startAsync()} or
+   * {@link MockRequest#startAsync(MockRequest, ServletResponse)} are called.
    *
    * <p>
    * Any errors or exceptions that may occur during the execution of this method must be caught and handled by the
@@ -185,13 +185,13 @@ public interface AsyncContext {
    *
    * <p>
    * There can be at most one asynchronous dispatch operation per asynchronous cycle, which is started by a call to one of
-   * the {@link ServletRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
+   * the {@link MockRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
    * within the same asynchronous cycle will result in an IllegalStateException. If startAsync is subsequently called on
    * the dispatched request, then any of the dispatch or {@link #complete} methods may be called.
    *
    * @throws IllegalStateException if one of the dispatch methods has been called and the startAsync method has not been
    * called during the resulting dispatch, or if {@link #complete} was called
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    */
   public void dispatch();
 
@@ -199,8 +199,8 @@ public interface AsyncContext {
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt>.
    *
    * <p>
-   * The <tt>path</tt> parameter is interpreted in the same way as in {@link ServletRequest#getRequestDispatcher(String)},
-   * within the scope of the {@link ServletContext} from which this AsyncContext was initialized.
+   * The <tt>path</tt> parameter is interpreted in the same way as in {@link MockRequest#getRequestDispatcher(String)},
+   * within the scope of the {@link MockContext} from which this AsyncContext was initialized.
    *
    * <p>
    * All path related query methods of the request must reflect the dispatch target, while the original request URI,
@@ -211,7 +211,7 @@ public interface AsyncContext {
    *
    * <p>
    * There can be at most one asynchronous dispatch operation per asynchronous cycle, which is started by a call to one of
-   * the {@link ServletRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
+   * the {@link MockRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
    * within the same asynchronous cycle will result in an IllegalStateException. If startAsync is subsequently called on
    * the dispatched request, then any of the dispatch or {@link #complete} methods may be called.
    *
@@ -222,7 +222,7 @@ public interface AsyncContext {
    * initialized
    * @throws IllegalStateException if one of the dispatch methods has been called and the startAsync method has not been
    * called during the resulting dispatch, or if {@link #complete} was called
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    */
   public void dispatch(String path);
 
@@ -231,7 +231,7 @@ public interface AsyncContext {
    * <tt>context</tt>.
    *
    * <p>
-   * The <tt>path</tt> parameter is interpreted in the same way as in {@link ServletRequest#getRequestDispatcher(String)},
+   * The <tt>path</tt> parameter is interpreted in the same way as in {@link MockRequest#getRequestDispatcher(String)},
    * except that it is scoped to the given <tt>context</tt>.
    *
    * <p>
@@ -243,7 +243,7 @@ public interface AsyncContext {
    *
    * <p>
    * There can be at most one asynchronous dispatch operation per asynchronous cycle, which is started by a call to one of
-   * the {@link ServletRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
+   * the {@link MockRequest#startAsync} methods. Any attempt to perform an additional asynchronous dispatch operation
    * within the same asynchronous cycle will result in an IllegalStateException. If startAsync is subsequently called on
    * the dispatched request, then any of the dispatch or {@link #complete} methods may be called.
    *
@@ -254,9 +254,9 @@ public interface AsyncContext {
    * @param path the path of the dispatch target, scoped to the given ServletContext
    * @throws IllegalStateException if one of the dispatch methods has been called and the startAsync method has not been
    * called during the resulting dispatch, or if {@link #complete} was called
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    */
-  public void dispatch(ServletContext context, String path);
+  public void dispatch(MockContext context, String path);
 
   /**
    * Completes the asynchronous operation that was started on the request that was used to initialze this AsyncContext,
@@ -267,8 +267,8 @@ public interface AsyncContext {
    * was created will be invoked at their {@link AsyncListener#onComplete(AsyncEvent) onComplete} method.
    *
    * <p>
-   * It is legal to call this method any time after a call to {@link ServletRequest#startAsync()} or
-   * {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}, and before a call to one of the <tt>dispatch</tt>
+   * It is legal to call this method any time after a call to {@link MockRequest#startAsync()} or
+   * {@link MockRequest#startAsync(MockRequest, ServletResponse)}, and before a call to one of the <tt>dispatch</tt>
    * methods of this class. If this method is called before the container-initiated dispatch that called
    * <tt>startAsync</tt> has returned to the container, then the call will not take effect (and any invocations of
    * {@link AsyncListener#onComplete(AsyncEvent)} will be delayed) until after the container-initiated dispatch has
@@ -286,35 +286,35 @@ public interface AsyncContext {
 
   /**
    * Registers the given {@link AsyncListener} with the most recent asynchronous cycle that was started by a call to one
-   * of the {@link ServletRequest#startAsync} methods.
+   * of the {@link MockRequest#startAsync} methods.
    *
    * <p>
    * The given AsyncListener will receive an {@link AsyncEvent} when the asynchronous cycle completes successfully, times
    * out, results in an error, or a new asynchronous cycle is being initiated via one of the
-   * {@link ServletRequest#startAsync} methods.
+   * {@link MockRequest#startAsync} methods.
    *
    * <p>
    * AsyncListener instances will be notified in the order in which they were added.
    *
    * <p>
-   * If {@link ServletRequest#startAsync(ServletRequest, ServletResponse)} or {@link ServletRequest#startAsync} is called,
+   * If {@link MockRequest#startAsync(MockRequest, ServletResponse)} or {@link MockRequest#startAsync} is called,
    * the exact same request and response objects are available from the {@link AsyncEvent} when the {@link AsyncListener}
    * is notified.
    *
    * @param listener the AsyncListener to be registered
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
-   * the {@link ServletRequest#startAsync} methods was called, has returned to the container
+   * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
   public void addListener(AsyncListener listener);
 
   /**
    * Registers the given {@link AsyncListener} with the most recent asynchronous cycle that was started by a call to one
-   * of the {@link ServletRequest#startAsync} methods.
+   * of the {@link MockRequest#startAsync} methods.
    *
    * <p>
    * The given AsyncListener will receive an {@link AsyncEvent} when the asynchronous cycle completes successfully, times
    * out, results in an error, or a new asynchronous cycle is being initiated via one of the
-   * {@link ServletRequest#startAsync} methods.
+   * {@link MockRequest#startAsync} methods.
    *
    * <p>
    * AsyncListener instances will be notified in the order in which they were added.
@@ -328,12 +328,12 @@ public interface AsyncContext {
    * with them.
    *
    * @param listener the AsyncListener to be registered
-   * @param servletRequest the ServletRequest that will be included in the AsyncEvent
+   * @param mockRequest the ServletRequest that will be included in the AsyncEvent
    * @param servletResponse the ServletResponse that will be included in the AsyncEvent
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
-   * the {@link ServletRequest#startAsync} methods was called, has returned to the container
+   * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
-  public void addListener(AsyncListener listener, ServletRequest servletRequest, ServletResponse servletResponse);
+  public void addListener(AsyncListener listener, MockRequest mockRequest, ServletResponse servletResponse);
 
   /**
    * Instantiates the given {@link AsyncListener} class.
@@ -364,7 +364,7 @@ public interface AsyncContext {
    *
    * <p>
    * The timeout applies to this AsyncContext once the container-initiated dispatch during which one of the
-   * {@link ServletRequest#startAsync} methods was called has returned to the container.
+   * {@link MockRequest#startAsync} methods was called has returned to the container.
    *
    * <p>
    * The timeout will expire if neither the {@link #complete} method nor any of the dispatch methods are called. A timeout
@@ -379,7 +379,7 @@ public interface AsyncContext {
    *
    * @param timeout the timeout in milliseconds
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
-   * the {@link ServletRequest#startAsync} methods was called, has returned to the container
+   * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
   public void setTimeout(long timeout);
 

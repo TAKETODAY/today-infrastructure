@@ -24,68 +24,68 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 
 /**
- * Mock implementation of the {@link ServletConfig} interface.
+ * Mock implementation of the {@link MockConfig} interface.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class MockServletConfig implements ServletConfig {
+public class MockMockConfig implements MockConfig {
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   private final String servletName;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   /**
-   * Create a new MockServletConfig with a default {@link MockServletContext}.
+   * Create a new MockServletConfig with a default {@link MockContextImpl}.
    */
-  public MockServletConfig() {
+  public MockMockConfig() {
     this(null, "");
   }
 
   /**
-   * Create a new MockServletConfig with a default {@link MockServletContext}.
+   * Create a new MockServletConfig with a default {@link MockContextImpl}.
    *
    * @param servletName the name of the servlet
    */
-  public MockServletConfig(String servletName) {
+  public MockMockConfig(String servletName) {
     this(null, servletName);
   }
 
   /**
    * Create a new MockServletConfig.
    *
-   * @param servletContext the ServletContext that the servlet runs in
+   * @param mockContext the ServletContext that the servlet runs in
    */
-  public MockServletConfig(@Nullable ServletContext servletContext) {
-    this(servletContext, "");
+  public MockMockConfig(@Nullable MockContext mockContext) {
+    this(mockContext, "");
   }
 
   /**
    * Create a new MockServletConfig.
    *
-   * @param servletContext the ServletContext that the servlet runs in
+   * @param mockContext the ServletContext that the servlet runs in
    * @param servletName the name of the servlet
    */
-  public MockServletConfig(@Nullable ServletContext servletContext, String servletName) {
-    this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
+  public MockMockConfig(@Nullable MockContext mockContext, String servletName) {
+    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
     this.servletName = servletName;
   }
 
   @Override
-  public String getServletName() {
+  public String getMockName() {
     return this.servletName;
   }
 
   @Override
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getMockContext() {
+    return this.mockContext;
   }
 
   public void addInitParameter(String name, String value) {

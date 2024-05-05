@@ -31,17 +31,17 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockMultipartFile;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.http.Part;
 
 /**
- * Default builder for {@link MockMultipartHttpServletRequest}.
+ * Default builder for {@link MockMultipartHttpMockRequest}.
  *
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
@@ -147,13 +147,13 @@ public class MockMultipartHttpServletRequestBuilder extends MockHttpServletReque
   }
 
   /**
-   * Create a new {@link MockMultipartHttpServletRequest} based on the
+   * Create a new {@link MockMultipartHttpMockRequest} based on the
    * supplied {@code ServletContext} and the {@code MockMultipartFiles}
    * added to this builder.
    */
   @Override
-  protected final MockHttpServletRequest createServletRequest(ServletContext servletContext) {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest(servletContext);
+  protected final HttpMockRequestImpl createServletRequest(MockContext mockContext) {
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest(mockContext);
     Charset defaultCharset = (request.getCharacterEncoding() != null ?
                               Charset.forName(request.getCharacterEncoding()) : StandardCharsets.UTF_8);
 

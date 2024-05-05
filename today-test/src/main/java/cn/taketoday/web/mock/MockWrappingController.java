@@ -25,13 +25,13 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.mock.api.Servlet;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -39,7 +39,7 @@ import cn.taketoday.web.view.ModelAndView;
 /**
  * Framework Controller implementation that wraps a servlet instance which it manages
  * internally. Such a wrapped servlet is not known outside of this controller;
- * its entire lifecycle is covered here (in contrast to {@link ServletForwardingController}).
+ * its entire lifecycle is covered here (in contrast to {@link MockForwardingController}).
  *
  * <p>Useful to invoke an existing servlet via Framework's dispatching infrastructure,
  * for example to apply Framework HandlerInterceptors to its requests.
@@ -72,11 +72,11 @@ import cn.taketoday.web.view.ModelAndView;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletForwardingController
+ * @see MockForwardingController
  * @since 4.0 2022/2/8 17:18
  */
-public class ServletWrappingController extends AbstractController
-        implements BeanNameAware, InitializingBean, DisposableBean, ServletContextAware {
+public class MockWrappingController extends AbstractController
+        implements BeanNameAware, InitializingBean, DisposableBean, MockContextAware {
 
   @Nullable
   private Class<? extends Servlet> servletClass;
@@ -92,9 +92,9 @@ public class ServletWrappingController extends AbstractController
   @Nullable
   private Servlet servletInstance;
 
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
-  public ServletWrappingController() {
+  public MockWrappingController() {
     super(false);
   }
 
@@ -132,7 +132,7 @@ public class ServletWrappingController extends AbstractController
   /**
    * Initialize the wrapped Servlet instance.
    *
-   * @see Servlet#init(cn.taketoday.mock.api.ServletConfig)
+   * @see Servlet#init(MockConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -143,13 +143,13 @@ public class ServletWrappingController extends AbstractController
       this.servletName = this.beanName;
     }
     this.servletInstance = ReflectionUtils.accessibleConstructor(this.servletClass).newInstance();
-    this.servletInstance.init(new DelegatingServletConfig());
+    this.servletInstance.init(new DelegatingMockConfig());
   }
 
   /**
    * Invoke the wrapped Servlet instance.
    *
-   * @see Servlet#service(ServletRequest, ServletResponse)
+   * @see Servlet#service(MockRequest, ServletResponse)
    */
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
@@ -173,12 +173,12 @@ public class ServletWrappingController extends AbstractController
   }
 
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
-  public ServletContext getServletContext() {
-    return servletContext;
+  public MockContext getServletContext() {
+    return mockContext;
   }
 
   /**
@@ -186,18 +186,18 @@ public class ServletWrappingController extends AbstractController
    * to the wrapped servlet. Delegates to ServletWrappingController fields
    * and methods to provide init parameters and other environment info.
    */
-  private class DelegatingServletConfig implements ServletConfig {
+  private class DelegatingMockConfig implements MockConfig {
 
     @Override
     @Nullable
-    public String getServletName() {
+    public String getMockName() {
       return servletName;
     }
 
     @Override
     @Nullable
-    public ServletContext getServletContext() {
-      return ServletWrappingController.this.getServletContext();
+    public MockContext getMockContext() {
+      return MockWrappingController.this.getServletContext();
     }
 
     @Override

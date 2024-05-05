@@ -7,9 +7,9 @@ standard `ApplicationContext`, you can annotate the respective test class with
 
 The presence of `@WebAppConfiguration` on your test class instructs the TestContext
 framework (TCF) that a `WebApplicationContext` (WAC) should be loaded for your
-integration tests. In the background, the TCF makes sure that a `MockServletContext` is
+integration tests. In the background, the TCF makes sure that a `MockContextImpl` is
 created and supplied to your test's WAC. By default, the base resource path for your
-`MockServletContext` is set to `src/main/webapp`. This is interpreted as a path relative
+`MockContextImpl` is set to `src/main/webapp`. This is interpreted as a path relative
 to the root of your JVM (normally the path to your project). If you are familiar with the
 directory structure of a web application in a Maven project, you know that
 `src/main/webapp` is the default location for the root of your WAR. If you need to

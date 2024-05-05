@@ -55,7 +55,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -86,7 +86,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private RequestResponseBodyMethodProcessor processor;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private MockHttpServletResponse servletResponse;
 
@@ -124,7 +124,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     processor = new RequestResponseBodyMethodProcessor(
             Arrays.asList(stringMessageConverter, resourceMessageConverter, resourceRegionMessageConverter));
 
-    servletRequest = new MockHttpServletRequest();
+    servletRequest = new HttpMockRequestImpl();
     servletRequest.setMethod("POST");
     servletResponse = new MockHttpServletResponse();
     webRequest = new ServletRequestContext(null, servletRequest, servletResponse);

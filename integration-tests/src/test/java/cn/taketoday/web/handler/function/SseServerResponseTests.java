@@ -26,7 +26,7 @@ import java.time.Duration;
 import java.util.Collections;
 
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 
@@ -37,13 +37,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SseServerResponseTests {
 
-  private MockHttpServletRequest mockRequest;
+  private HttpMockRequestImpl mockRequest;
 
   private MockHttpServletResponse mockResponse;
 
   @BeforeEach
   void setUp() {
-    this.mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    this.mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockHttpServletResponse();
   }
@@ -62,7 +62,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
     var requestContext = new ServletRequestContext(null, request, mockResponse);
 
@@ -86,7 +86,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
     var requestContext = new ServletRequestContext(null, request, mockResponse);
 
@@ -142,7 +142,7 @@ class SseServerResponseTests {
 
     ServerResponse.Context context = Collections::emptyList;
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
     var requestContext = new ServletRequestContext(null, request, mockResponse);
 
@@ -172,7 +172,7 @@ class SseServerResponseTests {
     });
 
     ServerResponse.Context context = Collections::emptyList;
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
     var requestContext = new ServletRequestContext(null, request, mockResponse);
 

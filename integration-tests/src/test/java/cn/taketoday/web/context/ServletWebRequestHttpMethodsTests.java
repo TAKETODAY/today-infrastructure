@@ -32,7 +32,7 @@ import java.time.temporal.ChronoUnit;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletResponse;
@@ -54,7 +54,7 @@ class ServletWebRequestHttpMethodsTests {
 
   private static final Instant NOW = Instant.now();
 
-  private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
   private final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 

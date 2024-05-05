@@ -25,7 +25,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
@@ -37,9 +37,9 @@ import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -67,14 +67,14 @@ final class TestDispatcherServlet extends DispatcherServlet {
   }
 
   @Override
-  public void service(ServletRequest request, ServletResponse response) throws ServletException {
+  public void service(MockRequest request, ServletResponse response) throws ServletException {
     RequestContext context = RequestContextHolder.getRequired();
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpMockRequest servletRequest = ServletUtils.getServletRequest(context);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
     if (request != servletRequest && response != servletResponse) {
       context = new ServletRequestContext(
-              getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response, this);
+              getApplicationContext(), (HttpMockRequest) request, (HttpServletResponse) response, this);
       RequestContextHolder.set(context);
     }
 
@@ -88,7 +88,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
         asyncContext = mockAsyncContext;
       }
       else {
-        var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
+        var mockRequest = ServletUtils.getNativeRequest(request, HttpMockRequestImpl.class);
         Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
         asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
         Assert.notNull(asyncContext, () ->

@@ -20,26 +20,26 @@ package cn.taketoday.mock.api;
 import java.util.Enumeration;
 
 /**
- * A servlet configuration object used by a servlet container to pass information to a servlet during initialization.
+ * A mock configuration object used by a mock container to pass information to a mock during initialization.
  */
-public interface ServletConfig {
+public interface MockConfig {
 
   /**
-   * Returns the name of this servlet instance. The name may be provided via server administration, assigned in the web
-   * application deployment descriptor, or for an unregistered (and thus unnamed) servlet instance it will be the
-   * servlet's class name.
+   * Returns the name of this mock instance. The name may be provided via server administration, assigned in the web
+   * application deployment descriptor, or for an unregistered (and thus unnamed) mock instance it will be the
+   * mock's class name.
    *
-   * @return the name of the servlet instance
+   * @return the name of the mock instance
    */
-  public String getServletName();
+  public String getMockName();
 
   /**
-   * Returns a reference to the {@link ServletContext} in which the caller is executing.
+   * Returns a reference to the {@link MockContext} in which the caller is executing.
    *
-   * @return a {@link ServletContext} object, used by the caller to interact with its servlet container
-   * @see ServletContext
+   * @return a {@link MockContext} object, used by the caller to interact with its servlet container
+   * @see MockContext
    */
-  public ServletContext getServletContext();
+  public MockContext getMockContext();
 
   /**
    * Gets the value of the initialization parameter with the given name.

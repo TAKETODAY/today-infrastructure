@@ -29,7 +29,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,11 +42,11 @@ public class ServletServerHttpRequestTests {
 
   private ServletServerHttpRequest request;
 
-  private MockHttpServletRequest mockRequest;
+  private HttpMockRequestImpl mockRequest;
 
   @BeforeEach
   void create() {
-    mockRequest = new MockHttpServletRequest();
+    mockRequest = new HttpMockRequestImpl();
     request = new ServletServerHttpRequest(mockRequest);
   }
 

@@ -63,7 +63,7 @@ If you do not specify the `contextConfigLocation` context parameter, the
 `ContextLoaderListener` looks for a file called `/WEB-INF/applicationContext.xml` to
 load. Once the context files are loaded, Infra creates a
 {today-framework-api}/web/context/WebApplicationContext.html[`WebApplicationContext`]
-object based on the bean definitions and stores it in the `ServletContext` of the web
+object based on the bean definitions and stores it in the `MockContextImpl` of the web
 application.
 
 All Java web frameworks are built on top of the Servlet API, so you can use the
@@ -79,7 +79,7 @@ The following example shows how to get the `WebApplicationContext`:
 
 The
 {today-framework-api}/web/context/support/WebApplicationContextUtils.html[`WebApplicationContextUtils`]
-class is for convenience, so you need not remember the name of the `ServletContext`
+class is for convenience, so you need not remember the name of the `MockContextImpl`
 attribute. Its `getWebApplicationContext()` method returns `null` if an object
 does not exist under the `WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE`
 key. Rather than risk getting `NullPointerExceptions` in your application, it is better
@@ -144,7 +144,7 @@ A custom `ELResolver` works well when mapping your properties to beans in
 `faces-config.xml`, but, at times, you may need to explicitly grab a bean.
 The {today-framework-api}/web/jsf/FacesContextUtils.html[`FacesContextUtils`]
 class makes this easy. It is similar to `WebApplicationContextUtils`, except that
-it takes a `FacesContext` parameter rather than a `ServletContext` parameter.
+it takes a `FacesContext` parameter rather than a `MockContextImpl` parameter.
 
 The following example shows how to use `FacesContextUtils`:
 

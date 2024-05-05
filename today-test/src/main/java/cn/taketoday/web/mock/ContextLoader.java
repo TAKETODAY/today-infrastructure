@@ -38,10 +38,10 @@ import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 import static cn.taketoday.web.mock.DispatcherServlet.APPLICATION_CONTEXT_ID_PREFIX;
@@ -71,7 +71,7 @@ import static cn.taketoday.web.mock.DispatcherServlet.APPLICATION_CONTEXT_ID_PRE
  *
  * <p>Above and beyond loading the root application context, this class can optionally
  * load or obtain and hook up a shared parent context to the root application context.
- * See the {@link #loadParentContext(ServletContext)} method for more information.
+ * See the {@link #loadParentContext(MockContext)} method for more information.
  *
  * <p>{@code ContextLoader} supports injecting the root web
  * application context via the {@link #ContextLoader(WebApplicationContext)}
@@ -104,7 +104,7 @@ public class ContextLoader {
   /**
    * Config param for the root WebApplicationContext implementation class to use: {@value}.
    *
-   * @see #determineContextClass(ServletContext)
+   * @see #determineContextClass(MockContext)
    */
   public static final String CONTEXT_CLASS_PARAM = "contextClass";
 
@@ -112,7 +112,7 @@ public class ContextLoader {
    * Config param for {@link ApplicationContextInitializer} classes to use
    * for initializing the root web application context: {@value}.
    *
-   * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
+   * @see #customizeContext(MockContext, ConfigurableWebApplicationContext)
    */
   public static final String CONTEXT_INITIALIZER_CLASSES_PARAM = "contextInitializerClasses";
 
@@ -120,7 +120,7 @@ public class ContextLoader {
    * Config param for global {@link ApplicationContextInitializer} classes to use
    * for initializing all web application contexts in the current application: {@value}.
    *
-   * @see #customizeContext(ServletContext, ConfigurableWebApplicationContext)
+   * @see #customizeContext(MockContext, ConfigurableWebApplicationContext)
    */
   public static final String GLOBAL_INITIALIZER_CLASSES_PARAM = "globalInitializerClasses";
 
@@ -175,15 +175,15 @@ public class ContextLoader {
    * container shutdown to close the application context.
    *
    * @see #ContextLoader(WebApplicationContext)
-   * @see #initWebApplicationContext(ServletContext)
-   * @see #closeWebApplicationContext(ServletContext)
+   * @see #initWebApplicationContext(MockContext)
+   * @see #closeWebApplicationContext(MockContext)
    */
   public ContextLoader() { }
 
   /**
    * Create a new {@code ContextLoader} with the given application context. This
    * constructor is useful in Servlet initializers where instance-based registration
-   * of listeners is possible through the {@link ServletContext#addListener} API.
+   * of listeners is possible through the {@link MockContext#addListener} API.
    * <p>The context may or may not yet be {@linkplain
    * ConfigurableApplicationContext#refresh() refreshed}. If it (a) is an implementation
    * of {@link ConfigurableWebApplicationContext} and (b) has <strong>not</strong>
@@ -210,8 +210,8 @@ public class ContextLoader {
    * to close the application context.
    *
    * @param context the application context to manage
-   * @see #initWebApplicationContext(ServletContext)
-   * @see #closeWebApplicationContext(ServletContext)
+   * @see #initWebApplicationContext(MockContext)
+   * @see #closeWebApplicationContext(MockContext)
    */
   public ContextLoader(@Nullable WebApplicationContext context) {
     this.context = context;
@@ -236,20 +236,20 @@ public class ContextLoader {
    * according to the "{@link #CONTEXT_CLASS_PARAM contextClass}" and
    * "{@link #CONFIG_LOCATION_PARAM contextConfigLocation}" context-params.
    *
-   * @param servletContext current servlet context
+   * @param mockContext current servlet context
    * @return the new WebApplicationContext
    * @see #ContextLoader(WebApplicationContext)
    * @see #CONTEXT_CLASS_PARAM
    * @see #CONFIG_LOCATION_PARAM
    */
-  public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
-    if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
+  public WebApplicationContext initWebApplicationContext(MockContext mockContext) {
+    if (mockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
       throw new IllegalStateException(
               "Cannot initialize context because there is already a root application context present - " +
                       "check whether you have multiple ContextLoader* definitions in your web.xml!");
     }
 
-    servletContext.log("Initializing Infra root WebApplicationContext");
+    mockContext.log("Initializing Infra root WebApplicationContext");
     Logger logger = LoggerFactory.getLogger(ContextLoader.class);
     if (logger.isInfoEnabled()) {
       logger.info("Root WebApplicationContext: initialization started");
@@ -260,7 +260,7 @@ public class ContextLoader {
       // Store context in local instance variable, to guarantee that
       // it is available on ServletContext shutdown.
       if (this.context == null) {
-        this.context = createWebApplicationContext(servletContext);
+        this.context = createWebApplicationContext(mockContext);
       }
       if (this.context instanceof ConfigurableWebApplicationContext cwac && !cwac.isActive()) {
         // The context has not yet been refreshed -> provide services such as
@@ -268,12 +268,12 @@ public class ContextLoader {
         if (cwac.getParent() == null) {
           // The context instance was injected without an explicit parent ->
           // determine parent for root web application context, if any.
-          ApplicationContext parent = loadParentContext(servletContext);
+          ApplicationContext parent = loadParentContext(mockContext);
           cwac.setParent(parent);
         }
-        configureAndRefreshWebApplicationContext(cwac, servletContext);
+        configureAndRefreshWebApplicationContext(cwac, mockContext);
       }
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
+      mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
       ClassLoader ccl = Thread.currentThread().getContextClassLoader();
       if (ccl == ContextLoader.class.getClassLoader()) {
@@ -292,7 +292,7 @@ public class ContextLoader {
     }
     catch (RuntimeException | Error ex) {
       logger.error("Context initialization failed", ex);
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
+      mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
   }
@@ -310,7 +310,7 @@ public class ContextLoader {
    * @return the root WebApplicationContext
    * @see ConfigurableWebApplicationContext
    */
-  protected WebApplicationContext createWebApplicationContext(ServletContext sc) {
+  protected WebApplicationContext createWebApplicationContext(MockContext sc) {
     Class<?> contextClass = determineContextClass(sc);
     if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
       throw new ApplicationContextException("Custom context class [" + contextClass.getName() +
@@ -323,12 +323,12 @@ public class ContextLoader {
    * Return the WebApplicationContext implementation class to use, either the
    * default XmlWebApplicationContext or a custom context class if specified.
    *
-   * @param servletContext current servlet context
+   * @param mockContext current servlet context
    * @return the WebApplicationContext implementation class to use
    * @see #CONTEXT_CLASS_PARAM
    */
-  protected Class<?> determineContextClass(ServletContext servletContext) {
-    String contextClassName = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);
+  protected Class<?> determineContextClass(MockContext mockContext) {
+    String contextClassName = mockContext.getInitParameter(CONTEXT_CLASS_PARAM);
     if (contextClassName != null) {
       try {
         return ClassUtils.forName(contextClassName, ClassUtils.getDefaultClassLoader());
@@ -362,7 +362,7 @@ public class ContextLoader {
     }
   }
 
-  protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac, ServletContext sc) {
+  protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac, MockContext sc) {
     if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
       // The application context id is still set to its original default value
       // -> assign a more useful id based on available information
@@ -372,8 +372,7 @@ public class ContextLoader {
       }
       else {
         // Generate default id...
-        wac.setId(APPLICATION_CONTEXT_ID_PREFIX +
-                ObjectUtils.getDisplayString(sc.getContextPath()));
+        wac.setId(APPLICATION_CONTEXT_ID_PREFIX + ObjectUtils.getDisplayString(sc));
       }
     }
 
@@ -399,7 +398,7 @@ public class ContextLoader {
    * Customize the {@link ConfigurableWebApplicationContext} created by this
    * ContextLoader after config locations have been supplied to the context
    * but before the context is <em>refreshed</em>.
-   * <p>The default implementation {@linkplain #determineContextInitializerClasses(ServletContext)
+   * <p>The default implementation {@linkplain #determineContextInitializerClasses(MockContext)
    * determines} what (if any) context initializer classes have been specified through
    * {@linkplain #CONTEXT_INITIALIZER_CLASSES_PARAM context init parameters} and
    * {@linkplain ApplicationContextInitializer#initialize invokes each} with the
@@ -413,7 +412,7 @@ public class ContextLoader {
    * @see #CONTEXT_INITIALIZER_CLASSES_PARAM
    * @see ApplicationContextInitializer#initialize(ConfigurableApplicationContext)
    */
-  protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
+  protected void customizeContext(MockContext sc, ConfigurableWebApplicationContext wac) {
     List<Class<ApplicationContextInitializer>> initializerClasses =
             determineContextInitializerClasses(sc);
 
@@ -431,21 +430,21 @@ public class ContextLoader {
    * Return the {@link ApplicationContextInitializer} implementation classes to use
    * if any have been specified by {@link #CONTEXT_INITIALIZER_CLASSES_PARAM}.
    *
-   * @param servletContext current servlet context
+   * @param mockContext current servlet context
    */
-  protected List<Class<ApplicationContextInitializer>> determineContextInitializerClasses(ServletContext servletContext) {
+  protected List<Class<ApplicationContextInitializer>> determineContextInitializerClasses(MockContext mockContext) {
 
     List<Class<ApplicationContextInitializer>> classes =
             new ArrayList<>();
 
-    String globalClassNames = servletContext.getInitParameter(GLOBAL_INITIALIZER_CLASSES_PARAM);
+    String globalClassNames = mockContext.getInitParameter(GLOBAL_INITIALIZER_CLASSES_PARAM);
     if (globalClassNames != null) {
       for (String className : StringUtils.tokenizeToStringArray(globalClassNames, INIT_PARAM_DELIMITERS)) {
         classes.add(loadInitializerClass(className));
       }
     }
 
-    String localClassNames = servletContext.getInitParameter(CONTEXT_INITIALIZER_CLASSES_PARAM);
+    String localClassNames = mockContext.getInitParameter(CONTEXT_INITIALIZER_CLASSES_PARAM);
     if (localClassNames != null) {
       for (String className : StringUtils.tokenizeToStringArray(localClassNames, INIT_PARAM_DELIMITERS)) {
         classes.add(loadInitializerClass(className));
@@ -482,23 +481,23 @@ public class ContextLoader {
    * having a parent context to the root web application context.
    * <p>The default implementation simply returns {@code null}, as of 5.0.
    *
-   * @param servletContext current servlet context
+   * @param mockContext current servlet context
    * @return the parent application context, or {@code null} if none
    */
   @Nullable
-  protected ApplicationContext loadParentContext(ServletContext servletContext) {
+  protected ApplicationContext loadParentContext(MockContext mockContext) {
     return null;
   }
 
   /**
    * Close Framework's web application context for the given servlet context.
-   * <p>If overriding {@link #loadParentContext(ServletContext)}, you may have
+   * <p>If overriding {@link #loadParentContext(MockContext)}, you may have
    * to override this method as well.
    *
-   * @param servletContext the ServletContext that the WebApplicationContext runs in
+   * @param mockContext the ServletContext that the WebApplicationContext runs in
    */
-  public void closeWebApplicationContext(ServletContext servletContext) {
-    servletContext.log("Closing Framework root WebApplicationContext");
+  public void closeWebApplicationContext(MockContext mockContext) {
+    mockContext.log("Closing Framework root WebApplicationContext");
     try {
       if (this.context instanceof ConfigurableWebApplicationContext cwac) {
         cwac.close();
@@ -512,7 +511,7 @@ public class ContextLoader {
       else if (ccl != null) {
         currentContextPerThread.remove(ccl);
       }
-      servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+      mockContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     }
   }
 

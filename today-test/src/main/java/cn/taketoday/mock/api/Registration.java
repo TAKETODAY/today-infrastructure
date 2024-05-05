@@ -28,7 +28,7 @@ import java.util.Set;
  * Filters whose implementation class is container implementation specific may be declared without any
  * <tt>servlet-class</tt> or <tt>filter-class</tt> elements, respectively, and will be represented as preliminary
  * Registration objects. Preliminary registrations must be completed by calling one of the <tt>addServlet</tt> or
- * <tt>addFilter</tt> methods on {@link ServletContext}, and passing in the Servlet or Filter name (obtained via
+ * <tt>addFilter</tt> methods on {@link MockContext}, and passing in the Servlet or Filter name (obtained via
  * {@link #getName}) along with the supporting Servlet or Filter implementation class name, Class object, or instance,
  * respectively. In most cases, preliminary registrations will be completed by an appropriate, container-provided
  * {@link ServletContainerInitializer}.
@@ -111,7 +111,7 @@ public interface Registration {
 
   /**
    * Interface through which a {@link Servlet} or {@link Filter} registered via one of the <tt>addServlet</tt> or
-   * <tt>addFilter</tt> methods, respectively, on {@link ServletContext} may be further configured.
+   * <tt>addFilter</tt> methods, respectively, on {@link MockContext} may be further configured.
    */
   interface Dynamic extends Registration {
 

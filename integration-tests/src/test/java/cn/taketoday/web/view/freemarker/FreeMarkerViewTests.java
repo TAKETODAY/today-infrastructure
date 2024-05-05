@@ -30,15 +30,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.RedirectView;
 import cn.taketoday.web.view.View;
@@ -67,7 +67,7 @@ public class FreeMarkerViewTests {
 
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(new HashMap<>());
-    given(wac.getServletContext()).willReturn(new MockServletContext());
+    given(wac.getServletContext()).willReturn(new MockContextImpl());
 
     fv.setUrl("anythingButNull");
 
@@ -90,7 +90,7 @@ public class FreeMarkerViewTests {
     FreeMarkerView fv = new FreeMarkerView();
 
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    MockServletContext sc = new MockServletContext();
+    MockContextImpl sc = new MockContextImpl();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
@@ -102,7 +102,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.US);
     given(wac.getBean(LocaleResolver.BEAN_NAME)).willReturn(new AcceptHeaderLocaleResolver());
     given(wac.getBean(LocaleResolver.BEAN_NAME, LocaleResolver.class)).willReturn(new AcceptHeaderLocaleResolver());
@@ -121,7 +121,7 @@ public class FreeMarkerViewTests {
     FreeMarkerView fv = new FreeMarkerView();
 
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    MockServletContext sc = new MockServletContext();
+    MockContextImpl sc = new MockContextImpl();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
@@ -135,7 +135,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.US);
 
     HttpServletResponse response = new MockHttpServletResponse();
@@ -154,7 +154,7 @@ public class FreeMarkerViewTests {
     FreeMarkerView fv = new FreeMarkerView();
 
     WebApplicationContext wac = mock();
-    MockServletContext sc = new MockServletContext();
+    MockContextImpl sc = new MockContextImpl();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
@@ -166,7 +166,7 @@ public class FreeMarkerViewTests {
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.US);
     request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     HttpServletResponse response = new MockHttpServletResponse();
@@ -177,7 +177,7 @@ public class FreeMarkerViewTests {
 
   @Test
   public void freeMarkerViewResolver() throws Exception {
-    MockServletContext sc = new MockServletContext();
+    MockContextImpl sc = new MockContextImpl();
 
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());

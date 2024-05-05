@@ -41,7 +41,7 @@ import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,7 +84,7 @@ class ResourceHandlerRegistryTests {
 
   @Test
   public void mapPathToLocation() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setMethod("GET");
     request.setRequestURI("/testStylesheet.css");
 

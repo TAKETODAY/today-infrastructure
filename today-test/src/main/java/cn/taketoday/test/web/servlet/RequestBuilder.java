@@ -17,11 +17,11 @@
 
 package cn.taketoday.test.web.servlet;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 /**
- * Builds a {@link MockHttpServletRequest}.
+ * Builds a {@link HttpMockRequestImpl}.
  *
  * <p>See static factory methods in
  * {@link cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders MockMvcRequestBuilders}.
@@ -36,9 +36,9 @@ public interface RequestBuilder {
   /**
    * Build the request.
    *
-   * @param servletContext the {@link ServletContext} to use to create the request
+   * @param mockContext the {@link MockContext} to use to create the request
    * @return the request
    */
-  MockHttpServletRequest buildRequest(ServletContext servletContext);
+  HttpMockRequestImpl buildRequest(MockContext mockContext);
 
 }

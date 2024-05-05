@@ -59,7 +59,7 @@ class PrintingResultHandlerIntegrationTests {
     assertThat(writer).asString()
             .contains("Hello Request")
             .contains("Hello Response")
-            .contains("Headers = [Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\", Set-Cookie:\"enigma=42\"]");
+            .contains("Headers = [Set-Cookie:\"enigma=42\", Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\"]");
   }
 
   @Test
@@ -97,7 +97,7 @@ class PrintingResultHandlerIntegrationTests {
     assertThat(writer).asString()
             .contains("Hello Request")
             .contains("Hello Response")
-            .contains("Headers = [Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\", Set-Cookie:\"enigma=42\"]");
+            .contains("Headers = [Set-Cookie:\"enigma=42\", Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\"]");
   }
 
   @RestController

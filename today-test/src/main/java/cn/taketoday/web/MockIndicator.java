@@ -17,7 +17,7 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -29,7 +29,7 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  */
 public interface MockIndicator {
 
-  HttpServletRequest getRequest();
+  HttpMockRequest getRequest();
 
   HttpServletResponse getResponse();
 

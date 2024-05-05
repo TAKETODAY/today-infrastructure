@@ -35,7 +35,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
@@ -234,7 +234,7 @@ class RouterFunctionBuilderTests {
             .onError(Exception.class, (t, r) -> ServerResponse.status(201).build())
             .build();
 
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", "/error");
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/error");
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
@@ -253,8 +253,8 @@ class RouterFunctionBuilderTests {
   }
 
   private ServerRequest initRequest(
-          String httpMethod, String requestUri, @Nullable Consumer<MockHttpServletRequest> consumer) {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
+          String httpMethod, String requestUri, @Nullable Consumer<HttpMockRequestImpl> consumer) {
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
     return new DefaultServerRequest(requestContext, emptyList());

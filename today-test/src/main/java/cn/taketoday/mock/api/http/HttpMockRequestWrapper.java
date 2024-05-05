@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequestWrapper;
+import cn.taketoday.mock.api.MockRequestWrapper;
 
 /**
  * Provides a convenient implementation of the HttpServletRequest interface that can be subclassed by developers wishing
@@ -33,23 +33,23 @@ import cn.taketoday.mock.api.ServletRequestWrapper;
  * This class implements the Wrapper or Decorator pattern. Methods default to calling through to the wrapped request
  * object.
  *
- * @see HttpServletRequest
+ * @see HttpMockRequest
  * @since Servlet 2.3
  */
-public class HttpServletRequestWrapper extends ServletRequestWrapper implements HttpServletRequest {
+public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMockRequest {
 
   /**
    * Constructs a request object wrapping the given request.
    *
-   * @param request the {@link HttpServletRequest} to be wrapped.
+   * @param request the {@link HttpMockRequest} to be wrapped.
    * @throws IllegalArgumentException if the request is null
    */
-  public HttpServletRequestWrapper(HttpServletRequest request) {
+  public HttpMockRequestWrapper(HttpMockRequest request) {
     super(request);
   }
 
-  private HttpServletRequest _getHttpServletRequest() {
-    return (HttpServletRequest) super.getRequest();
+  private HttpMockRequest _getHttpServletRequest() {
+    return (HttpMockRequest) super.getRequest();
   }
 
   /**

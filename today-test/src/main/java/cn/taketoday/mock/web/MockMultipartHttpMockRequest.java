@@ -30,6 +30,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.MultipartException;
@@ -37,7 +38,6 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.http.Part;
 
@@ -56,28 +56,28 @@ import cn.taketoday.mock.api.http.Part;
  * @see MockMultipartFile
  * @since 4.0
  */
-public class MockMultipartHttpServletRequest extends MockHttpServletRequest implements MultipartRequest {
+public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements MultipartRequest {
 
   private final MultiValueMap<String, Multipart> multipartData = new LinkedMultiValueMap<>();
 
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with a default
-   * {@link MockServletContext}.
+   * {@link MockContextImpl}.
    *
-   * @see #MockMultipartHttpServletRequest(ServletContext)
+   * @see #MockMultipartHttpMockRequest(MockContext)
    */
-  public MockMultipartHttpServletRequest() {
+  public MockMultipartHttpMockRequest() {
     this(null);
   }
 
   /**
-   * Create a new {@code MockMultipartHttpServletRequest} with the supplied {@link ServletContext}.
+   * Create a new {@code MockMultipartHttpServletRequest} with the supplied {@link MockContext}.
    *
-   * @param servletContext the ServletContext that the request runs in
-   * (may be {@code null} to use a default {@link MockServletContext})
+   * @param mockContext the ServletContext that the request runs in
+   * (may be {@code null} to use a default {@link MockContextImpl})
    */
-  public MockMultipartHttpServletRequest(@Nullable ServletContext servletContext) {
-    super(servletContext);
+  public MockMultipartHttpMockRequest(@Nullable MockContext mockContext) {
+    super(mockContext);
     setMethod("POST");
     setContentType("multipart/form-data");
   }

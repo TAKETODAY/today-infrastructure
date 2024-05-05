@@ -18,6 +18,7 @@
 package cn.taketoday.test.web.servlet.setup;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
 import cn.taketoday.web.mock.WebApplicationContext;
@@ -45,7 +46,7 @@ public final class MockMvcBuilders {
    * <p>The {@link cn.taketoday.web.mock.DispatcherServlet DispatcherServlet}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a
-   * {@link cn.taketoday.mock.api.ServletContext ServletContext}.
+   * {@link MockContext ServletContext}.
    */
   public static DefaultMockMvcBuilder webAppContextSetup(ApplicationContext context) {
     return new DefaultMockMvcBuilder(context);

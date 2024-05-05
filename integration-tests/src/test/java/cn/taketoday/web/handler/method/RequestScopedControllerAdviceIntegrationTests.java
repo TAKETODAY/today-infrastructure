@@ -25,7 +25,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.annotation.RequestScope;
@@ -45,7 +45,7 @@ class RequestScopedControllerAdviceIntegrationTests {
     // gh-23985
   void loadContextWithRequestScopedControllerAdvice() {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
     context.register(Config.class);
 
     assertThatCode(context::refresh).doesNotThrowAnyException();

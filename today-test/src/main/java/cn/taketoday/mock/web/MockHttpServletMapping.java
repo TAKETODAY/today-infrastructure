@@ -27,7 +27,7 @@ import cn.taketoday.mock.api.http.MappingMatch;
 /**
  * Mock implementation of {@link HttpServletMapping}.
  *
- * <p>Currently not exposed in {@link MockHttpServletRequest} as a setter to
+ * <p>Currently not exposed in {@link HttpMockRequestImpl} as a setter to
  * avoid issues for Maven builds in applications with a Servlet 3.1 runtime
  * requirement.
  *

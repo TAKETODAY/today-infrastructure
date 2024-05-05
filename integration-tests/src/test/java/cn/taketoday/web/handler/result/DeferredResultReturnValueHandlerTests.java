@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
@@ -42,14 +42,14 @@ class DeferredResultReturnValueHandlerTests {
 
   private DeferredResultReturnValueHandler handler;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private ServletRequestContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     this.handler = new DeferredResultReturnValueHandler();
-    this.request = new MockHttpServletRequest();
+    this.request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.request, response);
 

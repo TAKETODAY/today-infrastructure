@@ -33,7 +33,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -178,7 +178,7 @@ class DefaultEntityResponseBuilderTests {
             .eTag(etag)
             .build();
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
 
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -200,7 +200,7 @@ class DefaultEntityResponseBuilderTests {
             .lastModified(oneMinuteBeforeNow)
             .build();
 
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();

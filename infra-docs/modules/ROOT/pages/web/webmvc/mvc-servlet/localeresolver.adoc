@@ -104,7 +104,7 @@ for each session and are, therefore, lost when each session ends.
 
 Note that there is no direct relationship with external session management mechanisms,
 such as the Infra Session project. This `SessionLocaleResolver` evaluates and
-modifies the corresponding `HttpSession` attributes against the current `HttpServletRequest`.
+modifies the corresponding `HttpSession` attributes against the current `HttpMockRequest`.
 
 
 [[mvc-localeresolver-interceptor]]

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.request;
@@ -24,11 +21,11 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockMultipartFile;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.mock.web.MockPart;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.mock.api.http.Part;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -39,16 +36,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class MockMultipartHttpServletRequestBuilderTests {
+public class MockMultipartHttpRequestBuilderTests {
 
   @Test
     // gh-26166
   void addFileAndParts() throws Exception {
-    MockMultipartHttpServletRequest mockRequest =
-            (MockMultipartHttpServletRequest) new MockMultipartHttpServletRequestBuilder("/upload")
+    MockMultipartHttpMockRequest mockRequest =
+            (MockMultipartHttpMockRequest) new MockMultipartHttpServletRequestBuilder("/upload")
                     .file(new MockMultipartFile("file", "test.txt", "text/plain", "Test".getBytes(UTF_8)))
                     .part(new MockPart("name", "value".getBytes(UTF_8)))
-                    .buildRequest(new MockServletContext());
+                    .buildRequest(new MockContextImpl());
 
     assertThat(mockRequest.getFileMap()).containsOnlyKeys("file");
     assertThat(mockRequest.getParameterMap()).containsOnlyKeys("name");
@@ -61,11 +58,11 @@ public class MockMultipartHttpServletRequestBuilderTests {
     MockPart jsonPart = new MockPart("data", "{\"node\":\"node\"}".getBytes(UTF_8));
     jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-    MockMultipartHttpServletRequest mockRequest =
-            (MockMultipartHttpServletRequest) new MockMultipartHttpServletRequestBuilder("/upload")
+    MockMultipartHttpMockRequest mockRequest =
+            (MockMultipartHttpMockRequest) new MockMultipartHttpServletRequestBuilder("/upload")
                     .file(new MockMultipartFile("file", "Test".getBytes(UTF_8)))
                     .part(jsonPart)
-                    .buildRequest(new MockServletContext());
+                    .buildRequest(new MockContextImpl());
 
     assertThat(mockRequest.getFileMap()).containsOnlyKeys("file");
     assertThat(mockRequest.getParameterMap()).hasSize(1);
@@ -83,7 +80,7 @@ public class MockMultipartHttpServletRequestBuilderTests {
     assertThat(result.getClass()).isEqualTo(MockMultipartHttpServletRequestBuilder.class);
 
     MockMultipartHttpServletRequestBuilder builder = (MockMultipartHttpServletRequestBuilder) result;
-    MockHttpServletRequest request = builder.buildRequest(new MockServletContext());
+    HttpMockRequestImpl request = builder.buildRequest(new MockContextImpl());
     assertThat(request.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 

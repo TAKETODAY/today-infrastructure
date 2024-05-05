@@ -26,16 +26,16 @@ import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * A Filter that invokes a delegate {@link Filter} only if the request URL
@@ -57,7 +57,7 @@ final class MockMvcFilterDecorator implements Filter {
   private final Filter delegate;
 
   @Nullable
-  private final Function<ServletContext, FilterConfig> filterConfigInitializer;
+  private final Function<MockContext, FilterConfig> filterConfigInitializer;
 
   @Nullable
   private final EnumSet<DispatcherType> dispatcherTypes;
@@ -100,7 +100,7 @@ final class MockMvcFilterDecorator implements Filter {
     this.hasPatterns = initPatterns(urlPatterns);
   }
 
-  private static Function<ServletContext, FilterConfig> getFilterConfigInitializer(
+  private static Function<MockContext, FilterConfig> getFilterConfigInitializer(
           @Nullable String filterName, @Nullable Map<String, String> initParams) {
 
     return servletContext -> {
@@ -136,10 +136,10 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+  public void doFilter(MockRequest request, ServletResponse response, FilterChain filterChain)
           throws IOException, ServletException {
 
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    HttpMockRequest httpRequest = (HttpMockRequest) request;
     String requestPath = httpRequest.getRequestURI();
 
     if (matchDispatcherType(httpRequest.getDispatcherType()) && matchRequestPath(requestPath)) {
@@ -190,9 +190,9 @@ final class MockMvcFilterDecorator implements Filter {
     this.delegate.destroy();
   }
 
-  public void initIfRequired(@Nullable ServletContext servletContext) throws ServletException {
+  public void initIfRequired(@Nullable MockContext mockContext) throws ServletException {
     if (this.filterConfigInitializer != null) {
-      FilterConfig filterConfig = this.filterConfigInitializer.apply(servletContext);
+      FilterConfig filterConfig = this.filterConfigInitializer.apply(mockContext);
       this.delegate.init(filterConfig);
     }
   }

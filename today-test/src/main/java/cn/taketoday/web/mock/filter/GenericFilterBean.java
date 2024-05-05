@@ -40,11 +40,12 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.GenericMock;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.support.ServletContextResourceLoader;
 import cn.taketoday.web.mock.support.StandardServletEnvironment;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
@@ -78,7 +79,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * @since 4.0
  */
 public abstract class GenericFilterBean implements Filter, BeanNameAware, EnvironmentAware,
-        EnvironmentCapable, ServletContextAware, InitializingBean, DisposableBean {
+        EnvironmentCapable, MockContextAware, InitializingBean, DisposableBean {
 
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -90,7 +91,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   private Environment environment;
 
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   @Nullable
   private FilterConfig filterConfig;
@@ -150,12 +151,12 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * <p>Only relevant in case of initialization as bean, to have a ServletContext
    * as fallback to the context usually provided by a FilterConfig instance.
    *
-   * @see cn.taketoday.web.mock.ServletContextAware
+   * @see MockContextAware
    * @see #getServletContext()
    */
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   /**
@@ -272,7 +273,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * of the Servlet Filter version that shipped with WebLogic 6.1.
    *
    * @return the FilterConfig instance, or {@code null} if none available
-   * @see cn.taketoday.mock.api.GenericServlet#getServletConfig()
+   * @see GenericMock#getServletConfig()
    */
   @Nullable
   public FilterConfig getFilterConfig() {
@@ -287,7 +288,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * it falls back to the bean name as defined in the bean factory.
    *
    * @return the filter name, or {@code null} if none available
-   * @see cn.taketoday.mock.api.GenericServlet#getServletName()
+   * @see GenericMock#getMockName()
    * @see cn.taketoday.mock.api.FilterConfig#getFilterName()
    * @see #setBeanName
    */
@@ -305,16 +306,16 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    *
    * @return the ServletContext instance
    * @throws IllegalStateException if no ServletContext is available
-   * @see cn.taketoday.mock.api.GenericServlet#getServletContext()
+   * @see GenericMock#getMockContext()
    * @see cn.taketoday.mock.api.FilterConfig#getServletContext()
-   * @see #setServletContext
+   * @see #setMockContext
    */
-  protected ServletContext getServletContext() {
+  protected MockContext getServletContext() {
     if (this.filterConfig != null) {
       return this.filterConfig.getServletContext();
     }
-    else if (this.servletContext != null) {
-      return this.servletContext;
+    else if (this.mockContext != null) {
+      return this.mockContext;
     }
     else {
       throw new IllegalStateException("No ServletContext");

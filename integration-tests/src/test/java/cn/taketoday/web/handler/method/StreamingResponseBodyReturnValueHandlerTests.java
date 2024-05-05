@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.AsyncWebRequest;
@@ -49,7 +49,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private RequestContext webRequest;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -57,7 +57,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
   public void setup() throws Exception {
     this.handler = new StreamingResponseBodyReturnValueHandler();
 
-    this.request = new MockHttpServletRequest("GET", "/path");
+    this.request = new HttpMockRequestImpl("GET", "/path");
     this.response = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.request, this.response);
 

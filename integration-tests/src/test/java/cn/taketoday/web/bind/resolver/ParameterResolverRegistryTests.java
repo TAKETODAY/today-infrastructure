@@ -28,7 +28,7 @@ import java.util.Set;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -130,7 +130,7 @@ class ParameterResolverRegistryTests {
 
     var context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
@@ -153,7 +153,7 @@ class ParameterResolverRegistryTests {
   void lookupStrategy() {
 
     var context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
     context.refresh();
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);

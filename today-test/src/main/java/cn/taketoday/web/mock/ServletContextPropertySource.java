@@ -21,21 +21,21 @@ import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.CollectionUtils;
 
 /**
- * {@link PropertySource} that reads init parameters from a {@link ServletContext} object.
+ * {@link PropertySource} that reads init parameters from a {@link MockContext} object.
  *
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServletConfigPropertySource
  * @since 4.0 2022/2/20 17:10
  */
-public class ServletContextPropertySource extends EnumerablePropertySource<ServletContext> {
+public class ServletContextPropertySource extends EnumerablePropertySource<MockContext> {
 
-  public ServletContextPropertySource(String name, ServletContext servletContext) {
-    super(name, servletContext);
+  public ServletContextPropertySource(String name, MockContext mockContext) {
+    super(name, mockContext);
   }
 
   @Override

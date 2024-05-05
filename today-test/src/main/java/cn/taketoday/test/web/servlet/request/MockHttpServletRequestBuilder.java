@@ -39,7 +39,8 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -47,16 +48,15 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 
 /**
- * Default builder for {@link MockHttpServletRequest} required as input to
+ * Default builder for {@link HttpMockRequestImpl} required as input to
  * perform requests in {@link MockMvc}.
  *
  * <p>Application tests will typically access this builder through the static
@@ -179,7 +179,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * remaining part. If specified here, the pathInfo must start with a "/".
    * <p>If specified, the pathInfo will be used as-is.
    *
-   * @see HttpServletRequest#getPathInfo()
+   * @see HttpMockRequest#getPathInfo()
    */
   public MockHttpServletRequestBuilder pathInfo(@Nullable String pathInfo) {
     if (StringUtils.hasText(pathInfo)) {
@@ -190,7 +190,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * Set the secure property of the {@link ServletRequest} indicating use of a
+   * Set the secure property of the {@link MockRequest} indicating use of a
    * secure channel, such as HTTPS.
    *
    * @param secure whether the request is using a secure channel
@@ -322,7 +322,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * Add a request parameter to {@link MockHttpServletRequest#getParameterMap()}.
+   * Add a request parameter to {@link HttpMockRequestImpl#getParameterMap()}.
    * <p>In the Servlet API, a request parameter may be parsed from the query
    * string and/or from the body of an {@code application/x-www-form-urlencoded}
    * request. This method simply adds to the request parameter map. You may
@@ -515,7 +515,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * An extension point for further initialization of {@link MockHttpServletRequest}
+   * An extension point for further initialization of {@link HttpMockRequestImpl}
    * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
    * Implementation of this interface can have builder-style methods themselves
    * and be made accessible through static factory methods.
@@ -650,11 +650,11 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * Build a {@link MockHttpServletRequest}.
+   * Build a {@link HttpMockRequestImpl}.
    */
   @Override
-  public final MockHttpServletRequest buildRequest(ServletContext servletContext) {
-    MockHttpServletRequest request = createServletRequest(servletContext);
+  public final HttpMockRequestImpl buildRequest(MockContext mockContext) {
+    HttpMockRequestImpl request = createServletRequest(mockContext);
 
     request.setAsyncSupported(true);
     request.setMethod(this.method);
@@ -758,18 +758,18 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * Create a new {@link MockHttpServletRequest} based on the supplied
+   * Create a new {@link HttpMockRequestImpl} based on the supplied
    * {@code ServletContext}.
    * <p>Can be overridden in subclasses.
    */
-  protected MockHttpServletRequest createServletRequest(ServletContext servletContext) {
-    return new MockHttpServletRequest(servletContext);
+  protected HttpMockRequestImpl createServletRequest(MockContext mockContext) {
+    return new HttpMockRequestImpl(mockContext);
   }
 
   /**
    * Update the contextPath, servletPath, and pathInfo of the request.
    */
-  private void updatePathRequestProperties(MockHttpServletRequest request, String requestUri) {
+  private void updatePathRequestProperties(HttpMockRequestImpl request, String requestUri) {
     if ("".equals(this.pathInfo)) {
       if (!requestUri.startsWith(this.contextPath + this.servletPath)) {
         throw new IllegalArgumentException(
@@ -782,7 +782,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
     request.setPathInfo(this.pathInfo);
   }
 
-  private void addRequestParams(MockHttpServletRequest request, MultiValueMap<String, String> map) {
+  private void addRequestParams(HttpMockRequestImpl request, MultiValueMap<String, String> map) {
     map.forEach((key, values) -> values.forEach(value -> {
       value = (value != null ? UriUtils.decode(value, StandardCharsets.UTF_8) : null);
       request.addParameter(UriUtils.decode(key, StandardCharsets.UTF_8), value);
@@ -813,7 +813,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   @Override
-  public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+  public HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request) {
     for (RequestPostProcessor postProcessor : this.postProcessors) {
       request = postProcessor.postProcessRequest(request);
     }

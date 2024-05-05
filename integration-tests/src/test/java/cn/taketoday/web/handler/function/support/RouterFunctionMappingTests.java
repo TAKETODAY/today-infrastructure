@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.function.HandlerFunction;
@@ -172,7 +172,7 @@ class RouterFunctionMappingTests {
   }
 
   private ServletRequestContext createTestRequest(String path) {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", path);
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
     return new ServletRequestContext(null, request, new MockHttpServletResponse());
   }
 

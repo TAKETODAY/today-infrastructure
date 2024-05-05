@@ -29,20 +29,20 @@ import java.util.Map;
  * adapt the request to a Servlet. This class implements the Wrapper or Decorator pattern. Methods default to calling
  * through to the wrapped request object.
  *
- * @see ServletRequest
+ * @see MockRequest
  * @since Servlet 2.3
  */
-public class ServletRequestWrapper implements ServletRequest {
+public class MockRequestWrapper implements MockRequest {
 
-  private ServletRequest request;
+  private MockRequest request;
 
   /**
    * Creates a ServletRequest adaptor wrapping the given request object.
    *
-   * @param request the {@link ServletRequest} to be wrapped
+   * @param request the {@link MockRequest} to be wrapped
    * @throws IllegalArgumentException if the request is null
    */
-  public ServletRequestWrapper(ServletRequest request) {
+  public MockRequestWrapper(MockRequest request) {
     if (request == null) {
       throw new IllegalArgumentException("Request cannot be null");
     }
@@ -52,19 +52,19 @@ public class ServletRequestWrapper implements ServletRequest {
   /**
    * Return the wrapped request object.
    *
-   * @return the wrapped {@link ServletRequest}
+   * @return the wrapped {@link MockRequest}
    */
-  public ServletRequest getRequest() {
+  public MockRequest getRequest() {
     return this.request;
   }
 
   /**
    * Sets the request object being wrapped.
    *
-   * @param request the {@link ServletRequest} to be installed
+   * @param request the {@link MockRequest} to be installed
    * @throws IllegalArgumentException if the request is null.
    */
-  public void setRequest(ServletRequest request) {
+  public void setRequest(MockRequest request) {
     if (request == null) {
       throw new IllegalArgumentException("Request cannot be null");
     }
@@ -320,12 +320,12 @@ public class ServletRequestWrapper implements ServletRequest {
    * @since Servlet 3.0
    */
   @Override
-  public ServletContext getServletContext() {
+  public MockContext getServletContext() {
     return request.getServletContext();
   }
 
   /**
-   * The default behavior of this method is to invoke {@link ServletRequest#startAsync} on the wrapped request object.
+   * The default behavior of this method is to invoke {@link MockRequest#startAsync} on the wrapped request object.
    *
    * @return the (re)initialized AsyncContext
    * @throws IllegalStateException if the request is within the scope of a filter or servlet that does not support
@@ -333,7 +333,7 @@ public class ServletRequestWrapper implements ServletRequest {
    * any asynchronous dispatch (resulting from one of the {@link AsyncContext#dispatch} methods), is called outside the
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
-   * @see ServletRequest#startAsync
+   * @see MockRequest#startAsync
    * @since Servlet 3.0
    */
   @Override
@@ -342,10 +342,10 @@ public class ServletRequestWrapper implements ServletRequest {
   }
 
   /**
-   * The default behavior of this method is to invoke {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}
+   * The default behavior of this method is to invoke {@link MockRequest#startAsync(MockRequest, ServletResponse)}
    * on the wrapped request object.
    *
-   * @param servletRequest the ServletRequest used to initialize the AsyncContext
+   * @param mockRequest the ServletRequest used to initialize the AsyncContext
    * @param servletResponse the ServletResponse used to initialize the AsyncContext
    * @return the (re)initialized AsyncContext
    * @throws IllegalStateException if the request is within the scope of a filter or servlet that does not support
@@ -353,20 +353,20 @@ public class ServletRequestWrapper implements ServletRequest {
    * any asynchronous dispatch (resulting from one of the {@link AsyncContext#dispatch} methods), is called outside the
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
-   * @see ServletRequest#startAsync(ServletRequest, ServletResponse)
+   * @see MockRequest#startAsync(MockRequest, ServletResponse)
    * @since Servlet 3.0
    */
   @Override
-  public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+  public AsyncContext startAsync(MockRequest mockRequest, ServletResponse servletResponse)
           throws IllegalStateException {
-    return request.startAsync(servletRequest, servletResponse);
+    return request.startAsync(mockRequest, servletResponse);
   }
 
   /**
    * Checks if the wrapped request has been put into asynchronous mode.
    *
    * @return true if this request has been put into asynchronous mode, false otherwise
-   * @see ServletRequest#isAsyncStarted
+   * @see MockRequest#isAsyncStarted
    * @since Servlet 3.0
    */
   @Override
@@ -378,7 +378,7 @@ public class ServletRequestWrapper implements ServletRequest {
    * Checks if the wrapped request supports asynchronous operation.
    *
    * @return true if this request supports asynchronous operation, false otherwise
-   * @see ServletRequest#isAsyncSupported
+   * @see MockRequest#isAsyncSupported
    * @since Servlet 3.0
    */
   @Override
@@ -388,13 +388,13 @@ public class ServletRequestWrapper implements ServletRequest {
 
   /**
    * Gets the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(ServletRequest, ServletResponse)} on the wrapped request.
+   * {@link #startAsync(MockRequest, ServletResponse)} on the wrapped request.
    *
    * @return the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(ServletRequest, ServletResponse)} on the wrapped request
+   * {@link #startAsync(MockRequest, ServletResponse)} on the wrapped request
    * @throws IllegalStateException if this request has not been put into asynchronous mode, i.e., if neither
-   * {@link #startAsync} nor {@link #startAsync(ServletRequest, ServletResponse)} has been called
-   * @see ServletRequest#getAsyncContext
+   * {@link #startAsync} nor {@link #startAsync(MockRequest, ServletResponse)} has been called
+   * @see MockRequest#getAsyncContext
    * @since Servlet 3.0
    */
   @Override
@@ -403,18 +403,18 @@ public class ServletRequestWrapper implements ServletRequest {
   }
 
   /**
-   * Checks (recursively) if this ServletRequestWrapper wraps the given {@link ServletRequest} instance.
+   * Checks (recursively) if this ServletRequestWrapper wraps the given {@link MockRequest} instance.
    *
    * @param wrapped the ServletRequest instance to search for
    * @return true if this ServletRequestWrapper wraps the given ServletRequest instance, false otherwise
    * @since Servlet 3.0
    */
-  public boolean isWrapperFor(ServletRequest wrapped) {
+  public boolean isWrapperFor(MockRequest wrapped) {
     if (request == wrapped) {
       return true;
     }
-    else if (request instanceof ServletRequestWrapper) {
-      return ((ServletRequestWrapper) request).isWrapperFor(wrapped);
+    else if (request instanceof MockRequestWrapper) {
+      return ((MockRequestWrapper) request).isWrapperFor(wrapped);
     }
     else {
       return false;
@@ -422,23 +422,23 @@ public class ServletRequestWrapper implements ServletRequest {
   }
 
   /**
-   * Checks (recursively) if this ServletRequestWrapper wraps a {@link ServletRequest} of the given class type.
+   * Checks (recursively) if this ServletRequestWrapper wraps a {@link MockRequest} of the given class type.
    *
    * @param wrappedType the ServletRequest class type to search for
    * @return true if this ServletRequestWrapper wraps a ServletRequest of the given class type, false otherwise
-   * @throws IllegalArgumentException if the given class does not implement {@link ServletRequest}
+   * @throws IllegalArgumentException if the given class does not implement {@link MockRequest}
    * @since Servlet 3.0
    */
   public boolean isWrapperFor(Class<?> wrappedType) {
-    if (!ServletRequest.class.isAssignableFrom(wrappedType)) {
+    if (!MockRequest.class.isAssignableFrom(wrappedType)) {
       throw new IllegalArgumentException("Given class " + wrappedType.getName() + " not a subinterface of "
-              + ServletRequest.class.getName());
+              + MockRequest.class.getName());
     }
     if (wrappedType.isAssignableFrom(request.getClass())) {
       return true;
     }
-    else if (request instanceof ServletRequestWrapper) {
-      return ((ServletRequestWrapper) request).isWrapperFor(wrappedType);
+    else if (request instanceof MockRequestWrapper) {
+      return ((MockRequestWrapper) request).isWrapperFor(wrappedType);
     }
     else {
       return false;
@@ -449,7 +449,7 @@ public class ServletRequestWrapper implements ServletRequest {
    * Gets the dispatcher type of the wrapped request.
    *
    * @return the dispatcher type of the wrapped request
-   * @see ServletRequest#getDispatcherType
+   * @see MockRequest#getDispatcherType
    * @since Servlet 3.0
    */
   @Override

@@ -33,7 +33,7 @@ import cn.taketoday.beans.testfixture.beans.DummyFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.RequestScope;
@@ -64,7 +64,7 @@ public class RequestScopedProxyTests {
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -89,7 +89,7 @@ public class RequestScopedProxyTests {
     ITestBean bean = (ITestBean) this.beanFactory.getBean(name);
     // assertTrue(AopUtils.isJdkDynamicProxy(bean));
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -114,7 +114,7 @@ public class RequestScopedProxyTests {
     DerivedTestBean bean = (DerivedTestBean) this.beanFactory.getBean(name);
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse());
     RequestContextHolder.set(requestAttributes);
 
@@ -140,7 +140,7 @@ public class RequestScopedProxyTests {
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -164,7 +164,7 @@ public class RequestScopedProxyTests {
 
     String name = "scopedInnerBean";
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -191,7 +191,7 @@ public class RequestScopedProxyTests {
             (BeanDefinitionHolder) beanDef.getPropertyValues().getPropertyValue("spouse");
     String name = innerBeanDef.getBeanName();
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 

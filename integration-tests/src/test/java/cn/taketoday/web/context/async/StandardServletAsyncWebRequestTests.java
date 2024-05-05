@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
 
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
 import cn.taketoday.mock.api.AsyncEvent;
@@ -41,13 +41,13 @@ class StandardServletAsyncWebRequestTests {
 
   private StandardServletAsyncWebRequest asyncRequest;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
   @BeforeEach
   public void setup() {
-    this.request = new MockHttpServletRequest();
+    this.request = new HttpMockRequestImpl();
     this.request.setAsyncSupported(true);
     this.response = new MockHttpServletResponse();
     this.asyncRequest = new StandardServletAsyncWebRequest(this.request, this.response);

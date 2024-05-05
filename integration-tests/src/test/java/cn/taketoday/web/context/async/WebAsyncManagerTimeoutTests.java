@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
@@ -60,7 +60,7 @@ public class WebAsyncManagerTimeoutTests {
 
   private StandardServletAsyncWebRequest asyncWebRequest;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private MockHttpServletResponse servletResponse;
 
@@ -68,7 +68,7 @@ public class WebAsyncManagerTimeoutTests {
 
   @BeforeEach
   public void setup() {
-    this.servletRequest = new MockHttpServletRequest("GET", "/test");
+    this.servletRequest = new HttpMockRequestImpl("GET", "/test");
     this.servletRequest.setAsyncSupported(true);
     this.servletResponse = new MockHttpServletResponse();
     this.asyncWebRequest = new StandardServletAsyncWebRequest(servletRequest, servletResponse);

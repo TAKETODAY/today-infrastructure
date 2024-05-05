@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +39,7 @@ public class ConsumesRequestConditionTests {
   public void consumesMatch() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("text/plain");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -49,7 +49,7 @@ public class ConsumesRequestConditionTests {
   public void negatedConsumesMatch() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("!text/plain");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("text/plain");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -65,7 +65,7 @@ public class ConsumesRequestConditionTests {
   public void consumesWildcardMatch() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/*");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("text/plain");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -75,7 +75,7 @@ public class ConsumesRequestConditionTests {
   public void consumesMultipleMatch() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain", "application/xml");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("text/plain");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -85,7 +85,7 @@ public class ConsumesRequestConditionTests {
   public void consumesSingleNoMatch() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("application/xml");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -95,7 +95,7 @@ public class ConsumesRequestConditionTests {
   public void matchWithParameters() {
     String base = "application/hal+json";
     ConsumesRequestCondition condition = new ConsumesRequestCondition(base + ";profile=\"a\"");
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setContentType(base + ";profile=\"a\"");
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
 
@@ -120,7 +120,7 @@ public class ConsumesRequestConditionTests {
   public void consumesParseError() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("01");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -130,7 +130,7 @@ public class ConsumesRequestConditionTests {
   public void consumesParseErrorWithNegation() {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("!text/plain");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("01");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -141,25 +141,25 @@ public class ConsumesRequestConditionTests {
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain");
     condition.setBodyRequired(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
-    request = new MockHttpServletRequest("GET", "/");
+    request = new HttpMockRequestImpl("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
 
-    request = new MockHttpServletRequest("GET", "/");
+    request = new HttpMockRequestImpl("GET", "/");
     request.addHeader(HttpHeaders.CONTENT_LENGTH, "21");
     request.setContent(new byte[21]);
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
 
-    request = new MockHttpServletRequest("GET", "/");
+    request = new HttpMockRequestImpl("GET", "/");
     request.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
   }
 
   @Test
   public void compareToSingle() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ConsumesRequestCondition condition1 = new ConsumesRequestCondition("text/plain");
     ConsumesRequestCondition condition2 = new ConsumesRequestCondition("text/*");
@@ -173,7 +173,7 @@ public class ConsumesRequestConditionTests {
 
   @Test
   public void compareToMultiple() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ConsumesRequestCondition condition1 = new ConsumesRequestCondition("*/*", "text/plain");
     ConsumesRequestCondition condition2 = new ConsumesRequestCondition("text/*", "text/plain;q=0.7");
@@ -214,7 +214,7 @@ public class ConsumesRequestConditionTests {
 
   @Test
   public void getMatchingCondition() {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.setContentType("text/plain");
 
     ConsumesRequestCondition condition = new ConsumesRequestCondition("text/plain", "application/xml");

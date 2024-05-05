@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
@@ -138,7 +138,7 @@ class UrlFilenameViewControllerTests {
   @Test
   void withContextMapping() throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/cvs/commit.html");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/docs/cvs/commit.html");
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
     ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());

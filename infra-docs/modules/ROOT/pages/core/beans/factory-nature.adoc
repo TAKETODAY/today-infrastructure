@@ -656,15 +656,6 @@ dependency type. The following table summarizes the most important `Aware` inter
 | Configured loader for low-level access to resources.
 | Resources
 
-| `ServletConfigAware`
-| Current `ServletConfig` the container runs in. Valid only in a web-aware Infra
-  `ApplicationContext`.
-| xref:web/webmvc.adoc#mvc[Web MVC]
-
-| `ServletContextAware`
-| Current `ServletContext` the container runs in. Valid only in a web-aware Infra
-  `ApplicationContext`.
-| xref:web/webmvc.adoc#mvc[Web MVC]
 |===
 
 Note again that using these interfaces ties your code to the Infra API and does not

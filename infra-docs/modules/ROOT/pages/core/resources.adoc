@@ -138,14 +138,6 @@ var resource = new UrlResource("http://localhost:9090");
 支持解析成 `File` 和 `URL`。它也实现了 `WritableResource` 接口。
 
 
-[[resources-implementations-servletcontextresource]]
-=== `ServletContextResource`
-
-该实现是为了适配 `ServletContext` 下的资源。依赖于 Servlet 容器。
-
-TIP: 5.0 版本计划移除 Servlet 支持。
-
-
 [[resources-implementations-inputstreamresource]]
 === `InputStreamResource`
 

@@ -35,7 +35,7 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.ui.template.TemplateAvailabilityProvider;
 import cn.taketoday.ui.template.TemplateAvailabilityProviders;
@@ -70,7 +70,7 @@ class DefaultErrorViewResolverTests {
   private final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
   private final RequestContext request = new ServletRequestContext(null,
-          new MockHttpServletRequest(), servletResponse);
+          new HttpMockRequestImpl(), servletResponse);
 
   @BeforeEach
   void setup() {

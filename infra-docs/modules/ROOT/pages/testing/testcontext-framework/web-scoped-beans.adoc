@@ -39,11 +39,11 @@ The following listing shows the configuration for this use case:
 ----
 
 In `RequestScopedBeanTests`, we inject both the `UserService` (that is, the subject under
-test) and the `MockHttpServletRequest` into our test instance. Within our
+test) and the `HttpMockRequestImpl` into our test instance. Within our
 `requestScope()` test method, we set up our test fixture by setting request parameters in
-the provided `MockHttpServletRequest`. When the `loginUser()` method is invoked on our
+the provided `HttpMockRequestImpl`. When the `loginUser()` method is invoked on our
 `userService`, we are assured that the user service has access to the request-scoped
-`loginAction` for the current `MockHttpServletRequest` (that is, the one in which we just
+`loginAction` for the current `HttpMockRequestImpl` (that is, the one in which we just
 set parameters). We can then perform assertions against the results based on the known
 inputs for the username and password. The following listing shows how to do so:
 

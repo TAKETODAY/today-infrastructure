@@ -46,7 +46,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.reactive.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.reactive.MockClientHttpResponse;
 import cn.taketoday.mock.http.server.reactive.MockServerHttpRequest;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.test.web.reactive.server.MockServerClientHttpResponse;
@@ -250,7 +250,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public MockHttpServletRequest getRequest() {
+    public HttpMockRequestImpl getRequest() {
       return this.mvcResult.getRequest();
     }
 

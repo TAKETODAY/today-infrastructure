@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.bind.resolver.ExpressionValueMethodArgumentResolver;
@@ -49,7 +49,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   private ResolvableMethodParameter paramContextPath;
 
   private ResolvableMethodParameter paramNotSupported;
-  MockHttpServletRequest request = new MockHttpServletRequest();
+  HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private ServletRequestContext webRequest;
 

@@ -31,9 +31,9 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.bind.resolver.PrincipalMethodArgumentResolver;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,7 @@ class PrincipalMethodArgumentResolverTests {
 
   private final PrincipalMethodArgumentResolver resolver = new PrincipalMethodArgumentResolver();
 
-  private final MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", "");
+  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "");
 
   private final ServletRequestContext webRequest = new ServletRequestContext(
           null, servletRequest, new MockHttpServletResponse());
@@ -54,7 +54,7 @@ class PrincipalMethodArgumentResolverTests {
 
   @BeforeEach
   void setup() throws Exception {
-    method = getClass().getMethod("supportedParams", ServletRequest.class, Principal.class);
+    method = getClass().getMethod("supportedParams", MockRequest.class, Principal.class);
   }
 
   @Test
@@ -92,7 +92,7 @@ class PrincipalMethodArgumentResolverTests {
   }
 
   @SuppressWarnings("unused")
-  public void supportedParams(ServletRequest p0, Principal p1) { }
+  public void supportedParams(MockRequest p0, Principal p1) { }
 
   @Target({ ElementType.PARAMETER })
   @Retention(RetentionPolicy.RUNTIME)

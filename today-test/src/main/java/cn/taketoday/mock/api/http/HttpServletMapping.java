@@ -19,9 +19,9 @@ package cn.taketoday.mock.api.http;
 
 /**
  * <p>
- * Allows runtime discovery of the manner in which the {@link HttpServlet} for the current {@link HttpServletRequest}
+ * Allows runtime discovery of the manner in which the {@link HttpMock} for the current {@link HttpMockRequest}
  * was invoked. Invoking any of the methods must not block the caller. The implementation must be thread safe. Instances
- * are immutable and are returned from {@link HttpServletRequest#getHttpServletMapping}.
+ * are immutable and are returned from {@link HttpMockRequest#getHttpServletMapping}.
  * </p>
  *
  * <p>

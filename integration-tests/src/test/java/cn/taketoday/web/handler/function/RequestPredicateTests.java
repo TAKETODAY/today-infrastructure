@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
@@ -38,7 +38,7 @@ class RequestPredicateTests {
 
   @BeforeEach
   void createRequest() {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     ServletRequestContext requestContext = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
     this.request = new DefaultServerRequest(requestContext, Collections.emptyList());
   }

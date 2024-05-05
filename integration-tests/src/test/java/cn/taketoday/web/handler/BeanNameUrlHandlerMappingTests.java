@@ -27,9 +27,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.mock.api.ServletException;
@@ -50,7 +50,7 @@ class BeanNameUrlHandlerMappingTests {
 
   @BeforeEach
   public void setUp() throws Exception {
-    MockServletContext sc = new MockServletContext("");
+    MockContextImpl sc = new MockContextImpl("");
     wac = new XmlWebApplicationContext();
     wac.setServletContext(sc);
     wac.setConfigLocations("/cn/taketoday/web/handler/map1.xml");
@@ -61,12 +61,12 @@ class BeanNameUrlHandlerMappingTests {
   public void requestsWithoutHandlers() throws Exception {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/nonsense.html");
+    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/nonsense.html");
     ServletRequestContext request = new ServletRequestContext(null, req, new MockHttpServletResponse());
     Object h = hm.getHandler(request);
     assertThat(h).as("Handler is null").isNull();
 
-    req = new MockHttpServletRequest("GET", "/foo/bar/baz.html");
+    req = new HttpMockRequestImpl("GET", "/foo/bar/baz.html");
     h = hm.getHandler(new ServletRequestContext(null, req, new MockHttpServletResponse()));
     assertThat(h).as("Handler is null").isNull();
   }
@@ -88,38 +88,38 @@ class BeanNameUrlHandlerMappingTests {
   private void doTestRequestsWithSubPaths(HandlerMapping hm) throws Exception {
     Object bean = wac.getBean("godCtrl");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     HandlerExecutionChain hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/show.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/show.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/bookseats.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/bookseats.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
   }
 
   @Nullable
-  private static HandlerExecutionChain getChain(HandlerMapping hm, MockHttpServletRequest req) throws Exception {
+  private static HandlerExecutionChain getChain(HandlerMapping hm, HttpMockRequestImpl req) throws Exception {
     return (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null, req, new MockHttpServletResponse()));
   }
 
@@ -130,27 +130,27 @@ class BeanNameUrlHandlerMappingTests {
     hm.setApplicationContext(wac);
     Object bean = wac.getBean("godCtrl");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     HandlerExecutionChain hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/");
+    req = new HttpMockRequestImpl("GET", "/");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
+    req = new HttpMockRequestImpl("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
@@ -161,17 +161,17 @@ class BeanNameUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
     Object bean = wac.getBean("godCtrl");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/test.html");
+    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/test.html");
     HandlerExecutionChain hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/testarossa");
+    req = new HttpMockRequestImpl("GET", "/mypath/testarossa");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/tes");
+    req = new HttpMockRequestImpl("GET", "/mypath/tes");
     hec = getChain(hm, req);
 
     assertThat(hec).as("Handler is correct bean").isNull();
@@ -184,17 +184,17 @@ class BeanNameUrlHandlerMappingTests {
     hm.registerHandler("/mypath/testaross*", anotherHandler);
     Object bean = wac.getBean("godCtrl");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/test.html");
+    HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/test.html");
     HandlerExecutionChain hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/testarossa");
+    req = new HttpMockRequestImpl("GET", "/mypath/testarossa");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == anotherHandler).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/mypath/tes");
+    req = new HttpMockRequestImpl("GET", "/mypath/tes");
     hec = getChain(hm, req);
 
     assertThat(hec).as("Handler is correct bean").isNull();

@@ -28,7 +28,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,7 +160,7 @@ public class WebUtilsTests {
   }
 
   private boolean checkValidOrigin(String serverName, int port, String originHeader, List<String> allowed) {
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
     servletRequest.setServerName(serverName);
     if (port != -1) {
       servletRequest.setServerPort(port);
@@ -171,7 +171,7 @@ public class WebUtilsTests {
   }
 
   private boolean checkSameOrigin(String scheme, String serverName, int port, String originHeader) {
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
     servletRequest.setScheme(scheme);
     servletRequest.setServerName(serverName);
     if (port != -1) {
@@ -186,7 +186,7 @@ public class WebUtilsTests {
   private void testWithXForwardedHeaders(String serverName, int port, String forwardedProto,
           String forwardedHost, int forwardedPort, String originHeader) throws Exception {
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setServerName(serverName);
     if (port != -1) {
       request.setServerPort(port);
@@ -211,7 +211,7 @@ public class WebUtilsTests {
   private void testWithForwardedHeader(String serverName, int port, String forwardedHeader,
           String originHeader) throws Exception {
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setServerName(serverName);
     if (port != -1) {
       request.setServerPort(port);

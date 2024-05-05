@@ -27,13 +27,13 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.mock.api.ServletRequest;
-import cn.taketoday.mock.api.ServletRequestWrapper;
+import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.MockRequestWrapper;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.ServletResponseWrapper;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.util.ObjectUtils;
@@ -68,13 +68,13 @@ public abstract class ServletUtils {
 
   // context
 
-  public static RequestContext getRequestContext(ServletRequest request, ServletResponse response) {
-    HttpServletRequest servletRequest = (HttpServletRequest) request;
+  public static RequestContext getRequestContext(MockRequest request, ServletResponse response) {
+    HttpMockRequest servletRequest = (HttpMockRequest) request;
     return getRequestContext(findWebApplicationContext(servletRequest), servletRequest, (HttpServletResponse) response);
   }
 
   public static RequestContext getRequestContext(
-          WebApplicationContext webApplicationContext, HttpServletRequest request, HttpServletResponse response) {
+          WebApplicationContext webApplicationContext, HttpMockRequest request, HttpServletResponse response) {
     return new ServletRequestContext(webApplicationContext, request, response);
   }
 
@@ -115,7 +115,7 @@ public abstract class ServletUtils {
    * @see #getHttpSession(RequestContext)
    */
   public static HttpSession getHttpSession(RequestContext context, boolean create) {
-    HttpServletRequest request = getServletRequest(context);
+    HttpMockRequest request = getServletRequest(context);
     return request.getSession(create);
   }
 
@@ -130,12 +130,12 @@ public abstract class ServletUtils {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public static <T> T getNativeRequest(ServletRequest request, @Nullable Class<T> requiredType) {
+  public static <T> T getNativeRequest(MockRequest request, @Nullable Class<T> requiredType) {
     if (requiredType != null) {
       if (requiredType.isInstance(request)) {
         return (T) request;
       }
-      else if (request instanceof ServletRequestWrapper wrapper) {
+      else if (request instanceof MockRequestWrapper wrapper) {
         return getNativeRequest(wrapper.getRequest(), requiredType);
       }
     }
@@ -172,7 +172,7 @@ public abstract class ServletUtils {
    * @return the matching request object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpServletRequest getServletRequest(RequestContext context) {
+  public static HttpMockRequest getServletRequest(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getRequest();
     }
@@ -187,7 +187,7 @@ public abstract class ServletUtils {
    * @return the servlet context to which this ServletRequest was last dispatched
    * @since 4.0
    */
-  public static ServletContext getServletContext(RequestContext context) {
+  public static MockContext getServletContext(RequestContext context) {
     return getServletRequest(context).getServletContext();
   }
 
@@ -216,12 +216,12 @@ public abstract class ServletUtils {
    * @param request current HTTP request
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
-   * @see #findWebApplicationContext(ServletRequest, ServletContext)
-   * @see ServletRequest#getServletContext()
+   * @see #findWebApplicationContext(MockRequest, MockContext)
+   * @see MockRequest#getServletContext()
    * @since 4.0
    */
   @Nullable
-  public static WebApplicationContext findWebApplicationContext(ServletRequest request) {
+  public static WebApplicationContext findWebApplicationContext(MockRequest request) {
     return findWebApplicationContext(request, request.getServletContext());
   }
 
@@ -234,21 +234,21 @@ public abstract class ServletUtils {
    * checking a given ServletContext instead of deriving it from the request.
    *
    * @param request current HTTP request
-   * @param servletContext current servlet context
+   * @param mockContext current servlet context
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
    * @see #WEB_APPLICATION_CONTEXT_ATTRIBUTE
-   * @see WebApplicationContextUtils#getWebApplicationContext(ServletContext)
+   * @see WebApplicationContextUtils#getWebApplicationContext(MockContext)
    * @since 4.0
    */
   @Nullable
   public static WebApplicationContext findWebApplicationContext(
-          ServletRequest request, @Nullable ServletContext servletContext) {
+          MockRequest request, @Nullable MockContext mockContext) {
     WebApplicationContext webApplicationContext = (WebApplicationContext) request.getAttribute(
             WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (webApplicationContext == null) {
-      if (servletContext != null) {
-        webApplicationContext = WebApplicationContextUtils.findWebApplicationContext(servletContext);
+      if (mockContext != null) {
+        webApplicationContext = WebApplicationContextUtils.findWebApplicationContext(mockContext);
       }
     }
     return webApplicationContext;
@@ -269,14 +269,14 @@ public abstract class ServletUtils {
    * @return whether the given request is an include request
    * @since 4.0
    */
-  public static boolean isIncludeRequest(ServletRequest request) {
+  public static boolean isIncludeRequest(MockRequest request) {
     return request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null;
   }
 
   /**
    * @since 4.0
    */
-  public static boolean isPostForm(HttpServletRequest request) {
+  public static boolean isPostForm(HttpMockRequest request) {
     String contentType = request.getContentType();
     return contentType != null
             && HttpMethod.POST.matches(request.getMethod())
@@ -294,11 +294,11 @@ public abstract class ServletUtils {
    * (if this is null or the empty string, all parameters will match)
    * @return map containing request parameters <b>without the prefix</b>,
    * containing either a String or a String array as values
-   * @see ServletRequest#getParameterNames
-   * @see ServletRequest#getParameterValues
-   * @see ServletRequest#getParameterMap
+   * @see MockRequest#getParameterNames
+   * @see MockRequest#getParameterValues
+   * @see MockRequest#getParameterMap
    */
-  public static Map<String, Object> getParametersStartingWith(ServletRequest request, @Nullable String prefix) {
+  public static Map<String, Object> getParametersStartingWith(MockRequest request, @Nullable String prefix) {
     Assert.notNull(request, "Request is required");
     Enumeration<String> paramNames = request.getParameterNames();
     Map<String, Object> params = new TreeMap<>();
@@ -395,19 +395,19 @@ public abstract class ServletUtils {
    * a resource (in contrast to ServletContext's {@code getRealPath},
    * which returns null).
    *
-   * @param servletContext the servlet context of the web application
+   * @param mockContext the servlet context of the web application
    * @param path the path within the web application
    * @return the corresponding real path
    * @throws FileNotFoundException if the path cannot be resolved to a resource
-   * @see ServletContext#getRealPath
+   * @see MockContext#getRealPath
    */
-  public static String getRealPath(ServletContext servletContext, String path) throws FileNotFoundException {
-    Assert.notNull(servletContext, "ServletContext is required");
+  public static String getRealPath(MockContext mockContext, String path) throws FileNotFoundException {
+    Assert.notNull(mockContext, "ServletContext is required");
     // Interpret location as relative to the web application root directory.
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
-    String realPath = servletContext.getRealPath(path);
+    String realPath = mockContext.getRealPath(path);
     if (realPath == null) {
       throw new FileNotFoundException(
               "ServletContext resource [" + path + "] cannot be resolved to absolute file path - " +

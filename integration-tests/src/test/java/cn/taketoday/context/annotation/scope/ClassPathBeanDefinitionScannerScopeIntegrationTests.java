@@ -26,7 +26,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.session.config.EnableWebSession;
@@ -55,20 +55,20 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   private static final String DEFAULT_NAME = "default";
   private static final String MODIFIED_NAME = "modified";
 
-  private RequestContext oldRequestAttributes = new ServletRequestContext(null, new MockHttpServletRequest(), new MockHttpServletResponse());
-  private RequestContext newRequestAttributes = new ServletRequestContext(null, new MockHttpServletRequest(), new MockHttpServletResponse());
+  private RequestContext oldRequestAttributes = new ServletRequestContext(null, new HttpMockRequestImpl(), new MockHttpServletResponse());
+  private RequestContext newRequestAttributes = new ServletRequestContext(null, new HttpMockRequestImpl(), new MockHttpServletResponse());
 
   private RequestContext oldRequestAttributesWithSession;
   private RequestContext newRequestAttributesWithSession;
 
   @BeforeEach
   void setup() {
-    MockHttpServletRequest oldRequestWithSession = new MockHttpServletRequest();
+    HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
     oldRequestWithSession.setSession(new MockHttpSession());
     this.oldRequestAttributesWithSession = new ServletRequestContext(
             null, oldRequestWithSession, new MockHttpServletResponse());
 
-    MockHttpServletRequest newRequestWithSession = new MockHttpServletRequest();
+    HttpMockRequestImpl newRequestWithSession = new HttpMockRequestImpl();
     newRequestWithSession.setSession(new MockHttpSession());
     this.newRequestAttributesWithSession = new ServletRequestContext(
             null, newRequestWithSession, new MockHttpServletResponse());

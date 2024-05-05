@@ -48,7 +48,7 @@ import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +81,7 @@ class RequestResponseBodyAdviceChainTests {
     this.paramType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), 0);
     this.returnType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), -1);
 
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
     this.request = new ServletServerHttpRequest(servletRequest);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -98,7 +98,7 @@ class RequestResponseBodyAdviceChainTests {
     List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
 
-    HttpInputMessage wrapped = new ServletServerHttpRequest(new MockHttpServletRequest());
+    HttpInputMessage wrapped = new ServletServerHttpRequest(new HttpMockRequestImpl());
     given(requestAdvice.supports(this.paramType, String.class, this.converterType)).willReturn(true);
     given(requestAdvice.beforeBodyRead(ArgumentMatchers.eq(this.request), ArgumentMatchers.eq(this.paramType), ArgumentMatchers.eq(String.class),
             ArgumentMatchers.eq(this.converterType))).willReturn(wrapped);

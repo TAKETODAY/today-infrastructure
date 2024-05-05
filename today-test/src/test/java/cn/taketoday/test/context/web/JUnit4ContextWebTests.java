@@ -24,16 +24,17 @@ import java.io.File;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.http.HttpMockRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit4.AbstractJUnit4ContextTests;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.WebApplicationContext;
-import cn.taketoday.mock.api.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ContextConfiguration
 @WebAppConfiguration
-public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements ServletContextAware {
+public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements MockContextAware {
 
   @Configuration
   static class Config {
@@ -57,16 +58,16 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     }
   }
 
-  protected ServletContext servletContext;
+  protected MockContext mockContext;
 
   @Autowired
   protected WebApplicationContext wac;
 
   @Autowired
-  protected MockServletContext mockServletContext;
+  protected MockContext mockServletContext;
 
   @Autowired
-  protected MockHttpServletRequest request;
+  protected HttpMockRequest request;
 
   @Autowired
   protected MockHttpServletResponse response;
@@ -81,15 +82,15 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected String foo;
 
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Test
   public void basicWacFeatures() throws Exception {
     assertThat(wac.getServletContext()).as("ServletContext should be set in the WAC.").isNotNull();
 
-    assertThat(servletContext).as("ServletContext should have been set via ServletContextAware.").isNotNull();
+    assertThat(mockContext).as("ServletContext should have been set via ServletContextAware.").isNotNull();
 
     assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
     assertThat(request).as("MockHttpServletRequest should have been autowired from the WAC.").isNotNull();

@@ -32,7 +32,7 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.HandlerMatchingMetadata;
@@ -86,7 +86,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/foo", this.handler, this.method1);
     this.mapping.registerMapping("/fo*", this.handler, this.method2);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
     ServletRequestContext context = new ServletRequestContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
@@ -103,7 +103,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo*", this.handler, this.method1);
     this.mapping.registerMapping("/f*", this.handler, this.method2);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
 
     ServletRequestContext context = new ServletRequestContext(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
@@ -124,7 +124,7 @@ public class HandlerMethodMappingTests {
 
     assertThatIllegalStateException().isThrownBy(() ->
             this.mapping.getHandlerInternal(new ServletRequestContext(
-                    null, new MockHttpServletRequest("GET", "/foo"), null)));
+                    null, new HttpMockRequestImpl("GET", "/foo"), null)));
   }
 
   @Test // gh-26490
@@ -132,7 +132,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/foo", this.handler, this.method1);
     this.mapping.registerMapping("/f??", this.handler, this.method2);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/foo");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
@@ -165,7 +165,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/f?o", this.handler, this.method1);
     this.mapping.registerMapping("/fo?", this.handler, this.handler.getClass().getMethod("corsHandlerMethod"));
 
-    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/foo");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
 
@@ -273,10 +273,10 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod = new HandlerMethod(this.handler, this.method1);
 
     this.mapping.registerMapping(key, this.handler, this.method1);
-    assertThat(this.mapping.getHandlerInternal(new ServletRequestContext(null, new MockHttpServletRequest("GET", key), null))).isNotNull();
+    assertThat(this.mapping.getHandlerInternal(new ServletRequestContext(null, new HttpMockRequestImpl("GET", key), null))).isNotNull();
 
     this.mapping.unregisterMapping(key);
-    assertThat(mapping.getHandlerInternal(new ServletRequestContext(null, new MockHttpServletRequest("GET", key), null))).isNull();
+    assertThat(mapping.getHandlerInternal(new ServletRequestContext(null, new HttpMockRequestImpl("GET", key), null))).isNull();
     assertThat(this.mapping.mappingRegistry.getDirectPathMappings(key)).isNull();
     assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
     assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
@@ -293,7 +293,7 @@ public class HandlerMethodMappingTests {
     this.mapping.setApplicationContext(context);
     this.mapping.registerMapping(key, beanName, this.method1);
     HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new ServletRequestContext(
-            null, new MockHttpServletRequest("GET", key), null));
+            null, new HttpMockRequestImpl("GET", key), null));
   }
 
   private static class MyHandlerMethodMapping extends AbstractHandlerMethodMapping<String> {

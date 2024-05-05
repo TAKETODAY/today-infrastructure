@@ -20,11 +20,11 @@
 
 package cn.taketoday.test.web.servlet.request;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 /**
  * Extension point for applications or 3rd party libraries that wish to further
- * initialize a {@link MockHttpServletRequest} instance after it has been built
+ * initialize a {@link HttpMockRequestImpl} instance after it has been built
  * by {@link MockHttpServletRequestBuilder} or its subclass
  * {@link MockMultipartHttpServletRequestBuilder}.
  *
@@ -46,6 +46,6 @@ public interface RequestPostProcessor {
    * @param request the request to initialize
    * @return the request to use, either the one passed in or a wrapped one
    */
-  MockHttpServletRequest postProcessRequest(MockHttpServletRequest request);
+  HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request);
 
 }

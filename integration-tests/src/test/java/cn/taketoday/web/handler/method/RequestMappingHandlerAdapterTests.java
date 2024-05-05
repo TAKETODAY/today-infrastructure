@@ -41,9 +41,9 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
@@ -74,7 +74,7 @@ class RequestMappingHandlerAdapterTests {
 
   private RequestMappingHandlerAdapter handlerAdapter;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -87,13 +87,13 @@ class RequestMappingHandlerAdapterTests {
   @BeforeAll
   public static void setupOnce() {
     RequestMappingHandlerAdapter adapter = new RequestMappingHandlerAdapter();
-    adapter.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
+    adapter.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
     adapter.afterPropertiesSet();
   }
 
   @BeforeEach
   public void setup() throws Exception {
-    this.webAppContext = new StaticWebApplicationContext(new MockServletContext());
+    this.webAppContext = new StaticWebApplicationContext(new MockContextImpl());
     webAppContext.setParent(parent);
 
     handlerAdapter = new RequestMappingHandlerAdapter();
@@ -101,7 +101,7 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter.setRedirectModelManager(webAppContext.getBean(RedirectModelManager.class));
     handlerAdapter.setResolvingRegistry(webAppContext.getBean(ParameterResolvingRegistry.class));
 
-    this.request = new MockHttpServletRequest("GET", "/");
+    this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpServletResponse();
 
     context = new ServletRequestContext(null, request, response);

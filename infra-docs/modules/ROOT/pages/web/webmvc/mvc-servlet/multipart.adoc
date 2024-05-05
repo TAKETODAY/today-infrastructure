@@ -11,7 +11,7 @@ To enable multipart handling, you need to declare a `MultipartResolver` bean in 
 `DispatcherServlet` Infra configuration with a name of `multipartResolver`.
 The `DispatcherServlet` detects it and applies it to the incoming request. When a POST
 with a content type of `multipart/form-data` is received, the resolver parses the
-content wraps the current `HttpServletRequest` as a `MultipartHttpServletRequest` to
+content wraps the current `HttpMockRequest` as a `MultipartHttpServletRequest` to
 provide access to resolved files in addition to exposing parts as request parameters.
 
 

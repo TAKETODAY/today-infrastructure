@@ -42,7 +42,7 @@ import cn.taketoday.web.handler.method.MethodArgumentTypeMismatchException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +69,7 @@ class RequestHeaderMethodArgumentResolverTests {
   private ResolvableMethodParameter paramUuid;
   private ResolvableMethodParameter paramUuidOptional;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private ServletRequestContext webRequest;
   DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
@@ -95,7 +95,7 @@ class RequestHeaderMethodArgumentResolverTests {
     paramUuid = new ResolvableMethodParameter(getParameter(method, 9));
     paramUuidOptional = new ResolvableMethodParameter(getParameter(method, 10));
 
-    servletRequest = new MockHttpServletRequest();
+    servletRequest = new HttpMockRequestImpl();
     webRequest = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
 
     // Expose request to the current thread (for SpEL expressions)

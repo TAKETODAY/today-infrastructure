@@ -19,7 +19,7 @@ package cn.taketoday.mock.api.http;
 
 import java.util.Enumeration;
 
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 
 /**
  * Provides a way to identify a user across more than one page request or visit to a Web site and to store information
@@ -100,7 +100,7 @@ public interface HttpSession {
    * @return The ServletContext object for the web application
    * @since Servlet 2.3
    */
-  public ServletContext getServletContext();
+  public MockContext getServletContext();
 
   /**
    * Specifies the time, in seconds, between client requests before the servlet container will invalidate this session.

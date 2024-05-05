@@ -35,14 +35,13 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import groovy.text.Template;
 import groovy.text.TemplateEngine;
 import groovy.text.markup.MarkupTemplateEngine;
 import groovy.text.markup.TemplateConfiguration;
-import cn.taketoday.mock.api.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -58,13 +57,13 @@ public class GroovyMarkupViewTests {
 
   private WebApplicationContext webAppContext;
 
-  private ServletContext servletContext;
+  private MockContextImpl mockContext;
 
   @BeforeEach
   public void setup() {
     this.webAppContext = Mockito.mock(WebApplicationContext.class);
-    this.servletContext = new MockServletContext();
-    this.servletContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
+    this.mockContext = new MockContextImpl();
+    this.mockContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }
 
   @Test
@@ -161,7 +160,7 @@ public class GroovyMarkupViewTests {
 
     GroovyMarkupView view = createViewWithUrl(viewUrl);
     MockHttpServletResponse response = new MockHttpServletResponse();
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(locale);
     LocaleContextHolder.setLocale(locale);
     view.renderMergedTemplateModel(model, ServletUtils.getRequestContext(request, response));

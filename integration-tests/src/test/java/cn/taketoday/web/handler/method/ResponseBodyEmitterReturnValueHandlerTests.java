@@ -32,7 +32,7 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
@@ -56,7 +56,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private ResponseBodyEmitterReturnValueHandler handler;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -69,7 +69,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
             Collections.singletonList(new MappingJackson2HttpMessageConverter());
 
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
-    this.request = new MockHttpServletRequest();
+    this.request = new HttpMockRequestImpl();
     this.response = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.request, this.response);
 

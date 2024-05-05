@@ -109,7 +109,7 @@ public interface Filter {
    * @throws ServletException if an exception occurs that interferes with the filter's normal operation
    * @see UnavailableException
    */
-  void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  void doFilter(MockRequest request, ServletResponse response, FilterChain chain)
           throws IOException, ServletException;
 
   /**

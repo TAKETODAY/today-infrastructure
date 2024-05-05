@@ -20,7 +20,7 @@ package cn.taketoday.mock.api;
 import java.util.Collection;
 import java.util.Set;
 
-import cn.taketoday.mock.api.annotation.ServletSecurity;
+import cn.taketoday.mock.api.annotation.MockSecurity;
 
 /**
  * Interface through which a {@link Servlet} may be further configured.
@@ -72,7 +72,7 @@ public interface ServletRegistration extends Registration {
 
   /**
    * Interface through which a {@link Servlet} registered via one of the <tt>addServlet</tt> methods on
-   * {@link ServletContext} may be further configured.
+   * {@link MockContext} may be further configured.
    */
   interface Dynamic extends ServletRegistration, Registration.Dynamic {
 
@@ -116,12 +116,12 @@ public interface ServletRegistration extends Registration {
      *
      * <p>
      * If a URL pattern of this ServletRegistration is an exact target of a security constraint that was established via the
-     * {@link ServletSecurity} annotation or a previous call to this method, then this method
+     * {@link MockSecurity} annotation or a previous call to this method, then this method
      * replaces the security constraint for that pattern.
      *
      * <p>
      * If a URL pattern of this ServletRegistration is neither the exact target of a security constraint that was
-     * established via the {@link ServletSecurity} annotation or a previous call to this method,
+     * established via the {@link MockSecurity} annotation or a previous call to this method,
      * nor the exact target of a <code>security-constraint</code> in the portable deployment descriptor, then this method
      * establishes the security constraint for that pattern from the argument <code>ServletSecurityElement</code>.
      *
@@ -135,7 +135,7 @@ public interface ServletRegistration extends Registration {
      * <code>security-constraint</code> that was established via the portable deployment descriptor. This method has no
      * effect on the patterns included in the returned set
      * @throws IllegalArgumentException if <tt>constraint</tt> is null
-     * @throws IllegalStateException if the {@link ServletContext} from which this <code>ServletRegistration</code> was
+     * @throws IllegalStateException if the {@link MockContext} from which this <code>ServletRegistration</code> was
      * obtained has already been initialized
      */
     public Set<String> setServletSecurity(ServletSecurityElement constraint);
@@ -147,7 +147,7 @@ public interface ServletRegistration extends Registration {
      *
      * @param multipartConfig the {@link MultipartConfigElement} to be applied to the patterns mapped to the registration
      * @throws IllegalArgumentException if <tt>multipartConfig</tt> is null
-     * @throws IllegalStateException if the {@link ServletContext} from which this ServletRegistration was obtained has
+     * @throws IllegalStateException if the {@link MockContext} from which this ServletRegistration was obtained has
      * already been initialized
      */
     public void setMultipartConfig(MultipartConfigElement multipartConfig);
@@ -157,7 +157,7 @@ public interface ServletRegistration extends Registration {
      *
      * @param roleName the name of the <code>runAs</code> role
      * @throws IllegalArgumentException if <tt>roleName</tt> is null
-     * @throws IllegalStateException if the {@link ServletContext} from which this ServletRegistration was obtained has
+     * @throws IllegalStateException if the {@link MockContext} from which this ServletRegistration was obtained has
      * already been initialized
      */
     public void setRunAsRole(String roleName);

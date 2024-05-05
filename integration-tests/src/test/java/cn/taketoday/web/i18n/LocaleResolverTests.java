@@ -26,9 +26,9 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.session.DefaultSessionManager;
 import cn.taketoday.session.InMemorySessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
@@ -71,8 +71,8 @@ public class LocaleResolverTests {
 
   private void doTest(LocaleResolver localeResolver, boolean shouldSet) {
     // create mocks
-    MockServletContext context = new MockServletContext();
-    MockHttpServletRequest request = new MockHttpServletRequest(context);
+    MockContextImpl context = new MockContextImpl();
+    HttpMockRequestImpl request = new HttpMockRequestImpl(context);
     request.addPreferredLocale(Locale.UK);
     MockHttpServletResponse response = new MockHttpServletResponse();
     ServletRequestContext requestContext = new ServletRequestContext(request, response);

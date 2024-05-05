@@ -41,7 +41,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.ui.Model;
@@ -71,7 +71,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private ExceptionHandlerAnnotationExceptionHandler handler;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -86,7 +86,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler = new ExceptionHandlerAnnotationExceptionHandler();
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
 
-    this.request = new MockHttpServletRequest("GET", "/");
+    this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpServletResponse();
   }
 

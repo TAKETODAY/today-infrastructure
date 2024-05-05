@@ -73,5 +73,5 @@ public interface ServletContainerInitializer {
    * contained in <tt>c</tt> were found
    * @throws ServletException if an error has occurred
    */
-  public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException;
+  public void onStartup(Set<Class<?>> c, MockContext ctx) throws ServletException;
 }

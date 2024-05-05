@@ -24,14 +24,14 @@ import java.util.EnumSet;
 
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockFilterConfig;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MockMvcFilterDecoratorTests {
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -54,7 +54,7 @@ class MockMvcFilterDecoratorTests {
 
   @BeforeEach
   public void setup() {
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     response = new MockHttpServletResponse();
     filterChain = new MockFilterChain();
     delegate = new MockFilter();
@@ -264,7 +264,7 @@ class MockMvcFilterDecoratorTests {
 
     private FilterConfig filterConfig;
 
-    private ServletRequest request;
+    private MockRequest request;
 
     private ServletResponse response;
 
@@ -278,7 +278,7 @@ class MockMvcFilterDecoratorTests {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+    public void doFilter(MockRequest request, ServletResponse response, FilterChain chain) {
       this.request = request;
       this.response = response;
       this.chain = chain;

@@ -75,14 +75,14 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-spring-mvc[config
 
 Here is a very concise overview of Servlet asynchronous request processing:
 
-* A `ServletRequest` can be put in asynchronous mode by calling `request.startAsync()`.
+* A `MockRequest` can be put in asynchronous mode by calling `request.startAsync()`.
   The main effect of doing so is that the Servlet (as well as any filters) can exit, but
   the response remains open to let processing complete later.
 * The call to `request.startAsync()` returns `AsyncContext`, which you can use for
   further control over asynchronous processing. For example, it provides the `dispatch` method,
   which is similar to a forward from the Servlet API, except that it lets an
   application resume request processing on a Servlet container thread.
-* The `ServletRequest` provides access to the current `DispatcherType`, which you can
+* The `MockRequest` provides access to the current `DispatcherType`, which you can
   use to distinguish between processing the initial request, an asynchronous
   dispatch, a forward, and other dispatcher types.
 

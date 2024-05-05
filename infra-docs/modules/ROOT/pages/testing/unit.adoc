@@ -161,7 +161,7 @@ that deal with Web MVC `ModelAndView` objects.
 
 .Unit testing Web MVC Controllers
 TIP: To unit test your Web MVC `Controller` classes as POJOs, use `ModelAndViewAssert`
-combined with `MockHttpServletRequest`, `MockHttpSession`, and so on from Infra
+combined with `HttpMockRequestImpl`, `MockHttpSession`, and so on from Infra
 xref:testing/unit.adoc#mock-objects-servlet[Servlet API mocks]. For thorough integration testing of your
 Web MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
 configuration for Web MVC, use the

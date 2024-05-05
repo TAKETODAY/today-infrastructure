@@ -24,7 +24,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletUtils;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * Resolves an argument of type {@link Principal}, similar to
@@ -46,7 +46,7 @@ public class PrincipalMethodArgumentResolver implements ParameterResolvingStrate
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpMockRequest servletRequest = ServletUtils.getServletRequest(context);
 
     Principal principal = servletRequest.getUserPrincipal();
     if (principal != null && !resolvable.getParameterType().isInstance(principal)) {

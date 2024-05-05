@@ -27,7 +27,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -219,8 +219,8 @@ class RequestPredicatesTests {
   }
 
   private ServerRequest initRequest(
-          String httpMethod, String requestUri, @Nullable Consumer<MockHttpServletRequest> initializer) {
-    MockHttpServletRequest mockHttpServletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
+          String httpMethod, String requestUri, @Nullable Consumer<HttpMockRequestImpl> initializer) {
+    HttpMockRequestImpl mockHttpServletRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
     return new DefaultServerRequest(
             new ServletRequestContext(null, mockHttpServletRequest, new MockHttpServletResponse()),
             Collections.emptyList());

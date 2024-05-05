@@ -47,9 +47,9 @@ import java.util.Set;
 
 import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
@@ -68,7 +68,7 @@ public class MappingJackson2JsonViewTests {
 
   private MappingJackson2JsonView view = new MappingJackson2JsonView();
 
-  private MockHttpServletRequest request = new MockHttpServletRequest();
+  private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -77,7 +77,7 @@ public class MappingJackson2JsonViewTests {
   private ScriptableObject jsScope = jsContext.initStandardObjects();
 
   private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
-  private final MockServletContext sc = new MockServletContext();
+  private final MockContextImpl sc = new MockContextImpl();
   RequestContext requestContext = new ServletRequestContext(wac, request, response);
 
   @Test

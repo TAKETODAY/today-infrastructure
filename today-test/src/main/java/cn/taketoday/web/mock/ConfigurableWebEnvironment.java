@@ -19,13 +19,13 @@ package cn.taketoday.web.mock;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} allowing initialization of
  * servlet-related {@link cn.taketoday.core.env.PropertySource} objects at the
- * earliest moment that the {@link ServletContext} and (optionally) {@link ServletConfig}
+ * earliest moment that the {@link MockContext} and (optionally) {@link MockConfig}
  * become available.
  *
  * @author Chris Beams
@@ -40,9 +40,9 @@ public interface ConfigurableWebEnvironment extends ConfigurableEnvironment {
    * instances acting as placeholders with real servlet context/config property sources
    * using the given parameters.
    *
-   * @param servletContext the {@link ServletContext} (may not be {@code null})
-   * @param servletConfig the {@link ServletConfig} ({@code null} if not available)
+   * @param mockContext the {@link MockContext} (may not be {@code null})
+   * @param mockConfig the {@link MockConfig} ({@code null} if not available)
    */
-  void initPropertySources(@Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig);
+  void initPropertySources(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig);
 
 }

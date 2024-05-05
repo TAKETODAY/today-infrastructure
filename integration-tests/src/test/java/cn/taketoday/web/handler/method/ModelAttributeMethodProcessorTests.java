@@ -31,7 +31,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
@@ -82,7 +82,7 @@ class ModelAttributeMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    this.request = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    this.request = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
     this.container = new BindingContext();
     request.setBinding(container);
     this.processor = new ModelAttributeMethodProcessor(false);
@@ -305,7 +305,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test  // gh-25182
   public void resolveConstructorListArgumentFromCommaSeparatedRequestParameter() throws Throwable {
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
     mockRequest.addParameter("listOfStrings", "1,2");
     ServletRequestContext requestWithParam = new ServletRequestContext(null, mockRequest, null);
 

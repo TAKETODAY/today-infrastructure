@@ -19,15 +19,15 @@ package cn.taketoday.test.web.servlet.setup;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
-import cn.taketoday.mock.api.ServletContext;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides
  * the {@link WebApplicationContext} supplied to it as a constructor argument.
  *
- * <p>In addition, if the {@link ServletContext} in the supplied
+ * <p>In addition, if the {@link MockContext} in the supplied
  * {@code WebApplicationContext} does not contain an entry for the
  * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
  * key, the root {@code WebApplicationContext} will be detected and stored
@@ -56,9 +56,9 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
   @Override
   protected ApplicationContext initWebAppContext() {
     if (context instanceof WebApplicationContext applicationContext) {
-      ServletContext servletContext = applicationContext.getServletContext();
-      Assert.state(servletContext != null, "No ServletContext");
-      ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+      MockContext mockContext = applicationContext.getServletContext();
+      Assert.state(mockContext != null, "No ServletContext");
+      ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(mockContext);
 
       if (rootWac == null) {
         rootWac = this.context;
@@ -70,7 +70,7 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
           }
           parent = parent.getParent();
         }
-        servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
+        mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
       }
     }
     return this.context;

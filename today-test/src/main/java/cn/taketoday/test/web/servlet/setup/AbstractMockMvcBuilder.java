@@ -26,8 +26,9 @@ import java.util.Map;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockServletConfig;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.MockMockConfig;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.web.servlet.DispatcherServletCustomizer;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
@@ -41,7 +42,6 @@ import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
 
 /**
@@ -163,16 +163,16 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
     ApplicationContext ctx = initWebAppContext();
-    ServletContext servletContext;
-    MockServletConfig mockServletConfig;
+    MockContext mockContext;
+    MockMockConfig mockServletConfig;
 
     if (ctx instanceof WebApplicationContext wac) {
-      servletContext = wac.getServletContext();
-      mockServletConfig = new MockServletConfig(servletContext);
+      mockContext = wac.getServletContext();
+      mockServletConfig = new MockMockConfig(mockContext);
     }
     else {
-      servletContext = new MockServletContext();
-      mockServletConfig = new MockServletConfig(servletContext);
+      mockContext = new MockContextImpl();
+      mockServletConfig = new MockMockConfig(mockContext);
     }
 
     for (MockMvcConfigurer configurer : this.configurers) {
@@ -191,7 +191,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     for (Filter filter : filterArray) {
       if (filter instanceof MockMvcFilterDecorator filterDecorator) {
         try {
-          filterDecorator.initIfRequired(servletContext);
+          filterDecorator.initIfRequired(mockContext);
         }
         catch (ServletException ex) {
           throw new IllegalStateException("Failed to initialize Filter " + filter, ex);

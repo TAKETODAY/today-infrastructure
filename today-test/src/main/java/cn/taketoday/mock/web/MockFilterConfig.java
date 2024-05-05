@@ -25,7 +25,7 @@ import java.util.Map;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 
 /**
  * Mock implementation of the {@link FilterConfig} interface.
@@ -40,21 +40,21 @@ import cn.taketoday.mock.api.ServletContext;
  */
 public class MockFilterConfig implements FilterConfig {
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   private final String filterName;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
   /**
-   * Create a new MockFilterConfig with a default {@link MockServletContext}.
+   * Create a new MockFilterConfig with a default {@link MockContextImpl}.
    */
   public MockFilterConfig() {
     this(null, "");
   }
 
   /**
-   * Create a new MockFilterConfig with a default {@link MockServletContext}.
+   * Create a new MockFilterConfig with a default {@link MockContextImpl}.
    *
    * @param filterName the name of the filter
    */
@@ -65,20 +65,20 @@ public class MockFilterConfig implements FilterConfig {
   /**
    * Create a new MockFilterConfig.
    *
-   * @param servletContext the ServletContext that the servlet runs in
+   * @param mockContext the ServletContext that the servlet runs in
    */
-  public MockFilterConfig(@Nullable ServletContext servletContext) {
-    this(servletContext, "");
+  public MockFilterConfig(@Nullable MockContext mockContext) {
+    this(mockContext, "");
   }
 
   /**
    * Create a new MockFilterConfig.
    *
-   * @param servletContext the ServletContext that the servlet runs in
+   * @param mockContext the ServletContext that the servlet runs in
    * @param filterName the name of the filter
    */
-  public MockFilterConfig(@Nullable ServletContext servletContext, String filterName) {
-    this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
+  public MockFilterConfig(@Nullable MockContext mockContext, String filterName) {
+    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
     this.filterName = filterName;
   }
 
@@ -88,8 +88,8 @@ public class MockFilterConfig implements FilterConfig {
   }
 
   @Override
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   public void addInitParameter(String name, String value) {

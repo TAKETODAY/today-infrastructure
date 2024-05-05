@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
@@ -55,7 +55,7 @@ class MapMethodProcessorTests {
   public void setUp() throws Exception {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
-    this.webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    this.webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(mavContainer);
 
   }

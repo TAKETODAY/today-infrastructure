@@ -17,7 +17,7 @@
 
 package cn.taketoday.test.web.servlet;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
@@ -32,7 +32,7 @@ import cn.taketoday.web.RedirectModel;
  */
 public class StubMvcResult implements MvcResult {
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private Object handler;
 
@@ -47,7 +47,7 @@ public class StubMvcResult implements MvcResult {
   private MockHttpServletResponse response;
   final RequestContext requestContext;
 
-  public StubMvcResult(MockHttpServletRequest request,
+  public StubMvcResult(HttpMockRequestImpl request,
           Object handler,
           HandlerInterceptor[] interceptors,
           Exception resolvedException,
@@ -66,7 +66,7 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public MockHttpServletRequest getRequest() {
+  public HttpMockRequestImpl getRequest() {
     return request;
   }
 
@@ -113,7 +113,7 @@ public class StubMvcResult implements MvcResult {
     this.mav = mav;
   }
 
-  public void setRequest(MockHttpServletRequest request) {
+  public void setRequest(HttpMockRequestImpl request) {
     this.request = request;
   }
 

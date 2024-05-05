@@ -31,7 +31,7 @@ import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.ui.Model;
 import cn.taketoday.util.ReflectionUtils;
@@ -54,7 +54,7 @@ class ModelHandlerOrderingTests {
   private static final Logger logger = LoggerFactory.getLogger(ModelHandlerOrderingTests.class);
 
   private final ServletRequestContext webRequest = new ServletRequestContext(
-          null, new MockHttpServletRequest(), new MockHttpServletResponse());
+          null, new HttpMockRequestImpl(), new MockHttpServletResponse());
 
   private final BindingContext mavContainer = new BindingContext();
 

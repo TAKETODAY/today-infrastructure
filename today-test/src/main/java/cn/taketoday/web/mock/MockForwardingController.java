@@ -20,13 +20,13 @@ package cn.taketoday.web.mock;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -70,10 +70,10 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletWrappingController
+ * @see MockWrappingController
  * @since 4.0 2022/2/8 17:18
  */
-public class ServletForwardingController extends AbstractController implements BeanNameAware, ServletContextAware {
+public class MockForwardingController extends AbstractController implements BeanNameAware, MockContextAware {
 
   @Nullable
   private String servletName;
@@ -81,9 +81,9 @@ public class ServletForwardingController extends AbstractController implements B
   @Nullable
   private String beanName;
 
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
-  public ServletForwardingController() {
+  public MockForwardingController() {
     super(false);
   }
 
@@ -97,12 +97,12 @@ public class ServletForwardingController extends AbstractController implements B
   }
 
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
-  public ServletContext getServletContext() {
-    return servletContext;
+  public MockContext getServletContext() {
+    return mockContext;
   }
 
   @Override
@@ -116,14 +116,14 @@ public class ServletForwardingController extends AbstractController implements B
   @Nullable
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
-    ServletContext servletContext = getServletContext();
-    Assert.state(servletContext != null, "No ServletContext");
-    RequestDispatcher rd = servletContext.getNamedDispatcher(servletName);
+    MockContext mockContext = getServletContext();
+    Assert.state(mockContext != null, "No ServletContext");
+    RequestDispatcher rd = mockContext.getNamedDispatcher(servletName);
     if (rd == null) {
       throw new ServletException("No servlet with name '%s' defined in web.xml".formatted(servletName));
     }
 
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
 
     // If already included, include again, else forward.
@@ -157,7 +157,7 @@ public class ServletForwardingController extends AbstractController implements B
    * @see cn.taketoday.mock.api.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
-  protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {
+  protected boolean useInclude(HttpMockRequest request, HttpServletResponse response) {
     return ServletUtils.isIncludeRequest(request) || response.isCommitted();
   }
 

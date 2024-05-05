@@ -47,11 +47,11 @@ import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.ReadListener;
 import cn.taketoday.mock.api.ServletInputStream;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import reactor.core.publisher.Flux;
 
 /**
- * Adapt {@link ServerHttpRequest} to the Servlet {@link HttpServletRequest}.
+ * Adapt {@link ServerHttpRequest} to the Servlet {@link HttpMockRequest}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -65,7 +65,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   private final byte[] buffer;
 
-  private final HttpServletRequest request;
+  private final HttpMockRequest request;
 
   private final AsyncListener asyncListener;
 
@@ -75,13 +75,13 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   private final RequestBodyPublisher bodyPublisher;
 
-  public ServletServerHttpRequest(HttpServletRequest request, AsyncContext asyncContext,
+  public ServletServerHttpRequest(HttpMockRequest request, AsyncContext asyncContext,
           String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
     this(createDefaultHttpHeaders(request), request, asyncContext, servletPath, bufferFactory, bufferSize);
   }
 
-  public ServletServerHttpRequest(MultiValueMap<String, String> headers, HttpServletRequest request,
+  public ServletServerHttpRequest(MultiValueMap<String, String> headers, HttpMockRequest request,
           AsyncContext asyncContext, String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
 
@@ -102,7 +102,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
     this.bodyPublisher.registerReadListener();
   }
 
-  private static MultiValueMap<String, String> createDefaultHttpHeaders(HttpServletRequest request) {
+  private static MultiValueMap<String, String> createDefaultHttpHeaders(HttpMockRequest request) {
     var headers = MultiValueMap.<String, String>forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
     for (Enumeration<String> names = request.getHeaderNames(); names.hasMoreElements(); ) {
       String name = names.nextElement();
@@ -111,7 +111,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
     return headers;
   }
 
-  private static URI initUri(HttpServletRequest request) throws URISyntaxException {
+  private static URI initUri(HttpMockRequest request) throws URISyntaxException {
     Assert.notNull(request, "'request' is required");
     StringBuffer url = request.getRequestURL();
     String query = request.getQueryString();
@@ -122,7 +122,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static MultiValueMap<String, String> initHeaders(
-          MultiValueMap<String, String> headerValues, HttpServletRequest request) {
+          MultiValueMap<String, String> headerValues, HttpMockRequest request) {
 
     HttpHeaders headers = null;
     MediaType contentType = null;

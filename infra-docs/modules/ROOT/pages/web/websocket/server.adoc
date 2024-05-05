@@ -145,7 +145,7 @@ The following example shows how to do so:
 
 You can configure of the underlying WebSocket server such as input message buffer size, idle timeout, and more.
 
-For Jakarta WebSocket servers, you can add a `ServletServerContainerFactoryBean` to your configuration.
+For Jakarta WebSocket servers, you can add a `MockServerContainerFactoryBean` to your configuration.
 For example:
 
 [source,java]

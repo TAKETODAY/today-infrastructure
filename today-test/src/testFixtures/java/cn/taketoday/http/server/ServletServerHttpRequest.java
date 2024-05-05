@@ -39,14 +39,15 @@ import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.ServletUtils;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
- * {@link ServerHttpRequest} implementation that is based on a {@link HttpServletRequest}.
+ * {@link ServerHttpRequest} implementation that is based on a {@link HttpMockRequest}.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -58,7 +59,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
-  private final HttpServletRequest servletRequest;
+  private final HttpMockRequest servletRequest;
 
   @Nullable
   private URI uri;
@@ -73,11 +74,11 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   /**
    * Construct a new instance of the ServletServerHttpRequest based on the
-   * given {@link HttpServletRequest}.
+   * given {@link HttpMockRequest}.
    *
    * @param servletRequest the servlet request
    */
-  public ServletServerHttpRequest(HttpServletRequest servletRequest) {
+  public ServletServerHttpRequest(HttpMockRequest servletRequest) {
     Assert.notNull(servletRequest, "HttpServletRequest is required");
     this.servletRequest = servletRequest;
     this.method = HttpMethod.valueOf(servletRequest.getMethod());
@@ -86,7 +87,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   /**
    * Returns the {@code HttpServletRequest} this object is based on.
    */
-  public HttpServletRequest getServletRequest() {
+  public HttpMockRequest getServletRequest() {
     return this.servletRequest;
   }
 
@@ -109,7 +110,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
    * @param servletRequest the request
    * @return the initialized URI
    */
-  public static URI initURI(HttpServletRequest servletRequest) {
+  public static URI initURI(HttpMockRequest servletRequest) {
     String urlString = null;
     boolean hasQuery = false;
     try {
@@ -227,12 +228,12 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   }
 
   /**
-   * Use {@link cn.taketoday.mock.api.ServletRequest#getParameterMap()} to reconstruct the
+   * Use {@link MockRequest#getParameterMap()} to reconstruct the
    * body of a form 'POST' providing a predictable outcome as opposed to reading
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".
    */
-  private InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
+  private InputStream getBodyFromServletRequestParameters(HttpMockRequest request) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
     OutputStreamWriter writer = new OutputStreamWriter(bos, FORM_CHARSET);
 

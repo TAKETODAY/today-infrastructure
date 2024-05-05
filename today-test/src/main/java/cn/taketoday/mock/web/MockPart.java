@@ -36,7 +36,7 @@ import cn.taketoday.mock.api.http.Part;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MockHttpServletRequest#addPart
+ * @see HttpMockRequestImpl#addPart
  * @see MockMultipartFile
  * @since 4.0
  */

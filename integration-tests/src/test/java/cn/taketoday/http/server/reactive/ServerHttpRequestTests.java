@@ -30,13 +30,13 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.mock.web.DelegatingServletInputStream;
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.ReadListener;
 import cn.taketoday.mock.api.ServletInputStream;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -210,19 +210,19 @@ public class ServerHttpRequestTests {
     request = request.mutate().header("key", "value").build();
 
     Object nativeRequest = ServerHttpRequestDecorator.getNativeRequest(request);
-    assertThat(nativeRequest).isInstanceOf(HttpServletRequest.class);
+    assertThat(nativeRequest).isInstanceOf(HttpMockRequest.class);
   }
 
   private ServerHttpRequest createRequest(String uriString) throws Exception {
     URI uri = URI.create(uriString);
-    MockHttpServletRequest request = new TestHttpServletRequest(uri);
+    HttpMockRequestImpl request = new TestHttpMockRequest(uri);
     AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpServletResponse());
     return new ServletServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }
 
-  private static class TestHttpServletRequest extends MockHttpServletRequest {
+  private static class TestHttpMockRequest extends HttpMockRequestImpl {
 
-    TestHttpServletRequest(URI uri) {
+    TestHttpMockRequest(URI uri) {
       super("GET", uri.getRawPath());
       if (uri.getScheme() != null) {
         setScheme(uri.getScheme());

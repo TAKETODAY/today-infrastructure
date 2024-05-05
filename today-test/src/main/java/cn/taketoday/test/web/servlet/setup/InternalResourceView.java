@@ -21,15 +21,15 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -67,10 +67,10 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  * @see InternalResourceViewResolver
  * @since 4.0
  */
-public class InternalResourceView extends AbstractUrlBasedView implements ServletContextAware {
+public class InternalResourceView extends AbstractUrlBasedView implements MockContextAware {
 
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   private boolean alwaysInclude = false;
 
@@ -112,7 +112,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    *
    * @see RequestDispatcher#forward
    * @see RequestDispatcher#include
-   * @see #useInclude(HttpServletRequest, HttpServletResponse)
+   * @see #useInclude(HttpMockRequest, HttpServletResponse)
    */
   public void setAlwaysInclude(boolean alwaysInclude) {
     this.alwaysInclude = alwaysInclude;
@@ -149,7 +149,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
     exposeModelAsRequestAttributes(model, request);
 
     // Determine the path for the request dispatcher.
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
 
     // Expose helpers as request attributes, if any.
@@ -192,7 +192,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @see #renderMergedOutputModel
    * @see InternalResourceView#exposeHelpers
    */
-  protected void exposeHelpers(HttpServletRequest servletRequest, RequestContext request) throws Exception { }
+  protected void exposeHelpers(HttpMockRequest servletRequest, RequestContext request) throws Exception { }
 
   /**
    * Prepare for rendering, and determine the request dispatcher path
@@ -207,7 +207,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @throws Exception if preparations failed
    * @see #getUrl()
    */
-  protected String prepareForRendering(HttpServletRequest request, HttpServletResponse response)
+  protected String prepareForRendering(HttpMockRequest request, HttpServletResponse response)
           throws Exception {
 
     String path = getUrl();
@@ -227,7 +227,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
   /**
    * Obtain the RequestDispatcher to use for the forward/include.
    * <p>The default implementation simply calls
-   * {@link HttpServletRequest#getRequestDispatcher(String)}.
+   * {@link HttpMockRequest#getRequestDispatcher(String)}.
    * Can be overridden in subclasses.
    *
    * @param request current HTTP request
@@ -235,7 +235,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @return a corresponding RequestDispatcher
    */
   @Nullable
-  protected RequestDispatcher getRequestDispatcher(HttpServletRequest request, String path) {
+  protected RequestDispatcher getRequestDispatcher(HttpMockRequest request, String path) {
     return request.getRequestDispatcher(path);
   }
 
@@ -254,21 +254,21 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @see cn.taketoday.mock.api.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
-  protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {
+  protected boolean useInclude(HttpMockRequest request, HttpServletResponse response) {
     return alwaysInclude || ServletUtils.isIncludeRequest(request) || response.isCommitted();
   }
 
   @Override
-  public final void setServletContext(ServletContext servletContext) {
-    if (servletContext != this.servletContext) {
-      initServletContext(this.servletContext = servletContext);
+  public final void setMockContext(MockContext mockContext) {
+    if (mockContext != this.mockContext) {
+      initServletContext(this.mockContext = mockContext);
     }
   }
 
-  protected void initServletContext(ServletContext servletContext) { }
+  protected void initServletContext(MockContext mockContext) { }
 
   @Nullable
-  public ServletContext getServletContext() {
-    return servletContext;
+  public MockContext getServletContext() {
+    return mockContext;
   }
 }

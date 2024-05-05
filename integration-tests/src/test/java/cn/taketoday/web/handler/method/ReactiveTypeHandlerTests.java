@@ -37,7 +37,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
@@ -62,7 +62,7 @@ class ReactiveTypeHandlerTests {
 
   private ReactiveTypeHandler handler;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private MockHttpServletResponse servletResponse;
 
@@ -79,7 +79,7 @@ class ReactiveTypeHandlerTests {
   }
 
   private void resetRequest() {
-    this.servletRequest = new MockHttpServletRequest();
+    this.servletRequest = new HttpMockRequestImpl();
     this.servletResponse = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
 

@@ -30,9 +30,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +45,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private RequestParamMapMethodArgumentResolver resolver = new RequestParamMapMethodArgumentResolver();
 
-  private MockHttpServletRequest request = new MockHttpServletRequest();
+  private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
@@ -103,7 +103,7 @@ class RequestParamMapMethodArgumentResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   public void resolveMapOfMultipartFile() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected1 = new MockMultipartFile("mfile", "Hello World".getBytes());
     MultipartFile expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
     request.addFile(expected1);
@@ -124,7 +124,7 @@ class RequestParamMapMethodArgumentResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   public void resolveMultiValueMapOfMultipartFile() throws Throwable {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
     MultipartFile expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
     MultipartFile expected3 = new MockMultipartFile("other", "Hello World 3".getBytes());

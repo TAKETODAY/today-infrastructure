@@ -19,7 +19,7 @@ package cn.taketoday.test.web.servlet;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerInterceptor;
@@ -50,7 +50,7 @@ public interface MvcResult {
    *
    * @return the request, never {@code null}
    */
-  MockHttpServletRequest getRequest();
+  HttpMockRequestImpl getRequest();
 
   /**
    * Return the resulting response.

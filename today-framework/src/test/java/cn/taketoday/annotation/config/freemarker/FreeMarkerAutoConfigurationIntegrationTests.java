@@ -29,10 +29,10 @@ import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.util.TestPropertyValues;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.ServletUtils;
@@ -157,7 +157,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     FreeMarkerViewResolver resolver = this.context.getBean(FreeMarkerViewResolver.class);
     View view = resolver.resolveViewName(viewName, Locale.UK);
     assertThat(view).isNotNull();
-    HttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequest request = new HttpMockRequestImpl();
     request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
     MockHttpServletResponse response = new MockHttpServletResponse();
 

@@ -22,14 +22,14 @@ import java.io.IOException;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.GenericFilter;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 
 /**
  * <p>
  * Provides an abstract class to be subclassed to create an HTTP filter suitable for a Web site. A subclass of
  * <code>HttpFilter</code> should override
- * {@link #doFilter(HttpServletRequest, HttpServletResponse, FilterChain) }.
+ * {@link #doFilter(HttpMockRequest, HttpServletResponse, FilterChain) }.
  * </p>
  *
  * <p>
@@ -66,28 +66,28 @@ public abstract class HttpFilter extends GenericFilter {
    *
    * <p>
    * The default implementation inspects the incoming {@code req} and {@code res} objects to determine if they are
-   * instances of {@link HttpServletRequest} and {@link HttpServletResponse}, respectively. If not, a
+   * instances of {@link HttpMockRequest} and {@link HttpServletResponse}, respectively. If not, a
    * {@link ServletException} is thrown. Otherwise, the protected
-   * {@link #doFilter(HttpServletRequest, HttpServletResponse, FilterChain)}
+   * {@link #doFilter(HttpMockRequest, HttpServletResponse, FilterChain)}
    * method is called.
    * </p>
    *
-   * @param req a {@link ServletRequest} object that contains the request the client has made of the filter
+   * @param req a {@link MockRequest} object that contains the request the client has made of the filter
    * @param res a {@link ServletResponse} object that contains the response the filter sends to the client
    * @param chain the <code>FilterChain</code> for invoking the next filter or the resource
    * @throws IOException if an input or output error is detected when the filter handles the request
    * @throws ServletException if the request for the could not be handled or either parameter is not an instance of the
-   * respective {@link HttpServletRequest} or {@link HttpServletResponse}.
+   * respective {@link HttpMockRequest} or {@link HttpServletResponse}.
    * @since Servlet 4.0
    */
   @Override
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+  public void doFilter(MockRequest req, ServletResponse res, FilterChain chain)
           throws IOException, ServletException {
-    if (!(req instanceof HttpServletRequest && res instanceof HttpServletResponse)) {
+    if (!(req instanceof HttpMockRequest && res instanceof HttpServletResponse)) {
       throw new ServletException("non-HTTP request or response");
     }
 
-    this.doFilter((HttpServletRequest) req, (HttpServletResponse) res, chain);
+    this.doFilter((HttpMockRequest) req, (HttpServletResponse) res, chain);
   }
 
   /**
@@ -101,14 +101,14 @@ public abstract class HttpFilter extends GenericFilter {
    * The default implementation simply calls {@link FilterChain#doFilter}
    * </p>
    *
-   * @param req a {@link HttpServletRequest} object that contains the request the client has made of the filter
+   * @param req a {@link HttpMockRequest} object that contains the request the client has made of the filter
    * @param res a {@link HttpServletResponse} object that contains the response the filter sends to the client
    * @param chain the <code>FilterChain</code> for invoking the next filter or the resource
    * @throws IOException if an input or output error is detected when the filter handles the request
    * @throws ServletException if the request for the could not be handled
    * @since Servlet 4.0
    */
-  protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+  protected void doFilter(HttpMockRequest req, HttpServletResponse res, FilterChain chain)
           throws IOException, ServletException {
     chain.doFilter(req, res);
   }

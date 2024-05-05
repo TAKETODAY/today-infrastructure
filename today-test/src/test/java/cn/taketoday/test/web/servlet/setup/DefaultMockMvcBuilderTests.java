@@ -24,7 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StaticApplicationContext;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.mock.WebApplicationContext;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultMockMvcBuilderTests {
 
-  private final MockServletContext servletContext = new MockServletContext();
+  private final MockContextImpl servletContext = new MockContextImpl();
 
   /**
    * See SPR-12553 and SPR-13075.

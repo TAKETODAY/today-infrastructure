@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * This annotation is used within the {@link ServletSecurity} annotation to represent security constraints on specific
+ * This annotation is used within the {@link MockSecurity} annotation to represent security constraints on specific
  * HTTP protocol messages.
  *
  * @since Servlet 3.0
@@ -43,18 +43,18 @@ public @interface HttpMethodConstraint {
    * The default authorization semantic. This value is insignificant when <code>rolesAllowed</code> returns a non-empty
    * array, and should not be specified when a non-empty array is specified for <tt>rolesAllowed</tt>.
    *
-   * @return the {@link ServletSecurity.EmptyRoleSemantic} to be applied when <code>rolesAllowed</code> returns an empty (that is,
+   * @return the {@link MockSecurity.EmptyRoleSemantic} to be applied when <code>rolesAllowed</code> returns an empty (that is,
    * zero-length) array.
    */
-  ServletSecurity.EmptyRoleSemantic emptyRoleSemantic() default ServletSecurity.EmptyRoleSemantic.PERMIT;
+  MockSecurity.EmptyRoleSemantic emptyRoleSemantic() default MockSecurity.EmptyRoleSemantic.PERMIT;
 
   /**
    * The data protection requirements (i.e., whether or not SSL/TLS is required) that must be satisfied by the connections
    * on which requests arrive.
    *
-   * @return the {@link ServletSecurity.TransportGuarantee} indicating the data protection that must be provided by the connection.
+   * @return the {@link MockSecurity.TransportGuarantee} indicating the data protection that must be provided by the connection.
    */
-  ServletSecurity.TransportGuarantee transportGuarantee() default ServletSecurity.TransportGuarantee.NONE;
+  MockSecurity.TransportGuarantee transportGuarantee() default MockSecurity.TransportGuarantee.NONE;
 
   /**
    * The names of the authorized roles.

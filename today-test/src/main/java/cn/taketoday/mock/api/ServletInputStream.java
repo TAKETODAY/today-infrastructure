@@ -26,7 +26,7 @@ import java.io.InputStream;
  * <code>ServletInputStream</code> object can be used to read data sent from the client.
  *
  * <p>
- * A <code>ServletInputStream</code> object is normally retrieved via the {@link ServletRequest#getInputStream} method.
+ * A <code>ServletInputStream</code> object is normally retrieved via the {@link MockRequest#getInputStream} method.
  *
  *
  * <p>
@@ -34,7 +34,7 @@ import java.io.InputStream;
  * <code>java.io.InputStream.read()</code> method.
  *
  * @author Various
- * @see ServletRequest
+ * @see MockRequest
  */
 public abstract class ServletInputStream extends InputStream {
 

@@ -74,7 +74,7 @@ import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
@@ -91,7 +91,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   protected static final String NEWLINE_SYSTEM_PROPERTY = System.getProperty("line.separator");
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private MockHttpServletResponse servletResponse;
 
@@ -107,7 +107,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    servletRequest = new MockHttpServletRequest();
+    servletRequest = new HttpMockRequestImpl();
     servletRequest.setMethod("POST");
     servletResponse = new MockHttpServletResponse();
     request = new ServletRequestContext(null, servletRequest, servletResponse);
@@ -846,7 +846,7 @@ class RequestResponseBodyMethodProcessorTests {
               .isNull();
     }
 
-    this.servletRequest = new MockHttpServletRequest();
+    this.servletRequest = new HttpMockRequestImpl();
     this.servletResponse = new MockHttpServletResponse();
     this.request = new ServletRequestContext(null, servletRequest, servletResponse);
   }

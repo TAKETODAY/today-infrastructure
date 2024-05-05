@@ -1,5 +1,8 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,27 +15,28 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see [https://www.gnu.org/licenses/]
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.web;
 
-import cn.taketoday.web.mock.ServletContextAware;
-import cn.taketoday.mock.api.ServletContext;
+import org.junit.Test;
+
+import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 
 /**
  * Introduced to investigate claims in SPR-11145.
  *
+ * <p>Yes, this test class does in fact use JUnit to run JUnit. ;)
+ *
  * @author Sam Brannen
  * @since 4.0
  */
-public class ServletContextAwareBean implements ServletContextAware {
+public class MockContextAwareBeanWacTests {
 
-  protected ServletContext servletContext;
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  @Test
+  public void ensureServletContextAwareBeanIsProcessedProperlyWhenExecutingJUnitManually() throws Exception {
+    JUnitTestingUtils.runTestsAndAssertCounters(BasicAnnotationConfigWacTests.class, 3, 0, 3, 0, 0);
   }
 
 }

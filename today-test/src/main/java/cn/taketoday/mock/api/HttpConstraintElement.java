@@ -18,8 +18,8 @@
 package cn.taketoday.mock.api;
 
 import cn.taketoday.mock.api.annotation.HttpConstraint;
-import cn.taketoday.mock.api.annotation.ServletSecurity.EmptyRoleSemantic;
-import cn.taketoday.mock.api.annotation.ServletSecurity.TransportGuarantee;
+import cn.taketoday.mock.api.annotation.MockSecurity.EmptyRoleSemantic;
+import cn.taketoday.mock.api.annotation.MockSecurity.TransportGuarantee;
 
 /**
  * Java Class representation of an {@link HttpConstraint} annotation value.

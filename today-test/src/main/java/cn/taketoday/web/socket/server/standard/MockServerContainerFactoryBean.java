@@ -21,8 +21,8 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.ServletContextAware;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.web.mock.MockContextAware;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.websocket.server.ServerContainer;
 
@@ -38,8 +38,8 @@ import jakarta.websocket.server.ServerContainer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServletServerContainerFactoryBean
-        implements FactoryBean<WebSocketContainer>, ServletContextAware, InitializingBean {
+public class MockServerContainerFactoryBean
+        implements FactoryBean<WebSocketContainer>, MockContextAware, InitializingBean {
 
   @Nullable
   private Long asyncSendTimeout;
@@ -54,7 +54,7 @@ public class ServletServerContainerFactoryBean
   private Integer maxBinaryMessageBufferSize;
 
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   @Nullable
   private ServerContainer serverContainer;
@@ -96,15 +96,15 @@ public class ServletServerContainerFactoryBean
   }
 
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Override
   public void afterPropertiesSet() {
-    Assert.state(this.servletContext != null,
+    Assert.state(this.mockContext != null,
             "A ServletContext is required to access the jakarta.websocket.server.ServerContainer instance");
-    this.serverContainer = (ServerContainer) this.servletContext.getAttribute(
+    this.serverContainer = (ServerContainer) this.mockContext.getAttribute(
             "jakarta.websocket.server.ServerContainer");
     Assert.state(this.serverContainer != null,
             "Attribute 'jakarta.websocket.server.ServerContainer' not found in ServletContext");

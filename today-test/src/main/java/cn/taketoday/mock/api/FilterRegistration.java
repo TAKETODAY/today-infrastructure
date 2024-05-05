@@ -107,7 +107,7 @@ public interface FilterRegistration extends Registration {
 
   /**
    * Interface through which a {@link Filter} registered via one of the <tt>addFilter</tt> methods on
-   * {@link ServletContext} may be further configured.
+   * {@link MockContext} may be further configured.
    */
   interface Dynamic extends FilterRegistration, Registration.Dynamic {
   }

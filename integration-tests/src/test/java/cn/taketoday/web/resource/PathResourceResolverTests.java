@@ -30,7 +30,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,7 +163,7 @@ public class PathResourceResolverTests {
 
   @NonNull
   private ServletRequestContext getContext() {
-    return new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    return new ServletRequestContext(null, new HttpMockRequestImpl(), null);
   }
 
   private Resource getResource(String filePath) {

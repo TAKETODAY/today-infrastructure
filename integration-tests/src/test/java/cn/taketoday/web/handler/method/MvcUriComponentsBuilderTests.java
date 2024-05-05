@@ -38,9 +38,9 @@ import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContextHolder;
@@ -73,7 +73,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class MvcUriComponentsBuilderTests {
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 
   @BeforeEach
@@ -471,7 +471,7 @@ class MvcUriComponentsBuilderTests {
 
   private void initWebApplicationContext(Class<?> configClass) {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
     context.register(configClass);
     context.refresh();
     RequestContextHolder.set(new ServletRequestContext(context, request, new MockHttpServletResponse()));

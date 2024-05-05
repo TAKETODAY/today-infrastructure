@@ -44,20 +44,20 @@ public interface Servlet {
    * @see UnavailableException
    * @see #getServletConfig
    */
-  public void init(ServletConfig config) throws ServletException;
+  public void init(MockConfig config) throws ServletException;
 
   /**
-   * Returns a {@link ServletConfig} object, which contains initialization and startup parameters for this servlet. The
+   * Returns a {@link MockConfig} object, which contains initialization and startup parameters for this servlet. The
    * <code>ServletConfig</code> object returned is the one passed to the <code>init</code> method.
    *
    * <p>
    * Implementations of this interface are responsible for storing the <code>ServletConfig</code> object so that this
-   * method can return it. The {@link GenericServlet} class, which implements this interface, already does this.
+   * method can return it. The {@link GenericMock} class, which implements this interface, already does this.
    *
    * @return the <code>ServletConfig</code> object that initializes this servlet
    * @see #init
    */
-  public ServletConfig getServletConfig();
+  public MockConfig getServletConfig();
 
   /**
    * Called by the servlet container to allow the servlet to respond to a request.
@@ -79,7 +79,7 @@ public interface Servlet {
    * @throws ServletException if an exception occurs that interferes with the servlet's normal operation
    * @throws IOException if an input or output exception occurs
    */
-  public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException;
+  public void service(MockRequest req, ServletResponse res) throws ServletException, IOException;
 
   /**
    * Returns information about the servlet, such as author, version, and copyright.

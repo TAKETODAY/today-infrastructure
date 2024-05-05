@@ -19,14 +19,12 @@ package cn.taketoday.test.web.servlet.samples.client.standalone;
 
 import org.junit.jupiter.api.Test;
 
-import java.security.Principal;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.reactive.server.WebTestClientConfigurer;
@@ -122,7 +120,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+    public HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request) {
       for (String headerName : this.headers.keySet()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }

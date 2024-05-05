@@ -9,7 +9,7 @@ mock objects for more details.
 
 * TestContext Framework: Support for loading Infra configuration in JUnit and TestNG tests,
 including efficient caching of the loaded configuration across test methods and support for
-loading a `WebApplicationContext` with a `MockServletContext`.
+loading a `WebApplicationContext` with a `MockContextImpl`.
 See xref:testing/testcontext-framework.adoc[TestContext Framework] for more details.
 
 * Web MVC Test: A framework, also known as `MockMvc`, for testing annotated controllers

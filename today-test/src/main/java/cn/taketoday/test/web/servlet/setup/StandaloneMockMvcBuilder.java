@@ -45,7 +45,8 @@ import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.test.web.servlet.MvcResult;
@@ -80,7 +81,6 @@ import cn.taketoday.web.view.ViewRenderingException;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
-import cn.taketoday.mock.api.ServletContext;
 
 /**
  * A {@code MockMvcBuilder} that accepts {@code @Controller} registrations
@@ -371,7 +371,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   @Override
   protected WebApplicationContext initWebAppContext() {
-    MockServletContext servletContext = new MockServletContext();
+    MockContextImpl servletContext = new MockContextImpl();
     StubWebApplicationContext wac = new StubWebApplicationContext(servletContext);
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
@@ -384,7 +384,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   private void registerMvcSingletons(StubWebApplicationContext wac) {
-    ServletContext sc = wac.getServletContext();
+    MockContext sc = wac.getServletContext();
     wac.addBeans(this);
 
     wac.addBeans(this.controllers);
@@ -425,10 +425,10 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * MVC infrastructure such as additional {@code HandlerMapping},
    * {@code HandlerAdapter}, and others.
    *
-   * @param servletContext the ServletContext
+   * @param mockContext the ServletContext
    * @return a map with additional MVC infrastructure object instances
    */
-  protected Map<String, Object> extendMvcSingletons(@Nullable ServletContext servletContext) {
+  protected Map<String, Object> extendMvcSingletons(@Nullable MockContext mockContext) {
     return Collections.emptyMap();
   }
 

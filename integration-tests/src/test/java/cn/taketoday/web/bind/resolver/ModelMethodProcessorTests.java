@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
@@ -60,7 +60,7 @@ class ModelMethodProcessorTests {
     paramModel = new MethodParameter(method, 0);
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
-    webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(new BindingContext());
   }
 

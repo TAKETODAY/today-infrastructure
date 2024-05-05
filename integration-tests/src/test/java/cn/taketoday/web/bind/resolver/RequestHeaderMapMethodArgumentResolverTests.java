@@ -34,7 +34,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +77,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     String name = "foo";
     String value = "bar";
     Map<String, String> expected = Collections.singletonMap(name, value);
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader(name, value);
 
     ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
@@ -94,7 +94,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     String name = "foo";
     String value1 = "bar";
     String value2 = "baz";
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     request.addHeader(name, value1);
     request.addHeader(name, value2);
@@ -116,7 +116,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     String name = "foo";
     String value1 = "bar";
     String value2 = "baz";
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     request.addHeader(name, value1);
     request.addHeader(name, value2);

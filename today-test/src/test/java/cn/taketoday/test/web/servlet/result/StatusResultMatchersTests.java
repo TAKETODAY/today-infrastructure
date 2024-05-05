@@ -28,7 +28,7 @@ import java.util.List;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
@@ -47,7 +47,7 @@ public class StatusResultMatchersTests {
 
   private final StatusResultMatchers matchers = new StatusResultMatchers();
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   @Test
   public void testHttpStatusCodeResultMatchers() throws Exception {

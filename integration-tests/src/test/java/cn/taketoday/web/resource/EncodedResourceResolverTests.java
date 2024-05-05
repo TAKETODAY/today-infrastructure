@@ -35,7 +35,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +77,7 @@ public class EncodedResourceResolverTests {
   public void resolveGzipped(GzippedFiles gzippedFiles) {
     String file = "js/foo.js";
     gzippedFiles.create(file);
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("Accept-Encoding", "gzip");
 
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
@@ -98,7 +98,7 @@ public class EncodedResourceResolverTests {
   public void resolveGzippedWithVersion(GzippedFiles gzippedFiles) {
     gzippedFiles.create("foo.css");
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("Accept-Encoding", "gzip");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
@@ -115,7 +115,7 @@ public class EncodedResourceResolverTests {
     // 1. Resolve, and cache .gz variant
     String file = "js/foo.js";
     gzippedFiles.create(file);
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/js/foo.js");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
@@ -127,7 +127,7 @@ public class EncodedResourceResolverTests {
     assertThat(condition).isTrue();
 
     // 2. Resolve unencoded resource
-    request = new MockHttpServletRequest("GET", "/js/foo.js");
+    request = new HttpMockRequestImpl("GET", "/js/foo.js");
     requestContext = new ServletRequestContext(null, request, null);
 
     resolved = this.resolver.resolveResource(requestContext, file, this.locations);

@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
@@ -59,7 +59,7 @@ class WebAsyncManagerTests {
 
   private AsyncWebRequest asyncWebRequest;
 
-  private MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  private HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
   private ServletRequestContext request = new ServletRequestContext(null, servletRequest, null);
 

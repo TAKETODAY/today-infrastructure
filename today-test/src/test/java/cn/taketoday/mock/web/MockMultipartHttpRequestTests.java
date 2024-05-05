@@ -43,11 +43,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Juergen Hoeller
  */
-class MockMultipartHttpServletRequestTests {
+class MockMultipartHttpRequestTests {
 
   @Test
   void mockMultipartHttpServletRequestWithByteArray() throws IOException {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     assertThat(request.getFileNames().hasNext()).isFalse();
     assertThat(request.getFile("file1")).isNull();
     assertThat(request.getFile("file2")).isNull();
@@ -60,7 +60,7 @@ class MockMultipartHttpServletRequestTests {
 
   @Test
   void mockMultipartHttpServletRequestWithInputStream() throws IOException {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
             "myContent2".getBytes())));
@@ -69,7 +69,7 @@ class MockMultipartHttpServletRequestTests {
 
   @Test
   void mockMultiPartHttpServletRequestWithMixedData() {
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
 
     MockPart metadataPart = new MockPart("metadata", "{\"foo\": \"bar\"}".getBytes());

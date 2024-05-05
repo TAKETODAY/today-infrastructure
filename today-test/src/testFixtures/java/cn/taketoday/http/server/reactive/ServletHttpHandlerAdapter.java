@@ -37,17 +37,17 @@ import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Servlet;
-import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletRegistration;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServlet;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMock;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
- * Adapt {@link HttpHandler} to an {@link HttpServlet} using Servlet Async support
+ * Adapt {@link HttpHandler} to an {@link HttpMock} using Servlet Async support
  * and Servlet 3.1 non-blocking I/O.
  *
  * @author Arjen Poutsma
@@ -91,11 +91,11 @@ public class ServletHttpHandlerAdapter implements Servlet {
 
   /**
    * Return the Servlet path under which the Servlet is deployed by checking
-   * the Servlet registration from {@link #init(ServletConfig)}.
+   * the Servlet registration from {@link #init(MockConfig)}.
    *
    * @return the path, or an empty string if the Servlet is deployed without
    * a prefix (i.e. "/" or "/*"), or {@code null} if this method is invoked
-   * before the {@link #init(ServletConfig)} Servlet container callback.
+   * before the {@link #init(MockConfig)} Servlet container callback.
    */
   @Nullable
   public String getServletPath() {
@@ -114,13 +114,13 @@ public class ServletHttpHandlerAdapter implements Servlet {
   // Servlet methods...
 
   @Override
-  public void init(ServletConfig config) {
+  public void init(MockConfig config) {
     this.servletPath = getServletPath(config);
   }
 
-  private String getServletPath(ServletConfig config) {
-    String name = config.getServletName();
-    ServletRegistration registration = config.getServletContext().getServletRegistration(name);
+  private String getServletPath(MockConfig config) {
+    String name = config.getMockName();
+    ServletRegistration registration = config.getMockContext().getServletRegistration(name);
     if (registration == null) {
       throw new IllegalStateException("ServletRegistration not found for Servlet '" + name + "'");
     }
@@ -148,7 +148,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   @Override
-  public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+  public void service(MockRequest request, ServletResponse response) throws ServletException, IOException {
     // Check for existing error attribute first
     if (DispatcherType.ASYNC == request.getDispatcherType()) {
       Throwable ex = (Throwable) request.getAttribute(WRITE_ERROR_ATTRIBUTE_NAME);
@@ -163,7 +163,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     AsyncListener requestListener;
     String logPrefix;
     try {
-      httpRequest = createRequest(((HttpServletRequest) request), asyncContext);
+      httpRequest = createRequest(((HttpMockRequest) request), asyncContext);
       requestListener = httpRequest.getAsyncListener();
       logPrefix = httpRequest.getLogPrefix();
     }
@@ -191,7 +191,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
     this.httpHandler.handle(httpRequest, httpResponse).subscribe(subscriber);
   }
 
-  protected ServletServerHttpRequest createRequest(HttpServletRequest request, AsyncContext context)
+  protected ServletServerHttpRequest createRequest(HttpMockRequest request, AsyncContext context)
           throws IOException, URISyntaxException {
 
     Assert.notNull(this.servletPath, "Servlet path is not initialized");
@@ -213,7 +213,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
 
   @Override
   @Nullable
-  public ServletConfig getServletConfig() {
+  public MockConfig getServletConfig() {
     return null;
   }
 

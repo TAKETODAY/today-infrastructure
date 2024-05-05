@@ -29,7 +29,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.mock.web.MockCookie;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
@@ -45,7 +45,7 @@ class DefaultServerRequestBuilderTests {
 
   @Test
   void from() throws IOException {
-    MockHttpServletRequest request = PathPatternsTestUtils.initRequest("POST", "https://example.com", true);
+    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest("POST", "https://example.com", true);
     request.addHeader("foo", "bar");
     request.setCookies(new MockCookie("foo", "bar"));
     request.addParameter("foo", "bar");

@@ -46,7 +46,7 @@ import java.util.TreeMap;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.view.View;
 
@@ -61,7 +61,7 @@ public class MappingJackson2XmlViewTests {
 
   private MappingJackson2XmlView view = new MappingJackson2XmlView();
 
-  private MockHttpServletRequest request = new MockHttpServletRequest();
+  private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private MockHttpServletResponse response = new MockHttpServletResponse();
 

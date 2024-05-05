@@ -27,11 +27,11 @@ import cn.taketoday.mock.api.ServletInputStream;
 /**
  * Delegating implementation of {@link ServletInputStream}.
  *
- * <p>Used by {@link MockHttpServletRequest}; typically not directly
+ * <p>Used by {@link HttpMockRequestImpl}; typically not directly
  * used for testing application controllers.
  *
  * @author Juergen Hoeller
- * @see MockHttpServletRequest
+ * @see HttpMockRequestImpl
  * @since 4.0
  */
 public class DelegatingServletInputStream extends ServletInputStream {

@@ -27,13 +27,13 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.Servlet;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
 import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.DispatcherHandler;
@@ -64,7 +64,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    */
   public static final String SERVLET_CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
 
-  private transient ServletConfig servletConfig;
+  private transient MockConfig mockConfig;
 
   /** ServletContext attribute to find the WebApplicationContext in. */
   @Nullable
@@ -78,7 +78,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   /**
    * Create a new {@code InfraHandler} with the given application context. This
    * constructor is useful in Servlet environments where instance-based registration
-   * of servlets is possible through the {@link ServletContext#addServlet} API.
+   * of servlets is possible through the {@link MockContext#addServlet} API.
    * <p>Using this constructor indicates that the following properties / init-params
    * will be ignored:
    * <ul>
@@ -155,10 +155,10 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   @Override
-  public void init(ServletConfig servletConfig) {
-    this.servletConfig = servletConfig;
-    String servletName = servletConfig.getServletName();
-    servletConfig.getServletContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
+  public void init(MockConfig mockConfig) {
+    this.mockConfig = mockConfig;
+    String servletName = mockConfig.getMockName();
+    mockConfig.getMockContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
     log.info("Initializing Servlet '{}'", servletName);
 
     init();
@@ -169,7 +169,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     if (publishContext) {
       // Publish the context as a servlet context attribute.
       String attrName = getServletContextAttributeName();
-      getServletContext().setAttribute(attrName, getApplicationContext());
+      getMockContext().setAttribute(attrName, getApplicationContext());
     }
   }
 
@@ -178,7 +178,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     super.postProcessApplicationContext(context);
 
     if (context instanceof ConfigurableWebApplicationContext wac) {
-      wac.setServletContext(getServletContext());
+      wac.setServletContext(getMockContext());
       wac.setServletConfig(getServletConfig());
     }
 
@@ -187,7 +187,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     // use in any post-processing or initialization that occurs below prior to #refresh
     ConfigurableEnvironment env = context.getEnvironment();
     if (env instanceof ConfigurableWebEnvironment cwe) {
-      cwe.initPropertySources(getServletContext(), getServletConfig());
+      cwe.initPropertySources(getMockContext(), getServletConfig());
     }
   }
 
@@ -195,17 +195,17 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   protected void applyDefaultContextId(ConfigurableApplicationContext context) {
     // Generate default id...
     context.setId(APPLICATION_CONTEXT_ID_PREFIX +
-            ObjectUtils.getDisplayString(getServletContext().getContextPath()) + '/' + getServletName());
+            ObjectUtils.getDisplayString(getMockContext()) + '/' + getServletName());
   }
 
   @Override
   protected ApplicationContext getRootApplicationContext() {
-    return WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+    return WebApplicationContextUtils.getWebApplicationContext(getMockContext());
   }
 
   /**
-   * Returns a reference to the {@link ServletContext} in which this
-   * servlet is running. See {@link ServletConfig#getServletContext}.
+   * Returns a reference to the {@link MockContext} in which this
+   * servlet is running. See {@link MockConfig#getMockContext}.
    *
    * <p>
    * This method is supplied for convenience. It gets the context
@@ -214,8 +214,8 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * @return ServletContext the <code>ServletContext</code>
    * object passed to this servlet by the <code>init</code> method
    */
-  public ServletContext getServletContext() {
-    return getServletConfig().getServletContext();
+  public MockContext getMockContext() {
+    return getServletConfig().getMockContext();
   }
 
   /**
@@ -236,7 +236,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     if (attrName == null) {
       return null;
     }
-    WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getServletContext(), attrName);
+    WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getMockContext(), attrName);
     if (wac == null) {
       throw new IllegalStateException("No WebApplicationContext found: initializer not registered?");
     }
@@ -256,7 +256,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   @Override
-  public void service(ServletRequest request, ServletResponse response) throws ServletException {
+  public void service(MockRequest request, ServletResponse response) throws ServletException {
     if (request.getDispatcherType() == DispatcherType.ASYNC) {
       // send async results
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
@@ -277,7 +277,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     boolean reset = false;
     if (context == null) {
       context = new ServletRequestContext(getApplicationContext(),
-              (HttpServletRequest) request, (HttpServletResponse) response, this);
+              (HttpMockRequest) request, (HttpServletResponse) response, this);
       RequestContextHolder.set(context);
       reset = true;
     }
@@ -296,9 +296,9 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   @Override
-  public ServletConfig getServletConfig() {
-    Assert.state(servletConfig != null, "DispatcherServlet has not been initialized");
-    return servletConfig;
+  public MockConfig getServletConfig() {
+    Assert.state(mockConfig != null, "DispatcherServlet has not been initialized");
+    return mockConfig;
   }
 
   @Override
@@ -307,18 +307,18 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Returns the name of this servlet instance. See {@link ServletConfig#getServletName}.
+   * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.
    *
    * @return the name of this servlet instance
    */
   public String getServletName() {
-    return getServletConfig().getServletName();
+    return getServletConfig().getMockName();
   }
 
   @Override
   protected void logInfo(String msg) {
     super.logInfo(msg);
-    getServletContext().log(msg);
+    getMockContext().log(msg);
   }
 
 }

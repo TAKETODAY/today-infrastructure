@@ -16,7 +16,7 @@ mockMvc.perform(post("/hotels/{id}", 42).accept(MediaType.APPLICATION_JSON));
 
 
 You can also perform file upload requests that internally use
-`MockMultipartHttpServletRequest` so that there is no actual parsing of a multipart
+`MockMultipartHttpMockRequest` so that there is no actual parsing of a multipart
 request. Rather, you have to set it up to be similar to the following example:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]

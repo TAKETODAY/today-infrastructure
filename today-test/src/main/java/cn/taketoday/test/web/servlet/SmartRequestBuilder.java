@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.web.servlet;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 /**
  * Extended variant of a {@link RequestBuilder} that applies its
@@ -39,6 +39,6 @@ public interface SmartRequestBuilder extends RequestBuilder {
    * @param request the request to initialize
    * @return the request to use, either the one passed in or a wrapped one
    */
-  MockHttpServletRequest postProcessRequest(MockHttpServletRequest request);
+  HttpMockRequestImpl postProcessRequest(HttpMockRequestImpl request);
 
 }

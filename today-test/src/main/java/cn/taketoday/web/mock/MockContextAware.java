@@ -19,28 +19,28 @@ package cn.taketoday.web.mock;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.ApplicationContextAware;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the
- * {@link ServletContext} (typically determined by the {@link WebApplicationContext})
+ * {@link MockContext} (typically determined by the {@link WebApplicationContext})
  * that it runs in.
  *
  * @author Harry Yang
  * @since 2018-08-03 15:45
  */
-public interface ServletContextAware extends Aware {
+public interface MockContextAware extends Aware {
 
   /**
-   * Set the {@link ServletContext} that this object runs in.
+   * Set the {@link MockContext} that this object runs in.
    * <p>Invoked after population of normal bean properties but before an init
    * callback like InitializingBean's {@code afterPropertiesSet} or a
    * custom init-method. Invoked after ApplicationContextAware's
    * {@code setApplicationContext}.
    *
-   * @param servletContext the ServletContext object to be used by this object
+   * @param mockContext the ServletContext object to be used by this object
    * @see cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet
    * @see ApplicationContextAware#setApplicationContext
    */
-  void setServletContext(ServletContext servletContext);
+  void setMockContext(MockContext mockContext);
 }

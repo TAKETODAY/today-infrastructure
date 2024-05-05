@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.annotation.ScopedProxyMode;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
@@ -49,7 +49,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.filter.GenericFilterBean;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,7 +85,7 @@ public class RequestContextHolderTests {
   private WebApplicationContext wac;
 
   @Autowired
-  private MockHttpServletRequest mockRequest;
+  private HttpMockRequestImpl mockRequest;
 
   @Autowired
   private RequestScopedController requestScopedController;
@@ -260,7 +260,7 @@ public class RequestContextHolderTests {
     private SessionScopedService service;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
       this.service.process();
       RequestContext requestContext = RequestContextHolder.get();
       assertRequestAttributes(requestContext);
@@ -272,7 +272,7 @@ public class RequestContextHolderTests {
   static class RequestFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
       request.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
       chain.doFilter(request, response);
     }
@@ -281,7 +281,7 @@ public class RequestContextHolderTests {
   static class RequestAttributesFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
       RequestContextHolder.getRequired()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
       chain.doFilter(request, response);

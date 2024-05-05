@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.UriComponentsBuilderParameterStrategy;
@@ -41,7 +41,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private RequestContext webRequest;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private ResolvableMethodParameter builderParam;
   private ResolvableMethodParameter servletBuilderParam;
@@ -50,7 +50,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
-    this.servletRequest = new MockHttpServletRequest();
+    this.servletRequest = new HttpMockRequestImpl();
     this.webRequest = new ServletRequestContext(
             null, this.servletRequest, new MockHttpServletResponse());
 

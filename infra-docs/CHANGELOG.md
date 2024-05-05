@@ -246,7 +246,7 @@ public final class PathVariableAction {
 @ActionMapping(value = "/users/*.html", method = {RequestMethod.GET})
 @ActionMapping(value = {"/index.action", "/index.do", "/index"})
 @Interceptor({LoginInterceptor.class, ...})
-public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, response, session,servletContext, str, int, long , byte, short, boolean, @Session("loginUser"), @Header("User-Agent"), @Cookie("JSESSIONID"), @PathVariable("id"), @RequestBody("users"), @Multipart("uploadFiles") MultipartFile[]) {
+public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, response, session,mockContext, str, int, long , byte, short, boolean, @Session("loginUser"), @Header("User-Agent"), @Cookie("JSESSIONID"), @PathVariable("id"), @RequestBody("users"), @Multipart("uploadFiles") MultipartFile[]) {
         
     return </>;
 }

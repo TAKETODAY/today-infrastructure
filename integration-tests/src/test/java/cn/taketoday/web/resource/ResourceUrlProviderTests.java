@@ -31,11 +31,11 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -76,7 +76,7 @@ public class ResourceUrlProviderTests {
 
   @Test
   void getStaticResourceUrlRequestWithQueryOrHash() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setRequestURI("/");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
@@ -131,7 +131,7 @@ public class ResourceUrlProviderTests {
   @SuppressWarnings("resource")
   void initializeOnce() throws Exception {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
     context.register(HandlerMappingConfiguration.class);
     context.refresh();
 
@@ -144,12 +144,12 @@ public class ResourceUrlProviderTests {
   @SuppressWarnings("resource")
   void initializeOnCurrentContext() {
     AnnotationConfigWebApplicationContext parentContext = new AnnotationConfigWebApplicationContext();
-    parentContext.setServletContext(new MockServletContext());
+    parentContext.setServletContext(new MockContextImpl());
     parentContext.register(ParentHandlerMappingConfiguration.class);
 
     AnnotationConfigWebApplicationContext childContext = new AnnotationConfigWebApplicationContext();
     childContext.setParent(parentContext);
-    childContext.setServletContext(new MockServletContext());
+    childContext.setServletContext(new MockContextImpl());
     childContext.register(HandlerMappingConfiguration.class);
 
     parentContext.refresh();

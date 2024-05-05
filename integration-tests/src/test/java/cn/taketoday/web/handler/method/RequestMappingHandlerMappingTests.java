@@ -33,8 +33,8 @@ import java.util.stream.Stream;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.annotation.DeleteMapping;
@@ -64,11 +64,11 @@ class RequestMappingHandlerMappingTests {
   @SuppressWarnings("unused")
   static Stream<Arguments> pathPatternsArguments() {
     RequestMappingHandlerMapping mapping1 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac1 = new StaticWebApplicationContext(new MockServletContext());
+    StaticWebApplicationContext wac1 = new StaticWebApplicationContext(new MockContextImpl());
     mapping1.setApplicationContext(wac1);
 
     RequestMappingHandlerMapping mapping2 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac2 = new StaticWebApplicationContext(new MockServletContext());
+    StaticWebApplicationContext wac2 = new StaticWebApplicationContext(new MockContextImpl());
     mapping2.setApplicationContext(wac2);
 
     return Stream.of(Arguments.of(mapping1, wac1), Arguments.of(mapping2, wac2));
@@ -77,7 +77,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void builderConfiguration() {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
 
     RequestMappingInfo.BuilderConfiguration config = mapping.getBuilderConfiguration();
     assertThat(config).isNotNull();
@@ -126,11 +126,11 @@ class RequestMappingHandlerMappingTests {
     assertThat(info).isNotNull();
     assertThat(info.getPathPatternsCondition()).isNotNull();
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/get");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/api/get");
 
     assertThat(info.getPathPatternsCondition().getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
 
-    request = new MockHttpServletRequest("GET", "/api/get.pdf");
+    request = new HttpMockRequestImpl("GET", "/api/get.pdf");
 
     assertThat(info.getPathPatternsCondition().getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
   }
@@ -198,7 +198,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithDefaultValues() throws NoSuchMethodException {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
@@ -220,7 +220,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithCustomValues() throws Exception {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(

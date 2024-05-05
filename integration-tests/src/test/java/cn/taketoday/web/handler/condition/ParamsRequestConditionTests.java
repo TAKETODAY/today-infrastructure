@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.handler.condition.ParamsRequestCondition.ParamExpression;
 import cn.taketoday.web.mock.ServletRequestContext;
 
@@ -45,7 +45,7 @@ public class ParamsRequestConditionTests {
 
   @Test
   void paramPresent() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("foo", "");
 
     assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -54,7 +54,7 @@ public class ParamsRequestConditionTests {
   @Test
     // SPR-15831
   void paramPresentNullValue() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("foo", (String) null);
 
     assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -62,7 +62,7 @@ public class ParamsRequestConditionTests {
 
   @Test
   void paramPresentNoMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("bar", "");
 
     assertThat(new ParamsRequestCondition("foo").getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -71,14 +71,14 @@ public class ParamsRequestConditionTests {
   @Test
   void paramNotPresent() {
     ParamsRequestCondition condition = new ParamsRequestCondition("!foo");
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
   }
 
   @Test
   void paramValueMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("foo", "bar");
 
     assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -86,7 +86,7 @@ public class ParamsRequestConditionTests {
 
   @Test
   void paramValueNoMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("foo", "bazz");
 
     assertThat(new ParamsRequestCondition("foo=bar").getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -94,7 +94,7 @@ public class ParamsRequestConditionTests {
 
   @Test
   void compareTo() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ParamsRequestCondition condition1 = new ParamsRequestCondition("foo", "bar", "baz");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("foo=a", "bar");
@@ -109,7 +109,7 @@ public class ParamsRequestConditionTests {
   @Test
     // SPR-16674
   void compareToWithMoreSpecificMatchByValue() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ParamsRequestCondition condition1 = new ParamsRequestCondition("response_type=code");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("response_type");
@@ -120,7 +120,7 @@ public class ParamsRequestConditionTests {
 
   @Test
   void compareToWithNegatedMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ParamsRequestCondition condition1 = new ParamsRequestCondition("response_type!=code");
     ParamsRequestCondition condition2 = new ParamsRequestCondition("response_type");

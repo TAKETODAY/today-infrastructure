@@ -28,12 +28,12 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.test.context.InfraApplicationContextLoader;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.mock.ServletContextAware;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.web.mock.MockContextAware;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,13 +45,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(InfraExtension.class)
 @ContextConfiguration(loader = InfraApplicationContextLoader.class)
 @WebAppConfiguration("src/test/webapp")
-class InfraMockServletContextTests implements ServletContextAware {
+class InfraMockContextTests implements MockContextAware {
 
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setMockContext(MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Test
@@ -64,7 +64,7 @@ class InfraMockServletContextTests implements ServletContextAware {
   }
 
   private void testResource(String path, String expectedLocation) throws MalformedURLException {
-    URL resource = this.servletContext.getResource(path);
+    URL resource = this.mockContext.getResource(path);
     assertThat(resource).isNotNull();
     assertThat(resource.getPath()).contains(expectedLocation);
   }
@@ -72,7 +72,7 @@ class InfraMockServletContextTests implements ServletContextAware {
   // gh-2654
   @Test
   void getRootUrlExistsAndIsEmpty() throws Exception {
-    InfraMockServletContext context = new InfraMockServletContext("src/test/doesntexist") {
+    InfraMockContext context = new InfraMockContext("src/test/doesntexist") {
       @Override
       protected String getResourceLocation(String path) {
         // Don't include the Infra Boot defaults for this test

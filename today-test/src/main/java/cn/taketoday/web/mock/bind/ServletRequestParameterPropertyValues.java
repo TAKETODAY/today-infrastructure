@@ -19,7 +19,7 @@ package cn.taketoday.web.mock.bind;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.web.mock.ServletUtils;
 
 /**
@@ -51,7 +51,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    *
    * @param request the HTTP request
    */
-  public ServletRequestParameterPropertyValues(ServletRequest request) {
+  public ServletRequestParameterPropertyValues(MockRequest request) {
     this(request, null, null);
   }
 
@@ -64,7 +64,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    * consist of this plus the separator)
    * @see #DEFAULT_PREFIX_SEPARATOR
    */
-  public ServletRequestParameterPropertyValues(ServletRequest request, @Nullable String prefix) {
+  public ServletRequestParameterPropertyValues(MockRequest request, @Nullable String prefix) {
     this(request, prefix, DEFAULT_PREFIX_SEPARATOR);
   }
 
@@ -79,7 +79,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    * and the rest of the parameter name ("param1", "param2")
    */
   public ServletRequestParameterPropertyValues(
-          ServletRequest request, @Nullable String prefix, @Nullable String prefixSeparator) {
+          MockRequest request, @Nullable String prefix, @Nullable String prefixSeparator) {
     super(ServletUtils.getParametersStartingWith(
             request, (prefix != null ? prefix + prefixSeparator : null)));
   }

@@ -32,7 +32,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.resource.EncodedResourceResolver.EncodedResource;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public class CssLinkResourceTransformerTests {
 
   private ResourceTransformerChain transformerChain;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   @BeforeEach
   public void setUp() {
@@ -84,7 +84,7 @@ public class CssLinkResourceTransformerTests {
 
   @Test
   public void transform() throws Exception {
-    this.request = new MockHttpServletRequest("GET", "/static/main.css");
+    this.request = new HttpMockRequestImpl("GET", "/static/main.css");
     Resource css = getResource("main.css");
     String expected = "\n" +
             "@import url(\"/static/bar-11e16cf79faee7ac698c805cf28248d2.css?#iefix\");\n" +
@@ -103,7 +103,7 @@ public class CssLinkResourceTransformerTests {
 
   @Test
   public void transformNoLinks() throws Exception {
-    this.request = new MockHttpServletRequest("GET", "/static/foo.css");
+    this.request = new HttpMockRequestImpl("GET", "/static/foo.css");
     Resource expected = getResource("foo.css");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
@@ -113,7 +113,7 @@ public class CssLinkResourceTransformerTests {
 
   @Test
   public void transformExtLinksNotAllowed() throws Exception {
-    this.request = new MockHttpServletRequest("GET", "/static/external.css");
+    this.request = new HttpMockRequestImpl("GET", "/static/external.css");
 
     List<ResourceTransformer> transformers = Collections.singletonList(new CssLinkResourceTransformer());
     ResourceResolvingChain mockChain = mock(DefaultResourceResolvingChain.class);
@@ -139,7 +139,7 @@ public class CssLinkResourceTransformerTests {
 
   @Test
   public void transformSkippedForNonCssResource() throws Exception {
-    this.request = new MockHttpServletRequest("GET", "/static/images/image.png");
+    this.request = new HttpMockRequestImpl("GET", "/static/images/image.png");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
     Resource expected = getResource("images/image.png");
@@ -152,7 +152,7 @@ public class CssLinkResourceTransformerTests {
   public void transformSkippedForGzippedResource(GzippedFiles gzippedFiles) throws Exception {
     gzippedFiles.create("main.css");
 
-    this.request = new MockHttpServletRequest("GET", "/static/main.css");
+    this.request = new HttpMockRequestImpl("GET", "/static/main.css");
     Resource original = new ClassPathResource("test/main.css", getClass());
     ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
 
@@ -164,7 +164,7 @@ public class CssLinkResourceTransformerTests {
 
   @Test // https://github.com/spring-projects/spring-framework/issues/22602
   public void transformEmptyUrlFunction() throws Exception {
-    this.request = new MockHttpServletRequest("GET", "/static/empty_url_function.css");
+    this.request = new HttpMockRequestImpl("GET", "/static/empty_url_function.css");
     Resource css = getResource("empty_url_function.css");
     String expected =
             ".fooStyle {\n" +

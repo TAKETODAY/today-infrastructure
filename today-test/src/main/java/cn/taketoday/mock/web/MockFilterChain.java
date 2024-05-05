@@ -31,7 +31,7 @@ import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 
 /**
@@ -52,7 +52,7 @@ import cn.taketoday.mock.api.ServletResponse;
 public class MockFilterChain implements FilterChain {
 
   @Nullable
-  private ServletRequest request;
+  private MockRequest request;
 
   @Nullable
   private ServletResponse response;
@@ -103,7 +103,7 @@ public class MockFilterChain implements FilterChain {
    * Return the request that {@link #doFilter} has been called with.
    */
   @Nullable
-  public ServletRequest getRequest() {
+  public MockRequest getRequest() {
     return this.request;
   }
 
@@ -120,7 +120,7 @@ public class MockFilterChain implements FilterChain {
    * request and response.
    */
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+  public void doFilter(MockRequest request, ServletResponse response) throws IOException, ServletException {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
@@ -160,7 +160,7 @@ public class MockFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(MockRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
       this.delegateServlet.service(request, response);

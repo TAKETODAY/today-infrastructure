@@ -21,7 +21,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
 
@@ -31,7 +31,7 @@ import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see MockHttpServletRequest#getRequestDispatcher(String)
+ * @see HttpMockRequestImpl#getRequestDispatcher(String)
  * @since 4.0
  */
 public class MockRequestDispatcher implements RequestDispatcher {
@@ -52,7 +52,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
   }
 
   @Override
-  public void forward(ServletRequest request, ServletResponse response) {
+  public void forward(MockRequest request, ServletResponse response) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     Assert.state(!response.isCommitted(), "Cannot perform forward - response is already committed");
@@ -63,7 +63,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
   }
 
   @Override
-  public void include(ServletRequest request, ServletResponse response) {
+  public void include(MockRequest request, ServletResponse response) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     getMockHttpServletResponse(response).addIncludedUrl(this.resource);

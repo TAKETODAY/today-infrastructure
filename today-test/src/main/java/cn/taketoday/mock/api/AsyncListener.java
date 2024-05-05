@@ -37,7 +37,7 @@ public interface AsyncListener extends EventListener {
    *
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the supplied ServletRequest and
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the supplied ServletRequest and
    * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
@@ -55,7 +55,7 @@ public interface AsyncListener extends EventListener {
    *
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the supplied ServletRequest and
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the supplied ServletRequest and
    * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
@@ -73,7 +73,7 @@ public interface AsyncListener extends EventListener {
    *
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the supplied ServletRequest and
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the supplied ServletRequest and
    * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *
@@ -84,7 +84,7 @@ public interface AsyncListener extends EventListener {
 
   /**
    * Notifies this AsyncListener that a new asynchronous cycle is being initiated via a call to one of the
-   * {@link ServletRequest#startAsync} methods.
+   * {@link MockRequest#startAsync} methods.
    *
    * <p>
    * The {@link AsyncContext} corresponding to the asynchronous operation that is being reinitialized may be obtained by
@@ -92,7 +92,7 @@ public interface AsyncListener extends EventListener {
    *
    * <p>
    * In addition, if this AsyncListener had been registered via a call to
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the supplied ServletRequest and
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the supplied ServletRequest and
    * ServletResponse objects may be retrieved by calling {@link AsyncEvent#getSuppliedRequest getSuppliedRequest} and
    * {@link AsyncEvent#getSuppliedResponse getSuppliedResponse}, respectively, on the given <tt>event</tt>.
    *

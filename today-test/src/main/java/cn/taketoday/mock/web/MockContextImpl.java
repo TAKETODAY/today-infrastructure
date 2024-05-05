@@ -41,25 +41,25 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterRegistration;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.Servlet;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletRegistration;
 import cn.taketoday.mock.api.SessionCookieConfig;
 import cn.taketoday.mock.api.SessionTrackingMode;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 /**
- * Mock implementation of the {@link ServletContext} interface.
+ * Mock implementation of the {@link cn.taketoday.mock.api.MockContext} interface.
  *
  * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
@@ -80,13 +80,13 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see #MockServletContext(cn.taketoday.core.io.ResourceLoader)
+ * @see #MockContextImpl(cn.taketoday.core.io.ResourceLoader)
  * @see AnnotationConfigWebApplicationContext
  * @see XmlWebApplicationContext
  * @see GenericWebApplicationContext
  * @since 4.0
  */
-public class MockServletContext implements ServletContext {
+public class MockContextImpl implements MockContext {
 
   /** Default Servlet name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
   private static final String COMMON_DEFAULT_SERVLET_NAME = "default";
@@ -106,10 +106,6 @@ public class MockServletContext implements ServletContext {
   private final ResourceLoader resourceLoader;
 
   private final String resourceBasePath;
-
-  private String contextPath = "";
-
-  private final Map<String, ServletContext> contexts = new HashMap<>();
 
   private int majorVersion = 3;
 
@@ -150,7 +146,7 @@ public class MockServletContext implements ServletContext {
    * Create a new {@code MockServletContext}, using no base path and a
    * {@link DefaultResourceLoader} (i.e. the classpath root as WAR root).
    */
-  public MockServletContext() {
+  public MockContextImpl() {
     this("", null);
   }
 
@@ -159,7 +155,7 @@ public class MockServletContext implements ServletContext {
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
    */
-  public MockServletContext(String resourceBasePath) {
+  public MockContextImpl(String resourceBasePath) {
     this(resourceBasePath, null);
   }
 
@@ -169,7 +165,7 @@ public class MockServletContext implements ServletContext {
    *
    * @param resourceLoader the ResourceLoader to use (or null for the default)
    */
-  public MockServletContext(@Nullable ResourceLoader resourceLoader) {
+  public MockContextImpl(@Nullable ResourceLoader resourceLoader) {
     this("", resourceLoader);
   }
 
@@ -183,7 +179,7 @@ public class MockServletContext implements ServletContext {
    * @param resourceLoader the ResourceLoader to use (or null for the default)
    * @see #registerNamedDispatcher
    */
-  public MockServletContext(String resourceBasePath, @Nullable ResourceLoader resourceLoader) {
+  public MockContextImpl(String resourceBasePath, @Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
     this.resourceBasePath = resourceBasePath;
     // Use JVM temp dir as ServletContext temp dir.
@@ -206,27 +202,6 @@ public class MockServletContext implements ServletContext {
       path = "/" + path;
     }
     return this.resourceBasePath + path;
-  }
-
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
-  }
-
-  @Override
-  public String getContextPath() {
-    return this.contextPath;
-  }
-
-  public void registerContext(String contextPath, ServletContext context) {
-    this.contexts.put(contextPath, context);
-  }
-
-  @Override
-  public ServletContext getContext(String contextPath) {
-    if (this.contextPath.equals(contextPath)) {
-      return this;
-    }
-    return this.contexts.get(contextPath);
   }
 
   public void setMajorVersion(int majorVersion) {
@@ -631,7 +606,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getServletRegistration(java.lang.String)
+   * @see cn.taketoday.mock.api.MockContext#getServletRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -642,7 +617,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getServletRegistrations()
+   * @see cn.taketoday.mock.api.MockContext#getServletRegistrations()
    */
   @Override
   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -672,7 +647,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getFilterRegistration(java.lang.String)
+   * @see cn.taketoday.mock.api.MockContext#getFilterRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -683,7 +658,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see cn.taketoday.mock.api.ServletContext#getFilterRegistrations()
+   * @see cn.taketoday.mock.api.MockContext#getFilterRegistrations()
    */
   @Override
   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

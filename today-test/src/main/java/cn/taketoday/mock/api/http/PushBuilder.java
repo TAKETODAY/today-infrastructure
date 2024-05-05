@@ -25,7 +25,7 @@ import java.util.Set;
  * According section 8.2 of RFC 7540, a promised request must be cacheable and safe without a request body.
  *
  * <p>
- * A PushBuilder is obtained by calling {@link HttpServletRequest#newPushBuilder()}. Each call to this method will a new
+ * A PushBuilder is obtained by calling {@link HttpMockRequest#newPushBuilder()}. Each call to this method will a new
  * instance of a PushBuilder based off the current {@code
  * HttpServletRequest}, or null. Any mutations to the returned PushBuilder are not reflected on future returns.
  * </p>
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * <li>The method is initialized to "GET"</li>
  *
- * <li>The existing request headers of the current {@link HttpServletRequest} are added to the builder, except for:
+ * <li>The existing request headers of the current {@link HttpMockRequest} are added to the builder, except for:
  *
  * <ul>
  * <li>Conditional headers (defined in RFC 7232)
@@ -53,16 +53,16 @@ import java.util.Set;
  * <li>If the request was authenticated, an Authorization header will be set with a container generated token that will
  * result in equivalent Authorization for the pushed request.</li>
  *
- * <li>The session ID will be the value returned from {@link HttpServletRequest#getRequestedSessionId()}, unless
- * {@link HttpServletRequest#getSession(boolean)} has previously been called to create a new {@link HttpSession} prior
+ * <li>The session ID will be the value returned from {@link HttpMockRequest#getRequestedSessionId()}, unless
+ * {@link HttpMockRequest#getSession(boolean)} has previously been called to create a new {@link HttpSession} prior
  * to the call to create the {@code PushBuilder}, in which case the new session ID will be used as the PushBuilder's
  * requested session ID. Note that the session ID returned from the request can effectively come from one of two
- * "sources": a cookie or the URL (as specified in {@link HttpServletRequest#isRequestedSessionIdFromCookie} and
- * {@link HttpServletRequest#isRequestedSessionIdFromURL}, respectively). The session ID for the {@code PushBuilder}
+ * "sources": a cookie or the URL (as specified in {@link HttpMockRequest#isRequestedSessionIdFromCookie} and
+ * {@link HttpMockRequest#isRequestedSessionIdFromURL}, respectively). The session ID for the {@code PushBuilder}
  * will also come from the same source as the request.</li>
  *
- * <li>The Referer(sic) header will be set to {@link HttpServletRequest#getRequestURL()} plus any
- * {@link HttpServletRequest#getQueryString()}</li>
+ * <li>The Referer(sic) header will be set to {@link HttpMockRequest#getRequestURL()} plus any
+ * {@link HttpMockRequest#getQueryString()}</li>
  *
  * <li>If {@link HttpServletResponse#addCookie(Cookie)} has been called on the associated response, then a corresponding
  * Cookie header will be added to the PushBuilder, unless the {@link Cookie#getMaxAge()} is &lt;=0, in which case the

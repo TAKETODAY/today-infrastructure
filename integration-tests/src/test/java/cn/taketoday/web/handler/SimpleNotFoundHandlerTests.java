@@ -20,7 +20,7 @@ package cn.taketoday.web.handler;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SimpleNotFoundHandlerTests {
   SimpleNotFoundHandler notFoundHandler = new SimpleNotFoundHandler();
 
-  MockHttpServletRequest request = new MockHttpServletRequest();
+  HttpMockRequestImpl request = new HttpMockRequestImpl();
   MockHttpServletResponse response = new MockHttpServletResponse();
 
   @Test

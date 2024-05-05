@@ -38,9 +38,9 @@ import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 
@@ -55,18 +55,18 @@ public class ContentNegotiatingViewResolverTests {
 
   private ContentNegotiatingViewResolver viewResolver;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   RequestContext requestContext;
   StaticWebApplicationContext wac = new StaticWebApplicationContext();
 
   @BeforeEach
   public void createViewResolver() {
-    wac.setServletContext(new MockServletContext());
+    wac.setServletContext(new MockContextImpl());
     wac.refresh();
     viewResolver = new ContentNegotiatingViewResolver();
     viewResolver.setApplicationContext(wac);
-    request = new MockHttpServletRequest("GET", "/test");
+    request = new HttpMockRequestImpl("GET", "/test");
     MockHttpServletResponse response = new MockHttpServletResponse();
     this.requestContext = new ServletRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);

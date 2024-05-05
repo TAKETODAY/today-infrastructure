@@ -23,11 +23,11 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.ServletConfigAware;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.ServletContextAwareProcessor;
 import cn.taketoday.web.mock.WebApplicationContext;
 
@@ -52,10 +52,10 @@ import cn.taketoday.web.mock.WebApplicationContext;
 public class StaticWebApplicationContext extends StaticApplicationContext implements ConfigurableWebApplicationContext {
 
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   @Nullable
-  private ServletConfig servletConfig;
+  private MockConfig mockConfig;
 
   @Nullable
   private String namespace;
@@ -64,7 +64,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
     setDisplayName("Root WebApplicationContext");
   }
 
-  public StaticWebApplicationContext(@Nullable ServletContext context) {
+  public StaticWebApplicationContext(@Nullable MockContext context) {
     this();
     setServletContext(context);
   }
@@ -73,28 +73,28 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
    * Set the ServletContext that this WebApplicationContext runs in.
    */
   @Override
-  public void setServletContext(@Nullable ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setServletContext(@Nullable MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Override
   @Nullable
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   @Override
-  public void setServletConfig(@Nullable ServletConfig servletConfig) {
-    this.servletConfig = servletConfig;
-    if (servletConfig != null && this.servletContext == null) {
-      this.servletContext = servletConfig.getServletContext();
+  public void setServletConfig(@Nullable MockConfig mockConfig) {
+    this.mockConfig = mockConfig;
+    if (mockConfig != null && this.mockContext == null) {
+      this.mockContext = mockConfig.getMockContext();
     }
   }
 
   @Override
   @Nullable
-  public ServletConfig getServletConfig() {
-    return this.servletConfig;
+  public MockConfig getServletConfig() {
+    return this.mockConfig;
   }
 
   @Override
@@ -142,12 +142,12 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
-    beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+    beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.mockContext, this.mockConfig));
+    beanFactory.ignoreDependencyInterface(MockContextAware.class);
     beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
 
-    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
-    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext, this.servletConfig);
+    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
+    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext, this.mockConfig);
   }
 
   /**
@@ -157,8 +157,8 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    Assert.state(this.servletContext != null, "No ServletContext available");
-    return new ServletContextResource(this.servletContext, path);
+    Assert.state(this.mockContext != null, "No ServletContext available");
+    return new ServletContextResource(this.mockContext, path);
   }
 
   /**
@@ -182,7 +182,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
   @Override
   protected void initPropertySources() {
     WebApplicationContextUtils.initServletPropertySources(getEnvironment().getPropertySources(),
-            this.servletContext, this.servletConfig);
+            this.mockContext, this.mockConfig);
   }
 
 }

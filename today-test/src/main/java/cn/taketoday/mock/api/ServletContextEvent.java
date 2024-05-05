@@ -32,7 +32,7 @@ public class ServletContextEvent extends java.util.EventObject {
    *
    * @param source - the ServletContext that is sending the event.
    */
-  public ServletContextEvent(ServletContext source) {
+  public ServletContextEvent(MockContext source) {
     super(source);
   }
 
@@ -41,7 +41,7 @@ public class ServletContextEvent extends java.util.EventObject {
    *
    * @return the ServletContext that sent the event.
    */
-  public ServletContext getServletContext() {
-    return (ServletContext) super.getSource();
+  public MockContext getServletContext() {
+    return (MockContext) super.getSource();
   }
 }

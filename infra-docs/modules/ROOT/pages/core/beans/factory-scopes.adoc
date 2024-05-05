@@ -40,10 +40,6 @@ The following table describes the supported scopes:
 | Scopes a single bean definition to the lifecycle of an HTTP `Session`. Only valid in
   the context of a web-aware Infra `ApplicationContext`.
 
-| xref:core/beans/factory-scopes.adoc#beans-factory-scopes-application[application]
-| Scopes a single bean definition to the lifecycle of a `ServletContext`. Only valid in
-  the context of a web-aware Infra `ApplicationContext`.
-
 |===
 
 NOTE: A thread scope is available but is not registered by default. For more information,
@@ -312,11 +308,11 @@ Consider the following XML configuration for a bean definition:
 
 The Infra container creates a new instance of the `AppPreferences` bean by using the
 `appPreferences` bean definition once for the entire web application. That is, the
-`appPreferences` bean is scoped at the `ServletContext` level and stored as a regular
-`ServletContext` attribute. This is somewhat similar to a Infra singleton bean but
-differs in two important ways: It is a singleton per `ServletContext`, not per Infra
+`appPreferences` bean is scoped at the `MockContextImpl` level and stored as a regular
+`MockContextImpl` attribute. This is somewhat similar to a Infra singleton bean but
+differs in two important ways: It is a singleton per `MockContextImpl`, not per Infra
 `ApplicationContext` (for which there may be several in any given web application),
-and it is actually exposed and therefore visible as a `ServletContext` attribute.
+and it is actually exposed and therefore visible as a `MockContextImpl` attribute.
 
 When using annotation-driven components or Java configuration, you can use the
 `@ApplicationScope` annotation to assign a component to the `application` scope. The
@@ -502,7 +498,7 @@ see xref:core/aop/proxying.adoc[Proxying Mechanisms].
 === Injecting Request/Session References Directly
 
 As an alternative to factory scopes, a Infra `WebApplicationContext` also supports
-the injection of `HttpServletRequest`, `HttpServletResponse`, `HttpSession`,
+the injection of `HttpMockRequest`, `HttpServletResponse`, `HttpSession`,
 `WebRequest` and (if JSF is present) `FacesContext` and `ExternalContext` into
 Infra-managed beans, simply through type-based autowiring next to regular injection
 points for other beans. Infra generally injects proxies for such request and session

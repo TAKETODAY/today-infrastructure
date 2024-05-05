@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
@@ -33,7 +33,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.async.WebAsyncTask;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpSession;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
@@ -67,7 +67,7 @@ public class RequestResultMatchers {
    * {@link #asyncResult(Matcher)} or {@link #asyncResult(Object)} can be used
    * to assert the resulting value.
    * <p>Neither a {@code Callable} nor a {@code DeferredResult} will complete
-   * processing all the way since a {@link MockHttpServletRequest} does not
+   * processing all the way since a {@link HttpMockRequestImpl} does not
    * perform asynchronous dispatches.
    *
    * @see #asyncNotStarted()
@@ -93,7 +93,7 @@ public class RequestResultMatchers {
   @SuppressWarnings("unchecked")
   public <T> ResultMatcher asyncResult(Matcher<? super T> matcher) {
     return result -> {
-      HttpServletRequest request = result.getRequest();
+      HttpMockRequest request = result.getRequest();
       assertAsyncStarted(request);
       assertThat("Async result", (T) result.getAsyncResult(), matcher);
     };
@@ -107,7 +107,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher asyncResult(@Nullable Object expectedResult) {
     return result -> {
-      HttpServletRequest request = result.getRequest();
+      HttpMockRequest request = result.getRequest();
       assertAsyncStarted(request);
       assertEquals("Async result", expectedResult, result.getAsyncResult());
     };
@@ -188,7 +188,7 @@ public class RequestResultMatchers {
     return result -> contextConsumer.accept(result.getRequestContext());
   }
 
-  private static void assertAsyncStarted(HttpServletRequest request) {
+  private static void assertAsyncStarted(HttpMockRequest request) {
     assertTrue("Async not started", request.isAsyncStarted());
   }
 

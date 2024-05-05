@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ServletSecurity {
+public @interface MockSecurity {
 
   /**
    * Defines the access semantic to be applied to an empty rolesAllowed array.

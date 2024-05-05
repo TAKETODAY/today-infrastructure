@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -46,16 +46,16 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private ContentNegotiationManagerFactoryBean factoryBean;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   ServletRequestContext webRequest;
 
   @BeforeEach
   void setup() {
-    TestServletContext servletContext = new TestServletContext();
+    TestMockContext servletContext = new TestMockContext();
     servletContext.getMimeTypes().put("foo", "application/foo");
 
-    this.servletRequest = new MockHttpServletRequest(servletContext);
+    this.servletRequest = new HttpMockRequestImpl(servletContext);
     webRequest = new ServletRequestContext(servletRequest, null);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
@@ -276,7 +276,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   }
 
-  static class TestServletContext extends MockServletContext {
+  static class TestMockContext extends MockContextImpl {
 
     private final Map<String, String> mimeTypes = new HashMap<>();
 

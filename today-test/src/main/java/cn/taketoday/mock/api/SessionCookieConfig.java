@@ -25,7 +25,7 @@ import cn.taketoday.mock.api.http.Cookie;
  * Class that may be used to configure various properties of cookies used for session tracking purposes.
  *
  * <p>
- * An instance of this class is acquired by a call to {@link ServletContext#getSessionCookieConfig}.
+ * An instance of this class is acquired by a call to {@link MockContext#getSessionCookieConfig}.
  *
  * @since Servlet 3.0
  */
@@ -173,7 +173,7 @@ public interface SessionCookieConfig {
    * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setSecure(boolean)
-   * @see ServletRequest#isSecure()
+   * @see MockRequest#isSecure()
    */
   public void setSecure(boolean secure);
 
@@ -187,7 +187,7 @@ public interface SessionCookieConfig {
    * even if the request that initiated the corresponding session is using plain HTTP instead of HTTPS, and false if they
    * will be marked as <i>secure</i> only if the request that initiated the corresponding session was also secure
    * @see Cookie#getSecure()
-   * @see ServletRequest#isSecure()
+   * @see MockRequest#isSecure()
    */
   public boolean isSecure();
 

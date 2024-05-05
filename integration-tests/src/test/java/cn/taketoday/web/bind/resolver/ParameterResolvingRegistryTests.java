@@ -29,7 +29,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.MockResolvableMethodParameter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.EnableWebMvc;
@@ -67,7 +67,7 @@ class ParameterResolvingRegistryTests {
     assertThat(registry.getDefaultStrategies()).hasSize(0);
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
 
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
@@ -106,7 +106,7 @@ class ParameterResolvingRegistryTests {
 
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
     registry.trimToSize();
@@ -141,7 +141,7 @@ class ParameterResolvingRegistryTests {
     assertThat(registry.getConversionService()).isNull();
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockServletContext());
+    context.setServletContext(new MockContextImpl());
 
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();

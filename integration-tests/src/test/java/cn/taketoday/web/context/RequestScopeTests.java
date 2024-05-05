@@ -36,7 +36,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.RequestScope;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static cn.taketoday.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
@@ -70,7 +70,7 @@ public class RequestScopeTests {
 
   @Test
   public void getFromScope() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -84,7 +84,7 @@ public class RequestScopeTests {
 
   @Test
   public void destructionAtRequestCompletion() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse());
     RequestContextHolder.set(requestAttributes);
 
@@ -100,7 +100,7 @@ public class RequestScopeTests {
 
   @Test
   public void getFromFactoryBeanInScope() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -114,7 +114,7 @@ public class RequestScopeTests {
 
   @Test
   public void circleLeadsToException() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
@@ -127,7 +127,7 @@ public class RequestScopeTests {
 
   @Test
   public void innerBeanInheritsContainingBeanScopeByDefault() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "requestScopedOuterBean";
@@ -139,7 +139,7 @@ public class RequestScopeTests {
     requestAttributes.requestCompleted();
     assertThat(outer1.wasDestroyed()).isTrue();
     assertThat(inner1.wasDestroyed()).isTrue();
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
     TestBean outer2 = (TestBean) this.beanFactory.getBean(outerBeanName);
@@ -149,7 +149,7 @@ public class RequestScopeTests {
 
   @Test
   public void requestScopedInnerBeanDestroyedWhileContainedBySingleton() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "singletonOuterBean";

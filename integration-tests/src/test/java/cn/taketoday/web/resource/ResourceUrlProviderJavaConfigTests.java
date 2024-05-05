@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockFilterChain;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
-import cn.taketoday.mock.api.http.HttpServlet;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMock;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResourceUrlProviderJavaConfigTests {
 
-  private final TestServlet servlet = new TestServlet();
+  private final TestMock servlet = new TestMock();
 
   private MockFilterChain filterChain;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private MockHttpServletResponse response;
 
@@ -54,7 +54,7 @@ public class ResourceUrlProviderJavaConfigTests {
     context.register(WebConfig.class);
     context.refresh();
 
-    this.request = new MockHttpServletRequest("GET", "/");
+    this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpServletResponse();
 
     this.filterChain = new MockFilterChain(this.servlet/*,
@@ -99,12 +99,12 @@ public class ResourceUrlProviderJavaConfigTests {
   }
 
   @SuppressWarnings("serial")
-  private static class TestServlet extends HttpServlet {
+  private static class TestMock extends HttpMock {
 
     private HttpServletResponse wrappedResponse;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpMockRequest request, HttpServletResponse response) {
       this.wrappedResponse = response;
     }
   }

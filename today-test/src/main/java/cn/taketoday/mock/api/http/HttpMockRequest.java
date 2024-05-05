@@ -23,13 +23,14 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRequest;
 import cn.taketoday.mock.api.annotation.MultipartConfig;
 
 /**
- * Extends the {@link ServletRequest} interface to provide request information for HTTP servlets.
+ * Extends the {@link MockRequest} interface to provide request information for HTTP servlets.
  *
  * <p>
  * The servlet container creates an <code>HttpServletRequest</code> object and passes it as an argument to the servlet's
@@ -37,7 +38,7 @@ import cn.taketoday.mock.api.annotation.MultipartConfig;
  *
  * @author Various
  */
-public interface HttpServletRequest extends ServletRequest {
+public interface HttpMockRequest extends MockRequest {
 
   /**
    * String identifier for Basic authentication. Value "BASIC"
@@ -167,14 +168,14 @@ public interface HttpServletRequest extends ServletRequest {
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#INCLUDE}</dt>
    * <dd>Return the mapping as prior to the current dispatch. i.e the mapping returned is unchanged by a call to</dd>
-   * {@link RequestDispatcher#include(ServletRequest, cn.taketoday.mock.api.ServletResponse)}.
+   * {@link RequestDispatcher#include(MockRequest, cn.taketoday.mock.api.ServletResponse)}.
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#FORWARD}</dt>
    * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
    * {@link cn.taketoday.mock.api.Servlet}, unless the {@link RequestDispatcher} was obtained via
-   * {@link cn.taketoday.mock.api.ServletContext#getNamedDispatcher(String)}, in which case return the mapping as prior to the
+   * {@link MockContext#getNamedDispatcher(String)}, in which case return the mapping as prior to the
    * current dispatch. i.e the mapping returned is changed during a call to
-   * {@link RequestDispatcher#forward(ServletRequest, cn.taketoday.mock.api.ServletResponse)} only if the dispatcher is not a
+   * {@link RequestDispatcher#forward(MockRequest, cn.taketoday.mock.api.ServletResponse)} only if the dispatcher is not a
    * named dispatcher.</dd>
    * </dl>
    * </p>
@@ -223,7 +224,7 @@ public interface HttpServletRequest extends ServletRequest {
       public String toString() {
         return "MappingImpl{" + "matchValue=" + getMatchValue() + ", pattern=" + getPattern() + ", servletName="
                 + getServletName() + ", mappingMatch=" + getMappingMatch() + "} HttpServletRequest {"
-                + HttpServletRequest.this + '}';
+                + HttpMockRequest.this + '}';
       }
 
     };

@@ -28,16 +28,16 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.context.ContextLoadException;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.aot.AotContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
-import cn.taketoday.mock.api.ServletContext;
-import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
 /**
  * Abstract, generic extension of {@link AbstractContextLoader} that loads a
@@ -84,7 +84,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * {@linkplain GenericWebApplicationContext#setParent(ApplicationContext) set as the parent}
    * for the context created by this method.</li>
    * <li>Delegates to {@link #configureWebResources} to create the
-   * {@link MockServletContext} and set it in the {@code WebApplicationContext}.</li>
+   * {@link MockContextImpl} and set it in the {@code WebApplicationContext}.</li>
    * <li>Calls {@link #prepareContext} to allow for customizing the context
    * before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory} to allow for customizing the
@@ -278,14 +278,14 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * supplied WAC will be configured as the Root WAC (see "<em>Root WAC
    * Configuration</em>" below).
    * <p>Otherwise the context hierarchy of the supplied WAC will be traversed
-   * to find the top-most WAC (i.e., the root); and the {@link ServletContext}
+   * to find the top-most WAC (i.e., the root); and the {@link MockContextImpl}
    * of the Root WAC will be set as the {@code ServletContext} for the supplied
    * WAC.
    * <h4>Root WAC Configuration</h4>
    * <ul>
    * <li>The resource base path is retrieved from the supplied
    * {@code WebMergedContextConfiguration}.</li>
-   * <li>A {@link ResourceLoader} is instantiated for the {@link MockServletContext}:
+   * <li>A {@link ResourceLoader} is instantiated for the {@link MockContextImpl}:
    * if the resource base path is prefixed with "{@code classpath:}", a
    * {@link DefaultResourceLoader} will be used; otherwise, a
    * {@link FileSystemResourceLoader} will be used.</li>
@@ -311,24 +311,24 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
     if (!(parent instanceof WebApplicationContext)) {
       String resourceBasePath = webMergedConfig.getResourceBasePath();
       ResourceLoader resourceLoader = (resourceBasePath.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX) ?
-                                       new DefaultResourceLoader() : new FileSystemResourceLoader());
-      ServletContext servletContext = new MockServletContext(resourceBasePath, resourceLoader);
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
-      context.setServletContext(servletContext);
+              new DefaultResourceLoader() : new FileSystemResourceLoader());
+      MockContextImpl mockContext = new MockContextImpl(resourceBasePath, resourceLoader);
+      mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+      context.setServletContext(mockContext);
     }
     else {
-      ServletContext servletContext = null;
+      MockContext mockContext = null;
       // Find the root WebApplicationContext
       while (parent != null) {
         if (parent instanceof WebApplicationContext parentWac &&
                 !(parent.getParent() instanceof WebApplicationContext)) {
-          servletContext = parentWac.getServletContext();
+          mockContext = parentWac.getServletContext();
           break;
         }
         parent = parent.getParent();
       }
-      Assert.state(servletContext != null, "Failed to find root WebApplicationContext in the context hierarchy");
-      context.setServletContext(servletContext);
+      Assert.state(mockContext != null, "Failed to find root WebApplicationContext in the context hierarchy");
+      context.setServletContext(mockContext);
     }
   }
 

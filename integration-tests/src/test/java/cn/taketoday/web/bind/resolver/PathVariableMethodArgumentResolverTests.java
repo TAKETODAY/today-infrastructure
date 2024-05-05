@@ -26,7 +26,7 @@ import java.util.Optional;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.BindingContext;
@@ -52,7 +52,7 @@ class PathVariableMethodArgumentResolverTests {
 
   private ServletRequestContext webRequest;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private ResolvableMethodParameter paramNamedString;
   private ResolvableMethodParameter paramString;
@@ -62,7 +62,7 @@ class PathVariableMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Throwable {
     resolver = new PathVariableMethodArgumentResolver();
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
     webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));

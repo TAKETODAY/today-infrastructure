@@ -41,7 +41,7 @@ import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
@@ -52,7 +52,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.View;
 
@@ -219,8 +219,8 @@ class BasicErrorControllerMockMvcTests {
     }
 
     @Override
-    public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-      MockHttpServletRequest request = this.result.getRequest();
+    public HttpMockRequestImpl buildRequest(MockContext mockContext) {
+      HttpMockRequestImpl request = this.result.getRequest();
       request.setRequestURI(this.path);
       return request;
     }

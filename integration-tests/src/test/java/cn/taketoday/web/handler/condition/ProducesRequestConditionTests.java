@@ -24,12 +24,12 @@ import java.util.Collection;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +44,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void match() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -52,7 +52,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchNegated() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -60,7 +60,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchNegatedWithoutAcceptHeader() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
     assertThat(condition.getProducibleMediaTypes()).isEmpty();
@@ -75,7 +75,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchWildcard() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/*");
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -83,7 +83,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchMultiple() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -91,7 +91,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchSingle() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpServletRequest request = createRequest("application/xml");
+    HttpMockRequest request = createRequest("application/xml");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -100,7 +100,7 @@ public class ProducesRequestConditionTests {
   public void matchWithParameters() {
     String base = "application/atom+xml";
     ProducesRequestCondition condition = new ProducesRequestCondition(base + ";type=feed");
-    HttpServletRequest request = createRequest(base + ";type=entry");
+    HttpMockRequest request = createRequest(base + ";type=entry");
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
 
     condition = new ProducesRequestCondition(base + ";type=feed");
@@ -119,7 +119,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchParseError() {
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
-    HttpServletRequest request = createRequest("bogus");
+    HttpMockRequest request = createRequest("bogus");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -127,7 +127,7 @@ public class ProducesRequestConditionTests {
   @Test
   public void matchParseErrorWithNegation() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-    HttpServletRequest request = createRequest("bogus");
+    HttpMockRequest request = createRequest("bogus");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNull();
   }
@@ -137,7 +137,7 @@ public class ProducesRequestConditionTests {
     String[] produces = { "text/plain" };
     String[] headers = {};
     ProducesRequestCondition condition = new ProducesRequestCondition(produces, headers);
-    HttpServletRequest request = new MockHttpServletRequest("GET", "/foo.txt");
+    HttpMockRequest request = new HttpMockRequestImpl("GET", "/foo.txt");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
@@ -145,7 +145,7 @@ public class ProducesRequestConditionTests {
   @Test // SPR-17550
   public void matchWithNegationAndMediaTypeAllWithQualityParameter() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!application/json");
-    HttpServletRequest request = createRequest(
+    HttpMockRequest request = createRequest(
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
 
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
@@ -160,7 +160,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition none = new ProducesRequestCondition(new String[0], null, manager);
     ProducesRequestCondition html = new ProducesRequestCondition(new String[] { "text/html" }, null, manager);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("Accept", "*/*");
 
     ProducesRequestCondition noneMatch = none.getMatchingCondition(createContext(request));
@@ -175,7 +175,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition xml = new ProducesRequestCondition("application/xml");
     ProducesRequestCondition none = new ProducesRequestCondition();
 
-    HttpServletRequest request = createRequest("application/xml, text/html");
+    HttpMockRequest request = createRequest("application/xml, text/html");
 
     assertThat(html.compareTo(xml, createContext(request)) > 0).isTrue();
     assertThat(xml.compareTo(html, createContext(request)) < 0).isTrue();
@@ -203,7 +203,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToWithSingleExpression() {
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*");
@@ -220,7 +220,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition condition1 = new ProducesRequestCondition("*/*", "text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*", "text/plain;q=0.7");
 
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     int result = condition1.compareTo(condition2, createContext(request));
     assertThat(result).as("Invalid comparison result: " + result).isGreaterThan(0);
@@ -234,7 +234,7 @@ public class ProducesRequestConditionTests {
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/*", "text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/*", "application/xml");
 
-    HttpServletRequest request = createRequest("text/plain", "application/xml");
+    HttpMockRequest request = createRequest("text/plain", "application/xml");
 
     int result = condition1.compareTo(condition2, createContext(request));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
@@ -255,7 +255,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToMediaTypeAll() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition();
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
@@ -288,7 +288,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToMediaTypeAllWithParameter() {
-    HttpServletRequest request = createRequest("*/*;q=0.9");
+    HttpMockRequest request = createRequest("*/*;q=0.9");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition();
     ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
@@ -299,7 +299,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void compareToEqualMatch() {
-    HttpServletRequest request = createRequest("text/*");
+    HttpMockRequest request = createRequest("text/*");
 
     ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
     ProducesRequestCondition condition2 = new ProducesRequestCondition("text/xhtml");
@@ -340,7 +340,7 @@ public class ProducesRequestConditionTests {
 
   @Test
   public void getMatchingCondition() {
-    HttpServletRequest request = createRequest("text/plain");
+    HttpMockRequest request = createRequest("text/plain");
 
     ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
 
@@ -354,12 +354,12 @@ public class ProducesRequestConditionTests {
   }
 
   @NonNull
-  private ServletRequestContext createContext(HttpServletRequest request) {
+  private ServletRequestContext createContext(HttpMockRequest request) {
     return new ServletRequestContext(null, request, null);
   }
 
-  private MockHttpServletRequest createRequest(String... headerValue) {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+  private HttpMockRequestImpl createRequest(String... headerValue) {
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     Arrays.stream(headerValue).forEach(value -> request.addHeader("Accept", headerValue));
     return request;
   }

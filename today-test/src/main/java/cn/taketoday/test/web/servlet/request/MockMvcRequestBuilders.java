@@ -20,7 +20,8 @@ package cn.taketoday.test.web.servlet.request;
 import java.net.URI;
 
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.RequestBuilder;
 import cn.taketoday.mock.api.DispatcherType;
@@ -30,7 +31,7 @@ import cn.taketoday.mock.api.DispatcherType;
  *
  * <h3>Integration with the Infra TestContext Framework</h3>
  * <p>Methods in this class will reuse a
- * {@link cn.taketoday.mock.web.MockServletContext MockServletContext}
+ * {@link MockContextImpl MockServletContext}
  * that was created by the Infra TestContext Framework.
  *
  * <h3>Eclipse Users</h3>
@@ -279,7 +280,7 @@ public abstract class MockMvcRequestBuilders {
     mvcResult.getAsyncResult();
 
     return servletContext -> {
-      MockHttpServletRequest request = mvcResult.getRequest();
+      HttpMockRequestImpl request = mvcResult.getRequest();
       request.setDispatcherType(DispatcherType.ASYNC);
       request.setAsyncStarted(false);
       return request;

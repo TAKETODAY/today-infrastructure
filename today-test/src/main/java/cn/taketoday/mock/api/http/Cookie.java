@@ -41,7 +41,7 @@ import java.util.TreeMap;
  *
  * <p>
  * The browser returns cookies to the servlet by adding fields to HTTP request headers. Cookies can be retrieved from a
- * request by using the {@link HttpServletRequest#getCookies} method. Several cookies might have the same name but
+ * request by using the {@link HttpMockRequest#getCookies} method. Several cookies might have the same name but
  * different path attributes.
  *
  * <p>

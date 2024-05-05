@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.script;
@@ -48,9 +45,9 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -82,7 +79,7 @@ public class ScriptTemplateViewTests {
 
   @Test
   public void missingTemplate() throws Exception {
-    MockServletContext servletContext = new MockServletContext();
+    MockContextImpl servletContext = new MockContextImpl();
     this.wac.setServletContext(servletContext);
     this.wac.refresh();
     this.view.setResourceLoaderPath("classpath:cn/taketoday/web/servlet/view/script/");
@@ -228,10 +225,10 @@ public class ScriptTemplateViewTests {
 
   @Test // SPR-14210
   public void resourceLoaderPath() throws Exception {
-    MockServletContext servletContext = new MockServletContext();
+    MockContextImpl servletContext = new MockContextImpl();
     this.wac.setServletContext(servletContext);
     this.wac.refresh();
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
     Map<String, Object> model = new HashMap<>();
     InvocableScriptEngine engine = mock(InvocableScriptEngine.class);
@@ -258,10 +255,10 @@ public class ScriptTemplateViewTests {
 
   @Test // SPR-13379
   public void contentType() throws Exception {
-    MockServletContext servletContext = new MockServletContext();
+    MockContextImpl servletContext = new MockContextImpl();
     this.wac.setServletContext(servletContext);
     this.wac.refresh();
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpServletResponse response = new MockHttpServletResponse();
     Map<String, Object> model = new HashMap<>();
     this.view.setEngine(Mockito.mock(InvocableScriptEngine.class));

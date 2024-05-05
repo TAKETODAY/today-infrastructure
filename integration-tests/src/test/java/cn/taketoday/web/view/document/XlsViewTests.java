@@ -33,9 +33,9 @@ import java.util.Map;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class XlsViewTests {
 
   private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
-  private final MockServletContext sc = new MockServletContext();
-  private final MockHttpServletRequest request = new MockHttpServletRequest(this.sc);
+  private final MockContextImpl sc = new MockContextImpl();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl(this.sc);
   private final MockHttpServletResponse response = new MockHttpServletResponse();
   RequestContext requestContext = new ServletRequestContext(wac, request, response);
 

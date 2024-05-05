@@ -19,7 +19,7 @@ package cn.taketoday.mock.api;
 
 /**
  * Event that gets fired when the asynchronous operation initiated on a ServletRequest (via a call to
- * {@link ServletRequest#startAsync} or {@link ServletRequest#startAsync(ServletRequest, ServletResponse)}) has
+ * {@link MockRequest#startAsync} or {@link MockRequest#startAsync(MockRequest, ServletResponse)}) has
  * completed, timed out, or produced an error.
  *
  * @since Servlet 3.0
@@ -27,7 +27,7 @@ package cn.taketoday.mock.api;
 public class AsyncEvent {
 
   private AsyncContext context;
-  private ServletRequest request;
+  private MockRequest request;
   private ServletResponse response;
   private Throwable throwable;
 
@@ -47,7 +47,7 @@ public class AsyncEvent {
    * @param request the ServletRequest to be delivered with this AsyncEvent
    * @param response the ServletResponse to be delivered with this AsyncEvent
    */
-  public AsyncEvent(AsyncContext context, ServletRequest request, ServletResponse response) {
+  public AsyncEvent(AsyncContext context, MockRequest request, ServletResponse response) {
     this(context, request, response, null);
   }
 
@@ -69,7 +69,7 @@ public class AsyncEvent {
    * @param response the ServletResponse to be delivered with this AsyncEvent
    * @param throwable the Throwable to be delivered with this AsyncEvent
    */
-  public AsyncEvent(AsyncContext context, ServletRequest request, ServletResponse response, Throwable throwable) {
+  public AsyncEvent(AsyncContext context, MockRequest request, ServletResponse response, Throwable throwable) {
     this.context = context;
     this.request = request;
     this.response = response;
@@ -90,14 +90,14 @@ public class AsyncEvent {
    *
    * <p>
    * If the AsyncListener to which this AsyncEvent is being delivered was added using
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the returned ServletRequest will be
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the returned ServletRequest will be
    * the same as the one supplied to the above method. If the AsyncListener was added via
    * {@link AsyncContext#addListener(AsyncListener)}, this method must return null.
    *
    * @return the ServletRequest that was used to initialize this AsyncEvent, or null if this AsyncEvent was initialized
    * without any ServletRequest
    */
-  public ServletRequest getSuppliedRequest() {
+  public MockRequest getSuppliedRequest() {
     return request;
   }
 
@@ -106,7 +106,7 @@ public class AsyncEvent {
    *
    * <p>
    * If the AsyncListener to which this AsyncEvent is being delivered was added using
-   * {@link AsyncContext#addListener(AsyncListener, ServletRequest, ServletResponse)}, the returned ServletResponse will
+   * {@link AsyncContext#addListener(AsyncListener, MockRequest, ServletResponse)}, the returned ServletResponse will
    * be the same as the one supplied to the above method. If the AsyncListener was added via
    * {@link AsyncContext#addListener(AsyncListener)}, this method must return null.
    *

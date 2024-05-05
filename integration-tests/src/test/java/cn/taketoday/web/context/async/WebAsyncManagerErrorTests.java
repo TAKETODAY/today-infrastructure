@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.mock.web.MockAsyncContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
@@ -55,7 +55,7 @@ public class WebAsyncManagerErrorTests {
 
   private StandardServletAsyncWebRequest asyncWebRequest;
 
-  private MockHttpServletRequest servletRequest;
+  private HttpMockRequestImpl servletRequest;
 
   private MockHttpServletResponse servletResponse;
 
@@ -63,7 +63,7 @@ public class WebAsyncManagerErrorTests {
 
   @BeforeEach
   public void setup() {
-    this.servletRequest = new MockHttpServletRequest("GET", "/test");
+    this.servletRequest = new HttpMockRequestImpl("GET", "/test");
     this.servletRequest.setAsyncSupported(true);
     this.servletResponse = new MockHttpServletResponse();
 

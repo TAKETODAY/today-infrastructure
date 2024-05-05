@@ -49,6 +49,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -58,14 +59,13 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletConnection;
-import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletInputStream;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpServletMapping;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.api.http.HttpUpgradeHandler;
@@ -73,7 +73,7 @@ import cn.taketoday.mock.api.http.MappingMatch;
 import cn.taketoday.mock.api.http.Part;
 
 /**
- * Mock implementation of the {@link HttpServletRequest} interface.
+ * Mock implementation of the {@link HttpMockRequest} interface.
  *
  * <p>The default, preferred {@link Locale} for the <em>server</em> mocked by this request
  * is {@link Locale#ENGLISH}. This value can be changed via {@link #addPreferredLocale}
@@ -90,7 +90,7 @@ import cn.taketoday.mock.api.http.Part;
  * @author Brian Clozel
  * @since 4.0
  */
-public class MockHttpServletRequest implements HttpServletRequest {
+public class HttpMockRequestImpl implements HttpMockRequest {
 
   private static final String HTTP = "http";
 
@@ -157,7 +157,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   // Lifecycle properties
   // ---------------------------------------------------------------------
 
-  private final ServletContext servletContext;
+  private final MockContext mockContext;
 
   private boolean active = true;
 
@@ -273,55 +273,55 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * Create a new {@code MockHttpServletRequest} with a default
-   * {@link MockServletContext}.
+   * {@link MockContextImpl}.
    *
-   * @see #MockHttpServletRequest(ServletContext, String, String)
+   * @see #HttpMockRequestImpl(MockContext, String, String)
    */
-  public MockHttpServletRequest() {
+  public HttpMockRequestImpl() {
     this(null, "GET", "");
   }
 
   /**
    * Create a new {@code MockHttpServletRequest} with a default
-   * {@link MockServletContext}.
+   * {@link MockContextImpl}.
    *
    * @param method the request method (may be {@code null})
    * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
-   * @see #MockHttpServletRequest(ServletContext, String, String)
+   * @see #HttpMockRequestImpl(MockContext, String, String)
    */
-  public MockHttpServletRequest(@Nullable String method, @Nullable String requestURI) {
+  public HttpMockRequestImpl(@Nullable String method, @Nullable String requestURI) {
     this(null, method, requestURI);
   }
 
   /**
-   * Create a new {@code MockHttpServletRequest} with the supplied {@link ServletContext}.
+   * Create a new {@code MockHttpServletRequest} with the supplied {@link MockContext}.
    *
-   * @param servletContext the ServletContext that the request runs in
-   * (may be {@code null} to use a default {@link MockServletContext})
-   * @see #MockHttpServletRequest(ServletContext, String, String)
+   * @param mockContext the ServletContext that the request runs in
+   * (may be {@code null} to use a default {@link MockContextImpl})
+   * @see #HttpMockRequestImpl(MockContext, String, String)
    */
-  public MockHttpServletRequest(@Nullable ServletContext servletContext) {
-    this(servletContext, "", "");
+  public HttpMockRequestImpl(@Nullable MockContext mockContext) {
+    this(mockContext, "", "");
   }
 
   /**
-   * Create a new {@code MockHttpServletRequest} with the supplied {@link ServletContext},
+   * Create a new {@code MockHttpServletRequest} with the supplied {@link MockContext},
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
-   * @param servletContext the ServletContext that the request runs in (may be
-   * {@code null} to use a default {@link MockServletContext})
+   * @param mockContext the ServletContext that the request runs in (may be
+   * {@code null} to use a default {@link MockContextImpl})
    * @param method the request method (may be {@code null})
    * @param requestURI the request URI (may be {@code null})
    * @see #setMethod
    * @see #setRequestURI
    * @see #setPreferredLocales
-   * @see MockServletContext
+   * @see MockContextImpl
    */
-  public MockHttpServletRequest(@Nullable ServletContext servletContext, @Nullable String method, @Nullable String requestURI) {
-    this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
+  public HttpMockRequestImpl(@Nullable MockContext mockContext, @Nullable String method, @Nullable String requestURI) {
+    this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
     this.method = method;
     this.requestURI = requestURI;
     this.locales.add(Locale.ENGLISH);
@@ -336,8 +336,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * available in the standard HttpServletRequest interface for some reason.)
    */
   @Override
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   /**
@@ -818,7 +818,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see cn.taketoday.mock.api.ServletRequest#getLocale()
+   * @see MockRequest#getLocale()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -837,7 +837,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see cn.taketoday.mock.api.ServletRequest#getLocales()
+   * @see MockRequest#getLocales()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -862,7 +862,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Return {@code true} if the {@link #setSecure secure} flag has been set
    * to {@code true} or if the {@link #getScheme scheme} is {@code https}.
    *
-   * @see cn.taketoday.mock.api.ServletRequest#isSecure()
+   * @see MockRequest#isSecure()
    */
   @Override
   public boolean isSecure() {
@@ -916,7 +916,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public AsyncContext startAsync(ServletRequest request, @Nullable ServletResponse response) {
+  public AsyncContext startAsync(MockRequest request, @Nullable ServletResponse response) {
     Assert.state(this.asyncSupported, "Async not supported");
     this.asyncStarted = true;
     this.asyncContext = new MockAsyncContext(request, response);
@@ -975,22 +975,22 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return new ServletConnection() {
       @Override
       public String getConnectionId() {
-        return MockHttpServletRequest.this.getRequestId();
+        return HttpMockRequestImpl.this.getRequestId();
       }
 
       @Override
       public String getProtocol() {
-        return MockHttpServletRequest.this.getProtocol();
+        return HttpMockRequestImpl.this.getProtocol();
       }
 
       @Override
       public String getProtocolConnectionId() {
-        return MockHttpServletRequest.this.getProtocolRequestId();
+        return HttpMockRequestImpl.this.getProtocolRequestId();
       }
 
       @Override
       public boolean isSecure() {
-        return MockHttpServletRequest.this.isSecure();
+        return HttpMockRequestImpl.this.isSecure();
       }
     };
   }
@@ -1208,7 +1208,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   @Nullable
   public String getPathTranslated() {
-    return (this.pathInfo != null ? this.servletContext.getRealPath(this.pathInfo) : null);
+    return (this.pathInfo != null ? this.mockContext.getRealPath(this.pathInfo) : null);
   }
 
   public void setQueryString(@Nullable String queryString) {
@@ -1238,7 +1238,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public boolean isUserInRole(String role) {
     return (this.userRoles.contains(role) ||
-            (this.servletContext instanceof MockServletContext mockContext &&
+            (this.mockContext instanceof MockContextImpl mockContext &&
                     mockContext.getDeclaredRoles().contains(role)));
   }
 
@@ -1307,7 +1307,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
     // Create new session if necessary.
     if (this.session == null && create) {
-      this.session = new MockHttpSession(this.servletContext);
+      this.session = new MockHttpSession(this.mockContext);
     }
     return this.session;
   }

@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -50,7 +50,7 @@ class ServletTestExecutionListenerTests {
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
   private final WebApplicationContext wac = mock(WebApplicationContext.class);
-  private final MockServletContext mockServletContext = new MockServletContext();
+  private final MockContextImpl mockServletContext = new MockContextImpl();
   private final TestContext testContext = mock(TestContext.class);
   private final ServletTestExecutionListener listener = new ServletTestExecutionListener();
 
@@ -59,7 +59,7 @@ class ServletTestExecutionListenerTests {
     given(wac.getServletContext()).willReturn(mockServletContext);
     given(testContext.getApplicationContext()).willReturn(wac);
 
-    MockHttpServletRequest request = new MockHttpServletRequest(mockServletContext);
+    HttpMockRequestImpl request = new HttpMockRequestImpl(mockServletContext);
     MockHttpServletResponse response = new MockHttpServletResponse();
     RequestContext servletWebRequest = new ServletRequestContext(null, request, response);
 

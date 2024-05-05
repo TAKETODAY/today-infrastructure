@@ -28,7 +28,7 @@ public class ServletRequestEvent extends java.util.EventObject {
 
   private static final long serialVersionUID = -7467864054698729101L;
 
-  private final transient ServletRequest request;
+  private final transient MockRequest request;
 
   /**
    * Construct a ServletRequestEvent for the given ServletContext and ServletRequest.
@@ -36,7 +36,7 @@ public class ServletRequestEvent extends java.util.EventObject {
    * @param sc the ServletContext of the web application.
    * @param request the ServletRequest that is sending the event.
    */
-  public ServletRequestEvent(ServletContext sc, ServletRequest request) {
+  public ServletRequestEvent(MockContext sc, MockRequest request) {
     super(sc);
     this.request = request;
   }
@@ -44,18 +44,18 @@ public class ServletRequestEvent extends java.util.EventObject {
   /**
    * Returns the ServletRequest that is changing.
    *
-   * @return the {@link ServletRequest} corresponding to this event.
+   * @return the {@link MockRequest} corresponding to this event.
    */
-  public ServletRequest getServletRequest() {
+  public MockRequest getServletRequest() {
     return this.request;
   }
 
   /**
    * Returns the ServletContext of this web application.
    *
-   * @return the {@link ServletContext} for this web application.
+   * @return the {@link MockContext} for this web application.
    */
-  public ServletContext getServletContext() {
-    return (ServletContext) super.getSource();
+  public MockContext getServletContext() {
+    return (MockContext) super.getSource();
   }
 }

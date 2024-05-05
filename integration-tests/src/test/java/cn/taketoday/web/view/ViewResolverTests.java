@@ -24,9 +24,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ViewResolverTests {
 
   private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
-  private final MockServletContext sc = new MockServletContext();
+  private final MockContextImpl sc = new MockContextImpl();
 
   @BeforeEach
   public void setUp() {

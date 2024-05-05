@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import cn.taketoday.mock.api.annotation.HttpMethodConstraint;
-import cn.taketoday.mock.api.annotation.ServletSecurity;
+import cn.taketoday.mock.api.annotation.MockSecurity;
 
 /**
- * Java Class representation of a {@link ServletSecurity} annotation value.
+ * Java Class representation of a {@link MockSecurity} annotation value.
  *
  * @since Servlet 3.0
  */
@@ -84,12 +84,12 @@ public class ServletSecurityElement extends HttpConstraintElement {
   }
 
   /**
-   * Constructs an instance from a {@link ServletSecurity} annotation value.
+   * Constructs an instance from a {@link MockSecurity} annotation value.
    *
    * @param annotation the annotation value
    * @throws IllegalArgumentException if duplicate method names are detected
    */
-  public ServletSecurityElement(ServletSecurity annotation) {
+  public ServletSecurityElement(MockSecurity annotation) {
     super(annotation.value().value(), annotation.value().transportGuarantee(), annotation.value().rolesAllowed());
     this.methodConstraints = new HashSet<>();
     for (HttpMethodConstraint constraint : annotation.httpMethodConstraints()) {

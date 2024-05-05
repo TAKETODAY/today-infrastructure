@@ -28,7 +28,7 @@ import java.util.Locale;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static java.util.Locale.CANADA;
 import static java.util.Locale.ENGLISH;
@@ -89,7 +89,7 @@ class AcceptHeaderLocaleResolverTests {
   public void resolvePreferredNotSupportedWithDefault() {
     this.resolver.setSupportedLocales(Arrays.asList(US, JAPAN));
     this.resolver.setDefaultLocale(Locale.JAPAN);
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext context = new ServletRequestContext(null, request, null);
 
     request.addHeader("Accept-Language", KOREA.toLanguageTag());
@@ -100,7 +100,7 @@ class AcceptHeaderLocaleResolverTests {
   @Test
   public void defaultLocale() {
     this.resolver.setDefaultLocale(JAPANESE);
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestContext context = new ServletRequestContext(null, request, null);
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(JAPANESE);
 
@@ -110,7 +110,7 @@ class AcceptHeaderLocaleResolverTests {
   }
 
   private RequestContext request(Locale... locales) {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setPreferredLocales(Arrays.asList(locales));
     return new ServletRequestContext(null, request, null);
   }

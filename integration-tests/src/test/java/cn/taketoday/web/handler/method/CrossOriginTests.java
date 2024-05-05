@@ -36,8 +36,8 @@ import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
@@ -64,7 +64,7 @@ class CrossOriginTests {
   @SuppressWarnings("unused")
   static Stream<TestRequestMappingInfoHandlerMapping> pathPatternsArguments() {
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
-    wac.setServletContext(new MockServletContext());
+    wac.setServletContext(new MockContextImpl());
     Properties props = new Properties();
     props.setProperty("myOrigin", "https://example.com");
     props.setProperty("myDomainPattern", "http://*.example.com");
@@ -82,7 +82,7 @@ class CrossOriginTests {
     return Stream.of(mapping1, mapping2);
   }
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   @BeforeEach
   void setup() {
@@ -93,7 +93,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithoutOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/no");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/no");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(getCorsConfiguration(chain, false)).isNull();
   }
@@ -101,7 +101,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithAccessControlHttpMethod(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/no");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/no");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
@@ -112,7 +112,7 @@ class CrossOriginTests {
   @PathPatternsParameterizedTest
   void noAnnotationWithPreflightRequest(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
-    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/no");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/no");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com/");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
@@ -296,7 +296,7 @@ class CrossOriginTests {
   }
 
   @Nullable
-  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, MockHttpServletRequest request) throws Exception {
+  private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, HttpMockRequestImpl request) throws Exception {
     Object handler = mapping.getHandler(new ServletRequestContext(null, request, null));
     if (handler instanceof HandlerExecutionChain chain) {
       return chain;
@@ -363,7 +363,7 @@ class CrossOriginTests {
 
   @PathPatternsParameterizedTest
   void preFlightRequestWithoutHttpMethodHeader(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/default");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("OPTIONS", "/default");
     request.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
     assertThat(getHandler(mapping, request)).isNull();
   }

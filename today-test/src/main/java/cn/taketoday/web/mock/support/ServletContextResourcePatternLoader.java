@@ -31,7 +31,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -39,7 +39,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * ServletContext-aware subclass of {@link PathMatchingPatternResourceLoader},
  * able to find matching resources below the web application root directory
- * via {@link ServletContext#getResourcePaths}. Falls back to the superclass'
+ * via {@link MockContext#getResourcePaths}. Falls back to the superclass'
  * file system checking for other resources.
  *
  * @author Juergen Hoeller
@@ -52,11 +52,11 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
   /**
    * Create a new ServletContextPatternResourceLoader.
    *
-   * @param servletContext the ServletContext to load resources with
-   * @see ServletContextResourceLoader#ServletContextResourceLoader(cn.taketoday.mock.api.ServletContext)
+   * @param mockContext the ServletContext to load resources with
+   * @see ServletContextResourceLoader#ServletContextResourceLoader(MockContext)
    */
-  public ServletContextResourcePatternLoader(ServletContext servletContext) {
-    super(new ServletContextResourceLoader(servletContext));
+  public ServletContextResourcePatternLoader(MockContext mockContext) {
+    super(new ServletContextResourceLoader(mockContext));
   }
 
   /**
@@ -77,13 +77,13 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
    *
    * @see #doRetrieveMatchingServletContextResources
    * @see ServletContextResource
-   * @see cn.taketoday.mock.api.ServletContext#getResourcePaths
+   * @see MockContext#getResourcePaths
    */
   @Override
   protected void doFindPathMatchingFileResources(
           Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
     if (rootDirResource instanceof ServletContextResource scResource) {
-      ServletContext sc = scResource.getServletContext();
+      MockContext sc = scResource.getServletContext();
       String fullPattern = scResource.getPath() + subPattern;
       doRetrieveMatchingServletContextResources(sc, fullPattern, scResource.getPath(), consumer);
     }
@@ -96,20 +96,20 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
    * Recursively retrieve ServletContextResources that match the given pattern,
    * adding them to the given result set.
    *
-   * @param servletContext the ServletContext to work on
+   * @param mockContext the ServletContext to work on
    * @param fullPattern the pattern to match against,
    * with preprended root directory path
    * @param dir the current directory
    * @param consumer Resource how to use
    * @throws IOException if directory contents could not be retrieved
    * @see ServletContextResource
-   * @see cn.taketoday.mock.api.ServletContext#getResourcePaths
+   * @see MockContext#getResourcePaths
    */
   protected void doRetrieveMatchingServletContextResources(
-          ServletContext servletContext, String fullPattern, String dir, ResourceConsumer consumer)
+          MockContext mockContext, String fullPattern, String dir, ResourceConsumer consumer)
           throws IOException {
 
-    Set<String> candidates = servletContext.getResourcePaths(dir);
+    Set<String> candidates = mockContext.getResourcePaths(dir);
     if (CollectionUtils.isNotEmpty(candidates)) {
       boolean dirDepthNotFixed = fullPattern.contains("**");
       int jarFileSep = fullPattern.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
@@ -134,17 +134,17 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
                 || StringUtils.countOccurrencesOf(currPath, "/") <= StringUtils.countOccurrencesOf(fullPattern, "/"))) {
           // Search subdirectories recursively: ServletContext.getResourcePaths
           // only returns entries for one directory level.
-          doRetrieveMatchingServletContextResources(servletContext, fullPattern, currPath, consumer);
+          doRetrieveMatchingServletContextResources(mockContext, fullPattern, currPath, consumer);
         }
         if (jarFilePath != null && pathMatcher.match(jarFilePath, currPath)) {
           // Base pattern matches a jar file - search for matching entries within.
-          String absoluteJarPath = servletContext.getRealPath(currPath);
+          String absoluteJarPath = mockContext.getRealPath(currPath);
           if (absoluteJarPath != null) {
             doRetrieveMatchingJarEntries(absoluteJarPath, pathInJarFile, consumer);
           }
         }
         if (pathMatcher.match(fullPattern, currPath)) {
-          consumer.accept(new ServletContextResource(servletContext, currPath));
+          consumer.accept(new ServletContextResource(mockContext, currPath));
         }
       }
     }

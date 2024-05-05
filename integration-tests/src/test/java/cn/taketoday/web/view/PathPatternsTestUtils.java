@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
@@ -45,27 +45,27 @@ public abstract class PathPatternsTestUtils {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, requestUri);
+      HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, requestUri);
       return new ServletRequestContext(context, servletRequest, new MockHttpServletResponse());
     }
     else {
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, path);
+      HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, path);
       return new ServletRequestContext(context, servletRequest, new MockHttpServletResponse());
     }
   }
 
-  public static MockHttpServletRequest initRequest(String method, String requestUri) {
+  public static HttpMockRequestImpl initRequest(String method, String requestUri) {
     return initRequest(method, null, requestUri, true);
   }
 
-  public static MockHttpServletRequest initRequest(String method, String requestUri, boolean parsedPatterns) {
+  public static HttpMockRequestImpl initRequest(String method, String requestUri, boolean parsedPatterns) {
     return initRequest(method, null, requestUri, parsedPatterns);
   }
 
   /**
    * See {@link #initRequest(String, String, boolean)}. This variant adds a contextPath.
    */
-  public static MockHttpServletRequest initRequest(
+  public static HttpMockRequestImpl initRequest(
           String method, @Nullable String contextPath, String path, boolean parsedPatterns) {
 
     return initRequest(method, contextPath, path, parsedPatterns, null);
@@ -76,11 +76,11 @@ public abstract class PathPatternsTestUtils {
    * and a post-construct initializer to apply further changes before the
    * lookupPath is resolved.
    */
-  public static MockHttpServletRequest initRequest(
+  public static HttpMockRequestImpl initRequest(
           String method, @Nullable String contextPath, String path,
-          boolean parsedPatterns, @Nullable Consumer<MockHttpServletRequest> postConstructInitializer) {
+          boolean parsedPatterns, @Nullable Consumer<HttpMockRequestImpl> postConstructInitializer) {
 
-    MockHttpServletRequest request = createRequest0(method, contextPath, path);
+    HttpMockRequestImpl request = createRequest0(method, contextPath, path);
     if (postConstructInitializer != null) {
       postConstructInitializer.accept(request);
     }
@@ -88,13 +88,13 @@ public abstract class PathPatternsTestUtils {
     return request;
   }
 
-  private static MockHttpServletRequest createRequest0(String method, @Nullable String contextPath, String path) {
+  private static HttpMockRequestImpl createRequest0(String method, @Nullable String contextPath, String path) {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
-      return new MockHttpServletRequest(method, requestUri);
+      return new HttpMockRequestImpl(method, requestUri);
     }
     else {
-      return new MockHttpServletRequest(method, path);
+      return new HttpMockRequestImpl(method, path);
     }
   }
 

@@ -23,12 +23,12 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.ConfigurableWebEnvironment;
 import cn.taketoday.web.mock.ServletConfigAware;
-import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.ServletContextAwareProcessor;
 
 /**
@@ -69,11 +69,11 @@ public abstract class AbstractRefreshableWebApplicationContext
 
   /** Servlet context that this context runs in. */
   @Nullable
-  private ServletContext servletContext;
+  private MockContext mockContext;
 
   /** Servlet config that this context runs in, if any. */
   @Nullable
-  private ServletConfig servletConfig;
+  private MockConfig mockConfig;
 
   /** Namespace of this context, or {@code null} if root. */
   @Nullable
@@ -84,28 +84,28 @@ public abstract class AbstractRefreshableWebApplicationContext
   }
 
   @Override
-  public void setServletContext(@Nullable ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public void setServletContext(@Nullable MockContext mockContext) {
+    this.mockContext = mockContext;
   }
 
   @Override
   @Nullable
-  public ServletContext getServletContext() {
-    return this.servletContext;
+  public MockContext getServletContext() {
+    return this.mockContext;
   }
 
   @Override
-  public void setServletConfig(@Nullable ServletConfig servletConfig) {
-    this.servletConfig = servletConfig;
-    if (servletConfig != null && this.servletContext == null) {
-      setServletContext(servletConfig.getServletContext());
+  public void setServletConfig(@Nullable MockConfig mockConfig) {
+    this.mockConfig = mockConfig;
+    if (mockConfig != null && this.mockContext == null) {
+      setServletContext(mockConfig.getMockContext());
     }
   }
 
   @Override
   @Nullable
-  public ServletConfig getServletConfig() {
-    return this.servletConfig;
+  public MockConfig getServletConfig() {
+    return this.mockConfig;
   }
 
   @Override
@@ -122,19 +122,9 @@ public abstract class AbstractRefreshableWebApplicationContext
     return this.namespace;
   }
 
-  public String getContextPath() {
-    Assert.state(servletContext != null, "No servletContext.");
-    return servletContext.getContextPath();
-  }
-
   @Override
   public String[] getConfigLocations() {
     return super.getConfigLocations();
-  }
-
-  @Override
-  public String getApplicationName() {
-    return (this.servletContext != null ? this.servletContext.getContextPath() : "");
   }
 
   /**
@@ -152,12 +142,12 @@ public abstract class AbstractRefreshableWebApplicationContext
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.servletContext, this.servletConfig));
-    beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+    beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.mockContext, this.mockConfig));
+    beanFactory.ignoreDependencyInterface(MockContextAware.class);
     beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
 
-    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.servletContext);
-    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.servletContext, this.servletConfig);
+    WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
+    WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext, this.mockConfig);
   }
 
   /**
@@ -167,8 +157,8 @@ public abstract class AbstractRefreshableWebApplicationContext
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    Assert.state(this.servletContext != null, "No ServletContext available");
-    return new ServletContextResource(this.servletContext, path);
+    Assert.state(this.mockContext != null, "No ServletContext available");
+    return new ServletContextResource(this.mockContext, path);
   }
 
   /**
@@ -189,7 +179,7 @@ public abstract class AbstractRefreshableWebApplicationContext
   protected void initPropertySources() {
     ConfigurableEnvironment env = getEnvironment();
     if (env instanceof ConfigurableWebEnvironment) {
-      ((ConfigurableWebEnvironment) env).initPropertySources(this.servletContext, this.servletConfig);
+      ((ConfigurableWebEnvironment) env).initPropertySources(this.mockContext, this.mockConfig);
     }
   }
 

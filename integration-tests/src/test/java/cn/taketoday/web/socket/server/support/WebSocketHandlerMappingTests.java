@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.handler.HandlerExecutionChain;
@@ -50,7 +50,7 @@ public class WebSocketHandlerMappingTests {
     mapping.setUrlMap(Collections.singletonMap("/path", handler));
     mapping.setApplicationContext(new StaticWebApplicationContext());
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/path");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
     ServletRequestContext context = new ServletRequestContext(null, request, new MockHttpServletResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();

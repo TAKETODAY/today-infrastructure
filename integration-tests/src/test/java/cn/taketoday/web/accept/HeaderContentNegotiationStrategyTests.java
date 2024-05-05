@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -40,7 +40,7 @@ public class HeaderContentNegotiationStrategyTests {
 
   private final HeaderContentNegotiationStrategy strategy = new HeaderContentNegotiationStrategy();
 
-  private final MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
   final RequestContext context = new ServletRequestContext(null, servletRequest, null);
 

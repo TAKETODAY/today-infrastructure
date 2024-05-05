@@ -26,9 +26,9 @@ import java.util.Collections;
 import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.support.StaticApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HandlerMatchingMetadata;
@@ -50,7 +50,7 @@ public class SimpleUrlHandlerMappingTests {
   @Test
   @SuppressWarnings("resource")
   public void handlerBeanNotFound() {
-    MockServletContext sc = new MockServletContext("");
+    MockContextImpl sc = new MockContextImpl("");
     XmlWebApplicationContext root = new XmlWebApplicationContext();
     root.setServletContext(sc);
     root.setConfigLocations("/cn/taketoday/web/handler/map1.xml");
@@ -76,7 +76,7 @@ public class SimpleUrlHandlerMappingTests {
     SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping(Collections.singletonMap("/*/baz", controller));
     mapping.setApplicationContext(new StaticApplicationContext());
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo%0a%0dbar/baz");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo%0a%0dbar/baz");
 
     HandlerExecutionChain hec = (HandlerExecutionChain) mapping.getHandler(new ServletRequestContext(
             null, request, new MockHttpServletResponse()));
@@ -87,7 +87,7 @@ public class SimpleUrlHandlerMappingTests {
   @ParameterizedTest
   @ValueSource(strings = { "urlMapping", "urlMappingWithProps", "urlMappingWithPathPatterns" })
   void checkMappings(String beanName) throws Throwable {
-    MockServletContext sc = new MockServletContext("");
+    MockContextImpl sc = new MockContextImpl("");
     XmlWebApplicationContext wac = new XmlWebApplicationContext();
     wac.setServletContext(sc);
     wac.setConfigLocations("/cn/taketoday/web/handler/map2.xml");
@@ -98,7 +98,7 @@ public class SimpleUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean(beanName);
     wac.close();
 
-    MockHttpServletRequest request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
+    HttpMockRequestImpl request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
     HandlerExecutionChain chain = getHandler(hm, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("/welcome.html");
@@ -156,7 +156,7 @@ public class SimpleUrlHandlerMappingTests {
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("/somePath");
   }
 
-  private HandlerExecutionChain getHandler(HandlerMapping mapping, MockHttpServletRequest request) throws Throwable {
+  private HandlerExecutionChain getHandler(HandlerMapping mapping, HttpMockRequestImpl request) throws Throwable {
 
     ServletRequestContext context = new ServletRequestContext(
             null, request, new MockHttpServletResponse());

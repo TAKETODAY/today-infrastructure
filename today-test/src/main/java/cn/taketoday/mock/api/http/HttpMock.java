@@ -24,11 +24,11 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
-import cn.taketoday.mock.api.GenericServlet;
-import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.GenericMock;
+import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletOutputStream;
-import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.WriteListener;
 
@@ -62,7 +62,7 @@ import cn.taketoday.mock.api.WriteListener;
  *
  * @author Various
  */
-public abstract class HttpServlet extends GenericServlet {
+public abstract class HttpMock extends GenericMock {
   private static final long serialVersionUID = 8466325577512134784L;
 
   private static final String METHOD_DELETE = "DELETE";
@@ -77,8 +77,8 @@ public abstract class HttpServlet extends GenericServlet {
   private static final String HEADER_LASTMOD = "Last-Modified";
 
   /**
-   * The parameter obtained {@link ServletConfig#getInitParameter(String)} to determine if legacy processing of
-   * {@link #doHead(HttpServletRequest, HttpServletResponse)} is provided.
+   * The parameter obtained {@link MockConfig#getInitParameter(String)} to determine if legacy processing of
+   * {@link #doHead(HttpMockRequest, HttpServletResponse)} is provided.
    *
    * @since Servlet 6.0
    * @deprecated may be removed in future releases
@@ -92,11 +92,11 @@ public abstract class HttpServlet extends GenericServlet {
    * Does nothing, because this is an abstract class.
    */
 
-  public HttpServlet() {
+  public HttpMock() {
   }
 
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(MockConfig config) throws ServletException {
     super.init(config);
     legacyHeadHandling = Boolean.parseBoolean(config.getInitParameter(LEGACY_DO_HEAD));
   }
@@ -141,13 +141,13 @@ public abstract class HttpServlet extends GenericServlet {
    * <p>
    * If the request is incorrectly formatted, <code>doGet</code> returns an HTTP "Bad Request" message.
    *
-   * @param req an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+   * @param req an {@link HttpMockRequest} object that contains the request the client has made of the servlet
    * @param resp an {@link HttpServletResponse} object that contains the response the servlet sends to the client
    * @throws IOException if an input or output error is detected when the servlet handles the GET request
    * @throws ServletException if the request for the GET could not be handled
    * @see ServletResponse#setContentType
    */
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol),
             "HTTP method GET is not supported by this URL");
@@ -165,7 +165,7 @@ public abstract class HttpServlet extends GenericServlet {
    * @return a <code>long</code> integer specifying the time the <code>HttpServletRequest</code> object was last modified,
    * in milliseconds since midnight, January 1, 1970 GMT, or -1 if the time is not known
    */
-  protected long getLastModified(HttpServletRequest req) {
+  protected long getLastModified(HttpMockRequest req) {
     return -1;
   }
 
@@ -181,8 +181,8 @@ public abstract class HttpServlet extends GenericServlet {
    * protects itself from being called multiple times for one HTTP HEAD request).
    *
    * <p>
-   * The default implementation calls {@link #doGet(HttpServletRequest, HttpServletResponse)}. If the
-   * {@link ServletConfig} init parameter {@link #LEGACY_DO_HEAD} is set to "TRUE", then the response instance is wrapped
+   * The default implementation calls {@link #doGet(HttpMockRequest, HttpServletResponse)}. If the
+   * {@link MockConfig} init parameter {@link #LEGACY_DO_HEAD} is set to "TRUE", then the response instance is wrapped
    * so that the response body is discarded.
    *
    * <p>
@@ -193,7 +193,7 @@ public abstract class HttpServlet extends GenericServlet {
    * @throws IOException if an input or output error occurs
    * @throws ServletException if the request for the HEAD could not be handled
    */
-  protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doHead(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     if (legacyHeadHandling) {
       NoBodyResponse response = new NoBodyResponse(resp);
       doGet(req, response);
@@ -237,14 +237,14 @@ public abstract class HttpServlet extends GenericServlet {
    * <p>
    * If the HTTP POST request is incorrectly formatted, <code>doPost</code> returns an HTTP "Bad Request" message.
    *
-   * @param req an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+   * @param req an {@link HttpMockRequest} object that contains the request the client has made of the servlet
    * @param resp an {@link HttpServletResponse} object that contains the response the servlet sends to the client
    * @throws IOException if an input or output error is detected when the servlet handles the request
    * @throws ServletException if the request for the POST could not be handled
    * @see ServletOutputStream
    * @see ServletResponse#setContentType
    */
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method POST is not supported by this URL");
   }
@@ -269,12 +269,12 @@ public abstract class HttpServlet extends GenericServlet {
    * <p>
    * If the HTTP PUT request is incorrectly formatted, <code>doPut</code> returns an HTTP "Bad Request" message.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the PUT request
    * @throws ServletException if the request for the PUT cannot be handled
    */
-  protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPut(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method PUT is not supported by this URL");
   }
@@ -292,12 +292,12 @@ public abstract class HttpServlet extends GenericServlet {
    * <p>
    * If the HTTP DELETE request is incorrectly formatted, <code>doDelete</code> returns an HTTP "Bad Request" message.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the DELETE request
    * @throws ServletException if the request for the DELETE cannot be handled
    */
-  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doDelete(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "Http method DELETE is not supported by this URL");
   }
@@ -309,12 +309,12 @@ public abstract class HttpServlet extends GenericServlet {
     };
   }
 
-  private Method[] getAllDeclaredMethods(Class<? extends HttpServlet> c) {
+  private Method[] getAllDeclaredMethods(Class<? extends HttpMock> c) {
 
     Class<?> clazz = c;
     Method[] allMethods = null;
 
-    while (!clazz.equals(HttpServlet.class)) {
+    while (!clazz.equals(HttpMock.class)) {
       Method[] thisMethods = clazz.getDeclaredMethods();
       if (allMethods != null && allMethods.length > 0) {
         Method[] subClassMethods = allMethods;
@@ -345,12 +345,12 @@ public abstract class HttpServlet extends GenericServlet {
    * There's no need to override this method unless the servlet implements new HTTP methods, beyond those implemented by
    * HTTP 1.1.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the OPTIONS request
    * @throws ServletException if the request for the OPTIONS cannot be handled
    */
-  protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doOptions(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     Method[] methods = getAllDeclaredMethods(this.getClass());
 
     boolean ALLOW_GET = false;
@@ -432,12 +432,12 @@ public abstract class HttpServlet extends GenericServlet {
    * A TRACE returns the headers sent with the TRACE request to the client, so that they can be used in debugging. There's
    * no need to override this method.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the TRACE request
    * @throws ServletException if the request for the TRACE cannot be handled
    */
-  protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doTrace(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
     int responseLength;
 
@@ -467,13 +467,13 @@ public abstract class HttpServlet extends GenericServlet {
    * <code>do</code><i>XXX</i> methods defined in this class. This method is an HTTP-specific version of the
    * {@link cn.taketoday.mock.api.Servlet#service} method. There's no need to override this method.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws ServletException if the HTTP request cannot be handled
    * @see cn.taketoday.mock.api.Servlet#service
    */
-  protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void service(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String method = req.getMethod();
 
     switch (method) {
@@ -534,23 +534,23 @@ public abstract class HttpServlet extends GenericServlet {
   /**
    * Dispatches client requests to the protected <code>service</code> method. There's no need to override this method.
    *
-   * @param req the {@link HttpServletRequest} object that contains the request the client made of the servlet
+   * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
    * @param res the {@link HttpServletResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws ServletException if the HTTP request cannot be handled or if either parameter is not an instance of its
-   * respective {@link HttpServletRequest} or {@link HttpServletResponse} counterparts.
+   * respective {@link HttpMockRequest} or {@link HttpServletResponse} counterparts.
    * @see cn.taketoday.mock.api.Servlet#service
    */
   @Override
-  public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-    HttpServletRequest request;
+  public void service(MockRequest req, ServletResponse res) throws ServletException, IOException {
+    HttpMockRequest request;
     HttpServletResponse response;
 
-    if (!(req instanceof HttpServletRequest && res instanceof HttpServletResponse)) {
+    if (!(req instanceof HttpMockRequest && res instanceof HttpServletResponse)) {
       throw new ServletException("non-HTTP request or response");
     }
 
-    request = (HttpServletRequest) req;
+    request = (HttpMockRequest) req;
     response = (HttpServletResponse) res;
 
     service(request, response);

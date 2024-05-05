@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
@@ -42,7 +42,7 @@ class ParameterizableViewControllerTests {
 
   private ParameterizableViewController controller;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private RequestContext context;
 
@@ -51,7 +51,7 @@ class ParameterizableViewControllerTests {
   @BeforeEach
   public void setup() {
     this.controller = new ParameterizableViewController();
-    this.request = new MockHttpServletRequest("GET", "/");
+    this.request = new HttpMockRequestImpl("GET", "/");
     StaticWebApplicationContext context = new StaticWebApplicationContext();
     context.refresh();
     this.context = new ServletRequestContext(context, request, response);

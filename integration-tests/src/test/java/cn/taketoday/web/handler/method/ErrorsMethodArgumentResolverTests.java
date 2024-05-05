@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
@@ -51,7 +51,7 @@ public class ErrorsMethodArgumentResolverTests {
   public void setup() throws Exception {
     paramErrors = new ResolvableMethodParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
     bindingResult = new WebDataBinder(new Object(), "attr").getBindingResult();
-    webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
+    webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
   }
 
   @Test

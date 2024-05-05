@@ -37,7 +37,7 @@ public class ServletContextAttributeEvent extends ServletContextEvent {
    * @param name the name of the ServletContext attribute that changed
    * @param value the value of the ServletContext attribute that changed
    */
-  public ServletContextAttributeEvent(ServletContext source, String name, Object value) {
+  public ServletContextAttributeEvent(MockContext source, String name, Object value) {
     super(source);
     this.name = name;
     this.value = value;

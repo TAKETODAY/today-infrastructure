@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class RequestContextUtilsTests {
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   RequestContext context = new ServletRequestContext(null, request, null);
 

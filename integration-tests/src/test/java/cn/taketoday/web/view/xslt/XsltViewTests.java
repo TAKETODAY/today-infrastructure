@@ -39,11 +39,11 @@ import javax.xml.transform.stream.StreamSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -59,11 +59,11 @@ public class XsltViewTests {
 
   private static final String HTML_OUTPUT = "/cn/taketoday/web/view/xslt/products.xsl";
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest();
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 
-  private final MockServletContext servletContext = new MockServletContext();
+  private final MockContextImpl servletContext = new MockContextImpl();
 
   @Test
   public void withNoSource() throws Exception {

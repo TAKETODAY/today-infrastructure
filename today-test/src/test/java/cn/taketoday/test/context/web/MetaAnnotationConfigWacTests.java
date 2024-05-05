@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.File;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.mock.WebApplicationContext;
@@ -46,7 +46,7 @@ class MetaAnnotationConfigWacTests {
   WebApplicationContext wac;
 
   @Autowired
-  MockServletContext mockServletContext;
+  MockContextImpl mockServletContext;
 
   @Autowired
   String foo;

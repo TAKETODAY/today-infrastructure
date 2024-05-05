@@ -34,7 +34,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.ResourceRegionHttpMessageConverter;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.ServletRequestContext;
@@ -64,7 +64,7 @@ public class ResourceHandlerFunctionTests {
 
   @Test
   public void get() throws Throwable {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
@@ -91,7 +91,7 @@ public class ResourceHandlerFunctionTests {
 
   @Test
   public void getRange() throws Throwable {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-5");
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
@@ -124,7 +124,7 @@ public class ResourceHandlerFunctionTests {
 
   @Test
   public void getInvalidRange() throws Throwable {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -154,7 +154,7 @@ public class ResourceHandlerFunctionTests {
 
   @Test
   public void head() throws Throwable {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
@@ -181,7 +181,7 @@ public class ResourceHandlerFunctionTests {
 
   @Test
   public void options() throws Throwable {
-    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
+    HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
     var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);

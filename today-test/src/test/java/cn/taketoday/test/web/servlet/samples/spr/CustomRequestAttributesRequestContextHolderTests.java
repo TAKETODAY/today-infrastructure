@@ -24,9 +24,9 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -36,7 +36,6 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
-import cn.taketoday.mock.api.ServletContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,12 +62,12 @@ class CustomRequestAttributesRequestContextHolderTests {
 
   @BeforeEach
   void setUp() {
-    ServletContext servletContext = new MockServletContext();
-    MockHttpServletRequest mockRequest = new MockHttpServletRequest(servletContext);
+    MockContextImpl mockContext = new MockContextImpl();
+    HttpMockRequestImpl mockRequest = new HttpMockRequestImpl(mockContext);
     mockRequest.setAttribute(FROM_CUSTOM_MOCK, FROM_CUSTOM_MOCK);
     RequestContextHolder.set(new ServletRequestContext(null, mockRequest, new MockHttpServletResponse()));
 
-    this.wac.setServletContext(servletContext);
+    this.wac.setServletContext(mockContext);
     new AnnotatedBeanDefinitionReader(this.wac).register(WebConfig.class);
     this.wac.refresh();
 

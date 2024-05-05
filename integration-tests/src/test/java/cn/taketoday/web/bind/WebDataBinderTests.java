@@ -30,8 +30,8 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.mock.bind.ServletRequestParameterPropertyValues;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
@@ -58,7 +58,7 @@ public class WebDataBinderTests {
       }
     });
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("spouse", "someValue");
     request.addParameter("spouse.name", "test");
     binder.bind(new ServletRequestContext(null, request, null));
@@ -74,7 +74,7 @@ public class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(tb, "person");
     binder.setIgnoreUnknownFields(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("concreteSpouse.name", "test");
     binder.bind(new ServletRequestContext(null, request, null));
 
@@ -87,7 +87,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
     binder.bind(new ServletRequestContext(null, request, null));
@@ -104,7 +104,7 @@ public class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
     binder.bind(new ServletRequestContext(null, request, null));
@@ -120,7 +120,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray[]", "ONE");
     request.addParameter("stringArray[]", "TWO");
     binder.bind(new ServletRequestContext(request, null));
@@ -132,7 +132,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!postProcessed", "off");
     request.addParameter("postProcessed", "on");
     binder.bind(new ServletRequestContext(request, null));
@@ -152,7 +152,7 @@ public class WebDataBinderTests {
     target.setSomeMap(null);
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("_someSet", "visible");
     request.addParameter("_someList", "visible");
     request.addParameter("_someMap", "visible");
@@ -168,7 +168,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!postProcessed", "on");
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
@@ -190,7 +190,7 @@ public class WebDataBinderTests {
     target.setSpouse(new TestBean());
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!spouse.postProcessed", "on");
     request.addParameter("_spouse.postProcessed", "visible");
     request.addParameter("spouse.postProcessed", "on");
@@ -211,7 +211,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("!name", "anonymous");
     request.addParameter("name", "Scott");
     binder.bind(new ServletRequestContext(request, null));
@@ -227,7 +227,7 @@ public class WebDataBinderTests {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray", "bar");
     request.addParameter("stringArray", "abc");
     request.addParameter("stringArray", "123,def");
@@ -245,7 +245,7 @@ public class WebDataBinderTests {
     EnumHolder target = new EnumHolder();
     WebDataBinder binder = new WebDataBinder(target);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("myEnum", "FOO");
     binder.bind(new ServletRequestContext(request, null));
     assertThat(target.getMyEnum()).isEqualTo(MyEnum.FOO);
@@ -257,7 +257,7 @@ public class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("name", "Juergen".getBytes()));
     binder.bind(new MockMultipartServletRequestContext(request, null));
     assertThat(target.getName()).isEqualTo("Juergen");
@@ -269,7 +269,7 @@ public class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     binder.bind(new MockMultipartServletRequestContext(request, null));
     assertThat(target.getStringArray().length).isEqualTo(1);
@@ -282,7 +282,7 @@ public class WebDataBinderTests {
     WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
-    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+    MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("stringArray", "Juergen".getBytes()));
     request.addFile(new MockMultipartFile("stringArray", "Eva".getBytes()));
     binder.bind(new MockMultipartServletRequestContext(request, null));
@@ -293,7 +293,7 @@ public class WebDataBinderTests {
 
   @Test
   public void testNoPrefix() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("forname", "Tony");
     request.addParameter("surname", "Blair");
     request.addParameter("age", "" + 50);
@@ -304,7 +304,7 @@ public class WebDataBinderTests {
 
   @Test
   public void testPrefix() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("test_forname", "Tony");
     request.addParameter("test_surname", "Blair");
     request.addParameter("test_age", "" + 50);
@@ -347,14 +347,14 @@ public class WebDataBinderTests {
 
   @Test
   public void testNoParameters() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
     assertThat(pvs.toArray().length == 0).as("Found no parameters").isTrue();
   }
 
   @Test
   public void testMultipleValuesForParameter() throws Exception {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
     String[] original = new String[] { "Tony", "Rod" };
     request.addParameter("forname", original);
 

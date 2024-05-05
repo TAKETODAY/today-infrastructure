@@ -27,7 +27,7 @@ import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.annotation.PathVariable;
@@ -48,7 +48,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
   private ServletRequestContext webRequest;
 
-  private MockHttpServletRequest request;
+  private HttpMockRequestImpl request;
 
   private ResolvableMethodParameter paramMap;
   private ResolvableMethodParameter paramNamedMap;
@@ -57,7 +57,7 @@ class PathVariableMapMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     resolver = new PathVariableMapMethodArgumentResolver();
-    request = new MockHttpServletRequest();
+    request = new HttpMockRequestImpl();
     webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
     Method method = getClass().getMethod("handle", Map.class, Map.class, Map.class);

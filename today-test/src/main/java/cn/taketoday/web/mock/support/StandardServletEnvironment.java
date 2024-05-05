@@ -25,8 +25,8 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.jndi.JndiLocatorDelegate;
 import cn.taketoday.jndi.JndiPropertySource;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletConfig;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.mock.ConfigurableWebEnvironment;
 import cn.taketoday.web.mock.ServletConfigPropertySource;
@@ -92,8 +92,8 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    * environment variables contributed by the {@link StandardEnvironment} superclass.
    * <p>The {@code Servlet}-related property sources are added as
    * {@link StubPropertySource stubs} at this stage, and will be
-   * {@linkplain #initPropertySources(ServletContext, ServletConfig) fully initialized}
-   * once the actual {@link ServletContext} object becomes available.
+   * {@linkplain #initPropertySources(MockContext, MockConfig) fully initialized}
+   * once the actual {@link MockContext} object becomes available.
    * <p>Addition of {@value #JNDI_PROPERTY_SOURCE_NAME} can be disabled with
    *
    * @see StandardEnvironment#customizePropertySources
@@ -102,7 +102,7 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    * @see ServletContextPropertySource
    * @see cn.taketoday.jndi.JndiPropertySource
    * @see cn.taketoday.context.support.AbstractApplicationContext#initPropertySources
-   * @see #initPropertySources(ServletContext, ServletConfig)
+   * @see #initPropertySources(MockContext, MockConfig)
    */
   @Override
   protected void customizePropertySources(PropertySources propertySources) {
@@ -115,8 +115,8 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
   }
 
   @Override
-  public void initPropertySources(@Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
-    WebApplicationContextUtils.initServletPropertySources(getPropertySources(), servletContext, servletConfig);
+  public void initPropertySources(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
+    WebApplicationContextUtils.initServletPropertySources(getPropertySources(), mockContext, mockConfig);
   }
 
 }

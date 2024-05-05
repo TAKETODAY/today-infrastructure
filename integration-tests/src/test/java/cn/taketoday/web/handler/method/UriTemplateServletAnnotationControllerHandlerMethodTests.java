@@ -32,7 +32,7 @@ import java.util.Map;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.MultiValueMap;
@@ -61,7 +61,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void simple() throws Exception {
     initDispatcherServlet(SimpleUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/42");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/42");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42-7");
@@ -72,13 +72,13 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void literalMappingWithPathParams() throws Exception {
     initDispatcherServlet(MultipleUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/data");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/data");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("test");
 
-    request = new MockHttpServletRequest("GET", "/data;jsessionid=123");
+    request = new HttpMockRequestImpl("GET", "/data;jsessionid=123");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -89,7 +89,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void multiple() throws Exception {
     initDispatcherServlet(MultipleUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/42;q=24/bookings/21-other;q=12");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/42;q=24/bookings/21-other;q=12");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -109,7 +109,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
       context.registerBeanDefinition("viewResolver", beanDef);
     });
 
-    var request = new MockHttpServletRequest("GET", "/hotels/42;q=1,2/bookings/21-other;q=3;r=R");
+    var request = new HttpMockRequestImpl("GET", "/hotels/42;q=1,2/bookings/21-other;q=3;r=R");
     getServlet().service(request, new MockHttpServletResponse());
 
     ModelValidatingViewResolver resolver = wac.getBean(ModelValidatingViewResolver.class);
@@ -120,12 +120,12 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void binding() throws Exception {
     initDispatcherServlet(BindingUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/42/dates/2008-11-18");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/42/dates/2008-11-18");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
-    request = new MockHttpServletRequest("GET", "/hotels/42/dates/2008-foo-bar");
+    request = new HttpMockRequestImpl("GET", "/hotels/42/dates/2008-foo-bar");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(400);
@@ -135,7 +135,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
         // no conversion service
       });
     });
-    request = new MockHttpServletRequest("GET", "/hotels/42/dates/2008-foo-bar");
+    request = new HttpMockRequestImpl("GET", "/hotels/42/dates/2008-foo-bar");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(500);
@@ -145,7 +145,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void ambiguous() throws Exception {
     initDispatcherServlet(AmbiguousUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/new");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/new");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("specific");
@@ -155,7 +155,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void relative() throws Exception {
     initDispatcherServlet(RelativePathUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/42/bookings/21");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/42/bookings/21");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42-21");
@@ -165,7 +165,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void extension() throws Exception {
     initDispatcherServlet(SimpleUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/42;jsessionid=c0o7fszeb1;q=24.xml");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/42;jsessionid=c0o7fszeb1;q=24.xml");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString())
@@ -176,7 +176,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void typeConversionError() throws Exception {
     initDispatcherServlet(SimpleUriTemplateController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo.xml");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo.xml");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).as("Invalid response status code").isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
@@ -186,7 +186,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void explicitSubPath() throws Exception {
     initDispatcherServlet(ExplicitSubPathController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/42");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/42");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42");
@@ -196,7 +196,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void implicitSubPath() throws Exception {
     initDispatcherServlet(ImplicitSubPathController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/42");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/42");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test-42");
@@ -206,27 +206,27 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void crud() throws Exception {
     initDispatcherServlet(CrudController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("list");
 
-    request = new MockHttpServletRequest("POST", "/hotels");
+    request = new HttpMockRequestImpl("POST", "/hotels");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("create");
 
-    request = new MockHttpServletRequest("GET", "/hotels/42");
+    request = new HttpMockRequestImpl("GET", "/hotels/42");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("show-42");
 
-    request = new MockHttpServletRequest("PUT", "/hotels/42");
+    request = new HttpMockRequestImpl("PUT", "/hotels/42");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("createOrUpdate-42");
 
-    request = new MockHttpServletRequest("DELETE", "/hotels/42");
+    request = new HttpMockRequestImpl("DELETE", "/hotels/42");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("remove-42");
@@ -236,22 +236,22 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void methodNotSupported() throws Exception {
     initDispatcherServlet(MethodNotAllowedController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/hotels/1");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/hotels/1");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
-    request = new MockHttpServletRequest("POST", "/hotels/1");
+    request = new HttpMockRequestImpl("POST", "/hotels/1");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(405);
 
-    request = new MockHttpServletRequest("GET", "/hotels");
+    request = new HttpMockRequestImpl("GET", "/hotels");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
 
-    request = new MockHttpServletRequest("POST", "/hotels");
+    request = new HttpMockRequestImpl("POST", "/hotels");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(405);
@@ -261,7 +261,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void multiPaths() throws Exception {
     initDispatcherServlet(MultiPathController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/category/page/5");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/category/page/5");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("handle4-page-5");
@@ -271,7 +271,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void customRegex() throws Exception {
     initDispatcherServlet(CustomRegexController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/42;q=1;q=2");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/42;q=1;q=2");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(200);
@@ -284,7 +284,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void menuTree() throws Exception {
     initDispatcherServlet(MenuTreeController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/book/menu/type/M5");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/book/menu/type/M5");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("M5");
@@ -295,12 +295,12 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void variableNames() throws Exception {
     initDispatcherServlet(VariableNamesController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/test/foo");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test/foo");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("foo-foo");
 
-    request = new MockHttpServletRequest("DELETE", "/test/bar");
+    request = new HttpMockRequestImpl("DELETE", "/test/bar");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("bar-bar");
@@ -311,7 +311,7 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void variableNamesWithUrlExtension() throws Exception {
     initDispatcherServlet(VariableNamesController.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/test/foo.json");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/test/foo.json");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("foo-foo.json");
@@ -322,22 +322,22 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
   void doIt() throws Exception {
     initDispatcherServlet(Spr6978Controller.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo/100");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo/100");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("loadEntity:foo:100");
 
-    request = new MockHttpServletRequest("POST", "/foo/100");
+    request = new HttpMockRequestImpl("POST", "/foo/100");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("publish:foo:100");
 
-    request = new MockHttpServletRequest("GET", "/module/100");
+    request = new HttpMockRequestImpl("GET", "/module/100");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("loadModule:100");
 
-    request = new MockHttpServletRequest("POST", "/module/100");
+    request = new HttpMockRequestImpl("POST", "/module/100");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("publish:module:100");

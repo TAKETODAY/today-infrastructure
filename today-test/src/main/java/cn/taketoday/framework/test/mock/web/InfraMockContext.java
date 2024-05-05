@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.mock.web;
@@ -26,17 +26,17 @@ import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.mock.web.MockContextImpl;
 
 /**
- * {@link MockServletContext} implementation for Infra. Respects well-known Infra
+ * {@link MockContextImpl} implementation for Infra. Respects well-known Infra
  * Boot resource locations and uses an empty directory for "/" if no locations can be
  * found.
  *
  * @author Phillip Webb
  * @since 4.0
  */
-public class InfraMockServletContext extends MockServletContext {
+public class InfraMockContext extends MockContextImpl {
 
   private static final String[] RESOURCE_LOCATIONS = new String[] {
           "classpath:META-INF/resources",
@@ -47,11 +47,11 @@ public class InfraMockServletContext extends MockServletContext {
 
   private File emptyRootDirectory;
 
-  public InfraMockServletContext(String resourceBasePath) {
+  public InfraMockContext(String resourceBasePath) {
     this(resourceBasePath, new FileSystemResourceLoader());
   }
 
-  public InfraMockServletContext(String resourceBasePath, ResourceLoader resourceLoader) {
+  public InfraMockContext(String resourceBasePath, ResourceLoader resourceLoader) {
     super(resourceBasePath, resourceLoader);
     this.resourceLoader = resourceLoader;
   }

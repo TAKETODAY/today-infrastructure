@@ -27,7 +27,7 @@ import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -49,7 +49,7 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
 
   private final ServletRequestContext request;
 
-  private final HttpServletRequest servletRequest;
+  private final HttpMockRequest servletRequest;
 
   private final HttpServletResponse servletResponse;
 
@@ -65,7 +65,7 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
    * @param request current HTTP request
    * @param response current HTTP response
    */
-  public StandardServletAsyncWebRequest(HttpServletRequest request, HttpServletResponse response) {
+  public StandardServletAsyncWebRequest(HttpMockRequest request, HttpServletResponse response) {
     this.request = new ServletRequestContext(null, request, response);
     this.servletRequest = request;
     this.servletResponse = response;

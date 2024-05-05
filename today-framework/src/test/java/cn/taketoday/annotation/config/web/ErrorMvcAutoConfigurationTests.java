@@ -31,7 +31,7 @@ import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationConte
 import cn.taketoday.web.server.error.ErrorAttributeOptions;
 import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.web.server.error.ErrorAttributes;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.WebUtils;
@@ -100,7 +100,7 @@ class ErrorMvcAutoConfigurationTests {
   }
 
   private ServletRequestContext createWebRequest(Exception ex, boolean committed) {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/path");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     ServletRequestContext context = new ServletRequestContext(null, request, response);

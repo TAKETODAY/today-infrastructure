@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
@@ -86,7 +86,7 @@ public class ServletServerHttpAsyncRequestControl implements ServerHttpAsyncRequ
       return;
     }
 
-    HttpServletRequest servletRequest = this.request.getServletRequest();
+    HttpMockRequest servletRequest = this.request.getServletRequest();
     HttpServletResponse servletResponse = this.response.getServletResponse();
 
     this.asyncContext = servletRequest.startAsync(servletRequest, servletResponse);

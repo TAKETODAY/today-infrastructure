@@ -39,7 +39,7 @@ import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.ViewControllerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.mock.WebApplicationContext;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.MockContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -143,14 +143,14 @@ public class JavaConfigTests {
     assertThat(parent).isInstanceOf(WebApplicationContext.class);
     WebApplicationContext root = (WebApplicationContext) parent;
 
-    ServletContext childServletContext = wac.getServletContext();
-    assertThat(childServletContext).isNotNull();
-    ServletContext rootServletContext = root.getServletContext();
-    assertThat(rootServletContext).isNotNull();
-    assertThat(rootServletContext).isSameAs(childServletContext);
+    MockContext childMockContext = wac.getServletContext();
+    assertThat(childMockContext).isNotNull();
+    MockContext rootMockContext = root.getServletContext();
+    assertThat(rootMockContext).isNotNull();
+    assertThat(rootMockContext).isSameAs(childMockContext);
 
-    assertThat(rootServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
-    assertThat(childServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(rootMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
+    assertThat(childMockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(root);
   }
 
   @Configuration

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +47,7 @@ class RequestPathUtilsTests {
   }
 
   private void testParseAndCache(String requestUri, String pathWithinApplication) {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", requestUri);
     ServletRequestContext context = new ServletRequestContext(null, request, null);
     RequestPath requestPath = context.getRequestPath();
 

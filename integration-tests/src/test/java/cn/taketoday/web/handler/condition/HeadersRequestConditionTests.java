@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
 import cn.taketoday.web.mock.ServletRequestContext;
 
@@ -45,7 +45,7 @@ public class HeadersRequestConditionTests {
   public void headerPresent() {
     HeadersRequestCondition condition = new HeadersRequestCondition("accept");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("Accept", "");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -55,7 +55,7 @@ public class HeadersRequestConditionTests {
   public void headerPresentNoMatch() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("bar", "");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -65,7 +65,7 @@ public class HeadersRequestConditionTests {
   public void headerNotPresent() {
     HeadersRequestCondition condition = new HeadersRequestCondition("!accept");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
   }
@@ -74,7 +74,7 @@ public class HeadersRequestConditionTests {
   public void headerValueMatch() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo=bar");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -84,7 +84,7 @@ public class HeadersRequestConditionTests {
   public void headerValueNoMatch() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo=bar");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bazz");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -94,7 +94,7 @@ public class HeadersRequestConditionTests {
   public void headerCaseSensitiveValueMatch() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo=Bar");
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -103,7 +103,7 @@ public class HeadersRequestConditionTests {
   @Test
   public void headerValueMatchNegated() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo!=bar");
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "baz");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
@@ -112,7 +112,7 @@ public class HeadersRequestConditionTests {
   @Test
   public void headerValueNoMatchNegated() {
     HeadersRequestCondition condition = new HeadersRequestCondition("foo!=bar");
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
     assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
@@ -120,7 +120,7 @@ public class HeadersRequestConditionTests {
 
   @Test
   public void compareTo() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo", "bar", "baz");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo=a", "bar");
@@ -134,7 +134,7 @@ public class HeadersRequestConditionTests {
 
   @Test // SPR-16674
   public void compareToWithMoreSpecificMatchByValue() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo=a");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo");
@@ -148,7 +148,7 @@ public class HeadersRequestConditionTests {
 
   @Test
   public void compareToWithNegatedMatch() {
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
 
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo!=a");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo");
@@ -170,7 +170,7 @@ public class HeadersRequestConditionTests {
 
   @Test
   public void getMatchingCondition() {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
     HeadersRequestCondition condition = new HeadersRequestCondition("foo");

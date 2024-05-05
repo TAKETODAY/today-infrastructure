@@ -38,13 +38,13 @@ import cn.taketoday.web.multipart.MultipartFile;
  * Mock implementation of the {@link cn.taketoday.web.multipart.MultipartFile}
  * interface.
  *
- * <p>Useful in conjunction with a {@link MockMultipartHttpServletRequest}
+ * <p>Useful in conjunction with a {@link MockMultipartHttpMockRequest}
  * for testing application controllers that access multipart uploads.
  *
  * @author Juergen Hoeller
  * @author Eric Crampton
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MockMultipartHttpServletRequest
+ * @see MockMultipartHttpMockRequest
  * @since 4.0
  */
 public class MockMultipartFile implements MultipartFile {

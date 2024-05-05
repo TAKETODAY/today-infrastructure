@@ -26,7 +26,7 @@ import java.util.List;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.session.config.EnableWebSession;
@@ -79,7 +79,7 @@ class ModelHandlerTests {
   @BeforeEach
   public void setUp() throws Throwable {
     this.webRequest = new ServletRequestContext(
-            context, new MockHttpServletRequest(), new MockHttpServletResponse());
+            context, new HttpMockRequestImpl(), new MockHttpServletResponse());
 
     this.attributeStore = new DefaultSessionAttributeStore();
 

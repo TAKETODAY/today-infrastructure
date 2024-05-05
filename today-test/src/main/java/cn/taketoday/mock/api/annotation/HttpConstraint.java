@@ -21,13 +21,13 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.mock.api.annotation.ServletSecurity.EmptyRoleSemantic;
-import cn.taketoday.mock.api.annotation.ServletSecurity.TransportGuarantee;
+import cn.taketoday.mock.api.annotation.MockSecurity.EmptyRoleSemantic;
+import cn.taketoday.mock.api.annotation.MockSecurity.TransportGuarantee;
 
 /**
- * This annotation is used within the {@link ServletSecurity} annotation to represent the security constraints to be
+ * This annotation is used within the {@link MockSecurity} annotation to represent the security constraints to be
  * applied to all HTTP protocol methods for which a corresponding {@link HttpMethodConstraint} element does NOT occur
- * within the {@link ServletSecurity} annotation.
+ * within the {@link MockSecurity} annotation.
  *
  * <p>
  * For the special case where an <code>@HttpConstraint</code> that returns all default values occurs in combination with

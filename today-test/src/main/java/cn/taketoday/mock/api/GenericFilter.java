@@ -112,7 +112,7 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
 
   /**
    * <p>
-   * Returns this servlet's {@link ServletConfig} object.
+   * Returns this servlet's {@link MockConfig} object.
    * </p>
    *
    * @return FilterConfig the <code>FilterConfig</code> object that initialized this filter
@@ -124,7 +124,7 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
 
   /**
    * <p>
-   * Returns a reference to the {@link ServletContext} in which this filter is running. See
+   * Returns a reference to the {@link MockContext} in which this filter is running. See
    * {@link FilterConfig#getServletContext}.
    * </p>
    *
@@ -135,7 +135,7 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * @since Servlet 4.0
    */
   @Override
-  public ServletContext getServletContext() {
+  public MockContext getServletContext() {
     FilterConfig sc = getFilterConfig();
     if (sc == null) {
       throw new IllegalStateException(lStrings.getString("err.filter_config_not_initialized"));

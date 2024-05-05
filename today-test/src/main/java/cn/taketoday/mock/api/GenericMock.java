@@ -20,11 +20,11 @@ package cn.taketoday.mock.api;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import cn.taketoday.mock.api.http.HttpServlet;
+import cn.taketoday.mock.api.http.HttpMock;
 
 /**
  * Defines a generic, protocol-independent servlet. To write an HTTP servlet for use on the Web, extend
- * {@link HttpServlet} instead.
+ * {@link HttpMock} instead.
  *
  * <p>
  * <code>GenericServlet</code> implements the <code>Servlet</code> and <code>ServletConfig</code> interfaces.
@@ -42,15 +42,15 @@ import cn.taketoday.mock.api.http.HttpServlet;
  *
  * @author Various
  */
-public abstract class GenericServlet implements Servlet, ServletConfig, java.io.Serializable {
+public abstract class GenericMock implements Servlet, MockConfig, java.io.Serializable {
   private static final long serialVersionUID = -8592279577370996712L;
 
-  private transient ServletConfig config;
+  private transient MockConfig config;
 
   /**
    * Does nothing. All of the servlet initialization is done by one of the <code>init</code> methods.
    */
-  public GenericServlet() {
+  public GenericMock() {
   }
 
   /**
@@ -63,7 +63,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
 
   /**
    * Returns a <code>String</code> containing the value of the named initialization parameter, or <code>null</code> if the
-   * parameter does not exist. See {@link ServletConfig#getInitParameter}.
+   * parameter does not exist. See {@link MockConfig#getInitParameter}.
    *
    * <p>
    * This method is supplied for convenience. It gets the value of the named parameter from the servlet's
@@ -74,7 +74,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    */
   @Override
   public String getInitParameter(String name) {
-    ServletConfig sc = getServletConfig();
+    MockConfig sc = getServletConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
@@ -85,7 +85,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   /**
    * Returns the names of the servlet's initialization parameters as an <code>Enumeration</code> of <code>String</code>
    * objects, or an empty <code>Enumeration</code> if the servlet has no initialization parameters. See
-   * {@link ServletConfig#getInitParameterNames}.
+   * {@link MockConfig#getInitParameterNames}.
    *
    * <p>
    * This method is supplied for convenience. It gets the parameter names from the servlet's <code>ServletConfig</code>
@@ -96,7 +96,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    */
   @Override
   public Enumeration<String> getInitParameterNames() {
-    ServletConfig sc = getServletConfig();
+    MockConfig sc = getServletConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
@@ -105,18 +105,18 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   }
 
   /**
-   * Returns this servlet's {@link ServletConfig} object.
+   * Returns this servlet's {@link MockConfig} object.
    *
    * @return ServletConfig the <code>ServletConfig</code> object that initialized this servlet
    */
   @Override
-  public ServletConfig getServletConfig() {
+  public MockConfig getServletConfig() {
     return config;
   }
 
   /**
-   * Returns a reference to the {@link ServletContext} in which this servlet is running. See
-   * {@link ServletConfig#getServletContext}.
+   * Returns a reference to the {@link MockContext} in which this servlet is running. See
+   * {@link MockConfig#getMockContext}.
    *
    * <p>
    * This method is supplied for convenience. It gets the context from the servlet's <code>ServletConfig</code> object.
@@ -124,13 +124,13 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    * @return ServletContext the <code>ServletContext</code> object passed to this servlet by the <code>init</code> method
    */
   @Override
-  public ServletContext getServletContext() {
-    ServletConfig sc = getServletConfig();
+  public MockContext getMockContext() {
+    MockConfig sc = getServletConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
-    return sc.getServletContext();
+    return sc.getMockContext();
   }
 
   /**
@@ -149,7 +149,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    * {@link Servlet#init}.
    *
    * <p>
-   * This implementation stores the {@link ServletConfig} object it receives from the servlet container for later use.
+   * This implementation stores the {@link MockConfig} object it receives from the servlet container for later use.
    * When overriding this form of the method, call <code>super.init(config)</code>.
    *
    * @param config the <code>ServletConfig</code> object that contains configuration information for this servlet
@@ -157,7 +157,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    * @see UnavailableException
    */
   @Override
-  public void init(ServletConfig config) throws ServletException {
+  public void init(MockConfig config) throws ServletException {
     this.config = config;
     this.init();
   }
@@ -166,7 +166,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    * A convenience method which can be overridden so that there's no need to call <code>super.init(config)</code>.
    *
    * <p>
-   * Instead of overriding {@link #init(ServletConfig)}, simply override this method and it will be called by
+   * Instead of overriding {@link #init(MockConfig)}, simply override this method and it will be called by
    * <code>GenericServlet.init(ServletConfig config)</code>. The <code>ServletConfig</code> object can still be retrieved
    * via {@link #getServletConfig}.
    *
@@ -178,23 +178,23 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
 
   /**
    * Writes the specified message to a servlet log file, prepended by the servlet's name. See
-   * {@link ServletContext#log(String)}.
+   * {@link MockContext#log(String)}.
    *
    * @param msg a <code>String</code> specifying the message to be written to the log file
    */
   public void log(String msg) {
-    getServletContext().log(getServletName() + ": " + msg);
+    getMockContext().log(getMockName() + ": " + msg);
   }
 
   /**
    * Writes an explanatory message and a stack trace for a given <code>Throwable</code> exception to the servlet log file,
-   * prepended by the servlet's name. See {@link ServletContext#log(String, Throwable)}.
+   * prepended by the servlet's name. See {@link MockContext#log(String, Throwable)}.
    *
    * @param message a <code>String</code> that describes the error or exception
    * @param t the <code>java.lang.Throwable</code> error or exception
    */
   public void log(String message, Throwable t) {
-    getServletContext().log(getServletName() + ": " + message, t);
+    getMockContext().log(getMockName() + ": " + message, t);
   }
 
   /**
@@ -209,20 +209,20 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
    * @throws IOException if an input or output exception occurs
    */
   @Override
-  public abstract void service(ServletRequest req, ServletResponse res) throws ServletException, IOException;
+  public abstract void service(MockRequest req, ServletResponse res) throws ServletException, IOException;
 
   /**
-   * Returns the name of this servlet instance. See {@link ServletConfig#getServletName}.
+   * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.
    *
    * @return the name of this servlet instance
    */
   @Override
-  public String getServletName() {
-    ServletConfig sc = getServletConfig();
+  public String getMockName() {
+    MockConfig sc = getServletConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
-    return sc.getServletName();
+    return sc.getMockName();
   }
 }

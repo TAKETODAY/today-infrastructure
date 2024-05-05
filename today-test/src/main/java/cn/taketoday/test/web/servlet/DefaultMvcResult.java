@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
@@ -49,7 +49,7 @@ class DefaultMvcResult implements MvcResult {
 
   private static final Object RESULT_NONE = new Object();
 
-  private final MockHttpServletRequest mockRequest;
+  private final HttpMockRequestImpl mockRequest;
   private final MockHttpServletResponse mockResponse;
 
   private RequestContext requestContext;
@@ -74,7 +74,7 @@ class DefaultMvcResult implements MvcResult {
   /**
    * Create a new instance with the given request and response.
    */
-  public DefaultMvcResult(MockHttpServletRequest request,
+  public DefaultMvcResult(HttpMockRequestImpl request,
           MockHttpServletResponse response, RequestContext requestContext) {
     this.mockRequest = request;
     this.mockResponse = response;
@@ -83,7 +83,7 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public MockHttpServletRequest getRequest() {
+  public HttpMockRequestImpl getRequest() {
     return this.mockRequest;
   }
 

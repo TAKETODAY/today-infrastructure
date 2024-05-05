@@ -34,7 +34,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.MethodNotAllowedException;
@@ -52,7 +52,7 @@ class ResponseStatusExceptionHandlerTests {
 
   private final ResponseStatusExceptionHandler exceptionHandler = new ResponseStatusExceptionHandler();
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "");
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 

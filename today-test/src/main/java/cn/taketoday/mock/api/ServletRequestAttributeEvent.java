@@ -39,7 +39,7 @@ public class ServletRequestAttributeEvent extends ServletRequestEvent {
    * @param name the name of the request attribute.
    * @param value the value of the request attribute.
    */
-  public ServletRequestAttributeEvent(ServletContext sc, ServletRequest request, String name, Object value) {
+  public ServletRequestAttributeEvent(MockContext sc, MockRequest request, String name, Object value) {
     super(sc, request);
     this.name = name;
     this.value = value;

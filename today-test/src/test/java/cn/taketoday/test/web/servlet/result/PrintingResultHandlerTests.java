@@ -31,7 +31,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.web.servlet.StubMvcResult;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -59,7 +59,7 @@ class PrintingResultHandlerTests {
 
   private final TestPrintingResultHandler handler = new TestPrintingResultHandler();
 
-  private final MockHttpServletRequest request = new MockHttpServletRequest("GET", "/") {
+  private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/") {
     @Override
     public boolean isAsyncStarted() {
       return false;

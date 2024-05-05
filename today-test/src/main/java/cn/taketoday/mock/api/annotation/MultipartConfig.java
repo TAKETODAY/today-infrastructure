@@ -22,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
 /**
@@ -31,8 +31,8 @@ import cn.taketoday.mock.api.http.Part;
  *
  * <p>
  * Servlets annotated with <tt>MultipartConfig</tt> may retrieve the {@link Part} components of a
- * given <tt>multipart/form-data</tt> request by calling {@link HttpServletRequest#getPart getPart}
- * or {@link HttpServletRequest#getParts getParts}.
+ * given <tt>multipart/form-data</tt> request by calling {@link HttpMockRequest#getPart getPart}
+ * or {@link HttpMockRequest#getParts getParts}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

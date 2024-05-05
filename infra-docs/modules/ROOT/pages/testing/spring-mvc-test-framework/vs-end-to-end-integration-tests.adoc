@@ -6,7 +6,7 @@ MockMVc is built on Servlet API mock implementations from the
 some differences when compared to full end-to-end integration tests with an actual
 client and a live server running.
 
-The easiest way to think about this is by starting with a blank `MockHttpServletRequest`.
+The easiest way to think about this is by starting with a blank `HttpMockRequestImpl`.
 Whatever you add to it is what the request becomes. Things that may catch you by surprise
 are that there is no context path by default; no `jsessionid` cookie; no forwarding,
 error, or async dispatches; and, therefore, no actual JSP rendering. Instead,
