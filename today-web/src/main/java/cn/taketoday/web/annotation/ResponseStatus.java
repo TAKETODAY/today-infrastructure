@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.annotation;
@@ -40,7 +40,7 @@ import cn.taketoday.lang.Constant;
  * the {@code RequestContext.sendError} method will be used.
  *
  * <p>With {@code RequestContext.sendError}, the response is considered
- * complete and should not be written to any further. Furthermore, the Servlet
+ * complete and should not be written to any further. Furthermore, the Web
  * container will typically write an HTML error page therefore making the
  * use of a {@code reason} unsuitable for REST APIs. For such cases it is
  * preferable to use a {@link cn.taketoday.http.ResponseEntity} as
@@ -81,7 +81,7 @@ public @interface ResponseStatus {
   /**
    * The <em>reason</em> to be used for the response.
    * <p>Defaults to an empty string which will be ignored. Set the reason to a
-   * non-empty value to have it used to send a Servlet container error page.
+   * non-empty value to have it used to send a Web container error page.
    * In this case, the return value of the handler method will be ignored.
    *
    * @see cn.taketoday.web.RequestContext#sendError(int, String)

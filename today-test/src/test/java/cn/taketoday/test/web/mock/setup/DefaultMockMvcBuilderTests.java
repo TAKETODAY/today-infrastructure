@@ -113,13 +113,13 @@ public class DefaultMockMvcBuilderTests {
    * See /SPR-14277
    */
   @Test
-  public void dispatcherServletCustomizer() {
+  public void dispatcherCustomizer() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    builder.addDispatcherServletCustomizer(ds -> ds.setContextId("test-id"));
+    builder.addDispatcherCustomizer(ds -> ds.setContextId("test-id"));
     MockMvc mvc = builder.build();
     String contextId = (String) new DirectFieldAccessor(mvc)
             .getPropertyValue("servlet.contextId");
@@ -127,14 +127,14 @@ public class DefaultMockMvcBuilderTests {
   }
 
   @Test
-  public void dispatcherServletCustomizerProcessedInOrder() {
+  public void dispatcherCustomizerProcessedInOrder() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    builder.addDispatcherServletCustomizer(ds -> ds.setContextId("test-id"));
-    builder.addDispatcherServletCustomizer(ds -> ds.setContextId("override-id"));
+    builder.addDispatcherCustomizer(ds -> ds.setContextId("test-id"));
+    builder.addDispatcherCustomizer(ds -> ds.setContextId("override-id"));
     MockMvc mvc = builder.build();
     String contextId = (String) new DirectFieldAccessor(mvc)
             .getPropertyValue("servlet.contextId");

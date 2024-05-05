@@ -378,7 +378,6 @@ public class Cookie implements Cloneable, Serializable {
    * certain kinds of cross-site scripting attacks.
    *
    * @param httpOnly true if this cookie is to be marked as <i>HttpOnly</i>, false otherwise
-   * @since Servlet 3.0
    */
   public void setHttpOnly(boolean httpOnly) {
     putAttribute(HTTP_ONLY, String.valueOf(httpOnly));
@@ -388,7 +387,6 @@ public class Cookie implements Cloneable, Serializable {
    * Checks whether this Cookie has been marked as <i>HttpOnly</i>.
    *
    * @return true if this Cookie has been marked as <i>HttpOnly</i>, false otherwise
-   * @since Servlet 3.0
    */
   public boolean isHttpOnly() {
     return Boolean.parseBoolean(getAttribute(HTTP_ONLY));
@@ -408,7 +406,6 @@ public class Cookie implements Cloneable, Serializable {
    * a comma, space, or semicolon) or matches a token reserved for use by the cookie protocol.
    * @throws NumberFormatException if the cookie is a known field with a numerical value (eg Max-Age), but the value is
    * not able to be parsed.
-   * @since Servlet 6.0
    */
   public void setAttribute(String name, String value) {
     if (name == null || name.isEmpty()) {
@@ -450,7 +447,6 @@ public class Cookie implements Cloneable, Serializable {
    *
    * @param name the name of the cookie attribute to get the value of, case insensitive
    * @return the value of the cookie attribute associated with the given name
-   * @since Servlet 6.0
    */
   public String getAttribute(String name) {
     return attributes == null ? null : attributes.get(name);
@@ -462,7 +458,6 @@ public class Cookie implements Cloneable, Serializable {
    *
    * @return an unmodifiable mapping of all cookie attributes set via <code>setAttribute(String, String)</code> as well as
    * any predefined setter method, except for <code>version</code>
-   * @since Servlet 6.0
    */
   public Map<String, String> getAttributes() {
     return attributes == null ? Collections.emptyMap() : Collections.unmodifiableMap(attributes);

@@ -28,7 +28,6 @@ import java.util.Locale;
  *
  * @author Various
  * @see MockResponse
- * @since Servlet 2.3
  */
 public class MockResponseWrapper implements MockResponse {
   private MockResponse response;
@@ -70,8 +69,6 @@ public class MockResponseWrapper implements MockResponse {
 
   /**
    * The default behavior of this method is to call setCharacterEncoding(String charset) on the wrapped response object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public void setCharacterEncoding(String charset) {
@@ -112,8 +109,6 @@ public class MockResponseWrapper implements MockResponse {
 
   /**
    * The default behavior of this method is to call setContentLengthLong(long len) on the wrapped response object.
-   *
-   * @since Servlet 3.1
    */
   @Override
   public void setContentLengthLong(long len) {
@@ -130,8 +125,6 @@ public class MockResponseWrapper implements MockResponse {
 
   /**
    * The default behavior of this method is to return getContentType() on the wrapped response object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public String getContentType() {
@@ -207,7 +200,6 @@ public class MockResponseWrapper implements MockResponse {
    *
    * @param wrapped the ServletResponse instance to search for
    * @return true if this ServletResponseWrapper wraps the given ServletResponse instance, false otherwise
-   * @since Servlet 3.0
    */
   public boolean isWrapperFor(MockResponse wrapped) {
     if (response == wrapped) {
@@ -227,7 +219,6 @@ public class MockResponseWrapper implements MockResponse {
    * @param wrappedType the ServletResponse class type to search for
    * @return true if this ServletResponseWrapper wraps a ServletResponse of the given class type, false otherwise
    * @throws IllegalArgumentException if the given class does not implement {@link MockResponse}
-   * @since Servlet 3.0
    */
   public boolean isWrapperFor(Class<?> wrappedType) {
     if (!MockResponse.class.isAssignableFrom(wrappedType)) {

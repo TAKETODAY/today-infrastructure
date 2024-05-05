@@ -27,10 +27,10 @@ import java.util.Enumeration;
 import cn.taketoday.mock.api.GenericMock;
 import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
-import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.WriteListener;
 
 /**
@@ -81,7 +81,6 @@ public abstract class HttpMock extends GenericMock {
    * The parameter obtained {@link MockConfig#getInitParameter(String)} to determine if legacy processing of
    * {@link #doHead(HttpMockRequest, HttpMockResponse)} is provided.
    *
-   * @since Servlet 6.0
    * @deprecated may be removed in future releases
    */
   @Deprecated(forRemoval = true, since = "Servlet 6.0")

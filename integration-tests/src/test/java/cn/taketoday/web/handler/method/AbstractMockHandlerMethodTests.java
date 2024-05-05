@@ -36,7 +36,7 @@ import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
@@ -56,10 +56,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractMockHandlerMethodTests {
 
   @Nullable
-  protected DispatcherServlet mockapi;
+  protected MockDispatcher mockapi;
 
-  protected DispatcherServlet getServlet() {
-    assertThat(mockapi).as("DispatcherServlet not initialized").isNotNull();
+  protected MockDispatcher getMockApi() {
+    assertThat(mockapi).as("DispatcherMockApi not initialized").isNotNull();
     return mockapi;
   }
 
@@ -68,27 +68,27 @@ public abstract class AbstractMockHandlerMethodTests {
     this.mockapi = null;
   }
 
-  protected WebApplicationContext initDispatcherServlet() {
-    return initDispatcherServlet(null, null);
+  protected WebApplicationContext initDispatcher() {
+    return initDispatcher(null, null);
   }
 
-  protected WebApplicationContext initDispatcherServlet(@Nullable Consumer<GenericWebApplicationContext> initializer) {
-    return initDispatcherServlet(null, initializer);
+  protected WebApplicationContext initDispatcher(@Nullable Consumer<GenericWebApplicationContext> initializer) {
+    return initDispatcher(null, initializer);
   }
 
   /**
    * Initialize a DispatcherServlet instance registering zero or more controller classes.
    */
-  protected WebApplicationContext initDispatcherServlet(@Nullable Class<?> controllerClass) {
-    return initDispatcherServlet(controllerClass, null);
+  protected WebApplicationContext initDispatcher(@Nullable Class<?> controllerClass) {
+    return initDispatcher(controllerClass, null);
   }
 
-  WebApplicationContext initDispatcherServlet(@Nullable Class<?> controllerClass,
+  WebApplicationContext initDispatcher(@Nullable Class<?> controllerClass,
           @Nullable Consumer<GenericWebApplicationContext> initializer) {
 
     final GenericWebApplicationContext wac = new GenericWebApplicationContext();
 
-    mockapi = new DispatcherServlet() {
+    mockapi = new MockDispatcher() {
 
       @Override
       protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {

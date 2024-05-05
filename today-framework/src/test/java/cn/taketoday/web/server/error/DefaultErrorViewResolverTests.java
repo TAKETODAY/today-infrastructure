@@ -67,10 +67,10 @@ class DefaultErrorViewResolverTests {
 
   private final Map<String, Object> model = new HashMap<>();
 
-  private final MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+  private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
   private final RequestContext request = new MockRequestContext(null,
-          new HttpMockRequestImpl(), servletResponse);
+          new HttpMockRequestImpl(), mockResponse);
 
   @BeforeEach
   void setup() {
@@ -210,7 +210,7 @@ class DefaultErrorViewResolverTests {
 
   private MockHttpResponseImpl render(ModelAndView modelAndView) throws Exception {
     modelAndView.getView().render(this.model, this.request);
-    return servletResponse;
+    return mockResponse;
   }
 
   static class TestTemplateAvailabilityProviders extends TemplateAvailabilityProviders {

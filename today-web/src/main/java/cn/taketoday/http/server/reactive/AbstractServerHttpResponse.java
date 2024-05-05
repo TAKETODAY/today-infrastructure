@@ -295,7 +295,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
    * wraps an adapter to the native response headers such that changes are
    * propagated to the underlying response on the go. That means this callback
    * is typically not used other than for specialized updates such as setting
-   * the contentType or characterEncoding fields in a Servlet response.
+   * the contentType or characterEncoding fields in a Web response.
    */
   protected abstract void applyHeaders();
 

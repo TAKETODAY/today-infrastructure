@@ -44,16 +44,14 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Mock implementation of the {@link HttpMockResponse} interface.
- *
- * <p>this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
@@ -504,7 +502,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
 
   /**
    * Return the names of all specified headers as a Set of Strings.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
    *
    * @return the {@code Set} of header name {@code Strings}, or an empty {@code Set} if none
    */
@@ -516,9 +513,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   /**
    * Return the primary value for the given header as a String, if any.
    * Will return the first value in case of multiple values.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
-   * it returns a stringified value for Servlet 3.0 compatibility.
-   * Consider using {@link #getHeaderValue(String)} for raw Object access.
    *
    * @param name the name of the header
    * @return the associated header value, or {@code null} if none
@@ -532,9 +526,6 @@ public class MockHttpResponseImpl implements HttpMockResponse {
 
   /**
    * Return all values for the given header as a List of Strings.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
-   * it returns a List of stringified values for Servlet 3.0 compatibility.
-   * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
    * @param name the name of the header
    * @return the associated header values, or an empty List if none
@@ -713,7 +704,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
     }
     else if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
       setContentLength(value instanceof Number number ? number.intValue() :
-                       Integer.parseInt(value.toString()));
+              Integer.parseInt(value.toString()));
       return true;
     }
     else if (HttpHeaders.CONTENT_LANGUAGE.equalsIgnoreCase(name)) {

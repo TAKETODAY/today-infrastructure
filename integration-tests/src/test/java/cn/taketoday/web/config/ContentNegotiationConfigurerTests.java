@@ -43,12 +43,12 @@ class ContentNegotiationConfigurerTests {
 
   private RequestContext webRequest;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   @BeforeEach
   public void setup() {
-    this.servletRequest = new HttpMockRequestImpl();
-    this.webRequest = new MockRequestContext(this.servletRequest, null);
+    this.mockRequest = new HttpMockRequestImpl();
+    this.webRequest = new MockRequestContext(this.mockRequest, null);
     this.configurer = new ContentNegotiationConfigurer();
   }
 
@@ -56,20 +56,20 @@ class ContentNegotiationConfigurerTests {
   public void defaultSettings() throws Exception {
     ContentNegotiationManager manager = this.configurer.buildContentNegotiationManager();
 
-    this.servletRequest.setRequestURI("/flower.gif");
+    this.mockRequest.setRequestURI("/flower.gif");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should not resolve file extensions by default")
             .containsExactly(MediaType.ALL);
 
-    this.servletRequest.setRequestURI("/flower?format=gif");
-    this.servletRequest.addParameter("format", "gif");
+    this.mockRequest.setRequestURI("/flower?format=gif");
+    this.mockRequest.addParameter("format", "gif");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should not resolve request parameters by default")
             .isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
-    this.servletRequest.setRequestURI("/flower");
+    this.mockRequest.setRequestURI("/flower");
 
     webRequest.requestHeaders().add("Accept", MediaType.IMAGE_GIF_VALUE);
 
@@ -84,8 +84,8 @@ class ContentNegotiationConfigurerTests {
     this.configurer.mediaTypes(Collections.singletonMap("json", MediaType.APPLICATION_JSON));
     ContentNegotiationManager manager = this.configurer.buildContentNegotiationManager();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addParameter("format", "json");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addParameter("format", "json");
     assertThat(manager.resolveMediaTypes(this.webRequest)).containsExactly(MediaType.APPLICATION_JSON);
   }
 
@@ -96,8 +96,8 @@ class ContentNegotiationConfigurerTests {
     this.configurer.mediaTypes(Collections.singletonMap("json", MediaType.APPLICATION_JSON));
     ContentNegotiationManager manager = this.configurer.buildContentNegotiationManager();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addParameter("f", "json");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addParameter("f", "json");
 
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
   }
@@ -108,8 +108,8 @@ class ContentNegotiationConfigurerTests {
     this.configurer.favorParameter(true);
     ContentNegotiationManager manager = this.configurer.buildContentNegotiationManager();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
 
     assertThat(manager.resolveMediaTypes(this.webRequest)).isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
   }

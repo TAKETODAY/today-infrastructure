@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -55,7 +52,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  *
  * <p>Model attributes are obtained from the model or created with a default
  * constructor (and then added to the model). Once created the attribute is
- * populated via data binding to Servlet request parameters. Validation may be
+ * populated via data binding to Web request parameters. Validation may be
  * applied if the argument is annotated with {@code @jakarta.validation.Valid}.
  * or Framework's own {@code @cn.taketoday.validation.annotation.Validated}.
  *

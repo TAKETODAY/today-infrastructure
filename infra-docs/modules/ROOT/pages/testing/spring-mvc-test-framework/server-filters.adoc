@@ -11,6 +11,6 @@ instances, as the following example shows:
 ----
 
 Registered filters are invoked through the `MockFilterChain` from `today-test`, and the
-last filter delegates to the `DispatcherServlet`.
+last filter delegates to the `MockDispatcher`.
 
 

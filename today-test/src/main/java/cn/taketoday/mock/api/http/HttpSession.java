@@ -98,7 +98,6 @@ public interface HttpSession {
    * Returns the MockContext to which this session belongs.
    *
    * @return The MockContext object for the web application
-   * @since Servlet 2.3
    */
   MockContext getMockContext();
 

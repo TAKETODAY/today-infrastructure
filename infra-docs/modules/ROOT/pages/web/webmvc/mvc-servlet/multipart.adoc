@@ -8,8 +8,8 @@ Note that the outdated `CommonsMultipartResolver` based on Apache Commons FileUp
 not available anymore, as of TODAY Framework 6.0 with its new Servlet 5.0+ baseline.
 
 To enable multipart handling, you need to declare a `MultipartResolver` bean in your
-`DispatcherServlet` Infra configuration with a name of `multipartResolver`.
-The `DispatcherServlet` detects it and applies it to the incoming request. When a POST
+`MockDispatcher` Infra configuration with a name of `multipartResolver`.
+The `MockDispatcher` detects it and applies it to the incoming request. When a POST
 with a content type of `multipart/form-data` is received, the resolver parses the
 content wraps the current `HttpMockRequest` as a `MultipartHttpServletRequest` to
 provide access to resolved files in addition to exposing parts as request parameters.

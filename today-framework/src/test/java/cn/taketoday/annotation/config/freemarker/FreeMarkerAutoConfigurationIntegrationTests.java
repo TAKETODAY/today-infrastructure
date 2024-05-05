@@ -45,7 +45,7 @@ import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link FreeMarkerAutoConfiguration} Servlet support.
+ * Tests for {@link FreeMarkerAutoConfiguration} Mock support.
  *
  * @author Andy Wilkinson
  * @author Kazuki Shimizu

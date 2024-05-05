@@ -25,8 +25,6 @@ import cn.taketoday.mock.api.MockOutputStream;
 /**
  * This interface encapsulates the connection for an upgrade request. It allows the protocol handler to send service
  * requests and status queries to the container.
- *
- * @since Servlet 3.1
  */
 public interface WebConnection extends AutoCloseable {
   /**

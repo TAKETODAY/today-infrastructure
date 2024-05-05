@@ -29,7 +29,6 @@ import cn.taketoday.mock.api.MockContainerInitializer;
  * ServletContainerInitializer} can handle.
  *
  * @see MockContainerInitializer
- * @since Servlet 3.0
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

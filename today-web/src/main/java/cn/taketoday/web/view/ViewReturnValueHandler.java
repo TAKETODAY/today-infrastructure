@@ -200,7 +200,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * LocaleResolver bound to the request by the Ioc
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * Servlet {@link RequestContext#getLocale()} method,
+   * {@link RequestContext#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.

@@ -2,7 +2,7 @@
 = Exceptions
 
 If an exception occurs during request mapping or is thrown from a request handler (such as
-a `@Controller`), the `DispatcherServlet` delegates to a chain of `HandlerExceptionResolver`
+a `@Controller`), the `MockDispatcher` delegates to a chain of `HandlerExceptionResolver`
 beans to resolve the exception and provide alternative handling, which is typically an
 error response.
 
@@ -68,7 +68,7 @@ The following example shows how to do so:
 
 Given the preceding example, when an exception bubbles up or the response has an error status, the
 Servlet container makes an ERROR dispatch within the container to the configured URL
-(for example, `/error`). This is then processed by the `DispatcherServlet`, possibly mapping it
+(for example, `/error`). This is then processed by the `MockDispatcher`, possibly mapping it
 to a `@Controller`, which could be implemented to return an error view name with a model
 or to render a JSON response, as the following example shows:
 

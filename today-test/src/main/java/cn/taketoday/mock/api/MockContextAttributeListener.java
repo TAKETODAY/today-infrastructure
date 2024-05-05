@@ -33,7 +33,6 @@ import cn.taketoday.mock.api.annotation.WebListener;
  * The order in which implementations of this interface are invoked is unspecified.
  *
  * @see MockContextAttributeEvent
- * @since Servlet 2.3
  */
 public interface MockContextAttributeListener extends EventListener {
 

@@ -43,7 +43,7 @@ class MockTestExecutionListenerJUnitIntegrationTests {
   }
 
   @Autowired
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   /**
    * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
@@ -52,7 +52,7 @@ class MockTestExecutionListenerJUnitIntegrationTests {
    */
   @Test
   void ensureMocksAreReinjectedBetweenTests_1() {
-    assertInjectedServletRequestEqualsRequestInRequestContextHolder();
+    assertInjectedRequestEqualsRequestInRequestContextHolder();
   }
 
   /**
@@ -62,13 +62,13 @@ class MockTestExecutionListenerJUnitIntegrationTests {
    */
   @Test
   void ensureMocksAreReinjectedBetweenTests_2() {
-    assertInjectedServletRequestEqualsRequestInRequestContextHolder();
+    assertInjectedRequestEqualsRequestInRequestContextHolder();
   }
 
-  private void assertInjectedServletRequestEqualsRequestInRequestContextHolder() {
+  private void assertInjectedRequestEqualsRequestInRequestContextHolder() {
     assertThat(MockUtils.getServletRequest(RequestContextHolder.get()))
             .as("Injected ServletRequest must be stored in the RequestContextHolder")
-            .isEqualTo(servletRequest);
+            .isEqualTo(mockRequest);
   }
 
 }

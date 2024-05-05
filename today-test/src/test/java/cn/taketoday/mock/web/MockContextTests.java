@@ -24,14 +24,11 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.api.FilterRegistration;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.MockRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,7 +92,7 @@ class MockContextTests {
     }
 
     @Test
-    void servletVersion() {
+    void mockVersion() {
       assertThat(mockContext.getMajorVersion()).isEqualTo(3);
       assertThat(mockContext.getMinorVersion()).isEqualTo(1);
       assertThat(mockContext.getEffectiveMajorVersion()).isEqualTo(3);
@@ -129,7 +126,7 @@ class MockContextTests {
     }
 
     @Test
-    void getNamedDispatcherForDefaultServlet() throws Exception {
+    void getNamedDispatcherForDefault() throws Exception {
       final String name = "default";
       RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(name);
       assertThat(namedDispatcher).isNotNull();
@@ -145,8 +142,8 @@ class MockContextTests {
       final String newDefault = "test";
       assertThat(mockContext.getNamedDispatcher(originalDefault)).isNotNull();
 
-      mockContext.setDefaultServletName(newDefault);
-      assertThat(mockContext.getDefaultServletName()).isEqualTo(newDefault);
+      mockContext.setDefaultMockName(newDefault);
+      assertThat(mockContext.getDefaultMockName()).isEqualTo(newDefault);
       assertThat(mockContext.getNamedDispatcher(originalDefault)).isNull();
 
       RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(newDefault);
@@ -154,42 +151,6 @@ class MockContextTests {
       MockHttpResponseImpl response = new MockHttpResponseImpl();
       namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
       assertThat(response.getForwardedUrl()).isEqualTo(newDefault);
-    }
-
-    /**
-     * @since 4.0
-     */
-    @Test
-    void getServletRegistration() {
-      assertThat(mockContext.getServletRegistration("servlet")).isNull();
-    }
-
-    /**
-     * @since 4.0
-     */
-    @Test
-    void getServletRegistrations() {
-      Map<String, ? extends MockRegistration> servletRegistrations = mockContext.getServletRegistrations();
-      assertThat(servletRegistrations).isNotNull();
-      assertThat(servletRegistrations.size()).isEqualTo(0);
-    }
-
-    /**
-     * @since 4.0
-     */
-    @Test
-    void getFilterRegistration() {
-      assertThat(mockContext.getFilterRegistration("filter")).isNull();
-    }
-
-    /**
-     * @since 4.0
-     */
-    @Test
-    void getFilterRegistrations() {
-      Map<String, ? extends FilterRegistration> filterRegistrations = mockContext.getFilterRegistrations();
-      assertThat(filterRegistrations).isNotNull();
-      assertThat(filterRegistrations.size()).isEqualTo(0);
     }
 
   }

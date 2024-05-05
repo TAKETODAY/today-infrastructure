@@ -59,9 +59,9 @@ class WebAsyncManagerTests {
 
   private AsyncWebRequest asyncWebRequest;
 
-  private HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+  private HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
 
-  private MockRequestContext request = new MockRequestContext(null, servletRequest, null);
+  private MockRequestContext request = new MockRequestContext(null, mockRequest, null);
 
   @BeforeEach
   public void setup() {

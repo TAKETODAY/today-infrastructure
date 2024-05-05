@@ -25,10 +25,10 @@ import java.util.Map;
 
 import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.annotation.MultipartConfig;
 
 /**
@@ -198,9 +198,8 @@ public interface HttpMockRequest extends MockRequest {
    * @implSpec The default implementation returns a {@code
    * HttpServletMapping} that returns the empty string for the match value, pattern and servlet name and {@code null} for
    * the match type.
-   * @since Servlet 4.0
    */
-  default HttpMockMapping getHttpServletMapping() {
+  default HttpMockMapping getHttpMapping() {
     return new HttpMockMapping() {
       @Override
       public String getMatchValue() {
@@ -213,7 +212,7 @@ public interface HttpMockRequest extends MockRequest {
       }
 
       @Override
-      public String getServletName() {
+      public String getMockName() {
         return "";
       }
 
@@ -225,7 +224,7 @@ public interface HttpMockRequest extends MockRequest {
       @Override
       public String toString() {
         return "MappingImpl{" + "matchValue=" + getMatchValue() + ", pattern=" + getPattern() + ", servletName="
-                + getServletName() + ", mappingMatch=" + getMappingMatch() + "} HttpServletRequest {"
+                + getMockName() + ", mappingMatch=" + getMappingMatch() + "} HttpServletRequest {"
                 + HttpMockRequest.this + '}';
       }
 
@@ -281,7 +280,6 @@ public interface HttpMockRequest extends MockRequest {
    * @return a {@link PushBuilder} for issuing server push responses from the current request, or null if push is not
    * supported
    * @implSpec The default implementation returns null.
-   * @since Servlet 4.0
    */
   default PushBuilder newPushBuilder() {
     return null;
@@ -424,7 +422,6 @@ public interface HttpMockRequest extends MockRequest {
    *
    * @return the new session id
    * @throws IllegalStateException if there is no session associated with the request
-   * @since Servlet 3.1
    */
   String changeSessionId();
 
@@ -480,7 +477,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws IllegalStateException if the login mechanism attempted to modify the response and it was already committed
    * @throws MockException if the authentication failed and the caller is responsible for handling the error (i.e., the
    * underlying login mechanism did NOT establish the message and HTTP status code to be returned to the user)
-   * @since Servlet 3.0
    */
   boolean authenticate(HttpMockResponse response) throws IOException, MockException;
 
@@ -504,7 +500,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws MockException if the configured login mechanism does not support username password authentication, or
    * if a non-null caller identity had already been established (prior to the call to login), or if validation of the
    * provided username and password fails.
-   * @since Servlet 3.0
    */
   void login(String username, String password) throws MockException;
 
@@ -513,7 +508,6 @@ public interface HttpMockRequest extends MockRequest {
    * <code>getAuthType</code> is called on the request.
    *
    * @throws MockException if logout fails
-   * @since Servlet 3.0
    */
   void logout() throws MockException;
 
@@ -535,7 +529,6 @@ public interface HttpMockRequest extends MockRequest {
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
    * @see MultipartConfig#maxFileSize
    * @see MultipartConfig#maxRequestSize
-   * @since Servlet 3.0
    */
   Collection<Part> getParts() throws IOException, MockException;
 
@@ -552,7 +545,6 @@ public interface HttpMockRequest extends MockRequest {
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
    * @see MultipartConfig#maxFileSize
    * @see MultipartConfig#maxRequestSize
-   * @since Servlet 3.0
    */
   Part getPart(String name) throws IOException, MockException;
 
@@ -567,7 +559,6 @@ public interface HttpMockRequest extends MockRequest {
    * @throws MockException if the given <code>handlerClass</code> fails to be instantiated
    * @see HttpUpgradeHandler
    * @see WebConnection
-   * @since Servlet 3.1
    */
   <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException;
 
@@ -589,7 +580,6 @@ public interface HttpMockRequest extends MockRequest {
    * returned.
    * @throws IllegalStateException if {@link #isTrailerFieldsReady()} is false
    * @implSpec The default implementation returns an empty map.
-   * @since Servlet 4.0
    */
   default Map<String, String> getTrailerFields() {
     return Collections.emptyMap();
@@ -610,7 +600,6 @@ public interface HttpMockRequest extends MockRequest {
    *
    * @return a boolean whether trailer fields are ready to read
    * @implSpec The default implementation returns false.
-   * @since Servlet 4.0
    */
   default boolean isTrailerFieldsReady() {
     return true;

@@ -158,7 +158,7 @@ methods are processed and registered as bean definitions within the container.
 A `WebApplicationContext` variant of `AnnotationConfigApplicationContext` is available
 with `AnnotationConfigWebApplicationContext`. You can use this implementation when
 configuring the Infra `ContextLoaderListener` mockApi listener, Web MVC
-`DispatcherServlet`, and so forth. The following `web.xml` snippet configures a typical
+`MockDispatcher`, and so forth. The following `web.xml` snippet configures a typical
 Web MVC web application (note the use of the `contextClass` context-param and
 init-param):
 

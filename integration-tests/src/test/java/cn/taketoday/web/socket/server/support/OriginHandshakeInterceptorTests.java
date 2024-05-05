@@ -45,83 +45,83 @@ public class OriginHandshakeInterceptorTests extends AbstractHttpRequestTests {
 
   @Test
   public void originValueMatch() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
     List<String> allowed = Collections.singletonList("https://mydomain1.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowed);
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isTrue();
-    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void originValueNoMatch() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
     List<String> allowed = Collections.singletonList("https://mydomain2.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowed);
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
-    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void originListMatch() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain2.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain2.example");
     List<String> allowed = Arrays.asList("https://mydomain1.example", "https://mydomain2.example", "http://mydomain3.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowed);
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isTrue();
-    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void originListNoMatch() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://www.mydomain4.example/");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://www.mydomain4.example/");
     List<String> allowed = Arrays.asList("https://mydomain1.example", "https://mydomain2.example", "http://mydomain3.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowed);
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
-    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void originNoMatchWithNullHostileCollection() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://www.mydomain4.example/");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://www.mydomain4.example/");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor();
     interceptor.setAllowedOrigins(List.of("https://mydomain1.example"));
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
-    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void originMatchAll() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "https://mydomain1.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor();
     interceptor.setAllowedOrigins(Collections.singletonList("*"));
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isTrue();
-    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void sameOriginMatchWithEmptyAllowedOrigins() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain2.example");
-    this.servletRequest.setServerName("mydomain2.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain2.example");
+    this.mockRequest.setServerName("mydomain2.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(Collections.emptyList());
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isTrue();
-    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void sameOriginMatchWithAllowedOrigins() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain2.example");
-    this.servletRequest.setServerName("mydomain2.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain2.example");
+    this.mockRequest.setServerName("mydomain2.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(List.of("http://mydomain1.example"));
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isTrue();
-    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isNotEqualTo(mockResponse.getStatus());
   }
 
   @Test
   public void sameOriginNoMatch() throws Exception {
-    this.servletRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain3.example");
-    this.servletRequest.setServerName("mydomain2.example");
+    this.mockRequest.addHeader(HttpHeaders.ORIGIN, "http://mydomain3.example");
+    this.mockRequest.setServerName("mydomain2.example");
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(Collections.emptyList());
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
-    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
+    assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(mockResponse.getStatus());
   }
 
   @Test

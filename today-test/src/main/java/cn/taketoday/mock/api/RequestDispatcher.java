@@ -40,142 +40,106 @@ public interface RequestDispatcher {
   /**
    * The name of the request attribute under which the original request URI is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 3.0
    */
-  static final String FORWARD_REQUEST_URI = "cn.taketoday.mock.api.forward.request_uri";
+  String FORWARD_REQUEST_URI = "cn.taketoday.mock.api.forward.request_uri";
 
   /**
    * The name of the request attribute under which the original context path is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 3.0
    */
-  static final String FORWARD_CONTEXT_PATH = "cn.taketoday.mock.api.forward.context_path";
+  String FORWARD_CONTEXT_PATH = "cn.taketoday.mock.api.forward.context_path";
 
   /**
    * The name of the request attribute under which the original {@link HttpMockMapping} is made
    * available to the target of a {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 4.0
    */
-  static final String FORWARD_MAPPING = "cn.taketoday.mock.api.forward.mapping";
+  String FORWARD_MAPPING = "cn.taketoday.mock.api.forward.mapping";
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 3.0
    */
-  static final String FORWARD_PATH_INFO = "cn.taketoday.mock.api.forward.path_info";
+  String FORWARD_PATH_INFO = "cn.taketoday.mock.api.forward.path_info";
 
   /**
    * The name of the request attribute under which the original servlet path is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 3.0
    */
-  static final String FORWARD_SERVLET_PATH = "cn.taketoday.mock.api.forward.servlet_path";
+  String FORWARD_SERVLET_PATH = "cn.taketoday.mock.api.forward.servlet_path";
 
   /**
    * The name of the request attribute under which the original query string is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
-   *
-   * @since Servlet 3.0
    */
-  static final String FORWARD_QUERY_STRING = "cn.taketoday.mock.api.forward.query_string";
+  String FORWARD_QUERY_STRING = "cn.taketoday.mock.api.forward.query_string";
 
   /**
    * The name of the request attribute under which the request URI of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 3.0
    */
-  static final String INCLUDE_REQUEST_URI = "cn.taketoday.mock.api.include.request_uri";
+  String INCLUDE_REQUEST_URI = "cn.taketoday.mock.api.include.request_uri";
 
   /**
    * The name of the request attribute under which the context path of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 3.0
    */
-  static final String INCLUDE_CONTEXT_PATH = "cn.taketoday.mock.api.include.context_path";
+  String INCLUDE_CONTEXT_PATH = "cn.taketoday.mock.api.include.context_path";
 
   /**
    * The name of the request attribute under which the path info of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 3.0
    */
-  static final String INCLUDE_PATH_INFO = "cn.taketoday.mock.api.include.path_info";
+  String INCLUDE_PATH_INFO = "cn.taketoday.mock.api.include.path_info";
 
   /**
    * The name of the request attribute under which the {@link HttpMockMapping} of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 4.0
    */
-  static final String INCLUDE_MAPPING = "cn.taketoday.mock.api.include.mapping";
+  String INCLUDE_MAPPING = "cn.taketoday.mock.api.include.mapping";
 
   /**
    * The name of the request attribute under which the servlet path of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 3.0
    */
-  static final String INCLUDE_SERVLET_PATH = "cn.taketoday.mock.api.include.servlet_path";
+  String INCLUDE_SERVLET_PATH = "cn.taketoday.mock.api.include.servlet_path";
 
   /**
    * The name of the request attribute under which the query string of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
-   *
-   * @since Servlet 3.0
    */
-  static final String INCLUDE_QUERY_STRING = "cn.taketoday.mock.api.include.query_string";
+  String INCLUDE_QUERY_STRING = "cn.taketoday.mock.api.include.query_string";
 
   /**
    * The name of the request attribute under which the exception object is propagated during an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_EXCEPTION = "cn.taketoday.mock.api.error.exception";
+  String ERROR_EXCEPTION = "cn.taketoday.mock.api.error.exception";
 
   /**
    * The name of the request attribute under which the type of the exception object is propagated during an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_EXCEPTION_TYPE = "cn.taketoday.mock.api.error.exception_type";
+  String ERROR_EXCEPTION_TYPE = "cn.taketoday.mock.api.error.exception_type";
 
   /**
    * The name of the request attribute under which the exception message is propagated during an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_MESSAGE = "cn.taketoday.mock.api.error.message";
+  String ERROR_MESSAGE = "cn.taketoday.mock.api.error.message";
 
   /**
    * The name of the request attribute under which the request URI whose processing caused the error is propagated during
    * an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_REQUEST_URI = "cn.taketoday.mock.api.error.request_uri";
+  String ERROR_REQUEST_URI = "cn.taketoday.mock.api.error.request_uri";
 
   /**
    * The name of the request attribute under which the name of the servlet in which the error occurred is propagated
    * during an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_SERVLET_NAME = "cn.taketoday.mock.api.error.servlet_name";
+  String ERROR_SERVLET_NAME = "cn.taketoday.mock.api.error.servlet_name";
 
   /**
    * The name of the request attribute under which the response status is propagated during an error dispatch
-   *
-   * @since Servlet 3.0
    */
-  public static final String ERROR_STATUS_CODE = "cn.taketoday.mock.api.error.status_code";
+  String ERROR_STATUS_CODE = "cn.taketoday.mock.api.error.status_code";
 
   /**
    * Forwards a request from a servlet to another resource (servlet, JSP file, or HTML file) on the server. This method
@@ -207,7 +171,7 @@ public interface RequestDispatcher {
    * @throws IllegalStateException if the response was already committed
    * @see MockRequest#getDispatcherType
    */
-  public void forward(MockRequest request, MockResponse response) throws MockException, IOException;
+  void forward(MockRequest request, MockResponse response) throws MockException, IOException;
 
   /**
    * Includes the content of a resource (servlet, JSP page, HTML file) in the response. In essence, this method enables
@@ -231,5 +195,5 @@ public interface RequestDispatcher {
    * @throws IOException if the included resource throws this exception
    * @see MockRequest#getDispatcherType
    */
-  public void include(MockRequest request, MockResponse response) throws MockException, IOException;
+  void include(MockRequest request, MockResponse response) throws MockException, IOException;
 }

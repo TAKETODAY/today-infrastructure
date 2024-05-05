@@ -13,7 +13,7 @@ flexibility to do all kinds of pre-processing and post-processing:
 
 The `preHandle(..)` method returns a boolean value. You can use this method to break or
 continue the processing of the execution chain. When this method returns `true`, the
-handler execution chain continues. When it returns false, the `DispatcherServlet`
+handler execution chain continues. When it returns false, the `MockDispatcher`
 assumes the interceptor itself has taken care of requests (and, for example, rendered an
 appropriate view) and does not continue executing the other interceptors and the actual
 handler in the execution chain.

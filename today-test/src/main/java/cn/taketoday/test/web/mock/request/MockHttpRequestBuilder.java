@@ -63,7 +63,7 @@ import cn.taketoday.web.util.UriUtils;
  * factory methods in {@link MockMvcRequestBuilders}.
  *
  * <p>This class is not open for extension. To apply custom initialization to
- * the created {@code MockHttpServletRequest}, please use the
+ * the created {@code MockHttpMockRequest}, please use the
  * {@link #with(RequestPostProcessor)} extension point.
  *
  * @author Rossen Stoyanchev
@@ -130,7 +130,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    * Package private constructor. To get an instance, use static factory
    * methods in {@link MockMvcRequestBuilders}.
    * <p>Although this class cannot be extended, additional ways to initialize
-   * the {@code MockHttpServletRequest} can be plugged in via
+   * the {@code MockHttpMockRequest} can be plugged in via
    * {@link #with(RequestPostProcessor)}.
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
@@ -324,10 +324,10 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
 
   /**
    * Add a request parameter to {@link HttpMockRequestImpl#getParameterMap()}.
-   * <p>In the Servlet API, a request parameter may be parsed from the query
+   * <p>In the Web API, a request parameter may be parsed from the query
    * string and/or from the body of an {@code application/x-www-form-urlencoded}
    * request. This method simply adds to the request parameter map. You may
-   * also use add Servlet request parameters by specifying the query or form
+   * also use add Web request parameters by specifying the query or form
    * data through one of the following:
    * <ul>
    * <li>Supply a URL with a query to {@link MockMvcRequestBuilders}.
@@ -517,7 +517,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
 
   /**
    * An extension point for further initialization of {@link HttpMockRequestImpl}
-   * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
+   * in ways not built directly into the {@code MockHttpRequestBuilder}.
    * Implementation of this interface can have builder-style methods themselves
    * and be made accessible through static factory methods.
    *
@@ -655,7 +655,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    */
   @Override
   public final HttpMockRequestImpl buildRequest(MockContext mockContext) {
-    HttpMockRequestImpl request = createServletRequest(mockContext);
+    HttpMockRequestImpl request = createMockRequest(mockContext);
 
     request.setAsyncSupported(true);
     request.setMethod(this.method);
@@ -752,8 +752,8 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
     RedirectModel flashMap = new RedirectModel();
     flashMap.putAll(this.flashAttributes);
 //    RedirectModelManager flashMapManager = getFlashMapManager(request);
-//    flashMapManager.saveRedirectModel(new ServletRequestContext(
-//            null, request, new MockHttpServletResponse()), flashMap);
+//    flashMapManager.saveRedirectModel(new MockRequestContext(
+//            null, request, new MockHttpMockResponse()), flashMap);
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flashMap);
     return request;
   }
@@ -763,7 +763,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    * {@code MockContext}.
    * <p>Can be overridden in subclasses.
    */
-  protected HttpMockRequestImpl createServletRequest(MockContext mockContext) {
+  protected HttpMockRequestImpl createMockRequest(MockContext mockContext) {
     return new HttpMockRequestImpl(mockContext);
   }
 

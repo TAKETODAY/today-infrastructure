@@ -61,15 +61,15 @@ import cn.taketoday.web.RequestContext;
  *
  * <p>The Controller interface is explicitly designed to operate on RequestContext
  * objects, just like an HttpServlet. It does not aim to  decouple itself from
- * the Servlet API, in contrast to, for example, WebWork, JSF or Tapestry.
- * Instead, the full power of the Servlet API is available, allowing Controllers to be
+ * the Web API, in contrast to, for example, WebWork, JSF or Tapestry.
+ * Instead, the full power of the Web API is available, allowing Controllers to be
  * general-purpose: a Controller is able to not only handle web user interface
  * requests but also to process remoting protocols or to generate reports on demand.
  *
  * <p>Controllers can easily be tested by passing in mock objects for the
  * RequestContext objects as parameters to the
  * {@link #handleRequest(RequestContext) handleRequest}
- * method. As a convenience, Framework ships with a set of Servlet API mocks
+ * method. As a convenience, Framework ships with a set of Web API mocks
  * that are suitable for testing any kind of web components, but are particularly
  * suitable for testing web controllers. In contrast to a Struts Action,
  * there is no need to mock the ActionServlet or any other infrastructure;

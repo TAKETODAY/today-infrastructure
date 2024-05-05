@@ -25,7 +25,6 @@ import java.net.URL;
 import java.nio.file.InvalidPathException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -41,13 +40,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.api.Filter;
-import cn.taketoday.mock.api.FilterRegistration;
-import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.SessionCookieConfig;
 import cn.taketoday.mock.api.SessionTrackingMode;
 import cn.taketoday.util.ClassUtils;
@@ -108,7 +102,7 @@ public class MockContextImpl implements MockContext {
 
   private final Map<String, RequestDispatcher> namedRequestDispatchers = new HashMap<>();
 
-  private String defaultServletName = COMMON_DEFAULT_SERVLET_NAME;
+  private String defaultMockName = COMMON_DEFAULT_SERVLET_NAME;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
@@ -178,7 +172,7 @@ public class MockContextImpl implements MockContext {
     if (tempDir != null) {
       this.attributes.put(MockUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
     }
-    registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
+    registerNamedDispatcher(this.defaultMockName, new MockRequestDispatcher(this.defaultMockName));
   }
 
   /**
@@ -376,10 +370,10 @@ public class MockContextImpl implements MockContext {
    * Get the name of the <em>default</em> {@code Mock}.
    * <p>Defaults to {@literal 'default'}.
    *
-   * @see #setDefaultServletName
+   * @see #setDefaultMockName
    */
-  public String getDefaultServletName() {
-    return this.defaultServletName;
+  public String getDefaultMockName() {
+    return this.defaultMockName;
   }
 
   /**
@@ -389,15 +383,15 @@ public class MockContextImpl implements MockContext {
    * it with a {@link MockRequestDispatcher} for the provided
    * {@code defaultServletName}.
    *
-   * @param defaultServletName the name of the <em>default</em> {@code Mock};
+   * @param defaultMockName the name of the <em>default</em> {@code Mock};
    * never {@code null} or empty
-   * @see #getDefaultServletName
+   * @see #getDefaultMockName
    */
-  public void setDefaultServletName(String defaultServletName) {
-    Assert.hasText(defaultServletName, "defaultServletName must not be null or empty");
-    unregisterNamedDispatcher(this.defaultServletName);
-    this.defaultServletName = defaultServletName;
-    registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
+  public void setDefaultMockName(String defaultMockName) {
+    Assert.hasText(defaultMockName, "defaultServletName must not be null or empty");
+    unregisterNamedDispatcher(this.defaultMockName);
+    this.defaultMockName = defaultMockName;
+    registerNamedDispatcher(this.defaultMockName, new MockRequestDispatcher(this.defaultMockName));
   }
 
   @Override
@@ -503,7 +497,6 @@ public class MockContextImpl implements MockContext {
     return ClassUtils.getDefaultClassLoader();
   }
 
-  @Override
   public void declareRoles(String... roleNames) {
     Assert.notNull(roleNames, "Role names array is required");
     for (String roleName : roleNames) {
@@ -568,117 +561,6 @@ public class MockContextImpl implements MockContext {
   @Nullable
   public String getResponseCharacterEncoding() {
     return this.responseCharacterEncoding;
-  }
-
-  //---------------------------------------------------------------------
-  // Unsupported registration methods
-  //---------------------------------------------------------------------
-
-  @Override
-  public MockRegistration.Dynamic addServlet(String servletName, String className) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public MockRegistration.Dynamic addServlet(String servletName, MockApi mockApi) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public MockRegistration.Dynamic addServlet(String servletName, Class<? extends MockApi> servletClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends MockApi> T createServlet(Class<T> c) throws MockException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * This method always returns {@code null}.
-   *
-   * @see cn.taketoday.mock.api.MockContext#getServletRegistration(java.lang.String)
-   */
-  @Override
-  @Nullable
-  public MockRegistration getServletRegistration(String servletName) {
-    return null;
-  }
-
-  /**
-   * This method always returns an {@linkplain Collections#emptyMap empty map}.
-   *
-   * @see cn.taketoday.mock.api.MockContext#getServletRegistrations()
-   */
-  @Override
-  public Map<String, ? extends MockRegistration> getServletRegistrations() {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public FilterRegistration.Dynamic addFilter(String filterName, String className) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends Filter> T createFilter(Class<T> c) throws MockException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * This method always returns {@code null}.
-   *
-   * @see cn.taketoday.mock.api.MockContext#getFilterRegistration(java.lang.String)
-   */
-  @Override
-  @Nullable
-  public FilterRegistration getFilterRegistration(String filterName) {
-    return null;
-  }
-
-  /**
-   * This method always returns an {@linkplain Collections#emptyMap empty map}.
-   *
-   * @see cn.taketoday.mock.api.MockContext#getFilterRegistrations()
-   */
-  @Override
-  public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  public void addListener(Class<? extends EventListener> listenerClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addListener(String className) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends EventListener> void addListener(T t) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public <T extends EventListener> T createListener(Class<T> c) throws MockException {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String getVirtualServerName() {
-    throw new UnsupportedOperationException();
   }
 
 }

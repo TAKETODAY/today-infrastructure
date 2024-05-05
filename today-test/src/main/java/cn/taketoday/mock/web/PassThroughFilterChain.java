@@ -32,7 +32,7 @@ import cn.taketoday.mock.api.MockResponse;
  * Implementation of the {@link cn.taketoday.mock.api.FilterConfig} interface which
  * simply passes the call through to a given Filter/FilterChain combination
  * (indicating the next Filter in the chain along with the FilterChain that it is
- * supposed to work on) or to a given Servlet (indicating the end of the chain).
+ * supposed to work on) or to a given Web (indicating the end of the chain).
  *
  * @author Juergen Hoeller
  * @see Filter
@@ -66,25 +66,22 @@ public class PassThroughFilterChain implements FilterChain {
   }
 
   /**
-   * Create a new PassThroughFilterChain that delegates to the given Servlet.
+   * Create a new PassThroughFilterChain that delegates to the given A Mock API.
    *
-   * @param mockApi the Servlet to delegate to
+   * @param mockApi the Mock to delegate to
    */
   public PassThroughFilterChain(MockApi mockApi) {
-    Assert.notNull(mockApi, "Servlet is required");
+    Assert.notNull(mockApi, "Mock API is required");
     this.mockApi = mockApi;
   }
 
-  /**
-   * Pass the call on to the Filter/Servlet.
-   */
   @Override
   public void doFilter(MockRequest request, MockResponse response) throws MockException, IOException {
     if (this.filter != null) {
       this.filter.doFilter(request, response, this.nextFilterChain);
     }
     else {
-      Assert.state(this.mockApi != null, "Neither a Filter not a Servlet set");
+      Assert.state(this.mockApi != null, "Neither a Filter not a Mock API set");
       this.mockApi.service(request, response);
     }
   }

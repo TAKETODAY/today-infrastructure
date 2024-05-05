@@ -187,7 +187,7 @@ public abstract class MockUtils {
    * @return the servlet context to which this ServletRequest was last dispatched
    * @since 4.0
    */
-  public static MockContext getmockContext(RequestContext context) {
+  public static MockContext getMockContext(RequestContext context) {
     return getServletRequest(context).getMockContext();
   }
 
@@ -198,7 +198,7 @@ public abstract class MockUtils {
    * @return the matching response object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpMockResponse getServletResponse(RequestContext context) {
+  public static HttpMockResponse getMockResponse(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getResponse();
     }

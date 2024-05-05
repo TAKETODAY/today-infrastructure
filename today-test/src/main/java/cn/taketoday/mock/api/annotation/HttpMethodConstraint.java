@@ -24,8 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * This annotation is used within the {@link MockSecurity} annotation to represent security constraints on specific
  * HTTP protocol messages.
- *
- * @since Servlet 3.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

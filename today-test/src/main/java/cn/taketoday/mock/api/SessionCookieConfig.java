@@ -26,8 +26,6 @@ import cn.taketoday.mock.api.http.Cookie;
  *
  * <p>
  * An instance of this class is acquired by a call to {@link MockContext#getSessionCookieConfig}.
- *
- * @since Servlet 3.0
  */
 public interface SessionCookieConfig {
 
@@ -44,7 +42,7 @@ public interface SessionCookieConfig {
    * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    */
-  public void setName(String name);
+  void setName(String name);
 
   /**
    * Gets the name that will be assigned to any session tracking cookies created on behalf of the application represented
@@ -56,7 +54,7 @@ public interface SessionCookieConfig {
    * @return the cookie name set via {@link #setName}, or <tt>null</tt> if {@link #setName} was never called
    * @see Cookie#getName()
    */
-  public String getName();
+  String getName();
 
   /**
    * Sets the domain name that will be assigned to any session tracking cookies created on behalf of the application
@@ -67,7 +65,7 @@ public interface SessionCookieConfig {
    * acquired has already been initialized
    * @see Cookie#setDomain(String)
    */
-  public void setDomain(String domain);
+  void setDomain(String domain);
 
   /**
    * Gets the domain name that will be assigned to any session tracking cookies created on behalf of the application
@@ -76,7 +74,7 @@ public interface SessionCookieConfig {
    * @return the cookie domain set via {@link #setDomain}, or <tt>null</tt> if {@link #setDomain} was never called
    * @see Cookie#getDomain()
    */
-  public String getDomain();
+  String getDomain();
 
   /**
    * Sets the path that will be assigned to any session tracking cookies created on behalf of the application represented
@@ -87,7 +85,7 @@ public interface SessionCookieConfig {
    * acquired has already been initialized
    * @see Cookie#setPath(String)
    */
-  public void setPath(String path);
+  void setPath(String path);
 
   /**
    * Gets the path that will be assigned to any session tracking cookies created on behalf of the application represented
@@ -100,7 +98,7 @@ public interface SessionCookieConfig {
    * @return the cookie path set via {@link #setPath}, or <tt>null</tt> if {@link #setPath} was never called
    * @see Cookie#getPath()
    */
-  public String getPath();
+  String getPath();
 
   /**
    * With the adoption of support for RFC 6265, this method should no longer be used.
@@ -115,7 +113,7 @@ public interface SessionCookieConfig {
    * @deprecated This is no longer required with RFC 6265
    */
   @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public void setComment(String comment);
+  void setComment(String comment);
 
   /**
    * With the adoption of support for RFC 6265, this method should no longer be used.
@@ -125,7 +123,7 @@ public interface SessionCookieConfig {
    * @deprecated This is no longer required with RFC 6265
    */
   @Deprecated(since = "Servlet 6.0", forRemoval = true)
-  public String getComment();
+  String getComment();
 
   /**
    * Marks or unmarks the session tracking cookies created on behalf of the application represented by the
@@ -143,7 +141,7 @@ public interface SessionCookieConfig {
    * acquired has already been initialized
    * @see Cookie#setHttpOnly(boolean)
    */
-  public void setHttpOnly(boolean httpOnly);
+  void setHttpOnly(boolean httpOnly);
 
   /**
    * Checks if the session tracking cookies created on behalf of the application represented by the
@@ -154,7 +152,7 @@ public interface SessionCookieConfig {
    * false otherwise
    * @see Cookie#isHttpOnly()
    */
-  public boolean isHttpOnly();
+  boolean isHttpOnly();
 
   /**
    * Marks or unmarks the session tracking cookies created on behalf of the application represented by the
@@ -175,7 +173,7 @@ public interface SessionCookieConfig {
    * @see Cookie#setSecure(boolean)
    * @see MockRequest#isSecure()
    */
-  public void setSecure(boolean secure);
+  void setSecure(boolean secure);
 
   /**
    * Checks if the session tracking cookies created on behalf of the application represented by the
@@ -189,7 +187,7 @@ public interface SessionCookieConfig {
    * @see Cookie#getSecure()
    * @see MockRequest#isSecure()
    */
-  public boolean isSecure();
+  boolean isSecure();
 
   /**
    * Sets the lifetime (in seconds) for the session tracking cookies created on behalf of the application represented by
@@ -201,7 +199,7 @@ public interface SessionCookieConfig {
    * acquired has already been initialized
    * @see Cookie#setMaxAge
    */
-  public void setMaxAge(int maxAge);
+  void setMaxAge(int maxAge);
 
   /**
    * Gets the lifetime (in seconds) of the session tracking cookies created on behalf of the application represented by
@@ -214,7 +212,7 @@ public interface SessionCookieConfig {
    * the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired, or <tt>-1</tt> (the default)
    * @see Cookie#getMaxAge
    */
-  public int getMaxAge();
+  int getMaxAge();
 
   /**
    * Sets the value for the given session cookie attribute. When a value is set via this method, the value returned by the
@@ -227,9 +225,8 @@ public interface SessionCookieConfig {
    * Cookie names.
    * @throws NumberFormatException If the attribute is known to be numerical but the provided value cannot be parsed to a
    * number.
-   * @since Servlet 6.0
    */
-  public void setAttribute(String name, String value);
+  void setAttribute(String name, String value);
 
   /**
    * Obtain the value for a given session cookie attribute. Values returned from this method must be consistent with the
@@ -237,16 +234,14 @@ public interface SessionCookieConfig {
    *
    * @param name Name of attribute to return, case insensitive
    * @return Value of specified attribute
-   * @since Servlet 6.0
    */
-  public String getAttribute(String name);
+  String getAttribute(String name);
 
   /**
    * Obtain the Map (keys are case insensitive) of all attributes and values, including those set via the attribute
    * specific setters, (excluding version) for this <tt>SessionCookieConfig</tt>.
    *
    * @return A read-only Map of attributes to values, excluding version.
-   * @since Servlet 6.0
    */
-  public Map<String, String> getAttributes();
+  Map<String, String> getAttributes();
 }

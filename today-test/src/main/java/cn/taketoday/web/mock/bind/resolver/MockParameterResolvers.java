@@ -86,7 +86,7 @@ public class MockParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return MockUtils.getServletResponse(context);
+      return MockUtils.getMockResponse(context);
     }
   }
 

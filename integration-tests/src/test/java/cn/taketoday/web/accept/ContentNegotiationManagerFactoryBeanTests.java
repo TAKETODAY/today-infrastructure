@@ -46,7 +46,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private ContentNegotiationManagerFactoryBean factoryBean;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   MockRequestContext webRequest;
 
@@ -55,8 +55,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     TestMockContext mockContext = new TestMockContext();
     mockContext.getMimeTypes().put("foo", "application/foo");
 
-    this.servletRequest = new HttpMockRequestImpl(mockContext);
-    webRequest = new MockRequestContext(servletRequest, null);
+    this.mockRequest = new HttpMockRequestImpl(mockContext);
+    webRequest = new MockRequestContext(mockRequest, null);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
 
@@ -65,27 +65,27 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower.gif");
+    this.mockRequest.setRequestURI("/flower.gif");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should not resolve file extensions by default")
             .containsExactly(MediaType.ALL);
 
-    this.servletRequest.setRequestURI("/flower.foobarbaz");
+    this.mockRequest.setRequestURI("/flower.foobarbaz");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should ignore unknown extensions by default")
             .isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.setParameter("format", "gif");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.setParameter("format", "gif");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .as("Should not resolve request parameters by default")
             .isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
 
     webRequest.setRequestHeaders(null);
     assertThat(manager.resolveMediaTypes(this.webRequest))
@@ -105,8 +105,8 @@ class ContentNegotiationManagerFactoryBeanTests {
 
     assertThat(manager.getStrategies()).isEqualTo(strategies);
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addParameter("format", "bar");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addParameter("format", "bar");
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
@@ -119,17 +119,17 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower.foo");
+    this.mockRequest.setRequestURI("/flower.foo");
 
-    this.servletRequest.setRequestURI("/flower.bar");
-    webRequest = new MockRequestContext(servletRequest, null);
+    this.mockRequest.setRequestURI("/flower.bar");
+    webRequest = new MockRequestContext(mockRequest, null);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
-    this.servletRequest.setRequestURI("/flower.gif");
+    this.mockRequest.setRequestURI("/flower.gif");
 
-    webRequest = new MockRequestContext(servletRequest, null);
+    webRequest = new MockRequestContext(mockRequest, null);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
   }
@@ -141,8 +141,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower.foobarbaz");
-    this.servletRequest.addParameter("format", "json");
+    this.mockRequest.setRequestURI("/flower.foobarbaz");
+    this.mockRequest.addParameter("format", "json");
 
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class).isThrownBy(() ->
             manager.resolveMediaTypes(this.webRequest));
@@ -156,8 +156,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addParameter("format", "json");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addParameter("format", "json");
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -169,8 +169,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.setParameter("format", "invalid");
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.setParameter("format", "invalid");
 
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
             .isThrownBy(() -> manager.resolveMediaTypes(this.webRequest));
@@ -223,8 +223,8 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.factoryBean.afterPropertiesSet();
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
-    this.servletRequest.setRequestURI("/flower");
-    this.servletRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
+    this.mockRequest.setRequestURI("/flower");
+    this.mockRequest.addHeader("Accept", MediaType.IMAGE_GIF_VALUE);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
@@ -238,7 +238,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
 
-    this.servletRequest.addHeader("Accept", MediaType.ALL_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.ALL_VALUE);
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
   }
 
@@ -251,7 +251,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
     assertThat(manager.resolveMediaTypes(this.webRequest)).isEqualTo(mediaTypes);
 
-    this.servletRequest.addHeader("Accept", MediaType.ALL_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.ALL_VALUE);
     assertThat(manager.resolveMediaTypes(this.webRequest)).isEqualTo(mediaTypes);
   }
 
@@ -264,7 +264,7 @@ class ContentNegotiationManagerFactoryBeanTests {
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-    this.servletRequest.addHeader("Accept", MediaType.ALL_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.ALL_VALUE);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.APPLICATION_JSON));
   }

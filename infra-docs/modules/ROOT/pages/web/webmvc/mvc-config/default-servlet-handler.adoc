@@ -1,7 +1,7 @@
 [[mvc-default-mockApi-handler]]
 = Default Servlet
 
-Web MVC allows for mapping the `DispatcherServlet` to `/` (thus overriding the mapping
+Web MVC allows for mapping the `MockDispatcher` to `/` (thus overriding the mapping
 of the container's default Servlet), while still allowing static resource requests to be
 handled by the container's default Servlet. It configures a
 `DefaultServletHttpRequestHandler` with a URL mapping of `/**` and the lowest priority

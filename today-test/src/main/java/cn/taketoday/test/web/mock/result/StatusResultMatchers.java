@@ -111,14 +111,14 @@ public class StatusResultMatchers {
   }
 
   /**
-   * Assert the Servlet response error message with the given Hamcrest {@link Matcher}.
+   * Assert the Mock response error message with the given Hamcrest {@link Matcher}.
    */
   public ResultMatcher reason(Matcher<? super String> matcher) {
     return result -> assertThat("Response status reason", result.getResponse().getErrorMessage(), matcher);
   }
 
   /**
-   * Assert the Servlet response error message.
+   * Assert the Mock response error message.
    */
   public ResultMatcher reason(String reason) {
     return result -> assertEquals("Response status reason", reason, result.getResponse().getErrorMessage());
@@ -638,7 +638,7 @@ public class StatusResultMatchers {
   }
 
   /**
-   * Match the expected response status to that of the HttpServletResponse.
+   * Match the expected response status to that of the HttpMockResponse.
    */
   private ResultMatcher matcher(HttpStatusCode status) {
     return result -> assertEquals("Status", status.value(), result.getResponse().getStatus());

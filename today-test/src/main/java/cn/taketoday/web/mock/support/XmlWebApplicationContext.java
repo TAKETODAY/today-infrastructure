@@ -24,6 +24,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.ResourceEntityResolver;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.web.mock.ContextLoader;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -40,7 +41,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
  *
  * <p>The config location defaults can be overridden via the "contextConfigLocation"
  * context-param of {@link ContextLoader} and servlet
- * init-param of {@link cn.taketoday.web.mock.DispatcherServlet}. Config locations
+ * init-param of {@link MockDispatcher}. Config locations
  * can either denote concrete files like "/WEB-INF/context.xml" or Ant-style patterns
  * like "/WEB-INF/*-context.xml" (see {@link cn.taketoday.core.PathMatcher}
  * javadoc for pattern details).

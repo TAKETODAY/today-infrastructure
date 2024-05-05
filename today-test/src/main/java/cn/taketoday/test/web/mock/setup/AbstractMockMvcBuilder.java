@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
+import cn.taketoday.test.web.mock.DispatcherCustomizer;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.MockMvcBuilder;
 import cn.taketoday.test.web.mock.MockMvcBuilderSupport;
@@ -75,7 +75,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
   private final List<ResultHandler> globalResultHandlers = new ArrayList<>();
 
-  private final List<DispatcherMockCustomizer> dispatcherMockCustomizers = new ArrayList<>();
+  private final List<DispatcherCustomizer> dispatcherCustomizers = new ArrayList<>();
 
   private final List<MockMvcConfigurer> configurers = new ArrayList<>(4);
 
@@ -139,8 +139,8 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   }
 
   @Override
-  public final <T extends B> T addDispatcherServletCustomizer(DispatcherMockCustomizer customizer) {
-    this.dispatcherMockCustomizers.add(customizer);
+  public final <T extends B> T addDispatcherCustomizer(DispatcherCustomizer customizer) {
+    this.dispatcherCustomizers.add(customizer);
     return self();
   }
 
@@ -201,7 +201,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
     return super.createMockMvc(filterArray, mockServletConfig, ctx, this.defaultRequestBuilder,
             this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
-            this.dispatcherMockCustomizers);
+            this.dispatcherCustomizers);
   }
 
   /**

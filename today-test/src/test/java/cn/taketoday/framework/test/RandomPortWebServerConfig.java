@@ -31,7 +31,7 @@ import cn.taketoday.stereotype.Component;
 public class RandomPortWebServerConfig {
 
   @Bean
-  static WebServerFactoryCustomizerBeanPostProcessor servletWebServerCustomizerBeanPostProcessor() {
+  static WebServerFactoryCustomizerBeanPostProcessor mockWebServerCustomizerBeanPostProcessor() {
     return new WebServerFactoryCustomizerBeanPostProcessor();
   }
 

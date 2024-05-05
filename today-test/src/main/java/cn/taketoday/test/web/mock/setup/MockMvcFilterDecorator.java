@@ -40,7 +40,7 @@ import cn.taketoday.mock.api.http.HttpMockRequest;
 /**
  * A Filter that invokes a delegate {@link Filter} only if the request URL
  * matches the pattern it is mapped to using pattern matching as defined in the
- * Servlet spec.
+ * Web spec.
  *
  * @author Rob Winch
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

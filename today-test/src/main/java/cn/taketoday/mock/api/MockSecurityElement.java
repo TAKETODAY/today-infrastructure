@@ -26,8 +26,6 @@ import cn.taketoday.mock.api.annotation.MockSecurity;
 
 /**
  * Java Class representation of a {@link MockSecurity} annotation value.
- *
- * @since Servlet 3.0
  */
 public class MockSecurityElement extends HttpConstraintElement {
 

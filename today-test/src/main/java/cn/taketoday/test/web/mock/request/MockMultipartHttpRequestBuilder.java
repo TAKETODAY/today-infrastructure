@@ -152,7 +152,7 @@ public class MockMultipartHttpRequestBuilder extends MockHttpRequestBuilder {
    * added to this builder.
    */
   @Override
-  protected final HttpMockRequestImpl createServletRequest(MockContext mockContext) {
+  protected final HttpMockRequestImpl createMockRequest(MockContext mockContext) {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest(mockContext);
     Charset defaultCharset = (request.getCharacterEncoding() != null ?
                               Charset.forName(request.getCharacterEncoding()) : StandardCharsets.UTF_8);

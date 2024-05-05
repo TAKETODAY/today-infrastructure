@@ -28,8 +28,6 @@ import java.lang.annotation.Target;
  * This annotation is used on a Servlet implementation class to specify security constraints to be enforced by a Servlet
  * container on HTTP protocol messages. The Servlet container will enforce these constraints on the url-patterns mapped
  * to the servlets mapped to the annotated class.
- *
- * @since Servlet 3.0
  */
 @Inherited
 @Documented

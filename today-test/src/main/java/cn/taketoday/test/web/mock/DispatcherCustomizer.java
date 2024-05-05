@@ -17,10 +17,10 @@
 
 package cn.taketoday.test.web.mock;
 
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 
 /**
- * Strategy interface for customizing {@link DispatcherServlet} instances that are
+ * Strategy interface for customizing {@link MockDispatcher} instances that are
  * managed by {@link MockMvc}.
  *
  * @author Stephane Nicoll
@@ -28,14 +28,14 @@ import cn.taketoday.web.mock.DispatcherServlet;
  * @since 4.0
  */
 @FunctionalInterface
-public interface DispatcherMockCustomizer {
+public interface DispatcherCustomizer {
 
   /**
-   * Customize the supplied {@link DispatcherServlet} <em>before</em> it is
+   * Customize the supplied {@link MockDispatcher} <em>before</em> it is
    * initialized.
    *
    * @param dispatcherServlet the dispatcher servlet to customize
    */
-  void customize(DispatcherServlet dispatcherServlet);
+  void customize(MockDispatcher dispatcherServlet);
 
 }

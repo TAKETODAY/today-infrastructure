@@ -21,8 +21,6 @@ package cn.taketoday.mock.api.http;
  * <p>
  * Enumeration of Servlet mapping types.
  * </p>
- *
- * @since Servlet 4.0
  */
 public enum MappingMatch {
   /**

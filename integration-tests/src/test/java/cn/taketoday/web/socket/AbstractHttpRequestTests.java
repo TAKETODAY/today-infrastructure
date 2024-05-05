@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -38,9 +35,9 @@ public abstract class AbstractHttpRequestTests {
 
   protected RequestContext request;
 
-  protected HttpMockRequestImpl servletRequest;
+  protected HttpMockRequestImpl mockRequest;
 
-  protected MockHttpResponseImpl servletResponse;
+  protected MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   protected void setup() {
@@ -48,9 +45,9 @@ public abstract class AbstractHttpRequestTests {
   }
 
   protected void setRequest(String method, String requestUri) {
-    this.servletRequest.setMethod(method);
-    this.servletRequest.setRequestURI(requestUri);
-    this.request = new MockRequestContext(null, this.servletRequest, servletResponse);
+    this.mockRequest.setMethod(method);
+    this.mockRequest.setRequestURI(requestUri);
+    this.request = new MockRequestContext(null, this.mockRequest, mockResponse);
   }
 
   protected void resetRequestAndResponse() {
@@ -59,13 +56,13 @@ public abstract class AbstractHttpRequestTests {
   }
 
   protected void resetRequest() {
-    this.servletRequest = new HttpMockRequestImpl();
-    this.servletRequest.setAsyncSupported(true);
-    this.request = new MockRequestContext(null, this.servletRequest, servletResponse);
+    this.mockRequest = new HttpMockRequestImpl();
+    this.mockRequest.setAsyncSupported(true);
+    this.request = new MockRequestContext(null, this.mockRequest, mockResponse);
   }
 
   protected void resetResponse() {
-    this.servletResponse = new MockHttpResponseImpl();
+    this.mockResponse = new MockHttpResponseImpl();
   }
 
 }

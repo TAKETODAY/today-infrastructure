@@ -61,7 +61,7 @@ public class ContextPathCompositeHandler implements HttpHandler {
 
   @Override
   public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-    // Remove underlying context path first (e.g. Servlet container)
+    // Remove underlying context path first (e.g. Web container)
     String path = request.getPath().pathWithinApplication().value();
     for (Map.Entry<String, HttpHandler> entry : handlerMap.entrySet()) {
       if (path.startsWith(entry.getKey())) {

@@ -27,7 +27,7 @@ import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
- * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Servlet
+ * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Mock
  * based {@link ConfigurableWebServerApplicationContext}.
  * <p>
  * See {@link AbstractApplicationContextRunner} for details.

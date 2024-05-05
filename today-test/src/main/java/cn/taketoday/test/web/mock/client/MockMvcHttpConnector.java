@@ -160,7 +160,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
       return requestBuilder;
     }
 
-    // Parse the multipart request in order to adapt to Servlet Part's
+    // Parse the multipart request in order to adapt to Web Part's
     MockMultipartHttpRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(httpMethod, uri);
 
     Assert.notNull(bytes, "No multipart content");

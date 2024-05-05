@@ -62,9 +62,9 @@ class ReactiveTypeHandlerTests {
 
   private ReactiveTypeHandler handler;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
-  private MockHttpResponseImpl servletResponse;
+  private MockHttpResponseImpl mockResponse;
 
   private RequestContext webRequest;
 
@@ -79,11 +79,11 @@ class ReactiveTypeHandlerTests {
   }
 
   private void resetRequest() {
-    this.servletRequest = new HttpMockRequestImpl();
-    this.servletResponse = new MockHttpResponseImpl();
-    this.webRequest = new MockRequestContext(null, this.servletRequest, this.servletResponse);
+    this.mockRequest = new HttpMockRequestImpl();
+    this.mockResponse = new MockHttpResponseImpl();
+    this.webRequest = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
-    this.servletRequest.setAsyncSupported(true);
+    this.mockRequest.setAsyncSupported(true);
   }
 
   @Test
@@ -179,7 +179,7 @@ class ReactiveTypeHandlerTests {
   public void deferredResultSubscriberWithMultipleValues() throws Exception {
 
     // JSON must be preferred for Flux<String> -> List<String> or else we stream
-    this.servletRequest.addHeader("Accept", "application/json");
+    this.mockRequest.addHeader("Accept", "application/json");
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -213,7 +213,7 @@ class ReactiveTypeHandlerTests {
   public void mediaTypes() throws Exception {
 
     // Media type from request
-    this.servletRequest.addHeader("Accept", "text/event-stream");
+    this.mockRequest.addHeader("Accept", "text/event-stream");
     testSseResponse(true);
 
     // Media type from "produces" attribute
@@ -237,7 +237,7 @@ class ReactiveTypeHandlerTests {
   @Test
   public void writeServerSentEvents() throws Exception {
 
-    this.servletRequest.addHeader("Accept", "text/event-stream");
+    this.mockRequest.addHeader("Accept", "text/event-stream");
     Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
     SseEmitter sseEmitter = (SseEmitter) handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(String.class));
 
@@ -274,7 +274,7 @@ class ReactiveTypeHandlerTests {
   @Test
   public void writeStreamJson() throws Exception {
 
-    this.servletRequest.addHeader("Accept", "application/x-ndjson");
+    this.mockRequest.addHeader("Accept", "application/x-ndjson");
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
     ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(Bar.class));
@@ -282,7 +282,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockRequestContext requestContext = new MockRequestContext(null, null, servletResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
 //    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 
@@ -299,7 +299,7 @@ class ReactiveTypeHandlerTests {
 
   @Test
   public void writeStreamJsonWithVendorSubtype() throws Exception {
-    this.servletRequest.addHeader("Accept", "application/vnd.myapp.v1+x-ndjson");
+    this.mockRequest.addHeader("Accept", "application/vnd.myapp.v1+x-ndjson");
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
     ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(Bar.class));
@@ -309,7 +309,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockRequestContext requestContext = new MockRequestContext(null, null, servletResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, null, mockResponse);
 //    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 
@@ -348,19 +348,19 @@ class ReactiveTypeHandlerTests {
     testEmitterContentType("text/plain");
 
     // Same if no concrete media type
-    this.servletRequest.addHeader("Accept", "text/*");
+    this.mockRequest.addHeader("Accept", "text/*");
     testEmitterContentType("text/plain");
 
     // Otherwise pick concrete media type
-    this.servletRequest.addHeader("Accept", "*/*, text/*, text/markdown");
+    this.mockRequest.addHeader("Accept", "*/*, text/*, text/markdown");
     testEmitterContentType("text/markdown");
 
     // Any concrete media type
-    this.servletRequest.addHeader("Accept", "*/*, text/*, foo/bar");
+    this.mockRequest.addHeader("Accept", "*/*, text/*, foo/bar");
     testEmitterContentType("foo/bar");
 
     // Including json
-    this.servletRequest.addHeader("Accept", "*/*, text/*, application/json");
+    this.mockRequest.addHeader("Accept", "*/*, text/*, application/json");
     testEmitterContentType("application/json");
   }
 
@@ -378,7 +378,7 @@ class ReactiveTypeHandlerTests {
     ResponseBodyEmitter emitter = handleValue(returnValue, asyncType, elementType);
     assertThat(emitter).isNull();
 
-    assertThat(this.servletRequest.isAsyncStarted()).isTrue();
+    assertThat(this.mockRequest.isAsyncStarted()).isTrue();
     assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
 
     produceTask.run();

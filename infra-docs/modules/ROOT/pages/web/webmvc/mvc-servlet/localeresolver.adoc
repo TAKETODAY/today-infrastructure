@@ -2,10 +2,10 @@
 = Locale
 
 Most parts of Infra architecture support internationalization, as the Infra web
-MVC framework does. `DispatcherServlet` lets you automatically resolve messages
+MVC framework does. `MockDispatcher` lets you automatically resolve messages
 by using the client's locale. This is done with `LocaleResolver` objects.
 
-When a request comes in, the `DispatcherServlet` looks for a locale resolver and, if it
+When a request comes in, the `MockDispatcher` looks for a locale resolver and, if it
 finds one, it tries to use it to set the locale. By using the `RequestContext.getLocale()`
 method, you can always retrieve the locale that was resolved by the locale resolver.
 

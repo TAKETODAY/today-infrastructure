@@ -32,8 +32,6 @@ import cn.taketoday.mock.api.annotation.WebListener;
  *
  * <p>
  * The order in which implementations of this interface are invoked is unspecified.
- *
- * @since Servlet 3.1
  */
 public interface HttpSessionIdListener extends EventListener {
 

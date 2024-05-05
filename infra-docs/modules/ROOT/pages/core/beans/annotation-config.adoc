@@ -59,7 +59,7 @@ xref:core/beans/dependencies/factory-autowire.adoc[`自动装配协作者`]相�
 [NOTE]
 ====
 `<context:annotation-config/>`  只会查找与其在同一应用程序上下文中定义的bean上的注解。
-这意味着，如果你将 `<context:annotation-config/>` 放在 `DispatcherServlet` 的 `WebApplicationContext` 中，
+这意味着，如果你将 `<context:annotation-config/>` 放在 `MockDispatcher` 的 `WebApplicationContext` 中，
 它只会检查你的控制器中的 @Autowired bean，而不是你的服务。有关更多信息，请参阅
 xref:web/webmvc/mvc-mockApi.adoc[The DispatcherServlet]。
 ====

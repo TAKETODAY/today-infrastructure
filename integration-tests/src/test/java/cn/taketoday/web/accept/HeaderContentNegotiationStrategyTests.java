@@ -40,13 +40,13 @@ public class HeaderContentNegotiationStrategyTests {
 
   private final HeaderContentNegotiationStrategy strategy = new HeaderContentNegotiationStrategy();
 
-  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
 
-  final RequestContext context = new MockRequestContext(null, servletRequest, null);
+  final RequestContext context = new MockRequestContext(null, mockRequest, null);
 
   @Test
   public void resolveMediaTypes() throws Exception {
-    this.servletRequest.addHeader("Accept", "text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c");
+    this.mockRequest.addHeader("Accept", "text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c");
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.context);
 
     assertThat(mediaTypes.size()).isEqualTo(4);
@@ -58,8 +58,8 @@ public class HeaderContentNegotiationStrategyTests {
 
   @Test  // SPR-14506
   public void resolveMediaTypesFromMultipleHeaderValues() throws Exception {
-    this.servletRequest.addHeader("Accept", "text/plain; q=0.5, text/html");
-    this.servletRequest.addHeader("Accept", "text/x-dvi; q=0.8, text/x-c");
+    this.mockRequest.addHeader("Accept", "text/plain; q=0.5, text/html");
+    this.mockRequest.addHeader("Accept", "text/x-dvi; q=0.8, text/x-c");
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.context);
 
     assertThat(mediaTypes.size()).isEqualTo(4);
@@ -71,7 +71,7 @@ public class HeaderContentNegotiationStrategyTests {
 
   @Test
   public void resolveMediaTypesParseError() throws Exception {
-    this.servletRequest.addHeader("Accept", "textplain; q=0.5");
+    this.mockRequest.addHeader("Accept", "textplain; q=0.5");
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class).isThrownBy(() ->
             this.strategy.resolveMediaTypes(this.context));
   }
@@ -79,7 +79,7 @@ public class HeaderContentNegotiationStrategyTests {
   @Test
   void resolveMediaTypesWithMaxElements() throws Exception {
     String acceptHeaderValue = "text/plain, text/html,".repeat(25);
-    this.servletRequest.addHeader("Accept", acceptHeaderValue);
+    this.mockRequest.addHeader("Accept", acceptHeaderValue);
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.context);
 
     assertThat(mediaTypes).hasSize(50);
@@ -90,7 +90,7 @@ public class HeaderContentNegotiationStrategyTests {
   @Test
   void resolveMediaTypesWithTooManyElements() {
     String acceptHeaderValue = "text/plain,".repeat(51);
-    this.servletRequest.addHeader("Accept", acceptHeaderValue);
+    this.mockRequest.addHeader("Accept", acceptHeaderValue);
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
             .isThrownBy(() -> this.strategy.resolveMediaTypes(this.context))
             .withMessageStartingWith("Could not parse 'Accept' header")

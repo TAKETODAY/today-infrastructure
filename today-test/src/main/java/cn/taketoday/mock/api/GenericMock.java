@@ -156,7 +156,6 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
    *
    * @param config the <code>ServletConfig</code> object that contains configuration information for this servlet
    * @throws MockException if an exception occurs that interrupts the servlet's normal operation
-   * @see UnavailableException
    */
   @Override
   public void init(MockConfig config) throws MockException {

@@ -577,7 +577,7 @@ configuration, xref:core/beans/annotation-config/autowired.adoc#beans-factory-or
 * `HandlerFunctionAdapter`: Simple adapter that lets `DispatcherHandler` invoke
 a `HandlerFunction` that was mapped to a request.
 
-The preceding components let functional endpoints fit within the `DispatcherServlet` request
+The preceding components let functional endpoints fit within the `MockDispatcher` request
 processing lifecycle and also (potentially) run side by side with annotated controllers, if
 any are declared. It is also how functional endpoints are enabled by the Infra App Web
 starter.

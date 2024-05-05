@@ -38,8 +38,8 @@ import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.http.server.MockServerHttpRequest;
 import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.stereotype.Controller;
@@ -60,7 +60,7 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
@@ -77,11 +77,11 @@ class ResponseEntityExceptionHandlerTests {
 
   private SimpleHandlerExceptionHandler defaultExceptionResolver = new SimpleHandlerExceptionHandler();
 
-  private HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/");
+  private HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "/");
 
-  private MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+  private MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
-  private RequestContext request = new MockRequestContext(null, this.servletRequest, this.servletResponse);
+  private RequestContext request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
   @SuppressWarnings("unchecked")
   @Test
@@ -121,8 +121,8 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   public void patchHttpMediaTypeNotSupported() {
-    this.servletRequest = new HttpMockRequestImpl("PATCH", "/");
-    this.request = new MockRequestContext(null, this.servletRequest, this.servletResponse);
+    this.mockRequest = new HttpMockRequestImpl("PATCH", "/");
+    this.request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
     List<MediaType> acceptable = Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML);
     Exception ex = new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_JSON, acceptable, HttpMethod.PATCH);
@@ -153,7 +153,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void servletRequestBindingException() {
+  public void mockRequestBindingException() {
     Exception ex = new RequestBindingException("message");
     testException(ex);
   }
@@ -248,8 +248,8 @@ class ResponseEntityExceptionHandlerTests {
     RequestBindingException ex = new RequestBindingException("message");
     assertThat(resolver.handleException(request, ex, null)).isNotNull();
 
-    assertThat(this.servletResponse.getStatus()).isEqualTo(400);
-    assertThat(this.servletResponse.getContentAsString()).isEqualTo("error content");
+    assertThat(this.mockResponse.getStatus()).isEqualTo(400);
+    assertThat(this.mockResponse.getContentAsString()).isEqualTo("error content");
     assertThat(request.responseHeaders().getFirst("someHeader")).isEqualTo("someHeaderValue");
   }
 
@@ -267,11 +267,11 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
-    assertThat(resolver.handleException(new MockRequestContext(null, this.servletRequest, this.servletResponse), ex, null)).isNull();
+    assertThat(resolver.handleException(new MockRequestContext(null, this.mockRequest, this.mockResponse), ex, null)).isNull();
   }
 
   @Test
-  public void controllerAdviceWithinDispatcherServlet() throws Exception {
+  public void controllerAdviceWithinDispatcherMock() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("controller", ExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
@@ -286,17 +286,17 @@ class ResponseEntityExceptionHandlerTests {
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
     manager.registerDefaultHandlers();
 
-    DispatcherServlet servlet = new DispatcherServlet(ctx);
+    MockDispatcher servlet = new MockDispatcher(ctx);
     servlet.init(new MockMockConfig());
-    servlet.service(this.servletRequest, this.servletResponse);
+    servlet.service(this.mockRequest, this.mockResponse);
 
-    assertThat(this.servletResponse.getStatus()).isEqualTo(400);
-    assertThat(this.servletResponse.getContentAsString()).isEqualTo("error content");
-    assertThat(this.servletResponse.getHeader("someHeader")).isEqualTo("someHeaderValue");
+    assertThat(this.mockResponse.getStatus()).isEqualTo(400);
+    assertThat(this.mockResponse.getContentAsString()).isEqualTo("error content");
+    assertThat(this.mockResponse.getHeader("someHeader")).isEqualTo("someHeaderValue");
   }
 
   @Test
-  public void controllerAdviceWithNestedExceptionWithinDispatcherServlet() throws Exception {
+  public void controllerAdviceWithNestedExceptionWithinDispatcher() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("controller", NestedExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
@@ -306,10 +306,10 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.refresh();
 
-    DispatcherServlet servlet = new DispatcherServlet(ctx);
+    MockDispatcher servlet = new MockDispatcher(ctx);
     servlet.init(new MockMockConfig());
     try {
-      servlet.service(this.servletRequest, this.servletResponse);
+      servlet.service(this.mockRequest, this.mockResponse);
     }
     catch (MockException ex) {
       boolean condition1 = ex.getCause() instanceof IllegalStateException;
@@ -325,7 +325,7 @@ class ResponseEntityExceptionHandlerTests {
 
       defaultExceptionResolver.handleException(this.request, ex, null);
 
-      assertThat(responseEntity.getStatusCode().value()).isEqualTo(this.servletResponse.getStatus());
+      assertThat(responseEntity.getStatusCode().value()).isEqualTo(this.mockResponse.getStatus());
 
       return responseEntity;
     }

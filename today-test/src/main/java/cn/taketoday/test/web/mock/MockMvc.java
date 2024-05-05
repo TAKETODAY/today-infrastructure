@@ -36,7 +36,7 @@ import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.MockRequestContext;
 
 /**
@@ -70,7 +70,7 @@ import cn.taketoday.web.mock.MockRequestContext;
  */
 public final class MockMvc {
 
-  private final TestDispatcherServlet mock;
+  private final TestMockDispatcher mock;
 
   private final Filter[] filters;
 
@@ -91,7 +91,7 @@ public final class MockMvc {
    *
    * @see cn.taketoday.test.web.mock.setup.MockMvcBuilders
    */
-  MockMvc(TestDispatcherServlet mock, Filter... filters) {
+  MockMvc(TestMockDispatcher mock, Filter... filters) {
     Assert.notNull(mock, "DispatcherServlet is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
@@ -140,16 +140,16 @@ public final class MockMvc {
   }
 
   /**
-   * Return the underlying {@link DispatcherServlet} instance that this
+   * Return the underlying {@link MockDispatcher} instance that this
    * {@code MockMvc} was initialized with.
    * <p>This is intended for use in custom request processing scenario where a
    * request handling component happens to delegate to the {@code DispatcherServlet}
    * at runtime and therefore needs to be injected with it.
    * <p>For most processing scenarios, simply use {@link MockMvc#perform},
    * or if you need to configure the {@code DispatcherServlet}, provide a
-   * {@link DispatcherMockCustomizer} to the {@code MockMvcBuilder}.
+   * {@link DispatcherCustomizer} to the {@code MockMvcBuilder}.
    */
-  public DispatcherServlet getDispatcherServlet() {
+  public MockDispatcher getDispatcher() {
     return this.mock;
   }
 

@@ -338,7 +338,6 @@ public interface MockRequest {
    * to that of the actual TCP/IP connection.
    *
    * @return an integer specifying the port number
-   * @since Servlet 2.4
    */
   int getRemotePort();
 
@@ -347,7 +346,6 @@ public interface MockRequest {
    * not to resolve the hostname (to improve performance), this method returns the IP address.
    *
    * @return a <code>String</code> containing the host name of the IP on which the request was received.
-   * @since Servlet 2.4
    */
   String getLocalName();
 
@@ -357,7 +355,6 @@ public interface MockRequest {
    * to obtain an address different to that of the actual TCP/IP connection.
    *
    * @return a <code>String</code> containing an IP address.
-   * @since Servlet 2.4
    */
   String getLocalAddr();
 
@@ -487,7 +484,6 @@ public interface MockRequest {
    * has not been annotated or flagged in the deployment descriptor as being able to support asynchronous handling.
    *
    * @return true if this request supports asynchronous operation, false otherwise
-   * @since Servlet 3.0
    */
   boolean isAsyncSupported();
 
@@ -563,5 +559,5 @@ public interface MockRequest {
    *
    * @return The network connection details.
    */
-  MockConnection getServletConnection();
+  MockConnection getConnection();
 }

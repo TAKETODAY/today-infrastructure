@@ -54,7 +54,7 @@ class MockFilterChainTests {
 	}
 
 	@Test
-	void constructorNullServlet() {
+	void constructorNullMock() {
 		assertThatIllegalArgumentException().isThrownBy(() ->
 				new MockFilterChain(null));
 	}
@@ -93,7 +93,7 @@ class MockFilterChainTests {
 	}
 
 	@Test
-	void doFilterWithServlet() throws Exception {
+	void doFilterWith() throws Exception {
 		MockApi mockApi = mock(MockApi.class);
 		MockFilterChain chain = new MockFilterChain(mockApi);
 		chain.doFilter(this.request, this.response);
@@ -104,7 +104,7 @@ class MockFilterChainTests {
 	}
 
 	@Test
-	void doFilterWithServletAndFilters() throws Exception {
+	void doFilterWithMockAndFilters() throws Exception {
 		MockApi mockApi = mock(MockApi.class);
 
 		MockFilter filter2 = new MockFilter(mockApi);

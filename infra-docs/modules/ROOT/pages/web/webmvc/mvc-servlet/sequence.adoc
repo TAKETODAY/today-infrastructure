@@ -1,7 +1,7 @@
 [[mvc-mockApi-sequence]]
 = Processing
 
-The `DispatcherServlet` processes requests as follows:
+The `MockDispatcher` processes requests as follows:
 
 * The `WebApplicationContext` is searched for and bound in the request as an attribute
   that the controller and other elements in the process can use. It is bound by default
@@ -32,7 +32,7 @@ For HTTP caching support, handlers can use the `checkNotModified` methods of `We
 along with further options for annotated controllers as described in
 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[HTTP Caching for Controllers].
 
-You can customize individual `DispatcherServlet` instances by adding Servlet
+You can customize individual `MockDispatcher` instances by adding Servlet
 initialization parameters (`init-param` elements) to the Servlet declaration in the
 `web.xml` file. The following table lists the supported parameters:
 

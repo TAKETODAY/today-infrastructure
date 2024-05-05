@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.i18n;
@@ -27,10 +24,10 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 
 /**
  * {@link cn.taketoday.web.LocaleResolver} implementation that
@@ -44,7 +41,7 @@ import cn.taketoday.session.WebSession;
  * attribute as well; alternatively, you may specify a default time zone.
  *
  * <p>In contrast to {@link CookieLocaleResolver}, this strategy stores locally
- * chosen locale settings in the Servlet container's {@code HttpSession}. As a
+ * chosen locale settings in the {@code WebSession}. As a
  * consequence, those settings are just temporary for each session and therefore
  * lost when each session terminates.
  *
@@ -54,6 +51,7 @@ import cn.taketoday.session.WebSession;
  * against the current {@code RequestContext}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setDefaultLocale
  * @see #setDefaultTimeZone
  * @since 4.0

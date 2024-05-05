@@ -59,7 +59,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
 
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
-  private final HttpMockRequest servletRequest;
+  private final HttpMockRequest mockRequest;
 
   @Nullable
   private URI uri;
@@ -76,19 +76,19 @@ public class MockServerHttpRequest implements ServerHttpRequest {
    * Construct a new instance of the ServletServerHttpRequest based on the
    * given {@link HttpMockRequest}.
    *
-   * @param servletRequest the servlet request
+   * @param mockRequest the servlet request
    */
-  public MockServerHttpRequest(HttpMockRequest servletRequest) {
-    Assert.notNull(servletRequest, "HttpServletRequest is required");
-    this.servletRequest = servletRequest;
-    this.method = HttpMethod.valueOf(servletRequest.getMethod());
+  public MockServerHttpRequest(HttpMockRequest mockRequest) {
+    Assert.notNull(mockRequest, "HttpServletRequest is required");
+    this.mockRequest = mockRequest;
+    this.method = HttpMethod.valueOf(mockRequest.getMethod());
   }
 
   /**
    * Returns the {@code HttpServletRequest} this object is based on.
    */
   public HttpMockRequest getServletRequest() {
-    return this.servletRequest;
+    return this.mockRequest;
   }
 
   @Override
@@ -99,7 +99,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
   @Override
   public URI getURI() {
     if (this.uri == null) {
-      this.uri = initURI(this.servletRequest);
+      this.uri = initURI(this.mockRequest);
     }
     return this.uri;
   }
@@ -145,9 +145,9 @@ public class MockServerHttpRequest implements ServerHttpRequest {
     if (this.headers == null) {
       this.headers = HttpHeaders.forWritable();
 
-      for (Enumeration<String> names = this.servletRequest.getHeaderNames(); names.hasMoreElements(); ) {
+      for (Enumeration<String> names = this.mockRequest.getHeaderNames(); names.hasMoreElements(); ) {
         String headerName = names.nextElement();
-        this.headers.addAll(headerName, this.servletRequest.getHeaders(headerName));
+        this.headers.addAll(headerName, this.mockRequest.getHeaders(headerName));
       }
 
       // HttpServletRequest exposes some headers as properties:
@@ -155,7 +155,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
       try {
         MediaType contentType = this.headers.getContentType();
         if (contentType == null) {
-          String requestContentType = this.servletRequest.getContentType();
+          String requestContentType = this.mockRequest.getContentType();
           if (StringUtils.isNotEmpty(requestContentType)) {
             contentType = MediaType.parseMediaType(requestContentType);
             if (contentType.isConcrete()) {
@@ -164,7 +164,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
           }
         }
         if (contentType != null && contentType.getCharset() == null) {
-          String requestEncoding = this.servletRequest.getCharacterEncoding();
+          String requestEncoding = this.mockRequest.getCharacterEncoding();
           if (StringUtils.isNotEmpty(requestEncoding)) {
             Charset charSet = Charset.forName(requestEncoding);
             Map<String, String> params = new LinkedCaseInsensitiveMap<>();
@@ -180,7 +180,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
       }
 
       if (this.headers.getContentLength() < 0) {
-        int requestContentLength = this.servletRequest.getContentLength();
+        int requestContentLength = this.mockRequest.getContentLength();
         if (requestContentLength != -1) {
           this.headers.setContentLength(requestContentLength);
         }
@@ -192,26 +192,26 @@ public class MockServerHttpRequest implements ServerHttpRequest {
 
   @Override
   public Principal getPrincipal() {
-    return this.servletRequest.getUserPrincipal();
+    return this.mockRequest.getUserPrincipal();
   }
 
   @Override
   public InetSocketAddress getLocalAddress() {
-    return new InetSocketAddress(this.servletRequest.getLocalAddr(), this.servletRequest.getLocalPort());
+    return new InetSocketAddress(this.mockRequest.getLocalAddr(), this.mockRequest.getLocalPort());
   }
 
   @Override
   public InetSocketAddress getRemoteAddress() {
-    return new InetSocketAddress(this.servletRequest.getRemoteHost(), this.servletRequest.getRemotePort());
+    return new InetSocketAddress(this.mockRequest.getRemoteHost(), this.mockRequest.getRemotePort());
   }
 
   @Override
   public InputStream getBody() throws IOException {
-    if (MockUtils.isPostForm(this.servletRequest) && this.servletRequest.getQueryString() == null) {
-      return getBodyFromServletRequestParameters(this.servletRequest);
+    if (MockUtils.isPostForm(this.mockRequest) && this.mockRequest.getQueryString() == null) {
+      return getBodyFromRequestParameters(this.mockRequest);
     }
     else {
-      return this.servletRequest.getInputStream();
+      return this.mockRequest.getInputStream();
     }
   }
 
@@ -233,7 +233,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".
    */
-  private InputStream getBodyFromServletRequestParameters(HttpMockRequest request) throws IOException {
+  private InputStream getBodyFromRequestParameters(HttpMockRequest request) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
     OutputStreamWriter writer = new OutputStreamWriter(bos, FORM_CHARSET);
 

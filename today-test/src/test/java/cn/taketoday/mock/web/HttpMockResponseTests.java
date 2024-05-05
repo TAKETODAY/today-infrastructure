@@ -359,19 +359,19 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletWriterAutoFlushedForChar() throws IOException {
+  void writerAutoFlushedForChar() throws IOException {
     response.getWriter().write('X');
     assertThat(response.getContentAsString()).isEqualTo("X");
   }
 
   @Test
-  void servletWriterAutoFlushedForCharArray() throws IOException {
+  void writerAutoFlushedForCharArray() throws IOException {
     response.getWriter().write("XY".toCharArray());
     assertThat(response.getContentAsString()).isEqualTo("XY");
   }
 
   @Test
-  void servletWriterAutoFlushedForString() throws IOException {
+  void writerAutoFlushedForString() throws IOException {
     response.getWriter().write("X");
     assertThat(response.getContentAsString()).isEqualTo("X");
   }

@@ -17,7 +17,7 @@ degrees which makes it further impossible to perform `startsWith` comparisons ag
 the `requestURI`.
 
 This is why it is best to avoid reliance on the `servletPath` which comes with the
-prefix-based `servletPath` mapping type. If the `DispatcherServlet` is mapped as the
+prefix-based `servletPath` mapping type. If the `MockDispatcher` is mapped as the
 default Servlet with `"/"` or otherwise without a prefix with `"/*"` and the Servlet
 container is 4.0+ then Web MVC is able to detect the Servlet mapping type and avoid
 use of the `servletPath` and `pathInfo` altogether. On a 3.1 Servlet container,
@@ -32,7 +32,7 @@ reserved characters that alter the path structure. If such characters are not ex
 then you can reject them (like the Infra Security HTTP firewall), or you can configure
 `UrlPathHelper` with `urlDecode=false` but controller mappings will need to match to the
 encoded path which may not always work well. Furthermore, sometimes the
-`DispatcherServlet` needs to share the URL space with another Servlet and may need to
+`MockDispatcher` needs to share the URL space with another Servlet and may need to
 be mapped by prefix.
 
 The above issues are addressed when using `PathPatternParser` and parsed patterns, as

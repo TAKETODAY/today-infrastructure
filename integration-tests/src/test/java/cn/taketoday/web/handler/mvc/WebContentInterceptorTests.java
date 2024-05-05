@@ -37,12 +37,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WebContentInterceptorTests {
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
-  HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+
+  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
 
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
   private final Object handler = new Object();
-  RequestContext context = new MockRequestContext(null, servletRequest, response);
+  RequestContext context = new MockRequestContext(null, mockRequest, response);
 
   Function<String, RequestContext> requestFactory = path -> {
     HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", path);

@@ -31,7 +31,6 @@ import cn.taketoday.mock.api.MockResponseWrapper;
  *
  * @author Various
  * @see HttpMockResponse
- * @since Servlet 2.3
  */
 public class HttpMockResponseWrapper extends MockResponseWrapper implements HttpMockResponse {
 
@@ -45,7 +44,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
     super(response);
   }
 
-  private HttpMockResponse _getHttpServletResponse() {
+  private HttpMockResponse _getHttpResponse() {
     return (HttpMockResponse) super.getResponse();
   }
 
@@ -54,7 +53,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void addCookie(Cookie cookie) {
-    this._getHttpServletResponse().addCookie(cookie);
+    this._getHttpResponse().addCookie(cookie);
   }
 
   /**
@@ -62,7 +61,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public boolean containsHeader(String name) {
-    return this._getHttpServletResponse().containsHeader(name);
+    return this._getHttpResponse().containsHeader(name);
   }
 
   /**
@@ -70,7 +69,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public String encodeURL(String url) {
-    return this._getHttpServletResponse().encodeURL(url);
+    return this._getHttpResponse().encodeURL(url);
   }
 
   /**
@@ -78,7 +77,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public String encodeRedirectURL(String url) {
-    return this._getHttpServletResponse().encodeRedirectURL(url);
+    return this._getHttpResponse().encodeRedirectURL(url);
   }
 
   /**
@@ -86,7 +85,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void sendError(int sc, String msg) throws IOException {
-    this._getHttpServletResponse().sendError(sc, msg);
+    this._getHttpResponse().sendError(sc, msg);
   }
 
   /**
@@ -94,7 +93,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void sendError(int sc) throws IOException {
-    this._getHttpServletResponse().sendError(sc);
+    this._getHttpResponse().sendError(sc);
   }
 
   /**
@@ -102,7 +101,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void sendRedirect(String location) throws IOException {
-    this._getHttpServletResponse().sendRedirect(location);
+    this._getHttpResponse().sendRedirect(location);
   }
 
   /**
@@ -110,7 +109,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void setDateHeader(String name, long date) {
-    this._getHttpServletResponse().setDateHeader(name, date);
+    this._getHttpResponse().setDateHeader(name, date);
   }
 
   /**
@@ -118,7 +117,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void addDateHeader(String name, long date) {
-    this._getHttpServletResponse().addDateHeader(name, date);
+    this._getHttpResponse().addDateHeader(name, date);
   }
 
   /**
@@ -126,7 +125,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void setHeader(String name, String value) {
-    this._getHttpServletResponse().setHeader(name, value);
+    this._getHttpResponse().setHeader(name, value);
   }
 
   /**
@@ -134,7 +133,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void addHeader(String name, String value) {
-    this._getHttpServletResponse().addHeader(name, value);
+    this._getHttpResponse().addHeader(name, value);
   }
 
   /**
@@ -142,7 +141,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void setIntHeader(String name, int value) {
-    this._getHttpServletResponse().setIntHeader(name, value);
+    this._getHttpResponse().setIntHeader(name, value);
   }
 
   /**
@@ -150,7 +149,7 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void addIntHeader(String name, int value) {
-    this._getHttpServletResponse().addIntHeader(name, value);
+    this._getHttpResponse().addIntHeader(name, value);
   }
 
   /**
@@ -158,18 +157,17 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    */
   @Override
   public void setStatus(int sc) {
-    this._getHttpServletResponse().setStatus(sc);
+    this._getHttpResponse().setStatus(sc);
   }
 
   /**
    * The default behaviour of this method is to call {@link HttpMockResponse#getStatus} on the wrapped response object.
    *
    * @return the current status code of the wrapped response
-   * @since Servlet 3.0
    */
   @Override
   public int getStatus() {
-    return _getHttpServletResponse().getStatus();
+    return _getHttpResponse().getStatus();
   }
 
   /**
@@ -178,11 +176,10 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    * @param name the name of the response header whose value to return
    * @return the value of the response header with the given name, or <tt>null</tt> if no header with the given name has
    * been set on the wrapped response
-   * @since Servlet 3.0
    */
   @Override
   public String getHeader(String name) {
-    return _getHttpServletResponse().getHeader(name);
+    return _getHttpResponse().getHeader(name);
   }
 
   /**
@@ -194,11 +191,10 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    *
    * @param name the name of the response header whose values to return
    * @return a (possibly empty) <code>Collection</code> of the values of the response header with the given name
-   * @since Servlet 3.0
    */
   @Override
   public Collection<String> getHeaders(String name) {
-    return _getHttpServletResponse().getHeaders(name);
+    return _getHttpResponse().getHeaders(name);
   }
 
   /**
@@ -209,11 +205,10 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    * Any changes to the returned <code>Collection</code> must not affect this <code>HttpServletResponseWrapper</code>.
    *
    * @return a (possibly empty) <code>Collection</code> of the names of the response headers
-   * @since Servlet 3.0
    */
   @Override
   public Collection<String> getHeaderNames() {
-    return _getHttpServletResponse().getHeaderNames();
+    return _getHttpResponse().getHeaderNames();
   }
 
   /**
@@ -221,11 +216,10 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    * object.
    *
    * @param supplier of trailer headers
-   * @since Servlet 4.0
    */
   @Override
   public void setTrailerFields(Supplier<Map<String, String>> supplier) {
-    _getHttpServletResponse().setTrailerFields(supplier);
+    _getHttpResponse().setTrailerFields(supplier);
   }
 
   /**
@@ -233,10 +227,9 @@ public class HttpMockResponseWrapper extends MockResponseWrapper implements Http
    * object.
    *
    * @return supplier of trailer headers
-   * @since Servlet 4.0
    */
   @Override
   public Supplier<Map<String, String>> getTrailerFields() {
-    return _getHttpServletResponse().getTrailerFields();
+    return _getHttpResponse().getTrailerFields();
   }
 }

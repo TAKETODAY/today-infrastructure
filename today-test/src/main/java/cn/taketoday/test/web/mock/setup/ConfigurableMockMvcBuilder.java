@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
+import cn.taketoday.test.web.mock.DispatcherCustomizer;
 import cn.taketoday.test.web.mock.MockMvcBuilder;
 import cn.taketoday.test.web.mock.RequestBuilder;
 import cn.taketoday.test.web.mock.ResultHandler;
@@ -30,6 +30,7 @@ import cn.taketoday.test.web.mock.ResultMatcher;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.web.mock.MockDispatcher;
 
 /**
  * Defines common methods for building a {@code MockMvc}.
@@ -127,10 +128,10 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
 
   /**
    * A more advanced that allows
-   * customizing any {@link cn.taketoday.web.mock.DispatcherServlet}
+   * customizing any {@link MockDispatcher}
    * property.
    */
-  <T extends B> T addDispatcherServletCustomizer(DispatcherMockCustomizer customizer);
+  <T extends B> T addDispatcherCustomizer(DispatcherCustomizer customizer);
 
   /**
    * Add a {@code MockMvcConfigurer} that automates MockMvc setup and

@@ -120,13 +120,13 @@ class ControllerTests {
   }
 
   @Test
-  public void servletWrappingController() throws Throwable {
+  public void wrappingController() throws Throwable {
     HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setServletClass(TestMockApi.class);
-    swc.setServletName("action");
+    swc.setMockClass(TestMockApi.class);
+    swc.setMockName("action");
     Properties props = new Properties();
     props.setProperty("config", "myValue");
     swc.setInitParameters(props);
@@ -149,12 +149,12 @@ class ControllerTests {
   }
 
   @Test
-  public void servletWrappingControllerWithBeanName() throws Throwable {
+  public void wrappingControllerWithBeanName() throws Throwable {
     HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setServletClass(TestMockApi.class);
+    swc.setMockClass(TestMockApi.class);
     swc.setBeanName("action");
 
     swc.afterPropertiesSet();

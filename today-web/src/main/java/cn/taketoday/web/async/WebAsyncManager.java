@@ -102,7 +102,7 @@ public final class WebAsyncManager {
 
   /*
    * Whether the concurrentResult is an error. If such errors remain unhandled, some
-   * Servlet containers will call AsyncListener#onError at the end, after the ASYNC
+   * containers will call AsyncListener#onError at the end, after the ASYNC
    * and/or the ERROR dispatch (Boot's case), and we need to ignore those.
    */
   private volatile boolean errorHandlingInProgress;

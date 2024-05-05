@@ -32,7 +32,7 @@ import cn.taketoday.web.async.CallableProcessingInterceptor;
 import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.handler.HandlerExecutionChain;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -52,17 +52,17 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class TestDispatcherServlet extends DispatcherServlet {
+final class TestMockDispatcher extends MockDispatcher {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final String KEY = TestDispatcherServlet.class.getName() + ".interceptor";
+  private static final String KEY = TestMockDispatcher.class.getName() + ".interceptor";
 
   /**
    * Create a new instance with the given web application context.
    */
-  public TestDispatcherServlet(ApplicationContext webApplicationContext) {
+  public TestMockDispatcher(ApplicationContext webApplicationContext) {
     super(webApplicationContext);
   }
 
@@ -70,7 +70,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
   public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.getRequired();
     HttpMockRequest servletRequest = MockUtils.getServletRequest(context);
-    HttpMockResponse servletResponse = MockUtils.getServletResponse(context);
+    HttpMockResponse servletResponse = MockUtils.getMockResponse(context);
 
     if (request != servletRequest && response != servletResponse) {
       context = new MockRequestContext(

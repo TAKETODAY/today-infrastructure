@@ -135,7 +135,7 @@ public class MvcUriComponentsBuilder {
 
   /**
    * Create a {@link UriComponentsBuilder} from the mapping of a controller class
-   * and current request information including Servlet mapping. If the controller
+   * and current request information including mapping. If the controller
    * contains multiple mappings, only the first one is used.
    * <p><strong>Note:</strong> This method extracts values from "Forwarded"
    * and "X-Forwarded-*" headers if found. See class-level docs.

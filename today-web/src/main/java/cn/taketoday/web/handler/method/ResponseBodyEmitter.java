@@ -85,7 +85,7 @@ public class ResponseBodyEmitter {
 
   /**
    * After an I/O error, we don't call {@link #completeWithError} directly but
-   * wait for the Servlet container to call us via {@code AsyncListener#onError}
+   * wait for the container to call us via {@code AsyncListener#onError}
    * on a container thread at which point we call completeWithError.
    * This flag is used to ignore further calls to complete or completeWithError
    * that may come for example from an application try-catch block on the
@@ -174,7 +174,7 @@ public class ResponseBodyEmitter {
    * Web MVC will pass the exception through its exception handling mechanism.
    * <p><strong>Note:</strong> if the send fails with an IOException, you do
    * not need to call {@link #completeWithError(Throwable)} in order to clean
-   * up. Instead the Servlet container creates a notification that results in a
+   * up. Instead, the Web container creates a notification that results in a
    * dispatch where Web MVC invokes exception resolvers and completes
    * processing.
    *

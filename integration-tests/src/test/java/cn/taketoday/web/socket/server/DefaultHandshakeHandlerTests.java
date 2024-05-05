@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server;
@@ -56,7 +53,7 @@ public class DefaultHandshakeHandlerTests extends AbstractHttpRequestTests {
     this.handshakeHandler.setSupportedProtocols("stomp", "mqtt");
     given(this.upgradeStrategy.getSupportedVersions()).willReturn(new String[] { "13" });
 
-    this.servletRequest.setMethod("GET");
+    this.mockRequest.setMethod("GET");
     initHeaders(this.request.getHeaders()).setSecWebSocketProtocol("STOMP");
 
     WebSocketHandler handler = new TextWebSocketHandler();
@@ -74,7 +71,7 @@ public class DefaultHandshakeHandlerTests extends AbstractHttpRequestTests {
 
     given(this.upgradeStrategy.getSupportedVersions()).willReturn(new String[] { "13" });
     given(this.upgradeStrategy.getSupportedExtensions(this.request)).willReturn(Collections.singletonList(extension1));
-    this.servletRequest.setMethod("GET");
+    this.mockRequest.setMethod("GET");
     initHeaders(this.request.getHeaders())
             .setSecWebSocketExtensions(Arrays.asList(extension1, extension2));
 
@@ -90,7 +87,7 @@ public class DefaultHandshakeHandlerTests extends AbstractHttpRequestTests {
   public void subProtocolCapableHandler() {
     given(this.upgradeStrategy.getSupportedVersions()).willReturn(new String[] { "13" });
 
-    this.servletRequest.setMethod("GET");
+    this.mockRequest.setMethod("GET");
     initHeaders(this.request.getHeaders()).setSecWebSocketProtocol("v11.stomp");
 
     WebSocketHandler handler = new SubProtocolCapableHandler("v12.stomp", "v11.stomp");
@@ -105,7 +102,7 @@ public class DefaultHandshakeHandlerTests extends AbstractHttpRequestTests {
   public void subProtocolCapableHandlerNoMatch() {
     given(this.upgradeStrategy.getSupportedVersions()).willReturn(new String[] { "13" });
 
-    this.servletRequest.setMethod("GET");
+    this.mockRequest.setMethod("GET");
     initHeaders(this.request.getHeaders()).setSecWebSocketProtocol("v10.stomp");
 
     WebSocketHandler handler = new SubProtocolCapableHandler("v12.stomp", "v11.stomp");

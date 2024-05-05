@@ -6,7 +6,7 @@ often sufficient to test against a single context. However, there are times when
 beneficial or even necessary to test against a hierarchy of `ApplicationContext`
 instances. For example, if you are developing a Web MVC web application, you typically
 have a root `WebApplicationContext` loaded by Infra `ContextLoaderListener` and a
-child `WebApplicationContext` loaded by Infra `DispatcherServlet`. This results in a
+child `WebApplicationContext` loaded by Infra `MockDispatcher`. This results in a
 parent-child context hierarchy where shared components and infrastructure configuration
 are declared in the root context and consumed in the child context by web-specific
 components. Another use case can be found in Infra Batch applications, where you often

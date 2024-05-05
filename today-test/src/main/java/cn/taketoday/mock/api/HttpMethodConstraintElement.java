@@ -21,8 +21,6 @@ import cn.taketoday.mock.api.annotation.HttpMethodConstraint;
 
 /**
  * Java Class representation of an {@link HttpMethodConstraint} annotation value.
- *
- * @since Servlet 3.0
  */
 public class HttpMethodConstraintElement extends HttpConstraintElement {
 

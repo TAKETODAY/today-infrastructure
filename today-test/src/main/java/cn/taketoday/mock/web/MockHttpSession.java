@@ -36,8 +36,6 @@ import cn.taketoday.mock.api.http.HttpSessionBindingListener;
 /**
  * Mock implementation of the {@link HttpSession} interface.
  *
- * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
- *
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @author Mark Fisher
@@ -112,8 +110,6 @@ public class MockHttpSession implements HttpSession {
   }
 
   /**
-   * As of Servlet 3.1, the id of a session can be changed.
-   *
    * @return the new session id
    */
   public String changeSessionId() {
@@ -258,7 +254,7 @@ public class MockHttpSession implements HttpSession {
         state.put(name, serializable);
       }
       else {
-        // Not serializable... Servlet containers usually automatically
+        // Not serializable... Web containers usually automatically
         // unbind the attribute in this case.
         if (value instanceof HttpSessionBindingListener listener) {
           listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));

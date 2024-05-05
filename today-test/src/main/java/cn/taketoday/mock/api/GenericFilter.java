@@ -41,7 +41,6 @@ import cn.taketoday.mock.api.http.HttpFilter;
  * To write a generic filter, you need only override the abstract <code>doFilter</code> method.
  *
  * @author Various
- * @since Servlet 4.0
  */
 public abstract class GenericFilter implements Filter, FilterConfig, java.io.Serializable {
   private static final long serialVersionUID = 4060116231031076581L;
@@ -55,8 +54,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * <p>
    * Does nothing. All of the filter initialization is done by one of the <code>init</code> methods.
    * </p>
-   *
-   * @since Servlet 4.0
    */
   public GenericFilter() {
   }
@@ -73,7 +70,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    *
    * @param name a <code>String</code> specifying the name of the initialization parameter
    * @return String a <code>String</code> containing the value of the initialization parameter
-   * @since Servlet 4.0
    */
   @Override
   public String getInitParameter(String name) {
@@ -98,7 +94,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    *
    * @return Enumeration an enumeration of <code>String</code> objects containing the names of the filter's initialization
    * parameters
-   * @since Servlet 4.0
    */
   @Override
   public Enumeration<String> getInitParameterNames() {
@@ -116,7 +111,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * </p>
    *
    * @return FilterConfig the <code>FilterConfig</code> object that initialized this filter
-   * @since Servlet 4.0
    */
   public FilterConfig getFilterConfig() {
     return config;
@@ -132,7 +126,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * This method is supplied for convenience. It gets the context from the filter's <code>FilterConfig</code> object.
    *
    * @return MockContext the <code>MockContext</code> object passed to this filter by the <code>init</code> method
-   * @since Servlet 4.0
    */
   @Override
   public MockContext getMockContext() {
@@ -156,8 +149,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    *
    * @param config the <code>FilterConfig</code> object that contains configuration information for this filter
    * @throws MockException if an exception occurs that interrupts the servlet's normal operation
-   * @see UnavailableException
-   * @since Servlet 4.0
    */
   @Override
   public void init(FilterConfig config) throws MockException {
@@ -176,7 +167,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * {@link #getFilterConfig}.
    *
    * @throws MockException if an exception occurs that interrupts the servlet's normal operation
-   * @since Servlet 4.0
    */
   public void init() throws MockException {
 
@@ -188,7 +178,6 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * </p>
    *
    * @return the name of this filter instance
-   * @since Servlet 4.0
    */
   @Override
   public String getFilterName() {

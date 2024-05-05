@@ -22,10 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import cn.taketoday.mock.web.MockFilterChain;
-import cn.taketoday.mock.web.MockFilterConfig;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
@@ -33,6 +29,10 @@ import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockFilterChain;
+import cn.taketoday.mock.web.MockFilterConfig;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -189,9 +189,6 @@ class MockMvcFilterDecoratorTests {
     assertFilterNotInvoked("/index.html", "/*.html");
   }
 
-  /*
-   * Below are tests from Table 12-1 of the Servlet Specification
-   */
   @Test
   public void specPathMappingMultiFolderPattern() throws Exception {
     assertFilterInvoked("/foo/bar/index.html", "/foo/bar/*");

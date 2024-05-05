@@ -140,7 +140,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * in order to work with any storage mechanism.
    * <p><b>NOTE:</b> Depending on the underlying provider, temporary storage
    * may be container-dependent, including the base directory for relative
-   * destinations specified here (e.g. with Servlet multipart handling).
+   * destinations specified here (e.g. with Web multipart handling).
    * For absolute destinations, the target file may get renamed/moved from its
    * temporary location or newly copied, even if a temporary copy already exists.
    *

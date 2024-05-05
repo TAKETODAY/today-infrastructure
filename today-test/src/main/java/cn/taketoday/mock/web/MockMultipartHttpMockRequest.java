@@ -31,6 +31,8 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.http.Part;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.MultipartException;
@@ -38,14 +40,10 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.api.http.Part;
 
 /**
  * Mock implementation of the
  * {@link cn.taketoday.web.multipart.MultipartRequest} interface.
- *
- * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * <p>Useful for testing application controllers that access multipart uploads.
  * {@link MockMultipartFile} can be used to populate these mock requests with files.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -35,7 +35,7 @@ import cn.taketoday.util.StringUtils;
  * event-listener write APIs and Reactive Streams.
  *
  * <p>Specifically a base class for writing to the HTTP response body with
- * Servlet 3.1 non-blocking I/O and Undertow XNIO as well for writing WebSocket
+ * non-blocking I/O and Undertow XNIO as well for writing WebSocket
  * messages through the Java WebSocket API (JSR-356), Jetty, and Undertow.
  *
  * @param <T> the type of element signaled to the {@link Subscriber}
@@ -69,7 +69,7 @@ public abstract class AbstractListenerWriteProcessor<T> implements Processor<T, 
 
   /**
    * Indicates we're waiting for one last isReady-onWritePossible cycle
-   * after "onComplete" because some Servlet containers expect this to take
+   * after "onComplete" because some Web containers expect this to take
    * place prior to calling AsyncContext.complete().
    * See https://github.com/eclipse-ee4j/servlet-api/issues/273
    */
@@ -156,7 +156,7 @@ public abstract class AbstractListenerWriteProcessor<T> implements Processor<T, 
 
   /**
    * Cancel the upstream "write" Publisher only, for example due to
-   * Servlet container error/completion notifications. This should usually
+   * Mock container error/completion notifications. This should usually
    * be followed up with a call to either {@link #onError(Throwable)} or
    * {@link #onComplete()} to notify the downstream chain, that is unless
    * cancellation came from downstream.

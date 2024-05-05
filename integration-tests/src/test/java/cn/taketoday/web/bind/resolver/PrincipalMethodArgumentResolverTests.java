@@ -45,10 +45,10 @@ class PrincipalMethodArgumentResolverTests {
 
   private final PrincipalMethodArgumentResolver resolver = new PrincipalMethodArgumentResolver();
 
-  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "");
+  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "");
 
   private final MockRequestContext webRequest = new MockRequestContext(
-          null, servletRequest, new MockHttpResponseImpl());
+          null, mockRequest, new MockHttpResponseImpl());
 
   private Method method;
 
@@ -60,7 +60,7 @@ class PrincipalMethodArgumentResolverTests {
   @Test
   void principal() throws Throwable {
     Principal principal = () -> "Foo";
-    servletRequest.setUserPrincipal(principal);
+    mockRequest.setUserPrincipal(principal);
 
     MethodParameter principalParameter = new MethodParameter(method, 1);
 
@@ -84,7 +84,7 @@ class PrincipalMethodArgumentResolverTests {
   @Test
   void annotatedPrincipal() throws Exception {
     Principal principal = () -> "Foo";
-    servletRequest.setUserPrincipal(principal);
+    mockRequest.setUserPrincipal(principal);
     Method principalMethod = getClass().getMethod("supportedParamsWithAnnotatedPrincipal", Principal.class);
 
     MethodParameter principalParameter = new MethodParameter(principalMethod, 0);

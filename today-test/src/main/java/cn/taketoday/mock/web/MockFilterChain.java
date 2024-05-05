@@ -25,21 +25,21 @@ import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.MockApi;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Mock implementation of the {@link FilterChain} interface.
  *
  * <p>A {@link MockFilterChain} can be configured with one or more filters and a
- * Servlet to invoke. The first time the chain is called, it invokes all filters
- * and the Servlet, and saves the request and response. Subsequent invocations
+ * Mock API to invoke. The first time the chain is called, it invokes all filters
+ * and saves the request and response. Subsequent invocations
  * raise an {@link IllegalStateException} unless {@link #reset()} is called.
  *
  * @author Juergen Hoeller
@@ -72,9 +72,6 @@ public class MockFilterChain implements FilterChain {
   }
 
   /**
-   * Create a FilterChain with a Servlet.
-   *
-   * @param mockApi the Servlet to invoke
    * @since 4.0
    */
   public MockFilterChain(MockApi mockApi) {
@@ -82,8 +79,6 @@ public class MockFilterChain implements FilterChain {
   }
 
   /**
-   * Create a {@code FilterChain} with Filter's and a Servlet.
-   *
    * @param mockApi the {@link MockApi} to invoke in this {@link FilterChain}
    * @param filters the {@link Filter}'s to invoke in this {@link FilterChain}
    * @since 4.0
@@ -148,7 +143,7 @@ public class MockFilterChain implements FilterChain {
   }
 
   /**
-   * A filter that simply delegates to a Servlet.
+   *
    */
   private static final class MockFilterProxy implements Filter {
 

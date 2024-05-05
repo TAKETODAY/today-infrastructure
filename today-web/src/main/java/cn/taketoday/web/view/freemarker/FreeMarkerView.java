@@ -62,7 +62,7 @@ import freemarker.template.TemplateModelException;
  * <p>Note: Infra FreeMarker support requires FreeMarker 2.3 or higher.
  *  FreeMarker templates are rendered in a minimal
  * fashion without JSP support, just exposing request attributes in addition
- * to the MVC-provided model map for alignment with common Servlet resources.
+ * to the MVC-provided model map for alignment with common resources.
  *
  * @author Darren Davison
  * @author Juergen Hoeller

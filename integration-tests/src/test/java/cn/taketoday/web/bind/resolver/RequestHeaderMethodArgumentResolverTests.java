@@ -69,7 +69,7 @@ class RequestHeaderMethodArgumentResolverTests {
   private ResolvableMethodParameter paramUuid;
   private ResolvableMethodParameter paramUuidOptional;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   private MockRequestContext webRequest;
   DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
@@ -95,8 +95,8 @@ class RequestHeaderMethodArgumentResolverTests {
     paramUuid = new ResolvableMethodParameter(getParameter(method, 9));
     paramUuidOptional = new ResolvableMethodParameter(getParameter(method, 10));
 
-    servletRequest = new HttpMockRequestImpl();
-    webRequest = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
+    mockRequest = new HttpMockRequestImpl();
+    webRequest = new MockRequestContext(null, mockRequest, new MockHttpResponseImpl());
 
     // Expose request to the current thread (for SpEL expressions)
     RequestContextHolder.set(webRequest);
@@ -125,7 +125,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void resolveStringArgument() throws Throwable {
     String expected = "foo";
-    servletRequest.addHeader("name", expected);
+    mockRequest.addHeader("name", expected);
 
     Object result = resolver.resolveArgument(webRequest, paramNamedDefaultValueStringHeader);
 
@@ -135,7 +135,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void resolveStringArrayArgument() throws Throwable {
     String[] expected = new String[] { "foo", "bar" };
-    servletRequest.addHeader("name", expected);
+    mockRequest.addHeader("name", expected);
     webRequest.setBinding(new BindingContext());
 
     Object result = resolver.resolveArgument(webRequest, paramNamedValueStringArray);
@@ -165,7 +165,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void resolveNameFromSystemPropertyThroughExpression() throws Throwable {
     String expected = "foo";
-    servletRequest.addHeader("bar", expected);
+    mockRequest.addHeader("bar", expected);
 
     System.setProperty("systemProperty", "bar");
     try {
@@ -180,7 +180,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void resolveNameFromSystemPropertyThroughPlaceholder() throws Throwable {
     String expected = "foo";
-    servletRequest.addHeader("bar", expected);
+    mockRequest.addHeader("bar", expected);
 
     System.setProperty("systemProperty", "bar");
     try {
@@ -208,7 +208,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @SuppressWarnings("deprecation")
   void dateConversion() throws Throwable {
     String rfc1123val = "Thu, 21 Apr 2016 17:11:08 +0100";
-    servletRequest.addHeader("name", rfc1123val);
+    mockRequest.addHeader("name", rfc1123val);
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
@@ -221,7 +221,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void instantConversion() throws Throwable {
     String rfc1123val = "Thu, 21 Apr 2016 17:11:08 +0100";
-    servletRequest.addHeader("name", rfc1123val);
+    mockRequest.addHeader("name", rfc1123val);
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
@@ -235,7 +235,7 @@ class RequestHeaderMethodArgumentResolverTests {
   @Test
   void uuidConversionWithValidValue() throws Throwable {
     UUID uuid = UUID.randomUUID();
-    servletRequest.addHeader("name", uuid.toString());
+    mockRequest.addHeader("name", uuid.toString());
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
@@ -248,7 +248,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
   @Test
   void uuidConversionWithInvalidValue() throws Throwable {
-    servletRequest.addHeader("name", "bogus-uuid");
+    mockRequest.addHeader("name", "bogus-uuid");
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
@@ -271,7 +271,7 @@ class RequestHeaderMethodArgumentResolverTests {
   }
 
   private void uuidConversionWithEmptyOrBlankValue(String uuid) throws Throwable {
-    servletRequest.addHeader("name", uuid);
+    mockRequest.addHeader("name", uuid);
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
@@ -292,7 +292,7 @@ class RequestHeaderMethodArgumentResolverTests {
   }
 
   private void uuidConversionWithEmptyOrBlankValueOptional(String uuid) throws Throwable {
-    servletRequest.addHeader("name", uuid);
+    mockRequest.addHeader("name", uuid);
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());

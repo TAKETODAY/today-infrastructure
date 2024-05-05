@@ -38,22 +38,22 @@ import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
- * {@code TestExecutionListener} which provides mock Servlet API support to
- * {@link WebApplicationContext WebServletApplicationContext} loaded by the <em>Infra
+ * {@code TestExecutionListener} which provides mock Web API support to
+ * {@link WebApplicationContext WebMockApplicationContext} loaded by the <em>Infra
  * TestContext Framework</em>.
  *
- * <p>Specifically, {@code ServletTestExecutionListener} sets up thread-local
+ * <p>Specifically, {@code MockTestExecutionListener} sets up thread-local
  * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * HttpMockRequestImpl}, {@link MockHttpResponseImpl}, and
  * {@link cn.taketoday.web.RequestContext} based on the {@link MockContextImpl} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
- * {@code MockHttpServletResponse} and {@code ServletWebRequest} can be injected
+ * {@code MockHttpMockResponse} and {@code MockWebRequest} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
  * #afterTestMethod(TestContext) cleans up} thread-local state.
  *
- * <p>Note that {@code ServletTestExecutionListener} is enabled by default but
+ * <p>Note that {@code MockTestExecutionListener} is enabled by default but
  * generally takes no action if the {@linkplain TestContext#getTestClass() test
  * class} is not annotated with {@link WebAppConfiguration @WebAppConfiguration}.
  * See the javadocs for individual methods in this class for details.
@@ -67,7 +67,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
-   * whether or not the {@code ServletTestExecutionListener} should {@linkplain
+   * whether or not the {@code MockTestExecutionListener} should {@linkplain
    * RequestContextHolder#cleanup() reset} Infra Web's
    * {@code RequestContextHolder} in {@link #afterTestMethod(TestContext)}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
@@ -77,7 +77,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that
-   * {@code ServletTestExecutionListener} has already populated Infra Web's
+   * {@code MockTestExecutionListener} has already populated Infra Web's
    * {@code RequestContextHolder}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -96,7 +96,7 @@ public class MockTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that the
-   * {@code ServletTestExecutionListener} should be activated. When not set to
+   * {@code MockTestExecutionListener} should be activated. When not set to
    * {@code true}, activation occurs when the {@linkplain TestContext#getTestClass()
    * test class} is annotated with {@link WebAppConfiguration @WebAppConfiguration}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.

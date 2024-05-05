@@ -361,7 +361,7 @@ NOTE: 这些默认属性源适用于 `StandardEnvironment`，用于独立应用�
 
 对于通用的 `StandardMockEnvironment`，完整的层次结构如下，优先级最高的条目位于顶部：
 
-- ServletConfig 参数（如果适用 -- 例如，在 `DispatcherServlet` 上下文中）
+- ServletConfig 参数（如果适用 -- 例如，在 `MockDispatcher` 上下文中）
 - ServletContext 参数（web.xml context-param 条目）
 - JNDI 环境变量（`java:comp/env/` 条目）
 - JVM 系统属性（`-D` 命令行参数）

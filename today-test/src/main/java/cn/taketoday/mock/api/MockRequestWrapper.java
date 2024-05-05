@@ -30,7 +30,6 @@ import java.util.Map;
  * through to the wrapped request object.
  *
  * @see MockRequest
- * @since Servlet 2.3
  */
 public class MockRequestWrapper implements MockRequest {
 
@@ -113,8 +112,6 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * The default behavior of this method is to return getContentLengthLong() on the wrapped request object.
-   *
-   * @since Servlet 3.1
    */
   @Override
   public long getContentLengthLong() {
@@ -275,8 +272,6 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * The default behavior of this method is to return getRemotePort() on the wrapped request object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public int getRemotePort() {
@@ -285,8 +280,6 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * The default behavior of this method is to return getLocalName() on the wrapped request object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public String getLocalName() {
@@ -295,8 +288,6 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * The default behavior of this method is to return getLocalAddr() on the wrapped request object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public String getLocalAddr() {
@@ -305,8 +296,6 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * The default behavior of this method is to return getLocalPort() on the wrapped request object.
-   *
-   * @since Servlet 2.4
    */
   @Override
   public int getLocalPort() {
@@ -317,7 +306,6 @@ public class MockRequestWrapper implements MockRequest {
    * Gets the servlet context to which the wrapped servlet request was last dispatched.
    *
    * @return the servlet context to which the wrapped servlet request was last dispatched
-   * @since Servlet 3.0
    */
   @Override
   public MockContext getMockContext() {
@@ -334,7 +322,6 @@ public class MockRequestWrapper implements MockRequest {
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
    * @see MockRequest#startAsync
-   * @since Servlet 3.0
    */
   @Override
   public AsyncContext startAsync() throws IllegalStateException {
@@ -354,7 +341,6 @@ public class MockRequestWrapper implements MockRequest {
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
    * @see MockRequest#startAsync(MockRequest, MockResponse)
-   * @since Servlet 3.0
    */
   @Override
   public AsyncContext startAsync(MockRequest mockRequest, MockResponse mockResponse)
@@ -367,7 +353,6 @@ public class MockRequestWrapper implements MockRequest {
    *
    * @return true if this request has been put into asynchronous mode, false otherwise
    * @see MockRequest#isAsyncStarted
-   * @since Servlet 3.0
    */
   @Override
   public boolean isAsyncStarted() {
@@ -379,7 +364,6 @@ public class MockRequestWrapper implements MockRequest {
    *
    * @return true if this request supports asynchronous operation, false otherwise
    * @see MockRequest#isAsyncSupported
-   * @since Servlet 3.0
    */
   @Override
   public boolean isAsyncSupported() {
@@ -395,7 +379,6 @@ public class MockRequestWrapper implements MockRequest {
    * @throws IllegalStateException if this request has not been put into asynchronous mode, i.e., if neither
    * {@link #startAsync} nor {@link #startAsync(MockRequest, MockResponse)} has been called
    * @see MockRequest#getAsyncContext
-   * @since Servlet 3.0
    */
   @Override
   public AsyncContext getAsyncContext() {
@@ -407,7 +390,6 @@ public class MockRequestWrapper implements MockRequest {
    *
    * @param wrapped the ServletRequest instance to search for
    * @return true if this ServletRequestWrapper wraps the given ServletRequest instance, false otherwise
-   * @since Servlet 3.0
    */
   public boolean isWrapperFor(MockRequest wrapped) {
     if (request == wrapped) {
@@ -427,7 +409,6 @@ public class MockRequestWrapper implements MockRequest {
    * @param wrappedType the ServletRequest class type to search for
    * @return true if this ServletRequestWrapper wraps a ServletRequest of the given class type, false otherwise
    * @throws IllegalArgumentException if the given class does not implement {@link MockRequest}
-   * @since Servlet 3.0
    */
   public boolean isWrapperFor(Class<?> wrappedType) {
     if (!MockRequest.class.isAssignableFrom(wrappedType)) {
@@ -450,7 +431,6 @@ public class MockRequestWrapper implements MockRequest {
    *
    * @return the dispatcher type of the wrapped request
    * @see MockRequest#getDispatcherType
-   * @since Servlet 3.0
    */
   @Override
   public DispatcherType getDispatcherType() {
@@ -461,7 +441,6 @@ public class MockRequestWrapper implements MockRequest {
    * Gets the request ID for the wrapped request.
    *
    * @return the request ID for the wrapped request
-   * @since Servlet 6.0
    */
   @Override
   public String getRequestId() {
@@ -472,7 +451,6 @@ public class MockRequestWrapper implements MockRequest {
    * Gets the protocol defined request ID, if any, for the wrapped request.
    *
    * @return the protocol defined request ID, if any, for the wrapped request
-   * @since Servlet 6.0
    */
   @Override
   public String getProtocolRequestId() {
@@ -483,10 +461,9 @@ public class MockRequestWrapper implements MockRequest {
    * Gets the connection information for the wrapped request.
    *
    * @return the connection information for the wrapped request
-   * @since Servlet 6.0
    */
   @Override
-  public MockConnection getServletConnection() {
-    return request.getServletConnection();
+  public MockConnection getConnection() {
+    return request.getConnection();
   }
 }

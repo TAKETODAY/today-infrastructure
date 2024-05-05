@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,7 +365,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
     }
     catch (NoSuchBeanDefinitionException ex) {
       throw new ApplicationContextException("Expected a single ScriptTemplateConfig bean in the current " +
-              "Servlet web application context or the parent root context: ScriptTemplateConfigurer is " +
+              "Web application context or the parent root context: ScriptTemplateConfigurer is " +
               "the usual implementation. This bean may have any name.", ex);
     }
   }

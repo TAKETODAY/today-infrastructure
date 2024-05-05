@@ -49,7 +49,8 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.0 2018-06-25 19:47:14
  */
-public class DispatcherServlet extends DispatcherHandler implements MockApi, Serializable {
+public class MockDispatcher extends DispatcherHandler implements MockApi, Serializable {
+
   /**
    * Prefix for ApplicationContext ids that refer to context path
    */
@@ -62,7 +63,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    * Prefix for the MockContext attribute for the ApplicationContext.
    * The completion is the servlet name.
    */
-  public static final String CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
+  public static final String CONTEXT_PREFIX = MockDispatcher.class.getName() + ".CONTEXT.";
 
   private transient MockConfig mockConfig;
 
@@ -73,7 +74,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
   /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
-  public DispatcherServlet() { }
+  public MockDispatcher() { }
 
   /**
    * Create a new {@code InfraHandler} with the given application context. This
@@ -112,7 +113,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    * @see #initApplicationContext
    * @see #configureAndRefreshApplicationContext
    */
-  public DispatcherServlet(ApplicationContext context) {
+  public MockDispatcher(ApplicationContext context) {
     super(context);
   }
 
@@ -195,7 +196,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
   protected void applyDefaultContextId(ConfigurableApplicationContext context) {
     // Generate default id...
     context.setId(APPLICATION_CONTEXT_ID_PREFIX +
-            ObjectUtils.getDisplayString(getMockContext()) + '/' + getServletName());
+            ObjectUtils.getDisplayString(getMockContext()) + '/' + getName());
   }
 
   @Override
@@ -249,10 +250,10 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    * {@code SERVLET_CONTEXT_PREFIX + servlet name}.
    *
    * @see #CONTEXT_PREFIX
-   * @see #getServletName
+   * @see #getName
    */
   public String getMockContextAttributeName() {
-    return CONTEXT_PREFIX + getServletName();
+    return CONTEXT_PREFIX + getName();
   }
 
   @Override
@@ -311,7 +312,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    *
    * @return the name of this servlet instance
    */
-  public String getServletName() {
+  public String getName() {
     return getMockConfig().getMockName();
   }
 

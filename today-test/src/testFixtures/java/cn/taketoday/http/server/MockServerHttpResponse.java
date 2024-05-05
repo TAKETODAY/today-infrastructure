@@ -49,7 +49,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   private boolean headersWritten = false;
 
   private final HttpHeaders headers;
-  private final HttpMockResponse servletResponse;
+  private final HttpMockResponse mockResponse;
 
   @Nullable
   private HttpHeaders readOnlyHeaders;
@@ -57,11 +57,11 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   /**
    * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpMockResponse}.
    *
-   * @param servletResponse the servlet response
+   * @param mockResponse the servlet response
    */
-  public MockServerHttpResponse(HttpMockResponse servletResponse) {
-    Assert.notNull(servletResponse, "HttpServletResponse is required");
-    this.servletResponse = servletResponse;
+  public MockServerHttpResponse(HttpMockResponse mockResponse) {
+    Assert.notNull(mockResponse, "HttpServletResponse is required");
+    this.mockResponse = mockResponse;
     this.headers = new MockResponseHttpHeaders();
   }
 
@@ -69,13 +69,13 @@ public class MockServerHttpResponse implements ServerHttpResponse {
    * Return the {@code HttpServletResponse} this object is based on.
    */
   public HttpMockResponse getServletResponse() {
-    return this.servletResponse;
+    return this.mockResponse;
   }
 
   @Override
   public void setStatusCode(HttpStatusCode status) {
     Assert.notNull(status, "HttpStatus is required");
-    this.servletResponse.setStatus(status.value());
+    this.mockResponse.setStatus(status.value());
   }
 
   @Override
@@ -96,14 +96,14 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   public OutputStream getBody() throws IOException {
     this.bodyUsed = true;
     writeHeaders();
-    return this.servletResponse.getOutputStream();
+    return this.mockResponse.getOutputStream();
   }
 
   @Override
   public void flush() throws IOException {
     writeHeaders();
     if (this.bodyUsed) {
-      this.servletResponse.flushBuffer();
+      this.mockResponse.flushBuffer();
     }
   }
 
@@ -118,22 +118,22 @@ public class MockServerHttpResponse implements ServerHttpResponse {
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
-          servletResponse.addHeader(headerName, headerValue);
+          mockResponse.addHeader(headerName, headerValue);
         }
       }
 
       // HttpServletResponse exposes some headers as properties: we should include those if not already present
       MediaType contentTypeHeader = this.headers.getContentType();
-      if (servletResponse.getContentType() == null && contentTypeHeader != null) {
-        servletResponse.setContentType(contentTypeHeader.toString());
+      if (mockResponse.getContentType() == null && contentTypeHeader != null) {
+        mockResponse.setContentType(contentTypeHeader.toString());
       }
-      if (servletResponse.getCharacterEncoding() == null
+      if (mockResponse.getCharacterEncoding() == null
               && contentTypeHeader != null && contentTypeHeader.getCharset() != null) {
-        servletResponse.setCharacterEncoding(contentTypeHeader.getCharset().name());
+        mockResponse.setCharacterEncoding(contentTypeHeader.getCharset().name());
       }
       long contentLength = headers.getContentLength();
       if (contentLength != -1) {
-        servletResponse.setContentLengthLong(contentLength);
+        mockResponse.setContentLengthLong(contentLength);
       }
       this.headersWritten = true;
     }
@@ -163,10 +163,10 @@ public class MockServerHttpResponse implements ServerHttpResponse {
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so check super first
         String value = super.getFirst(headerName);
-        return (value != null ? value : servletResponse.getContentType());
+        return (value != null ? value : mockResponse.getContentType());
       }
       else {
-        String value = servletResponse.getHeader(headerName);
+        String value = mockResponse.getHeader(headerName);
         return value != null ? value : super.getFirst(headerName);
       }
     }
@@ -182,7 +182,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
         return (value != null ? Collections.singletonList(value) : null);
       }
 
-      Collection<String> values1 = servletResponse.getHeaders(headerName);
+      Collection<String> values1 = mockResponse.getHeaders(headerName);
       if (headersWritten) {
         return new ArrayList<>(values1);
       }

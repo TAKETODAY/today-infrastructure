@@ -222,7 +222,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
     }
     // If we get here, we need to process an existing result object immediately.
     // The decision is made within the result lock; just the handle call outside
-    // of it, avoiding any deadlock potential with Servlet container locks.
+    // of it, avoiding any deadlock potential with container locks.
     try {
       resultHandler.handleResult(resultToHandle);
     }
@@ -268,7 +268,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
     }
     // If we get here, we need to process an existing result object immediately.
     // The decision is made within the result lock; just the handle call outside
-    // of it, avoiding any deadlock potential with Servlet container locks.
+    // of it, avoiding any deadlock potential with Web container locks.
     resultHandlerToUse.handleResult(result);
     return true;
   }

@@ -502,7 +502,7 @@ public interface ServerResponse {
        *
        * @param request the HTTP request, HTTP response to write to
        * @return a {@code ModelAndView} to render, or {@code null} if handled directly
-       * @throws Exception in case of Servlet errors
+       * @throws Exception in case of Web errors
        */
       @Nullable
       Object write(RequestContext request) throws Exception;

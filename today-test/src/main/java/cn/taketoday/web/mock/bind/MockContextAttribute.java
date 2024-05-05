@@ -34,7 +34,7 @@ import cn.taketoday.web.annotation.RequestParam;
 public @interface MockContextAttribute {
 
   /**
-   * Servlet Context attribute name
+   * Mock Context attribute name
    */
   String value() default Constant.BLANK;
 

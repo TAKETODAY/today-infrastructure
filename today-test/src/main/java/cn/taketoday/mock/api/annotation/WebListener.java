@@ -39,8 +39,6 @@ import cn.taketoday.mock.api.http.HttpSessionListener;
  * {@link MockRequestListener}, {@link MockRequestAttributeListener},
  * {@link HttpSessionListener}, or {@link HttpSessionAttributeListener}, or
  * {@link HttpSessionIdListener} interfaces.
- *
- * @since Servlet 3.0
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

@@ -57,11 +57,11 @@ class HttpEntityMethodProcessorTests {
 
   private ResolvableMethodParameter paramSimpleBean;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   private MockRequestContext webRequest;
 
-  private MockHttpResponseImpl servletResponse;
+  private MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -69,17 +69,17 @@ class HttpEntityMethodProcessorTests {
     paramList = new ResolvableMethodParameter(new MethodParameter(method, 0));
     paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
 
-    servletRequest = new HttpMockRequestImpl();
-    servletResponse = new MockHttpResponseImpl();
-    servletRequest.setMethod("POST");
-    webRequest = new MockRequestContext(null, servletRequest, servletResponse);
+    mockRequest = new HttpMockRequestImpl();
+    mockResponse = new MockHttpResponseImpl();
+    mockRequest.setMethod("POST");
+    webRequest = new MockRequestContext(null, mockRequest, mockResponse);
   }
 
   @Test
   public void resolveArgument() throws Exception {
     String content = "{\"name\" : \"Jad\"}";
-    servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    servletRequest.setContentType("application/json");
+    mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -95,8 +95,8 @@ class HttpEntityMethodProcessorTests {
 
   @Test  // SPR-12861
   public void resolveArgumentWithEmptyBody() throws Exception {
-    this.servletRequest.setContent(new byte[0]);
-    this.servletRequest.setContentType("application/json");
+    this.mockRequest.setContent(new byte[0]);
+    this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -111,8 +111,8 @@ class HttpEntityMethodProcessorTests {
   @Test
   public void resolveGenericArgument() throws Exception {
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType("application/json");
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -134,8 +134,8 @@ class HttpEntityMethodProcessorTests {
     MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -162,7 +162,7 @@ class HttpEntityMethodProcessorTests {
     Object returnValue = new JacksonController().handleList();
     processor.handleReturnValue(webRequest, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"type\":\"foo\"")).isTrue();
     assertThat(content.contains("\"type\":\"bar\"")).isTrue();
   }
@@ -181,12 +181,12 @@ class HttpEntityMethodProcessorTests {
     processor.handleReturnValue(webRequest, new HandlerMethod(this, method), returnValue);
 
     assertThat(webRequest.responseHeaders().getFirst("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
-    assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
+    assertThat(mockResponse.getContentAsString()).isEqualTo("Foo");
   }
 
   @Test  // gh-24539
   public void handleReturnValueWithMalformedAcceptHeader() throws Exception {
-    servletRequest.addHeader("Accept", "null");
+    mockRequest.addHeader("Accept", "null");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new ByteArrayHttpMessageConverter());
@@ -199,9 +199,9 @@ class HttpEntityMethodProcessorTests {
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);
     processor.handleReturnValue(webRequest, new HandlerMethod(this, method), returnValue);
 
-    assertThat(servletResponse.getStatus()).isEqualTo(400);
-    assertThat(servletResponse.getHeader("Content-Type")).isNull();
-    assertThat(servletResponse.getContentAsString()).isEmpty();
+    assertThat(mockResponse.getStatus()).isEqualTo(400);
+    assertThat(mockResponse.getHeader("Content-Type")).isNull();
+    assertThat(mockResponse.getContentAsString()).isEmpty();
   }
 
   @SuppressWarnings("unused")

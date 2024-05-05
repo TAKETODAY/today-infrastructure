@@ -25,7 +25,7 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 /**
  * A http request handler return value type for asynchronous request processing
  * where the application can write directly to the response {@code OutputStream}
- * without holding up the Servlet container thread.
+ * without holding up the container thread.
  *
  * <p><strong>Note:</strong> when using this option it is highly recommended to
  * configure explicitly the TaskExecutor used in Web MVC for executing

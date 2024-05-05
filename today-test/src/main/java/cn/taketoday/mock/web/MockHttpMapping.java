@@ -24,10 +24,6 @@ import cn.taketoday.mock.api.http.MappingMatch;
 /**
  * Mock implementation of {@link HttpMockMapping}.
  *
- * <p>Currently not exposed in {@link HttpMockRequestImpl} as a setter to
- * avoid issues for Maven builds in applications with a Servlet 3.1 runtime
- * requirement.
- *
  * @author Rossen Stoyanchev
  * @since 4.0
  */
@@ -60,7 +56,7 @@ public class MockHttpMapping implements HttpMockMapping {
   }
 
   @Override
-  public String getServletName() {
+  public String getMockName() {
     return this.mockName;
   }
 

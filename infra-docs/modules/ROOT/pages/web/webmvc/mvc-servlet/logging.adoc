@@ -18,7 +18,7 @@ not meet the stated goals, please let us know.
 
 DEBUG and TRACE logging may log sensitive information. This is why request parameters and
 headers are masked by default and their logging in full must be enabled explicitly
-through the `enableLoggingRequestDetails` property on `DispatcherServlet`.
+through the `enableLoggingRequestDetails` property on `MockDispatcher`.
 
 The following example shows how to do so by using Java configuration:
 

@@ -13,7 +13,7 @@ loading a `WebApplicationContext` with a `MockContextImpl`.
 See xref:testing/testcontext-framework.adoc[TestContext Framework] for more details.
 
 * Web MVC Test: A framework, also known as `MockMvc`, for testing annotated controllers
-through the `DispatcherServlet` (that is, supporting annotations), complete with the
+through the `MockDispatcher` (that is, supporting annotations), complete with the
 Web MVC infrastructure but without an HTTP server.
 See xref:testing/spring-mvc-test-framework.adoc[Web MVC Test] for more details.
 

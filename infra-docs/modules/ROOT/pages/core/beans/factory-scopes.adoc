@@ -168,11 +168,11 @@ for the standard scopes: `singleton` and `prototype`.)
 How you accomplish this initial setup depends on your particular Servlet environment.
 
 If you access scoped beans within Infra Web MVC, in effect, within a request that is
-processed by the Infra `DispatcherServlet`, no special setup is necessary.
-`DispatcherServlet` already exposes all relevant state.
+processed by the Infra `MockDispatcher`, no special setup is necessary.
+`MockDispatcher` already exposes all relevant state.
 
 If you use a Servlet web container, with requests processed outside of Infra
-`DispatcherServlet` (for example, when using JSF), you need to register the
+`MockDispatcher` (for example, when using JSF), you need to register the
 `cn.taketoday.web.context.request.RequestContextListener` `MockRequestListener`.
 This can be done programmatically by using the `WebApplicationInitializer` interface.
 Alternatively, add the following declaration to your web application's `web.xml` file:
@@ -211,7 +211,7 @@ shows the filter part of a web application:
 </web-app>
 ----
 
-`DispatcherServlet`, `RequestContextListener`, and `RequestContextFilter` all do exactly
+`MockDispatcher`, `RequestContextListener`, and `RequestContextFilter` all do exactly
 the same thing, namely bind the HTTP request object to the `Thread` that is servicing
 that request. This makes beans that are request- and session-scoped available further
 down the call chain.

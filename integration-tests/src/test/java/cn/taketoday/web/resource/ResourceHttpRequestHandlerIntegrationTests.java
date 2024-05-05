@@ -42,7 +42,7 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.ResponseEntityExceptionHandler;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.UriUtils;
 
@@ -73,7 +73,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
+    MockDispatcher servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -88,7 +88,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo with spaces.css");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
+    MockDispatcher servlet = initDispatcher(WebConfig.class);
     servlet.service(request, response);
 
     String description = "usePathPattern=" + usePathPatterns + ", prefix=" + pathPrefix;
@@ -105,7 +105,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     context.register(GlobalExceptionHandler.class);
     context.refresh();
 
-    DispatcherServlet servlet = new DispatcherServlet();
+    MockDispatcher servlet = new MockDispatcher();
     servlet.setApplicationContext(context);
     servlet.init(this.mockConfig);
 
@@ -125,13 +125,13 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 //        """);
   }
 
-  private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
+  private MockDispatcher initDispatcher(Class<?>... configClasses) {
     var context = new AnnotationConfigWebApplicationContext();
     context.setMockContext(this.mockContext);
     context.register(configClasses);
     context.refresh();
 
-    DispatcherServlet servlet = new DispatcherServlet(context);
+    MockDispatcher servlet = new MockDispatcher(context);
     servlet.init(this.mockConfig);
     return servlet;
   }

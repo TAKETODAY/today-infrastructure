@@ -3,7 +3,7 @@
 
 In a Servlet environment, you have the option of configuring the Servlet container
 programmatically as an alternative or in combination with a `web.xml` file.
-The following example registers a `DispatcherServlet`:
+The following example registers a `MockDispatcher`:
 
 [tabs]
 ======
@@ -34,8 +34,8 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 implementation is detected and automatically used to initialize any Servlet 3 container.
 An abstract base class implementation of `WebApplicationInitializer` named
 `AbstractDispatcherServletInitializer` makes it even easier to register the
-`DispatcherServlet` by overriding methods to specify the mockApi mapping and the
-location of the `DispatcherServlet` configuration.
+`MockDispatcher` by overriding methods to specify the mockApi mapping and the
+location of the `MockDispatcher` configuration.
 
 This is recommended for applications that use Java-based Infra configuration, as the
 following example shows:
@@ -99,7 +99,7 @@ public class MyWebAppInitializer extends AbstractDispatcherServletInitializer {
 ======
 
 `AbstractDispatcherServletInitializer` also provides a convenient way to add `Filter`
-instances and have them be automatically mapped to the `DispatcherServlet`, as the
+instances and have them be automatically mapped to the `MockDispatcher`, as the
 following example shows:
 
 [tabs]
@@ -122,13 +122,13 @@ public class MyWebAppInitializer extends AbstractDispatcherServletInitializer {
 ======
 
 Each filter is added with a default name based on its concrete type and automatically
-mapped to the `DispatcherServlet`.
+mapped to the `MockDispatcher`.
 
 The `isAsyncSupported` protected method of `AbstractDispatcherServletInitializer`
-provides a single place to enable async support on the `DispatcherServlet` and all
+provides a single place to enable async support on the `MockDispatcher` and all
 filters mapped to it. By default, this flag is set to `true`.
 
-Finally, if you need to further customize the `DispatcherServlet` itself, you can
+Finally, if you need to further customize the `MockDispatcher` itself, you can
 override the `createDispatcherServlet` method.
 
 

@@ -20,9 +20,9 @@ package cn.taketoday.mock.web;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.http.HttpMockResponseWrapper;
 
 /**
@@ -56,7 +56,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     Assert.state(!response.isCommitted(), "Cannot perform forward - response is already committed");
-    getMockHttpServletResponse(response).setForwardedUrl(this.resource);
+    getMockHttpResponse(response).setForwardedUrl(this.resource);
     if (logger.isDebugEnabled()) {
       logger.debug("MockRequestDispatcher: forwarding to [" + this.resource + "]");
     }
@@ -66,7 +66,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
   public void include(MockRequest request, MockResponse response) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
-    getMockHttpServletResponse(response).addIncludedUrl(this.resource);
+    getMockHttpResponse(response).addIncludedUrl(this.resource);
     if (logger.isDebugEnabled()) {
       logger.debug("MockRequestDispatcher: including [" + this.resource + "]");
     }
@@ -76,12 +76,12 @@ public class MockRequestDispatcher implements RequestDispatcher {
    * Obtain the underlying {@link MockHttpResponseImpl}, unwrapping
    * {@link HttpMockResponseWrapper} decorators if necessary.
    */
-  protected MockHttpResponseImpl getMockHttpServletResponse(MockResponse response) {
+  protected MockHttpResponseImpl getMockHttpResponse(MockResponse response) {
     if (response instanceof MockHttpResponseImpl) {
       return (MockHttpResponseImpl) response;
     }
     if (response instanceof HttpMockResponseWrapper) {
-      return getMockHttpServletResponse(((HttpMockResponseWrapper) response).getResponse());
+      return getMockHttpResponse(((HttpMockResponseWrapper) response).getResponse());
     }
     throw new IllegalArgumentException("MockRequestDispatcher requires MockHttpServletResponse");
   }

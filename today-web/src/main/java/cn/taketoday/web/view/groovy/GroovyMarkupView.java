@@ -93,7 +93,7 @@ public class GroovyMarkupView extends AbstractTemplateView {
     }
     catch (NoSuchBeanDefinitionException ex) {
       throw new ApplicationContextException("Expected a single GroovyMarkupConfig bean in the current " +
-              "Servlet web application context or the parent root context: GroovyMarkupConfigurer is " +
+              "Web application context or the parent root context: GroovyMarkupConfigurer is " +
               "the usual implementation. This bean may have any name.", ex);
     }
   }

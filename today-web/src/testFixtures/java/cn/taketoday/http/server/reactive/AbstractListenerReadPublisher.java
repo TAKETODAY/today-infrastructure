@@ -38,7 +38,7 @@ import reactor.core.publisher.Operators;
  * event-listener read APIs and Reactive Streams.
  *
  * <p>Specifically a base class for reading from the HTTP request body with
- * Servlet 3.1 non-blocking I/O and Undertow XNIO as well as handling incoming
+ * non-blocking I/O and Undertow XNIO as well as handling incoming
  * WebSocket messages with standard Java WebSocket (JSR-356), Jetty, and
  * Undertow.
  *
@@ -436,7 +436,7 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
         publisher.completionPending = true;
         publisher.handlePendingCompletionOrError();
       }
-      
+
     },
 
     COMPLETED {

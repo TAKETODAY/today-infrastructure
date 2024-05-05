@@ -36,10 +36,10 @@ import static org.mockito.Mockito.mock;
  */
 public class RouterFunctionsTests {
 
-  MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+  MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
   private final ServerRequest request = new DefaultServerRequest(
-          new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), servletResponse), Collections.emptyList());
+          new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), mockResponse), Collections.emptyList());
 
   @Test
   public void routeMatch() {

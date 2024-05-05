@@ -35,7 +35,6 @@ import cn.taketoday.mock.api.annotation.WebListener;
  * been declared, and at their {@link #sessionDestroyed} method in reverse order.
  *
  * @see HttpSessionEvent
- * @since Servlet 2.3
  */
 public interface HttpSessionListener extends EventListener {
 

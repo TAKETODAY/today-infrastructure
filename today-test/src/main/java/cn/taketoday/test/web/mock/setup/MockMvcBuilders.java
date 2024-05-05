@@ -21,6 +21,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.MockMvcBuilder;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -43,7 +44,7 @@ public final class MockMvcBuilders {
   /**
    * Build a {@link MockMvc} instance using the given, fully initialized
    * (i.e., <em>refreshed</em>) {@link WebApplicationContext}.
-   * <p>The {@link cn.taketoday.web.mock.DispatcherServlet DispatcherServlet}
+   * <p>The {@link MockDispatcher DispatcherServlet}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a
    * {@link MockContext MockContext}.
@@ -60,7 +61,7 @@ public final class MockMvcBuilders {
    * controllers and their dependencies, similar to plain unit tests while
    * also making it possible to test one controller at a time.
    * <p>When this builder is used, the minimum infrastructure required by the
-   * {@link cn.taketoday.web.mock.DispatcherServlet DispatcherServlet}
+   * {@link MockDispatcher DispatcherServlet}
    * to serve requests with annotated controllers is created automatically
    * and can be customized, resulting in configuration that is equivalent to
    * what MVC Java configuration provides except using builder-style methods.

@@ -23,8 +23,6 @@ import cn.taketoday.mock.api.annotation.MockSecurity.TransportGuarantee;
 
 /**
  * Java Class representation of an {@link HttpConstraint} annotation value.
- *
- * @since Servlet 3.0
  */
 public class HttpConstraintElement {
 

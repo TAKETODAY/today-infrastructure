@@ -46,8 +46,6 @@ import java.io.IOException;
  * <li>XSL/T filters
  * <li>Mime-type chain Filter
  * </ol>
- *
- * @since Servlet 2.3
  */
 public interface Filter {
 
@@ -107,7 +105,6 @@ public interface Filter {
    * @param chain the <code>FilterChain</code> for invoking the next filter or the resource
    * @throws IOException if an I/O related error has occurred during the processing
    * @throws MockException if an exception occurs that interferes with the filter's normal operation
-   * @see UnavailableException
    */
   void doFilter(MockRequest request, MockResponse response, FilterChain chain)
           throws IOException, MockException;

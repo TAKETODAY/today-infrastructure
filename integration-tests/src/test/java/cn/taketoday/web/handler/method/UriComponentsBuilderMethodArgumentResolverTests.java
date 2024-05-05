@@ -41,7 +41,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private RequestContext webRequest;
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
   private ResolvableMethodParameter builderParam;
   private ResolvableMethodParameter mockBuilderParam;
@@ -50,9 +50,9 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   @BeforeEach
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
-    this.servletRequest = new HttpMockRequestImpl();
+    this.mockRequest = new HttpMockRequestImpl();
     this.webRequest = new MockRequestContext(
-            null, this.servletRequest, new MockHttpResponseImpl());
+            null, this.mockRequest, new MockHttpResponseImpl());
 
     Method method = this.getClass().getDeclaredMethod(
             "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
@@ -70,7 +70,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   @Test
   public void resolveArgument() throws Throwable {
-    this.servletRequest.setPathInfo("/accounts");
+    this.mockRequest.setPathInfo("/accounts");
 
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 

@@ -1,12 +1,12 @@
 [[mvc-mockApi-special-bean-types]]
 = Special Bean Types
 
-The `DispatcherServlet` delegates to special beans to process requests and render the
+The `MockDispatcher` delegates to special beans to process requests and render the
 appropriate responses. By "`special beans`" we mean Infra-managed `Object` instances that
 implement framework contracts. Those usually come with built-in contracts, but
 you can customize their properties and extend or replace them.
 
-The following table lists the special beans detected by the `DispatcherServlet`:
+The following table lists the special beans detected by the `MockDispatcher`:
 
 [[mvc-webappctx-special-beans-tbl]]
 [cols="1,2", options="header"]
@@ -24,10 +24,10 @@ The following table lists the special beans detected by the `DispatcherServlet`:
   (which maintains explicit registrations of URI path patterns to handlers).
 
 | `HandlerAdapter`
-| Help the `DispatcherServlet` to invoke a handler mapped to a request, regardless of
+| Help the `MockDispatcher` to invoke a handler mapped to a request, regardless of
   how the handler is actually invoked. For example, invoking an annotated controller
   requires resolving annotations. The main purpose of a `HandlerAdapter` is
-  to shield the `DispatcherServlet` from such details.
+  to shield the `MockDispatcher` from such details.
 
 | xref:web/webmvc/mvc-mockApi/exceptionhandlers.adoc[`HandlerExceptionResolver`]
 | Strategy to resolve exceptions, possibly mapping them to handlers, to HTML error

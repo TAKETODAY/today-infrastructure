@@ -49,7 +49,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
   private ObjectToStringHttpMessageConverter converter;
 
-  private MockHttpResponseImpl servletResponse;
+  private MockHttpResponseImpl mockResponse;
 
   private MockServerHttpResponse response;
 
@@ -58,8 +58,8 @@ public class ObjectToStringHttpMessageConverterTests {
     ConversionService conversionService = new DefaultConversionService();
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
-    this.servletResponse = new MockHttpResponseImpl();
-    this.response = new MockServerHttpResponse(this.servletResponse);
+    this.mockResponse = new MockHttpResponseImpl();
+    this.response = new MockServerHttpResponse(this.mockResponse);
   }
 
   @Test
@@ -94,7 +94,7 @@ public class ObjectToStringHttpMessageConverterTests {
   public void defaultCharset() throws IOException {
     this.converter.write(Integer.valueOf(5), null, response);
 
-    assertThat(servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
+    assertThat(mockResponse.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
   @Test
@@ -103,7 +103,7 @@ public class ObjectToStringHttpMessageConverterTests {
     ObjectToStringHttpMessageConverter converter = new ObjectToStringHttpMessageConverter(cs, StandardCharsets.UTF_16);
     converter.write((byte) 31, null, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-16");
+    assertThat(this.mockResponse.getCharacterEncoding()).isEqualTo("UTF-16");
   }
 
   @Test
@@ -111,7 +111,7 @@ public class ObjectToStringHttpMessageConverterTests {
     this.converter.setWriteAcceptCharset(true);
     this.converter.write(new Date(), null, this.response);
 
-    assertThat(this.servletResponse.getHeader("Accept-Charset")).isNotNull();
+    assertThat(this.mockResponse.getHeader("Accept-Charset")).isNotNull();
   }
 
   @Test
@@ -119,7 +119,7 @@ public class ObjectToStringHttpMessageConverterTests {
     this.converter.setWriteAcceptCharset(false);
     this.converter.write(new Date(), null, this.response);
 
-    assertThat(this.servletResponse.getHeader("Accept-Charset")).isNull();
+    assertThat(this.mockResponse.getHeader("Accept-Charset")).isNull();
   }
 
   @Test
@@ -149,10 +149,10 @@ public class ObjectToStringHttpMessageConverterTests {
   public void write() throws IOException {
     this.converter.write((byte) -8, null, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-8");
-    assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
-    assertThat(this.servletResponse.getContentLength()).isEqualTo(2);
-    assertThat(this.servletResponse.getContentAsByteArray()).isEqualTo(new byte[] { '-', '8' });
+    assertThat(this.mockResponse.getCharacterEncoding()).isEqualTo("UTF-8");
+    assertThat(this.mockResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
+    assertThat(this.mockResponse.getContentLength()).isEqualTo(2);
+    assertThat(this.mockResponse.getContentAsByteArray()).isEqualTo(new byte[] { '-', '8' });
   }
 
   @Test
@@ -160,11 +160,11 @@ public class ObjectToStringHttpMessageConverterTests {
     MediaType contentType = new MediaType("text", "plain", StandardCharsets.UTF_16);
     this.converter.write(Integer.valueOf(958), contentType, this.response);
 
-    assertThat(this.servletResponse.getCharacterEncoding()).isEqualTo("UTF-16");
-    assertThat(this.servletResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
-    assertThat(this.servletResponse.getContentLength()).isEqualTo(8);
+    assertThat(this.mockResponse.getCharacterEncoding()).isEqualTo("UTF-16");
+    assertThat(this.mockResponse.getContentType().startsWith(MediaType.TEXT_PLAIN_VALUE)).isTrue();
+    assertThat(this.mockResponse.getContentLength()).isEqualTo(8);
     // First two bytes: byte order mark
-    assertThat(this.servletResponse.getContentAsByteArray()).isEqualTo(new byte[] { -2, -1, 0, '9', 0, '5', 0, '8' });
+    assertThat(this.mockResponse.getContentAsByteArray()).isEqualTo(new byte[] { -2, -1, 0, '9', 0, '5', 0, '8' });
   }
 
   @Test

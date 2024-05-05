@@ -41,7 +41,6 @@ public interface MockApi {
    * @param config a <code>ServletConfig</code> object containing the mock's configuration and initialization
    * parameters
    * @throws MockException if an exception has occurred that interferes with the mock's normal operation
-   * @see UnavailableException
    * @see #getMockConfig
    */
   void init(MockConfig config) throws MockException;

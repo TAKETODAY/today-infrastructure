@@ -22,7 +22,6 @@ import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -39,7 +38,6 @@ import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMock;
@@ -66,7 +64,7 @@ public class MockHttpHandlerAdapter implements MockApi {
   private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
 
   @Nullable
-  private String servletPath;
+  private String mockPath;
 
   public MockHttpHandlerAdapter(HttpHandler httpHandler) {
     Assert.notNull(httpHandler, "HttpHandler is required");
@@ -99,7 +97,7 @@ public class MockHttpHandlerAdapter implements MockApi {
    */
   @Nullable
   public String getServletPath() {
-    return this.servletPath;
+    return this.mockPath;
   }
 
   public void setDataBufferFactory(DataBufferFactory dataBufferFactory) {
@@ -115,36 +113,11 @@ public class MockHttpHandlerAdapter implements MockApi {
 
   @Override
   public void init(MockConfig config) {
-    this.servletPath = getServletPath(config);
+    this.mockPath = getServletPath(config);
   }
 
   private String getServletPath(MockConfig config) {
-    String name = config.getMockName();
-    MockRegistration registration = config.getMockContext().getServletRegistration(name);
-    if (registration == null) {
-      throw new IllegalStateException("ServletRegistration not found for Servlet '" + name + "'");
-    }
-
-    Collection<String> mappings = registration.getMappings();
-    if (mappings.size() == 1) {
-      String mapping = mappings.iterator().next();
-      if (mapping.equals("/")) {
-        return "";
-      }
-      if (mapping.endsWith("/*")) {
-        String path = mapping.substring(0, mapping.length() - 2);
-        if (!path.isEmpty() && logger.isDebugEnabled()) {
-          logger.debug("Found servlet mapping prefix '{}' for '{}'", path, name);
-        }
-        return path;
-      }
-    }
-
-    throw new IllegalArgumentException(
-            "Expected a single Servlet mapping: " +
-                    "either the default Servlet mapping (i.e. '/'), " +
-                    "or a path based mapping (e.g. '/*', '/foo/*'). " +
-                    "Actual mappings: " + mappings + " for Servlet '" + name + "'");
+    return "";
   }
 
   @Override
@@ -194,9 +167,9 @@ public class MockHttpHandlerAdapter implements MockApi {
   protected MockServerHttpRequest createRequest(HttpMockRequest request, AsyncContext context)
           throws IOException, URISyntaxException {
 
-    Assert.notNull(this.servletPath, "Servlet path is not initialized");
+    Assert.notNull(this.mockPath, "Servlet path is not initialized");
     return new MockServerHttpRequest(
-            request, context, this.servletPath, getDataBufferFactory(), getBufferSize());
+            request, context, this.mockPath, getDataBufferFactory(), getBufferSize());
   }
 
   protected MockServerHttpResponse createResponse(

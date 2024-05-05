@@ -64,7 +64,7 @@ public class WebAsyncManagerFactory {
 
   /**
    * Specify the amount of time, in milliseconds, before concurrent handling
-   * should time out. In Servlet 3, the timeout begins after the main request
+   * should time out. the timeout begins after the main request
    * processing thread has exited and ends when the request is dispatched again
    * for further processing of the concurrently produced result.
    * <p>If this value is not set, the default timeout of the underlying

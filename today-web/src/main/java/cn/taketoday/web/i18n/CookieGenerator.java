@@ -116,7 +116,7 @@ public class CookieGenerator {
   /**
    * Use the given maximum age (in seconds) for cookies created by this generator.
    * Useful special value: -1 ... not persistent, deleted when client shuts down.
-   * <p>Default is no specific maximum age at all, using the Servlet container's
+   * <p>Default is no specific maximum age at all, using the Web container's
    * default.
    *
    * @see ResponseCookieBuilder#maxAge

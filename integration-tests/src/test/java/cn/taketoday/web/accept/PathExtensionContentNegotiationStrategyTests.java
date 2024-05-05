@@ -41,15 +41,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class PathExtensionContentNegotiationStrategyTests {
 
-  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
 
-  private final RequestContext webRequest = new MockRequestContext(null, servletRequest, null);
+  private final RequestContext webRequest = new MockRequestContext(null, mockRequest, null);
 
   private PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy();
 
   @Test
   void resolveMediaTypesFromMapping() throws Exception {
-    this.servletRequest.setRequestURI("test.html");
+    this.mockRequest.setRequestURI("test.html");
 
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
@@ -64,7 +64,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
   @Test
   void resolveMediaTypesFromMediaTypeFactory() throws Exception {
-    this.servletRequest.setRequestURI("test.xls");
+    this.mockRequest.setRequestURI("test.xls");
 
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
@@ -73,17 +73,17 @@ class PathExtensionContentNegotiationStrategyTests {
 
   @Test
   void getMediaTypeFilenameWithContextPath() throws Exception {
-    this.servletRequest.setRequestURI("/");
+    this.mockRequest.setRequestURI("/");
     assertThat(this.strategy.resolveMediaTypes(webRequest)).as("Context path should be excluded").isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
-    this.servletRequest.setRequestURI("/project-1.0.0.M3");
+    this.mockRequest.setRequestURI("/project-1.0.0.M3");
     assertThat(this.strategy.resolveMediaTypes(webRequest)).as("Context path should be excluded").isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
   }
 
   @Test
     // SPR-9390
   void getMediaTypeFilenameWithEncodedURI() throws Exception {
-    this.servletRequest.setRequestURI("/quo%20vadis%3f.html");
+    this.mockRequest.setRequestURI("/quo%20vadis%3f.html");
     List<MediaType> result = this.strategy.resolveMediaTypes(webRequest);
 
     assertThat(result).as("Invalid content type").isEqualTo(Collections.singletonList(new MediaType("text", "html")));
@@ -92,7 +92,7 @@ class PathExtensionContentNegotiationStrategyTests {
   @Test
     // SPR-10170
   void resolveMediaTypesIgnoreUnknownExtension() throws Exception {
-    this.servletRequest.setRequestURI("test.foobar");
+    this.mockRequest.setRequestURI("test.foobar");
 
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
@@ -101,7 +101,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
   @Test
   void resolveMediaTypesDoNotIgnoreUnknownExtension() {
-    this.servletRequest.setRequestURI("test.foobar");
+    this.mockRequest.setRequestURI("test.foobar");
 
     this.strategy.setIgnoreUnknownExtensions(false);
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)

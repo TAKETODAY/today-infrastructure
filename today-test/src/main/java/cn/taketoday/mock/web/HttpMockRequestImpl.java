@@ -49,20 +49,15 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.DispatcherType;
-import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockConnection;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockInputStream;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpMockMapping;
 import cn.taketoday.mock.api.http.HttpMockRequest;
@@ -71,6 +66,11 @@ import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.api.http.HttpUpgradeHandler;
 import cn.taketoday.mock.api.http.MappingMatch;
 import cn.taketoday.mock.api.http.Part;
+import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Mock implementation of the {@link HttpMockRequest} interface.
@@ -78,8 +78,6 @@ import cn.taketoday.mock.api.http.Part;
  * <p>The default, preferred {@link Locale} for the <em>server</em> mocked by this request
  * is {@link Locale#ENGLISH}. This value can be changed via {@link #addPreferredLocale}
  * or {@link #setPreferredLocales}.
- *
- * <p>this set of mocks is designed on a Servlet 4.0 baseline.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
@@ -971,7 +969,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public MockConnection getServletConnection() {
+  public MockConnection getConnection() {
     return new MockConnection() {
       @Override
       public String getConnectionId() {
@@ -1400,7 +1398,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public HttpMockMapping getHttpServletMapping() {
+  public HttpMockMapping getHttpMapping() {
     return (this.httpMockMapping == null ?
             new MockHttpMapping("", "", "", determineMappingMatch()) :
             this.httpMockMapping);

@@ -21,7 +21,6 @@ package cn.taketoday.mock.api;
  * Event class for notifications about changes to the attributes of the MockContext of a web application.
  *
  * @see MockContextAttributeListener
- * @since Servlet 2.3
  */
 public class MockContextAttributeEvent extends MockContextEvent {
 

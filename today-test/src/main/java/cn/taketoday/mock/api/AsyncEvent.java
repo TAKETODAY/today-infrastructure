@@ -21,8 +21,6 @@ package cn.taketoday.mock.api;
  * Event that gets fired when the asynchronous operation initiated on a ServletRequest (via a call to
  * {@link MockRequest#startAsync} or {@link MockRequest#startAsync(MockRequest, MockResponse)}) has
  * completed, timed out, or produced an error.
- *
- * @since Servlet 3.0
  */
 public class AsyncEvent {
 

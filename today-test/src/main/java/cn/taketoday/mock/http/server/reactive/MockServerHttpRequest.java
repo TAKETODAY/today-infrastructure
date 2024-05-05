@@ -71,9 +71,9 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
   private final Flux<DataBuffer> body;
 
   private MockServerHttpRequest(HttpMethod httpMethod,
-      URI uri, @Nullable String contextPath, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
-      @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress,
-      @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
+          URI uri, @Nullable String contextPath, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
+          @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress,
+          @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
 
     super(uri, contextPath, headers);
     this.httpMethod = httpMethod;
@@ -213,7 +213,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
    */
   public static BodyBuilder method(HttpMethod method, URI url) {
     Assert.notNull(method, "HTTP method is required. " +
-        "For a custom HTTP method, please provide a String HTTP method value.");
+            "For a custom HTTP method, please provide a String HTTP method value.");
     return new DefaultBodyBuilder(method, url);
   }
 
@@ -599,26 +599,26 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     private Charset getCharset() {
       return Optional.ofNullable(this.headers.getContentType())
-          .map(MimeType::getCharset).orElse(StandardCharsets.UTF_8);
+              .map(MimeType::getCharset).orElse(StandardCharsets.UTF_8);
     }
 
     @Override
     public MockServerHttpRequest body(Publisher<? extends DataBuffer> body) {
       applyCookiesIfNecessary();
       return new MockServerHttpRequest(this.method, getUrlToUse(), this.contextPath,
-          this.headers, this.cookies, this.localAddress, this.remoteAddress, this.sslInfo, body);
+              this.headers, this.cookies, this.localAddress, this.remoteAddress, this.sslInfo, body);
     }
 
     private void applyCookiesIfNecessary() {
       if (this.headers.get(HttpHeaders.COOKIE) == null) {
         this.cookies.values().stream().flatMap(Collection::stream)
-            .forEach(cookie -> this.headers.add(HttpHeaders.COOKIE, cookie.toString()));
+                .forEach(cookie -> this.headers.add(HttpHeaders.COOKIE, cookie.toString()));
       }
     }
 
     private URI getUrlToUse() {
       MultiValueMap<String, String> params =
-          this.queryParamsBuilder.buildAndExpand().encode().getQueryParams();
+              this.queryParamsBuilder.buildAndExpand().encode().getQueryParams();
       if (!params.isEmpty()) {
         return UriComponentsBuilder.fromUri(this.url).queryParams(params).build(true).toUri();
       }

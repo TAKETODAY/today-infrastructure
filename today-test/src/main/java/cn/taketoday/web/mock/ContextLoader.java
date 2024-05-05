@@ -44,7 +44,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
-import static cn.taketoday.web.mock.DispatcherServlet.APPLICATION_CONTEXT_ID_PREFIX;
+import static cn.taketoday.web.mock.MockDispatcher.APPLICATION_CONTEXT_ID_PREFIX;
 
 /**
  * Performs the actual initialization work for the root application context.
@@ -183,7 +183,7 @@ public class ContextLoader {
   /**
    * Create a new {@code ContextLoader} with the given application context. This
    * constructor is useful in Servlet initializers where instance-based registration
-   * of listeners is possible through the {@link MockContext#addListener} API.
+   * of listeners is possible through the  MockContext#addListener API.
    * <p>The context may or may not yet be {@linkplain
    * ConfigurableApplicationContext#refresh() refreshed}. If it (a) is an implementation
    * of {@link ConfigurableWebApplicationContext} and (b) has <strong>not</strong>

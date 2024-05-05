@@ -38,8 +38,6 @@ import cn.taketoday.mock.api.http.HttpMockRequest;
  * <li>If no matching error page was found, or the error page did not call {@link #complete} or any of the
  * {@link #dispatch} methods, call {@link #complete}.</li>
  * </ol>
- *
- * @since Servlet 3.0
  */
 public interface AsyncContext {
 

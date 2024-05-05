@@ -19,8 +19,6 @@ package cn.taketoday.mock.api.http;
 
 /**
  * This is the class representing event notifications for changes to sessions within a web application.
- *
- * @since Servlet 2.3
  */
 public class HttpSessionEvent extends java.util.EventObject {
 

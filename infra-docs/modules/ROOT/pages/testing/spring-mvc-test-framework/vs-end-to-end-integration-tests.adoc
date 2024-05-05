@@ -28,7 +28,7 @@ different stops on the scale from classic unit testing to full integration testi
 certain, none of the options in Web MVC Test fall under the category of classic unit
 testing, but they are a little closer to it. For example, you can isolate the web layer
 by injecting mocked services into controllers, in which case you are testing the web
-layer only through the `DispatcherServlet` but with actual Infra configuration, as you
+layer only through the `MockDispatcher` but with actual Infra configuration, as you
 might test the data access layer in isolation from the layers above it. Also, you can use
 the stand-alone setup, focusing on one controller at a time and manually providing the
 configuration required to make it work.

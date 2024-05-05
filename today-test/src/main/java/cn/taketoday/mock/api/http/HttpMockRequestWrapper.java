@@ -34,7 +34,6 @@ import cn.taketoday.mock.api.MockRequestWrapper;
  * object.
  *
  * @see HttpMockRequest
- * @since Servlet 2.3
  */
 public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMockRequest {
 
@@ -48,7 +47,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
     super(request);
   }
 
-  private HttpMockRequest _getHttpServletRequest() {
+  private HttpMockRequest _getHttpMockRequest() {
     return (HttpMockRequest) super.getRequest();
   }
 
@@ -57,7 +56,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getAuthType() {
-    return this._getHttpServletRequest().getAuthType();
+    return this._getHttpMockRequest().getAuthType();
   }
 
   /**
@@ -65,7 +64,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public Cookie[] getCookies() {
-    return this._getHttpServletRequest().getCookies();
+    return this._getHttpMockRequest().getCookies();
   }
 
   /**
@@ -73,7 +72,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public long getDateHeader(String name) {
-    return this._getHttpServletRequest().getDateHeader(name);
+    return this._getHttpMockRequest().getDateHeader(name);
   }
 
   /**
@@ -81,7 +80,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getHeader(String name) {
-    return this._getHttpServletRequest().getHeader(name);
+    return this._getHttpMockRequest().getHeader(name);
   }
 
   /**
@@ -89,7 +88,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public Enumeration<String> getHeaders(String name) {
-    return this._getHttpServletRequest().getHeaders(name);
+    return this._getHttpMockRequest().getHeaders(name);
   }
 
   /**
@@ -97,7 +96,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public Enumeration<String> getHeaderNames() {
-    return this._getHttpServletRequest().getHeaderNames();
+    return this._getHttpMockRequest().getHeaderNames();
   }
 
   /**
@@ -105,17 +104,15 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public int getIntHeader(String name) {
-    return this._getHttpServletRequest().getIntHeader(name);
+    return this._getHttpMockRequest().getIntHeader(name);
   }
 
   /**
    * The default behavior of this method is to return getServletMapping() on the wrapped request object.
-   *
-   * @since Servlet 4.0
    */
   @Override
-  public HttpMockMapping getHttpServletMapping() {
-    return this._getHttpServletRequest().getHttpServletMapping();
+  public HttpMockMapping getHttpMapping() {
+    return this._getHttpMockRequest().getHttpMapping();
   }
 
   /**
@@ -123,7 +120,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getMethod() {
-    return this._getHttpServletRequest().getMethod();
+    return this._getHttpMockRequest().getMethod();
   }
 
   /**
@@ -131,7 +128,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getPathInfo() {
-    return this._getHttpServletRequest().getPathInfo();
+    return this._getHttpMockRequest().getPathInfo();
   }
 
   /**
@@ -139,7 +136,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getPathTranslated() {
-    return this._getHttpServletRequest().getPathTranslated();
+    return this._getHttpMockRequest().getPathTranslated();
   }
 
   /**
@@ -147,7 +144,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getQueryString() {
-    return this._getHttpServletRequest().getQueryString();
+    return this._getHttpMockRequest().getQueryString();
   }
 
   /**
@@ -155,7 +152,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getRemoteUser() {
-    return this._getHttpServletRequest().getRemoteUser();
+    return this._getHttpMockRequest().getRemoteUser();
   }
 
   /**
@@ -163,7 +160,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public boolean isUserInRole(String role) {
-    return this._getHttpServletRequest().isUserInRole(role);
+    return this._getHttpMockRequest().isUserInRole(role);
   }
 
   /**
@@ -171,7 +168,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public java.security.Principal getUserPrincipal() {
-    return this._getHttpServletRequest().getUserPrincipal();
+    return this._getHttpMockRequest().getUserPrincipal();
   }
 
   /**
@@ -179,7 +176,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getRequestedSessionId() {
-    return this._getHttpServletRequest().getRequestedSessionId();
+    return this._getHttpMockRequest().getRequestedSessionId();
   }
 
   /**
@@ -187,7 +184,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public String getRequestURI() {
-    return this._getHttpServletRequest().getRequestURI();
+    return this._getHttpMockRequest().getRequestURI();
   }
 
   /**
@@ -195,7 +192,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public StringBuffer getRequestURL() {
-    return this._getHttpServletRequest().getRequestURL();
+    return this._getHttpMockRequest().getRequestURL();
   }
 
   /**
@@ -203,7 +200,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public HttpSession getSession(boolean create) {
-    return this._getHttpServletRequest().getSession(create);
+    return this._getHttpMockRequest().getSession(create);
   }
 
   /**
@@ -211,17 +208,15 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public HttpSession getSession() {
-    return this._getHttpServletRequest().getSession();
+    return this._getHttpMockRequest().getSession();
   }
 
   /**
    * The default behavior of this method is to return changeSessionId() on the wrapped request object.
-   *
-   * @since Servlet 3.1
    */
   @Override
   public String changeSessionId() {
-    return this._getHttpServletRequest().changeSessionId();
+    return this._getHttpMockRequest().changeSessionId();
   }
 
   /**
@@ -229,7 +224,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public boolean isRequestedSessionIdValid() {
-    return this._getHttpServletRequest().isRequestedSessionIdValid();
+    return this._getHttpMockRequest().isRequestedSessionIdValid();
   }
 
   /**
@@ -237,7 +232,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public boolean isRequestedSessionIdFromCookie() {
-    return this._getHttpServletRequest().isRequestedSessionIdFromCookie();
+    return this._getHttpMockRequest().isRequestedSessionIdFromCookie();
   }
 
   /**
@@ -245,37 +240,31 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    */
   @Override
   public boolean isRequestedSessionIdFromURL() {
-    return this._getHttpServletRequest().isRequestedSessionIdFromURL();
+    return this._getHttpMockRequest().isRequestedSessionIdFromURL();
   }
 
   /**
    * The default behavior of this method is to call authenticate on the wrapped request object.
-   *
-   * @since Servlet 3.0
    */
   @Override
   public boolean authenticate(HttpMockResponse response) throws IOException, MockException {
-    return this._getHttpServletRequest().authenticate(response);
+    return this._getHttpMockRequest().authenticate(response);
   }
 
   /**
    * The default behavior of this method is to call login on the wrapped request object.
-   *
-   * @since Servlet 3.0
    */
   @Override
   public void login(String username, String password) throws MockException {
-    this._getHttpServletRequest().login(username, password);
+    this._getHttpMockRequest().login(username, password);
   }
 
   /**
    * The default behavior of this method is to call login on the wrapped request object.
-   *
-   * @since Servlet 3.0
    */
   @Override
   public void logout() throws MockException {
-    this._getHttpServletRequest().logout();
+    this._getHttpMockRequest().logout();
   }
 
   /**
@@ -283,62 +272,50 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    *
    * <p>
    * Any changes to the returned <code>Collection</code> must not affect this <code>HttpServletRequestWrapper</code>.
-   *
-   * @since Servlet 3.0
    */
   @Override
   public Collection<Part> getParts() throws IOException, MockException {
-    return this._getHttpServletRequest().getParts();
+    return this._getHttpMockRequest().getParts();
   }
 
   /**
    * The default behavior of this method is to call getPart on the wrapped request object.
-   *
-   * @since Servlet 3.0
    */
   @Override
   public Part getPart(String name) throws IOException, MockException {
-    return this._getHttpServletRequest().getPart(name);
+    return this._getHttpMockRequest().getPart(name);
   }
 
   /**
    * Create an instance of <code>HttpUpgradeHandler</code> for a given class and uses it for the http protocol upgrade
    * processing.
-   *
-   * @since Servlet 3.1
    */
   @Override
   public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException {
-    return this._getHttpServletRequest().upgrade(handlerClass);
+    return this._getHttpMockRequest().upgrade(handlerClass);
   }
 
   /**
    * The default behavior of this method is to call newPushBuilder on the wrapped request object.
-   *
-   * @since Servlet 4.0
    */
   @Override
   public PushBuilder newPushBuilder() {
-    return this._getHttpServletRequest().newPushBuilder();
+    return this._getHttpMockRequest().newPushBuilder();
   }
 
   /**
    * The default behavior of this method is to call getTrailerFields on the wrapped request object.
-   *
-   * @since Servlet 4.0
    */
   @Override
   public Map<String, String> getTrailerFields() {
-    return this._getHttpServletRequest().getTrailerFields();
+    return this._getHttpMockRequest().getTrailerFields();
   }
 
   /**
    * The default behavior of this method is to call isTrailerFieldsReady on the wrapped request object.
-   *
-   * @since Servlet 4.0
    */
   @Override
   public boolean isTrailerFieldsReady() {
-    return this._getHttpServletRequest().isTrailerFieldsReady();
+    return this._getHttpMockRequest().isTrailerFieldsReady();
   }
 }

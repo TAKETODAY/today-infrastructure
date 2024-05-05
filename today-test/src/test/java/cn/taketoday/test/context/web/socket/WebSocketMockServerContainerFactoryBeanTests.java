@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WebSocketMockServerContainerFactoryBeanTests {
 
   @Test
-  void servletServerContainerFactoryBeanSupport(@Autowired ServerContainer serverContainer) {
+  void mockServerContainerFactoryBeanSupport(@Autowired ServerContainer serverContainer) {
     assertThat(serverContainer.getDefaultMaxTextMessageBufferSize()).isEqualTo(42);
   }
 

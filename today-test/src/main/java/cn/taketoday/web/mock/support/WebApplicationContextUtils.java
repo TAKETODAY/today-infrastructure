@@ -318,7 +318,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public MockResponse get() {
-      return MockUtils.getServletResponse(RequestContextHolder.get());
+      return MockUtils.getMockResponse(RequestContextHolder.get());
     }
 
     @Override

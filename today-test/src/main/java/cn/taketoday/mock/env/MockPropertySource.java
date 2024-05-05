@@ -40,7 +40,7 @@ import cn.taketoday.core.env.PropertySource;
  *
  * @author Chris Beams
  * @see MockEnvironment
- *@since 4.0
+ * @since 4.0
  */
 public class MockPropertySource extends PropertiesPropertySource {
 

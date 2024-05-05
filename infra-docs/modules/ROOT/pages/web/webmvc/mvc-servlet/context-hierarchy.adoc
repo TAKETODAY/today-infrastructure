@@ -1,7 +1,7 @@
 [[mvc-mockApi-context-hierarchy]]
 = Context Hierarchy
 
-`DispatcherServlet` expects a `WebApplicationContext` (an extension of a plain
+`MockDispatcher` expects a `WebApplicationContext` (an extension of a plain
 `ApplicationContext`) for its own configuration. `WebApplicationContext` has a link to the
 `MockContextImpl` and the `MockApi` with which it is associated. It is also bound to the `MockContextImpl`
 such that applications can use static methods on `RequestContextUtils` to look up the
@@ -9,7 +9,7 @@ such that applications can use static methods on `RequestContextUtils` to look u
 
 For many applications, having a single `WebApplicationContext` is simple and suffices.
 It is also possible to have a context hierarchy where one root `WebApplicationContext`
-is shared across multiple `DispatcherServlet` (or other `MockApi`) instances, each with
+is shared across multiple `MockDispatcher` (or other `MockApi`) instances, each with
 its own child `WebApplicationContext` configuration.
 See xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`]
 for more on the context hierarchy feature.

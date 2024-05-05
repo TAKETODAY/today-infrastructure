@@ -40,7 +40,6 @@ import cn.taketoday.mock.api.MockResponse;
  * Programming</a> for more information on handling multiple threads in a Java program.
  *
  * @author Various
- * @since Servlet 4.0
  */
 public abstract class HttpFilter extends GenericFilter {
 
@@ -50,8 +49,6 @@ public abstract class HttpFilter extends GenericFilter {
    * <p>
    * Does nothing, because this is an abstract class.
    * </p>
-   *
-   * @since Servlet 4.0
    */
   public HttpFilter() {
   }
@@ -78,7 +75,6 @@ public abstract class HttpFilter extends GenericFilter {
    * @throws IOException if an input or output error is detected when the filter handles the request
    * @throws MockException if the request for the could not be handled or either parameter is not an instance of the
    * respective {@link HttpMockRequest} or {@link HttpMockResponse}.
-   * @since Servlet 4.0
    */
   @Override
   public void doFilter(MockRequest req, MockResponse res, FilterChain chain)
@@ -106,7 +102,6 @@ public abstract class HttpFilter extends GenericFilter {
    * @param chain the <code>FilterChain</code> for invoking the next filter or the resource
    * @throws IOException if an input or output error is detected when the filter handles the request
    * @throws MockException if the request for the could not be handled
-   * @since Servlet 4.0
    */
   protected void doFilter(HttpMockRequest req, HttpMockResponse res, FilterChain chain)
           throws IOException, MockException {

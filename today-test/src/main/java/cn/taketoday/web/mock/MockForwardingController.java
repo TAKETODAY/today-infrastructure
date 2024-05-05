@@ -125,7 +125,7 @@ public class MockForwardingController extends AbstractController implements Bean
     }
 
     HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
-    HttpMockResponse servletResponse = MockUtils.getServletResponse(request);
+    HttpMockResponse servletResponse = MockUtils.getMockResponse(request);
 
     // If already included, include again, else forward.
     if (useInclude(servletRequest, servletResponse)) {

@@ -52,7 +52,6 @@ public interface Part {
    * Gets the file name specified by the client
    *
    * @return the submitted file name
-   * @since Servlet 3.1
    */
   String getSubmittedFileName();
 

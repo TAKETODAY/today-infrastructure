@@ -86,7 +86,7 @@ The `ExceptionWebSocketHandlerDecorator` catches all uncaught exceptions that ar
 [[websocket-server-deployment]]
 == Deployment
 
-The Infra WebSocket API is easy to integrate into a Web MVC application where the `DispatcherServlet` serves both HTTP WebSocket handshake and other HTTP requests.
+The Infra WebSocket API is easy to integrate into a Web MVC application where the `MockDispatcher` serves both HTTP WebSocket handshake and other HTTP requests.
 It is also easy to integrate into other HTTP processing scenarios by invoking `WebSocketHttpRequestHandler`.
 This is convenient and easy to understand.
 However, special considerations apply with regards to JSR-356 runtimes.
@@ -95,7 +95,7 @@ The Jakarta WebSocket API (JSR-356) provides two deployment mechanisms.
 The first involves a Servlet container classpath scan (a Servlet 3 feature) at startup.
 The other is a registration API to use at Servlet container initialization.
 Neither of these mechanism makes it possible to use a single "`front controller`"
-for all HTTP processing -- including WebSocket handshake and all other HTTP requests -- such as Web MVC's `DispatcherServlet`.
+for all HTTP processing -- including WebSocket handshake and all other HTTP requests -- such as Web MVC's `MockDispatcher`.
 
 This is a significant limitation of JSR-356 that Infra WebSocket support addresses with server-specific `RequestUpgradeStrategy` implementations even when running in a JSR-356 runtime.
 Such strategies currently exist for Tomcat, Jetty, GlassFish, WebLogic, WebSphere, and Undertow (and WildFly).

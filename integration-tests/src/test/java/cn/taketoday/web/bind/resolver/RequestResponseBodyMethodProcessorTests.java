@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -91,9 +88,9 @@ class RequestResponseBodyMethodProcessorTests {
 
   protected static final String NEWLINE_SYSTEM_PROPERTY = System.getProperty("line.separator");
 
-  private HttpMockRequestImpl servletRequest;
+  private HttpMockRequestImpl mockRequest;
 
-  private MockHttpResponseImpl servletResponse;
+  private MockHttpResponseImpl mockResponse;
 
   private MockRequestContext request;
 
@@ -107,10 +104,10 @@ class RequestResponseBodyMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    servletRequest = new HttpMockRequestImpl();
-    servletRequest.setMethod("POST");
-    servletResponse = new MockHttpResponseImpl();
-    request = new MockRequestContext(null, servletRequest, servletResponse);
+    mockRequest = new HttpMockRequestImpl();
+    mockRequest.setMethod("POST");
+    mockResponse = new MockHttpResponseImpl();
+    request = new MockRequestContext(null, mockRequest, mockResponse);
 
     Method method = getClass().getDeclaredMethod("handle",
             List.class, SimpleBean.class, MultiValueMap.class, String.class);
@@ -126,8 +123,8 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   public void resolveArgumentParameterizedType() throws Throwable {
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -145,9 +142,9 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   public void resolveArgumentRawTypeFromParameterizedType() throws Throwable {
     String content = "fruit=apple&vegetable=kale";
-    this.servletRequest.setMethod("GET");
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    this.mockRequest.setMethod("GET");
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new AllEncompassingFormHttpMessageConverter());
@@ -165,8 +162,8 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   public void resolveArgumentClassJson() throws Throwable {
     String content = "{\"name\" : \"Jad\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType("application/json");
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -182,8 +179,8 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   public void resolveArgumentClassString() throws Throwable {
     String content = "foobarbaz";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType("application/json");
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType("application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new StringHttpMessageConverter());
@@ -198,8 +195,8 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test // SPR-9942
   public void resolveArgumentRequiredNoContent() {
-    this.servletRequest.setContent(new byte[0]);
-    this.servletRequest.setContentType("text/plain");
+    this.mockRequest.setContent(new byte[0]);
+    this.mockRequest.setContentType("text/plain");
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new StringHttpMessageConverter());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
@@ -209,8 +206,8 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test  // SPR-12778
   public void resolveArgumentRequiredNoContentDefaultValue() throws Throwable {
-    this.servletRequest.setContent(new byte[0]);
-    this.servletRequest.setContentType("text/plain");
+    this.mockRequest.setContent(new byte[0]);
+    this.mockRequest.setContentType("text/plain");
     List<HttpMessageConverter<?>> converters = Collections.singletonList(new StringHttpMessageConverter());
     List<Object> advice = Collections.singletonList(new EmptyRequestBodyAdvice());
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters, advice);
@@ -226,8 +223,8 @@ class RequestResponseBodyMethodProcessorTests {
     MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -246,8 +243,8 @@ class RequestResponseBodyMethodProcessorTests {
     ResolvableMethodParameter methodParam = new ResolvableMethodParameter(handlerMethod.getMethodParameters()[0]);
 
     String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -269,8 +266,8 @@ class RequestResponseBodyMethodProcessorTests {
     MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
     String content = "{\"name\" : \"Jad\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     HttpMessageConverter<Object> target = new MappingJackson2HttpMessageConverter();
@@ -287,7 +284,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test  // SPR-9160
   public void handleReturnValueSortByQuality() throws Throwable {
-    this.servletRequest.addHeader("Accept", "text/plain; q=0.5, application/json");
+    this.mockRequest.addHeader("Accept", "text/plain; q=0.5, application/json");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -296,7 +293,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     processor.writeWithMessageConverters("Foo", returnTypeString.getParameter(), request);
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+    assertThat(mockResponse.getHeader("Content-Type")).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
 
   @Test
@@ -308,8 +305,8 @@ class RequestResponseBodyMethodProcessorTests {
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
     processor.handleReturnValue(request, handlerMethod, "Foo");
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
-    assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
+    assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
+    assertThat(mockResponse.getContentAsString()).isEqualTo("Foo");
   }
 
   @Test  // SPR-13423
@@ -323,13 +320,13 @@ class RequestResponseBodyMethodProcessorTests {
     RequestResponseBodyMethodProcessor processor = new RequestResponseBodyMethodProcessor(converters);
     processor.handleReturnValue(request, new HandlerMethod(this, method), new StringBuilder("Foo"));
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
-    assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
+    assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
+    assertThat(mockResponse.getContentAsString()).isEqualTo("Foo");
   }
 
   @Test
   public void handleReturnValueStringAcceptCharset() throws Throwable {
-    this.servletRequest.addHeader("Accept", "text/plain;charset=UTF-8");
+    this.mockRequest.addHeader("Accept", "text/plain;charset=UTF-8");
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new ByteArrayHttpMessageConverter());
@@ -338,14 +335,14 @@ class RequestResponseBodyMethodProcessorTests {
 
     processor.writeWithMessageConverters("Foo", returnTypeString.getParameter(), request);
 
-    assertThat(servletResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
+    assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
   }
 
   // SPR-12894
 
   @Test
   public void handleReturnValueImage() throws Throwable {
-    this.servletRequest.addHeader("Accept", "*/*");
+    this.mockRequest.addHeader("Accept", "*/*");
 
     Method method = getClass().getDeclaredMethod("getImage");
     MethodParameter returnType = new MethodParameter(method, -1);
@@ -357,7 +354,7 @@ class RequestResponseBodyMethodProcessorTests {
     ClassPathResource resource = new ClassPathResource("logo.jpg", getClass());
     processor.writeWithMessageConverters(resource, returnType, this.request);
 
-    assertThat(this.servletResponse.getHeader("Content-Type")).isEqualTo("image/jpeg");
+    assertThat(this.mockResponse.getHeader("Content-Type")).isEqualTo("image/jpeg");
   }
 
   @Test // gh-26212
@@ -371,7 +368,7 @@ class RequestResponseBodyMethodProcessorTests {
     MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
     converter.registerObjectMappersForType(SimpleBean.class, map -> map.put(halMediaType, objectMapper));
 
-    this.servletRequest.addHeader("Accept", halFormsMediaType + "," + halMediaType);
+    this.mockRequest.addHeader("Accept", halFormsMediaType + "," + halMediaType);
 
     SimpleBean simpleBean = new SimpleBean();
     simpleBean.setId(12L);
@@ -382,8 +379,8 @@ class RequestResponseBodyMethodProcessorTests {
     MethodParameter returnType = new MethodParameter(getClass().getDeclaredMethod("getSimpleBean"), -1);
     processor.writeWithMessageConverters(simpleBean, returnType, this.request);
 
-    assertThat(this.servletResponse.getHeader("Content-Type")).isEqualTo(halMediaType.toString());
-    assertThat(this.servletResponse.getContentAsString()).isEqualTo(
+    assertThat(this.mockResponse.getHeader("Content-Type")).isEqualTo(halMediaType.toString());
+    assertThat(this.mockResponse.getContentAsString()).isEqualTo(
             "{" + NEWLINE_SYSTEM_PROPERTY +
                     "  \"id\" : 12," + NEWLINE_SYSTEM_PROPERTY +
                     "  \"name\" : \"Jason\"" + NEWLINE_SYSTEM_PROPERTY +
@@ -397,20 +394,20 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test
   void problemDetailWhenJsonRequested() throws Throwable {
-    this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
   @Test
     // gh-29588
   void problemDetailWhenJsonAndProblemJsonRequested() throws Throwable {
-    this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
   @Test
   void problemDetailWhenNoMatchingMediaTypeRequested() throws Throwable {
-    this.servletRequest.addHeader("Accept", MediaType.APPLICATION_PDF_VALUE);
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_PDF_VALUE);
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
@@ -418,7 +415,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
 
-    this.servletRequest.setRequestURI("/path");
+    this.mockRequest.setRequestURI("/path");
 
     RequestResponseBodyMethodProcessor processor =
             new RequestResponseBodyMethodProcessor(
@@ -428,10 +425,10 @@ class RequestResponseBodyMethodProcessorTests {
 
     processor.handleReturnValue(request, new HandlerMethod(this, method), problemDetail);
 
-    assertThat(this.servletResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-    assertThat(this.servletResponse.getContentType()).isEqualTo(expectedContentType);
+    assertThat(this.mockResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    assertThat(this.mockResponse.getContentType()).isEqualTo(expectedContentType);
     if (expectedContentType.equals(MediaType.APPLICATION_PROBLEM_XML_VALUE)) {
-      XmlAssert.assertThat(this.servletResponse.getContentAsString()).and("""
+      XmlAssert.assertThat(this.mockResponse.getContentAsString()).and("""
                       <problem xmlns="urn:ietf:rfc:7807">
                       	<type>about:blank</type>
                       	<title>Bad Request</title>
@@ -448,7 +445,7 @@ class RequestResponseBodyMethodProcessorTests {
               	"title":    "Bad Request",
               	"status":   400,
               	"instance": "/path"
-              }""", this.servletResponse.getContentAsString(), false);
+              }""", this.mockResponse.getContentAsString(), false);
     }
   }
 
@@ -502,12 +499,12 @@ class RequestResponseBodyMethodProcessorTests {
     var processor = new RequestResponseBodyMethodProcessor(
             Collections.singletonList(new StringHttpMessageConverter()), factory.getObject());
 
-    this.servletRequest.setRequestURI("/hello.dataless");
-    this.servletResponse.setStatus(400);
+    this.mockRequest.setRequestURI("/hello.dataless");
+    this.mockResponse.setStatus(400);
 
     processor.handleReturnValue(request, handlerMethod, "body");
 
-    String header = servletResponse.getHeader("Content-Disposition");
+    String header = mockResponse.getHeader("Content-Disposition");
     assertThat(header).isEqualTo("inline;filename=f.txt");
   }
 
@@ -554,7 +551,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleResponseBody();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"withView1\":\"with\"")).isFalse();
     assertThat(content.contains("\"withView2\":\"with\"")).isTrue();
     assertThat(content.contains("\"withoutView\":\"without\"")).isFalse();
@@ -575,7 +572,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleResponseEntity();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"withView1\":\"with\"")).isFalse();
     assertThat(content.contains("\"withView2\":\"with\"")).isTrue();
     assertThat(content.contains("\"withoutView\":\"without\"")).isFalse();
@@ -596,7 +593,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleResponseBody();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("<withView1>with</withView1>")).isFalse();
     assertThat(content.contains("<withView2>with</withView2>")).isTrue();
     assertThat(content.contains("<withoutView>without</withoutView>")).isFalse();
@@ -617,7 +614,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleResponseEntity();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("<withView1>with</withView1>")).isFalse();
     assertThat(content.contains("<withView2>with</withView2>")).isTrue();
     assertThat(content.contains("<withoutView>without</withoutView>")).isFalse();
@@ -626,8 +623,8 @@ class RequestResponseBodyMethodProcessorTests {
   @Test  // SPR-12501
   public void resolveArgumentWithJacksonJsonView() throws Throwable {
     String content = "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     Method method = JacksonController.class.getMethod("handleRequestBody", JacksonViewBean.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -651,8 +648,8 @@ class RequestResponseBodyMethodProcessorTests {
   @Test  // SPR-12501
   public void resolveHttpEntityArgumentWithJacksonJsonView() throws Throwable {
     String content = "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     Method method = JacksonController.class.getMethod("handleHttpEntity", HttpEntity.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -681,8 +678,8 @@ class RequestResponseBodyMethodProcessorTests {
             "<withView1>with</withView1>" +
             "<withView2>with</withView2>" +
             "<withoutView>without</withoutView></root>";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_XML_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_XML_VALUE);
 
     Method method = JacksonController.class.getMethod("handleRequestBody", JacksonViewBean.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -709,8 +706,8 @@ class RequestResponseBodyMethodProcessorTests {
             "<withView1>with</withView1>" +
             "<withView2>with</withView2>" +
             "<withoutView>without</withoutView></root>";
-    this.servletRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_XML_VALUE);
+    this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_XML_VALUE);
 
     Method method = JacksonController.class.getMethod("handleHttpEntity", HttpEntity.class);
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -746,7 +743,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleTypeInfoList();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"type\":\"foo\"")).isTrue();
     assertThat(content.contains("\"type\":\"bar\"")).isTrue();
   }
@@ -764,7 +761,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleSubType();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"id\":123")).isTrue();
     assertThat(content.contains("\"name\":\"foo\"")).isTrue();
   }
@@ -781,7 +778,7 @@ class RequestResponseBodyMethodProcessorTests {
     Object returnValue = new JacksonController().handleSubTypeList();
     processor.handleReturnValue(request, handlerMethod, returnValue);
 
-    String content = this.servletResponse.getContentAsString();
+    String content = this.mockResponse.getContentAsString();
     assertThat(content.contains("\"id\":123")).isTrue();
     assertThat(content.contains("\"name\":\"foo\"")).isTrue();
     assertThat(content.contains("\"id\":456")).isTrue();
@@ -790,8 +787,8 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test  // SPR-14520
   public void resolveArgumentTypeVariableWithGenericInterface() throws Throwable {
-    this.servletRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     Method method = MyControllerImplementingInterface.class.getMethod("handle", Object.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MyControllerImplementingInterface(), method);
@@ -810,8 +807,8 @@ class RequestResponseBodyMethodProcessorTests {
 
   @Test  // gh-24127
   public void resolveArgumentTypeVariableWithGenericInterfaceAndSubclass() throws Throwable {
-    this.servletRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
-    this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    this.mockRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
+    this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     Method method = SubControllerImplementingInterface.class.getMethod("handle", Object.class);
     HandlerMethod handlerMethod = new HandlerMethod(new SubControllerImplementingInterface(), method);
@@ -831,10 +828,10 @@ class RequestResponseBodyMethodProcessorTests {
   private void assertContentDisposition(RequestResponseBodyMethodProcessor processor,
           boolean expectContentDisposition, String requestURI, String comment) throws Throwable {
 
-    this.servletRequest.setRequestURI(requestURI);
+    this.mockRequest.setRequestURI(requestURI);
     processor.handleReturnValue(request, handlerMethod, "body");
 
-    String header = servletResponse.getHeader("Content-Disposition");
+    String header = mockResponse.getHeader("Content-Disposition");
     if (expectContentDisposition) {
       assertThat(header)
               .as("Expected 'Content-Disposition' header. Use case: '" + comment + "'")
@@ -846,9 +843,9 @@ class RequestResponseBodyMethodProcessorTests {
               .isNull();
     }
 
-    this.servletRequest = new HttpMockRequestImpl();
-    this.servletResponse = new MockHttpResponseImpl();
-    this.request = new MockRequestContext(null, servletRequest, servletResponse);
+    this.mockRequest = new HttpMockRequestImpl();
+    this.mockResponse = new MockHttpResponseImpl();
+    this.request = new MockRequestContext(null, mockRequest, mockResponse);
   }
 
   String handle(

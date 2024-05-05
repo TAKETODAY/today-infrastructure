@@ -55,7 +55,7 @@ class MockMultipartHttpRequestTests {
 
     request.addFile(new MockMultipartFile("file1", "myContent1".getBytes()));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", "myContent2".getBytes()));
-    doTestMultipartHttpServletRequest(request);
+    doTestMultipartHttpRequest(request);
   }
 
   @Test
@@ -64,7 +64,7 @@ class MockMultipartHttpRequestTests {
     request.addFile(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
             "myContent2".getBytes())));
-    doTestMultipartHttpServletRequest(request);
+    doTestMultipartHttpRequest(request);
   }
 
   @Test
@@ -85,7 +85,7 @@ class MockMultipartHttpRequestTests {
     assertThat(dataHttpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
   }
 
-  private void doTestMultipartHttpServletRequest(MultipartRequest request) throws IOException {
+  private void doTestMultipartHttpRequest(MultipartRequest request) throws IOException {
     Set<String> fileNames = new HashSet<>();
     Iterator<String> fileIter = request.getFileNames();
     while (fileIter.hasNext()) {

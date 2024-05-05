@@ -21,7 +21,7 @@ package cn.taketoday.mock.api.http;
  * <p>
  * Allows runtime discovery of the manner in which the {@link HttpMock} for the current {@link HttpMockRequest}
  * was invoked. Invoking any of the methods must not block the caller. The implementation must be thread safe. Instances
- * are immutable and are returned from {@link HttpMockRequest#getHttpServletMapping}.
+ * are immutable and are returned from {@link HttpMockRequest#getHttpMapping}.
  * </p>
  *
  * <p>
@@ -129,7 +129,7 @@ public interface HttpMockMapping {
    *
    * @return the String representation for the {@code servlet-name} for this mapping.
    */
-  String getServletName();
+  String getMockName();
 
   /**
    * <p>

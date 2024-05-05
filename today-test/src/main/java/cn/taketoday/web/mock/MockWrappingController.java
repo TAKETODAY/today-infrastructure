@@ -104,7 +104,7 @@ public class MockWrappingController extends AbstractController
    *
    * @see MockApi
    */
-  public void setServletClass(@Nullable Class<? extends MockApi> servletClass) {
+  public void setMockClass(@Nullable Class<? extends MockApi> servletClass) {
     this.mockClass = servletClass;
   }
 
@@ -112,7 +112,7 @@ public class MockWrappingController extends AbstractController
    * Set the name of the servlet to wrap.
    * Default is the bean name of this controller.
    */
-  public void setServletName(@Nullable String servletName) {
+  public void setMockName(@Nullable String servletName) {
     this.mockName = servletName;
   }
 

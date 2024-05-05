@@ -25,7 +25,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.web.reactive.server.ExchangeResult;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
-import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
+import cn.taketoday.test.web.mock.DispatcherCustomizer;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.MvcResult;
 import cn.taketoday.test.web.mock.RequestBuilder;
@@ -187,9 +187,9 @@ public interface MockMvcWebTestClient {
     /**
      * Allow customization of {@code DispatcherServlet}.
      * <p>This is delegated to
-     * {@link ConfigurableMockMvcBuilder#addDispatcherServletCustomizer(DispatcherMockCustomizer)}.
+     * {@link ConfigurableMockMvcBuilder#addDispatcherCustomizer(DispatcherCustomizer)}.
      */
-    <T extends B> T dispatcherServletCustomizer(DispatcherMockCustomizer customizer);
+    <T extends B> T dispatcherCustomizer(DispatcherCustomizer customizer);
 
     /**
      * Add a {@code MockMvcConfigurer} that automates MockMvc setup.

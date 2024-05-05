@@ -54,23 +54,23 @@ class MockWebRequestHttpMethodsTests {
 
   private static final Instant NOW = Instant.now();
 
-  private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
+  private final HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
 
-  private final MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+  private final MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
-  private final MockRequestContext request = new MockRequestContext(null, servletRequest, servletResponse);
+  private final MockRequestContext request = new MockRequestContext(null, mockRequest, mockResponse);
 
   @Test
   void ifMatchWildcardShouldMatchWhenETagPresent() {
     setUpRequest("PUT");
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "*");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "*");
     assertThat(request.checkNotModified("\"SomeETag\"")).isFalse();
   }
 
   @Test
   void ifMatchWildcardShouldMatchETagMissing() {
     setUpRequest("PUT");
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "*");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "*");
     assertThat(request.checkNotModified("")).isTrue();
     assertPreconditionFailed();
   }
@@ -78,15 +78,15 @@ class MockWebRequestHttpMethodsTests {
   @Test
   void ifMatchValueShouldMatchWhenETagMatches() {
     setUpRequest("PUT");
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "\"first\"");
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "\"second\"");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "\"first\"");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "\"second\"");
     assertThat(request.checkNotModified("\"second\"")).isFalse();
   }
 
   @Test
   void ifMatchValueShouldRejectWhenETagDoesNotMatch() {
     setUpRequest("PUT");
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "\"first\"");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "\"first\"");
     assertThat(request.checkNotModified("\"second\"")).isTrue();
     assertPreconditionFailed();
   }
@@ -95,7 +95,7 @@ class MockWebRequestHttpMethodsTests {
   void ifMatchValueShouldUseStrongComparison() {
     setUpRequest("PUT");
     String eTag = "\"spring\"";
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "W/" + eTag);
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "W/" + eTag);
     assertThat(request.checkNotModified(eTag)).isTrue();
     assertPreconditionFailed();
   }
@@ -103,7 +103,7 @@ class MockWebRequestHttpMethodsTests {
   @SafeHttpMethodsTest
   void ifMatchShouldOnlyBeConsideredForUnsafeMethods(String method) {
     setUpRequest(method);
-    servletRequest.addHeader(HttpHeaders.IF_MATCH, "*");
+    mockRequest.addHeader(HttpHeaders.IF_MATCH, "*");
     assertThat(request.checkNotModified("\"spring\"")).isFalse();
   }
 
@@ -112,10 +112,10 @@ class MockWebRequestHttpMethodsTests {
     setUpRequest("PUT");
     Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     Instant oneMinuteAgo = now.minus(1, ChronoUnit.MINUTES);
-    servletRequest.addHeader(HttpHeaders.IF_UNMODIFIED_SINCE, now.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_UNMODIFIED_SINCE, now.toEpochMilli());
     assertThat(request.checkNotModified(oneMinuteAgo.toEpochMilli())).isFalse();
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
-    assertThat(servletResponse.getHeader(HttpHeaders.LAST_MODIFIED)).isNull();
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    assertThat(mockResponse.getHeader(HttpHeaders.LAST_MODIFIED)).isNull();
   }
 
   @Test
@@ -123,7 +123,7 @@ class MockWebRequestHttpMethodsTests {
     setUpRequest("PUT");
     Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
     Instant oneMinuteAgo = now.minus(1, ChronoUnit.MINUTES);
-    servletRequest.addHeader(HttpHeaders.IF_UNMODIFIED_SINCE, oneMinuteAgo.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_UNMODIFIED_SINCE, oneMinuteAgo.toEpochMilli());
     assertThat(request.checkNotModified(now.toEpochMilli())).isTrue();
     assertPreconditionFailed();
   }
@@ -132,7 +132,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchShouldMatchIdenticalETagValue(String method) {
     setUpRequest(method);
     String etag = "\"spring\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
     assertThat(request.checkNotModified(etag)).isTrue();
     assertNotModified(etag, null);
   }
@@ -141,7 +141,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchShouldMatchETagWithSeparatorChar(String method) {
     setUpRequest(method);
     String etag = "\"spring,framework\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
     assertThat(request.checkNotModified(etag)).isTrue();
     assertNotModified(etag, null);
   }
@@ -150,7 +150,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchShouldNotMatchDifferentETag(String method) {
     setUpRequest(method);
     String etag = "\"framework\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "\"spring\"");
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "\"spring\"");
     assertThat(request.checkNotModified(etag)).isFalse();
     assertOkWithETag(etag);
   }
@@ -160,7 +160,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchShouldNotFailForUnquotedETag(String method) {
     setUpRequest(method);
     String etag = "\"etagvalue\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "missingquotes");
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "missingquotes");
     assertThat(request.checkNotModified(etag)).isFalse();
     assertOkWithETag(etag);
   }
@@ -170,7 +170,7 @@ class MockWebRequestHttpMethodsTests {
     setUpRequest(method);
     String etag = "spring";
     String paddedEtag = String.format("\"%s\"", etag);
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, paddedEtag);
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, paddedEtag);
     assertThat(request.checkNotModified(etag)).isTrue();
     assertNotModified(paddedEtag, null);
   }
@@ -179,7 +179,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchShouldIgnoreWildcard(String method) {
     setUpRequest(method);
     String etag = "\"spring\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "*");
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "*");
     assertThat(request.checkNotModified(etag)).isFalse();
     assertOkWithETag(etag);
   }
@@ -187,7 +187,7 @@ class MockWebRequestHttpMethodsTests {
   @Test
   void ifNoneMatchShouldRejectWildcardForUnsafeMethods() {
     setUpRequest("PUT");
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "*");
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "*");
     assertThat(request.checkNotModified("\"spring\"")).isTrue();
     assertPreconditionFailed();
   }
@@ -196,7 +196,7 @@ class MockWebRequestHttpMethodsTests {
   void ifNoneMatchValueShouldUseWeakComparison(String method) {
     setUpRequest(method);
     String etag = "\"spring\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "W/" + etag);
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "W/" + etag);
     assertThat(request.checkNotModified(etag)).isTrue();
     assertNotModified(etag, null);
   }
@@ -204,7 +204,7 @@ class MockWebRequestHttpMethodsTests {
   @SafeHttpMethodsTest
   void ifModifiedSinceShouldMatchIfDatesEqual(String method) {
     setUpRequest(method);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
     assertThat(request.checkNotModified(NOW.toEpochMilli())).isTrue();
     assertNotModified(null, NOW);
   }
@@ -213,7 +213,7 @@ class MockWebRequestHttpMethodsTests {
   void ifModifiedSinceShouldNotMatchIfDateAfter(String method) {
     setUpRequest(method);
     Instant oneMinuteLater = NOW.plus(1, ChronoUnit.MINUTES);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
     assertThat(request.checkNotModified(oneMinuteLater.toEpochMilli())).isFalse();
     assertOkWithLastModified(oneMinuteLater);
   }
@@ -221,8 +221,8 @@ class MockWebRequestHttpMethodsTests {
   @SafeHttpMethodsTest
   void ifModifiedSinceShouldNotOverrideResponseStatus(String method) {
     setUpRequest(method);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
-    servletResponse.setStatus(304);
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
+    mockResponse.setStatus(304);
     assertThat(request.checkNotModified(NOW.toEpochMilli())).isFalse();
     assertNotModified(null, null);
   }
@@ -231,8 +231,8 @@ class MockWebRequestHttpMethodsTests {
     // SPR-13516
   void ifModifiedSinceShouldNotFailForInvalidResponseStatus(String method) {
     setUpRequest(method);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
-    servletResponse.setStatus(0);
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
+    mockResponse.setStatus(0);
     assertThat(request.checkNotModified(NOW.toEpochMilli())).isFalse();
   }
 
@@ -240,7 +240,7 @@ class MockWebRequestHttpMethodsTests {
   void ifModifiedSinceShouldNotFailForTimestampWithLengthPart(String method) {
     setUpRequest(method);
     long epochTime = ZonedDateTime.parse(CURRENT_TIME, RFC_1123_DATE_TIME).toInstant().toEpochMilli();
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, "Wed, 09 Apr 2014 09:57:42 GMT; length=13774");
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, "Wed, 09 Apr 2014 09:57:42 GMT; length=13774");
 
     assertThat(request.checkNotModified(epochTime)).isTrue();
     assertNotModified(null, Instant.ofEpochMilli(epochTime));
@@ -250,8 +250,8 @@ class MockWebRequestHttpMethodsTests {
   void IfNoneMatchAndIfNotModifiedSinceShouldMatchWhenSameETagAndDate(String method) {
     setUpRequest(method);
     String etag = "\"spring\"";
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());
     assertThat(request.checkNotModified(etag, NOW.toEpochMilli())).isTrue();
     assertNotModified(etag, NOW);
   }
@@ -261,8 +261,8 @@ class MockWebRequestHttpMethodsTests {
     setUpRequest(method);
     String etag = "\"spring\"";
     Instant oneMinuteLater = NOW.plus(1, ChronoUnit.MINUTES);
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, oneMinuteLater.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, oneMinuteLater.toEpochMilli());
     assertThat(request.checkNotModified(etag, NOW.toEpochMilli())).isTrue();
     assertNotModified(etag, NOW);
   }
@@ -272,38 +272,38 @@ class MockWebRequestHttpMethodsTests {
     setUpRequest(method);
     String etag = "\"framework\"";
     Instant oneMinuteLater = NOW.plus(1, ChronoUnit.MINUTES);
-    servletRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "\"spring\"");
-    servletRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, oneMinuteLater.toEpochMilli());
+    mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, "\"spring\"");
+    mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, oneMinuteLater.toEpochMilli());
     assertThat(request.checkNotModified(etag, NOW.toEpochMilli())).isFalse();
     assertOkWithETag(etag);
     assertOkWithLastModified(NOW);
   }
 
   private void setUpRequest(String method) {
-    this.servletRequest.setMethod(method);
-    this.servletRequest.setRequestURI("https://example.org");
+    this.mockRequest.setMethod(method);
+    this.mockRequest.setRequestURI("https://example.org");
   }
 
   private void assertPreconditionFailed() {
-    assertThat(this.servletResponse.getStatus()).isEqualTo(HttpStatus.PRECONDITION_FAILED.value());
+    assertThat(this.mockResponse.getStatus()).isEqualTo(HttpStatus.PRECONDITION_FAILED.value());
   }
 
   private void assertNotModified(@Nullable String eTag, @Nullable Instant lastModified) {
     flush();
-    assertThat(this.servletResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
+    assertThat(this.mockResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
     if (eTag != null) {
-      assertThat(servletResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
+      assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
     }
     if (lastModified != null) {
-      assertThat(servletResponse.getDateHeader(HttpHeaders.LAST_MODIFIED) / 1000)
+      assertThat(mockResponse.getDateHeader(HttpHeaders.LAST_MODIFIED) / 1000)
               .isEqualTo(lastModified.toEpochMilli() / 1000);
     }
   }
 
   private void assertOkWithETag(String eTag) {
     flush();
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
-    assertThat(servletResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTag);
   }
 
   private void flush() {
@@ -317,8 +317,8 @@ class MockWebRequestHttpMethodsTests {
 
   private void assertOkWithLastModified(Instant lastModified) {
     flush();
-    assertThat(servletResponse.getStatus()).isEqualTo(200);
-    assertThat(servletResponse.getDateHeader(HttpHeaders.LAST_MODIFIED) / 1000)
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    assertThat(mockResponse.getDateHeader(HttpHeaders.LAST_MODIFIED) / 1000)
             .isEqualTo(lastModified.toEpochMilli() / 1000);
   }
 

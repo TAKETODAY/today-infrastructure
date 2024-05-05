@@ -72,7 +72,7 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.MockDispatcher;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.View;
@@ -89,7 +89,7 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  * making it possible to test one controller at a time.
  *
  * <p>This builder creates the minimum infrastructure required by the
- * {@link DispatcherServlet} to serve requests with annotated controllers and
+ * {@link MockDispatcher} to serve requests with annotated controllers and
  * also provides methods for customization. The resulting configuration and
  * customization options are equivalent to using MVC Java config except
  * using builder style methods.

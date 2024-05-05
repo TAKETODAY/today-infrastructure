@@ -36,8 +36,6 @@ import cn.taketoday.mock.api.annotation.MockSecurity.TransportGuarantee;
  * methods to which a security constraint would otherwise apply. This exception is made to ensure that such potentially
  * non-specific uses of <code>@HttpConstraint</code> do not yield constraints that will explicitly establish unprotected
  * access for such methods; given that they would not otherwise be covered by a constraint.
- *
- * @since Servlet 3.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
