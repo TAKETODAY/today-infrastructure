@@ -140,7 +140,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void nullExceptionMessageAndServletMessage() {
-    this.request.setAttribute("cn.taketoday.web.mock.error.exception", new RuntimeException());
+    this.request.setAttribute("cn.taketoday.mock.api.error.exception", new RuntimeException());
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(attributes).doesNotContainKey("exception");
@@ -252,7 +252,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void shouldExcludePath() {
-    this.request.setAttribute("cn.taketoday.web.mock.error.request_uri", "path");
+    this.request.setAttribute("cn.taketoday.mock.api.error.request_uri", "path");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of());
     assertThat(attributes).doesNotContainEntry("path", "path");

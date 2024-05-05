@@ -22,11 +22,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.AsyncEvent;
-import cn.taketoday.web.mock.AsyncListener;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.AsyncEvent;
+import cn.taketoday.mock.api.AsyncListener;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * A {@link ServerHttpAsyncRequestControl} to use on Servlet containers (Servlet 3.0+).

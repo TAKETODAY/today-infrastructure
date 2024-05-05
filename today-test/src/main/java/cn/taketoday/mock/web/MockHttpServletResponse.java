@@ -46,9 +46,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletOutputStream;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * Mock implementation of the {@link HttpServletResponse} interface.
@@ -410,7 +410,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void setLocale(@Nullable Locale locale) {
-    // Although the Javadoc for cn.taketoday.web.mock.ServletResponse.setLocale(Locale) does not
+    // Although the Javadoc for cn.taketoday.mock.api.ServletResponse.setLocale(Locale) does not
     // state how a null value for the supplied Locale should be handled, both Tomcat and
     // Jetty simply ignore a null value. So we do the same here.
     if (locale == null) {

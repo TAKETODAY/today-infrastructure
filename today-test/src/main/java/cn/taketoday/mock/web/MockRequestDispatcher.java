@@ -20,10 +20,10 @@ package cn.taketoday.mock.web;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.HttpServletResponseWrapper;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
 
 /**
  * Mock implementation of the {@link RequestDispatcher} interface.

@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.util.TestPropertyValues;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;

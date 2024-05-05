@@ -28,10 +28,10 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.http.HttpSession;
-import cn.taketoday.web.mock.http.HttpSessionBindingEvent;
-import cn.taketoday.web.mock.http.HttpSessionBindingListener;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.http.HttpSession;
+import cn.taketoday.mock.api.http.HttpSessionBindingEvent;
+import cn.taketoday.mock.api.http.HttpSessionBindingListener;
 
 /**
  * Mock implementation of the {@link HttpSession} interface.

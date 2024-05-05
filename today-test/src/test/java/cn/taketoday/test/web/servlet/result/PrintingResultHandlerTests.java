@@ -41,7 +41,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.http.Cookie;
 
 import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;

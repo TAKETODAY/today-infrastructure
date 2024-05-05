@@ -19,8 +19,8 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} allowing initialization of
@@ -32,7 +32,6 @@ import cn.taketoday.web.mock.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 17:07
  */
-@Deprecated
 public interface ConfigurableWebEnvironment extends ConfigurableEnvironment {
 
   /**

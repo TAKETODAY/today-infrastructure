@@ -32,7 +32,7 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
-import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;

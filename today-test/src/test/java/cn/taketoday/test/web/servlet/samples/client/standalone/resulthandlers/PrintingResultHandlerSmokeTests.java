@@ -31,8 +31,8 @@ import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * {@link MockMvcWebTestClient} equivalent of the MockMvc

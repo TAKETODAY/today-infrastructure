@@ -33,7 +33,7 @@ import cn.taketoday.web.bind.resolver.CookieParameterResolver;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.servlet.bind.resolver.ServletParameterResolvers;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

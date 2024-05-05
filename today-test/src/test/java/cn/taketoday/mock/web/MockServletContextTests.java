@@ -29,9 +29,9 @@ import java.util.Set;
 
 import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.web.mock.FilterRegistration;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletRegistration;
+import cn.taketoday.mock.api.FilterRegistration;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

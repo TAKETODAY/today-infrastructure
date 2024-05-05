@@ -37,10 +37,10 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterConfig;
-import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.mock.api.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

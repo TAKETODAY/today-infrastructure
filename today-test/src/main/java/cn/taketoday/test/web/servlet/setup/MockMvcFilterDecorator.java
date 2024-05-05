@@ -27,15 +27,15 @@ import java.util.function.Function;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockFilterConfig;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterChain;
-import cn.taketoday.web.mock.FilterConfig;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterChain;
+import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 /**
  * A Filter that invokes a delegate {@link Filter} only if the request URL

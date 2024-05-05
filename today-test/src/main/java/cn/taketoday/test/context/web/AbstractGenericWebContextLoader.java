@@ -37,7 +37,7 @@ import cn.taketoday.test.context.aot.AotContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Abstract, generic extension of {@link AbstractContextLoader} that loads a

@@ -47,11 +47,11 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 

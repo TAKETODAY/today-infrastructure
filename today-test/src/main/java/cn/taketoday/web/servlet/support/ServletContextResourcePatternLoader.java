@@ -34,7 +34,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * ServletContext-aware subclass of {@link PathMatchingPatternResourceLoader},
@@ -54,7 +54,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
    * Create a new ServletContextPatternResourceLoader.
    *
    * @param servletContext the ServletContext to load resources with
-   * @see ServletContextResourceLoader#ServletContextResourceLoader(cn.taketoday.web.mock.ServletContext)
+   * @see ServletContextResourceLoader#ServletContextResourceLoader(cn.taketoday.mock.api.ServletContext)
    */
   public ServletContextResourcePatternLoader(ServletContext servletContext) {
     super(new ServletContextResourceLoader(servletContext));
@@ -78,7 +78,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
    *
    * @see #doRetrieveMatchingServletContextResources
    * @see ServletContextResource
-   * @see cn.taketoday.web.mock.ServletContext#getResourcePaths
+   * @see cn.taketoday.mock.api.ServletContext#getResourcePaths
    */
   @Override
   protected void doFindPathMatchingFileResources(
@@ -104,7 +104,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
    * @param consumer Resource how to use
    * @throws IOException if directory contents could not be retrieved
    * @see ServletContextResource
-   * @see cn.taketoday.web.mock.ServletContext#getResourcePaths
+   * @see cn.taketoday.mock.api.ServletContext#getResourcePaths
    */
   protected void doRetrieveMatchingServletContextResources(
           ServletContext servletContext, String fullPattern, String dir, ResourceConsumer consumer)

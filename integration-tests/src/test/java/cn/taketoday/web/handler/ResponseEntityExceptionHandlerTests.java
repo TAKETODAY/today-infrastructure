@@ -59,7 +59,7 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;

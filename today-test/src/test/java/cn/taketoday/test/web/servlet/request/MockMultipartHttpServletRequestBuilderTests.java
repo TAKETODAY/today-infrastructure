@@ -29,7 +29,7 @@ import cn.taketoday.mock.web.MockMultipartFile;
 import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.mock.http.Part;
+import cn.taketoday.mock.api.http.Part;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;

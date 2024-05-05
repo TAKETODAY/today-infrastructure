@@ -41,7 +41,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 
 import static cn.taketoday.web.servlet.DispatcherServlet.APPLICATION_CONTEXT_ID_PREFIX;

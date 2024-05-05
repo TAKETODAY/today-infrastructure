@@ -41,7 +41,7 @@ import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
 import static org.assertj.core.api.Assertions.assertThat;

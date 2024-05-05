@@ -18,7 +18,7 @@
 package cn.taketoday.test.context.web;
 
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Introduced to investigate claims in SPR-11145.

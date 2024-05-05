@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.NoTransactionException;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
 import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
-import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.mock.api.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

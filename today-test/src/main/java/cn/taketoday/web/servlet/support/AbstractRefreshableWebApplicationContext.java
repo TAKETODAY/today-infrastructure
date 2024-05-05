@@ -23,12 +23,12 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link cn.taketoday.context.support.AbstractRefreshableApplicationContext}
@@ -63,7 +63,6 @@ import cn.taketoday.web.mock.ServletContext;
  * @see ConfigurableWebApplicationContext#setConfigLocations
  * @since 4.0 2022/2/20 17:36
  */
-@Deprecated
 public abstract class AbstractRefreshableWebApplicationContext
         extends AbstractRefreshableConfigApplicationContext implements ConfigurableWebApplicationContext {
 

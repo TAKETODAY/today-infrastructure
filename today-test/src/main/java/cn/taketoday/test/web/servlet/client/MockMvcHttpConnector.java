@@ -64,7 +64,7 @@ import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.http.Cookie;
 import reactor.core.publisher.Mono;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
@@ -176,7 +176,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                               buffer.read(partBytes);
                               DataBufferUtils.release(buffer);
 
-                              // Adapt to cn.taketoday.web.mock.http.Part...
+                              // Adapt to cn.taketoday.mock.api.http.Part...
                               MockPart mockPart = (part instanceof FilePart filePart ?
                                                    new MockPart(part.name(), filePart.filename(), partBytes) :
                                                    new MockPart(part.name(), partBytes));

@@ -33,8 +33,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.async.WebAsyncTask;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpSession;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertFalse;

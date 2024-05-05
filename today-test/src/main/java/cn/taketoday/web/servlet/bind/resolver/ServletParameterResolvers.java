@@ -31,11 +31,11 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpSession;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

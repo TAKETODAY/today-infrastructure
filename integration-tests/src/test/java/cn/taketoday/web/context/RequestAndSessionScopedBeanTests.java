@@ -32,7 +32,7 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

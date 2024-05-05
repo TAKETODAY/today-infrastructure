@@ -46,7 +46,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
-import cn.taketoday.web.mock.Filter;
+import cn.taketoday.mock.api.Filter;
 
 /**
  * The main class for testing Web MVC applications via {@link WebTestClient}

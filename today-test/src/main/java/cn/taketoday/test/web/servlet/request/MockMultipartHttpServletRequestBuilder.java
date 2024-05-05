@@ -37,8 +37,8 @@ import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.http.Part;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.http.Part;
 
 /**
  * Default builder for {@link MockMultipartHttpServletRequest}.

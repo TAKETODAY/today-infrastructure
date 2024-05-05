@@ -34,8 +34,8 @@ import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

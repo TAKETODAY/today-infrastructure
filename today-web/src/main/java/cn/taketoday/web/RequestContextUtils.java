@@ -197,7 +197,7 @@ public class RequestContextUtils {
    * LocaleResolver bound to the request by the DispatcherServlet
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * Servlet {@link cn.taketoday.web.mock.ServletRequest#getLocale()} method,
+   * Servlet {@link cn.taketoday.mock.api.ServletRequest#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.

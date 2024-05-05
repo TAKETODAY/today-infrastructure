@@ -24,8 +24,8 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Mock implementation of the {@link ServletConfig} interface.

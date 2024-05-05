@@ -20,7 +20,7 @@ package cn.taketoday.web.servlet;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Interface to provide configuration for a servlet web application. This is read-only while
@@ -58,7 +58,7 @@ public interface WebApplicationContext extends ApplicationContext {
   /**
    * Name of the ServletContext environment bean in the factory.
    *
-   * @see cn.taketoday.web.mock.ServletContext
+   * @see cn.taketoday.mock.api.ServletContext
    */
   String SERVLET_CONTEXT_BEAN_NAME = "servletContext";
 
@@ -67,18 +67,18 @@ public interface WebApplicationContext extends ApplicationContext {
    * <p>Note: Possibly merged with ServletConfig parameters.
    * ServletConfig parameters override ServletContext parameters of the same name.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getInitParameterNames()
-   * @see cn.taketoday.web.mock.ServletContext#getInitParameter(String)
-   * @see cn.taketoday.web.mock.ServletConfig#getInitParameterNames()
-   * @see cn.taketoday.web.mock.ServletConfig#getInitParameter(String)
+   * @see cn.taketoday.mock.api.ServletContext#getInitParameterNames()
+   * @see cn.taketoday.mock.api.ServletContext#getInitParameter(String)
+   * @see cn.taketoday.mock.api.ServletConfig#getInitParameterNames()
+   * @see cn.taketoday.mock.api.ServletConfig#getInitParameter(String)
    */
   String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
 
   /**
    * Name of the ServletContext attributes environment bean in the factory.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getAttributeNames()
-   * @see cn.taketoday.web.mock.ServletContext#getAttribute(String)
+   * @see cn.taketoday.mock.api.ServletContext#getAttributeNames()
+   * @see cn.taketoday.mock.api.ServletContext#getAttribute(String)
    */
   String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
 

@@ -24,14 +24,14 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.FilterConfig;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Mock implementation of the {@link FilterConfig} interface.
  *
  * <p>Used for testing the web framework; also useful for testing
- * custom {@link cn.taketoday.web.mock.Filter} implementations.
+ * custom {@link cn.taketoday.mock.api.Filter} implementations.
  *
  * @author Juergen Hoeller
  * @see MockFilterChain

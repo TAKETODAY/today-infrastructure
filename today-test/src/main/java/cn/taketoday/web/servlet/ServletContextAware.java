@@ -18,7 +18,7 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.ApplicationContextAware;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the

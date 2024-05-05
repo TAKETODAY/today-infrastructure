@@ -27,8 +27,8 @@ import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * Static {@link WebApplicationContext}

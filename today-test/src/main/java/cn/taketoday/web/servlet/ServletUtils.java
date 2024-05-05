@@ -32,15 +32,15 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletRequestWrapper;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.ServletResponseWrapper;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
-import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletRequestWrapper;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.ServletResponseWrapper;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpSession;
 
 /**
  * @author TODAY 2020/12/8 23:07
@@ -64,7 +64,7 @@ public abstract class ServletUtils {
    *
    * @since 4.0
    */
-  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "cn.taketoday.web.mock.context.tempdir";
+  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "cn.taketoday.mock.api.context.tempdir";
 
   // context
 
@@ -261,7 +261,7 @@ public abstract class ServletUtils {
   /**
    * Determine whether the given request is an include request,
    * that is, not a top-level HTTP request coming in from the outside.
-   * <p>Checks the presence of the "cn.taketoday.web.mock.include.request_uri"
+   * <p>Checks the presence of the "cn.taketoday.mock.api.include.request_uri"
    * request attribute. Could check any request attribute that is only
    * present in an include request.
    *

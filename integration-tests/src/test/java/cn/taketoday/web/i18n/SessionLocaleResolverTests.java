@@ -29,7 +29,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.mock.api.http.HttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

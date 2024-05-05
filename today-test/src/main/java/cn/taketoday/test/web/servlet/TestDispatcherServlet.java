@@ -36,11 +36,11 @@ import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * A subclass of {@code DispatcherServlet} that saves the result in an

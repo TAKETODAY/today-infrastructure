@@ -41,8 +41,8 @@ import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 

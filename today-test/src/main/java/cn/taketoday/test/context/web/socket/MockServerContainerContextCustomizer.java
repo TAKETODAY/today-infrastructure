@@ -22,7 +22,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * {@link ContextCustomizer} that instantiates a new {@link MockServerContainer}

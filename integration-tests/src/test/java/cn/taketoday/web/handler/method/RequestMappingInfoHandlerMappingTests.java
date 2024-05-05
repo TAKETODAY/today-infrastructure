@@ -50,7 +50,7 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.UnsatisfiedRequestParameterException;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.MappedInterceptor;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.util.UriUtils;

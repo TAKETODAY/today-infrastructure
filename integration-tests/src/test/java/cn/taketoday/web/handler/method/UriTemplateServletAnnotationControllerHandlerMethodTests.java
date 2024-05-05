@@ -48,7 +48,7 @@ import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;
 import cn.taketoday.web.view.ViewResolver;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

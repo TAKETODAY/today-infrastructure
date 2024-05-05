@@ -33,10 +33,10 @@ import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.ReadListener;
-import cn.taketoday.web.mock.ServletInputStream;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.ReadListener;
+import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

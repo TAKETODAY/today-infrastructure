@@ -21,10 +21,10 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link BeanPostProcessor} implementation
@@ -40,7 +40,6 @@ import cn.taketoday.web.mock.ServletContext;
  * @see cn.taketoday.web.servlet.ServletContextAware
  * @since 4.0 2022/2/20 20:57
  */
-@Deprecated
 public class ServletContextAwareProcessor implements InitializationBeanPostProcessor {
 
   @Nullable

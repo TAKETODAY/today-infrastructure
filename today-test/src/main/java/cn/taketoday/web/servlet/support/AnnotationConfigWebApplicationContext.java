@@ -89,7 +89,6 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  * @see GenericWebApplicationContext
  * @since 4.0 2022/2/20 17:55
  */
-@Deprecated
 public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWebApplicationContext implements AnnotationConfigRegistry {
 
   @Nullable

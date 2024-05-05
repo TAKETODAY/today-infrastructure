@@ -41,13 +41,13 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.AsyncEvent;
-import cn.taketoday.web.mock.AsyncListener;
-import cn.taketoday.web.mock.ReadListener;
-import cn.taketoday.web.mock.ServletInputStream;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.AsyncEvent;
+import cn.taketoday.mock.api.AsyncListener;
+import cn.taketoday.mock.api.ReadListener;
+import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 import reactor.core.publisher.Flux;
 
 /**
@@ -196,12 +196,12 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   @Nullable
   private String getSslSessionId() {
-    return (String) this.request.getAttribute("cn.taketoday.web.mock.request.ssl_session_id");
+    return (String) this.request.getAttribute("cn.taketoday.mock.api.request.ssl_session_id");
   }
 
   @Nullable
   private X509Certificate[] getX509Certificates() {
-    String name = "cn.taketoday.web.mock.request.X509Certificate";
+    String name = "cn.taketoday.mock.api.request.X509Certificate";
     return (X509Certificate[]) this.request.getAttribute(name);
   }
 

@@ -60,7 +60,7 @@ import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.mock.api.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

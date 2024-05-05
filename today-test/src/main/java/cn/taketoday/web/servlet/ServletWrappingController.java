@@ -28,11 +28,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
-import cn.taketoday.web.mock.Servlet;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -100,7 +100,7 @@ public class ServletWrappingController extends AbstractController
 
   /**
    * Set the class of the servlet to wrap.
-   * Needs to implement {@code cn.taketoday.web.mock.Servlet}.
+   * Needs to implement {@code cn.taketoday.mock.api.Servlet}.
    *
    * @see Servlet
    */
@@ -132,7 +132,7 @@ public class ServletWrappingController extends AbstractController
   /**
    * Initialize the wrapped Servlet instance.
    *
-   * @see Servlet#init(cn.taketoday.web.mock.ServletConfig)
+   * @see Servlet#init(cn.taketoday.mock.api.ServletConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {

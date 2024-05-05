@@ -20,8 +20,8 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * Interface to indicate {@link RequestContext} running in servlet

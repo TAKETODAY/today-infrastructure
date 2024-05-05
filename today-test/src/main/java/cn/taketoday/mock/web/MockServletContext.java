@@ -44,15 +44,15 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterRegistration;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.Servlet;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRegistration;
-import cn.taketoday.web.mock.SessionCookieConfig;
-import cn.taketoday.web.mock.SessionTrackingMode;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterRegistration;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRegistration;
+import cn.taketoday.mock.api.SessionCookieConfig;
+import cn.taketoday.mock.api.SessionTrackingMode;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
@@ -631,7 +631,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getServletRegistration(java.lang.String)
+   * @see cn.taketoday.mock.api.ServletContext#getServletRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -642,7 +642,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getServletRegistrations()
+   * @see cn.taketoday.mock.api.ServletContext#getServletRegistrations()
    */
   @Override
   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -672,7 +672,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistration(java.lang.String)
+   * @see cn.taketoday.mock.api.ServletContext#getFilterRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -683,7 +683,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistrations()
+   * @see cn.taketoday.mock.api.ServletContext#getFilterRegistrations()
    */
   @Override
   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

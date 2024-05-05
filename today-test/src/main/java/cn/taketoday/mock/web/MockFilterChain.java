@@ -26,13 +26,13 @@ import java.util.List;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterChain;
-import cn.taketoday.web.mock.FilterConfig;
-import cn.taketoday.web.mock.Servlet;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterChain;
+import cn.taketoday.mock.api.FilterConfig;
+import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
 
 /**
  * Mock implementation of the {@link FilterChain} interface.

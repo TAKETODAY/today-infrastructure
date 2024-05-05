@@ -39,7 +39,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

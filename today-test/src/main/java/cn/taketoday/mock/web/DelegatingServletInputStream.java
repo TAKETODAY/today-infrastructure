@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.mock.ReadListener;
-import cn.taketoday.web.mock.ServletInputStream;
+import cn.taketoday.mock.api.ReadListener;
+import cn.taketoday.mock.api.ServletInputStream;
 
 /**
  * Delegating implementation of {@link ServletInputStream}.

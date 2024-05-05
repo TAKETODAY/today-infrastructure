@@ -37,9 +37,9 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.http.Part;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.http.Part;
 
 /**
  * Mock implementation of the

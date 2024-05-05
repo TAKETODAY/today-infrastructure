@@ -31,13 +31,13 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.HttpServletResponse;
-import cn.taketoday.web.mock.http.HttpServletResponseWrapper;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
 
 /**
  * <strong>Main entry point for server-side Web MVC test support.</strong>

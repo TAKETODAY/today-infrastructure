@@ -45,7 +45,7 @@ public final class MockMvcBuilders {
    * <p>The {@link cn.taketoday.web.servlet.DispatcherServlet DispatcherServlet}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a
-   * {@link cn.taketoday.web.mock.ServletContext ServletContext}.
+   * {@link cn.taketoday.mock.api.ServletContext ServletContext}.
    */
   public static DefaultMockMvcBuilder webAppContextSetup(ApplicationContext context) {
     return new DefaultMockMvcBuilder(context);

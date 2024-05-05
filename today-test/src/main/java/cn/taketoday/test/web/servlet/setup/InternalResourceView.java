@@ -26,11 +26,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * Wrapper for a JSP or other resource within the same web application.
@@ -63,7 +63,7 @@ import cn.taketoday.web.mock.http.HttpServletResponse;
  * @author Rob Harrop
  * @see RequestDispatcher#forward
  * @see RequestDispatcher#include
- * @see cn.taketoday.web.mock.ServletResponse#flushBuffer
+ * @see cn.taketoday.mock.api.ServletResponse#flushBuffer
  * @see InternalResourceViewResolver
  * @since 4.0
  */
@@ -249,9 +249,9 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @param request current HTTP request
    * @param response current HTTP response
    * @return {@code true} for include, {@code false} for forward
-   * @see cn.taketoday.web.mock.RequestDispatcher#forward
-   * @see cn.taketoday.web.mock.RequestDispatcher#include
-   * @see cn.taketoday.web.mock.ServletResponse#isCommitted
+   * @see cn.taketoday.mock.api.RequestDispatcher#forward
+   * @see cn.taketoday.mock.api.RequestDispatcher#include
+   * @see cn.taketoday.mock.api.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
   protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {

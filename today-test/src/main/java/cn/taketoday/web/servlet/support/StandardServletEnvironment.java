@@ -25,10 +25,10 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.jndi.JndiLocatorDelegate;
 import cn.taketoday.jndi.JndiPropertySource;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link Environment} implementation to be used by {@code Servlet}-based web

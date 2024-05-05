@@ -26,7 +26,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static cn.taketoday.http.HttpMethod.DELETE;
 import static cn.taketoday.http.HttpMethod.GET;

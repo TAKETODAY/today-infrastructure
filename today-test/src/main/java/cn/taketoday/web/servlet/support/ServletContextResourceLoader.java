@@ -20,7 +20,7 @@ package cn.taketoday.web.servlet.support;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * ResourceLoader implementation that resolves paths as ServletContext

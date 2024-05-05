@@ -114,7 +114,7 @@ public abstract class AbstractServletHandlerMethodTests {
     };
 
     MockServletConfig config = new MockServletConfig();
-    config.addInitParameter("cn.taketoday.web.mock.http.legacyDoHead", "true");
+    config.addInitParameter("cn.taketoday.mock.api.http.legacyDoHead", "true");
     wac.setServletConfig(config);
     wac.setServletContext(config.getServletContext());
 

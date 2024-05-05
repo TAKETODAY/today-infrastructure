@@ -23,7 +23,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.RequestBuilder;
-import cn.taketoday.web.mock.DispatcherType;
+import cn.taketoday.mock.api.DispatcherType;
 
 /**
  * Static factory methods for {@link RequestBuilder RequestBuilders}.

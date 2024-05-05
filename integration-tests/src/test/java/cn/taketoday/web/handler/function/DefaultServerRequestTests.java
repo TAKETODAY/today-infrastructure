@@ -55,7 +55,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;

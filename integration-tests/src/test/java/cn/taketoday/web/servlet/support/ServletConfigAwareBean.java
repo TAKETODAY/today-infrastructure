@@ -18,7 +18,7 @@
 package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.web.servlet.ServletConfigAware;
-import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.mock.api.ServletConfig;
 
 /**
  * @author Juergen Hoeller

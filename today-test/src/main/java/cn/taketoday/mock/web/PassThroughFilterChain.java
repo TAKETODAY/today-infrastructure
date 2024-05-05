@@ -21,15 +21,15 @@ import java.io.IOException;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterChain;
-import cn.taketoday.web.mock.Servlet;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterChain;
+import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
 
 /**
- * Implementation of the {@link cn.taketoday.web.mock.FilterConfig} interface which
+ * Implementation of the {@link cn.taketoday.mock.api.FilterConfig} interface which
  * simply passes the call through to a given Filter/FilterChain combination
  * (indicating the next Filter in the chain along with the FilterChain that it is
  * supposed to work on) or to a given Servlet (indicating the end of the chain).

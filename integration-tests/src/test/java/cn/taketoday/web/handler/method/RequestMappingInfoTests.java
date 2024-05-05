@@ -31,7 +31,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static cn.taketoday.http.HttpMethod.GET;
 import static cn.taketoday.http.HttpMethod.HEAD;

@@ -18,7 +18,7 @@
 package cn.taketoday.web.servlet.support;
 
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * @author Juergen Hoeller

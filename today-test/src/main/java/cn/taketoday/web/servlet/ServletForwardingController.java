@@ -23,11 +23,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * Controller implementation that forwards to a named servlet,
@@ -152,9 +152,9 @@ public class ServletForwardingController extends AbstractController implements B
    * @param request current HTTP request
    * @param response current HTTP response
    * @return {@code true} for include, {@code false} for forward
-   * @see cn.taketoday.web.mock.RequestDispatcher#forward
-   * @see cn.taketoday.web.mock.RequestDispatcher#include
-   * @see cn.taketoday.web.mock.ServletResponse#isCommitted
+   * @see cn.taketoday.mock.api.RequestDispatcher#forward
+   * @see cn.taketoday.mock.api.RequestDispatcher#include
+   * @see cn.taketoday.mock.api.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
   protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {

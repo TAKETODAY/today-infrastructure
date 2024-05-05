@@ -43,7 +43,7 @@ import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletRequest;
 
 /**
  * {@link ServerHttpRequest} implementation that is based on a {@link HttpServletRequest}.
@@ -227,7 +227,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   }
 
   /**
-   * Use {@link cn.taketoday.web.mock.ServletRequest#getParameterMap()} to reconstruct the
+   * Use {@link cn.taketoday.mock.api.ServletRequest#getParameterMap()} to reconstruct the
    * body of a form 'POST' providing a predictable outcome as opposed to reading
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".

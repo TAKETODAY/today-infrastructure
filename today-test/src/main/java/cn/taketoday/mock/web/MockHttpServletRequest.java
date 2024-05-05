@@ -54,23 +54,23 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.RequestDispatcher;
-import cn.taketoday.web.mock.ServletConnection;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletInputStream;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletMapping;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
-import cn.taketoday.web.mock.http.HttpSession;
-import cn.taketoday.web.mock.http.HttpUpgradeHandler;
-import cn.taketoday.web.mock.http.MappingMatch;
-import cn.taketoday.web.mock.http.Part;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.RequestDispatcher;
+import cn.taketoday.mock.api.ServletConnection;
+import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpServletMapping;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpSession;
+import cn.taketoday.mock.api.http.HttpUpgradeHandler;
+import cn.taketoday.mock.api.http.MappingMatch;
+import cn.taketoday.mock.api.http.Part;
 
 /**
  * Mock implementation of the {@link HttpServletRequest} interface.
@@ -818,7 +818,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see cn.taketoday.web.mock.ServletRequest#getLocale()
+   * @see cn.taketoday.mock.api.ServletRequest#getLocale()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -837,7 +837,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see cn.taketoday.web.mock.ServletRequest#getLocales()
+   * @see cn.taketoday.mock.api.ServletRequest#getLocales()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -862,7 +862,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Return {@code true} if the {@link #setSecure secure} flag has been set
    * to {@code true} or if the {@link #getScheme scheme} is {@code https}.
    *
-   * @see cn.taketoday.web.mock.ServletRequest#isSecure()
+   * @see cn.taketoday.mock.api.ServletRequest#isSecure()
    */
   @Override
   public boolean isSecure() {

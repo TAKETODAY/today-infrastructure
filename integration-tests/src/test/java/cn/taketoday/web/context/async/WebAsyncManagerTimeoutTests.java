@@ -36,7 +36,7 @@ import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
-import cn.taketoday.web.mock.AsyncEvent;
+import cn.taketoday.mock.api.AsyncEvent;
 
 import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;

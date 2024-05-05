@@ -105,8 +105,8 @@ class ErrorMvcAutoConfigurationTests {
 
     ServletRequestContext context = new ServletRequestContext(null, request, response);
 
-    context.setAttribute("cn.taketoday.web.mock.error.exception", ex);
-    context.setAttribute("cn.taketoday.web.mock.error.request_uri", "/path");
+    context.setAttribute("cn.taketoday.mock.api.error.exception", ex);
+    context.setAttribute("cn.taketoday.mock.api.error.request_uri", "/path");
     context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     response.setCommitted(committed);
     response.setOutputStreamAccessAllowed(!committed);

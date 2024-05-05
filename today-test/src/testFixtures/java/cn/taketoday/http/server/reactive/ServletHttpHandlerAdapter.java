@@ -32,19 +32,19 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.web.mock.AsyncContext;
-import cn.taketoday.web.mock.AsyncEvent;
-import cn.taketoday.web.mock.AsyncListener;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.Servlet;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRegistration;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
-import cn.taketoday.web.mock.http.HttpServlet;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.AsyncContext;
+import cn.taketoday.mock.api.AsyncEvent;
+import cn.taketoday.mock.api.AsyncListener;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRegistration;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.http.HttpServlet;
+import cn.taketoday.mock.api.http.HttpServletRequest;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 
 /**
  * Adapt {@link HttpHandler} to an {@link HttpServlet} using Servlet Async support

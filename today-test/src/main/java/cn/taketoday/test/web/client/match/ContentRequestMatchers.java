@@ -43,10 +43,10 @@ import cn.taketoday.test.web.client.RequestMatcher;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
-import cn.taketoday.web.mock.fileupload.FileItem;
-import cn.taketoday.web.mock.fileupload.FileUpload;
-import cn.taketoday.web.mock.fileupload.UploadContext;
-import cn.taketoday.web.mock.fileupload.disk.DiskFileItemFactory;
+import cn.taketoday.mock.api.fileupload.FileItem;
+import cn.taketoday.mock.api.fileupload.FileUpload;
+import cn.taketoday.mock.api.fileupload.UploadContext;
+import cn.taketoday.mock.api.fileupload.disk.DiskFileItemFactory;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertTrue;

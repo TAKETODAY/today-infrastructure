@@ -26,7 +26,7 @@ import java.util.Properties;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpServletResponse;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 

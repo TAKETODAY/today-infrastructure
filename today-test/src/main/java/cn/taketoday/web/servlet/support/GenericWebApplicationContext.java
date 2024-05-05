@@ -26,13 +26,13 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletConfig;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.
@@ -67,7 +67,6 @@ import cn.taketoday.web.mock.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 21:03
  */
-@Deprecated
 public class GenericWebApplicationContext extends GenericApplicationContext
         implements ConfigurableWebApplicationContext {
 

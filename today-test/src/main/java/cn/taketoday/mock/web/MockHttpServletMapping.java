@@ -21,8 +21,8 @@
 package cn.taketoday.mock.web;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.http.HttpServletMapping;
-import cn.taketoday.web.mock.http.MappingMatch;
+import cn.taketoday.mock.api.http.HttpServletMapping;
+import cn.taketoday.mock.api.http.MappingMatch;
 
 /**
  * Mock implementation of {@link HttpServletMapping}.

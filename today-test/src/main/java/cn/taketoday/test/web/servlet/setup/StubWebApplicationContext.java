@@ -28,7 +28,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.servlet.support.ServletContextResourcePatternLoader;
-import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.mock.api.ServletContext;
 
 /**
  * A stub WebApplicationContext that accepts registrations of object instances.

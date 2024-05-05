@@ -22,13 +22,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.mock.SessionCookieConfig;
+import cn.taketoday.mock.api.SessionCookieConfig;
 
 /**
  * Mock implementation of the {@link SessionCookieConfig} interface.
  *
  * @author Juergen Hoeller
- * @see cn.taketoday.web.mock.ServletContext#getSessionCookieConfig()
+ * @see cn.taketoday.mock.api.ServletContext#getSessionCookieConfig()
  * @since 4.0
  */
 public class MockSessionCookieConfig implements SessionCookieConfig {

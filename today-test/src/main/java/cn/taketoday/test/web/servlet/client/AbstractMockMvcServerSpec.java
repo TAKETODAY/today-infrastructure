@@ -25,7 +25,7 @@ import cn.taketoday.test.web.servlet.RequestBuilder;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import cn.taketoday.test.web.servlet.setup.MockMvcConfigurer;
-import cn.taketoday.web.mock.Filter;
+import cn.taketoday.mock.api.Filter;
 
 /**
  * Base class for implementations of {@link MockMvcWebTestClient.MockMvcServerSpec}

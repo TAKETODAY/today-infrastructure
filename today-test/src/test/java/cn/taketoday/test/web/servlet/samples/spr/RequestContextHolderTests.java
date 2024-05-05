@@ -47,10 +47,10 @@ import cn.taketoday.web.context.annotation.RequestScope;
 import cn.taketoday.web.context.annotation.SessionScope;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.filter.GenericFilterBean;
-import cn.taketoday.web.mock.FilterChain;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.ServletRequest;
-import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.mock.api.FilterChain;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.ServletRequest;
+import cn.taketoday.mock.api.ServletResponse;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;

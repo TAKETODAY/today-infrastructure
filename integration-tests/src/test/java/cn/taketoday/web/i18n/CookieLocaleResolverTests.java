@@ -33,8 +33,8 @@ import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

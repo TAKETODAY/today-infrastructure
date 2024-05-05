@@ -27,9 +27,9 @@ import cn.taketoday.test.web.servlet.MockMvcBuilder;
 import cn.taketoday.test.web.servlet.RequestBuilder;
 import cn.taketoday.test.web.servlet.ResultHandler;
 import cn.taketoday.test.web.servlet.ResultMatcher;
-import cn.taketoday.web.mock.DispatcherType;
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.FilterConfig;
+import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.api.FilterConfig;
 
 /**
  * Defines common methods for building a {@code MockMvc}.
