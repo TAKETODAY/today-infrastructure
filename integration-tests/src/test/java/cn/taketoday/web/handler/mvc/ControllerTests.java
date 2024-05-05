@@ -21,11 +21,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -125,27 +125,27 @@ class ControllerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setServletClass(TestServlet.class);
+    swc.setServletClass(TestMockApi.class);
     swc.setServletName("action");
     Properties props = new Properties();
     props.setProperty("config", "myValue");
     swc.setInitParameters(props);
 
     swc.afterPropertiesSet();
-    assertThat(TestServlet.config).isNotNull();
-    assertThat(TestServlet.config.getMockName()).isEqualTo("action");
-    assertThat(TestServlet.config.getInitParameter("config")).isEqualTo("myValue");
-    assertThat(TestServlet.request).isNull();
-    assertThat(TestServlet.destroyed).isFalse();
+    assertThat(TestMockApi.config).isNotNull();
+    assertThat(TestMockApi.config.getMockName()).isEqualTo("action");
+    assertThat(TestMockApi.config.getInitParameter("config")).isEqualTo("myValue");
+    assertThat(TestMockApi.request).isNull();
+    assertThat(TestMockApi.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
     assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestServlet.request).isEqualTo(request);
-    assertThat(TestServlet.response).isEqualTo(response);
-    assertThat(TestServlet.destroyed).isFalse();
+    assertThat(TestMockApi.request).isEqualTo(request);
+    assertThat(TestMockApi.response).isEqualTo(response);
+    assertThat(TestMockApi.destroyed).isFalse();
 
     swc.destroy();
-    assertThat(TestServlet.destroyed).isTrue();
+    assertThat(TestMockApi.destroyed).isTrue();
   }
 
   @Test
@@ -154,33 +154,33 @@ class ControllerTests {
     HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
-    swc.setServletClass(TestServlet.class);
+    swc.setServletClass(TestMockApi.class);
     swc.setBeanName("action");
 
     swc.afterPropertiesSet();
-    assertThat(TestServlet.config).isNotNull();
-    assertThat(TestServlet.config.getMockName()).isEqualTo("action");
-    assertThat(TestServlet.request).isNull();
-    assertThat(TestServlet.destroyed).isFalse();
+    assertThat(TestMockApi.config).isNotNull();
+    assertThat(TestMockApi.config.getMockName()).isEqualTo("action");
+    assertThat(TestMockApi.request).isNull();
+    assertThat(TestMockApi.destroyed).isFalse();
     MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
     assertThat(swc.handleRequest(mockRequestContext)).isNull();
-    assertThat(TestServlet.request).isEqualTo(request);
-    assertThat(TestServlet.response).isEqualTo(response);
-    assertThat(TestServlet.destroyed).isFalse();
+    assertThat(TestMockApi.request).isEqualTo(request);
+    assertThat(TestMockApi.response).isEqualTo(response);
+    assertThat(TestMockApi.destroyed).isFalse();
 
     swc.destroy();
-    assertThat(TestServlet.destroyed).isTrue();
+    assertThat(TestMockApi.destroyed).isTrue();
   }
 
-  public static class TestServlet implements Servlet {
+  public static class TestMockApi implements MockApi {
 
     private static MockConfig config;
     private static MockRequest request;
     private static MockResponse response;
     private static boolean destroyed;
 
-    public TestServlet() {
+    public TestMockApi() {
       config = null;
       request = null;
       response = null;
@@ -193,7 +193,7 @@ class ControllerTests {
     }
 
     @Override
-    public MockConfig getServletConfig() {
+    public MockConfig getMockConfig() {
       return config;
     }
 
@@ -204,7 +204,7 @@ class ControllerTests {
     }
 
     @Override
-    public String getServletInfo() {
+    public String getMockInfo() {
       return "TestServlet";
     }
 

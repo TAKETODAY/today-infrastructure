@@ -69,7 +69,7 @@ a `java.util.Properties` object, and the `freemarkerVariables` property requires
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="freemarkerConfig" class="cn.taketoday.web.servlet.view.freemarker.FreeMarkerConfigurer">
+<bean id="freemarkerConfig" class="cn.taketoday.web.mockApi.view.freemarker.FreeMarkerConfigurer">
   <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
   <property name="freemarkerVariables">
     <map>
@@ -106,7 +106,7 @@ Some of the macros defined in the Infra templating libraries are considered inte
 to calling code and user templates. The following sections concentrate only on the macros
 you need to directly call from within your templates. If you wish to view the macro code
 directly, the file is called `infra.ftl` and is in the
-`cn.taketoday.web.servlet.view.freemarker` package.
+`cn.taketoday.web.mockApi.view.freemarker` package.
 
 
 [[mvc-view-simple-binding]]

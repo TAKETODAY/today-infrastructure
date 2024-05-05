@@ -4,7 +4,7 @@
 All `HandlerMapping` implementations support handler interceptors that are useful when
 you want to apply specific functionality to certain requests -- for example, checking for
 a principal. Interceptors must implement `HandlerInterceptor` from the
-`cn.taketoday.web.servlet` package with three methods that should provide enough
+`cn.taketoday.web.mockApi` package with three methods that should provide enough
 flexibility to do all kinds of pre-processing and post-processing:
 
 * `preHandle(..)`: Before the actual handler is run

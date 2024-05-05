@@ -31,7 +31,7 @@ import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.api.FilterRegistration;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletRegistration;
+import cn.taketoday.mock.api.MockRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -169,7 +169,7 @@ class MockContextTests {
      */
     @Test
     void getServletRegistrations() {
-      Map<String, ? extends ServletRegistration> servletRegistrations = mockContext.getServletRegistrations();
+      Map<String, ? extends MockRegistration> servletRegistrations = mockContext.getServletRegistrations();
       assertThat(servletRegistrations).isNotNull();
       assertThat(servletRegistrations.size()).isEqualTo(0);
     }

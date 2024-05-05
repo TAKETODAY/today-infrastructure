@@ -34,6 +34,6 @@ You can use it as follows:
 ----
 
 See the javadoc for
-{today-framework-api}/test/web/servlet/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`]
+{today-framework-api}/test/web/mockApi/setup/ConfigurableMockMvcBuilder.html[`ConfigurableMockMvcBuilder`]
 for a list of all MockMvc builder features or use the IDE to explore the available options.
 

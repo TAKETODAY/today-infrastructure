@@ -25,11 +25,11 @@ import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -74,28 +74,28 @@ public class MockFilterChain implements FilterChain {
   /**
    * Create a FilterChain with a Servlet.
    *
-   * @param servlet the Servlet to invoke
+   * @param mockApi the Servlet to invoke
    * @since 4.0
    */
-  public MockFilterChain(Servlet servlet) {
-    this.filters = initFilterList(servlet);
+  public MockFilterChain(MockApi mockApi) {
+    this.filters = initFilterList(mockApi);
   }
 
   /**
    * Create a {@code FilterChain} with Filter's and a Servlet.
    *
-   * @param servlet the {@link Servlet} to invoke in this {@link FilterChain}
+   * @param mockApi the {@link MockApi} to invoke in this {@link FilterChain}
    * @param filters the {@link Filter}'s to invoke in this {@link FilterChain}
    * @since 4.0
    */
-  public MockFilterChain(Servlet servlet, Filter... filters) {
+  public MockFilterChain(MockApi mockApi, Filter... filters) {
     Assert.notNull(filters, "filters cannot be null");
     Assert.noNullElements(filters, "filters cannot contain null values");
-    this.filters = initFilterList(servlet, filters);
+    this.filters = initFilterList(mockApi, filters);
   }
 
-  private static List<Filter> initFilterList(Servlet servlet, Filter... filters) {
-    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new ServletFilterProxy(servlet));
+  private static List<Filter> initFilterList(MockApi mockApi, Filter... filters) {
+    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new ServletFilterProxy(mockApi));
     return Arrays.asList(allFilters);
   }
 
@@ -116,7 +116,7 @@ public class MockFilterChain implements FilterChain {
   }
 
   /**
-   * Invoke registered {@link Filter Filters} and/or {@link Servlet} also saving the
+   * Invoke registered {@link Filter Filters} and/or {@link MockApi} also saving the
    * request and response.
    */
   @Override
@@ -152,18 +152,18 @@ public class MockFilterChain implements FilterChain {
    */
   private static final class ServletFilterProxy implements Filter {
 
-    private final Servlet delegateServlet;
+    private final MockApi delegateMockApi;
 
-    private ServletFilterProxy(Servlet servlet) {
-      Assert.notNull(servlet, "servlet cannot be null");
-      this.delegateServlet = servlet;
+    private ServletFilterProxy(MockApi mockApi) {
+      Assert.notNull(mockApi, "servlet cannot be null");
+      this.delegateMockApi = mockApi;
     }
 
     @Override
     public void doFilter(MockRequest request, MockResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-      this.delegateServlet.service(request, response);
+      this.delegateMockApi.service(request, response);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class MockFilterChain implements FilterChain {
 
     @Override
     public String toString() {
-      return this.delegateServlet.toString();
+      return this.delegateMockApi.toString();
     }
   }
 

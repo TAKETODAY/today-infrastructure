@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -55,7 +52,7 @@ import cn.taketoday.lang.Assert;
  *
  * <p>The main purpose of the {@code DataBuffer} abstraction is to provide a convenient wrapper
  * around {@link ByteBuffer} which is similar to Netty's {@link io.netty.buffer.ByteBuf} but
- * can also be used on non-Netty platforms (i.e. Servlet containers).
+ * can also be used on non-Netty platforms (i.e. Mock containers).
  *
  * @author Arjen Poutsma
  * @author Brian Clozel

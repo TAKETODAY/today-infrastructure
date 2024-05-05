@@ -25,7 +25,7 @@ import java.io.IOException;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -62,7 +62,7 @@ class MockFilterChainTests {
 	@Test
 	void constructorNullFilter() {
 		assertThatIllegalArgumentException().isThrownBy(() ->
-				new MockFilterChain(mock(Servlet.class), (Filter) null));
+				new MockFilterChain(mock(MockApi.class), (Filter) null));
 	}
 
 	@Test
@@ -94,10 +94,10 @@ class MockFilterChainTests {
 
 	@Test
 	void doFilterWithServlet() throws Exception {
-		Servlet servlet = mock(Servlet.class);
-		MockFilterChain chain = new MockFilterChain(servlet);
+		MockApi mockApi = mock(MockApi.class);
+		MockFilterChain chain = new MockFilterChain(mockApi);
 		chain.doFilter(this.request, this.response);
-		verify(servlet).service(this.request, this.response);
+		verify(mockApi).service(this.request, this.response);
 		assertThatIllegalStateException().isThrownBy(() ->
 				chain.doFilter(this.request, this.response))
 			.withMessage("This FilterChain has already been called!");
@@ -105,18 +105,18 @@ class MockFilterChainTests {
 
 	@Test
 	void doFilterWithServletAndFilters() throws Exception {
-		Servlet servlet = mock(Servlet.class);
+		MockApi mockApi = mock(MockApi.class);
 
-		MockFilter filter2 = new MockFilter(servlet);
+		MockFilter filter2 = new MockFilter(mockApi);
 		MockFilter filter1 = new MockFilter(null);
-		MockFilterChain chain = new MockFilterChain(servlet, filter1, filter2);
+		MockFilterChain chain = new MockFilterChain(mockApi, filter1, filter2);
 
 		chain.doFilter(this.request, this.response);
 
 		assertThat(filter1.invoked).isTrue();
 		assertThat(filter2.invoked).isTrue();
 
-		verify(servlet).service(this.request, this.response);
+		verify(mockApi).service(this.request, this.response);
 
 		assertThatIllegalStateException().isThrownBy(() ->
 				chain.doFilter(this.request, this.response))
@@ -126,12 +126,12 @@ class MockFilterChainTests {
 
 	private static class MockFilter implements Filter {
 
-		private final Servlet servlet;
+		private final MockApi mockApi;
 
 		private boolean invoked;
 
-		public MockFilter(Servlet servlet) {
-			this.servlet = servlet;
+		public MockFilter(MockApi mockApi) {
+			this.mockApi = mockApi;
 		}
 
 		@Override
@@ -140,8 +140,8 @@ class MockFilterChainTests {
 
 			this.invoked = true;
 
-			if (this.servlet != null) {
-				this.servlet.service(request, response);
+			if (this.mockApi != null) {
+				this.mockApi.service(request, response);
 			}
 			else {
 				chain.doFilter(request, response);

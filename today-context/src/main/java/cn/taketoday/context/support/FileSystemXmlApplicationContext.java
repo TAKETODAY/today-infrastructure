@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p><b>NOTE:</b> Plain paths will always be interpreted as relative
  * to the current VM working directory, even if they start with a slash.
- * (This is consistent with the semantics in a Servlet container.)
+ * (This is consistent with the semantics in a mock container.)
  * <b>Use an explicit "file:" prefix to enforce an absolute file path.</b>
  *
  * <p>The config location defaults can be overridden via {@link #getConfigLocations},
@@ -156,7 +156,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
    * Resolve resource paths as file system paths.
    * <p>Note: Even if a given path starts with a slash, it will get
    * interpreted as relative to the current VM working directory.
-   * This is consistent with the semantics in a Servlet container.
+   * This is consistent with the semantics in a mock container.
    *
    * @param path the path to the resource
    * @return the Resource handle

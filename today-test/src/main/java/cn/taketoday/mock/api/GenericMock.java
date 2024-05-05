@@ -18,6 +18,7 @@
 package cn.taketoday.mock.api;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Enumeration;
 
 import cn.taketoday.mock.api.http.HttpMock;
@@ -42,7 +43,8 @@ import cn.taketoday.mock.api.http.HttpMock;
  *
  * @author Various
  */
-public abstract class GenericMock implements Servlet, MockConfig, java.io.Serializable {
+public abstract class GenericMock implements MockApi, MockConfig, java.io.Serializable {
+  @Serial
   private static final long serialVersionUID = -8592279577370996712L;
 
   private transient MockConfig config;
@@ -55,7 +57,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
 
   /**
    * Called by the servlet container to indicate to a servlet that the servlet is being taken out of service. See
-   * {@link Servlet#destroy}.
+   * {@link MockApi#destroy}.
    */
   @Override
   public void destroy() {
@@ -74,7 +76,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    */
   @Override
   public String getInitParameter(String name) {
-    MockConfig sc = getServletConfig();
+    MockConfig sc = getMockConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
@@ -96,7 +98,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    */
   @Override
   public Enumeration<String> getInitParameterNames() {
-    MockConfig sc = getServletConfig();
+    MockConfig sc = getMockConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
@@ -110,7 +112,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    * @return ServletConfig the <code>ServletConfig</code> object that initialized this servlet
    */
   @Override
-  public MockConfig getServletConfig() {
+  public MockConfig getMockConfig() {
     return config;
   }
 
@@ -125,7 +127,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    */
   @Override
   public MockContext getMockContext() {
-    MockConfig sc = getServletConfig();
+    MockConfig sc = getMockConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }
@@ -135,18 +137,18 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
 
   /**
    * Returns information about the servlet, such as author, version, and copyright. By default, this method returns an
-   * empty string. Override this method to have it return a meaningful value. See {@link Servlet#getServletInfo}.
+   * empty string. Override this method to have it return a meaningful value. See {@link MockApi#getMockInfo}.
    *
    * @return String information about this servlet, by default an empty string
    */
   @Override
-  public String getServletInfo() {
+  public String getMockInfo() {
     return "";
   }
 
   /**
    * Called by the servlet container to indicate to a servlet that the servlet is being placed into service. See
-   * {@link Servlet#init}.
+   * {@link MockApi#init}.
    *
    * <p>
    * This implementation stores the {@link MockConfig} object it receives from the servlet container for later use.
@@ -168,7 +170,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    * <p>
    * Instead of overriding {@link #init(MockConfig)}, simply override this method and it will be called by
    * <code>GenericServlet.init(ServletConfig config)</code>. The <code>ServletConfig</code> object can still be retrieved
-   * via {@link #getServletConfig}.
+   * via {@link #getMockConfig}.
    *
    * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
    */
@@ -198,7 +200,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
   }
 
   /**
-   * Called by the servlet container to allow the servlet to respond to a request. See {@link Servlet#service}.
+   * Called by the servlet container to allow the servlet to respond to a request. See {@link MockApi#service}.
    *
    * <p>
    * This method is declared abstract so subclasses, such as <code>HttpServlet</code>, must override it.
@@ -218,7 +220,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    */
   @Override
   public String getMockName() {
-    MockConfig sc = getServletConfig();
+    MockConfig sc = getMockConfig();
     if (sc == null) {
       throw new IllegalStateException("ServletConfig has not been initialized");
     }

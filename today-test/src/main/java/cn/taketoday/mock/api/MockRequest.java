@@ -418,7 +418,7 @@ public interface MockRequest {
    * <p>
    * The ServletRequest and ServletResponse arguments must be the same instances, or instances of
    * {@link MockRequestWrapper} and {@link MockResponseWrapper} that wrap them, that were passed to the
-   * {@link Servlet#service service} method of the Servlet or the {@link Filter#doFilter doFilter} method of the Filter,
+   * {@link MockApi#service service} method of the Servlet or the {@link Filter#doFilter doFilter} method of the Filter,
    * respectively, in whose scope this method is being called.
    *
    * <p>

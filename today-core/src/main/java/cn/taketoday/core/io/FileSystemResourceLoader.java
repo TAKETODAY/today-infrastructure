@@ -24,7 +24,7 @@ package cn.taketoday.core.io;
  *
  * <p><b>NOTE:</b> Plain paths will always be interpreted as relative
  * to the current VM working directory, even if they start with a slash.
- * (This is consistent with the semantics in a Servlet container.)
+ * (This is consistent with the semantics in a Mock container.)
  * <b>Use an explicit "file:" prefix to enforce an absolute file path.</b>
  *
  * @author Juergen Hoeller

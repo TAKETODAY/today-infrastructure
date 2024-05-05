@@ -134,7 +134,7 @@ or even plain `Object` (with a `String` return value) instead.
 
 The earlier examples use static methods in `MvcUriComponentsBuilder`. Internally, they rely
 on `ServletUriComponentsBuilder` to prepare a base URL from the scheme, host, port,
-context path, and servlet path of the current request. This works well in most cases.
+context path, and mockApi path of the current request. This works well in most cases.
 However, sometimes, it can be insufficient. For example, you may be outside the context of
 a request (such as a batch process that prepares links) or perhaps you need to insert a path
 prefix (such as a locale prefix that was removed from the request path and needs to be

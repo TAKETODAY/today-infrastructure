@@ -111,7 +111,7 @@ Here is a very concise overview of Servlet asynchronous request processing:
   asynchronously produced return value from the `Callable`.
 
 For further background and context, you can also read
-{today-tech-site-blog}/2012/05/07/spring-mvc-3-2-preview-introducing-servlet-3-async-support[the
+{today-tech-site-blog}/2012/05/07/spring-mvc-3-2-preview-introducing-mockApi-3-async-support[the
 blog posts] that introduced asynchronous request processing support in Web MVC 3.2.
 
 
@@ -139,7 +139,7 @@ processing (instead of `postHandle` and `afterCompletion`).
 `HandlerInterceptor` implementations can also register a `CallableProcessingInterceptor`
 or a `DeferredResultProcessingInterceptor`, to integrate more deeply with the
 lifecycle of an asynchronous request (for example, to handle a timeout event). See
-{today-framework-api}/web/servlet/AsyncHandlerInterceptor.html[`AsyncHandlerInterceptor`]
+{today-framework-api}/web/mockApi/AsyncHandlerInterceptor.html[`AsyncHandlerInterceptor`]
 for more details.
 
 `DeferredResult` provides `onTimeout(Runnable)` and `onCompletion(Runnable)` callbacks.
@@ -226,7 +226,7 @@ customize the status and headers of the response.
 
 When an `emitter` throws an `IOException` (for example, if the remote client went away), applications
 are not responsible for cleaning up the connection and should not invoke `emitter.complete`
-or `emitter.completeWithError`. Instead, the servlet container automatically initiates an
+or `emitter.completeWithError`. Instead, the mockApi container automatically initiates an
 `AsyncListener` error notification, in which Web MVC makes a `completeWithError` call.
 This call, in turn, performs one final `ASYNC` dispatch to the application, during which Web MVC
 invokes the configured exception resolvers and completes the request.
@@ -410,7 +410,7 @@ The MVC configuration also exposes several options for asynchronous requests.
 
 Filter and Servlet declarations have an `asyncSupported` flag that needs to be set to `true`
 to enable asynchronous request processing. In addition, Filter mappings should be
-declared to handle the `ASYNC` `jakarta.servlet.DispatchType`.
+declared to handle the `ASYNC` `jakarta.mockApi.DispatchType`.
 
 In Java configuration, when you use `AbstractAnnotationConfigDispatcherServletInitializer`
 to initialize the Servlet container, this is done automatically.

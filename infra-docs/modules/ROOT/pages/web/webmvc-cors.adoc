@@ -73,7 +73,7 @@ rejected. No CORS headers are added to the responses of simple and actual CORS r
 and, consequently, browsers reject them.
 
 Each `HandlerMapping` can be
-{today-framework-api}/web/servlet/handler/AbstractHandlerMapping.html#setCorsConfigurations-java.util.Map-[configured]
+{today-framework-api}/web/mockApi/handler/AbstractHandlerMapping.html#setCorsConfigurations-java.util.Map-[configured]
 individually with URL pattern-based `CorsConfiguration` mappings. In most cases, applications
 use the MVC Java configuration or the XML namespace to declare such mappings, which results
 in a single global map being passed to all `HandlerMapping` instances.

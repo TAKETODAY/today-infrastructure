@@ -23,7 +23,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
-import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -36,7 +36,7 @@ import cn.taketoday.mock.api.MockResponse;
  *
  * @author Juergen Hoeller
  * @see Filter
- * @see Servlet
+ * @see MockApi
  * @see MockFilterChain
  * @since 4.0
  */
@@ -49,7 +49,7 @@ public class PassThroughFilterChain implements FilterChain {
   private FilterChain nextFilterChain;
 
   @Nullable
-  private Servlet servlet;
+  private MockApi mockApi;
 
   /**
    * Create a new PassThroughFilterChain that delegates to the given Filter,
@@ -68,11 +68,11 @@ public class PassThroughFilterChain implements FilterChain {
   /**
    * Create a new PassThroughFilterChain that delegates to the given Servlet.
    *
-   * @param servlet the Servlet to delegate to
+   * @param mockApi the Servlet to delegate to
    */
-  public PassThroughFilterChain(Servlet servlet) {
-    Assert.notNull(servlet, "Servlet is required");
-    this.servlet = servlet;
+  public PassThroughFilterChain(MockApi mockApi) {
+    Assert.notNull(mockApi, "Servlet is required");
+    this.mockApi = mockApi;
   }
 
   /**
@@ -84,8 +84,8 @@ public class PassThroughFilterChain implements FilterChain {
       this.filter.doFilter(request, response, this.nextFilterChain);
     }
     else {
-      Assert.state(this.servlet != null, "Neither a Filter not a Servlet set");
-      this.servlet.service(request, response);
+      Assert.state(this.mockApi != null, "Neither a Filter not a Servlet set");
+      this.mockApi.service(request, response);
     }
   }
 

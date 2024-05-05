@@ -36,10 +36,10 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.DispatcherType;
-import cn.taketoday.mock.api.Servlet;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRegistration;
+import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMock;
@@ -55,11 +55,11 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServletHttpHandlerAdapter implements Servlet {
-  private static final Logger logger = HttpLogging.forLogName(ServletHttpHandlerAdapter.class);
+public class MockHttpHandlerAdapter implements MockApi {
+  private static final Logger logger = HttpLogging.forLogName(MockHttpHandlerAdapter.class);
 
   private static final int DEFAULT_BUFFER_SIZE = 8192;
-  private static final String WRITE_ERROR_ATTRIBUTE_NAME = ServletHttpHandlerAdapter.class.getName() + ".ERROR";
+  private static final String WRITE_ERROR_ATTRIBUTE_NAME = MockHttpHandlerAdapter.class.getName() + ".ERROR";
 
   private final HttpHandler httpHandler;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
@@ -68,7 +68,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   @Nullable
   private String servletPath;
 
-  public ServletHttpHandlerAdapter(HttpHandler httpHandler) {
+  public MockHttpHandlerAdapter(HttpHandler httpHandler) {
     Assert.notNull(httpHandler, "HttpHandler is required");
     this.httpHandler = httpHandler;
   }
@@ -120,7 +120,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
 
   private String getServletPath(MockConfig config) {
     String name = config.getMockName();
-    ServletRegistration registration = config.getMockContext().getServletRegistration(name);
+    MockRegistration registration = config.getMockContext().getServletRegistration(name);
     if (registration == null) {
       throw new IllegalStateException("ServletRegistration not found for Servlet '" + name + "'");
     }
@@ -207,13 +207,13 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   @Override
-  public String getServletInfo() {
+  public String getMockInfo() {
     return "";
   }
 
   @Override
   @Nullable
-  public MockConfig getServletConfig() {
+  public MockConfig getMockConfig() {
     return null;
   }
 

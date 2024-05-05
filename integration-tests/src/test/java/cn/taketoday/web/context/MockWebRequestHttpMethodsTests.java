@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Markus Malkusch
  * @author Sam Brannen
  */
-class ServletWebRequestHttpMethodsTests {
+class MockWebRequestHttpMethodsTests {
 
   private static final String CURRENT_TIME = "Wed, 9 Apr 2014 09:57:42 GMT";
 

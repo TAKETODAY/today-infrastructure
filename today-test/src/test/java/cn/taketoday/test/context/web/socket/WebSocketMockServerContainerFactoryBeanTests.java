@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Disabled("TODO-web-socket")
 @JUnitWebConfig
-class WebSocketServletServerContainerFactoryBeanTests {
+class WebSocketMockServerContainerFactoryBeanTests {
 
   @Test
   void servletServerContainerFactoryBeanSupport(@Autowired ServerContainer serverContainer) {

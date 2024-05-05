@@ -16,7 +16,7 @@
 
 === 默认实现
 
-默认实现是使用的 Servlet API 在 `cn.taketoday.web.servlet` 包下 请求入口 `DispatcherServlet`。
+默认实现是使用的 Servlet API 在 `cn.taketoday.web.mockApi` 包下 请求入口 `DispatcherServlet`。
 （后续计划移除 Servlet 实现，Netty 将作为主要实现，Netty 性能更好，内存占用更低）
 
 === Netty 实现

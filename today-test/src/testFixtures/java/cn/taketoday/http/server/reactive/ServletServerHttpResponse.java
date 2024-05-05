@@ -171,7 +171,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
    * Return an {@link ResponseAsyncListener} that notifies the response
    * body Publisher and Subscriber of Servlet container events. The listener
    * is not actually registered but is rather exposed for
-   * {@link ServletHttpHandlerAdapter} to ensure events are delegated.
+   * {@link MockHttpHandlerAdapter} to ensure events are delegated.
    */
   AsyncListener getAsyncListener() {
     return this.asyncListener;

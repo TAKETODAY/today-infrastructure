@@ -1,23 +1,23 @@
-[[mvc-servlet-context-hierarchy]]
+[[mvc-mockApi-context-hierarchy]]
 = Context Hierarchy
 
 `DispatcherServlet` expects a `WebApplicationContext` (an extension of a plain
 `ApplicationContext`) for its own configuration. `WebApplicationContext` has a link to the
-`MockContextImpl` and the `Servlet` with which it is associated. It is also bound to the `MockContextImpl`
+`MockContextImpl` and the `MockApi` with which it is associated. It is also bound to the `MockContextImpl`
 such that applications can use static methods on `RequestContextUtils` to look up the
 `WebApplicationContext` if they need access to it.
 
 For many applications, having a single `WebApplicationContext` is simple and suffices.
 It is also possible to have a context hierarchy where one root `WebApplicationContext`
-is shared across multiple `DispatcherServlet` (or other `Servlet`) instances, each with
+is shared across multiple `DispatcherServlet` (or other `MockApi`) instances, each with
 its own child `WebApplicationContext` configuration.
 See xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`]
 for more on the context hierarchy feature.
 
 The root `WebApplicationContext` typically contains infrastructure beans, such as data repositories and
-business services that need to be shared across multiple `Servlet` instances. Those beans
+business services that need to be shared across multiple `MockApi` instances. Those beans
 are effectively inherited and can be overridden (that is, re-declared) in the Servlet-specific
-child `WebApplicationContext`, which typically contains beans local to the given `Servlet`.
+child `WebApplicationContext`, which typically contains beans local to the given `MockApi`.
 The following image shows this relationship:
 
 image::mvc-context-hierarchy.png[]
@@ -68,20 +68,20 @@ The following example shows the `web.xml` equivalent:
     <param-value>/WEB-INF/root-context.xml</param-value>
   </context-param>
 
-  <servlet>
-    <servlet-name>app1</servlet-name>
-    <servlet-class>cn.taketoday.web.servlet.DispatcherServlet</servlet-class>
+  <mockApi>
+    <mockApi-name>app1</mockApi-name>
+    <mockApi-class>cn.taketoday.web.mockApi.DispatcherServlet</mockApi-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>/WEB-INF/app1-context.xml</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
-  </servlet>
+  </mockApi>
 
-  <servlet-mapping>
-    <servlet-name>app1</servlet-name>
+  <mockApi-mapping>
+    <mockApi-name>app1</mockApi-name>
     <url-pattern>/app1/*</url-pattern>
-  </servlet-mapping>
+  </mockApi-mapping>
 
 </web-app>
 ----

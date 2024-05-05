@@ -3,7 +3,7 @@
 
 Infra AOP is implemented in pure Java. There is no need for a special compilation
 process. Infra AOP does not need to control the class loader hierarchy and is thus
-suitable for use in a servlet container or application server.
+suitable for use in a mockApi container or application server.
 
 Infra AOP currently supports only method execution join points (advising the execution
 of methods on Infra beans). Field interception is not implemented, although support for

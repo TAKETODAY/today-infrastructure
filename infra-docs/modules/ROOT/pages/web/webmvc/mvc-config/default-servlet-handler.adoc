@@ -1,4 +1,4 @@
-[[mvc-default-servlet-handler]]
+[[mvc-default-mockApi-handler]]
 = Default Servlet
 
 Web MVC allows for mapping the `DispatcherServlet` to `/` (thus overriding the mapping

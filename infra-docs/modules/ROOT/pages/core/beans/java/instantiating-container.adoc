@@ -157,7 +157,7 @@ methods are processed and registered as bean definitions within the container.
 
 A `WebApplicationContext` variant of `AnnotationConfigApplicationContext` is available
 with `AnnotationConfigWebApplicationContext`. You can use this implementation when
-configuring the Infra `ContextLoaderListener` servlet listener, Web MVC
+configuring the Infra `ContextLoaderListener` mockApi listener, Web MVC
 `DispatcherServlet`, and so forth. The following `web.xml` snippet configures a typical
 Web MVC web application (note the use of the `contextClass` context-param and
 init-param):
@@ -188,9 +188,9 @@ init-param):
   </listener>
 
   <!-- Declare a Web MVC DispatcherServlet as usual -->
-  <servlet>
-    <servlet-name>dispatcher</servlet-name>
-    <servlet-class>cn.taketoday.web.servlet.DispatcherServlet</servlet-class>
+  <mockApi>
+    <mockApi-name>dispatcher</mockApi-name>
+    <mockApi-class>cn.taketoday.web.mockApi.DispatcherServlet</mockApi-class>
     <!-- Configure DispatcherServlet to use AnnotationConfigWebApplicationContext
       instead of the default XmlWebApplicationContext -->
     <init-param>
@@ -205,13 +205,13 @@ init-param):
       <param-name>contextConfigLocation</param-name>
       <param-value>com.acme.web.MvcConfig</param-value>
     </init-param>
-  </servlet>
+  </mockApi>
 
-  <!-- map all requests for /app/* to the dispatcher servlet -->
-  <servlet-mapping>
-    <servlet-name>dispatcher</servlet-name>
+  <!-- map all requests for /app/* to the dispatcher mockApi -->
+  <mockApi-mapping>
+    <mockApi-name>dispatcher</mockApi-name>
     <url-pattern>/app/*</url-pattern>
-  </servlet-mapping>
+  </mockApi-mapping>
 </web-app>
 ----
 

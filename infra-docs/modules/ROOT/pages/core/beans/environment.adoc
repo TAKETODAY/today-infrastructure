@@ -10,7 +10,7 @@
 对象与配置文件的关系在于确定当前激活的配置文件（如果有）以及默认情况下应该激活的配置文件（如果有）。
 
 属性在几乎所有应用程序中都起着重要作用，可以来自各种来源：属性文件、JVM 系统属性、系统环境变量、
-JNDI、servlet 上下文参数、临时 `Properties` 对象、`Map` 对象等等。`Environment`
+JNDI、mockApi 上下文参数、临时 `Properties` 对象、`Map` 对象等等。`Environment`
 对象与属性的关系在于为用户提供一个方便的服务接口，用于配置属性源并从中解析属性。
 
 
@@ -276,7 +276,7 @@ ctx.refresh();
 ----
 
 此外，您还可以通过 `infra.profiles.active` 属性声明式地激活 profiles，该属性可以通过系统环境变量、
-JVM 系统属性、`web.xml` 中的 servlet 上下文参数，甚至是 JNDI 条目指定
+JVM 系统属性、`web.xml` 中的 mockApi 上下文参数，甚至是 JNDI 条目指定
 （参见 xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` 接口]）。
 在集成测试中，可以通过在 `today-test` 模块中使用 `@ActiveProfiles` 注解来声明活动的 profiles
 （参见 xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[环境 profiles 的上下文配置]）。
@@ -347,7 +347,7 @@ PropertySource 是对任何键值对源的简单抽象，而 Infra {today-framew
 
 NOTE: 这些默认属性源适用于 `StandardEnvironment`，用于独立应用程序。
 {today-framework-api}/web/context/support/StandardServletEnvironment.html[StandardServletEnvironment]
-会填充额外的默认属性源，包括 servlet 配置、servlet 上下文参数，以及如果 JNDI 可用，则会添加一个
+会填充额外的默认属性源，包括 mockApi 配置、mockApi 上下文参数，以及如果 JNDI 可用，则会添加一个
 {today-framework-api}/jndi/JndiPropertySource.html[JndiPropertySource]。
 
 具体来说，当您使用 `StandardEnvironment` 时，调用 env.containsProperty("my-property")

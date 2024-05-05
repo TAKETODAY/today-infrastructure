@@ -27,7 +27,7 @@ Infra includes a number of packages dedicated to mocking:
 
 * xref:testing/unit.adoc#mock-objects-env[Environment]
 * xref:testing/unit.adoc#mock-objects-jndi[JNDI]
-* xref:testing/unit.adoc#mock-objects-servlet[Servlet API]
+* xref:testing/unit.adoc#mock-objects-mockApi[Servlet API]
 * xref:testing/unit.adoc#mock-objects-web-reactive[Infra Web Reactive]
 
 
@@ -56,7 +56,7 @@ officially deprecated as of TODAY Framework 5.2 in favor of complete solutions f
 parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
 
 
-[[mock-objects-servlet]]
+[[mock-objects-mockApi]]
 === Servlet API
 
 The `cn.taketoday.mock.web` package contains a comprehensive set of Servlet API
@@ -162,7 +162,7 @@ that deal with Web MVC `ModelAndView` objects.
 .Unit testing Web MVC Controllers
 TIP: To unit test your Web MVC `Controller` classes as POJOs, use `ModelAndViewAssert`
 combined with `HttpMockRequestImpl`, `MockHttpSession`, and so on from Infra
-xref:testing/unit.adoc#mock-objects-servlet[Servlet API mocks]. For thorough integration testing of your
+xref:testing/unit.adoc#mock-objects-mockApi[Servlet API mocks]. For thorough integration testing of your
 Web MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
 configuration for Web MVC, use the
 xref:testing/spring-mvc-test-framework.adoc[Web MVC Test Framework] instead.

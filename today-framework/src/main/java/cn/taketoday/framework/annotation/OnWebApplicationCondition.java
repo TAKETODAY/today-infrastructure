@@ -143,7 +143,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   /**
-   * no Servlet classes
+   * no Mock classes
    */
   private ConditionOutcome isNettyWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");

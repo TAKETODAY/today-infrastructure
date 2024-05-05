@@ -22,7 +22,7 @@ Servlet multipart parsing needs to be enabled through Servlet container configur
 To do so:
 
 * In Java, set a `MultipartConfigElement` on the Servlet registration.
-* In `web.xml`, add a `"<multipart-config>"` section to the servlet declaration.
+* In `web.xml`, add a `"<multipart-config>"` section to the mockApi declaration.
 
 The following example shows how to set a `MultipartConfigElement` on the Servlet registration:
 

@@ -192,7 +192,7 @@ class ConditionEvaluationReportTests {
 //      messages.add(outcome.getOutcome().getMessage());
 //    }
 //    assertThat(messages).anyMatch((message) -> message.contains("@ConditionalOnClass found required classes "
-//            + "'cn.taketoday.mock.api.Servlet', 'cn.taketoday.web.multipart."
+//            + "'cn.taketoday.mock.api.Mock', 'cn.taketoday.web.multipart."
 //            + "support.StandardServletMultipartResolver', 'cn.taketoday.mock.api.MultipartConfigElement'"));
 //    context.close();
 //  }

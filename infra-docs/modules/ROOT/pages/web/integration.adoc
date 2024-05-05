@@ -36,7 +36,7 @@ context"). This section details how you can configure a Infra container (a
 
 Moving on to specifics, all you need to do is declare a
 {today-framework-api}/web/context/ContextLoaderListener.html[`ContextLoaderListener`]
-in the standard Jakarta EE servlet `web.xml` file of your web application and add a
+in the standard Jakarta EE mockApi `web.xml` file of your web application and add a
 `contextConfigLocation` `<context-param/>` section (in the same file) that defines which
 set of Infra XML configuration files to load.
 

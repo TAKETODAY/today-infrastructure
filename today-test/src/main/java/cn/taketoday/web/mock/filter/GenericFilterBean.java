@@ -273,7 +273,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * of the Servlet Filter version that shipped with WebLogic 6.1.
    *
    * @return the FilterConfig instance, or {@code null} if none available
-   * @see GenericMock#getServletConfig()
+   * @see GenericMock#getMockConfig()
    */
   @Nullable
   public FilterConfig getFilterConfig() {

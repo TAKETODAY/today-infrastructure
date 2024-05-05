@@ -34,7 +34,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 implementation is detected and automatically used to initialize any Servlet 3 container.
 An abstract base class implementation of `WebApplicationInitializer` named
 `AbstractDispatcherServletInitializer` makes it even easier to register the
-`DispatcherServlet` by overriding methods to specify the servlet mapping and the
+`DispatcherServlet` by overriding methods to specify the mockApi mapping and the
 location of the `DispatcherServlet` configuration.
 
 This is recommended for applications that use Java-based Infra configuration, as the

@@ -55,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Rossen Stoyanchev
  */
-public class UriTemplateServletAnnotationControllerHandlerMethodTests extends AbstractServletHandlerMethodTests {
+public class UriTemplateMockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMethodTests {
 
   @Test
   void simple() throws Exception {

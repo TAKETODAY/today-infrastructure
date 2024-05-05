@@ -23,7 +23,7 @@ The `assemble` task is automatically configured to depend upon the `infraWar` ta
 [[packaging-executable.wars.deployable]]
 === Packaging Executable and Deployable Wars
 A war file can be packaged such that it can be executed using `java -jar` and deployed to an external container.
-To do so, the embedded servlet container dependencies should be added to the `providedRuntime` configuration, for example:
+To do so, the embedded mockApi container dependencies should be added to the `providedRuntime` configuration, for example:
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -156,7 +156,7 @@ On Unix-like platforms, this launch script allows the archive to be run directly
 
 NOTE: Currently, some tools do not accept this format so you may not always be able to use this technique.
 For example, `jar -xf` may silently fail to extract a jar or war that has been made fully-executable.
-It is recommended that you only enable this option if you intend to execute it directly, rather than running it with `java -jar` or deploying it to a servlet container.
+It is recommended that you only enable this option if you intend to execute it directly, rather than running it with `java -jar` or deploying it to a mockApi container.
 
 To use this feature, the inclusion of the launch script must be enabled:
 

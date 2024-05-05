@@ -220,7 +220,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
    * Return an {@link RequestAsyncListener} that completes the request body
    * Publisher when the Servlet container notifies that request input has ended.
    * The listener is not actually registered but is rather exposed for
-   * {@link ServletHttpHandlerAdapter} to ensure events are delegated.
+   * {@link MockHttpHandlerAdapter} to ensure events are delegated.
    */
   AsyncListener getAsyncListener() {
     return this.asyncListener;

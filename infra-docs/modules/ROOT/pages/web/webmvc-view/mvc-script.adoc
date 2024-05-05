@@ -117,7 +117,7 @@ The render function is called with the following parameters:
 * `String template`: The template content
 * `Map model`: The view model
 * `RenderingContext renderingContext`: The
-  {today-framework-api}/web/servlet/view/script/RenderingContext.html[`RenderingContext`]
+  {today-framework-api}/web/mockApi/view/script/RenderingContext.html[`RenderingContext`]
   that gives access to the application context, the locale, the template loader, and the
   URL (since 5.0)
 
@@ -187,8 +187,8 @@ function render(template, model) {
 ----
 
 Check out the TODAY Framework unit tests,
-{today-framework-code}/today-web/src/test/java/cn/taketoday/web/servlet/view/script[Java], and
-{today-framework-code}/today-web/src/test/resources/cn/taketoday/web/servlet/view/script[resources],
+{today-framework-code}/today-web/src/test/java/cn/taketoday/web/mockApi/view/script[Java], and
+{today-framework-code}/today-web/src/test/resources/cn/taketoday/web/mockApi/view/script[resources],
 for more configuration examples.
 
 

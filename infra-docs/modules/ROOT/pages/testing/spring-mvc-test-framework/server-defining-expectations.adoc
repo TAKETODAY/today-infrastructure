@@ -67,7 +67,7 @@ one that accepts a `Writer`. For example, invoking `print(System.err)` prints th
 data to `System.err`, while invoking `print(myWriter)` prints the result data to a custom
 writer. If you want to have the result data logged instead of printed, you can invoke the
 `log()` method, which logs the result data as a single `DEBUG` message under the
-`cn.taketoday.test.web.servlet.result` logging category.
+`cn.taketoday.test.web.mockApi.result` logging category.
 
 In some cases, you may want to get direct access to the result and verify something that
 cannot be verified otherwise. This can be achieved by appending `.andReturn()` after all

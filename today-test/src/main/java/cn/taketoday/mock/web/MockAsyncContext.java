@@ -155,7 +155,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   /**
-   * By default this is set to 10000 (10 seconds) even though the Servlet API
+   * By default this is set to 10000 (10 seconds) even though the Mock API
    * specifies a default async request timeout of 30 seconds. Keep in mind the
    * timeout could further be impacted by global configuration through the MVC
    * Java config or the XML namespace, as well as be overridden per request on

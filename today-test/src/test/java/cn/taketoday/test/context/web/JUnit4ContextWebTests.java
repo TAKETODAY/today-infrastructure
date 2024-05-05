@@ -62,7 +62,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
   protected WebApplicationContext wac;
 
   @Autowired
-  protected MockContext mockContext;
+  protected MockContext mockContextIm;
 
   @Autowired
   protected HttpMockRequest request;
@@ -90,13 +90,13 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
 
     assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
-    assertThat(mockContext).as("MockContext should have been autowired from the WAC.").isNotNull();
+    assertThat(mockContextIm).as("MockContext should have been autowired from the WAC.").isNotNull();
     assertThat(request).as("MockHttpServletRequest should have been autowired from the WAC.").isNotNull();
     assertThat(response).as("MockHttpServletResponse should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("RequestContext should have been autowired from the WAC.").isNotNull();
 
-    Object rootWac = mockContext.getAttribute(
+    Object rootWac = mockContextIm.getAttribute(
             WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
@@ -104,7 +104,7 @@ public class JUnit4ContextWebTests extends AbstractJUnit4ContextTests implements
     assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContext);
     assertThat(request.getMockContext()).as("MockContext in the WAC and in the mock request").isSameAs(mockContext);
 
-    assertThat(mockContext.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
+    assertThat(mockContextIm.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
             .isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
   }
 

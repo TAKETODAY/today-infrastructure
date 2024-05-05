@@ -45,7 +45,7 @@ import static org.mockito.Mockito.verify;
  * @author Sam Brannen
  * @author Phillip Webb
  */
-class ServletTestExecutionListenerTests {
+class MockTestExecutionListenerTests {
 
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 

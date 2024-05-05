@@ -167,7 +167,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
-class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandlerMethodTests {
+class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMethodTests {
 
   @Test
   void emptyValueMapping() throws Exception {

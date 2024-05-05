@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -165,7 +166,7 @@ public interface HttpMockRequest extends MockRequest {
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#REQUEST}, {@link cn.taketoday.mock.api.DispatcherType#ASYNC},
    * {@link cn.taketoday.mock.api.DispatcherType#ERROR}</dt>
    * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
-   * {@link cn.taketoday.mock.api.Servlet}.</dd>
+   * {@link MockApi}.</dd>
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#INCLUDE}</dt>
    * <dd>Return the mapping as prior to the current dispatch. i.e the mapping returned is unchanged by a call to</dd>
@@ -173,7 +174,7 @@ public interface HttpMockRequest extends MockRequest {
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#FORWARD}</dt>
    * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
-   * {@link cn.taketoday.mock.api.Servlet}, unless the {@link RequestDispatcher} was obtained via
+   * {@link MockApi}, unless the {@link RequestDispatcher} was obtained via
    * {@link MockContext#getNamedDispatcher(String)}, in which case return the mapping as prior to the
    * current dispatch. i.e the mapping returned is changed during a call to
    * {@link RequestDispatcher#forward(MockRequest, MockResponse)} only if the dispatcher is not a

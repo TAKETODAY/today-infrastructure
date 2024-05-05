@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  */
-public class ServletServerHttpRequestTests {
+public class MockServerHttpRequestTests {
 
   private ServletServerHttpRequest request;
 

@@ -22,11 +22,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
 /**
- * Annotation that may be specified on a {@link cn.taketoday.mock.api.Servlet} class, indicating that instances of the
+ * Annotation that may be specified on a {@link MockApi} class, indicating that instances of the
  * <tt>Servlet</tt> expect requests that conform to the <tt>multipart/form-data</tt> MIME type.
  *
  * <p>

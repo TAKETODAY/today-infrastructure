@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @JUnitWebConfig
-class ServletTestExecutionListenerJUnitIntegrationTests {
+class MockTestExecutionListenerJUnitIntegrationTests {
 
   @Configuration
   static class Config {

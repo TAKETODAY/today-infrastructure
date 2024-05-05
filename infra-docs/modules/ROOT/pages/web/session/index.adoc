@@ -3,7 +3,7 @@
 
 == 介绍
 
-提供了一套类似 `Servlet` 的 `HttpSession` API接口，在 `cn.taketoday.session` 下。
+提供了一套类似 `MockApi` 的 `HttpSession` API接口，在 `cn.taketoday.session` 下。
 
 提供了 `HttpSession` 没有的 `SessionManager` API 接口用来管理会话，也支持会话事件如下：
 

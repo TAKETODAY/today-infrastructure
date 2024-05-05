@@ -105,7 +105,7 @@ exception is propagated through the remaining resolution chain, as though
 the given `@ExceptionHandler` method would not have matched in the first place.
 
 Support for `@ExceptionHandler` methods in Web MVC is built on the `DispatcherServlet`
-level, xref:web/webmvc/mvc-servlet/exceptionhandlers.adoc[HandlerExceptionResolver] mechanism.
+level, xref:web/webmvc/mvc-mockApi/exceptionhandlers.adoc[HandlerExceptionResolver] mechanism.
 
 
 [[mvc-ann-exceptionhandler-args]]
@@ -127,11 +127,11 @@ level, xref:web/webmvc/mvc-servlet/exceptionhandlers.adoc[HandlerExceptionResolv
 | Generic access to request parameters and request and session attributes without direct
   use of the Servlet API.
 
-| `jakarta.servlet.ServletRequest`, `jakarta.servlet.ServletResponse`
+| `jakarta.mockApi.ServletRequest`, `jakarta.mockApi.ServletResponse`
 | Choose any specific request or response type (for example, `MockRequest` or
   `HttpMockRequest` or Infra `MultipartRequest` or `MultipartHttpServletRequest`).
 
-| `jakarta.servlet.http.HttpSession`
+| `jakarta.mockApi.http.HttpSession`
 | Enforces the presence of a session. As a consequence, such an argument is never `null`. +
   Note that session access is not thread-safe. Consider setting the
   `RequestMappingHandlerAdapter` instance's `synchronizeOnSession` flag to `true` if multiple

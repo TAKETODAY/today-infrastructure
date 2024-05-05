@@ -401,7 +401,7 @@ public class EnvironmentSystemIntegrationTests {
     assertThat(environment.getProperty("pContext1")).isEqualTo("pContext1Value");
     assertThat(environment.getProperty("pConfig1")).isEqualTo("pConfig1Value");
 
-    // Servlet* PropertySources have precedence over System* PropertySources
+    // Mock* PropertySources have precedence over System* PropertySources
     assertThat(propertySources.precedenceOf(PropertySource.named(StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME)))
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
 

@@ -33,7 +33,7 @@ import cn.taketoday.util.ObjectUtils;
  * Constructed using the {@link DefaultDataBufferFactory}.
  *
  * <p>Inspired by Netty's {@code ByteBuf}. Introduced so that non-Netty runtimes
- * (i.e. Servlet) do not require Netty on the classpath.
+ * (i.e. Mock) do not require Netty on the classpath.
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller

@@ -17,7 +17,7 @@ The following table lists the available `HandlerExceptionResolver` implementatio
 | A mapping between exception class names and error view names. Useful for rendering
   error pages in a browser application.
 
-| {today-framework-api}/web/servlet/mvc/support/DefaultHandlerExceptionResolver.html[`DefaultHandlerExceptionResolver`]
+| {today-framework-api}/web/mockApi/mvc/support/DefaultHandlerExceptionResolver.html[`DefaultHandlerExceptionResolver`]
 | Resolves exceptions raised by Web MVC and maps them to HTTP status codes.
   See also alternative `ResponseEntityExceptionHandler` and xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses].
 
@@ -50,7 +50,7 @@ exceptions, for `@ResponseStatus` annotated exceptions, and for support of
 `@ExceptionHandler` methods. You can customize that list or replace it.
 
 
-[[mvc-ann-customer-servlet-container-error-page]]
+[[mvc-ann-customer-mockApi-container-error-page]]
 == Container Error Page
 
 If an exception remains unresolved by any `HandlerExceptionResolver` and is, therefore,
@@ -84,8 +84,8 @@ public class ErrorController {
   @RequestMapping(path = "/error")
   public Map<String, Object> handle(HttpServletRequest request) {
     Map<String, Object> map = new HashMap<>();
-    map.put("status", request.getAttribute("jakarta.servlet.error.status_code"));
-    map.put("reason", request.getAttribute("jakarta.servlet.error.message"));
+    map.put("status", request.getAttribute("jakarta.mockApi.error.status_code"));
+    map.put("reason", request.getAttribute("jakarta.mockApi.error.message"));
     return map;
   }
 }

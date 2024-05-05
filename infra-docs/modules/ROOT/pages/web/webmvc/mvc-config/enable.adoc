@@ -11,10 +11,10 @@ public class WebConfiguration {
 }
 ----
 
-NOTE: When using Infra App, you may want to use `@Configuration` classes of type `WebMvcConfigurer` but without `@EnableWebMvc` to keep Infra App MVC customizations. See more details in xref:web/webmvc/mvc-config/customize.adoc[the MVC Config API section] and in {today-framework-reference}/web.html#web.servlet.spring-mvc.auto-configuration[the dedicated Infra App documentation].
+NOTE: When using Infra App, you may want to use `@Configuration` classes of type `WebMvcConfigurer` but without `@EnableWebMvc` to keep Infra App MVC customizations. See more details in xref:web/webmvc/mvc-config/customize.adoc[the MVC Config API section] and in {today-framework-reference}/web.html#web.mockApi.spring-mvc.auto-configuration[the dedicated Infra App documentation].
 
 The preceding example registers a number of Web MVC
-xref:web/webmvc/mvc-servlet/special-bean-types.adoc[infrastructure beans] and adapts to dependencies
+xref:web/webmvc/mvc-mockApi/special-bean-types.adoc[infrastructure beans] and adapts to dependencies
 available on the classpath (for example, payload converters for JSON, XML, and others).
 
 

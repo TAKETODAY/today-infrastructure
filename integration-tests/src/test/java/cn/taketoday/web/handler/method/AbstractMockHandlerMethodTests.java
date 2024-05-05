@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public abstract class AbstractServletHandlerMethodTests {
+public abstract class AbstractMockHandlerMethodTests {
 
   @Nullable
   protected DispatcherServlet servlet;

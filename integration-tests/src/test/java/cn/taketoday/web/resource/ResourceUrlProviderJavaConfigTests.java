@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResourceUrlProviderJavaConfigTests {
 
-  private final TestMock servlet = new TestMock();
+  private final TestMock testMock = new TestMock();
 
   private MockFilterChain filterChain;
 
@@ -57,7 +57,7 @@ public class ResourceUrlProviderJavaConfigTests {
     this.request = new HttpMockRequestImpl("GET", "/");
     this.response = new MockHttpResponseImpl();
 
-    this.filterChain = new MockFilterChain(this.servlet/*,
+    this.filterChain = new MockFilterChain(this.testMock/*,
             new ResourceUrlEncodingFilter(),
             (request, response, chain) -> {
               Object urlProvider = context.getBean(ResourceUrlProvider.class);
@@ -84,7 +84,7 @@ public class ResourceUrlProviderJavaConfigTests {
   }
 
   private String resolvePublicResourceUrlPath(String path) {
-    return this.servlet.wrappedResponse.encodeURL(path);
+    return this.testMock.wrappedResponse.encodeURL(path);
   }
 
   @Configuration

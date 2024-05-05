@@ -43,11 +43,11 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterRegistration;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletRegistration;
+import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.SessionCookieConfig;
 import cn.taketoday.mock.api.SessionTrackingMode;
 import cn.taketoday.util.ClassUtils;
@@ -60,15 +60,6 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 /**
  * Mock implementation of the {@link cn.taketoday.mock.api.MockContext} interface.
- *
- * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
- *
- * <p>Compatible with Servlet 3.1 but can be configured to expose a specific version
- * through {@link #setMajorVersion}/{@link #setMinorVersion}; default is 3.1.
- * Note that Servlet 3.1 support is limited: servlet, filter and listener
- * registration methods are not supported; neither is JSP configuration.
- * We generally do not recommend to unit test your ServletContainerInitializers and
- * WebApplicationInitializers which is where those registration methods would be used.
  *
  * <p>For setting up a full {@code WebApplicationContext} in a test environment, you can
  * use {@code AnnotationConfigWebApplicationContext}, {@code XmlWebApplicationContext},
@@ -88,7 +79,7 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
  */
 public class MockContextImpl implements MockContext {
 
-  /** Default Servlet name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
+  /** Default Mock name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
   private static final String COMMON_DEFAULT_SERVLET_NAME = "default";
 
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
@@ -172,7 +163,7 @@ public class MockContextImpl implements MockContext {
   /**
    * Create a new {@code MockContext} using the supplied resource base
    * path and resource loader.
-   * <p>Registers a {@link MockRequestDispatcher} for the Servlet named
+   * <p>Registers a {@link MockRequestDispatcher} for the Mock named
    * {@literal 'default'}.
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
@@ -356,10 +347,10 @@ public class MockContextImpl implements MockContext {
 
   /**
    * Register a {@link RequestDispatcher} (typically a {@link MockRequestDispatcher})
-   * that acts as a wrapper for the named Servlet.
+   * that acts as a wrapper for the named Mock.
    *
-   * @param name the name of the wrapped Servlet
-   * @param requestDispatcher the dispatcher that wraps the named Servlet
+   * @param name the name of the wrapped Mock
+   * @param requestDispatcher the dispatcher that wraps the named Mock
    * @see #getNamedDispatcher
    * @see #unregisterNamedDispatcher
    */
@@ -382,7 +373,7 @@ public class MockContextImpl implements MockContext {
   }
 
   /**
-   * Get the name of the <em>default</em> {@code Servlet}.
+   * Get the name of the <em>default</em> {@code Mock}.
    * <p>Defaults to {@literal 'default'}.
    *
    * @see #setDefaultServletName
@@ -392,13 +383,13 @@ public class MockContextImpl implements MockContext {
   }
 
   /**
-   * Set the name of the <em>default</em> {@code Servlet}.
+   * Set the name of the <em>default</em> {@code Mock}.
    * <p>Also {@link #unregisterNamedDispatcher unregisters} the current default
    * {@link RequestDispatcher} and {@link #registerNamedDispatcher replaces}
    * it with a {@link MockRequestDispatcher} for the provided
    * {@code defaultServletName}.
    *
-   * @param defaultServletName the name of the <em>default</em> {@code Servlet};
+   * @param defaultServletName the name of the <em>default</em> {@code Mock};
    * never {@code null} or empty
    * @see #getDefaultServletName
    */
@@ -547,59 +538,59 @@ public class MockContextImpl implements MockContext {
     return this.sessionCookieConfig;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   public void setSessionTimeout(int sessionTimeout) {
     this.sessionTimeout = sessionTimeout;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   public int getSessionTimeout() {
     return this.sessionTimeout;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   public void setRequestCharacterEncoding(@Nullable String requestCharacterEncoding) {
     this.requestCharacterEncoding = requestCharacterEncoding;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   @Nullable
   public String getRequestCharacterEncoding() {
     return this.requestCharacterEncoding;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   public void setResponseCharacterEncoding(@Nullable String responseCharacterEncoding) {
     this.responseCharacterEncoding = responseCharacterEncoding;
   }
 
-  @Override  // on Servlet 4.0
+  @Override  // on Mock 4.0
   @Nullable
   public String getResponseCharacterEncoding() {
     return this.responseCharacterEncoding;
   }
 
   //---------------------------------------------------------------------
-  // Unsupported Servlet 3.0 registration methods
+  // Unsupported registration methods
   //---------------------------------------------------------------------
 
   @Override
-  public ServletRegistration.Dynamic addServlet(String servletName, String className) {
+  public MockRegistration.Dynamic addServlet(String servletName, String className) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
+  public MockRegistration.Dynamic addServlet(String servletName, MockApi mockApi) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+  public MockRegistration.Dynamic addServlet(String servletName, Class<? extends MockApi> servletClass) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
+  public <T extends MockApi> T createServlet(Class<T> c) throws ServletException {
     throw new UnsupportedOperationException();
   }
 
@@ -610,7 +601,7 @@ public class MockContextImpl implements MockContext {
    */
   @Override
   @Nullable
-  public ServletRegistration getServletRegistration(String servletName) {
+  public MockRegistration getServletRegistration(String servletName) {
     return null;
   }
 
@@ -620,7 +611,7 @@ public class MockContextImpl implements MockContext {
    * @see cn.taketoday.mock.api.MockContext#getServletRegistrations()
    */
   @Override
-  public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+  public Map<String, ? extends MockRegistration> getServletRegistrations() {
     return Collections.emptyMap();
   }
 

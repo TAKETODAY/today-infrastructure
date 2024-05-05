@@ -40,7 +40,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 }
 ----
 
-The preceding example is for use in Web MVC applications and should be included in the configuration of a xref:web/webmvc/mvc-servlet.adoc[`DispatcherServlet`].
+The preceding example is for use in Web MVC applications and should be included in the configuration of a xref:web/webmvc/mvc-mockApi.adoc[`DispatcherServlet`].
 However, Infra WebSocket support does not depend on Web MVC.
 It is relatively simple to integrate a `WebSocketHandler` into other HTTP-serving environments with the help of
 {today-framework-api}/web/socket/server/support/WebSocketHttpRequestHandler.html[`WebSocketHttpRequestHandler`].

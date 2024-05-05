@@ -3,7 +3,7 @@
 
 You can customize options related to path matching and treatment of the URL.
 For details on the individual options, see the
-{today-framework-api}/web/servlet/config/annotation/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc.
+{today-framework-api}/web/mockApi/config/annotation/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc.
 
 The following example shows how to customize path matching:
 

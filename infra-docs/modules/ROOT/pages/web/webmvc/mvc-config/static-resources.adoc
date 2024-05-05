@@ -31,8 +31,8 @@ See also
 xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[HTTP caching support for static resources].
 
 The resource handler also supports a chain of
-{today-framework-api}/web/servlet/resource/ResourceResolver.html[`ResourceResolver`] implementations and
-{today-framework-api}/web/servlet/resource/ResourceTransformer.html[`ResourceTransformer`] implementations,
+{today-framework-api}/web/mockApi/resource/ResourceResolver.html[`ResourceResolver`] implementations and
+{today-framework-api}/web/mockApi/resource/ResourceTransformer.html[`ResourceTransformer`] implementations,
 which you can use to create a toolchain for working with optimized resources.
 
 You can use the `VersionResourceResolver` for versioned resource URLs based on an MD5 hash

@@ -27,10 +27,10 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.DispatcherType;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
@@ -49,7 +49,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.0 2018-06-25 19:47:14
  */
-public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
+public class DispatcherServlet extends DispatcherHandler implements MockApi, Serializable {
   /**
    * Prefix for ApplicationContext ids that refer to context path
    */
@@ -179,7 +179,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
     if (context instanceof ConfigurableWebApplicationContext wac) {
       wac.setMockContext(getMockContext());
-      wac.setMockConfig(getServletConfig());
+      wac.setMockConfig(getMockConfig());
     }
 
     // The wac environment's #initPropertySources will be called in any case when the context
@@ -187,7 +187,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     // use in any post-processing or initialization that occurs below prior to #refresh
     ConfigurableEnvironment env = context.getEnvironment();
     if (env instanceof ConfigurableWebEnvironment cwe) {
-      cwe.initPropertySources(getMockContext(), getServletConfig());
+      cwe.initPropertySources(getMockContext(), getMockConfig());
     }
   }
 
@@ -215,7 +215,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * object passed to this servlet by the <code>init</code> method
    */
   public MockContext getMockContext() {
-    return getServletConfig().getMockContext();
+    return getMockConfig().getMockContext();
   }
 
   /**
@@ -296,13 +296,13 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   @Override
-  public MockConfig getServletConfig() {
+  public MockConfig getMockConfig() {
     Assert.state(mockConfig != null, "DispatcherServlet has not been initialized");
     return mockConfig;
   }
 
   @Override
-  public final String getServletInfo() {
+  public final String getMockInfo() {
     return "DispatcherServlet, Copyright © TODAY & 2017 - 2024 All Rights Reserved";
   }
 
@@ -312,7 +312,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * @return the name of this servlet instance
    */
   public String getServletName() {
-    return getServletConfig().getMockName();
+    return getMockConfig().getMockName();
   }
 
   @Override

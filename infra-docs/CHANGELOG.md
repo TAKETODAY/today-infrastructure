@@ -1,6 +1,6 @@
 # TODAY Web CHANGE LOG
 
-:apple: today-web is a servlet based high-performance lightweight web framework
+:apple: today-web is a mockApi based high-performance lightweight web framework
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
 
@@ -35,7 +35,7 @@
 - :bug: fix #15 JacksonConfiguration 重复实例
 - :bug: fix #14 JacksonConfiguration ObjectMapper fails on empty beans
 - :zap: 访问控制
-- :zap: 优化 servlet 参数注册部分
+- :zap: 优化 mockApi 参数注册部分
 - :arrow_up: Bump hibernate-validator from 6.1.0.Final to 6.1.5.Final dependabot[bot]* 2021/6/5, 05:54
 
 ## v3.0.0(v2.3.7)
@@ -127,8 +127,8 @@
 ## v2.3.1
 ![LOGO](https://taketoday.cn/display.action?userId=666)
 - 修复@Application 空指针
-- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/servlet/ViewDispatcher.java)
-- [重构 `DispatcherServlet`](/cn/taketoday/web/servlet/DispatcherServlet.java)
+- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/mockApi/ViewDispatcher.java)
+- [重构 `DispatcherServlet`](/cn/taketoday/web/mockApi/DispatcherServlet.java)
 - [优化 path variable 参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L337)
 - [修复exception resolver InvocationTargetException](/cn/taketoday/web/bind/resolver/DefaultExceptionResolver.java#L49)
 - [优化requestBody注解参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L304)

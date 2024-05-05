@@ -11,7 +11,7 @@ do they involve any of the supporting `@InitBinder`, `@ModelAttribute`, or
 The Web MVC Test framework, also known as `MockMvc`, aims to provide more complete
 testing for Web MVC controllers without a running server. It does that by invoking
 the `DispatcherServlet` and passing
-xref:testing/unit.adoc#mock-objects-servlet["`mock`" implementations of the Servlet API] from the
+xref:testing/unit.adoc#mock-objects-mockApi["`mock`" implementations of the Servlet API] from the
 `today-test` module which replicates the full Web MVC request handling without
 a running server.
 

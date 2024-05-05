@@ -51,7 +51,7 @@ import cn.taketoday.mock.api.http.HttpSessionListener;
  * provides the servlet when the servlet is initialized.
  *
  * @author Various
- * @see Servlet#getServletConfig
+ * @see MockApi#getMockConfig
  * @see MockConfig#getMockContext
  */
 public interface MockContext {
@@ -449,7 +449,7 @@ public interface MockContext {
    * Adds the servlet with the given name and class name to this servlet context.
    *
    * <p>
-   * The registered servlet may be further configured via the returned {@link ServletRegistration} object.
+   * The registered servlet may be further configured via the returned {@link MockRegistration} object.
    *
    * <p>
    * The specified <tt>className</tt> will be loaded using the classloader associated with the application represented by
@@ -479,13 +479,13 @@ public interface MockContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  ServletRegistration.Dynamic addServlet(String servletName, String className);
+  MockRegistration.Dynamic addServlet(String servletName, String className);
 
   /**
    * Registers the given servlet instance with this MockContext under the given <tt>servletName</tt>.
    *
    * <p>
-   * The registered servlet may be further configured via the returned {@link ServletRegistration} object.
+   * The registered servlet may be further configured via the returned {@link MockRegistration} object.
    *
    * <p>
    * If this MockContext already contains a preliminary ServletRegistration for a servlet with the given
@@ -493,7 +493,7 @@ public interface MockContext {
    * returned.
    *
    * @param servletName the name of the servlet
-   * @param servlet the servlet instance to register
+   * @param mockApi the servlet instance to register
    * @return a ServletRegistration object that may be used to further configure the given servlet, or <tt>null</tt> if
    * this MockContext already contains a complete ServletRegistration for a servlet with the given <tt>servletName</tt>
    * or if the same servlet instance has already been registered with this or another MockContext in the same container
@@ -504,13 +504,13 @@ public interface MockContext {
    * {@link WebListener}
    * @throws IllegalArgumentException if <code>servletName</code> is null or an empty String
    */
-  ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet);
+  MockRegistration.Dynamic addServlet(String servletName, MockApi mockApi);
 
   /**
    * Adds the servlet with the given name and class type to this servlet context.
    *
    * <p>
-   * The registered servlet may be further configured via the returned {@link ServletRegistration} object.
+   * The registered servlet may be further configured via the returned {@link MockRegistration} object.
    *
    * <p>
    * If this MockContext already contains a preliminary ServletRegistration for a servlet with the given
@@ -535,14 +535,14 @@ public interface MockContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass);
+  MockRegistration.Dynamic addServlet(String servletName, Class<? extends MockApi> servletClass);
 
   /**
    * Instantiates the given Servlet class.
    *
    * <p>
    * The returned Servlet instance may be further customized before it is registered with this MockContext via a call
-   * to {@link #addServlet(String, Servlet)}.
+   * to {@link #addServlet(String, MockApi)}.
    *
    * <p>
    * The given Servlet class must define a zero argument constructor, which is used to instantiate it.
@@ -563,7 +563,7 @@ public interface MockContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException;
+  <T extends MockApi> T createServlet(Class<T> clazz) throws ServletException;
 
   /**
    * Gets the ServletRegistration corresponding to the servlet with the given <tt>servletName</tt>.
@@ -576,7 +576,7 @@ public interface MockContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  ServletRegistration getServletRegistration(String servletName);
+  MockRegistration getServletRegistration(String servletName);
 
   /**
    * Gets a (possibly empty) Map of the ServletRegistration objects (keyed by servlet name) corresponding to all servlets
@@ -597,7 +597,7 @@ public interface MockContext {
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  Map<String, ? extends ServletRegistration> getServletRegistrations();
+  Map<String, ? extends MockRegistration> getServletRegistrations();
 
   /**
    * Adds the filter with the given name and class name to this servlet context.
@@ -980,8 +980,8 @@ public interface MockContext {
    *
    * <p>
    * Roles that are implicitly declared as a result of their use within the
-   * {@link ServletRegistration.Dynamic#setServletSecurity setServletSecurity} or
-   * {@link ServletRegistration.Dynamic#setRunAsRole setRunAsRole} methods of the {@link ServletRegistration} interface
+   * {@link MockRegistration.Dynamic#setServletSecurity setServletSecurity} or
+   * {@link MockRegistration.Dynamic#setRunAsRole setRunAsRole} methods of the {@link MockRegistration} interface
    * need not be declared.
    *
    * @param roleNames the role names being declared

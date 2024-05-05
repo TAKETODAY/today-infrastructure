@@ -30,7 +30,7 @@ scenarios for integration tests that require the use of context hierarchies.
 `ControllerIntegrationTests` represents a typical integration testing scenario for a
 Web MVC web application by declaring a context hierarchy that consists of two levels,
 one for the root `WebApplicationContext` (loaded by using the `TestAppConfig`
-`@Configuration` class) and one for the dispatcher servlet `WebApplicationContext`
+`@Configuration` class) and one for the dispatcher mockApi `WebApplicationContext`
 (loaded by using the `WebConfig` `@Configuration` class). The `WebApplicationContext`
 that is autowired into the test instance is the one for the child context (that is, the
 lowest context in the hierarchy). The following listing shows this configuration scenario:

@@ -1,7 +1,7 @@
 [[mvc-multipart-forms]]
 = Multipart
 
-After a `MultipartResolver` has been xref:web/webmvc/mvc-servlet/multipart.adoc[enabled], the content of POST
+After a `MultipartResolver` has been xref:web/webmvc/mvc-mockApi/multipart.adoc[enabled], the content of POST
 requests with `multipart/form-data` is parsed and accessible as regular request
 parameters. The following example accesses one regular form field and one uploaded
 file:
@@ -38,7 +38,7 @@ When the `@RequestParam` annotation is declared as a `Map<String, MultipartFile>
 `MultiValueMap<String, MultipartFile>`, without a parameter name specified in the annotation,
 then the map is populated with the multipart files for each given parameter name.
 
-NOTE: With Servlet multipart parsing, you may also declare `jakarta.servlet.http.Part`
+NOTE: With Servlet multipart parsing, you may also declare `jakarta.mockApi.http.Part`
 instead of Infra `MultipartFile`, as a method argument or collection value type.
 
 You can also use multipart content as part of data binding to a

@@ -16,17 +16,17 @@ and others) and is equivalent to `required=false`.
 | Generic access to request parameters and request and session attributes, without direct
   use of the Servlet API.
 
-| `jakarta.servlet.ServletRequest`, `jakarta.servlet.ServletResponse`
+| `jakarta.mockApi.ServletRequest`, `jakarta.mockApi.ServletResponse`
 | Choose any specific request or response type -- for example, `MockRequest`, `HttpMockRequest`,
   or Infra `MultipartRequest`, `MultipartHttpServletRequest`.
 
-| `jakarta.servlet.http.HttpSession`
+| `jakarta.mockApi.http.HttpSession`
 | Enforces the presence of a session. As a consequence, such an argument is never `null`.
   Note that session access is not thread-safe. Consider setting the
   `RequestMappingHandlerAdapter` instance's `synchronizeOnSession` flag to `true` if multiple
   requests are allowed to concurrently access a session.
 
-| `jakarta.servlet.http.PushBuilder`
+| `jakarta.mockApi.http.PushBuilder`
 | Servlet 4.0 push builder API for programmatic HTTP/2 resource pushes.
   Note that, per the Servlet specification, the injected `PushBuilder` instance can be null if the client
   does not support that HTTP/2 feature.
@@ -120,7 +120,7 @@ and others) and is equivalent to `required=false`.
 
 | `UriComponentsBuilder`
 | For preparing a URL relative to the current request's host, port, scheme, context path, and
-  the literal part of the servlet mapping. See xref:web/webmvc/mvc-uri-building.adoc[URI Links].
+  the literal part of the mockApi mapping. See xref:web/webmvc/mvc-uri-building.adoc[URI Links].
 
 | `@SessionAttribute`
 | For access to any session attribute, in contrast to model attributes stored in the session

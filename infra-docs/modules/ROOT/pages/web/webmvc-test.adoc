@@ -4,7 +4,7 @@
 This section summarizes the options available in `today-test` for Web MVC applications.
 
 * Servlet API Mocks: Mock implementations of Servlet API contracts for unit testing controllers,
-filters, and other web components. See xref:testing/unit.adoc#mock-objects-servlet[Servlet API]
+filters, and other web components. See xref:testing/unit.adoc#mock-objects-mockApi[Servlet API]
 mock objects for more details.
 
 * TestContext Framework: Support for loading Infra configuration in JUnit and TestNG tests,

@@ -25,11 +25,11 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
-import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -79,7 +79,7 @@ public class MockWrappingController extends AbstractController
         implements BeanNameAware, InitializingBean, DisposableBean, MockContextAware {
 
   @Nullable
-  private Class<? extends Servlet> servletClass;
+  private Class<? extends MockApi> servletClass;
 
   @Nullable
   private String servletName;
@@ -90,7 +90,7 @@ public class MockWrappingController extends AbstractController
   private String beanName;
 
   @Nullable
-  private Servlet servletInstance;
+  private MockApi mockApiInstance;
 
   private MockContext mockContext;
 
@@ -102,9 +102,9 @@ public class MockWrappingController extends AbstractController
    * Set the class of the servlet to wrap.
    * Needs to implement {@code cn.taketoday.mock.api.Servlet}.
    *
-   * @see Servlet
+   * @see MockApi
    */
-  public void setServletClass(@Nullable Class<? extends Servlet> servletClass) {
+  public void setServletClass(@Nullable Class<? extends MockApi> servletClass) {
     this.servletClass = servletClass;
   }
 
@@ -132,7 +132,7 @@ public class MockWrappingController extends AbstractController
   /**
    * Initialize the wrapped Servlet instance.
    *
-   * @see Servlet#init(MockConfig)
+   * @see MockApi#init(MockConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -142,33 +142,33 @@ public class MockWrappingController extends AbstractController
     if (this.servletName == null) {
       this.servletName = this.beanName;
     }
-    this.servletInstance = ReflectionUtils.accessibleConstructor(this.servletClass).newInstance();
-    this.servletInstance.init(new DelegatingMockConfig());
+    this.mockApiInstance = ReflectionUtils.accessibleConstructor(this.servletClass).newInstance();
+    this.mockApiInstance.init(new DelegatingMockConfig());
   }
 
   /**
    * Invoke the wrapped Servlet instance.
    *
-   * @see Servlet#service(MockRequest, MockResponse)
+   * @see MockApi#service(MockRequest, MockResponse)
    */
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
     MockRequestContext nativeContext = WebUtils.getNativeContext(request, MockRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");
-    Assert.state(this.servletInstance != null, "No Servlet instance");
-    this.servletInstance.service(nativeContext.getRequest(), nativeContext.getResponse());
+    Assert.state(this.mockApiInstance != null, "No Servlet instance");
+    this.mockApiInstance.service(nativeContext.getRequest(), nativeContext.getResponse());
     return null;
   }
 
   /**
    * Destroy the wrapped Servlet instance.
    *
-   * @see Servlet#destroy()
+   * @see MockApi#destroy()
    */
   @Override
   public void destroy() {
-    if (this.servletInstance != null) {
-      this.servletInstance.destroy();
+    if (this.mockApiInstance != null) {
+      this.mockApiInstance.destroy();
     }
   }
 

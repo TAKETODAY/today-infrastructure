@@ -10,20 +10,20 @@ finds one, it tries to use it to set the locale. By using the `RequestContext.ge
 method, you can always retrieve the locale that was resolved by the locale resolver.
 
 In addition to automatic locale resolution, you can also attach an interceptor to the
-handler mapping (see xref:web/webmvc/mvc-servlet/handlermapping-interceptor.adoc[Interception] for more information on handler
+handler mapping (see xref:web/webmvc/mvc-mockApi/handlermapping-interceptor.adoc[Interception] for more information on handler
 mapping interceptors) to change the locale under specific circumstances (for example,
 based on a parameter in the request).
 
 Locale resolvers and interceptors are defined in the
-`cn.taketoday.web.servlet.i18n` package and are configured in your application
+`cn.taketoday.web.mockApi.i18n` package and are configured in your application
 context in the normal way. The following selection of locale resolvers is included in
 Infra.
 
-* xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-timezone[Time Zone]
-* xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-localeresolver-acceptheader[Header Resolver]
-* xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-localeresolver-cookie[Cookie Resolver]
-* xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-localeresolver-session[Session Resolver]
-* xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-localeresolver-interceptor[Locale Interceptor]
+* xref:web/webmvc/mvc-mockApi/localeresolver.adoc#mvc-timezone[Time Zone]
+* xref:web/webmvc/mvc-mockApi/localeresolver.adoc#mvc-localeresolver-acceptheader[Header Resolver]
+* xref:web/webmvc/mvc-mockApi/localeresolver.adoc#mvc-localeresolver-cookie[Cookie Resolver]
+* xref:web/webmvc/mvc-mockApi/localeresolver.adoc#mvc-localeresolver-session[Session Resolver]
+* xref:web/webmvc/mvc-mockApi/localeresolver.adoc#mvc-localeresolver-interceptor[Locale Interceptor]
 
 
 [[mvc-timezone]]
@@ -58,7 +58,7 @@ maximum age. The following example defines a `CookieLocaleResolver`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="localeResolver" class="cn.taketoday.web.servlet.i18n.CookieLocaleResolver">
+<bean id="localeResolver" class="cn.taketoday.web.mockApi.i18n.CookieLocaleResolver">
 
   <property name="cookieName" value="clientlanguage"/>
 
@@ -121,15 +121,15 @@ language to Dutch. The following example shows how to intercept the locale:
 [source,xml,indent=0,subs="verbatim"]
 ----
 <bean id="localeChangeInterceptor"
-    class="cn.taketoday.web.servlet.i18n.LocaleChangeInterceptor">
+    class="cn.taketoday.web.mockApi.i18n.LocaleChangeInterceptor">
   <property name="paramName" value="siteLanguage"/>
 </bean>
 
 <bean id="localeResolver"
-    class="cn.taketoday.web.servlet.i18n.CookieLocaleResolver"/>
+    class="cn.taketoday.web.mockApi.i18n.CookieLocaleResolver"/>
 
 <bean id="urlMapping"
-    class="cn.taketoday.web.servlet.handler.SimpleUrlHandlerMapping">
+    class="cn.taketoday.web.mockApi.handler.SimpleUrlHandlerMapping">
   <property name="interceptors">
     <list>
       <ref bean="localeChangeInterceptor"/>
