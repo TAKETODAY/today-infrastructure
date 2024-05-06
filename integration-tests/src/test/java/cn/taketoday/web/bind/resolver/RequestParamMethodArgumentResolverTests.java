@@ -27,6 +27,9 @@ import java.util.Optional;
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResolvableMethod;
@@ -37,12 +40,9 @@ import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.testfixture.MockMultipartFile;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -466,7 +466,7 @@ class RequestParamMethodArgumentResolverTests {
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo(Optional.empty());
 
-    request.addParameter("name", "123");
+    webRequest.addParameter("name", "123");
     result = resolver.resolveArgument(webRequest, param);
     assertThat(result.getClass()).isEqualTo(Optional.class);
     assertThat(((Optional) result).get()).isEqualTo(123);
@@ -498,7 +498,7 @@ class RequestParamMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
 
-    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
+    MockRequestContext webRequest = new MockRequestContext(null, request);
 
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
@@ -507,7 +507,7 @@ class RequestParamMethodArgumentResolverTests {
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo(Optional.empty());
 
-    request.addParameter("name", "123", "456");
+    webRequest.setParameter("name", "123", "456");
     result = resolver.resolveArgument(webRequest, param);
     assertThat(result.getClass()).isEqualTo(Optional.class);
     assertThat((Integer[]) ((Optional) result).get()).isEqualTo(new Integer[] { 123, 456 });
@@ -548,7 +548,7 @@ class RequestParamMethodArgumentResolverTests {
     Object result = resolver.resolveArgument(webRequest, param);
     assertThat(result).isEqualTo(Optional.empty());
 
-    request.addParameter("name", "123", "456");
+    webRequest.setParameter("name", "123", "456");
     result = resolver.resolveArgument(webRequest, param);
     assertThat(result.getClass()).isEqualTo(Optional.class);
     assertThat(((Optional) result).get()).isEqualTo(Arrays.asList("123", "456"));

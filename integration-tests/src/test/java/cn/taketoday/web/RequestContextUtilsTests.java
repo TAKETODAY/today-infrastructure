@@ -37,7 +37,7 @@ class RequestContextUtilsTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  RequestContext context = new MockRequestContext(null, request, null);
+  MockRequestContext context = new MockRequestContext(null, request, null);
 
   @Test
   void testIntParameter() throws RequestBindingException {
@@ -119,11 +119,11 @@ class RequestContextUtilsTests {
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
             RequestContextUtils.getRequiredLongParameters(context, "param2"));
 
-    request.setParameter("param2", new String[] { "1", "2" });
+    context.setParameter("param2", "1", "2");
     values = RequestContextUtils.getRequiredLongParameters(context, "param2");
     assertThat(values).containsExactly(1, 2);
 
-    request.removeParameter("param2");
+    context.removeParameter("param2");
     assertThatExceptionOfType(RequestBindingException.class).isThrownBy(() ->
             RequestContextUtils.getRequiredLongParameters(context, "param2"));
   }
