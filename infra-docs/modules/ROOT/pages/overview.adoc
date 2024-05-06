@@ -55,8 +55,8 @@ https://github.com/TAKETODAY/today-blog[today-blog]
 
 本项目的诞生离不开以下项目：
 
-* https://github.com/spring-projects/spring-framework[TODAY Framework]
-* https://github.com/spring-projects/spring-boot[Infra App]
+* https://github.com/spring-projects/spring-framework[Spring Framework]
+* https://github.com/spring-projects/spring-boot[Spring Boot]
 * 感谢 https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure[Jetbrains] 提供免费 IDE 开源授权
 
 == 📄 开源协议
