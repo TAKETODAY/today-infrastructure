@@ -122,7 +122,7 @@ public class DefaultMockMvcBuilderTests {
     builder.addDispatcherCustomizer(ds -> ds.setContextId("test-id"));
     MockMvc mvc = builder.build();
     String contextId = (String) new DirectFieldAccessor(mvc)
-            .getPropertyValue("servlet.contextId");
+            .getPropertyValue("mock.contextId");
     assertThat(contextId).isEqualTo("test-id");
   }
 
@@ -137,7 +137,7 @@ public class DefaultMockMvcBuilderTests {
     builder.addDispatcherCustomizer(ds -> ds.setContextId("override-id"));
     MockMvc mvc = builder.build();
     String contextId = (String) new DirectFieldAccessor(mvc)
-            .getPropertyValue("servlet.contextId");
+            .getPropertyValue("mock.contextId");
     assertThat(contextId).isEqualTo("override-id");
   }
 
