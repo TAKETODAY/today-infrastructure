@@ -623,7 +623,7 @@ NOTE: `<cache:annotation-driven/>` looks for `@Cacheable/@CachePut/@CacheEvict/@
 only on beans in the same application context in which it is defined. This means that,
 if you put `<cache:annotation-driven/>` in a `WebApplicationContext` for a
 `MockDispatcher`, it checks for beans only in your controllers, not your services.
-See xref:web/webmvc/mvc-mockApi.adoc[the MVC section] for more information.
+See xref:web/webmvc/mvc-servlet.adoc[the MVC section] for more information.
 
 .Method visibility and cache annotations
 ****

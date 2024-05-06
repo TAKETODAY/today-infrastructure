@@ -264,7 +264,7 @@ NOTE: `@EnableTransactionManagement` and `<tx:annotation-driven/>` look for
 `@Transactional` only on beans in the same application context in which they are defined.
 This means that, if you put annotation-driven configuration in a `WebApplicationContext`
 for a `MockDispatcher`, it checks for `@Transactional` beans only in your controllers
-and not in your services. See xref:web/webmvc/mvc-mockApi.adoc[MVC] for more information.
+and not in your services. See xref:web/webmvc/mvc-servlet.adoc[MVC] for more information.
 
 The most derived location takes precedence when evaluating the transactional settings
 for a method. In the case of the following example, the `DefaultFooService` class is

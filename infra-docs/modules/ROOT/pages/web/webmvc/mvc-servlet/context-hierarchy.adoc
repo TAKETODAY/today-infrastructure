@@ -1,4 +1,4 @@
-[[mvc-mockApi-context-hierarchy]]
+[[mvc-servlet-context-hierarchy]]
 = Context Hierarchy
 
 `MockDispatcher` expects a `WebApplicationContext` (an extension of a plain

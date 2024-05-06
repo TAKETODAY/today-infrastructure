@@ -1,8 +1,8 @@
-[[mvc-mockApi-config]]
+[[mvc-servlet-config]]
 = Web MVC Config
 :page-section-summary-toc: 1
 
-Applications can declare the infrastructure beans listed in xref:web/webmvc/mvc-mockApi/special-bean-types.adoc[Special Bean Types]
+Applications can declare the infrastructure beans listed in xref:web/webmvc/mvc-servlet/special-bean-types.adoc[Special Bean Types]
 that are required to process requests. The `MockDispatcher` checks the
 `WebApplicationContext` for each special bean. If there are no matching bean types,
 it falls back on the default types listed in

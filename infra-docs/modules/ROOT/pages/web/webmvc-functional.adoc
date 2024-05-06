@@ -5,7 +5,7 @@
 Infra Web MVC includes WebMvc.fn, a lightweight functional programming model in which functions
 are used to route and handle requests and contracts are designed for immutability.
 It is an alternative to the annotation-based programming model but otherwise runs on
-the same xref:web/webmvc/mvc-mockApi.adoc[DispatcherServlet].
+the same xref:web/webmvc/mvc-servlet.adoc[DispatcherServlet].
 
 
 
@@ -566,7 +566,7 @@ RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources
 [[webmvc-fn-running]]
 == Running a Server
 
-You typically run router functions in a xref:web/webmvc/mvc-mockApi.adoc[`DispatcherHandler`]-based setup through the
+You typically run router functions in a xref:web/webmvc/mvc-servlet.adoc[`DispatcherHandler`]-based setup through the
 xref:web/webmvc/mvc-config.adoc[MVC Config], which uses Infra configuration to declare the
 components required to process requests. The MVC Java configuration declares the following
 infrastructure components to support functional endpoints:
