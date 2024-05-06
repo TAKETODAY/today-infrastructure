@@ -616,11 +616,15 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Nullable
   public String[] getParameters(String name) {
-    MultiValueMap<String, String> parameters = getParameters();
+    var parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
-    return StringUtils.toStringArray(parameters.get(name));
+    List<String> list = parameters.get(name);
+    if (CollectionUtils.isEmpty(list)) {
+      return null;
+    }
+    return StringUtils.toStringArray(list);
   }
 
   /**
