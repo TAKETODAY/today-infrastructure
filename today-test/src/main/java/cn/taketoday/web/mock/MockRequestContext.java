@@ -71,8 +71,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private final HttpMockRequest request;
-  private final HttpMockResponse response;
+  public final HttpMockRequest request;
+
+  public final HttpMockResponse response;
+
   private final long requestTimeMillis = System.currentTimeMillis();
 
   private boolean bodyUsed = false;
@@ -88,6 +90,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   public MockRequestContext(HttpMockRequest request, HttpMockResponse response) {
     this(null, request, response);
+  }
+
+  public MockRequestContext(ApplicationContext context, HttpMockRequest request) {
+    this(context, request, new MockHttpResponseImpl(), null);
   }
 
   public MockRequestContext(ApplicationContext context,
@@ -550,7 +556,24 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public void setParameter(String key, String value) {
+    getParameters().set(key, value);
+  }
+
+  public void addParameter(String key, String value) {
     getParameters().add(key, value);
+  }
+
+  public void addParameter(String key, String... values) {
+    getParameters().addAll(key, values);
+  }
+
+  public void setParameter(String key, String... values) {
+    removeParameter(key);
+    getParameters().addAll(key, values);
+  }
+
+  public void removeParameter(String key) {
+    getParameters().remove(key);
   }
 
   public void setParameters(MultiValueMap<String, String> parameters) {
