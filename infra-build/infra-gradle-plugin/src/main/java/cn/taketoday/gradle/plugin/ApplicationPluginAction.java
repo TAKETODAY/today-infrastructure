@@ -22,6 +22,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.distribution.Distribution;
 import org.gradle.api.distribution.DistributionContainer;
 import org.gradle.api.distribution.plugins.DistributionPlugin;
@@ -29,6 +30,7 @@ import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.JavaApplication;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.application.CreateStartScripts;
@@ -68,18 +70,32 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     distribution.getContents().with(binCopySpec);
     applyApplicationDefaultJvmArgsToRunTasks(project.getTasks(), javaApplication);
 
-    //
-    JarTypeFileSpec jarTypeFileSpec = new JarTypeFileSpec();
+    //TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks().named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
+    //javaApplication.getMainClass().convention(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+
+    // filter classpath
+    FileCollection excludeClasspath = excludeClasspath(project);
+    Spec<File> exclude = JarTypeFileSpec.exclude();
     distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
             .contents(copySpec -> copySpec.exclude(element -> {
               if (!element.isDirectory()) {
                 File file = element.getFile();
                 if (file.getName().endsWith(".jar")) {
-                  return !jarTypeFileSpec.isSatisfiedBy(file);
+                  return excludeClasspath.contains(file) || exclude.isSatisfiedBy(file);
                 }
               }
               return false;
             }));
+  }
+
+  static FileCollection excludeClasspath(Project project) {
+    ConfigurationContainer config = project.getConfigurations();
+    Configuration developmentOnly = config.getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration testAndDevelopmentOnly = config.getByName(InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration productionRuntimeClasspath = config.getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+
+    return developmentOnly.minus(productionRuntimeClasspath)
+            .plus(testAndDevelopmentOnly.minus(productionRuntimeClasspath));
   }
 
   private void applyApplicationDefaultJvmArgsToRunTasks(TaskContainer tasks, JavaApplication javaApplication) {

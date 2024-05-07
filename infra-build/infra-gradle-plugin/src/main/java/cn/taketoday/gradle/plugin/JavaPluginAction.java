@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,7 +174,7 @@ final class JavaPluginAction implements PluginApplicationAction {
       Provider<String> manifestStartClass = project.provider(
               () -> (String) infraJar.getManifest().getAttributes().get("Start-Class"));
       infraJar.getMainClass().convention(resolveMainClassName.flatMap(
-              resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
+              resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolver.readMainClassName()));
       infraJar.getTargetJavaVersion().set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
       infraJar.resolvedArtifacts(runtimeClasspath.getIncoming().getArtifacts().getResolvedArtifacts());
     });
@@ -226,7 +226,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     run.getJavaLauncher().convention(toolchainService.launcherFor(toolchain));
   }
 
-  private JavaPluginExtension javaPluginExtension(Project project) {
+  static JavaPluginExtension javaPluginExtension(Project project) {
     return project.getExtensions().getByType(JavaPluginExtension.class);
   }
 
@@ -330,7 +330,7 @@ final class JavaPluginAction implements PluginApplicationAction {
 
     private boolean hasConfigurationProcessorOnClasspath(JavaCompile compile) {
       Set<File> files = (compile.getOptions().getAnnotationProcessorPath() != null)
-                        ? compile.getOptions().getAnnotationProcessorPath().getFiles() : compile.getClasspath().getFiles();
+              ? compile.getOptions().getAnnotationProcessorPath().getFiles() : compile.getClasspath().getFiles();
       return files.stream()
               .map(File::getName)
               .anyMatch(name -> name.startsWith("infra-configuration-processor"));

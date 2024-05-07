@@ -50,4 +50,13 @@ class JarTypeFileSpec implements Spec<File> {
     return true;
   }
 
+  static JarTypeFileSpec include() {
+    return new JarTypeFileSpec();
+  }
+
+  static Spec<File> exclude() {
+    JarTypeFileSpec include = include();
+    return file -> !include.isSatisfiedBy(file);
+  }
+
 }
