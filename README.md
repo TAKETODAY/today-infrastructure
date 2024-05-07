@@ -56,7 +56,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "cn.taketoday:infra-gradle-plugin:4.0.0-Draft.4"
+    classpath "cn.taketoday:infra-gradle-plugin:5.0.0-Draft.1-SNAPSHOT"
   }
 }
 
@@ -79,9 +79,7 @@ repositories {
 dependencies {
   implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
   implementation 'cn.taketoday:today-starter-netty'
-  implementation 'cn.taketoday:today-starter-json'
   implementation 'cn.taketoday:today-starter-web'
-  
 }
 
 ```
@@ -92,8 +90,14 @@ dependencies {
 ```xml
 <dependency>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-framework</artifactId>
-  <version>4.0.0-Draft.6</version>
+  <artifactId>today-starter-web</artifactId>
+  <version>${infraVersion}</version>
+</dependency>
+
+<dependency>
+  <groupId>cn.taketoday</groupId>
+  <artifactId>today-starter-netty</artifactId>
+  <version>${infraVersion}</version>
 </dependency>
 ```
 
