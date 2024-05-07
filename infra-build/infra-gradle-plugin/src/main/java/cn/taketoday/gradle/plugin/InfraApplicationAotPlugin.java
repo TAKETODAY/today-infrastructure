@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,8 +132,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             .dir("generated/" + aotSourceSet.getName() + "Resources");
     TaskProvider<ProcessAot> processAot = project.getTasks().register(PROCESS_AOT_TASK_NAME, ProcessAot.class, (task) -> {
       configureAotTask(project, aotSourceSet, task, resourcesOutput);
-      task.getApplicationMainClass()
-              .set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+      task.getApplicationMainClass().set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
       task.setClasspath(aotClasspath);
     });
     aotSourceSet.getJava().srcDir(processAot.map(ProcessAot::getSourcesOutput));

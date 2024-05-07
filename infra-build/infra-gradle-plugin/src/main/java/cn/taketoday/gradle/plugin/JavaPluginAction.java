@@ -165,7 +165,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     Callable<FileCollection> classpath = () -> mainSourceSet.getRuntimeClasspath()
             .minus(developmentOnly.minus(productionRuntimeClasspath))
             .minus(testAndDevelopmentOnly.minus(productionRuntimeClasspath))
-            .filter(new JarTypeFileSpec());
+            .filter(JarTypeFileSpec.include());
 
     return project.getTasks().register(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class, infraJar -> {
       infraJar.setDescription("Assembles an executable jar archive containing the main classes and their dependencies.");
@@ -196,7 +196,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     Callable<FileCollection> classpath = () -> javaPluginExtension(project).getSourceSets()
             .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
             .getRuntimeClasspath()
-            .filter(new JarTypeFileSpec());
+            .filter(JarTypeFileSpec.include());
     project.getTasks().register(InfraApplicationPlugin.INFRA_RUN_TASK_NAME, InfraRun.class, (run) -> {
       run.setDescription("Runs this project as a Infra application.");
       run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
@@ -210,7 +210,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     Callable<FileCollection> classpath = () -> javaPluginExtension(project).getSourceSets()
             .getByName(SourceSet.TEST_SOURCE_SET_NAME)
             .getRuntimeClasspath()
-            .filter(new JarTypeFileSpec());
+            .filter(JarTypeFileSpec.include());
     project.getTasks().register("infraTestRun", InfraRun.class, (run) -> {
       run.setDescription("Runs this project as a Infra application using the test runtime classpath.");
       run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
