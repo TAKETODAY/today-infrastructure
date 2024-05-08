@@ -116,7 +116,7 @@ public class StandardMockEnvironment extends StandardEnvironment implements Conf
 
   @Override
   public void initPropertySources(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
-    WebApplicationContextUtils.initServletPropertySources(getPropertySources(), mockContext, mockConfig);
+    WebApplicationContextUtils.initMockPropertySources(getPropertySources(), mockContext, mockConfig);
   }
 
 }

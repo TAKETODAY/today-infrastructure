@@ -50,7 +50,7 @@ public class DefaultMockMvcBuilderTests {
    * See SPR-12553 and SPR-13075.
    */
   @Test
-  public void rootWacServletContainerAttributePreviouslySet() {
+  public void rootWacMockContainerAttributePreviouslySet() {
     StubWebApplicationContext child = new StubWebApplicationContext(this.mockContext);
     this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, child);
 
@@ -62,7 +62,7 @@ public class DefaultMockMvcBuilderTests {
    * See SPR-12553 and SPR-13075.
    */
   @Test
-  public void rootWacServletContainerAttributePreviouslySetWithContextHierarchy() {
+  public void rootWacMockContainerAttributePreviouslySetWithContextHierarchy() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
 
     this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
@@ -79,7 +79,7 @@ public class DefaultMockMvcBuilderTests {
    * See SPR-12553 and SPR-13075.
    */
   @Test
-  public void rootWacServletContainerAttributeNotPreviouslySet() {
+  public void rootWacMockContainerAttributeNotPreviouslySet() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
     ApplicationContext wac = builder.initWebAppContext();
@@ -91,7 +91,7 @@ public class DefaultMockMvcBuilderTests {
    * See SPR-12553 and SPR-13075.
    */
   @Test
-  public void rootWacServletContainerAttributeNotPreviouslySetWithContextHierarchy() {
+  public void rootWacMockContainerAttributeNotPreviouslySetWithContextHierarchy() {
     StaticApplicationContext ear = new StaticApplicationContext();
     StaticWebApplicationContext root = new StaticWebApplicationContext();
     root.setParent(ear);

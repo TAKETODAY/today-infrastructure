@@ -31,7 +31,6 @@ import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
-import cn.taketoday.web.mock.MockForwardingController;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.MockWrappingController;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
@@ -66,14 +65,14 @@ class ControllerTests {
   @Test
   public void mockForwardingController() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
-    sfc.setServletName("action");
+    sfc.setMockName("action");
     doTestMockForwardingController(sfc, false);
   }
 
   @Test
   public void mockForwardingControllerWithInclude() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
-    sfc.setServletName("action");
+    sfc.setMockName("action");
     doTestMockForwardingController(sfc, true);
   }
 

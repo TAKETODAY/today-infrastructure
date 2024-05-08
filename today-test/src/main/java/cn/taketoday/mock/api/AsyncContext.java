@@ -45,37 +45,31 @@ public interface AsyncContext {
    * The name of the request attribute under which the original request URI is made available to the target of a
    * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
-  static final String ASYNC_REQUEST_URI = "cn.taketoday.mock.api.async.request_uri";
+  String ASYNC_REQUEST_URI = "cn.taketoday.mock.api.async.request_uri";
 
   /**
    * The name of the request attribute under which the original context path is made available to the target of a
    * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
-  static final String ASYNC_CONTEXT_PATH = "cn.taketoday.mock.api.async.context_path";
+  String ASYNC_CONTEXT_PATH = "cn.taketoday.mock.api.async.context_path";
 
   /**
    * The name of the request attribute under which the original {@link HttpMockMapping} is made
    * available to the target of a {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
-  static final String ASYNC_MAPPING = "cn.taketoday.mock.api.async.mapping";
+  String ASYNC_MAPPING = "cn.taketoday.mock.api.async.mapping";
 
   /**
    * The name of the request attribute under which the original path info is made available to the target of a
    * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
-  static final String ASYNC_PATH_INFO = "cn.taketoday.mock.api.async.path_info";
-
-  /**
-   * The name of the request attribute under which the original servlet path is made available to the target of a
-   * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
-   */
-  static final String ASYNC_SERVLET_PATH = "cn.taketoday.mock.api.async.servlet_path";
+  String ASYNC_PATH_INFO = "cn.taketoday.mock.api.async.path_info";
 
   /**
    * The name of the request attribute under which the original query string is made available to the target of a
    * {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
-  static final String ASYNC_QUERY_STRING = "cn.taketoday.mock.api.async.query_string";
+  String ASYNC_QUERY_STRING = "cn.taketoday.mock.api.async.query_string";
 
   /**
    * Gets the request that was used to initialize this AsyncContext by calling {@link MockRequest#startAsync()} or
@@ -85,7 +79,7 @@ public interface AsyncContext {
    * @throws IllegalStateException if {@link #complete} or any of the {@link #dispatch} methods has been called in the
    * asynchronous cycle
    */
-  public MockRequest getRequest();
+  MockRequest getRequest();
 
   /**
    * Gets the response that was used to initialize this AsyncContext by calling {@link MockRequest#startAsync()} or
@@ -95,7 +89,7 @@ public interface AsyncContext {
    * @throws IllegalStateException if {@link #complete} or any of the {@link #dispatch} methods has been called in the
    * asynchronous cycle
    */
-  public MockResponse getResponse();
+  MockResponse getResponse();
 
   /**
    * Checks if this AsyncContext was initialized with the original or application-wrapped request and response objects.
@@ -110,7 +104,7 @@ public interface AsyncContext {
    * {@link MockRequest#startAsync(MockRequest, MockResponse)}, and neither the ServletRequest nor
    * ServletResponse arguments carried any application-provided wrappers; false otherwise
    */
-  public boolean hasOriginalRequestAndResponse();
+  boolean hasOriginalRequestAndResponse();
 
   /**
    * Dispatches the request and response objects of this AsyncContext to the servlet container.
@@ -191,7 +185,7 @@ public interface AsyncContext {
    * called during the resulting dispatch, or if {@link #complete} was called
    * @see MockRequest#getDispatcherType
    */
-  public void dispatch();
+  void dispatch();
 
   /**
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt>.
@@ -222,7 +216,7 @@ public interface AsyncContext {
    * called during the resulting dispatch, or if {@link #complete} was called
    * @see MockRequest#getDispatcherType
    */
-  public void dispatch(String path);
+  void dispatch(String path);
 
   /**
    * Dispatches the request and response objects of this AsyncContext to the given <tt>path</tt> scoped to the given
@@ -254,7 +248,7 @@ public interface AsyncContext {
    * called during the resulting dispatch, or if {@link #complete} was called
    * @see MockRequest#getDispatcherType
    */
-  public void dispatch(MockContext context, String path);
+  void dispatch(MockContext context, String path);
 
   /**
    * Completes the asynchronous operation that was started on the request that was used to initialze this AsyncContext,
@@ -272,7 +266,7 @@ public interface AsyncContext {
    * {@link AsyncListener#onComplete(AsyncEvent)} will be delayed) until after the container-initiated dispatch has
    * returned to the container.
    */
-  public void complete();
+  void complete();
 
   /**
    * Causes the container to dispatch a thread, possibly from a managed thread pool, to run the specified
@@ -280,7 +274,7 @@ public interface AsyncContext {
    *
    * @param run the asynchronous handler
    */
-  public void start(Runnable run);
+  void start(Runnable run);
 
   /**
    * Registers the given {@link AsyncListener} with the most recent asynchronous cycle that was started by a call to one
@@ -303,7 +297,7 @@ public interface AsyncContext {
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
    * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
-  public void addListener(AsyncListener listener);
+  void addListener(AsyncListener listener);
 
   /**
    * Registers the given {@link AsyncListener} with the most recent asynchronous cycle that was started by a call to one
@@ -331,7 +325,7 @@ public interface AsyncContext {
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
    * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
-  public void addListener(AsyncListener listener, MockRequest mockRequest, MockResponse mockResponse);
+  void addListener(AsyncListener listener, MockRequest mockRequest, MockResponse mockResponse);
 
   /**
    * Instantiates the given {@link AsyncListener} class.
@@ -355,7 +349,7 @@ public interface AsyncContext {
    * @return the new AsyncListener instance
    * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
    */
-  public <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException;
+  <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException;
 
   /**
    * Sets the timeout (in milliseconds) for this AsyncContext.
@@ -379,7 +373,7 @@ public interface AsyncContext {
    * @throws IllegalStateException if this method is called after the container-initiated dispatch, during which one of
    * the {@link MockRequest#startAsync} methods was called, has returned to the container
    */
-  public void setTimeout(long timeout);
+  void setTimeout(long timeout);
 
   /**
    * Gets the timeout (in milliseconds) for this AsyncContext.
@@ -393,6 +387,6 @@ public interface AsyncContext {
    *
    * @return the timeout in milliseconds
    */
-  public long getTimeout();
+  long getTimeout();
 
 }

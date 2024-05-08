@@ -137,7 +137,7 @@ class MockContextTests {
     }
 
     @Test
-    void setDefaultServletName() throws Exception {
+    void setDefaultMockName() throws Exception {
       final String originalDefault = "default";
       final String newDefault = "test";
       assertThat(mockContext.getNamedDispatcher(originalDefault)).isNotNull();

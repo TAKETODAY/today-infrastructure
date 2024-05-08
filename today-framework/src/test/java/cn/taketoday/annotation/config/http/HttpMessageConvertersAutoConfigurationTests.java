@@ -230,7 +230,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-  void whenServletWebApplicationHttpMessageConvertersIsConfigured() {
+  void whenMockWebApplicationHttpMessageConvertersIsConfigured() {
     new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> assertThat(context).hasSingleBean(HttpMessageConverters.class));

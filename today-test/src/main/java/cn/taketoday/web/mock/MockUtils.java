@@ -28,11 +28,11 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockRequestWrapper;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.MockResponseWrapper;
+import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
@@ -59,7 +59,7 @@ public abstract class MockUtils {
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
 
   /**
-   * Standard Servlet spec context attribute that specifies a temporary
+   * Standard Mock spec context attribute that specifies a temporary
    * directory for the current web application, of type {@code java.io.File}.
    *
    * @since 4.0
@@ -115,7 +115,7 @@ public abstract class MockUtils {
    * @see #getHttpSession(RequestContext)
    */
   public static HttpSession getHttpSession(RequestContext context, boolean create) {
-    HttpMockRequest request = getServletRequest(context);
+    HttpMockRequest request = getMockRequest(context);
     return request.getSession(create);
   }
 
@@ -166,13 +166,13 @@ public abstract class MockUtils {
   }
 
   /**
-   * Return an appropriate HttpServletRequest object
+   * Return an appropriate HttpMockRequest object
    *
    * @param context the context to introspect
    * @return the matching request object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpMockRequest getServletRequest(RequestContext context) {
+  public static HttpMockRequest getMockRequest(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getRequest();
     }
@@ -182,13 +182,13 @@ public abstract class MockUtils {
   }
 
   /**
-   * Gets the servlet context to which this ServletRequest was last dispatched.
+   * Gets the servlet context to which this MockRequest was last dispatched.
    *
-   * @return the servlet context to which this ServletRequest was last dispatched
+   * @return the servlet context to which this MockRequest was last dispatched
    * @since 4.0
    */
   public static MockContext getMockContext(RequestContext context) {
-    return getServletRequest(context).getMockContext();
+    return getMockRequest(context).getMockContext();
   }
 
   /**
@@ -208,7 +208,7 @@ public abstract class MockUtils {
   }
 
   /**
-   * Look for the WebApplicationContext associated with the DispatcherServlet
+   * Look for the WebApplicationContext associated with the DispatcherMock
    * that has initiated request processing, and for the global context if none
    * was found associated with the current request. The global context will
    * be found via the MockContext or via ContextLoader's current context.
@@ -226,13 +226,6 @@ public abstract class MockUtils {
   }
 
   /**
-   * Look for the WebApplicationContext associated with the DispatcherServlet
-   * that has initiated request processing, and for the global context if none
-   * was found associated with the current request. The global context will
-   * be found via the MockContext or via ContextLoader's current context.
-   * <p>NOTE: This variant remains compatible with Servlet 2.5, explicitly
-   * checking a given MockContext instead of deriving it from the request.
-   *
    * @param request current HTTP request
    * @param mockContext current servlet context
    * @return the request-specific WebApplicationContext, or the global one
@@ -255,7 +248,7 @@ public abstract class MockUtils {
   }
 
   //---------------------------------------------------------------------
-  // ServletRequest
+  // MockRequest
   //---------------------------------------------------------------------
 
   /**

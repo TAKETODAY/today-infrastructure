@@ -1393,7 +1393,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return result;
   }
 
-  public void setHttpServletMapping(@Nullable HttpMockMapping httpMockMapping) {
+  public void setHttpMapping(@Nullable HttpMockMapping httpMockMapping) {
     this.httpMockMapping = httpMockMapping;
   }
 

@@ -139,7 +139,7 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void nullExceptionMessageAndServletMessage() {
+  void nullExceptionMessageAndMockMessage() {
     this.request.setAttribute("cn.taketoday.mock.api.error.exception", new RuntimeException());
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));

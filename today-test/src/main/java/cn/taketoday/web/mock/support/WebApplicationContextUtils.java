@@ -249,14 +249,14 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Convenient variant of {@link #initServletPropertySources(PropertySources,
+   * Convenient variant of {@link #initMockPropertySources(PropertySources,
    * MockContext, MockConfig)} that always provides {@code null} for the
    * {@link MockConfig} parameter.
    *
-   * @see #initServletPropertySources(PropertySources, MockContext, MockConfig)
+   * @see #initMockPropertySources(PropertySources, MockContext, MockConfig)
    */
-  public static void initServletPropertySources(PropertySources propertySources, MockContext mockContext) {
-    initServletPropertySources(propertySources, mockContext, null);
+  public static void initMockPropertySources(PropertySources propertySources, MockContext mockContext) {
+    initMockPropertySources(propertySources, mockContext, null);
   }
 
   /**
@@ -278,7 +278,7 @@ public class WebApplicationContextUtils {
    * @see StubPropertySource
    * @see cn.taketoday.core.env.ConfigurableEnvironment#getPropertySources()
    */
-  public static void initServletPropertySources(PropertySources sources,
+  public static void initMockPropertySources(PropertySources sources,
           @Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
     Assert.notNull(sources, "'propertySources' is required");
 
@@ -300,7 +300,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public MockRequest get() {
-      return MockUtils.getServletRequest(RequestContextHolder.get());
+      return MockUtils.getMockRequest(RequestContextHolder.get());
     }
 
     @Override

@@ -172,7 +172,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
                   (MissingPathVariableException) ex, request, handler);
         }
         else if (ex instanceof MissingRequestParameterException) {
-          view = handleMissingServletRequestParameter(
+          view = handleMissingRequestParameter(
                   (MissingRequestParameterException) ex, request, handler);
         }
         else if (ex instanceof MissingRequestPartException) {
@@ -324,7 +324,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @since 4.0
    */
   @Nullable
-  protected Object handleMissingServletRequestParameter(MissingRequestParameterException ex,
+  protected Object handleMissingRequestParameter(MissingRequestParameterException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
     return null;

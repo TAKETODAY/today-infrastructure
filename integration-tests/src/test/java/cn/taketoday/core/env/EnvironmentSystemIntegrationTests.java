@@ -372,7 +372,7 @@ public class EnvironmentSystemIntegrationTests {
   }
 
   @Test
-  void registerServletParamPropertySources_AbstractRefreshableWebApplicationContext() {
+  void registerMockParamPropertySources_AbstractRefreshableWebApplicationContext() {
     MockContextImpl mockContext = new MockContextImpl();
     mockContext.addInitParameter("pCommon", "pCommonContextValue");
     mockContext.addInitParameter("pContext1", "pContext1Value");
@@ -392,7 +392,7 @@ public class EnvironmentSystemIntegrationTests {
     assertThat(propertySources.contains(StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME)).isTrue();
     assertThat(propertySources.contains(StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME)).isTrue();
 
-    // ServletConfig gets precedence
+    // MockConfig gets precedence
     assertThat(environment.getProperty("pCommon")).isEqualTo("pCommonConfigValue");
     assertThat(propertySources.precedenceOf(PropertySource.named(StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME)))
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME)));

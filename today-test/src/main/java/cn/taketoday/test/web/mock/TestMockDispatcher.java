@@ -69,7 +69,7 @@ final class TestMockDispatcher extends MockDispatcher {
   @Override
   public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.getRequired();
-    HttpMockRequest servletRequest = MockUtils.getServletRequest(context);
+    HttpMockRequest servletRequest = MockUtils.getMockRequest(context);
     HttpMockResponse servletResponse = MockUtils.getMockResponse(context);
 
     if (request != servletRequest && response != servletResponse) {
