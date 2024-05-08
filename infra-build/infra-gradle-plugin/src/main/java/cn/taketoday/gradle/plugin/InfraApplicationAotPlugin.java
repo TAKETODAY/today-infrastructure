@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.Directory;
+import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginContainer;
@@ -145,6 +146,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
   }
 
   private void configureAotTask(Project project, SourceSet sourceSet, AbstractAot task, Provider<Directory> resourcesOutput) {
+    task.setGroup(BasePlugin.BUILD_GROUP);
     task.getSourcesOutput()
             .set(project.getLayout().getBuildDirectory().dir("generated/" + sourceSet.getName() + "Sources"));
     task.getResourcesOutput().set(resourcesOutput);
@@ -228,10 +230,9 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
 
   private void addJUnitPlatformLauncherDependency(Project project, Configuration configuration) {
     DependencyHandler dependencyHandler = project.getDependencies();
-    Dependency springBootDependencies = dependencyHandler
-            .create(dependencyHandler.platform(InfraApplicationPlugin.BOM_COORDINATES));
+    Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(InfraApplicationPlugin.BOM_COORDINATES));
     DependencySet dependencies = configuration.getDependencies();
-    dependencies.add(springBootDependencies);
+    dependencies.add(infraDependencies);
     dependencies.add(dependencyHandler.create("org.junit.platform:junit-platform-launcher"));
   }
 
