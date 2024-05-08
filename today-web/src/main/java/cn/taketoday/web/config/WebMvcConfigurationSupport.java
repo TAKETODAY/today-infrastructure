@@ -77,12 +77,12 @@ import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.BeanNameUrlHandlerMapping;
@@ -535,7 +535,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
-  ReturnValueHandlerManager returnValueHandlerManager(
+  public ReturnValueHandlerManager returnValueHandlerManager(
           ViewReturnValueHandler viewHandler, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
@@ -569,7 +569,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  ParameterResolvingRegistry parameterResolvingRegistry(
+  public ParameterResolvingRegistry parameterResolvingRegistry(
           ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
@@ -680,7 +680,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
-  RequestMappingHandlerMapping requestMappingHandlerMapping(
+  public RequestMappingHandlerMapping requestMappingHandlerMapping(
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
           ParameterResolvingRegistry parameterResolvingRegistry) {
 
