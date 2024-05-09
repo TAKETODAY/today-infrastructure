@@ -1764,8 +1764,10 @@ public class Application {
     }
 
     static Startup create() {
-      return (!ClassUtils.isPresent("jdk.crac.management.CRaCMXBean", Startup.class))
-              ? new StandardStartup() : new CoordinatedRestoreAtCheckpointStartup();
+      ClassLoader classLoader = Startup.class.getClassLoader();
+      return (ClassUtils.isPresent("jdk.crac.management.CRaCMXBean", classLoader)
+              && ClassUtils.isPresent("org.crac.management.CRaCMXBean", classLoader))
+              ? new CoordinatedRestoreAtCheckpointStartup() : new StandardStartup();
     }
 
   }
