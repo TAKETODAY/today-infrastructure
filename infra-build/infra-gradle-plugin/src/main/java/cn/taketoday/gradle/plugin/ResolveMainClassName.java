@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import cn.taketoday.app.loader.tools.MainClassFinder;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link Task} for resolving the name of the application's main class.
@@ -146,6 +147,7 @@ public class ResolveMainClassName extends DefaultTask {
             .orElse("");
   }
 
+  @Nullable
   private String findMainClass(File file) {
     try {
       return MainClassFinder.findSingleMainClass(file, INFRA_APPLICATION_CLASS_NAME);

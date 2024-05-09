@@ -48,6 +48,8 @@ import cn.taketoday.gradle.tasks.aot.AbstractAot;
 import cn.taketoday.gradle.tasks.aot.ProcessAot;
 import cn.taketoday.gradle.tasks.aot.ProcessTestAot;
 
+import static cn.taketoday.gradle.plugin.InfraApplicationPlugin.dependenciesCoordinates;
+
 /**
  * Gradle plugin for Infra AOT.
  *
@@ -130,7 +132,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     compileClasspath.extendsFrom(aotClasspath);
     Provider<Directory> resourcesOutput = project.getLayout()
             .getBuildDirectory()
-            .dir("generated/" + aotSourceSet.getName() + "Resources");
+            .dir("generated/%sResources".formatted(aotSourceSet.getName()));
     TaskProvider<ProcessAot> processAot = project.getTasks().register(PROCESS_AOT_TASK_NAME, ProcessAot.class, (task) -> {
       configureAotTask(project, aotSourceSet, task, resourcesOutput);
       task.getApplicationMainClass().set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
@@ -147,10 +149,10 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
   private void configureAotTask(Project project, SourceSet sourceSet, AbstractAot task, Provider<Directory> resourcesOutput) {
     task.setGroup(BasePlugin.BUILD_GROUP);
     task.getSourcesOutput()
-            .set(project.getLayout().getBuildDirectory().dir("generated/" + sourceSet.getName() + "Sources"));
+            .set(project.getLayout().getBuildDirectory().dir("generated/%sSources".formatted(sourceSet.getName())));
     task.getResourcesOutput().set(resourcesOutput);
     task.getClassesOutput()
-            .set(project.getLayout().getBuildDirectory().dir("generated/" + sourceSet.getName() + "Classes"));
+            .set(project.getLayout().getBuildDirectory().dir("generated/%sClasses".formatted(sourceSet.getName())));
     task.getGroupId().set(project.provider(() -> String.valueOf(project.getGroup())));
     task.getArtifactId().set(project.provider(project::getName));
     configureToolchainConvention(project, task);
@@ -173,7 +175,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
         throw new IllegalStateException("Unexpected");
       }
       classpath.setCanBeResolved(true);
-      classpath.setDescription("Classpath of the " + taskName + " task.");
+      classpath.setDescription("Classpath of the %s task.".formatted(taskName));
       removeDevelopmentOnly(base.getExtendsFrom(), developmentOnlyConfigurationNames)
               .forEach(classpath::extendsFrom);
       classpath.attributes((attributes) -> {
@@ -209,7 +211,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     compileClasspath.extendsFrom(aotClasspath);
     Provider<Directory> resourcesOutput = project.getLayout()
             .getBuildDirectory()
-            .dir("generated/" + aotTestSourceSet.getName() + "Resources");
+            .dir("generated/%sResources".formatted(aotTestSourceSet.getName()));
     TaskProvider<ProcessTestAot> processTestAot = project.getTasks()
             .register(PROCESS_TEST_AOT_TASK_NAME, ProcessTestAot.class, (task) -> {
               configureAotTask(project, aotTestSourceSet, task, resourcesOutput);
@@ -229,7 +231,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
 
   private void addJUnitPlatformLauncherDependency(Project project, Configuration configuration) {
     DependencyHandler dependencyHandler = project.getDependencies();
-    Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(InfraApplicationPlugin.BOM_COORDINATES));
+    Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(dependenciesCoordinates(project)));
     DependencySet dependencies = configuration.getDependencies();
     dependencies.add(infraDependencies);
     dependencies.add(dependencyHandler.create("org.junit.platform:junit-platform-launcher"));

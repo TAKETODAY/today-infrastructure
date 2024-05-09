@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -31,6 +28,7 @@ import org.gradle.api.tasks.bundling.Jar;
 
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A wrapper for a {@link PublishArtifactSet} that ensures that only a single artifact is
@@ -47,6 +45,7 @@ final class SinglePublishedArtifact implements Buildable {
 
   private final ArtifactHandler handler;
 
+  @Nullable
   private PublishArtifact currentArtifact;
 
   SinglePublishedArtifact(Configuration configuration, ArtifactHandler handler) {

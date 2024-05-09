@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,12 +46,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
-import java.util.jar.JarFile;
 
 import cn.taketoday.app.loader.tools.LaunchScript;
 import cn.taketoday.buildpack.platform.build.BuildRequest;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.framework.ApplicationAotProcessor;
+import cn.taketoday.lang.VersionExtractor;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.FileSystemUtils;
@@ -203,7 +202,7 @@ public class GradleBuild {
         for (String message : this.expectedDeprecationMessages) {
           buildOutput = buildOutput.replaceAll(message, "");
         }
-        
+
         if (!gradleVersionIsAtLeast("8.4")) {
           assertThat(buildOutput).doesNotContainIgnoringCase("deprecated");
         }
@@ -249,6 +248,8 @@ public class GradleBuild {
     gradleRunner.withTestKitDir(getTestKitDir());
     List<String> allArguments = new ArrayList<>();
     allArguments.add("-PinfraVersion=" + getInfraVersion());
+    allArguments.add("-PskipAutoApplyPlugins");
+    allArguments.add("-Pinfra.dependencies=cn.taketoday:infra-dependencies:" + getInfraVersion());
     allArguments.add("--stacktrace");
     allArguments.addAll(Arrays.asList(arguments));
     allArguments.add("--warning-mode");
@@ -301,15 +302,7 @@ public class GradleBuild {
   }
 
   private static String getDependencyManagementPluginVersion() {
-    try {
-      URL location = DependencyManagementExtension.class.getProtectionDomain().getCodeSource().getLocation();
-      try (JarFile jar = new JarFile(new File(location.toURI()))) {
-        return jar.getManifest().getMainAttributes().getValue("Implementation-Version");
-      }
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException("Failed to find dependency management plugin version", ex);
-    }
+    return VersionExtractor.forClass(DependencyManagementExtension.class);
   }
 
   private String getProperty(File propertiesFile, String key) {

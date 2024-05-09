@@ -51,6 +51,7 @@ import cn.taketoday.gradle.dsl.InfraApplicationExtension;
 import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.run.InfraRun;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -147,6 +148,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     });
   }
 
+  @Nullable
   private static String getJavaApplicationMainClass(ExtensionContainer extensions) {
     JavaApplication javaApplication = extensions.findByType(JavaApplication.class);
     if (javaApplication == null) {
@@ -308,7 +310,7 @@ final class JavaPluginAction implements PluginApplicationAction {
   /**
    * Task {@link Action} to add additional meta-data locations. We need to use an
    * inner-class rather than a lambda due to
-   * https://github.com/gradle/gradle/issues/5510.
+   * <a href="https://github.com/gradle/gradle/issues/5510">issues/5510</a>.
    */
   private static final class AdditionalMetadataLocationsConfigurer implements Action<Task> {
 

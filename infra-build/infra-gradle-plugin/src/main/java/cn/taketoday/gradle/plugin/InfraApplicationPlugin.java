@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
 import cn.taketoday.lang.Version;
+import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.PropertyPlaceholderHandler;
 
 /**
  * Gradle plugin for Infra.
@@ -114,6 +116,16 @@ public class InfraApplicationPlugin implements Plugin<Project> {
     registerPluginActions(project, infraArchives);
   }
 
+  public static String dependenciesCoordinates(Project project) {
+    Object property = project.findProperty("infra.dependencies");
+    if (property != null) {
+      var handler = PropertyPlaceholderHandler.shared(true);
+      return handler.replacePlaceholders(property.toString(),
+              placeholderName -> ObjectUtils.toString(project.findProperty(placeholderName)));
+    }
+    return BOM_COORDINATES;
+  }
+
   private void verifyGradleVersion() {
     GradleVersion currentVersion = GradleVersion.current();
     if (currentVersion.compareTo(GradleVersion.version("7.4")) < 0) {
@@ -139,9 +151,15 @@ public class InfraApplicationPlugin implements Plugin<Project> {
             new WarPluginAction(singlePublishedArtifact), new DependencyManagementPluginAction(),
             new ApplicationPluginAction(), new NativeImagePluginAction());
     for (PluginApplicationAction action : actions) {
-      withPluginClassOfAction(action, pluginClass -> project.getPlugins().withType(pluginClass, plugin -> {
-        action.execute(project);
-      }));
+      withPluginClassOfAction(action, pluginClass -> {
+        if (action.autoApply(project)) {
+          project.getPlugins().apply(pluginClass);
+          action.execute(project);
+        }
+        else {
+          project.getPlugins().withType(pluginClass, plugin -> action.execute(project));
+        }
+      });
     }
   }
 

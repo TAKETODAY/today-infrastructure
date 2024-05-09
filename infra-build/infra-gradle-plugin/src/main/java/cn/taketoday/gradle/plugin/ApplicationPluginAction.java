@@ -61,6 +61,11 @@ final class ApplicationPluginAction implements PluginApplicationAction {
   private static final String UNSPECIFIED_VERSION = "unspecified";
 
   @Override
+  public boolean autoApply(Project project) {
+    return false;
+  }
+
+  @Override
   public void execute(Project project) {
     JavaApplication javaApplication = project.getExtensions().getByType(JavaApplication.class);
     DistributionContainer distributions = project.getExtensions().getByType(DistributionContainer.class);

@@ -59,6 +59,11 @@ class WarPluginAction implements PluginApplicationAction {
   }
 
   @Override
+  public boolean autoApply(Project project) {
+    return false;
+  }
+
+  @Override
   public void execute(Project project) {
     classifyWarTask(project);
     TaskProvider<InfraWar> infraWar = configureInfraWarTask(project);

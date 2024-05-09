@@ -34,7 +34,7 @@ public final class GradleVersions {
   private GradleVersions() { }
 
   public static List<String> allCompatible() {
-    return Arrays.asList(GradleVersion.current().getVersion(), "8.5", "8.4");
+    return Arrays.asList(GradleVersion.current().getVersion(), "8.5", "8.6");
   }
 
   public static String minimumCompatible() {
