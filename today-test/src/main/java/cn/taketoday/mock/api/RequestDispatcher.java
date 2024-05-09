@@ -62,12 +62,6 @@ public interface RequestDispatcher {
   String FORWARD_PATH_INFO = "cn.taketoday.mock.api.forward.path_info";
 
   /**
-   * The name of the request attribute under which the original servlet path is made available to the target of a
-   * {@link #forward(MockRequest, MockResponse) forward}
-   */
-  String FORWARD_SERVLET_PATH = "cn.taketoday.mock.api.forward.servlet_path";
-
-  /**
    * The name of the request attribute under which the original query string is made available to the target of a
    * {@link #forward(MockRequest, MockResponse) forward}
    */
@@ -98,12 +92,6 @@ public interface RequestDispatcher {
   String INCLUDE_MAPPING = "cn.taketoday.mock.api.include.mapping";
 
   /**
-   * The name of the request attribute under which the servlet path of the target of an
-   * {@link #include(MockRequest, MockResponse) include} is stored
-   */
-  String INCLUDE_SERVLET_PATH = "cn.taketoday.mock.api.include.servlet_path";
-
-  /**
    * The name of the request attribute under which the query string of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
    */
@@ -131,12 +119,6 @@ public interface RequestDispatcher {
   String ERROR_REQUEST_URI = "cn.taketoday.mock.api.error.request_uri";
 
   /**
-   * The name of the request attribute under which the name of the servlet in which the error occurred is propagated
-   * during an error dispatch
-   */
-  String ERROR_SERVLET_NAME = "cn.taketoday.mock.api.error.servlet_name";
-
-  /**
    * The name of the request attribute under which the response status is propagated during an error dispatch
    */
   String ERROR_STATUS_CODE = "cn.taketoday.mock.api.error.status_code";
@@ -147,7 +129,7 @@ public interface RequestDispatcher {
    *
    * <p>
    * For a <code>RequestDispatcher</code> obtained via <code>getRequestDispatcher()</code>, the
-   * <code>ServletRequest</code> object has its path elements and parameters adjusted to match the path of the target
+   * <code>MockRequest</code> object has its path elements and parameters adjusted to match the path of the target
    * resource.
    *
    * <p>

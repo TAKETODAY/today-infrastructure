@@ -133,8 +133,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             .dir("generated/" + aotSourceSet.getName() + "Resources");
     TaskProvider<ProcessAot> processAot = project.getTasks().register(PROCESS_AOT_TASK_NAME, ProcessAot.class, (task) -> {
       configureAotTask(project, aotSourceSet, task, resourcesOutput);
-      task.getApplicationMainClass()
-              .set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+      task.getApplicationMainClass().set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
       task.setClasspath(aotClasspath);
     });
     aotSourceSet.getJava().srcDir(processAot.map(ProcessAot::getSourcesOutput));

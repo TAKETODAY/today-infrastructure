@@ -66,7 +66,7 @@ class MockTestExecutionListenerJUnitIntegrationTests {
   }
 
   private void assertInjectedRequestEqualsRequestInRequestContextHolder() {
-    assertThat(MockUtils.getServletRequest(RequestContextHolder.get()))
+    assertThat(MockUtils.getMockRequest(RequestContextHolder.get()))
             .as("Injected ServletRequest must be stored in the RequestContextHolder")
             .isEqualTo(mockRequest);
   }

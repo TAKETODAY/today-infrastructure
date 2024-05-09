@@ -55,7 +55,7 @@ public class MockServerHttpAsyncRequestControl implements ServerHttpAsyncRequest
     Assert.notNull(request, "request is required");
     Assert.notNull(response, "response is required");
 
-    Assert.isTrue(request.getServletRequest().isAsyncSupported(),
+    Assert.isTrue(request.getRequest().isAsyncSupported(),
             "Async support must be enabled on a servlet and for all filters involved " +
                     "in async request processing. This is done in Java code using the Servlet API " +
                     "or by adding \"<async-supported>true</async-supported>\" to servlet and " +
@@ -66,7 +66,7 @@ public class MockServerHttpAsyncRequestControl implements ServerHttpAsyncRequest
 
   @Override
   public boolean isStarted() {
-    return (this.asyncContext != null && this.request.getServletRequest().isAsyncStarted());
+    return (this.asyncContext != null && this.request.getRequest().isAsyncStarted());
   }
 
   @Override
@@ -86,8 +86,8 @@ public class MockServerHttpAsyncRequestControl implements ServerHttpAsyncRequest
       return;
     }
 
-    HttpMockRequest servletRequest = this.request.getServletRequest();
-    HttpMockResponse servletResponse = this.response.getServletResponse();
+    HttpMockRequest servletRequest = this.request.getRequest();
+    HttpMockResponse servletResponse = this.response.getResponse();
 
     this.asyncContext = servletRequest.startAsync(servletRequest, servletResponse);
     this.asyncContext.addListener(this);

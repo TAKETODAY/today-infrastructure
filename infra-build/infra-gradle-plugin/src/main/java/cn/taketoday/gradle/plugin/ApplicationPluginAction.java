@@ -28,12 +28,15 @@ import org.gradle.api.distribution.DistributionContainer;
 import org.gradle.api.distribution.plugins.DistributionPlugin;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.JavaApplication;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.application.CreateStartScripts;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.jvm.application.scripts.TemplateBasedScriptGenerator;
 import org.gradle.util.GradleVersion;
 
@@ -55,23 +58,35 @@ import cn.taketoday.gradle.tasks.run.InfraRun;
  */
 final class ApplicationPluginAction implements PluginApplicationAction {
 
+  private static final String UNSPECIFIED_VERSION = "unspecified";
+
   @Override
   public void execute(Project project) {
     JavaApplication javaApplication = project.getExtensions().getByType(JavaApplication.class);
     DistributionContainer distributions = project.getExtensions().getByType(DistributionContainer.class);
     Distribution distribution = distributions.create("infra");
-    distribution.getDistributionBaseName()
-            .convention(project.provider(() -> javaApplication.getApplicationName() + "-infra-app"));
-    TaskProvider<CreateStartScripts> infraStartScripts = project.getTasks()
-            .register("infraStartScripts", CreateStartScripts.class,
-                    (CreateStartScripts task) -> configureCreateStartScripts(project, javaApplication, distribution, task));
+    distribution.getDistributionBaseName().convention(project.provider(() -> javaApplication.getApplicationName() + "-infra-app"));
+
+    TaskProvider<CreateStartScripts> infraStartScripts = project.getTasks().register("infraStartScripts", CreateStartScripts.class,
+            task -> configureCreateStartScripts(project, javaApplication, distribution, task));
+
     CopySpec binCopySpec = project.copySpec().into("bin").from(infraStartScripts);
     configureFilePermissions(binCopySpec, 0755);
     distribution.getContents().with(binCopySpec);
     applyApplicationDefaultJvmArgsToRunTasks(project.getTasks(), javaApplication);
 
-    //TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks().named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
-    //javaApplication.getMainClass().convention(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+//    TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks().named(
+//            InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
+//    javaApplication.getMainClass().convention(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+
+    project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class).configure(task -> {
+      Attributes attributes = task.getManifest().getAttributes();
+      String versionString = String.valueOf(project.getVersion());
+      if (!UNSPECIFIED_VERSION.equals(versionString)) {
+        attributes.putIfAbsent("Implementation-Version", versionString);
+      }
+      attributes.putIfAbsent("Implementation-Title", project.getName());
+    });
 
     // filter classpath
     FileCollection excludeClasspath = excludeClasspath(project);

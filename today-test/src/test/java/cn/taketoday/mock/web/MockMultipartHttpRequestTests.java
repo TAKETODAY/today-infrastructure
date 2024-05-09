@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -46,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MockMultipartHttpRequestTests {
 
   @Test
-  void mockMultipartHttpServletRequestWithByteArray() throws IOException {
+  void mockMultipartHttpMockRequestWithByteArray() throws IOException {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     assertThat(request.getFileNames().hasNext()).isFalse();
     assertThat(request.getFile("file1")).isNull();
@@ -59,7 +56,7 @@ class MockMultipartHttpRequestTests {
   }
 
   @Test
-  void mockMultipartHttpServletRequestWithInputStream() throws IOException {
+  void mockMultipartHttpMockRequestWithInputStream() throws IOException {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("file1", new ByteArrayInputStream("myContent1".getBytes())));
     request.addFile(new MockMultipartFile("file2", "myOrigFilename", "text/plain", new ByteArrayInputStream(
@@ -68,7 +65,7 @@ class MockMultipartHttpRequestTests {
   }
 
   @Test
-  void mockMultiPartHttpServletRequestWithMixedData() {
+  void mockMultiPartHttpMockRequestWithMixedData() {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     request.addFile(new MockMultipartFile("file", "myOrigFilename", MediaType.TEXT_PLAIN_VALUE, "myContent2".getBytes()));
 

@@ -15,14 +15,5 @@
 . xref:web/websocket.adoc[WebSocket].
 
 === 默认实现
-
-默认实现是使用的 Servlet API 在 `cn.taketoday.web.mockApi` 包下 请求入口 `MockDispatcher`。
-（后续计划移除 Servlet 实现，Netty 将作为主要实现，Netty 性能更好，内存占用更低）
-
-=== Netty 实现
-
-在 `today-framework` 模块下的 `cn.taketoday.framework.web.netty` 包。 在实践过程中我们发现 Netty 无论是 性能还是内存占用都要
-好与 Servlet 容器。所以建议使用 Netty。
-
-'''
-只要你不使用 Servlet API 或者其他底层 API，只需要修改依赖就可以轻松切换底层实现。你甚至可以自己实现底层，而无需过多的代码。
+自 5.0 开始 Netty 支持，在 `today-web` 模块下的 `cn.taketoday.web.server.support` 包。在实践过程中我们发现 Netty 无论是 性能还是内存占用都要
+好与 5.0 之前的 Servlet 容器。

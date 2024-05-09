@@ -45,7 +45,7 @@ public class MockRequestEvent extends java.util.EventObject {
    *
    * @return the {@link MockRequest} corresponding to this event.
    */
-  public MockRequest getServletRequest() {
+  public MockRequest getMockRequest() {
     return this.request;
   }
 

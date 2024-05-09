@@ -150,7 +150,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
     exposeModelAsRequestAttributes(model, request);
 
     // Determine the path for the request dispatcher.
-    HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
+    HttpMockRequest servletRequest = MockUtils.getMockRequest(request);
     HttpMockResponse servletResponse = MockUtils.getMockResponse(request);
 
     // Expose helpers as request attributes, if any.

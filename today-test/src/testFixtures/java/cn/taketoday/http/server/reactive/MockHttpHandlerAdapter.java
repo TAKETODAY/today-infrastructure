@@ -113,11 +113,7 @@ public class MockHttpHandlerAdapter implements MockApi {
 
   @Override
   public void init(MockConfig config) {
-    this.mockPath = getServletPath(config);
-  }
-
-  private String getServletPath(MockConfig config) {
-    return "";
+    this.mockPath = "";
   }
 
   @Override

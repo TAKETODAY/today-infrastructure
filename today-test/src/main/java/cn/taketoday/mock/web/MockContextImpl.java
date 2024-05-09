@@ -65,6 +65,7 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #MockContextImpl(cn.taketoday.core.io.ResourceLoader)
  * @see AnnotationConfigWebApplicationContext
  * @see XmlWebApplicationContext
@@ -74,7 +75,7 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 public class MockContextImpl implements MockContext {
 
   /** Default Mock name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
-  private static final String COMMON_DEFAULT_SERVLET_NAME = "default";
+  private static final String COMMON_DEFAULT_MOCK_NAME = "default";
 
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
 
@@ -102,7 +103,7 @@ public class MockContextImpl implements MockContext {
 
   private final Map<String, RequestDispatcher> namedRequestDispatchers = new HashMap<>();
 
-  private String defaultMockName = COMMON_DEFAULT_SERVLET_NAME;
+  private String defaultMockName = COMMON_DEFAULT_MOCK_NAME;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
@@ -381,14 +382,14 @@ public class MockContextImpl implements MockContext {
    * <p>Also {@link #unregisterNamedDispatcher unregisters} the current default
    * {@link RequestDispatcher} and {@link #registerNamedDispatcher replaces}
    * it with a {@link MockRequestDispatcher} for the provided
-   * {@code defaultServletName}.
+   * {@code defaultMockName}.
    *
    * @param defaultMockName the name of the <em>default</em> {@code Mock};
    * never {@code null} or empty
    * @see #getDefaultMockName
    */
   public void setDefaultMockName(String defaultMockName) {
-    Assert.hasText(defaultMockName, "defaultServletName must not be null or empty");
+    Assert.hasText(defaultMockName, "defaultMockName must not be null or empty");
     unregisterNamedDispatcher(this.defaultMockName);
     this.defaultMockName = defaultMockName;
     registerNamedDispatcher(this.defaultMockName, new MockRequestDispatcher(this.defaultMockName));

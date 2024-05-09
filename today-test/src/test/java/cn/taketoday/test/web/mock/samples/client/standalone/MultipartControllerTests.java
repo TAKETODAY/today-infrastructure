@@ -198,7 +198,7 @@ public class MultipartControllerTests {
   }
 
   @Test
-  public void multipartRequestWithServletParts() throws Exception {
+  public void multipartRequestWithMockParts() throws Exception {
     byte[] fileContent = "bar".getBytes(StandardCharsets.UTF_8);
     Map<String, String> json = Collections.singletonMap("name", "yeeeah");
 

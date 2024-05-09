@@ -73,7 +73,7 @@ public class MockParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return MockUtils.getServletRequest(context);
+      return MockUtils.getMockRequest(context);
     }
   }
 
@@ -157,7 +157,7 @@ public class MockParameterResolvers {
     @Nullable
     @Override
     protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-      return MockUtils.getServletRequest(context).getCookies();
+      return MockUtils.getMockRequest(context).getCookies();
     }
 
   }
@@ -172,7 +172,7 @@ public class MockParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return MockUtils.getServletRequest(context).getCookies();
+      return MockUtils.getMockRequest(context).getCookies();
     }
   }
 

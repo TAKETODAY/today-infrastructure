@@ -15,20 +15,22 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.mock;
+package cn.taketoday.web.handler.mvc;
 
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.api.MockResponse;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.mvc.AbstractController;
-import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.mock.MockContextAware;
+import cn.taketoday.web.mock.MockUtils;
+import cn.taketoday.web.mock.MockWrappingController;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Controller implementation that forwards to a named servlet,
@@ -38,26 +40,7 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  *
  * <p>Useful to invoke an existing servlet via Framework's dispatching infrastructure,
  * for example to apply Framework HandlerInterceptors to its requests. This will work
- * even in a minimal Servlet container that does not support Servlet filters.
- *
- * <p><b>Example:</b> web.xml, mapping all "/myservlet" requests to a Framework dispatcher.
- * Also defines a custom "myServlet", but <i>without</i> servlet mapping.
- *
- * <pre class="code">
- * &lt;servlet&gt;
- *   &lt;servlet-name&gt;myServlet&lt;/servlet-name&gt;
- *   &lt;servlet-class&gt;mypackage.TestServlet&lt;/servlet-class&gt;
- * &lt;/servlet&gt;
- *
- * &lt;servlet&gt;
- *   &lt;servlet-name&gt;myDispatcher&lt;/servlet-name&gt;
- *   &lt;servlet-class&gt;cn.taketoday.web.mock.DispatcherServlet&lt;/servlet-class&gt;
- * &lt;/servlet&gt;
- *
- * &lt;servlet-mapping&gt;
- *   &lt;servlet-name&gt;myDispatcher&lt;/servlet-name&gt;
- *   &lt;url-pattern&gt;/myservlet&lt;/url-pattern&gt;
- * &lt;/servlet-mapping&gt;</pre>
+ * even in a minimal Mock container that does not support Mock filters.
  *
  * <b>Example:</b> myDispatcher-servlet.xml, in turn forwarding "/myservlet" to your
  * servlet (identified by servlet name). All such requests will go through the
@@ -90,11 +73,11 @@ public class MockForwardingController extends AbstractController implements Bean
 
   /**
    * Set the name of the servlet to forward to,
-   * i.e. the "servlet-name" of the target servlet in web.xml.
+   * i.e. the "mock-name" of the target servlet in web.xml.
    * <p>Default is the bean name of this controller.
    */
-  public void setServletName(@Nullable String servletName) {
-    this.mockName = servletName;
+  public void setMockName(@Nullable String mockName) {
+    this.mockName = mockName;
   }
 
   @Override
@@ -124,20 +107,20 @@ public class MockForwardingController extends AbstractController implements Bean
       throw new MockException("No servlet with name '%s' defined in web.xml".formatted(mockName));
     }
 
-    HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
+    HttpMockRequest servletRequest = MockUtils.getMockRequest(request);
     HttpMockResponse servletResponse = MockUtils.getMockResponse(request);
 
     // If already included, include again, else forward.
     if (useInclude(servletRequest, servletResponse)) {
       rd.include(servletRequest, servletResponse);
       if (logger.isTraceEnabled()) {
-        logger.trace("Included servlet [{}] in ServletForwardingController '{}'", mockName, beanName);
+        logger.trace("Included servlet [{}] in MockForwardingController '{}'", mockName, beanName);
       }
     }
     else {
       rd.forward(servletRequest, servletResponse);
       if (logger.isTraceEnabled()) {
-        logger.trace("Forwarded to servlet [{}] in ServletForwardingController '{}'", mockName, beanName);
+        logger.trace("Forwarded to servlet [{}] in MockForwardingController '{}'", mockName, beanName);
       }
     }
 

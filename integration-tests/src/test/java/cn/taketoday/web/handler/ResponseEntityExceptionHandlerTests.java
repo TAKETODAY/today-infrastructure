@@ -147,7 +147,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void missingServletRequestParameter() {
+  public void missingMockRequestParameter() {
     Exception ex = new MissingRequestParameterException("param", "cn/taketoday/core/testfixture/type");
     testException(ex);
   }
@@ -192,7 +192,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void missingServletRequestPart() {
+  public void missingMockRequestPart() {
     Exception ex = new MissingRequestPartException("partName");
     testException(ex);
   }
@@ -210,8 +210,7 @@ class ResponseEntityExceptionHandlerTests {
 
     var req = new MockServerHttpRequest(new HttpMockRequestImpl("GET", "/resource"));
 
-    Exception ex = new HandlerNotFoundException(req.getMethodValue(),
-            req.getServletRequest().getRequestURI(), requestHeaders);
+    Exception ex = new HandlerNotFoundException(req.getMethodValue(), req.getRequest().getRequestURI(), requestHeaders);
     ResponseEntity<Object> responseEntity = testException(ex);
     assertThat(responseEntity.getHeaders()).isEmpty();
   }

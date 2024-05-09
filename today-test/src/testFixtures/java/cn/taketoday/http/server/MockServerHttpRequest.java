@@ -87,7 +87,7 @@ public class MockServerHttpRequest implements ServerHttpRequest {
   /**
    * Returns the {@code HttpServletRequest} this object is based on.
    */
-  public HttpMockRequest getServletRequest() {
+  public HttpMockRequest getRequest() {
     return this.mockRequest;
   }
 

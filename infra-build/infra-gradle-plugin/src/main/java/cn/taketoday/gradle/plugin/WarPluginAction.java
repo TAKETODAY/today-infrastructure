@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ class WarPluginAction implements PluginApplicationAction {
             .minus(providedRuntimeConfiguration(project))
             .minus(developmentOnly.minus(productionRuntimeClasspath))
             .minus(testAndDevelopmentOnly.minus(productionRuntimeClasspath))
-            .filter(new JarTypeFileSpec());
+            .filter(JarTypeFileSpec.include());
     TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks()
             .named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
     TaskProvider<InfraWar> infraWarProvider = project.getTasks()
@@ -98,7 +98,7 @@ class WarPluginAction implements PluginApplicationAction {
                       .provider(() -> (String) infraWar.getManifest().getAttributes().get("Start-Class"));
               infraWar.getMainClass()
                       .convention(resolveMainClassName.flatMap((resolver) -> manifestStartClass.isPresent()
-                                                                             ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
+                              ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
               infraWar.getTargetJavaVersion()
                       .set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
               infraWar.resolvedArtifacts(runtimeClasspath.getIncoming().getArtifacts().getResolvedArtifacts());

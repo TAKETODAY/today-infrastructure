@@ -1,97 +1,67 @@
 [[mvc-cors]]
 = CORS
-[.small]#xref:web/webflux-cors.adoc[See equivalent in the Reactive stack]#
 
-Web MVC lets you handle CORS (Cross-Origin Resource Sharing). This section
-describes how to do so.
-
-
+Web MVC 允许您处理跨源资源共享 (CORS，跨源资源共享)。本节描述了如何实现此功能。
 
 
 [[mvc-cors-intro]]
-== Introduction
+== 介绍
 
-For security reasons, browsers prohibit AJAX calls to resources outside the current origin.
-For example, you could have your bank account in one tab and evil.com in another. Scripts
-from evil.com should not be able to make AJAX requests to your bank API with your
-credentials -- for example withdrawing money from your account!
+出于安全原因，浏览器禁止在当前源之外进行 AJAX 调用。举个例子，你可能在一个标签页中打开了你的银行账户，
+而在另一个标签页中打开了 evil.com。来自 evil.com 的脚本不应该可以使用你的凭据向你的银行 API 发送 AJAX 请求，例如从你的账户中提取资金！
 
-Cross-Origin Resource Sharing (CORS) is a https://www.w3.org/TR/cors/[W3C specification]
-implemented by https://caniuse.com/#feat=cors[most browsers] that lets you specify
-what kind of cross-domain requests are authorized, rather than using less secure and less
-powerful workarounds based on IFRAME or JSONP.
-
-
+跨源资源共享（CORS）是一个由 W3C 规范实现的 https://www.w3.org/TR/cors/[W3C 规范]，
+https://caniuse.com/#feat=cors[大多数浏览器]支持的，它允许你指定授权的跨域请求类型，而不是使用基于 IFRAME 或 JSONP 的不太安全且不太强大的解决方案。
 
 
 [[mvc-cors-credentialed-requests]]
-== Credentialed Requests
+== 凭证请求
 
-Using CORS with credentialed requests requires enabling `allowedCredentials`. Be aware that
-this option establishes a high level of trust with the configured domains and also increases
-the surface of attack of the web application by exposing sensitive user-specific information
-such as cookies and CSRF tokens.
+使用带有凭证请求的 CORS 需要启用 `allowedCredentials`。请注意，这个选项与配置的域建立了高度信任，
+并且通过公开敏感的用户特定信息（如 Cookie 和 CSRF 令牌），增加了 Web 应用程序的攻击面。
 
-Enabling credentials also impacts how the configured `"*"` CORS wildcards are processed:
+启用凭证还会影响配置的 `"*"` CORS 通配符的处理方式：
 
-* Wildcards are not authorized in `allowOrigins`, but alternatively
-the `allowOriginPatterns` property may be used to match to a dynamic set of origins.
-* When set on `allowedHeaders` or `allowedMethods`, the `Access-Control-Allow-Headers`
-and `Access-Control-Allow-Methods` response headers are handled by copying the related
-headers and method specified in the CORS preflight request.
-* When set on `exposedHeaders`, `Access-Control-Expose-Headers` response header is set
-either to the configured list of headers or to the wildcard character. While the CORS spec
-does not allow the wildcard character when `Access-Control-Allow-Credentials` is set to
-`true`, most browsers support it and the response headers are not all available during the
-CORS processing, so as a consequence the wildcard character is the header value used when
-specified regardless of the value of the `allowCredentials` property.
-
-WARNING: While such wildcard configuration can be handy, it is recommended when possible to configure
-a finite set of values instead to provide a higher level of security.
+* 通配符在 `allowOrigins` 中不被授权，但可以使用 `allowOriginPatterns` 属性匹配到一个动态的来源集合。
+* 当设置在 `allowedHeaders` 或 `allowedMethods` 上时，`Access-Control-Allow-Headers` 和 `Access-Control-Allow-Methods`
+响应头会通过复制在 CORS 预检请求中指定的相关头和方法来处理。
+* 当设置在 `exposedHeaders` 上时，`Access-Control-Expose-Headers` 响应头要么设置为配置的头列表，
+要么设置为通配符字符。虽然 CORS 规范不允许在 `Access-Control-Allow-Credentials` 设置为 `true` 时使用通配符字符，
+但大多数浏览器支持它，并且响应头在 CORS 处理期间并不都可用，因此无论 `allowCredentials` 属性的值如何，指定时通配符字符都是使用的头值。
 
 
+WARNING: 虽然通配符配置可能很方便，但建议在可能的情况下配置有限的值集，以提供更高级别的安全性。
 
 
 [[mvc-cors-processing]]
 == Processing
 
-The CORS specification distinguishes between preflight, simple, and actual requests.
-To learn how CORS works, you can read
-https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS[this article], among
-many others, or see the specification for more details.
+CORS 规范区分了预检请求、简单请求和实际请求。
 
-Web MVC `HandlerMapping` implementations provide built-in support for CORS. After successfully
-mapping a request to a handler, `HandlerMapping` implementations check the CORS configuration for the
-given request and handler and take further actions. Preflight requests are handled
-directly, while simple and actual CORS requests are intercepted, validated, and have
-required CORS response headers set.
+要了解 CORS 的工作原理，您可以阅读 https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS[这篇文章]，或者查看规范以获取更多细节。
 
-In order to enable cross-origin requests (that is, the `Origin` header is present and
-differs from the host of the request), you need to have some explicitly declared CORS
-configuration. If no matching CORS configuration is found, preflight requests are
-rejected. No CORS headers are added to the responses of simple and actual CORS requests
-and, consequently, browsers reject them.
+Web MVC `HandlerMapping` 实现提供了对 CORS 的内置支持。在成功将请求映射到处理程序后，`HandlerMapping`
+实现会检查给定请求和处理程序的 CORS 配置，并采取进一步的操作。预检请求直接处理，而简单和实际的 CORS 请求会被拦截、验证，并设置必需的 CORS 响应头。
 
-Each `HandlerMapping` can be
-{today-framework-api}/web/mockApi/handler/AbstractHandlerMapping.html#setCorsConfigurations-java.util.Map-[configured]
-individually with URL pattern-based `CorsConfiguration` mappings. In most cases, applications
-use the MVC Java configuration or the XML namespace to declare such mappings, which results
-in a single global map being passed to all `HandlerMapping` instances.
+为了启用跨域请求（即，`Origin` 头存在且与请求的主机不同），您需要有一些明确声明的 CORS 配置。如果没有找到匹配的 CORS
+配置，则预检请求将被拒绝。简单和实际的 CORS 请求的响应中不添加任何 CORS 标头，因此浏览器会拒绝它们。
 
-You can combine global CORS configuration at the `HandlerMapping` level with more
-fine-grained, handler-level CORS configuration. For example, annotated controllers can use
-class- or method-level `@CrossOrigin` annotations (other handlers can implement
-`CorsConfigurationSource`).
 
-The rules for combining global and local configuration are generally additive -- for example,
-all global and all local origins. For those attributes where only a single value can be
-accepted, e.g. `allowCredentials` and `maxAge`, the local overrides the global value. See
-{today-framework-api}/web/cors/CorsConfiguration.html#combine-cn.taketoday.web.cors.CorsConfiguration-[`CorsConfiguration#combine(CorsConfiguration)`]
-for more details.
+每个 `HandlerMapping` 可以单独 {today-framework-api}/web/handler/AbstractHandlerMapping.html#setCorsConfigurations-java.util.Map-[配置]
+URL 模式的 `CorsConfiguration` 映射。在大多数情况下，应用程序使用 MVC Java 配置或 XML 命名空间来声明此类映射，
+结果是一个全局映射被传递给所有 `HandlerMapping` 实例。
+
+您可以在 `HandlerMapping` 级别将全局 CORS 配置与更精细的处理程序级别 CORS 配置相结合。
+例如，带有注解的控制器可以使用类级别或方法级别的 `@CrossOrigin` 注解（其他处理程序可以实现 `CorsConfigurationSource`）。
+
+全局和本地配置的组合规则通常是累加的 - 例如，所有全局和所有本地来源。对于那些只能接受单个值的属性，
+例如 `allowCredentials` 和 `maxAge`，本地值会覆盖全局值。有关更多详情，
+请参阅 {today-framework-api}/web/cors/CorsConfiguration.html#combine-cn.taketoday.web.cors.CorsConfiguration-[`CorsConfiguration#combine(CorsConfiguration)`]
+
 
 [TIP]
 ====
-To learn more from the source or make advanced customizations, check the code behind:
+要从源代码中了解更多信息或进行高级定制，请查看后台代码：
 
 * `CorsConfiguration`
 * `CorsProcessor`, `DefaultCorsProcessor`
@@ -104,14 +74,8 @@ To learn more from the source or make advanced customizations, check the code be
 [[mvc-cors-controller]]
 == `@CrossOrigin`
 
-The {today-framework-api}/web/bind/annotation/CrossOrigin.html[`@CrossOrigin`]
-annotation enables cross-origin requests on annotated controller methods,
-as the following example shows:
+{today-framework-api}/web/annotation/CrossOrigin.html[`@CrossOrigin`] 注解在注释的控制器方法上启用跨源请求，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @RestController
@@ -130,29 +94,22 @@ public class AccountController {
   }
 }
 ----
-======
 
-By default, `@CrossOrigin` allows:
+默认情况下, `@CrossOrigin` 允许:
 
-* All origins.
-* All headers.
-* All HTTP methods to which the controller method is mapped.
+* 所有来源。
+* 所有 Header。
+* 所有控制器方法映射到的所有 HTTP 方法。
 
-`allowCredentials` is not enabled by default, since that establishes a trust level
-that exposes sensitive user-specific information (such as cookies and CSRF tokens) and
-should only be used where appropriate. When it is enabled either `allowOrigins` must be
-set to one or more specific domain (but not the special value `"*"`) or alternatively
-the `allowOriginPatterns` property may be used to match to a dynamic set of origins.
 
-`maxAge` is set to 30 minutes.
+`allowCredentials` 默认情况下未启用，因为它建立了一个信任级别，暴露了敏感的用户特定信息（如 cookies 和 CSRF 令牌），
+应该只在适当的情况下使用。当它被启用时，要么 `allowOrigins` 必须设置为一个或多个特定域（但不能是特殊值 `"*"`），
+要么可以使用 `allowOriginPatterns` 属性匹配到一组动态的来源。
 
-`@CrossOrigin` is supported at the class level, too, and is inherited by all methods,
-as the following example shows:
+`maxAge` 设置为 30 分钟。
 
-[tabs]
-======
-Java::
-+
+`@CrossOrigin` 也支持在类级别，并被所有方法继承，如下例所示：
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @CrossOrigin(origins = "https://domain2.com", maxAge = 3600)
@@ -172,15 +129,8 @@ public class AccountController {
 }
 ----
 
-======
+你可以在类级别和方法级别都使用 `@CrossOrigin`，如下例所示：
 
-You can use `@CrossOrigin` at both the class level and the method level,
-as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @CrossOrigin(maxAge = 3600)
@@ -200,46 +150,30 @@ public class AccountController {
   }
 }
 ----
-======
-
-
-
 
 [[mvc-cors-global]]
-== Global Configuration
+== 全局配置
 
-In addition to fine-grained, controller method level configuration, you probably want to
-define some global CORS configuration, too. You can set URL-based `CorsConfiguration`
-mappings individually on any `HandlerMapping`. Most applications, however, use the
-MVC Java configuration or the MVC XML namespace to do that.
+除了细粒度的控制器方法级配置之外，你可能还想定义一些全局的 CORS 配置。你可以在任何 `HandlerMapping`
+上单独设置基于 URL 的 `CorsConfiguration` 映射。然而，大多数应用程序使用 MVC Java 配置或 MVC XML 命名空间来完成这项任务。
 
-By default, global configuration enables the following:
+默认情况下，全局配置启用以下功能：
 
-* All origins.
-* All headers.
-* `GET`, `HEAD`, and `POST` methods.
+* 所有来源。
+* 所有标头。
+* `GET`、`HEAD` 和 `POST` 方法。
 
+`allowCredentials` 默认情况下未启用，因为它建立了一个信任级别，暴露了敏感的用户特定信息（如 cookies 和 CSRF 令牌），
+应该只在适当的情况下使用。当它被启用时，要么 `allowOrigins` 必须设置为一个或多个特定域（但不能是特殊值 `"*"`），
+要么可以使用 `allowOriginPatterns` 属性匹配到一组动态的来源。
 
-`allowCredentials` is not enabled by default, since that establishes a trust level
-that exposes sensitive user-specific information (such as cookies and CSRF tokens) and
-should only be used where appropriate. When it is enabled either `allowOrigins` must be
-set to one or more specific domain (but not the special value `"*"`) or alternatively
-the `allowOriginPatterns` property may be used to match to a dynamic set of origins.
-
-`maxAge` is set to 30 minutes.
-
-
+`maxAge` 设置为 30 分钟。
 
 [[mvc-cors-global-java]]
-=== Java Configuration
+=== Java 配置
 
-To enable CORS in the MVC Java config, you can use the `CorsRegistry` callback,
-as the following example shows:
+要在 MVC Java 配置中启用 CORS，你可以使用 `CorsRegistry` 回调，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -260,20 +194,15 @@ public class WebConfig implements WebMvcConfigurer {
   }
 }
 ----
-======
-
 
 
 
 [[mvc-cors-filter]]
-== CORS Filter
+== CORS 拦截器
 
-You can apply CORS support through the built-in
-{today-framework-api}/web/filter/CorsFilter.html[`CorsFilter`].
+你可以通过内置的 `CorsInterceptor` 应用 CORS 支持。
 
-
-To configure the filter, pass a `CorsConfigurationSource` to its constructor, as the
-following example shows:
+要配置过滤器，将 `CorsConfigurationSource` 传递给它的构造函数，如下例所示：
 
 [source,java,indent=0,subs="verbatim",role="primary"]
 ----

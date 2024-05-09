@@ -77,14 +77,15 @@ import cn.taketoday.util.StringUtils;
  * @author Brian Clozel
  * @author Madhura Bhave
  * @author Lorenzo Dee
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see InfraTest
  * @see TestConfiguration
  * @since 4.0
  */
 public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-  private static final String ACTIVATE_SERVLET_LISTENER
-          = "cn.taketoday.test.context.web.ServletTestExecutionListener.activateListener";
+  private static final String ACTIVATE_LISTENER
+          = "cn.taketoday.test.context.web.MockTestExecutionListener.activateListener";
 
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
@@ -94,10 +95,10 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     verifyConfiguration(context.getTestClass());
     WebEnvironment webEnvironment = getWebEnvironment(context.getTestClass());
     if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forDefaults() == ApplicationType.NETTY_WEB) {
-      context.setAttribute(ACTIVATE_SERVLET_LISTENER, true);
+      context.setAttribute(ACTIVATE_LISTENER, true);
     }
     else if (webEnvironment != null && webEnvironment.isEmbedded()) {
-      context.setAttribute(ACTIVATE_SERVLET_LISTENER, false);
+      context.setAttribute(ACTIVATE_LISTENER, false);
     }
     return context;
   }

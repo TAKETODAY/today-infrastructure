@@ -1,14 +1,11 @@
 [[mvc-view]]
-= View Technologies
+= View 技术
 :page-section-summary-toc: 1
 
-The use of view technologies in Web MVC is pluggable. Whether you decide to use
-Thymeleaf, Groovy Markup Templates, JSPs, or other technologies is primarily a matter of
-a configuration change. This chapter covers view technologies integrated with Web MVC.
-We assume you are already familiar with xref:web/webmvc/mvc-servlet/viewresolver.adoc[View Resolution].
+Web MVC 中视图技术的使用是可插拔的。无论您决定使用 Thymeleaf、Groovy Markup Templates、JSP 还是其他技术，
+主要是一种配置更改的问题。本章介绍了与 Web MVC 集成的视图技术。我们假设您已经熟悉了
+xref:web/webmvc/mvc-servlet/viewresolver.adoc[视图解析]。
 
-WARNING: The views of a Web MVC application live within the internal trust boundaries
-of that application. Views have access to all the beans of your application context. As
-such, it is not recommended to use Web MVC's template support in applications where
-the templates are editable by external sources, since this can have security implications.
 
+WARNING: Web MVC 应用程序的视图存在于该应用程序的内部信任边界内。视图可以访问应用程序上下文中的所有 bean。
+因此，在模板可由外部来源编辑的应用程序中不建议使用 Web MVC 的模板支持，因为这可能会带来安全性问题。

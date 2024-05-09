@@ -132,16 +132,16 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void contextPathMockPathInvalid() {
-    testContextPathServletPathInvalid("Request URI [/foo/bar] does not start with context path [/Foo]");
-    testContextPathServletPathInvalid("Context path must start with a '/'");
-    testContextPathServletPathInvalid("Context path must not end with a '/'");
+    testContextPathMockPathInvalid("Request URI [/foo/bar] does not start with context path [/Foo]");
+    testContextPathMockPathInvalid("Context path must start with a '/'");
+    testContextPathMockPathInvalid("Context path must not end with a '/'");
 
-    testContextPathServletPathInvalid("Invalid servlet path [/Bar] for request URI [/foo/bar]");
-    testContextPathServletPathInvalid("Mock path must start with a '/'");
-    testContextPathServletPathInvalid("Mock path must not end with a '/'");
+    testContextPathMockPathInvalid("Invalid servlet path [/Bar] for request URI [/foo/bar]");
+    testContextPathMockPathInvalid("Mock path must start with a '/'");
+    testContextPathMockPathInvalid("Mock path must not end with a '/'");
   }
 
-  private void testContextPathServletPathInvalid(String message) {
+  private void testContextPathMockPathInvalid(String message) {
     try {
       this.builder.buildRequest(this.mockContext);
     }

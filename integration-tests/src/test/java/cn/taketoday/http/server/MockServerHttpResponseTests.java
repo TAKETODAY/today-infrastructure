@@ -88,7 +88,7 @@ public class MockServerHttpResponseTests {
   }
 
   @Test
-  void preExistingHeadersFromHttpServletResponse() {
+  void preExistingHeadersFromHttpMockResponse() {
     String headerName = "Access-Control-Allow-Origin";
     String headerValue = "localhost:8080";
 

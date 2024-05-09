@@ -181,7 +181,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
 
   @Override
   protected void initPropertySources() {
-    WebApplicationContextUtils.initServletPropertySources(getEnvironment().getPropertySources(),
+    WebApplicationContextUtils.initMockPropertySources(getEnvironment().getPropertySources(),
             this.mockContext, this.mockConfig);
   }
 

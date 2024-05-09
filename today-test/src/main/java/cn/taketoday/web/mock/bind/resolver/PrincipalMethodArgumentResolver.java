@@ -46,7 +46,7 @@ public class PrincipalMethodArgumentResolver implements ParameterResolvingStrate
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpMockRequest servletRequest = MockUtils.getServletRequest(context);
+    HttpMockRequest servletRequest = MockUtils.getMockRequest(context);
 
     Principal principal = servletRequest.getUserPrincipal();
     if (principal != null && !resolvable.getParameterType().isInstance(principal)) {

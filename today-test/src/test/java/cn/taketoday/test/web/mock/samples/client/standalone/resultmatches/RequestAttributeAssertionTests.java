@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RequestAttributeAssertionTests {
 
-  private final WebTestClient mainServletClient =
+  private final WebTestClient mainMockClient =
           MockMvcWebTestClient.bindToController(new SimpleController())
                   .defaultRequest(get("/"))
                   .build();
@@ -50,7 +50,7 @@ public class RequestAttributeAssertionTests {
 
   @Test
   void requestAttributeMatcher() throws Exception {
-    performRequest(mainServletClient, "/1")
+    performRequest(mainMockClient, "/1")
             .andExpect(request().request(context -> {
               HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
 

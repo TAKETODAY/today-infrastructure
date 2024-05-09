@@ -78,7 +78,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   public List<WebSocketExtension> getSupportedExtensions(RequestContext request) {
     List<WebSocketExtension> extensions = this.extensions;
     if (extensions == null) {
-      HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
+      HttpMockRequest servletRequest = MockUtils.getMockRequest(request);
       extensions = getInstalledExtensions(getContainer(servletRequest));
       this.extensions = extensions;
     }

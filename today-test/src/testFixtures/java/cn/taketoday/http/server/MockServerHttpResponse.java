@@ -55,20 +55,20 @@ public class MockServerHttpResponse implements ServerHttpResponse {
   private HttpHeaders readOnlyHeaders;
 
   /**
-   * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpMockResponse}.
+   * Construct a new instance of the MockServerHttpResponse based on the given {@link HttpMockResponse}.
    *
    * @param mockResponse the servlet response
    */
   public MockServerHttpResponse(HttpMockResponse mockResponse) {
-    Assert.notNull(mockResponse, "HttpServletResponse is required");
+    Assert.notNull(mockResponse, "HttpMockResponse is required");
     this.mockResponse = mockResponse;
     this.headers = new MockResponseHttpHeaders();
   }
 
   /**
-   * Return the {@code HttpServletResponse} this object is based on.
+   * Return the {@code HttpMockResponse} this object is based on.
    */
-  public HttpMockResponse getServletResponse() {
+  public HttpMockResponse getResponse() {
     return this.mockResponse;
   }
 
@@ -122,7 +122,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
         }
       }
 
-      // HttpServletResponse exposes some headers as properties: we should include those if not already present
+      // HttpMockResponse exposes some headers as properties: we should include those if not already present
       MediaType contentTypeHeader = this.headers.getContentType();
       if (mockResponse.getContentType() == null && contentTypeHeader != null) {
         mockResponse.setContentType(contentTypeHeader.toString());
@@ -141,9 +141,9 @@ public class MockServerHttpResponse implements ServerHttpResponse {
 
   /**
    * Extends HttpHeaders with the ability to look up headers already present in
-   * the underlying HttpServletResponse.
+   * the underlying HttpMockResponse.
    *
-   * <p>The intent is merely to expose what is available through the HttpServletResponse
+   * <p>The intent is merely to expose what is available through the HttpMockResponse
    * i.e. the ability to look up specific header values by name. All other
    * map-related operations (e.g. iteration, removal, etc) apply only to values
    * added directly through HttpHeaders methods.
