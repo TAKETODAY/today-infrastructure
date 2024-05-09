@@ -93,7 +93,7 @@ public @interface Prototype {
    *
    * @since 4.0
    */
-  @AliasFor(annotation = Scope.class)
+  @AliasFor(annotation = Scope.class, attribute = "proxyMode")
   ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
 
   /**

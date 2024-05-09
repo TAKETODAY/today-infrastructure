@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -121,7 +121,7 @@ final class AnnotationTypeMapping {
    */
   public final boolean synthesizable;
 
-  private final Set<Method> claimedAliases = new HashSet<>();
+  private final HashSet<Method> claimedAliases = new HashSet<>();
 
   AnnotationTypeMapping(@Nullable AnnotationTypeMapping source, Class<? extends Annotation> annotationType,
           @Nullable Annotation annotation, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
@@ -404,7 +404,7 @@ final class AnnotationTypeMapping {
    */
   void afterAllMappingsSet() {
     validateAllAliasesClaimed();
-    for (MirrorSets.MirrorSet mirrorSet : mirrorSets.mirrorSets) {
+    for (var mirrorSet : mirrorSets.mirrorSets) {
       validateMirrorSet(mirrorSet);
     }
     this.claimedAliases.clear();
@@ -413,7 +413,7 @@ final class AnnotationTypeMapping {
   private void validateAllAliasesClaimed() {
     for (Method attribute : methods.attributes) {
       AliasFor aliasFor = AnnotationsScanner.getDeclaredAnnotation(attribute, AliasFor.class);
-      if (aliasFor != null && !this.claimedAliases.contains(attribute)) {
+      if (aliasFor != null && !claimedAliases.contains(attribute)) {
         Method target = resolveAliasTarget(attribute, aliasFor);
         throw new AnnotationConfigurationException(String.format(
                 "@AliasFor declaration on %s declares an alias for %s which is not meta-present.",
@@ -530,9 +530,7 @@ final class AnnotationTypeMapping {
     return areEquivalent(attribute.getDefaultValue(), value, valueExtractor);
   }
 
-  private static boolean areEquivalent(
-          @Nullable Object value, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
-
+  private static boolean areEquivalent(@Nullable Object value, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
     if (ObjectUtils.nullSafeEquals(value, extractedValue)) {
       return true;
     }
@@ -564,8 +562,7 @@ final class AnnotationTypeMapping {
     return value.getName().equals(extractedValue);
   }
 
-  private static boolean areEquivalent(
-          Annotation annotation, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
+  private static boolean areEquivalent(Annotation annotation, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
     AttributeMethods methods = AttributeMethods.forAnnotationType(annotation.annotationType());
     for (Method attribute : methods.attributes) {
       Object value1 = ReflectionUtils.invokeMethod(attribute, annotation);

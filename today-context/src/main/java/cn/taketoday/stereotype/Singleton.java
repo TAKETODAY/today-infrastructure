@@ -35,6 +35,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-07-02 22:46:11
  */
+@Scope
 @Component
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -90,7 +91,7 @@ public @interface Singleton {
    *
    * @since 5.0
    */
-  @AliasFor(annotation = Scope.class)
+  @AliasFor(annotation = Scope.class, attribute = "proxyMode")
   ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
 
   /**
