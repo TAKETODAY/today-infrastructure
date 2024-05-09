@@ -515,13 +515,6 @@ bom {
       ]
     }
   }
-  library("TODAY Infrastructure", "${version}") {
-    group("cn.taketoday") {
-      plugins = [
-          "infra-maven-plugin"
-      ]
-    }
-  }
 
   library("SLF4J", "2.0.7") {
     group("org.slf4j") {
@@ -564,14 +557,6 @@ bom {
           "xmlunit-legacy",
           "xmlunit-matchers",
           "xmlunit-placeholders"
-      ]
-    }
-  }
-  library("Spring Asciidoctor Extensions", "0.6.1") {
-    group("io.spring.asciidoctor") {
-      modules = [
-          "spring-asciidoctor-extensions-spring-boot",
-          "spring-asciidoctor-extensions-section-ids"
       ]
     }
   }
