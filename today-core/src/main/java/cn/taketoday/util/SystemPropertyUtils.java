@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -32,11 +29,11 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Dave Syer
- * @author TODAY 2021/9/28 22:39
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyPlaceholderHandler#PLACEHOLDER_PREFIX
  * @see PropertyPlaceholderHandler#PLACEHOLDER_SUFFIX
  * @see System#getProperty(String)
- * @since 4.0
+ * @since 4.0 2021/9/28 22:39
  */
 public abstract class SystemPropertyUtils {
 
@@ -93,9 +90,7 @@ public abstract class SystemPropertyUtils {
         return propVal;
       }
       catch (Throwable ex) {
-        System.err.println(
-                "Could not resolve placeholder '" + placeholderName
-                        + "' in [" + this.text + "] as system property: " + ex);
+        System.err.printf("Could not resolve placeholder '%s' in [%s] as system property: %s%n", placeholderName, this.text, ex);
         return null;
       }
     }
