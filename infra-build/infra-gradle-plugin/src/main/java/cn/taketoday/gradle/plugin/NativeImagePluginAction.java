@@ -57,6 +57,11 @@ class NativeImagePluginAction implements PluginApplicationAction {
   }
 
   @Override
+  public boolean autoApply(Project project) {
+    return false;
+  }
+
+  @Override
   public void execute(Project project) {
     project.getPlugins().apply(InfraApplicationAotPlugin.class);
     project.getPlugins().withType(JavaPlugin.class).all((plugin) -> {
