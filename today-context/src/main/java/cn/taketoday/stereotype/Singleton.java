@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.stereotype;
 
@@ -24,6 +24,9 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
@@ -81,4 +84,28 @@ public @interface Singleton {
    */
   @AliasFor(annotation = Component.class)
   boolean autowireCandidate() default true;
+
+  /**
+   * Alias for {@link Scope#proxyMode()}
+   *
+   * @since 5.0
+   */
+  @AliasFor(annotation = Scope.class)
+  ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
+
+  /**
+   * The bootstrap mode for this bean: default is the main pre-instantiation thread
+   * for non-lazy singleton beans and the caller thread for prototype beans.
+   * <p>Set {@link Component.Bootstrap#BACKGROUND} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link cn.taketoday.context.ConfigurableApplicationContext#refresh()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   *
+   * @see Lazy
+   * @since 5.0
+   */
+  @AliasFor(annotation = Component.class)
+  Component.Bootstrap bootstrap() default Component.Bootstrap.DEFAULT;
 }
