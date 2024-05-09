@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -22,6 +22,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 
 /**
@@ -32,7 +33,7 @@ import cn.taketoday.util.PropertyPlaceholderHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver {
+public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver, PlaceholderResolver {
 
   @Nullable
   private final Iterable<PropertySource<?>> sources;
@@ -56,13 +57,14 @@ public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver
   @Override
   public Object resolvePlaceholders(Object value) {
     if (value instanceof String) {
-      return placeholderHandler.replacePlaceholders((String) value, this::resolvePlaceholder);
+      return placeholderHandler.replacePlaceholders((String) value, this);
     }
     return value;
   }
 
+  @Override
   @Nullable
-  protected String resolvePlaceholder(String placeholder) {
+  public String resolvePlaceholder(String placeholder) {
     if (this.sources != null) {
       for (PropertySource<?> source : this.sources) {
         Object value = source.getProperty(placeholder);
