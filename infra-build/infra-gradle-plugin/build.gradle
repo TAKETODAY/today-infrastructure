@@ -44,7 +44,7 @@ dependencies {
   implementation 'org.apache.commons:commons-compress'
   implementation 'io.spring.gradle:dependency-management-plugin:1.1.5'
 
-  optional('org.graalvm.buildtools:native-gradle-plugin:0.10.1')
+  optional "org.graalvm.buildtools:native-gradle-plugin:$nativeBuildToolsVersion"
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-framework"))
