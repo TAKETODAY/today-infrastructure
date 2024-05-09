@@ -605,14 +605,7 @@ class LoggingApplicationListenerTests {
   }
 
   private boolean bridgeHandlerInstalled() {
-    Logger rootLogger = LogManager.getLogManager().getLogger("");
-    Handler[] handlers = rootLogger.getHandlers();
-    for (Handler handler : handlers) {
-      if (handler instanceof SLF4JBridgeHandler) {
-        return true;
-      }
-    }
-    return false;
+    return SLF4JBridgeHandler.isInstalled();
   }
 
   private void addPropertiesToEnvironment(ConfigurableApplicationContext context, String... pairs) {
