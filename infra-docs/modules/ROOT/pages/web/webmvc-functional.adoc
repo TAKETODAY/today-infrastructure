@@ -1,41 +1,28 @@
 [[webmvc-fn]]
 = Functional Endpoints
-[.small]#<<web-reactive.adoc#webflux-fn, See equivalent in the Reactive stack>>#
 
-Infra Web MVC includes WebMvc.fn, a lightweight functional programming model in which functions
-are used to route and handle requests and contracts are designed for immutability.
-It is an alternative to the annotation-based programming model but otherwise runs on
-the same xref:web/webmvc/mvc-servlet.adoc[DispatcherServlet].
-
+Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型，在该模型中，函数用于路由和处理请求，设计为不可变性。
+它是基于注解编程模型的另一种选择，但在其他方面运行在相同的 xref:web/webmvc/mvc-servlet.adoc[DispatcherHandler] 上。
 
 
 [[webmvc-fn-overview]]
-== Overview
+== 概述
 
-In WebMvc.fn, an HTTP request is handled with a `HandlerFunction`: a function that takes
-`ServerRequest` and returns a `ServerResponse`.
-Both the request and the response object have immutable contracts that offer JDK 8-friendly
-access to the HTTP request and response.
-`HandlerFunction` is the equivalent of the body of a `@RequestMapping` method in the
-annotation-based programming model.
+在 WebMvc.fn 中，一个 HTTP 请求通过 `HandlerFunction` 处理：一个接受 `ServerRequest` 并返回 `ServerResponse` 的函数。
+请求和响应对象都具有不可变的合同，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式。
+`HandlerFunction` 相当于注解-based 编程模型中 `@RequestMapping` 方法的主体。
 
-Incoming requests are routed to a handler function with a `RouterFunction`: a function that
-takes `ServerRequest` and returns an optional `HandlerFunction` (i.e. `Optional<HandlerFunction>`).
-When the router function matches, a handler function is returned; otherwise an empty Optional.
-`RouterFunction` is the equivalent of a `@RequestMapping` annotation, but with the major
-difference that router functions provide not just data, but also behavior.
+传入的请求通过 `RouterFunction` 路由到处理函数：一个接受 `ServerRequest` 并返回可选的 `HandlerFunction`（即 `Optional<HandlerFunction>`）的函数。
+当路由函数匹配时，会返回一个处理函数；否则返回一个空的 Optional。
+`RouterFunction` 相当于 `@RequestMapping` 注解，但主要区别在于路由函数不仅提供数据，还提供行为。
 
-`RouterFunctions.route()` provides a router builder that facilitates the creation of routers,
-as the following example shows:
+`RouterFunctions.route()` 提供了一个路由器构建器，方便创建路由器，如下例所示：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.handler.function.RequestPredicates.*;
+import static cn.taketoday.web.handler.function.ReqestPredicates.*;
 import static cn.taketoday.web.handler.function.RouterFunctions.route;
 
 PersonRepository repository = ...
@@ -65,142 +52,90 @@ public class PersonHandler {
   }
 }
 ----
-<1> Create router using `route()`.
-
-======
+<1> 使用 `route()` 创建路由。
 
 
-If you register the `RouterFunction` as a bean, for instance by exposing it in a
-`@Configuration` class, it will be auto-detected by the mockApi, as explained in xref:web/webmvc-functional.adoc#webmvc-fn-running[Running a Server].
+如果您将 `RouterFunction` 注册为一个 bean，例如通过在 `@Configuration` 类中公开它，
+它将被 IoC 自动检测到，如 xref:web/webmvc-functional.adoc#webmvc-fn-running[Running a Server] 中所解释的那样。
+
 
 [[webmvc-fn-handler-functions]]
 == HandlerFunction
 
-`ServerRequest` and `ServerResponse` are immutable interfaces that offer JDK 8-friendly
-access to the HTTP request and response, including headers, body, method, and status code.
+`ServerRequest` 和 `ServerResponse` 是不可变接口，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式，包括头部、主体、方法和状态码。
 
 
 [[webmvc-fn-request]]
 === ServerRequest
 
-`ServerRequest` provides access to the HTTP method, URI, headers, and query parameters,
-while access to the body is provided through the `body` methods.
+`ServerRequest` 提供了访问 HTTP 方法、URI、头部和查询参数的方式，而对主体的访问则通过 `body` 方法提供。
 
-The following example extracts the request body to a `String`:
+以下示例将请求主体提取为 `String`：
 
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 String string = request.body(String.class);
 ----
-======
 
+以下示例将主体提取为 `List<Person>`，其中 `Person` 对象从序列化形式（如 JSON 或 XML）解码：
 
-The following example extracts the body to a `List<Person>`,
-where `Person` objects are decoded from a serialized form, such as JSON or XML:
-
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 List<Person> people = request.body(new ParameterizedTypeReference<List<Person>>() {});
 ----
 
-======
+以下示例演示了如何访问参数：
 
-The following example shows how to access parameters:
-
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 MultiValueMap<String, String> params = request.params();
 ----
 
-======
-
-
 [[webmvc-fn-response]]
 === ServerResponse
 
-`ServerResponse` provides access to the HTTP response and, since it is immutable, you can use
-a `build` method to create it. You can use the builder to set the response status, to add response
-headers, or to provide a body. The following example creates a 200 (OK) response with JSON
-content:
+`ServerResponse` 提供了对 HTTP 响应的访问，并且由于它是不可变的，您可以使用 `build` 方法来创建它。
+您可以使用构建器设置响应状态、添加响应头或提供主体。以下示例创建了一个带有 JSON 内容的 200 (OK) 响应：
 
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 Person person = ...
 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(person);
 ----
 
-======
+以下示例演示了如何构建一个带有 `Location` 头部且没有主体的 201 (CREATED) 响应：
 
-The following example shows how to build a 201 (CREATED) response with a `Location` header and no body:
 
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 URI location = ...
 ServerResponse.created(location).build();
 ----
 
-======
+您还可以使用异步结果作为主体，可以是 `CompletableFuture`、`Publisher`，或者任何其他类型，只要被 `ReactiveAdapterRegistry` 支持。例如：
 
-You can also use an asynchronous result as the body, in the form of a `CompletableFuture`,
-`Publisher`, or any other type supported by the `ReactiveAdapterRegistry`. For instance:
 
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 Mono<Person> person = webClient.get().retrieve().bodyToMono(Person.class);
 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(person);
 ----
 
-======
+如果不仅主体，而且状态或头部也是基于异步类型的，您可以使用 `ServerResponse` 上的静态 `async` 方法，
+它接受 `CompletableFuture<ServerResponse>`、`Publisher<ServerResponse>`，或者任何其他由 `ReactiveAdapterRegistry` 支持的异步类型。例如：
 
-If not just the body, but also the status or headers are based on an asynchronous type,
-you can use the static `async` method on `ServerResponse`, which
-accepts `CompletableFuture<ServerResponse>`, `Publisher<ServerResponse>`, or
-any other asynchronous type supported by the `ReactiveAdapterRegistry`. For instance:
 
-[tabs]
-======
-Java::
-+
 [source,java,role="primary"]
 ----
 Mono<ServerResponse> asyncResponse = webClient.get().retrieve().bodyToMono(Person.class)
   .map(p -> ServerResponse.ok().header("Name", p.name()).body(p));
 ServerResponse.async(asyncResponse);
 ----
-======
 
-https://www.w3.org/TR/eventsource/[Server-Sent Events] can be provided via the
-static `sse` method on `ServerResponse`. The builder provided by that method
-allows you to send Strings, or other objects as JSON. For example:
+通过 `ServerResponse` 上的静态 `sse` 方法可以提供 https://www.w3.org/TR/eventsource/[Server-Sent Events]。
+该方法提供的构建器允许您发送字符串或其他对象作为 JSON。例如：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public RouterFunction<ServerResponse> sse() {
@@ -225,99 +160,81 @@ sseBuilder.id("42")
 sseBuilder.complete();
 ----
 
-======
-
-
 
 [[webmvc-fn-handler-classes]]
 === Handler Classes
 
-We can write a handler function as a lambda, as the following example shows:
+我们可以将处理函数写成 lambda 表达式，如下例所示：
 
 --
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 HandlerFunction<ServerResponse> helloWorld =
   request -> ServerResponse.ok().body("Hello World");
 ----
 
-======
---
-
-That is convenient, but in an application we need multiple functions, and multiple inline
-lambda's can get messy.
-Therefore, it is useful to group related handler functions together into a handler class, which
-has a similar role as  `@Controller` in an annotation-based application.
-For example, the following class exposes a reactive `Person` repository:
 
 --
-[tabs]
-======
-Java::
-+
+
+这很方便，但在应用程序中我们需要多个函数，多个内联 lambda 会变得混乱。
+因此，将相关的处理函数组合到一个处理器类中是有用的，它的作用类似于注解驱动的应用程序中的 `@Controller`。
+例如，下面的类暴露了一个响应式的 `Person` 存储库：
+
+--
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.reactive.function.server.ServerResponse.ok;
+import static cn.taketoday.web.handler.function.ServerResponse.ok;
 
 public class PersonHandler {
 
-	private final PersonRepository repository;
+  private final PersonRepository repository;
 
-	public PersonHandler(PersonRepository repository) {
-		this.repository = repository;
-	}
+  public PersonHandler(PersonRepository repository) {
+    this.repository = repository;
+  }
 
-	public ServerResponse listPeople(ServerRequest request) { // <1>
-		List<Person> people = repository.allPeople();
-		return ok().contentType(APPLICATION_JSON).body(people);
-	}
+  public ServerResponse listPeople(ServerRequest request) { // <1>
+    List<Person> people = repository.allPeople();
+    return ok().contentType(APPLICATION_JSON).body(people);
+  }
 
-	public ServerResponse createPerson(ServerRequest request) throws Exception { // <2>
-		Person person = request.body(Person.class);
-		repository.savePerson(person);
-		return ok().build();
-	}
+  public ServerResponse createPerson(ServerRequest request) throws Exception { // <2>
+    Person person = request.body(Person.class);
+    repository.savePerson(person);
+    return ok().build();
+  }
 
-	public ServerResponse getPerson(ServerRequest request) { // <3>
-		int personId = Integer.parseInt(request.pathVariable("id"));
-		Person person = repository.getPerson(personId);
-		if (person != null) {
-			return ok().contentType(APPLICATION_JSON).body(person);
-		}
-		else {
-			return ServerResponse.notFound().build();
-		}
-	}
+  public ServerResponse getPerson(ServerRequest request) { // <3>
+    int personId = Integer.parseInt(request.pathVariable("id"));
+    Person person = repository.getPerson(personId);
+    if (person != null) {
+      return ok().contentType(APPLICATION_JSON).body(person);
+    }
+    else {
+      return ServerResponse.notFound().build();
+    }
+  }
 
 }
 ----
-<1> `listPeople` is a handler function that returns all `Person` objects found in the repository as
-JSON.
-<2> `createPerson` is a handler function that stores a new `Person` contained in the request body.
-<3> `getPerson` is a handler function that returns a single person, identified by the `id` path
-variable. We retrieve that `Person` from the repository and create a JSON response, if it is
-found. If it is not found, we return a 404 Not Found response.
+<1> `listPeople` 是一个处理函数，它以 JSON 格式返回存储库中找到的所有 `Person` 对象。
+<2> `createPerson` 是一个处理函数，用于存储请求体中包含的新 `Person`。
+<3> `getPerson` 是一个处理函数，它返回由 `id` 路径变量标识的单个人。
+如果找到该 `Person`，我们从存储库中检索并创建一个 JSON 响应。如果未找到，我们返回一个 404 Not Found 响应。
 
-======
 --
 
 
 [[webmvc-fn-handler-validation]]
 === Validation
 
-A functional endpoint can use Infra xref:web/webmvc/mvc-config/validation.adoc[validation facilities] to
-apply validation to the request body. For example, given a custom Infra
-xref:web/webmvc/mvc-config/validation.adoc[Validator] implementation for a `Person`:
+一个 functional endpoint 可以使用 xref:web/webmvc/mvc-config/validation.adoc[验证设施] 来对请求体应用验证。
+例如，给定一个针对 `Person` 的自定义 Infra xref:web/webmvc/mvc-config/validation.adoc[验证器] 实现：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class PersonHandler {
@@ -342,52 +259,39 @@ public class PersonHandler {
   }
 }
 ----
-<1> Create `Validator` instance.
-<2> Apply validation.
-<3> Raise exception for a 400 response.
+<1> 创建 `Validator` 实例.
+<2> 应用验证.
+<3> 抛一个 400 异常的响应.
 
-======
 
-Handlers can also use the standard bean validation API (JSR-303) by creating and injecting
-a global `Validator` instance based on `LocalValidatorFactoryBean`.
-See xref:core/validation/beanvalidation.adoc[Infra Validation].
-
+处理程序还可以通过创建和注入基于 `LocalValidatorFactoryBean` 的全局 `Validator` 实例来使用标准的 Bean 验证 API（JSR-303）。
+请参阅 xref:core/validation/beanvalidation.adoc[Infra 验证]。
 
 
 [[webmvc-fn-router-functions]]
 == `RouterFunction`
 
-Router functions are used to route the requests to the corresponding `HandlerFunction`.
-Typically, you do not write router functions yourself, but rather use a method on the
-`RouterFunctions` utility class to create one.
-`RouterFunctions.route()` (no parameters) provides you with a fluent builder for creating a router
-function, whereas `RouterFunctions.route(RequestPredicate, HandlerFunction)` offers a direct way
-to create a router.
+路由函数用于将请求路由到相应的 `HandlerFunction`。通常情况下，您不需要自己编写路由函数，
+而是使用 `RouterFunctions` 实用类上的方法来创建一个。
 
-Generally, it is recommended to use the `route()` builder, as it provides
-convenient short-cuts for typical mapping scenarios without requiring hard-to-discover
-static imports.
-For instance, the router function builder offers the method `GET(String, HandlerFunction)` to create a mapping for GET requests; and `POST(String, HandlerFunction)` for POSTs.
+`RouterFunctions.route()`（无参数）为您提供了一个流畅的构建器，用于创建路由函数，
+而 `RouterFunctions.route(RequestPredicate, HandlerFunction)` 则提供了一种直接创建路由的方式。
 
-Besides HTTP method-based mapping, the route builder offers a way to introduce additional
-predicates when mapping to requests.
-For each HTTP method there is an overloaded variant that takes a `RequestPredicate` as a
-parameter, through which additional constraints can be expressed.
+通常建议使用 `route()` 构建器，因为它为典型的映射场景提供了方便的快捷方式，而无需需要难以发现的静态导入。
+例如，路由函数构建器提供了 `GET(String, HandlerFunction)` 方法来创建 GET 请求的映射；
+而对于 POST 请求，则提供了 `POST(String, HandlerFunction)`。
+
+除了基于 HTTP 方法的映射之外，路由构建器还提供了一种在映射到请求时引入额外断言的方法。
+对于每个 HTTP 方法，都有一个重载变体，它接受一个 `RequestPredicate` 作为参数，通过该参数可以表达额外的约束。
 
 
 [[webmvc-fn-predicates]]
 === Predicates
 
-You can write your own `RequestPredicate`, but the `RequestPredicates` utility class
-offers commonly used implementations, based on the request path, HTTP method, content-type,
-and so on.
-The following example uses a request predicate to create a constraint based on the `Accept`
-header:
+您可以编写自己的 `RequestPredicate`，但 `RequestPredicates` 实用类提供了基于请求路径、HTTP 方法、内容类型等常用实现。
+以下示例使用请求断言基于 `Accept` 头创建约束：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 RouterFunction<ServerResponse> route = RouterFunctions.route()
@@ -395,52 +299,38 @@ RouterFunction<ServerResponse> route = RouterFunctions.route()
     request -> ServerResponse.ok().body("Hello World")).build();
 ----
 
-======
+您可以通过以下方式将多个请求断言组合在一起：
 
-You can compose multiple request predicates together by using:
+* `RequestPredicate.and(RequestPredicate)` -- 两者都必须匹配。
+* `RequestPredicate.or(RequestPredicate)` -- 任何一个都可以匹配。
 
-* `RequestPredicate.and(RequestPredicate)` -- both must match.
-* `RequestPredicate.or(RequestPredicate)` -- either can match.
-
-Many of the predicates from `RequestPredicates` are composed.
-For example, `RequestPredicates.GET(String)` is composed from `RequestPredicates.method(HttpMethod)`
-and `RequestPredicates.path(String)`.
-The example shown above also uses two request predicates, as the builder uses
-`RequestPredicates.GET` internally, and composes that with the `accept` predicate.
-
+`RequestPredicates` 中的许多断言都是组合的。
+例如，`RequestPredicates.GET(String)` 由 `RequestPredicates.method(HttpMethod)` 和 `RequestPredicates.path(String)` 组合而成。
+如上所示的示例也使用了两个请求断言，因为构建器在内部使用了 `RequestPredicates.GET`，并将其与 `accept` 断言组合在一起。
 
 
 [[webmvc-fn-routes]]
 === Routes
 
-Router functions are evaluated in order: if the first route does not match, the
-second is evaluated, and so on.
-Therefore, it makes sense to declare more specific routes before general ones.
-This is also important when registering router functions as Infra beans, as will
-be described later.
-Note that this behavior is different from the annotation-based programming model, where the
-"most specific" controller method is picked automatically.
+路由函数按顺序进行评估：如果第一个路由不匹配，则评估第二个，依此类推。
+因此，将更具体的路由声明在一般性路由之前是有意义的。
+这也在将路由函数注册为 Infra bean 时很重要，稍后将进行描述。
+请注意，此行为与基于注解的编程模型不同，在该模型中，“最具体”的控制器方法会自动选择。
 
-When using the router function builder, all defined routes are composed into one
-`RouterFunction` that is returned from `build()`.
-There are also other ways to compose multiple router functions together:
+在使用路由函数构建器时，所有定义的路由都被组合成一个 `RouterFunction`，并从 `build()` 返回。
+还有其他将多个路由函数组合在一起的方法：
 
-* `add(RouterFunction)` on the `RouterFunctions.route()` builder
+* `RouterFunctions.route()` 构建器上的 `add(RouterFunction)`
 * `RouterFunction.and(RouterFunction)`
-* `RouterFunction.andRoute(RequestPredicate, HandlerFunction)` -- shortcut for
-`RouterFunction.and()` with nested `RouterFunctions.route()`.
+* `RouterFunction.andRoute(RequestPredicate, HandlerFunction)` -- 使用嵌套的 `RouterFunctions.route()` 的 `RouterFunction.and()` 的快捷方式。
 
-The following example shows the composition of four routes:
+以下示例显示了四个路由的组合：
 
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.function.RequestPredicates.*;
+import static cn.taketoday.web.handler.function.RequestPredicates.*;
 
 PersonRepository repository = ...
 PersonHandler handler = new PersonHandler(repository);
@@ -454,32 +344,22 @@ RouterFunction<ServerResponse> route = route()
   .add(otherRoute) // <4>
   .build();
 ----
-<1> pass:q[`GET /person/{id}`] with an `Accept` header that matches JSON is routed to
-`PersonHandler.getPerson`
-<2> `GET /person` with an `Accept` header that matches JSON is routed to
-`PersonHandler.listPeople`
-<3> `POST /person` with no additional predicates is mapped to
-`PersonHandler.createPerson`, and
-<4> `otherRoute` is a router function that is created elsewhere, and added to the route built.
-======
+<1> 当具有与 JSON 匹配的 `Accept` 头的 pass:q[`GET /person/{id}`] 请求通过时，路由到 `PersonHandler.getPerson`
+<2> 当具有与 JSON 匹配的 `Accept` 头的 `GET /person` 请求通过时，路由到 `PersonHandler.listPeople`
+<3> 当没有其他断言的 `POST /person` 请求映射到 `PersonHandler.createPerson`，以及
+<4> `otherRoute` 是在其他地方创建的路由函数，并添加到构建的路由中。
 
 
 [[nested-routes]]
 === Nested Routes
 
-It is common for a group of router functions to have a shared predicate, for instance a shared
-path.
-In the example above, the shared predicate would be a path predicate that matches `/person`,
-used by three of the routes.
-When using annotations, you would remove this duplication by using a type-level `@RequestMapping`
- annotation that maps to `/person`.
-In WebMvc.fn, path predicates can be shared through the `path` method on the router function builder.
-For instance, the last few lines of the example above can be improved in the following way by using nested routes:
+一组路由函数经常具有共享的断言，例如共享路径。
+在上面的示例中，共享的断言将是一个路径断言，匹配 `/person`，被三个路由使用。
+在使用注解时，您可以通过使用类型级别的 `@RequestMapping` 注解将其映射到 `/person` 来消除此重复。
+在 WebMvc.fn 中，路径断言可以通过路由函数构建器上的 `path` 方法共享。
+例如，通过使用嵌套路由，上面示例的最后几行可以通过以下方式改进：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 RouterFunction<ServerResponse> route = route()
@@ -489,19 +369,13 @@ RouterFunction<ServerResponse> route = route()
     .POST(handler::createPerson))
 .build();
 ----
-<1> Note that second parameter of `path` is a consumer that takes the router builder.
+<1> 请注意，`path` 的第二个参数是一个消费者，它接受路由构建器。
 
-======
+虽然基于路径的嵌套是最常见的，但您可以通过在构建器上使用 `nest` 方法对任何类型的断言进行嵌套。
+上面仍然包含一些重复，即共享的 `Accept` 头断言。
+我们可以通过结合使用 `nest` 方法和 `accept` 进一步改进：
 
-Though path-based nesting is the most common, you can nest on any kind of predicate by using
-the `nest` method on the builder.
-The above still contains some duplication in the form of the shared `Accept`-header predicate.
-We can further improve by using the `nest` method together with `accept`:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 RouterFunction<ServerResponse> route = route()
@@ -513,27 +387,20 @@ RouterFunction<ServerResponse> route = route()
   .build();
 ----
 
-======
-
 
 [[webmvc-fn-serving-resources]]
 == Serving Resources
 
-WebMvc.fn provides built-in support for serving resources.
+WebMvc.fn 提供了内置支持用于提供资源。
 
-NOTE: In addition to the capabilities described below, it is possible to implement even more flexible resource handling thanks to
-{today-framework-api}++/web/mockApi/function/RouterFunctions.html#resources(java.util.function.Function)++[`RouterFunctions#resource(java.util.function.Function)`].
+NOTE: 除了下面描述的功能外，还可以实现更灵活的资源处理，这得益于。
+{today-framework-api}++/web/handler/function/RouterFunctions.html#resources(java.util.function.Function)++[`RouterFunctions#resource(java.util.function.Function)`].
 
 [[webmvc-fn-resource]]
-=== Redirecting to a resource
+=== 重定向到资源
 
-It is possible to redirect requests matching a specified predicate to a resource. This can be useful, for example,
-for handling redirects in Single Page Applications.
+可以将匹配指定谓词的请求重定向到资源。例如，在单页应用程序中处理重定向时可能很有用。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ClassPathResource index = new ClassPathResource("static/index.html");
@@ -543,51 +410,35 @@ RouterFunction<ServerResponse> redirectToIndex = route()
   .resource(spaPredicate, index)
   .build();
 ----
-======
 
 [[webmvc-fn-resources]]
-=== Serving resources from a root location
+=== 从根路径提供资源服务
 
-It is also possible to route requests that match a given pattern to resources relative to a given root location.
+还可以将匹配给定模式的请求路由到相对于给定根位置的资源。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 Resource location = new FileSystemResource("public-resources/");
 RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources/**", location);
 ----
 
-======
-
 
 [[webmvc-fn-running]]
 == Running a Server
 
-You typically run router functions in a xref:web/webmvc/mvc-servlet.adoc[`DispatcherHandler`]-based setup through the
-xref:web/webmvc/mvc-config.adoc[MVC Config], which uses Infra configuration to declare the
-components required to process requests. The MVC Java configuration declares the following
-infrastructure components to support functional endpoints:
+通常，在基于 `DispatcherHandler` 的设置中通过 `MVC Config` 运行路由器函数，该配置使用 Infra 配置声明处理请求所需的组件。
+MVC Java 配置声明以下基础设施组件以支持功能端点：
 
-* `RouterFunctionMapping`: Detects one or more `RouterFunction<?>` beans in the Infra
-configuration, xref:core/beans/annotation-config/autowired.adoc#beans-factory-ordered[orders them], combines them through
-`RouterFunction.andOther`, and routes requests to the resulting composed `RouterFunction`.
-* `HandlerFunctionAdapter`: Simple adapter that lets `DispatcherHandler` invoke
-a `HandlerFunction` that was mapped to a request.
+* `RouterFunctionMapping`：在 Infra 配置中检测一个或多个 `RouterFunction<?>` bean，
+xref:core/beans/annotation-config/autowired.adoc#beans-factory-ordered[对其进行排序]，
+通过 `RouterFunction.andOther` 将它们组合，并将请求路由到生成的组合 `RouterFunction`。
+* `HandlerFunctionAdapter`：简单的适配器，允许 `DispatcherHandler` 调用映射到请求的 `HandlerFunction`。
 
-The preceding components let functional endpoints fit within the `MockDispatcher` request
-processing lifecycle and also (potentially) run side by side with annotated controllers, if
-any are declared. It is also how functional endpoints are enabled by the Infra App Web
-starter.
+上述组件使功能端点适应 `DispatcherHandler` 请求处理生命周期，并且（可能）与已声明的注释控制器并行运行。
+这也是通过 App Web 启动器启用功能端点的方式。
 
-The following example shows a WebFlux Java configuration:
+以下示例显示了一个 Web Java 配置：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -623,25 +474,17 @@ public class WebConfig implements WebMvcConfigurer {
 }
 ----
 
-======
-
-
 
 
 [[webmvc-fn-handler-filter-function]]
 == Filtering Handler Functions
 
-You can filter handler functions by using the `before`, `after`, or `filter` methods on the routing
-function builder.
-With annotations, you can achieve similar functionality by using `@ControllerAdvice`, a `ServletFilter`, or both.
-The filter will apply to all routes that are built by the builder.
-This means that filters defined in nested routes do not apply to "top-level" routes.
-For instance, consider the following example:
+你可以通过在路由函数构建器上使用 `before`、`after` 或 `filter` 方法来过滤处理函数。
+使用注解时，你可以通过使用 `@ControllerAdvice`、`ServletFilter` 或两者来实现类似的功能。
+该过滤器将应用于由构建器构建的所有路由。
+这意味着嵌套路由中定义的过滤器不适用于“顶级”路由。
+例如，请考虑以下示例：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 RouterFunction<ServerResponse> route = route()
@@ -656,26 +499,16 @@ RouterFunction<ServerResponse> route = route()
   .after((request, response) -> logResponse(response)) // <2>
   .build();
 ----
-<1> The `before` filter that adds a custom request header is only applied to the two GET routes.
-<2> The `after` filter that logs the response is applied to all routes, including the nested ones.
+<1> 添加自定义请求头的 `before` 过滤器仅应用于这两个 GET 路由。
+<2> 记录响应的 `after` 过滤器应用于所有路由，包括嵌套的路由。
 
-======
+路由构建器上的 `filter` 方法接受一个 `HandlerFilterFunction`：一个接受 `ServerRequest` 和 `HandlerFunction` 并返回 `ServerResponse` 的函数。
+处理程序函数参数表示链中的下一个元素。
+这通常是被路由到的处理程序，但如果应用了多个过滤器，则还可以是另一个过滤器。
 
+现在我们可以为我们的路由添加一个简单的安全过滤器，假设我们有一个 `SecurityManager` 可以确定特定路径是否被允许。
+以下示例展示了如何实现：
 
-The `filter` method on the router builder takes a `HandlerFilterFunction`: a
-function that takes a `ServerRequest` and `HandlerFunction` and returns a `ServerResponse`.
-The handler function parameter represents the next element in the chain.
-This is typically the handler that is routed to, but it can also be another
-filter if multiple are applied.
-
-Now we can add a simple security filter to our route, assuming that we have a `SecurityManager` that
-can determine whether a particular path is allowed.
-The following example shows how to do so:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 SecurityManager securityManager = ...
@@ -696,13 +529,12 @@ RouterFunction<ServerResponse> route = route()
   })
   .build();
 ----
-======
 
-The preceding example demonstrates that invoking the `next.handle(ServerRequest)` is optional.
-We only let the handler function be run when access is allowed.
 
-Besides using the `filter` method on the router function builder, it is possible to apply a
-filter to an existing router function via `RouterFunction.filter(HandlerFilterFunction)`.
+前面的示例演示了调用 `next.handle(ServerRequest)` 是可选的。
+只有在访问被允许时，我们才允许处理程序函数运行。
 
-NOTE: CORS support for functional endpoints is provided through a dedicated
-xref:web/webmvc-cors.adoc#mvc-cors-filter[`CorsFilter`].
+除了在路由函数构建器上使用 `filter` 方法之外，还可以通过 `RouterFunction.filter(HandlerFilterFunction)` 将过滤器应用于现有的路由函数。
+
+注意：对于功能端点的 CORS 支持是通过专用的 xref:web/webmvc-cors.adoc#mvc-cors-filter[`CorsFilter`] 提供的。
+
