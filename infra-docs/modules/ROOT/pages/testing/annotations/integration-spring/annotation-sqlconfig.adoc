@@ -1,4 +1,4 @@
-[[spring-testing-annotation-sqlconfig]]
+[[infra-testing-annotation-sqlconfig]]
 = `@SqlConfig`
 
 `@SqlConfig` defines metadata that is used to determine how to parse and run SQL scripts

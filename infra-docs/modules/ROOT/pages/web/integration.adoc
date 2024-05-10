@@ -181,7 +181,7 @@ advantages to building an enterprise Java application by using a combination of 
 for the web user interface and the Infra container for the lower layers.
 
 For more information, see Tapestry's dedicated
-https://tapestry.apache.org/integrating-with-spring-framework.html[integration module for Infra].
+https://tapestry.apache.org/integrating-with-today-framework.html[integration module for Infra].
 
 
 

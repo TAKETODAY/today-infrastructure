@@ -1,4 +1,4 @@
-[[spring-mvc-test-server-performing-requests]]
+[[mvc-test-server-performing-requests]]
 = Performing Requests
 
 This section shows how to use MockMvc on its own to perform requests and verify responses.

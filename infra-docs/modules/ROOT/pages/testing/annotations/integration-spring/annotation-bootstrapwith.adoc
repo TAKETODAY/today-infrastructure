@@ -1,4 +1,4 @@
-[[spring-testing-annotation-bootstrapwith]]
+[[infra-testing-annotation-bootstrapwith]]
 = `@BootstrapWith`
 :page-section-summary-toc: 1
 

@@ -57,7 +57,7 @@ parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
 
 
 [[mock-objects-mockApi]]
-=== Servlet API
+=== Mock API
 
 The `cn.taketoday.mock.web` package contains a comprehensive set of Servlet API
 mock objects that are useful for testing web contexts, controllers, and filters. These
@@ -69,7 +69,7 @@ TIP: Since TODAY Framework 6.0, the mock objects in `cn.taketoday.mock.web` are
 based on the Servlet 6.0 API.
 
 The Web MVC Test framework builds on the mock Servlet API objects to provide an
-integration testing framework for Web MVC. See xref:testing/spring-mvc-test-framework.adoc[MockMvc].
+integration testing framework for Web MVC. See xref:testing/mvc-test-framework.adoc[MockMvc].
 
 
 [[mock-objects-web-reactive]]
@@ -103,7 +103,7 @@ Infra includes a number of classes that can help with unit testing. They fall in
 categories:
 
 * xref:testing/unit.adoc#unit-testing-utilities[General Testing Utilities]
-* xref:testing/unit.adoc#unit-testing-spring-mvc[Web MVC Testing Utilities]
+* xref:testing/unit.adoc#unit-testing-mvc[Web MVC Testing Utilities]
 
 
 [[unit-testing-utilities]]
@@ -151,7 +151,7 @@ server for the port it is currently using.
 ====
 
 
-[[unit-testing-spring-mvc]]
+[[unit-testing-mvc]]
 === Web MVC Testing Utilities
 
 The `cn.taketoday.test.web` package contains
@@ -165,4 +165,4 @@ combined with `HttpMockRequestImpl`, `MockHttpSession`, and so on from Infra
 xref:testing/unit.adoc#mock-objects-mockApi[Servlet API mocks]. For thorough integration testing of your
 Web MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
 configuration for Web MVC, use the
-xref:testing/spring-mvc-test-framework.adoc[Web MVC Test Framework] instead.
+xref:testing/mvc-test-framework.adoc[Web MVC Test Framework] instead.

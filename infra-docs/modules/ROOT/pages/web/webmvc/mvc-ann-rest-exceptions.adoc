@@ -186,7 +186,7 @@ NOTE: Unlike other exceptions, the message arguments for
 `MessageSourceResolvable` errors that can also be customized through a
 xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSource]
 resource bundle. See
-xref:core/validation/beanvalidation.adoc#validation-beanvalidation-spring-method-i18n[Customizing Validation Errors]
+xref:core/validation/beanvalidation.adoc#validation-beanvalidation-infra-method-i18n[Customizing Validation Errors]
 for more details.
 
 

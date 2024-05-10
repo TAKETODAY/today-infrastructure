@@ -241,7 +241,7 @@ XML parsing infrastructure automatically picks up your new extension by consumin
 these special properties files, the formats of which are detailed in the next two sections.
 
 
-[[xsd-custom-registration-spring-handlers]]
+[[xsd-custom-registration-infra-handlers]]
 === Writing `META-INF/spring.handlers`
 
 The properties file called `spring.handlers` contains a mapping of XML Schema URIs to
@@ -260,7 +260,7 @@ namespace extension and needs to exactly match exactly the value of the `targetN
 attribute, as specified in your custom XSD schema.
 
 
-[[xsd-custom-registration-spring-schemas]]
+[[xsd-custom-registration-infra-schemas]]
 === Writing 'META-INF/spring.schemas'
 
 The properties file called `spring.schemas` contains a mapping of XML Schema locations

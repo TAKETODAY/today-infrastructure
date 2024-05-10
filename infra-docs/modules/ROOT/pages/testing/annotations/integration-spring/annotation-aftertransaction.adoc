@@ -1,4 +1,4 @@
-[[spring-testing-annotation-aftertransaction]]
+[[infra-testing-annotation-aftertransaction]]
 = `@AfterTransaction`
 
 `@AfterTransaction` indicates that the annotated `void` method should be run after a

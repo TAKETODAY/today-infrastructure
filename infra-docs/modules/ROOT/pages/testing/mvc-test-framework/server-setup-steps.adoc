@@ -1,4 +1,4 @@
-[[spring-mvc-test-server-setup-steps]]
+[[mvc-test-server-setup-steps]]
 = Setup Features
 
 No matter which MockMvc builder you use, all `MockMvcBuilder` implementations provide

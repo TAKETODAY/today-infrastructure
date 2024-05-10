@@ -1,4 +1,4 @@
-[[spring-testing-annotation-beanoverriding]]
+[[infra-testing-annotation-beanoverriding]]
 = Bean Overriding in Tests
 
 Bean Overriding in Tests refers to the ability to override specific beans in the Context
@@ -11,7 +11,7 @@ NOTE: This is intended as a less risky alternative to the practice of registerin
 The Infra Testing Framework provides two sets of annotations presented below. One relies
 purely on Infra, while the second set relies on the Mockito third party library.
 
-[[spring-testing-annotation-beanoverriding-testbean]]
+[[infra-testing-annotation-beanoverriding-testbean]]
 == `@TestBean`
 
 `@TestBean` is used on a test class field to override a specific bean with an instance
@@ -21,7 +21,7 @@ By default, the bean name and the associated static method name are derived from
 annotated field's name, but the annotation allows for specific values to be provided.
 
 The `@TestBean` annotation uses the `REPLACE_DEFINITION`
-xref:#spring-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
+xref:#infra-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
 
 The following example shows how to fully configure the `@TestBean` annotation, with
 explicit values equivalent to the default:
@@ -51,7 +51,7 @@ NOTE: The method to invoke is searched in the test class and any enclosing class
 have, as well as its hierarchy. This typically allows nested test class to rely on the
 method to use in the root test class.
 
-[[spring-testing-annotation-beanoverriding-mockitobean]]
+[[infra-testing-annotation-beanoverriding-mockitobean]]
 == `@MockitoBean` and `@MockitoSpyBean`
 
 `@MockitoBean` and `@MockitoSpyBean` are used on a test class field to override a bean
@@ -64,10 +64,10 @@ but both annotations allows for a specific `name` to be provided. Each annotatio
 defines Mockito-specific attributes to fine-tune the mocking details.
 
 The `@MockitoBean` annotation uses the `CREATE_OR_REPLACE_DEFINITION`
-xref:#spring-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
+xref:#infra-testing-annotation-beanoverriding-extending[strategy for test bean overriding].
 
 The `@MockitoSpyBean` annotation uses the `WRAP_EARLY_BEAN`
-xref:#spring-testing-annotation-beanoverriding-extending[strategy] and the original instance
+xref:#infra-testing-annotation-beanoverriding-extending[strategy] and the original instance
 is wrapped in a Mockito spy.
 
 The following example shows how to configure the bean name for both `@MockitoBean` and
@@ -95,7 +95,7 @@ class OverrideBeanTests {
 ======
 
 
-[[spring-testing-annotation-beanoverriding-extending]]
+[[infra-testing-annotation-beanoverriding-extending]]
 == Extending bean override with a custom annotation
 
 The three annotations introduced above build upon the `@BeanOverride` meta-annotation

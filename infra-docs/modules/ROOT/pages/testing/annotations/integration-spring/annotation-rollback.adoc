@@ -1,4 +1,4 @@
-[[spring-testing-annotation-rollback]]
+[[infra-testing-annotation-rollback]]
 = `@Rollback`
 
 `@Rollback` indicates whether the transaction for a transactional test method should be

@@ -1,4 +1,4 @@
-[[spring-testing-annotation-testexecutionlisteners]]
+[[infra-testing-annotation-testexecutionlisteners]]
 = `@TestExecutionListeners`
 
 `@TestExecutionListeners` is used to register listeners for a particular test class, its

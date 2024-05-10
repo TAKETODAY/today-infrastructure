@@ -9,7 +9,7 @@ development tools, and team familiarity with AOP.
 
 
 
-[[aop-spring-or-aspectj]]
+[[aop-infra-or-aspectj]]
 == Infra AOP or Full AspectJ?
 
 Use the simplest thing that can work. Infra AOP is simpler than using full AspectJ, as

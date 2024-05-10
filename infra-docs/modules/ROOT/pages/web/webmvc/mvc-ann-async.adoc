@@ -66,7 +66,7 @@ public Callable<String> processUpload(final MultipartFile file) {
 ======
 
 The return value can then be obtained by running the given task through the
-xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-spring-mvc[configured] `AsyncTaskExecutor`.
+xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[configured] `AsyncTaskExecutor`.
 
 
 
@@ -111,7 +111,7 @@ Here is a very concise overview of Servlet asynchronous request processing:
   asynchronously produced return value from the `Callable`.
 
 For further background and context, you can also read
-{today-tech-site-blog}/2012/05/07/spring-mvc-3-2-preview-introducing-mockApi-3-async-support[the
+{today-tech-site-blog}/2012/05/07/mvc-3-2-preview-introducing-mockApi-3-async-support[the
 blog posts] that introduced asynchronous request processing support in Web MVC 3.2.
 
 
@@ -330,7 +330,7 @@ TIP: Web MVC supports Reactor and RxJava through the
 
 For streaming to the response, reactive back pressure is supported, but writes to the
 response are still blocking and are run on a separate thread through the
-xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-spring-mvc[configured]
+xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[configured]
 `AsyncTaskExecutor`, to avoid blocking the upstream source such as a `Flux` returned
 from `WebClient`.
 
@@ -420,7 +420,7 @@ In `web.xml` configuration, you can add `<async-supported>true</async-supported>
 `<dispatcher>ASYNC</dispatcher>` to filter mappings.
 
 
-[[mvc-ann-async-configuration-spring-mvc]]
+[[mvc-ann-async-configuration-mvc]]
 === Web MVC
 
 The MVC configuration exposes the following options for asynchronous request processing:

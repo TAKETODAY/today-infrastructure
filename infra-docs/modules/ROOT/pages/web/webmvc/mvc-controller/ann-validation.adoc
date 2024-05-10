@@ -30,7 +30,7 @@ xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder] method in an
 `@Controller` or `@ControllerAdvice`. You can also use multiple validators.
 
 NOTE: If a controller has a class level `@Validated`, then
-xref:core/validation/beanvalidation.adoc#validation-beanvalidation-spring-method[method validation is applied]
+xref:core/validation/beanvalidation.adoc#validation-beanvalidation-infra-method[method validation is applied]
 through an AOP proxy. In order to take advantage of the Web MVC built-in support for
 method validation added in TODAY Framework 6.1, you need to remove the class level
 `@Validated` annotation from the controller.

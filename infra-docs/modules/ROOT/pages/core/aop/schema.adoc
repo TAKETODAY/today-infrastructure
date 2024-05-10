@@ -9,7 +9,7 @@ that syntax and refer the reader to the discussion in the previous section
 of advice parameters.
 
 To use the aop namespace tags described in this section, you need to import the
-`spring-aop` schema, as described in xref:core/appendix/xsd-schemas.adoc[XML Schema-based configuration]
+`today-aop` schema, as described in xref:core/appendix/xsd-schemas.adoc[XML Schema-based configuration]
 . See xref:core/appendix/xsd-schemas.adoc#aop[the AOP schema]
 for how to import the tags in the `aop` namespace.
 

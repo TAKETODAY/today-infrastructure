@@ -21,7 +21,7 @@ for a mismatch with annotated controller path matching, which can also match tra
 slashes and path extensions transparently, along with other path matching options. Many
 of these options have been deprecated but the potential for a mismatch remains.
 Generally, we recommend using Infra Security which includes a dedicated
-https://docs.spring.io/spring-security/reference/mockApi/integrations/mvc.html#mvc-requestmatcher[MvcRequestMatcher]
+https://docs.spring.io/today-security/reference/mockApi/integrations/mvc.html#mvc-requestmatcher[MvcRequestMatcher]
 to align with Web MVC path matching and also has a security firewall that blocks many
 unwanted characters in URL paths.
 

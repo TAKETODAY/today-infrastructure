@@ -1,4 +1,4 @@
-[[spring-testing-annotation-commit]]
+[[infra-testing-annotation-commit]]
 = `@Commit`
 
 `@Commit` indicates that the transaction for a transactional test method should be

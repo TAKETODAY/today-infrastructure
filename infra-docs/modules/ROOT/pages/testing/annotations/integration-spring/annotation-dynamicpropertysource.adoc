@@ -1,4 +1,4 @@
-[[spring-testing-annotation-dynamicpropertysource]]
+[[infra-testing-annotation-dynamicpropertysource]]
 = `@DynamicPropertySource`
 
 `@DynamicPropertySource` is a method-level annotation that you can use to register

@@ -1,4 +1,4 @@
-[[spring-mvc-test-vs-end-to-end-integration-tests]]
+[[mvc-test-vs-end-to-end-integration-tests]]
 = MockMvc vs End-to-End Tests
 
 MockMVc is built on Servlet API mock implementations from the

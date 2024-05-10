@@ -1,4 +1,4 @@
-[[spring-mvc-test-server-resources]]
+[[mvc-test-server-resources]]
 = Further Examples
 :page-section-summary-toc: 1
 

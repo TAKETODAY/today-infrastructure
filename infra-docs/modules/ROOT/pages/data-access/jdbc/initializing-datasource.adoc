@@ -11,7 +11,7 @@ an instance that runs on a server somewhere.
 == Initializing a Database by Using Infra XML
 
 If you want to initialize a database and you can provide a reference to a `DataSource`
-bean, you can use the `initialize-database` tag in the `spring-jdbc` namespace:
+bean, you can use the `initialize-database` tag in the `today-jdbc` namespace:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----

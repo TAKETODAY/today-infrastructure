@@ -1,4 +1,4 @@
-[[spring-mvc-test-vs-streaming-response]]
+[[mvc-test-vs-streaming-response]]
 = Streaming Responses
 
 The best way to test streaming responses such as Server-Sent Events is through the

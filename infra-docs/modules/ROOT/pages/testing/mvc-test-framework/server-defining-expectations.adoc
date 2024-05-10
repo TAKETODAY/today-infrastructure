@@ -1,4 +1,4 @@
-[[spring-mvc-test-server-defining-expectations]]
+[[mvc-test-server-defining-expectations]]
 = Defining Expectations
 
 You can define expectations by appending one or more `andExpect(..)` calls after

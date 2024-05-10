@@ -1,4 +1,4 @@
-[[spring-testing-annotation-contextconfiguration]]
+[[infra-testing-annotation-contextconfiguration]]
 = `@ContextConfiguration`
 
 `@ContextConfiguration` defines class-level metadata that is used to determine how to

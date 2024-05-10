@@ -1,4 +1,4 @@
-[[spring-mvc-test-client]]
+[[mvc-test-client]]
 = Testing Client Applications
 
 You can use client-side tests to test code that internally uses the `RestTemplate`. The
@@ -135,7 +135,7 @@ In the second case, the request is executed through the `ClientHttpRequestFactor
 captured earlier. This generates a response that could e.g. come from an actual remote server,
 depending on how the `RestTemplate` was originally configured.
 
-[[spring-mvc-test-client-static-imports]]
+[[mvc-test-client-static-imports]]
 == Static Imports
 
 As with server-side tests, the fluent API for client-side tests requires a few static
@@ -146,7 +146,7 @@ Assist -> Favorites. That allows using content assist after typing the first cha
 the static method name. Other IDEs (such IntelliJ) may not require any additional
 configuration. Check for the support for code completion on static members.
 
-[[spring-mvc-test-client-resources]]
+[[mvc-test-client-resources]]
 == Further Examples of Client-side REST Tests
 
 Web MVC Test's own tests include

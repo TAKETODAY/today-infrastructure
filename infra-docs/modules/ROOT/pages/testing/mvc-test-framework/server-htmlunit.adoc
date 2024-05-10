@@ -1,8 +1,8 @@
-[[spring-mvc-test-server-htmlunit]]
+[[mvc-test-server-htmlunit]]
 = HtmlUnit Integration
 :page-section-summary-toc: 1
 
-Infra provides integration between xref:testing/spring-mvc-test-framework/server.adoc[MockMvc] and
+Infra provides integration between xref:testing/mvc-test-framework/server.adoc[MockMvc] and
 https://htmlunit.sourceforge.io/[HtmlUnit]. This simplifies performing end-to-end testing
 when using HTML-based views. This integration lets you:
 
