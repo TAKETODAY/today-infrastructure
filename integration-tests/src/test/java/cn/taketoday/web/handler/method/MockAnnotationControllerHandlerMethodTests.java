@@ -88,12 +88,18 @@ import cn.taketoday.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MarshallingHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.mock.api.http.HttpSession;
+import cn.taketoday.mock.api.http.Part;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.mock.web.MockMockConfig;
+import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.SessionManagerOperations;
@@ -139,16 +145,10 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
-import cn.taketoday.mock.api.MockConfig;
-import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpMockResponse;
-import cn.taketoday.mock.api.http.HttpSession;
-import cn.taketoday.mock.api.http.Part;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.security.TestPrincipal;
 import cn.taketoday.web.view.AbstractView;
@@ -748,7 +748,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     MyParameterDispatchingController deserialized =
             SerializationTestUtils.serializeAndDeserialize(webAppContext.getBean(
                     MyParameterDispatchingController.class.getSimpleName(), MyParameterDispatchingController.class));
-    assertThat(deserialized.request).isNotNull();
+    assertThat(deserialized.request).isNull();
     assertThat(deserialized.session).isNotNull();
   }
 
@@ -2808,20 +2808,25 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     private static final long serialVersionUID = 1L;
 
+    @Nullable
     @Autowired
     private transient MockContext mockContext;
 
+    @Nullable
     @Autowired
     private transient MockConfig mockConfig;
 
+    @Nullable
     @Autowired
     private HttpSession session;
 
+    @Nullable
     @Autowired
-    private RequestContext request;
+    private transient RequestContext request;
 
+    @Nullable
     @Autowired
-    private RequestContext webRequest;
+    private transient RequestContext webRequest;
 
     @RequestMapping
     public void myHandle(RequestContext response, RequestContext request) throws IOException {
