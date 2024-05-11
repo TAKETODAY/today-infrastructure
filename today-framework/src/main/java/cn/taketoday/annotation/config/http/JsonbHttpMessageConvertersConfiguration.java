@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.http;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
@@ -31,6 +30,7 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
+import cn.taketoday.stereotype.Component;
 import jakarta.json.bind.Jsonb;
 
 /**
@@ -52,7 +52,7 @@ class JsonbHttpMessageConvertersConfiguration {
   @Conditional(PreferJsonbOrMissingJacksonAndGsonCondition.class)
   static class JsonbHttpMessageConverterConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean
     static JsonbHttpMessageConverter jsonbHttpMessageConverter(Jsonb jsonb) {
       JsonbHttpMessageConverter converter = new JsonbHttpMessageConverter();
@@ -68,8 +68,8 @@ class JsonbHttpMessageConvertersConfiguration {
       super(ConfigurationPhase.REGISTER_BEAN);
     }
 
-    @ConditionalOnProperty(name = HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY,
-                           havingValue = "jsonb")
+    @ConditionalOnProperty(name =
+            HttpMessageConvertersAutoConfiguration.PREFERRED_MAPPER_PROPERTY, havingValue = "jsonb")
     static class JsonbPreferred {
 
     }

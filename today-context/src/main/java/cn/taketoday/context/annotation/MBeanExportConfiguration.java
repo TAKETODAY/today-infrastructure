@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -35,6 +32,7 @@ import cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter;
 import cn.taketoday.jmx.support.RegistrationPolicy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -84,7 +82,7 @@ public class MBeanExportConfiguration implements ImportAware, EnvironmentAware, 
     this.beanFactory = beanFactory;
   }
 
-  @Bean(name = MBEAN_EXPORTER_BEAN_NAME)
+  @Component(name = MBEAN_EXPORTER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public AnnotationMBeanExporter mbeanExporter() {
     AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();

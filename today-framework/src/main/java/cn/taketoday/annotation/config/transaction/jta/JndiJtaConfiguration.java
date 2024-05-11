@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,18 +12,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.transaction.jta;
 
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnJndi;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 
@@ -43,7 +43,7 @@ import cn.taketoday.transaction.jta.JtaTransactionManager;
 @ConditionalOnMissingBean(TransactionManager.class)
 class JndiJtaConfiguration {
 
-  @Bean
+  @Component
   static JtaTransactionManager transactionManager(
           @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
     JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();

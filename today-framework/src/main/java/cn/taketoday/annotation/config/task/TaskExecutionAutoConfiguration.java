@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
@@ -81,7 +80,7 @@ public class TaskExecutionAutoConfiguration {
 
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(ThreadPoolTaskExecutorBuilder.class)
   static ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder(TaskExecutionProperties properties,
           List<ThreadPoolTaskExecutorCustomizer> customizers, ObjectProvider<TaskDecorator> taskDecorator) {

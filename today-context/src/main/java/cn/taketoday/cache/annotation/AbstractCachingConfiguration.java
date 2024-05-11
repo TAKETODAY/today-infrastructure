@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.annotation;
@@ -100,11 +97,11 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
   /**
    * Extract the configuration from the nominated {@link CachingConfigurer}.
    */
-  protected void useCachingConfigurer(CachingConfigurerSupplier cachingConfigurerSupplier) {
-    this.cacheManager = cachingConfigurerSupplier.adapt(CachingConfigurer::cacheManager);
-    this.cacheResolver = cachingConfigurerSupplier.adapt(CachingConfigurer::cacheResolver);
-    this.keyGenerator = cachingConfigurerSupplier.adapt(CachingConfigurer::keyGenerator);
-    this.errorHandler = cachingConfigurerSupplier.adapt(CachingConfigurer::errorHandler);
+  protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
+    this.cacheManager = supplier.adapt(CachingConfigurer::cacheManager);
+    this.cacheResolver = supplier.adapt(CachingConfigurer::cacheResolver);
+    this.keyGenerator = supplier.adapt(CachingConfigurer::keyGenerator);
+    this.errorHandler = supplier.adapt(CachingConfigurer::errorHandler);
   }
 
   protected static class CachingConfigurerSupplier {

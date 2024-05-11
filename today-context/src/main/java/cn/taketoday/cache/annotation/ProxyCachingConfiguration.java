@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.annotation;
@@ -26,9 +23,9 @@ import cn.taketoday.cache.config.CacheManagementConfigUtils;
 import cn.taketoday.cache.interceptor.BeanFactoryCacheOperationSourceAdvisor;
 import cn.taketoday.cache.interceptor.CacheInterceptor;
 import cn.taketoday.cache.interceptor.CacheOperationSource;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@code @Configuration} class that registers the Framework infrastructure beans necessary
@@ -46,7 +43,7 @@ import cn.taketoday.context.annotation.Role;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
 
-  @Bean(name = CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)
+  @Component(name = CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public BeanFactoryCacheOperationSourceAdvisor cacheAdvisor(
           CacheOperationSource cacheOperationSource, CacheInterceptor cacheInterceptor) {
@@ -60,14 +57,14 @@ public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
     return advisor;
   }
 
-  @Bean
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CacheOperationSource cacheOperationSource() {
     // Accept protected @Cacheable etc methods on CGLIB proxies, as of 6.0.
     return new AnnotationCacheOperationSource(false);
   }
 
-  @Bean
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
     CacheInterceptor interceptor = new CacheInterceptor();
