@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -67,9 +66,6 @@ import cn.taketoday.web.multipart.MultipartRequest;
  * @since 2.3.7
  */
 public class MockRequestContext extends RequestContext implements MockIndicator {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public final HttpMockRequest request;
 

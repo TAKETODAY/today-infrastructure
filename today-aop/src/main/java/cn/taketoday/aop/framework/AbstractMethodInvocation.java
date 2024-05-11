@@ -20,7 +20,6 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.io.Serial;
 import java.util.HashMap;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
@@ -35,16 +34,13 @@ import cn.taketoday.util.ObjectUtils;
  * Runtime {@link MethodInterceptor} will automatically match current {@link MethodInvocation}
  * </p>
  *
- * @author TODAY 2021/2/14 21:43
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RuntimeMethodInterceptor
  * @see AttributeAccessorSupport
- * @since 3.0
+ * @since 3.0 2021/2/14 21:43
  */
-public abstract class AbstractMethodInvocation
-        extends AttributeAccessorSupport implements MethodInvocation, Cloneable, ProxyMethodInvocation {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
+public abstract class AbstractMethodInvocation extends AttributeAccessorSupport
+        implements MethodInvocation, Cloneable, ProxyMethodInvocation {
 
   /**
    * Return the proxy that this method invocation was made through.
@@ -141,7 +137,7 @@ public abstract class AbstractMethodInvocation
     }
     catch (CloneNotSupportedException ex) {
       throw new IllegalStateException(
-              "Should be able to clone object of type [" + getClass() + "]: " + ex);
+              "Should be able to clone object of type [%s]: %s".formatted(getClass(), ex));
     }
   }
 

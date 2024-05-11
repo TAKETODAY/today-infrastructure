@@ -17,8 +17,6 @@
 
 package cn.taketoday.core;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,19 +35,12 @@ import cn.taketoday.util.StringUtils;
  * Support class for {@link AttributeAccessor AttributeAccessors}, providing a
  * base implementation of all methods. To be extended by subclasses.
  *
- * <p>
- * {@link Serializable} if subclasses and all attribute values are
- * {@link Serializable}.
- *
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.1.7 2020-02-22 12:47
  */
-public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
+public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
   @Nullable

@@ -299,8 +299,8 @@ class CglibAopProxy implements AopProxy, Serializable {
     enhancer.setInterceptDuringConstruction(false);
     enhancer.setCallbacks(callbacks);
     return this.constructorArgs != null && this.constructorArgTypes != null
-           ? enhancer.create(this.constructorArgTypes, this.constructorArgs)
-           : enhancer.create();
+            ? enhancer.create(this.constructorArgTypes, this.constructorArgs)
+            : enhancer.create();
   }
 
   /**
@@ -325,18 +325,18 @@ class CglibAopProxy implements AopProxy, Serializable {
     Callback targetInterceptor;
     if (exposeProxy) {
       targetInterceptor = (isStatic ? new StaticUnadvisedExposedInterceptor(config.getTargetSource().getTarget())
-                                    : new DynamicUnadvisedExposedInterceptor(config.getTargetSource()));
+              : new DynamicUnadvisedExposedInterceptor(config.getTargetSource()));
     }
     else {
       targetInterceptor = (isStatic ? new StaticUnadvisedInterceptor(config.getTargetSource().getTarget())
-                                    : new DynamicUnadvisedInterceptor(config.getTargetSource()));
+              : new DynamicUnadvisedInterceptor(config.getTargetSource()));
     }
 
     // Choose a "direct to target" dispatcher (used for
     // unadvised calls to static targets that cannot return this).
     Callback targetDispatcher = (isStatic
-                                 ? new StaticDispatcher(config.getTargetSource().getTarget())
-                                 : new SerializableNoOp());
+            ? new StaticDispatcher(config.getTargetSource().getTarget())
+            : new SerializableNoOp());
 
     Callback[] mainCallbacks = new Callback[] {
             aopInterceptor, // for normal advice
@@ -691,9 +691,6 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     @Nullable
     final MethodProxy methodProxy;

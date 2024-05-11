@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.aop.framework;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import java.io.Serial;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -35,13 +32,10 @@ import cn.taketoday.util.ClassUtils;
 import static cn.taketoday.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 
 /**
- * @author TODAY <br>
- * 2018-11-10 13:14
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-11-10 13:14
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final Object proxy;
 

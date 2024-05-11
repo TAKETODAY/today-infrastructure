@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.Serial;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -62,9 +61,6 @@ import cn.taketoday.web.multipart.MultipartRequest;
  * @since 4.0 2023/6/13 23:38
  */
 public abstract class DecoratingRequestContext extends RequestContext {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   protected DecoratingRequestContext() {
     super(null, null);

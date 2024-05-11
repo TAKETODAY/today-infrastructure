@@ -20,7 +20,6 @@ package cn.taketoday.web.handler.function;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serial;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -56,8 +55,8 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.async.AsyncWebRequest;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriBuilder;
@@ -373,9 +372,6 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   static class CheckNotModifiedResponse extends RequestContext {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     private int status = 200;
 

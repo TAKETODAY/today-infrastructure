@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -52,9 +51,6 @@ import cn.taketoday.web.annotation.RequestParam;
  * @since 2.3.7
  */
 public class ResolvableMethodParameter extends AttributeAccessorSupport {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * @since 3.0.1

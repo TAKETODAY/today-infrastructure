@@ -18,6 +18,7 @@
 package cn.taketoday.beans.factory.support;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -61,7 +62,8 @@ import cn.taketoday.util.StringUtils;
  * @see ChildBeanDefinition
  * @since 4.0 2022/3/8 21:11
  */
-public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition, Cloneable {
+public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
+        implements BeanDefinition, Cloneable, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;

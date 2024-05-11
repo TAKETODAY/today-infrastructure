@@ -1103,9 +1103,6 @@ public class RequestContextUtils {
    */
   private static class InjectableRequestContext extends DecoratingRequestContext {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
     @Override
     public RequestContext getDelegate() {
       return RequestContextHolder.getRequired();

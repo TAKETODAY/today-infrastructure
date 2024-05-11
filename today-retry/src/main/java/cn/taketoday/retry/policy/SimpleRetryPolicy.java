@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.retry.policy;
@@ -266,9 +266,6 @@ public class SimpleRetryPolicy implements RetryPolicy {
 
   private static class SimpleRetryContext extends RetryContextSupport {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
-
     public SimpleRetryContext(RetryContext parent) {
       super(parent);
     }
@@ -286,7 +283,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
 
   @Override
   public String toString() {
-    return ClassUtils.getShortName(getClass()) + "[maxAttempts=" + getMaxAttempts() + "]";
+    return "%s[maxAttempts=%d]".formatted(ClassUtils.getShortName(getClass()), getMaxAttempts());
   }
 
 }

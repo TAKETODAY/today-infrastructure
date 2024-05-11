@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -82,9 +81,6 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  */
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Scope identifier for request scope: "request".
