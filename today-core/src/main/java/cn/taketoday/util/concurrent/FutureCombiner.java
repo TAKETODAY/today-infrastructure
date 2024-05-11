@@ -18,6 +18,8 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -62,6 +64,36 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     this.futures = futures;
     this.allMustSucceed = allMustSucceed;
     this.expectedCount = futures.size();
+  }
+
+  /**
+   * Creates a new {@link FutureCombiner} that processes the completed
+   * futures whether they're successful.
+   */
+  public FutureCombiner with(Future<?> future) {
+    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    futures.add(future);
+    return new FutureCombiner(allMustSucceed, futures);
+  }
+
+  /**
+   * Creates a new {@link FutureCombiner} that processes the completed
+   * futures whether they're successful.
+   */
+  public FutureCombiner with(Future<?>... future) {
+    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    Collections.addAll(futures, future);
+    return new FutureCombiner(allMustSucceed, futures);
+  }
+
+  /**
+   * Creates a new {@link FutureCombiner} that processes the completed
+   * futures whether they're successful.
+   */
+  public FutureCombiner with(Collection<Future<?>> future) {
+    LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
+    futures.addAll(future);
+    return new FutureCombiner(allMustSucceed, futures);
   }
 
   /**
