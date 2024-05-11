@@ -17,6 +17,8 @@
 
 package cn.taketoday.retry.context;
 
+import java.io.Serializable;
+
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryPolicy;
@@ -26,7 +28,7 @@ import cn.taketoday.retry.RetryPolicy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RetryContextSupport extends AttributeAccessorSupport implements RetryContext {
+public class RetryContextSupport extends AttributeAccessorSupport implements RetryContext, Serializable {
 
   private final RetryContext parent;
 
