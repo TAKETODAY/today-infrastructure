@@ -7,7 +7,7 @@ addition to Infra AOP if your needs go beyond the facilities offered by Infra AO
 alone.
 
 Infra ships with a small AspectJ aspect library, which is available stand-alone in your
-distribution as `spring-aspects.jar`. You need to add this to your classpath in order
+distribution as `today-aspects.jar`. You need to add this to your classpath in order
 to use the aspects in it. xref:core/aop/using-aspectj.adoc#aop-atconfigurable[Using AspectJ to Dependency Inject Domain Objects with Infra] and xref:core/aop/using-aspectj.adoc#aop-ajlib-other[Other Infra aspects for AspectJ] discuss the
 content of this library and how you can use it. xref:core/aop/using-aspectj.adoc#aop-aj-configure[Configuring AspectJ Aspects by Using Infra IoC] discusses how to
 dependency inject AspectJ aspects that are woven using the AspectJ compiler. Finally,
@@ -22,7 +22,7 @@ that use AspectJ.
 The Infra container instantiates and configures beans defined in your application
 context. It is also possible to ask a bean factory to configure a pre-existing
 object, given the name of a bean definition that contains the configuration to be applied.
-`spring-aspects.jar` contains an annotation-driven aspect that exploits this
+`today-aspects.jar` contains an annotation-driven aspect that exploits this
 capability to allow dependency injection of any object. The support is intended to
 be used for objects created outside of the control of any container. Domain objects
 often fall into this category because they are often created programmatically with the
@@ -103,7 +103,7 @@ set to `true`, Infra validates after configuration that all properties (which
 are not primitives or collections) have been set.
 
 Note that using the annotation on its own does nothing. It is the
-`AnnotationBeanConfigurerAspect` in `spring-aspects.jar` that acts on the presence of
+`AnnotationBeanConfigurerAspect` in `today-aspects.jar` that acts on the presence of
 the annotation. In essence, the aspect says, "after returning from the initialization of
 a new object of a type annotated with `@Configurable`, configure the newly created object
 using Infra in accordance with the properties of the annotation". In this context,
@@ -191,7 +191,7 @@ not been configured by Infra.
 [[aop-ajlib-other]]
 == Other Infra aspects for AspectJ
 
-In addition to the `@Configurable` aspect, `spring-aspects.jar` contains an AspectJ
+In addition to the `@Configurable` aspect, `today-aspects.jar` contains an AspectJ
 aspect that you can use to drive Infra transaction management for types and methods
 annotated with the `@Transactional` annotation. This is primarily intended for users who
 want to use the TODAY Framework's transaction support outside of the Infra container.
@@ -210,12 +210,12 @@ transaction semantics given by the class annotation (if present). Methods of any
 visibility may be annotated, including private methods. Annotating non-public methods
 directly is the only way to get transaction demarcation for the execution of such methods.
 
-TIP: `spring-aspects` provides a similar aspect that offers the
+TIP: `today-aspects` provides a similar aspect that offers the
 exact same features for the standard `jakarta.transaction.Transactional` annotation. Check
 `JtaAnnotationTransactionAspect` for more details.
 
 For AspectJ programmers who want to use the Infra configuration and transaction
-management support but do not want to (or cannot) use annotations, `spring-aspects.jar`
+management support but do not want to (or cannot) use annotations, `today-aspects.jar`
 also contains `abstract` aspects you can extend to provide your own pointcut
 definitions. See the sources for the `AbstractBeanConfigurerAspect` and
 `AbstractTransactionAspect` aspects for more information. As an example, the following
@@ -269,7 +269,7 @@ an instance itself. The following example shows how to use the `factory-method="
 
 Non-singleton aspects are harder to configure. However, it is possible to do so by
 creating prototype bean definitions and using the `@Configurable` support from
-`spring-aspects.jar` to configure the aspect instances once they have bean created by
+`today-aspects.jar` to configure the aspect instances once they have bean created by
 the AspectJ runtime.
 
 If you have some @AspectJ aspects that you want to weave with AspectJ (for example,
@@ -320,7 +320,7 @@ application server environment).
 Further, xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments[in certain environments], this support enables
 load-time weaving without making any modifications to the application server's launch
 script that is needed to add `-javaagent:path/to/aspectjweaver.jar` or (as we describe
-later in this section) `-javaagent:path/to/spring-instrument.jar`. Developers configure
+later in this section) `-javaagent:path/to/today-instrument.jar`. Developers configure
 the application context to enable load-time weaving instead of relying on administrators
 who typically are in charge of the deployment configuration, such as the launch script.
 
@@ -477,14 +477,14 @@ We use the following command to run the `Main` class shown earlier:
 
 [literal,subs="verbatim"]
 ----
-java -javaagent:C:/projects/xyz/lib/spring-instrument.jar com.xyz.Main
+java -javaagent:C:/projects/xyz/lib/today-instrument.jar com.xyz.Main
 ----
 
 The `-javaagent` is a flag for specifying and enabling
 {java-api}/java.instrument/java/lang/instrument/package-summary.html[agents
 to instrument programs that run on the JVM]. The TODAY Framework ships with such an
 agent, the `InstrumentationSavingAgent`, which is packaged in the
-`spring-instrument.jar` that was supplied as the value of the `-javaagent` argument in
+`today-instrument.jar` that was supplied as the value of the `-javaagent` argument in
 the preceding example.
 
 The output from the execution of the `Main` program looks something like the next example.
@@ -593,13 +593,13 @@ documentation]. Because the `aop.xml` file is 100% AspectJ, we do not describe i
 At minimum, you need the following libraries to use the TODAY Framework's support
 for AspectJ LTW:
 
-* `spring-aop.jar`
+* `today-aop.jar`
 * `aspectjweaver.jar`
 
 If you use the xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments-generic[Infra-provided agent to enable instrumentation]
 , you also need:
 
-* `spring-instrument.jar`
+* `today-instrument.jar`
 
 
 [[aop-aj-ltw-spring]]
@@ -639,7 +639,7 @@ to decorate an automatically detected `LoadTimeWeaver`. The exact type of `LoadT
 that is "automatically detected" is dependent upon your runtime environment.
 The following table summarizes various `LoadTimeWeaver` implementations:
 
-[[aop-aj-ltw-spring-env-impls]]
+[[aop-aj-ltw-infra-env-impls]]
 .DefaultContextLoadTimeWeaver LoadTimeWeavers
 |===
 | Runtime Environment| `LoadTimeWeaver` implementation
@@ -654,7 +654,7 @@ The following table summarizes various `LoadTimeWeaver` implementations:
 | `JBossLoadTimeWeaver`
 
 | JVM started with Infra `InstrumentationSavingAgent`
-  (`java -javaagent:path/to/spring-instrument.jar`)
+  (`java -javaagent:path/to/today-instrument.jar`)
 | `InstrumentationLoadTimeWeaver`
 
 | Fallback, expecting the underlying ClassLoader to follow common conventions
@@ -734,7 +734,7 @@ instrumentation. Infra native LTW may leverage those ClassLoader implementations
 to provide AspectJ weaving.
 You can simply enable load-time weaving, as xref:core/aop/using-aspectj.adoc[described earlier].
 Specifically, you do not need to modify the JVM launch script to add
-`-javaagent:path/to/spring-instrument.jar`.
+`-javaagent:path/to/today-instrument.jar`.
 
 Note that on JBoss, you may need to disable the app server scanning to prevent it from
 loading the classes before the application actually starts. A quick workaround is to add
@@ -751,7 +751,7 @@ to your artifact a file named `WEB-INF/jboss-scanning.xml` with the following co
 When class instrumentation is required in environments that are not supported by
 specific `LoadTimeWeaver` implementations, a JVM agent is the general solution.
 For such cases, Infra provides `InstrumentationLoadTimeWeaver` which requires a
-Infra-specific (but very general) JVM agent, `spring-instrument.jar`, autodetected
+Infra-specific (but very general) JVM agent, `today-instrument.jar`, autodetected
 by common `@EnableLoadTimeWeaving` and `<context:load-time-weaver/>` setups.
 
 To use it, you must start the virtual machine with the Infra agent by supplying
@@ -760,7 +760,7 @@ the following JVM options:
 [literal]
 [subs="verbatim"]
 ----
--javaagent:/path/to/spring-instrument.jar
+-javaagent:/path/to/today-instrument.jar
 ----
 
 Note that this requires modification of the JVM launch script, which may prevent you

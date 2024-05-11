@@ -1,4 +1,4 @@
-[[spring-mvc-test-async-requests]]
+[[mvc-test-async-requests]]
 = Async Requests
 
 This section shows how to use MockMvc on its own to test asynchronous request handling.

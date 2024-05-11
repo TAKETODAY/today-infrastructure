@@ -1,4 +1,4 @@
-[[spring-testing-annotation-beforetransaction]]
+[[infra-testing-annotation-beforetransaction]]
 = `@BeforeTransaction`
 
 `@BeforeTransaction` indicates that the annotated `void` method should be run before a

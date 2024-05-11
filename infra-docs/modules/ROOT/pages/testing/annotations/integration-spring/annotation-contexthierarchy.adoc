@@ -1,4 +1,4 @@
-[[spring-testing-annotation-contexthierarchy]]
+[[infra-testing-annotation-contexthierarchy]]
 = `@ContextHierarchy`
 
 `@ContextHierarchy` is a class-level annotation that is used to define a hierarchy of

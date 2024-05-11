@@ -1,36 +1,29 @@
 [[webmvc-client]]
 = REST 客户端
 
-This section describes options for client-side access to REST endpoints.
-
-
+本节描述了客户端访问 REST API 的选项。
 
 
 [[webmvc-restclient]]
 == `RestClient`
 
-`RestClient` is a synchronous HTTP client that exposes a modern, fluent API.
+`RestClient` 是一个同步的 HTTP 客户端，提供了现代、流式 API。
 
-See xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] for more details.
-
-
+详见 xref:integration/rest-clients.adoc#rest-restclient[`RestClient`].
 
 
 [[webmvc-resttemplate]]
 == `RestTemplate`
 
-`RestTemplate` is a synchronous client to perform HTTP requests. It is the original
-Infra REST client and exposes a simple, template-method API over underlying HTTP client
-libraries.
 
-See xref:integration/rest-clients.adoc[REST Endpoints] for details.
+`RestTemplate` 是一个同步的 HTTP 请求客户端。它是最初的 REST 客户端，通过底层的 HTTP 客户端库暴露了一个简单的模板方法 API。
+
+详见 xref:integration/rest-clients.adoc[REST Endpoints].
 
 [[webmvc-http-interface]]
-== HTTP Interface
+== HTTP 接口
 
-The TODAY Frameworks lets you define an HTTP service as a Java interface with HTTP
-exchange methods. You can then generate a proxy that implements this interface and
-performs the exchanges. This helps to simplify HTTP remote access and provides additional
-flexibility for to choose an API style such as synchronous or reactive.
+框架允许您将 HTTP 服务定义为具有 HTTP 交换方法的 Java 接口。
+然后，您可以生成实现此接口并执行交换的代理。这有助于简化 HTTP 远程访问，并提供了额外的灵活性，可以选择同步或响应式的 API 风格。
 
-See xref:integration/rest-clients.adoc#rest-http-interface[REST Endpoints] for details.
+详见 xref:integration/rest-clients.adoc#rest-http-interface[REST Endpoints].

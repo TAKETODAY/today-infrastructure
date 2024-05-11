@@ -1,4 +1,4 @@
-[[spring-testing-annotation-sqlgroup]]
+[[infra-testing-annotation-sqlgroup]]
 = `@SqlGroup`
 
 `@SqlGroup` is a container annotation that aggregates several `@Sql` annotations. You can

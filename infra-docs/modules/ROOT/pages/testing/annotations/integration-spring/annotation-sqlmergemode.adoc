@@ -1,4 +1,4 @@
-[[spring-testing-annotation-sqlmergemode]]
+[[infra-testing-annotation-sqlmergemode]]
 = `@SqlMergeMode`
 
 `@SqlMergeMode` is used to annotate a test class or test method to configure whether

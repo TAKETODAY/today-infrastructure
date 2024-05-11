@@ -1,4 +1,4 @@
-[[spring-testing-annotation-disabledinaotmode]]
+[[infra-testing-annotation-disabledinaotmode]]
 = `@DisabledInAotMode`
 
 `@DisabledInAotMode` signals that an annotated test class is disabled in Infra AOT

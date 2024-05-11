@@ -1,4 +1,4 @@
-[[spring-testing-annotation-contextcustomizerfactories]]
+[[infra-testing-annotation-contextcustomizerfactories]]
 = `@ContextCustomizerFactories`
 
 `@ContextCustomizerFactories` is used to register `ContextCustomizerFactory`

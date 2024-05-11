@@ -112,7 +112,7 @@ public Book findBook(ISBN isbn)
 You do not need to do anything specific to enable the JSR-107 support alongside Infra
 declarative annotation support. Both `@EnableCaching` and the `cache:annotation-driven`
 XML element automatically enable the JCache support if both the JSR-107 API and the
-`spring-context-support` module are present in the classpath.
+`today-context-support` module are present in the classpath.
 
 NOTE: Depending on your use case, the choice is basically yours. You can even mix and
 match services by using the JSR-107 API on some and using Infra own annotations on

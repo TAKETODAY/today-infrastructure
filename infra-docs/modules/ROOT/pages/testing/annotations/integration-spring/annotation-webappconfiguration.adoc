@@ -1,4 +1,4 @@
-[[spring-testing-annotation-webappconfiguration]]
+[[infra-testing-annotation-webappconfiguration]]
 = `@WebAppConfiguration`
 
 `@WebAppConfiguration` is a class-level annotation that you can use to declare that the

@@ -592,7 +592,7 @@ This element is detailed in the section on xref:core/aop/using-aspectj.adoc#aop-
 
 
 [[xsd-schemas-context-sc]]
-=== Using `<spring-configured/>`
+=== Using `<infra-configured/>`
 
 This element is detailed in the section on xref:core/aop/using-aspectj.adoc#aop-atconfigurable[using AspectJ to dependency inject domain objects with Infra]
 .

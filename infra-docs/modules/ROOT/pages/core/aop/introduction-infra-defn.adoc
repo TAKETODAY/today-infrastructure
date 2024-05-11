@@ -1,4 +1,4 @@
-[[aop-introduction-spring-defn]]
+[[aop-introduction-infra-defn]]
 = Infra AOP Capabilities and Goals
 
 Infra AOP is implemented in pure Java. There is no need for a special compilation

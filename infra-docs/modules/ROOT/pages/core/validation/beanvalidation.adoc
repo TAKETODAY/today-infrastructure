@@ -101,7 +101,7 @@ using its default bootstrap mechanism. A Bean Validation provider, such as the H
 Validator, is expected to be present in the classpath and is automatically detected.
 
 
-[[validation-beanvalidation-spring-inject]]
+[[validation-beanvalidation-infra-inject]]
 === Inject Jakarta Validator
 
 `LocalValidatorFactoryBean` implements both `jakarta.validation.ValidatorFactory` and
@@ -128,7 +128,7 @@ public class MyService {
 ======
 
 
-[[validation-beanvalidation-spring-inject-adapter]]
+[[validation-beanvalidation-infra-inject-adapter]]
 === Inject Infra Validator
 
 In addition to implementing `jakarta.validation.Validator`, `LocalValidatorFactoryBean`
@@ -162,7 +162,7 @@ passed into the `validate` method.
 
 
 
-[[validation-beanvalidation-spring-constraints]]
+[[validation-beanvalidation-infra-constraints]]
 === Configure Custom Constraints
 
 Each bean validation constraint consists of two parts:
@@ -221,7 +221,7 @@ As the preceding example shows, a `ConstraintValidator` implementation can have 
 `@Autowired` as any other Infra bean.
 
 
-[[validation-beanvalidation-spring-method]]
+[[validation-beanvalidation-infra-method]]
 == Infra-driven Method Validation
 
 You can integrate the method validation feature of Bean Validation into a
@@ -275,7 +275,7 @@ xref:web/webmvc/mvc-controller/ann-validation.adoc[Validation] and
 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses] sections.
 
 
-[[validation-beanvalidation-spring-method-exceptions]]
+[[validation-beanvalidation-infra-method-exceptions]]
 === Method Validation Exceptions
 
 By default, `jakarta.validation.ConstraintViolationException` is raised with the set of
@@ -323,7 +323,7 @@ implements `cn.taketoday.validation.Errors` and exposes validation errors as
 ``FieldError``s.
 
 
-[[validation-beanvalidation-spring-method-i18n]]
+[[validation-beanvalidation-infra-method-i18n]]
 === Customizing Validation Errors
 
 The adapted `MessageSourceResolvable` errors can be turned into error messages to
@@ -389,7 +389,7 @@ Max.degrees=You cannot provide more than {1} {0}
 ----
 
 
-[[validation-beanvalidation-spring-other]]
+[[validation-beanvalidation-infra-other]]
 === Additional Configuration Options
 
 The default `LocalValidatorFactoryBean` configuration suffices for most

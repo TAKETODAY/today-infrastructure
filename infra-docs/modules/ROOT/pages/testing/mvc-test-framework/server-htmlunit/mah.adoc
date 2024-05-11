@@ -1,10 +1,10 @@
-[[spring-mvc-test-server-htmlunit-mah]]
+[[mvc-test-server-htmlunit-mah]]
 = MockMvc and HtmlUnit
 
 This section describes how to integrate MockMvc and HtmlUnit. Use this option if you want
 to use the raw HtmlUnit libraries.
 
-[[spring-mvc-test-server-htmlunit-mah-setup]]
+[[mvc-test-server-htmlunit-mah-setup]]
 == MockMvc and HtmlUnit Setup
 
 First, make sure that you have included a test dependency on
@@ -26,14 +26,14 @@ void setup(WebApplicationContext context) {
 ----
 
 NOTE: This is a simple example of using `MockMvcWebClientBuilder`. For advanced usage,
-see xref:testing/spring-mvc-test-framework/server-htmlunit/mah.adoc#spring-mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
+see xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
 
 This ensures that any URL that references `localhost` as the server is directed to our
 `MockMvc` instance without the need for a real HTTP connection. Any other URL is
 requested by using a network connection, as normal. This lets us easily test the use of
 CDNs.
 
-[[spring-mvc-test-server-htmlunit-mah-usage]]
+[[mvc-test-server-htmlunit-mah-usage]]
 == MockMvc and HtmlUnit Usage
 
 Now we can use HtmlUnit as we normally would but without the need to deploy our
@@ -46,7 +46,7 @@ message with the following:
 ----
 
 NOTE: The default context path is `""`. Alternatively, we can specify the context path,
-as described in xref:testing/spring-mvc-test-framework/server-htmlunit/mah.adoc#spring-mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
+as described in xref:testing/mvc-test-framework/server-htmlunit/mah.adoc#mvc-test-server-htmlunit-mah-advanced-builder[Advanced `MockMvcWebClientBuilder`].
 
 Once we have a reference to the `HtmlPage`, we can then fill out the form and submit it
 to create a message, as the following example shows:
@@ -78,7 +78,7 @@ assertions use the {assertj-docs}[AssertJ] library:
 
 
 The preceding code improves on our
-xref:testing/spring-mvc-test-framework/server-htmlunit/why.adoc#spring-mvc-test-server-htmlunit-mock-mvc-test[MockMvc test] in a number of ways.
+xref:testing/mvc-test-framework/server-htmlunit/why.adoc#mvc-test-server-htmlunit-mock-mvc-test[MockMvc test] in a number of ways.
 First, we no longer have to explicitly verify our form and then create a request that
 looks like the form. Instead, we request the form, fill it out, and submit it, thereby
 significantly reducing the overhead.
@@ -90,7 +90,7 @@ the behavior of JavaScript within our pages.
 See the https://htmlunit.sourceforge.io/gettingStarted.html[HtmlUnit documentation] for
 additional information about using HtmlUnit.
 
-[[spring-mvc-test-server-htmlunit-mah-advanced-builder]]
+[[mvc-test-server-htmlunit-mah-advanced-builder]]
 == Advanced `MockMvcWebClientBuilder`
 
 In the examples so far, we have used `MockMvcWebClientBuilder` in the simplest way
@@ -155,5 +155,5 @@ This is more verbose, but, by building the `WebClient` with a `MockMvc` instance
 the full power of MockMvc at our fingertips.
 
 TIP: For additional information on creating a `MockMvc` instance, see
-xref:testing/spring-mvc-test-framework/server-setup-options.adoc[Setup Choices].
+xref:testing/mvc-test-framework/server-setup-options.adoc[Setup Choices].
 

@@ -1,4 +1,4 @@
-[[spring-testing-annotation-sql]]
+[[infra-testing-annotation-sql]]
 = `@Sql`
 
 `@Sql` is used to annotate a test class or test method to configure SQL scripts to be run

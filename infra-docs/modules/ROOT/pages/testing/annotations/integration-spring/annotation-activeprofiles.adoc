@@ -1,4 +1,4 @@
-[[spring-testing-annotation-activeprofiles]]
+[[infra-testing-annotation-activeprofiles]]
 = `@ActiveProfiles`
 
 `@ActiveProfiles` is a class-level annotation that is used to declare which bean

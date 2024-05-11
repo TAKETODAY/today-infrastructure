@@ -1,4 +1,4 @@
-[[spring-jcl]]
+[[infra-log]]
 = Logging
 
 下面的例子通过 `cn.taketoday.logging.LoggerFactory` 获取 `Logger` 对象；

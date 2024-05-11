@@ -6,7 +6,7 @@ container by means of an AspectJ aspect. To do so, first annotate your classes
 (and optionally your classes' methods) with the `@Transactional` annotation,
 and then link (weave) your application with the
 `cn.taketoday.transaction.aspectj.AnnotationTransactionAspect` defined in the
-`spring-aspects.jar` file. You must also configure the aspect with a transaction
+`today-aspects.jar` file. You must also configure the aspect with a transaction
 manager. You can use the TODAY Framework's IoC container to take care of
 dependency-injecting the aspect. The simplest way to configure the transaction
 management aspect is to use the `<tx:annotation-driven/>` element and specify the `mode`

@@ -1,4 +1,4 @@
-[[spring-mvc-test-framework]]
+[[mvc-test-framework]]
 = MockMvc
 :page-section-summary-toc: 1
 

@@ -1,4 +1,4 @@
-[[spring-testing-annotation-recordapplicationevents]]
+[[infra-testing-annotation-recordapplicationevents]]
 = `@RecordApplicationEvents`
 :page-section-summary-toc: 1
 

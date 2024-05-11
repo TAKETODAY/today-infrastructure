@@ -1,27 +1,23 @@
 [[test]]
 = 测试
 
-This section summarizes the options available in `today-test` for Web MVC applications.
+本节总结了 `today-test` 在 Web MVC 应用程序中提供的选项。
 
-* Servlet API Mocks: Mock implementations of Servlet API contracts for unit testing controllers,
-filters, and other web components. See xref:testing/unit.adoc#mock-objects-mockApi[Servlet API]
-mock objects for more details.
+* Mock API: 用于单元测试控制器、过滤器和其他 Web 组件的 Mock API 合约的模拟实现。
+有关详细信息，请参阅 xref:testing/unit.adoc#mock-objects-mockApi[Mock API] 模拟对象。
 
-* TestContext Framework: Support for loading Infra configuration in JUnit and TestNG tests,
-including efficient caching of the loaded configuration across test methods and support for
-loading a `WebApplicationContext` with a `MockContextImpl`.
-See xref:testing/testcontext-framework.adoc[TestContext Framework] for more details.
+* TestContext Framework: 支持在 JUnit 和 TestNG 测试中加载 Infra 配置，
+包括在测试方法之间高效缓存加载的配置，并支持使用 `MockContextImpl` 加载 `WebApplicationContext`。
+有关详细信息，请参阅 xref:testing/testcontext-framework.adoc[TestContext Framework]。
 
-* Web MVC Test: A framework, also known as `MockMvc`, for testing annotated controllers
-through the `MockDispatcher` (that is, supporting annotations), complete with the
-Web MVC infrastructure but without an HTTP server.
-See xref:testing/spring-mvc-test-framework.adoc[Web MVC Test] for more details.
+* Web MVC Test: 一个框架，也称为 `MockMvc`，用于通过 `MockDispatcher`（即支持注解）
+测试带有完整 Web MVC 基础设施但没有 HTTP 服务器的注解控制器。有关详细信息，
+请参阅 xref:testing/mvc-test-framework.adoc[Web MVC Test]。
 
-* Client-side REST: `today-test` provides a `MockRestServiceServer` that you can use as
-a mock server for testing client-side code that internally uses the `RestTemplate`.
-See xref:testing/spring-mvc-test-client.adoc[Client REST Tests] for more details.
+* Client-side REST: `today-test` 提供了一个 `MockRestServiceServer`，
+您可以将其用作用于测试内部使用 `RestTemplate` 的客户端代码的模拟服务器。有关详细信息，
+请参阅 xref:testing/mvc-test-client.adoc[客户端 REST 测试]。
 
-* `WebTestClient`: Built for testing WebFlux applications, but it can also be used for
-end-to-end integration testing, to any server, over an HTTP connection. It is a
-non-blocking, reactive client and is well suited for testing asynchronous and streaming
-scenarios. See xref:testing/webtestclient.adoc[`WebTestClient`] for more details.
+* `WebTestClient`: 专为测试 WebFlux 应用程序设计，但也可用于端到端集成测试，连接到任何服务器的 HTTP 连接。
+它是一个非阻塞、反应式客户端，非常适合测试异步和流式场景。有关详细信息，请参阅 xref:testing/webtestclient.adoc[`WebTestClient`]。
+

@@ -1,4 +1,4 @@
-[[spring-testing-annotation-testpropertysource]]
+[[infra-testing-annotation-testpropertysource]]
 = `@TestPropertySource`
 
 `@TestPropertySource` is a class-level annotation that you can use to configure the

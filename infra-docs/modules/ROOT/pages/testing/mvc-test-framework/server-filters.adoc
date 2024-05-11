@@ -1,4 +1,4 @@
-[[spring-mvc-test-server-filters]]
+[[mvc-test-server-filters]]
 = Filter Registrations
 :page-section-summary-toc: 1
 

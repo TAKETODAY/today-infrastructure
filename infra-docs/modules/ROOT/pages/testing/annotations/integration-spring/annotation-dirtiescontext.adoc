@@ -1,4 +1,4 @@
-[[spring-testing-annotation-dirtiescontext]]
+[[infra-testing-annotation-dirtiescontext]]
 = `@DirtiesContext`
 
 `@DirtiesContext` indicates that the underlying Infra `ApplicationContext` has been

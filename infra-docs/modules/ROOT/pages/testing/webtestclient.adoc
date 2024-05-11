@@ -41,7 +41,7 @@ For Web MVC, use the following which delegates to the
 {today-framework-api}/test/web/mockApi/setup/StandaloneMockMvcBuilder.html[StandaloneMockMvcBuilder]
 to load infrastructure equivalent to the xref:web/webmvc/mvc-config.adoc[WebMvc Java config],
 registers the given controller(s), and creates an instance of
-xref:testing/spring-mvc-test-framework.adoc[MockMvc] to handle requests:
+xref:testing/mvc-test-framework.adoc[MockMvc] to handle requests:
 
 [tabs]
 ======
@@ -66,7 +66,7 @@ and response objects, without a running server.
 
 For Web MVC, use the following where the Infra `ApplicationContext` is passed to
 {today-framework-api}/test/web/mockApi/setup/MockMvcBuilders.html#webAppContextSetup-cn.taketoday.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup]
-to create a xref:testing/spring-mvc-test-framework.adoc[MockMvc] instance to handle
+to create a xref:testing/mvc-test-framework.adoc[MockMvc] instance to handle
 requests:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
