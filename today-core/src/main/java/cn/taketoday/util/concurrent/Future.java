@@ -857,10 +857,20 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Create a new async result which exposes the given value
-   * from {@link java.util.concurrent.Future#get()}.
+   * from {@link Future#get()}.
+   *
+   * @see Future#get()
+   */
+  public static <V> Future<V> ok() {
+    return new CompleteFuture<>(defaultExecutor, null, null);
+  }
+
+  /**
+   * Create a new async result which exposes the given value
+   * from {@link Future#get()}.
    *
    * @param result the value to expose
-   * @see java.util.concurrent.Future#get()
+   * @see Future#get()
    */
   public static <V> Future<V> ok(@Nullable V result) {
     return new CompleteFuture<>(defaultExecutor, result, null);
@@ -868,12 +878,12 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Create a new async result which exposes the given value
-   * from {@link java.util.concurrent.Future#get()}.
+   * from {@link Future#get()}.
    *
    * @param result the value to expose
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
-   * @see java.util.concurrent.Future#get()
+   * @see Future#get()
    */
   public static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new CompleteFuture<>(executor, result, null);

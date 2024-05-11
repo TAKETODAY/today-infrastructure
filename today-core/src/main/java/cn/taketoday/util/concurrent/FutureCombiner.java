@@ -180,7 +180,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   @SuppressWarnings("unchecked")
   public Future<Void> combine(@Nullable Executor executor) {
     if (expectedCount == 0) {
-      return Future.ok(null);
+      return Future.ok();
     }
     var settable = new SettableFuture<Void>(executor);
     for (Future future : futures) {
