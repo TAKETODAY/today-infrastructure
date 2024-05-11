@@ -69,6 +69,8 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   /**
    * Creates a new {@link FutureCombiner} that processes the completed
    * futures whether they're successful.
+   *
+   * @since 5.0
    */
   public FutureCombiner with(Future<?> future) {
     LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
@@ -79,6 +81,8 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   /**
    * Creates a new {@link FutureCombiner} that processes the completed
    * futures whether they're successful.
+   *
+   * @since 5.0
    */
   public FutureCombiner with(Future<?>... future) {
     LinkedList<Future<?>> futures = new LinkedList<>(this.futures);
@@ -89,6 +93,8 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   /**
    * Creates a new {@link FutureCombiner} that processes the completed
    * futures whether they're successful.
+   *
+   * @since 5.0
    */
   public FutureCombiner with(Collection<Future<?>> future) {
     LinkedList<Future<?>> futures = new LinkedList<>(this.futures);

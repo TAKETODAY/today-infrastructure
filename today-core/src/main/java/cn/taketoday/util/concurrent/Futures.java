@@ -47,6 +47,11 @@ final class Futures {
 
   private static final PassThrough<?> PASS_THROUGH = new PassThrough<>();
 
+  /**
+   * @since 5.0
+   */
+  static final CompleteFuture okFuture = new CompleteFuture(Future.defaultExecutor, null, null);
+
   private static final FutureContextListener propagateCancel = new FutureContextListener<Future<Object>, Future<Object>>() {
 
     @Override

@@ -860,9 +860,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * from {@link Future#get()}.
    *
    * @see Future#get()
+   * @since 5.0
    */
+  @SuppressWarnings({ "unchecked" })
   public static <V> Future<V> ok() {
-    return new CompleteFuture<>(defaultExecutor, null, null);
+    return Futures.okFuture;
   }
 
   /**
