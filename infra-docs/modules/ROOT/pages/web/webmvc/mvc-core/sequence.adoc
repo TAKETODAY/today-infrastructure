@@ -60,11 +60,6 @@ initialization parameters (`init-param` elements) to the Servlet declaration in 
   The exception can then be caught with a `HandlerExceptionResolver` (for example, by using an
   `@ExceptionHandler` controller method) and handled as any others.
 
-  As of 6.1, this property is set to `true` and deprecated.
-
-  Note that, if xref:web/webmvc/mvc-config/default-servlet-handler.adoc[default mockApi handling]  is
-  also configured, unresolved requests are always forwarded to the default mockApi
-  and a 404 is never raised.
 |===
 
 
