@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -29,6 +26,7 @@ import java.util.Arrays;
 import cn.taketoday.aop.framework.StandardProxy;
 import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -41,6 +39,7 @@ import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.core.ClassGenerator;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
+import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
@@ -108,12 +107,18 @@ class ConfigurationClassEnhancer {
       }
       return configClass;
     }
-    Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
-    if (log.isTraceEnabled()) {
-      log.trace("Successfully enhanced {}; enhanced class name is: {}",
-              configClass.getName(), enhancedClass.getName());
+    try {
+      Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
+      if (log.isTraceEnabled()) {
+        log.trace("Successfully enhanced %s; enhanced class name is: %s".formatted(configClass.getName(), enhancedClass.getName()));
+      }
+      return enhancedClass;
     }
-    return enhancedClass;
+    catch (CodeGenerationException ex) {
+      throw new BeanDefinitionStoreException("Could not enhance configuration class [" + configClass.getName() +
+              "]. Consider declaring @Configuration(proxyBeanMethods=false) without inter-bean references " +
+              "between @Bean methods on the configuration class, avoiding the need for CGLIB enhancement.", ex);
+    }
   }
 
   /**
@@ -359,7 +364,7 @@ class ConfigurationClassEnhancer {
           }
         }
         Object beanInstance = useArgs ? beanFactory.getBean(beanName, beanMethodArgs)
-                                      : beanFactory.getBean(beanName);
+                : beanFactory.getBean(beanName);
         if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
           if (beanInstance == null) { // maybe null from factory-method
             if (log.isDebugEnabled()) {

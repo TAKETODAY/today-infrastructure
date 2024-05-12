@@ -244,7 +244,10 @@ public abstract class BytecodeCompiler {
 
     // No defineClass variant available at all?
     if (c == null) {
-      throw newException(className, t);
+      throw new CodeGenerationException("No compatible defineClass mechanism detected: " +
+              "JVM should be started with --add-opens=java.base/java.lang=ALL-UNNAMED " +
+              "for ClassLoader.defineClass to be accessible. On the module path, " +
+              "you may not be able to define this CGLIB-generated class at all.", t);
     }
 
     // Force static initializers to run.
