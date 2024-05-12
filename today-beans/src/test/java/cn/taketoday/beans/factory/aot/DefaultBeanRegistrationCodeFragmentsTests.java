@@ -49,6 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -65,6 +66,28 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   private final GenerationContext generationContext = new TestGenerationContext();
 
   private final StandardBeanFactory beanFactory = new StandardBeanFactory();
+
+  @Test
+  public void getTargetWithInstanceSupplier() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(SimpleBean.class);
+    beanDefinition.setInstanceSupplier(SimpleBean::new);
+    RegisteredBean registeredBean = registerTestBean(beanDefinition);
+    BeanRegistrationCodeFragments codeFragments = createInstance(registeredBean);
+    assertThatIllegalStateException().isThrownBy(() -> codeFragments.getTarget(registeredBean))
+            .withMessageContaining("Error processing bean with name 'testBean': instance supplier is not supported");
+  }
+
+  @Test
+  public void getTargetWithInstanceSupplierAndResourceDescription() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(SimpleBean.class);
+    beanDefinition.setInstanceSupplier(SimpleBean::new);
+    beanDefinition.setResourceDescription("my test resource");
+    RegisteredBean registeredBean = registerTestBean(beanDefinition);
+    BeanRegistrationCodeFragments codeFragments = createInstance(registeredBean);
+    assertThatIllegalStateException().isThrownBy(() -> codeFragments.getTarget(registeredBean))
+            .withMessageContaining("Error processing bean with name 'testBean' defined in my test resource: "
+                    + "instance supplier is not supported");
+  }
 
   @Test
   void getTargetOnConstructor() {
@@ -130,6 +153,7 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   }
 
   @Test
+    // gh-32609
   void getTargetOnMethodFromInterface() {
     this.beanFactory.registerBeanDefinition("configuration",
             new RootBeanDefinition(DefaultSimpleBeanContract.class));
@@ -262,8 +286,12 @@ class DefaultBeanRegistrationCodeFragmentsTests {
           @Nullable Executable constructorOrFactoryMethod) {
     RootBeanDefinition beanDefinition = new RootBeanDefinition();
     beanDefinition.setTargetType(beanType);
-    this.beanFactory.registerBeanDefinition("testBean",
-            applyConstructorOrFactoryMethod(beanDefinition, constructorOrFactoryMethod));
+    return registerTestBean(applyConstructorOrFactoryMethod(
+            beanDefinition, constructorOrFactoryMethod));
+  }
+
+  private RegisteredBean registerTestBean(RootBeanDefinition beanDefinition) {
+    this.beanFactory.registerBeanDefinition("testBean", beanDefinition);
     return RegisteredBean.of(this.beanFactory, "testBean");
   }
 
