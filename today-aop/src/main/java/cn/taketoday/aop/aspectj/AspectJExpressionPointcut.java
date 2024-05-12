@@ -167,24 +167,29 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
   @Override
   public ClassFilter getClassFilter() {
-    obtainPointcutExpression();
+    checkExpression();
     return this;
   }
 
   @Override
   public MethodMatcher getMethodMatcher() {
-    obtainPointcutExpression();
+    checkExpression();
     return this;
   }
 
   /**
-   * Check whether this pointcut is ready to match,
-   * lazily building the underlying AspectJ pointcut expression.
+   * Check whether this pointcut is ready to match.
    */
-  private PointcutExpression obtainPointcutExpression() {
+  private void checkExpression() {
     if (getExpression() == null) {
       throw new IllegalStateException("Must set property 'expression' before attempting to match");
     }
+  }
+
+  /**
+   * Lazily build the underlying AspectJ pointcut expression.
+   */
+  private PointcutExpression obtainPointcutExpression() {
     if (this.pointcutExpression == null) {
       this.pointcutClassLoader = determinePointcutClassLoader();
       this.pointcutExpression = buildPointcutExpression(this.pointcutClassLoader);
@@ -258,19 +263,19 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
   @Override
   public boolean matches(Class<?> targetClass) {
-    PointcutExpression pointcutExpression = obtainPointcutExpression();
     try {
-      try {
-        return pointcutExpression.couldMatchJoinPointsInType(targetClass);
+      return obtainPointcutExpression().couldMatchJoinPointsInType(targetClass);
+    }
+    catch (ReflectionWorldException ex) {
+      log.debug("PointcutExpression matching rejected target class - trying fallback expression", ex);
+      // Actually this is still a "maybe" - treat the pointcut as dynamic if we don't know enough yet
+      PointcutExpression fallbackExpression = getFallbackPointcutExpression(targetClass);
+      if (fallbackExpression != null) {
+        return fallbackExpression.couldMatchJoinPointsInType(targetClass);
       }
-      catch (ReflectionWorldException ex) {
-        log.debug("PointcutExpression matching rejected target class - trying fallback expression", ex);
-        // Actually this is still a "maybe" - treat the pointcut as dynamic if we don't know enough yet
-        PointcutExpression fallbackExpression = getFallbackPointcutExpression(targetClass);
-        if (fallbackExpression != null) {
-          return fallbackExpression.couldMatchJoinPointsInType(targetClass);
-        }
-      }
+    }
+    catch (IllegalArgumentException | IllegalStateException ex) {
+      throw ex;
     }
     catch (Throwable ex) {
       log.debug("PointcutExpression matching rejected target class", ex);
@@ -280,7 +285,6 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
   @Override
   public boolean matches(Method method, Class<?> targetClass, boolean hasIntroductions) {
-    obtainPointcutExpression();
     ShadowMatch shadowMatch = getTargetShadowMatch(method, targetClass);
 
     // Special handling for this, target, @this, @target, @annotation
@@ -299,7 +303,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
       }
       // A match test returned maybe - if there are any subtype sensitive variables
       // involved in the test (this, target, at_this, at_target, at_annotation) then
-      // we say this is not a match as in Infra there will never be a different
+      // we say this is not a match as in Spring there will never be a different
       // runtime subtype.
       RuntimeTestWalker walker = getRuntimeTestWalker(shadowMatch);
       return (!walker.testsSubtypeSensitiveVars() || walker.testTargetInstanceOfResidue(targetClass));
@@ -319,7 +323,6 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   @Override
   public boolean matches(MethodInvocation invocation) {
     Method method = invocation.getMethod();
-    obtainPointcutExpression();
     ShadowMatch shadowMatch = getTargetShadowMatch(method, invocation.getThis().getClass());
 
     // Bind Infra AOP proxy to AspectJ "this" and Infra AOP target to AspectJ target,

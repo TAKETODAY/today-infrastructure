@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj;
@@ -177,7 +177,7 @@ public class AspectJExpressionPointcutTests {
   public void testFriendlyErrorOnNoLocationClassMatching() {
     AspectJExpressionPointcut pc = new AspectJExpressionPointcut();
     assertThatIllegalStateException().isThrownBy(() ->
-                    pc.matches(ITestBean.class))
+                    pc.getClassFilter().matches(ITestBean.class))
             .withMessageContaining("expression");
   }
 
@@ -185,7 +185,7 @@ public class AspectJExpressionPointcutTests {
   public void testFriendlyErrorOnNoLocation2ArgMatching() {
     AspectJExpressionPointcut pc = new AspectJExpressionPointcut();
     assertThatIllegalStateException().isThrownBy(() ->
-                    pc.matches(getAge, ITestBean.class))
+                    pc.getMethodMatcher().matches(getAge, ITestBean.class))
             .withMessageContaining("expression");
   }
 
@@ -196,7 +196,7 @@ public class AspectJExpressionPointcutTests {
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(null, getAge, ITestBean.class, new Object[] {});
 
     assertThatIllegalStateException().isThrownBy(() ->
-                    pc.matches(invocation))
+                    pc.getMethodMatcher().matches(invocation))
             .withMessageContaining("expression");
   }
 
@@ -255,8 +255,7 @@ public class AspectJExpressionPointcutTests {
   @Test
   public void testInvalidExpression() {
     String expression = "execution(void cn.taketoday.beans.testfixture.beans.TestBean.setSomeNumber(Number) && args(Double)";
-    assertThatIllegalArgumentException().isThrownBy(
-            getPointcut(expression)::getClassFilter);  // call to getClassFilter forces resolution
+    assertThatIllegalArgumentException().isThrownBy(() -> getPointcut(expression).getClassFilter().matches(Object.class));
   }
 
   private TestBean getAdvisedProxy(String pointcutExpression, CallCountingInterceptor interceptor) {
@@ -286,9 +285,7 @@ public class AspectJExpressionPointcutTests {
   @Test
   public void testWithUnsupportedPointcutPrimitive() {
     String expression = "call(int cn.taketoday.beans.testfixture.beans.TestBean.getAge())";
-    assertThatExceptionOfType(UnsupportedPointcutPrimitiveException.class).isThrownBy(() ->
-                    getPointcut(expression).getClassFilter()) // call to getClassFilter forces resolution...
-            .satisfies(ex -> assertThat(ex.getUnsupportedPrimitive()).isEqualTo(PointcutPrimitive.CALL));
+    assertThat(getPointcut(expression).getClassFilter().matches(Object.class)).isFalse();
   }
 
   @Test
