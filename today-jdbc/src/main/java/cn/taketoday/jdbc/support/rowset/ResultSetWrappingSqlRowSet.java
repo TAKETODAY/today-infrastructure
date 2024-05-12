@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.support.rowset;
@@ -35,6 +32,7 @@ import java.util.Map;
 import cn.taketoday.jdbc.InvalidResultSetAccessException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * The default implementation of Framework's {@link SqlRowSet} interface, wrapping a
@@ -62,6 +60,7 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ResultSet
  * @see javax.sql.rowset.CachedRowSet
  * @see cn.taketoday.jdbc.core.JdbcTemplate#queryForRowSet
@@ -101,13 +100,22 @@ public class ResultSetWrappingSqlRowSet implements SqlRowSet {
       ResultSetMetaData rsmd = resultSet.getMetaData();
       if (rsmd != null) {
         int columnCount = rsmd.getColumnCount();
-        this.columnLabelMap = CollectionUtils.newHashMap(columnCount);
+        this.columnLabelMap = CollectionUtils.newHashMap(columnCount * 2);
         for (int i = 1; i <= columnCount; i++) {
           String key = rsmd.getColumnLabel(i);
           // Make sure to preserve first matching column for any given name,
           // as defined in ResultSet's type-level javadoc (lines 81 to 83).
           if (!this.columnLabelMap.containsKey(key)) {
             this.columnLabelMap.put(key, i);
+          }
+          // Also support column names prefixed with table name
+          // as in {table_name}.{column.name}.
+          String table = rsmd.getTableName(i);
+          if (StringUtils.isNotEmpty(table)) {
+            key = table + "." + rsmd.getColumnName(i);
+            if (!this.columnLabelMap.containsKey(key)) {
+              this.columnLabelMap.put(key, i);
+            }
           }
         }
       }
