@@ -2,7 +2,7 @@
 = Functional Endpoints
 
 Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型，在该模型中，函数用于路由和处理请求，设计为不可变性。
-它是基于注解编程模型的另一种选择，但在其他方面运行在相同的 xref:web/webmvc/mvc-servlet.adoc[DispatcherHandler] 上。
+它是基于注解编程模型的另一种选择，但在其他方面运行在相同的 xref:web/webmvc/mvc-core.adoc[DispatcherHandler] 上。
 
 
 [[webmvc-fn-overview]]

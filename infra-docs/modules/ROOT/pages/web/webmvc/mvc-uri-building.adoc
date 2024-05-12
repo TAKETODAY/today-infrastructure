@@ -7,7 +7,7 @@ include::partial$web/web-uris.adoc[leveloffset=+1]
 
 
 
-[[mvc-servleturicomponentsbuilder]]
+[[mvc-uricomponentsbuilder]]
 == Relative Servlet Requests
 
 You can use `ServletUriComponentsBuilder` to create URIs relative to the current request,

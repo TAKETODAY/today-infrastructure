@@ -1,7 +1,7 @@
 [[mvc-multipart-forms]]
 = Multipart
 
-After a `MultipartResolver` has been xref:web/webmvc/mvc-servlet/multipart.adoc[enabled], the content of POST
+After a `MultipartResolver` has been xref:web/webmvc/mvc-core/multipart.adoc[enabled], the content of POST
 requests with `multipart/form-data` is parsed and accessible as regular request
 parameters. The following example accesses one regular form field and one uploaded
 file:

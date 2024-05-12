@@ -4,7 +4,7 @@
 
 Web MVC 中视图技术的使用是可插拔的。无论您决定使用 Thymeleaf、Groovy Markup Templates、JSP 还是其他技术，
 主要是一种配置更改的问题。本章介绍了与 Web MVC 集成的视图技术。我们假设您已经熟悉了
-xref:web/webmvc/mvc-servlet/viewresolver.adoc[视图解析]。
+xref:web/webmvc/mvc-core/viewresolver.adoc[视图解析]。
 
 
 WARNING: Web MVC 应用程序的视图存在于该应用程序的内部信任边界内。视图可以访问应用程序上下文中的所有 bean。

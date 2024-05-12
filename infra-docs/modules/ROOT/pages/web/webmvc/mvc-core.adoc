@@ -1,16 +1,13 @@
-[[mvc-servlet]]
-= DispatcherServlet
+[[mvc-dispatcher]]
+= DispatcherHandler
 
-Servlet API 实现的 Web MVC 使用中央 `MockApi` -> `MockDispatcher`
-提供共享算法的模式用于请求处理，而实际工作由可配置的委托组件执行。该模型非常灵活，扩展性极强，支持多种工作流程。
+Web MVC 提供共享算法的模式用于请求处理，而实际工作由可配置的委托组件执行。该模型非常灵活，扩展性极强，支持多种工作流程。
 
-`MockDispatcher` 与任何 `MockApi` 一样，需要根据通过使用 Java 配置或在 `web.xml` 中符合 Servlet 规范。
-
-反过来，`MockDispatcher` 使用基础设施配置来发现请求映射、视图解析、异常所需的委托组件处理，
-xref:web/webmvc/mvc-servlet/special-bean-types.adoc[and more].
+反过来理解，`DispatcherHandler` 使用 IoC 配置来发现 `HandlerMapping` 、`ViewResolver`、异常所需的委托组件处理，
+xref:web/webmvc/mvc-core/special-bean-types.adoc[and more].
 
 以下 Java 配置注册和初始化 `MockDispatcher` 示例，由 Servlet 容器自动检测
-(see xref:web/webmvc/mvc-servlet/container-config.adoc[Servlet 配置]):
+(see xref:web/webmvc/mvc-core/container-config.adoc[Servlet 配置]):
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

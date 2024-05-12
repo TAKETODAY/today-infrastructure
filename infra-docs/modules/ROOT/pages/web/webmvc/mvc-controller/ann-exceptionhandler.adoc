@@ -105,7 +105,7 @@ exception is propagated through the remaining resolution chain, as though
 the given `@ExceptionHandler` method would not have matched in the first place.
 
 Support for `@ExceptionHandler` methods in Web MVC is built on the `MockDispatcher`
-level, xref:web/webmvc/mvc-servlet/exceptionhandlers.adoc[HandlerExceptionResolver] mechanism.
+level, xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionResolver] mechanism.
 
 
 [[mvc-ann-exceptionhandler-args]]

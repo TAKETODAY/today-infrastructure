@@ -405,20 +405,6 @@ The asynchronous request processing feature must be enabled at the Servlet conta
 The MVC configuration also exposes several options for asynchronous requests.
 
 
-[[mvc-ann-async-configuration-servlet3]]
-=== Servlet Container
-
-Filter and Servlet declarations have an `asyncSupported` flag that needs to be set to `true`
-to enable asynchronous request processing. In addition, Filter mappings should be
-declared to handle the `ASYNC` `jakarta.mockApi.DispatchType`.
-
-In Java configuration, when you use `AbstractAnnotationConfigDispatcherServletInitializer`
-to initialize the Servlet container, this is done automatically.
-
-In `web.xml` configuration, you can add `<async-supported>true</async-supported>` to the
-`MockDispatcher` and to `Filter` declarations and add
-`<dispatcher>ASYNC</dispatcher>` to filter mappings.
-
 
 [[mvc-ann-async-configuration-mvc]]
 === Web MVC
