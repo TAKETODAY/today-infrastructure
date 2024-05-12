@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -30,7 +27,6 @@ import org.aspectj.lang.annotation.DeclareParents;
 import org.aspectj.lang.annotation.Pointcut;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -51,7 +47,6 @@ import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.ConvertingComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
@@ -70,6 +65,7 @@ import cn.taketoday.util.comparator.InstanceComparator;
  * @author Ramnivas Laddad
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -89,10 +85,9 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
     // invokes proceed() in a `try` block and only invokes the @After advice method
     // in a corresponding `finally` block.
     Comparator<Method> adviceKindComparator = new ConvertingComparator<>(
-            new InstanceComparator<>(
-                    Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class),
-            (Converter<Method, Annotation>) method -> {
-              AspectJAnnotation<?> ann = findAspectJAnnotationOnMethod(method);
+            new InstanceComparator<>(Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class),
+            method -> {
+              AspectJAnnotation ann = findAspectJAnnotationOnMethod(method);
               return ann != null ? ann.getAnnotation() : null;
             });
     Comparator<Method> methodNameComparator = new ConvertingComparator<>(Method::getName);
@@ -218,8 +213,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
 
   @Nullable
   private AspectJExpressionPointcut getPointcut(Method candidateAdviceMethod, Class<?> candidateAspectClass) {
-    AspectJAnnotation<?> aspectJAnnotation =
-            findAspectJAnnotationOnMethod(candidateAdviceMethod);
+    AspectJAnnotation aspectJAnnotation = findAspectJAnnotationOnMethod(candidateAdviceMethod);
     if (aspectJAnnotation == null) {
       return null;
     }
@@ -241,8 +235,7 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
     Class<?> candidateAspectClass = aspectFactory.getAspectMetadata().getAspectClass();
     validate(candidateAspectClass);
 
-    AspectJAnnotation<?> aspectJAnnotation =
-            findAspectJAnnotationOnMethod(candidateAdviceMethod);
+    AspectJAnnotation aspectJAnnotation = findAspectJAnnotationOnMethod(candidateAdviceMethod);
     if (aspectJAnnotation == null) {
       return null;
     }
@@ -250,9 +243,8 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
     // If we get here, we know we have an AspectJ method.
     // Check that it's an AspectJ-annotated class
     if (!isAspect(candidateAspectClass)) {
-      throw new AopConfigException("Advice must be declared inside an aspect type: " +
-              "Offending method '" + candidateAdviceMethod + "' in class [" +
-              candidateAspectClass.getName() + "]");
+      throw new AopConfigException("Advice must be declared inside an aspect type: Offending method '%s' in class [%s]"
+              .formatted(candidateAdviceMethod, candidateAspectClass.getName()));
     }
 
     if (logger.isDebugEnabled()) {

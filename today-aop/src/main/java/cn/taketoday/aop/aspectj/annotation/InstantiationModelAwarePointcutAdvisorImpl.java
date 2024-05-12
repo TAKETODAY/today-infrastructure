@@ -211,8 +211,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
    * creation of the advice.
    */
   private void determineAdviceType() {
-    AspectJAnnotation<?> aspectJAnnotation =
-            AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(this.aspectJAdviceMethod);
+    AspectJAnnotation aspectJAnnotation = AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(this.aspectJAdviceMethod);
     if (aspectJAnnotation == null) {
       this.isBeforeAdvice = false;
       this.isAfterAdvice = false;
