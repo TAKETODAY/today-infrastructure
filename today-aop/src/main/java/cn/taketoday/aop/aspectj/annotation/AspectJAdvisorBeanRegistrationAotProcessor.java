@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
+
+import java.lang.reflect.Field;
 
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.hint.MemberCategory;
@@ -23,6 +25,7 @@ import cn.taketoday.beans.factory.aot.BeanRegistrationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCode;
 import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -35,18 +38,30 @@ import cn.taketoday.util.ClassUtils;
  */
 class AspectJAdvisorBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 
+  private static final String AJC_MAGIC = "ajc$";
+
   private static final boolean aspectjPresent = ClassUtils.isPresent("org.aspectj.lang.annotation.Pointcut",
           AspectJAdvisorBeanRegistrationAotProcessor.class.getClassLoader());
 
   @Override
+  @Nullable
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     if (aspectjPresent) {
       Class<?> beanClass = registeredBean.getBeanClass();
-      if (AbstractAspectJAdvisorFactory.compiledByAjc(beanClass)) {
+      if (compiledByAjc(beanClass)) {
         return new AspectJAdvisorContribution(beanClass);
       }
     }
     return null;
+  }
+
+  private static boolean compiledByAjc(Class<?> clazz) {
+    for (Field field : clazz.getDeclaredFields()) {
+      if (field.getName().startsWith(AJC_MAGIC)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static class AspectJAdvisorContribution implements BeanRegistrationAotContribution {
