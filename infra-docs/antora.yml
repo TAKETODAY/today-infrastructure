@@ -2,7 +2,7 @@ name: framework
 version: true
 title: TODAY 框架文档
 nav:
-  - modules/nav.adoc
+  - modules/ROOT/nav-root.adoc
 
 ext:
   collector:
