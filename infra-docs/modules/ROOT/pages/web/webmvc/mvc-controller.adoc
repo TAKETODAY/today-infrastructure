@@ -7,22 +7,14 @@ Web 模块 提供了基于注解的编程模型，其中 `@Controller` 和 `@Res
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@Controller
+@RestController
 public class HelloController {
 
   @GET("/hello")
-  public String handle(Model model) {
-    model.addAttribute("message", "Hello World!");
-    return "index";
+  public String handle() {
+    return "Hello World!";
   }
 }
 ----
 
-In the preceding example, the method accepts a `Model` and returns a view name as a `String`,
-but many other options exist and are explained later in this chapter.
-
-TIP: Guides and tutorials on {today-tech-site-guides}[today-tech.cn] use the annotation-based
-programming model described in this section.
-
-
-
+上面的例子中方法返回 `String`，还有很多选项在本章节将会介绍。

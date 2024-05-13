@@ -1,58 +1,43 @@
 [[mvc-special-bean-types]]
-= Special Bean Types
+= 特殊 Bean 类型
 
-The `MockDispatcher` delegates to special beans to process requests and render the
-appropriate responses. By "`special beans`" we mean Infra-managed `Object` instances that
-implement framework contracts. Those usually come with built-in contracts, but
-you can customize their properties and extend or replace them.
+`DispatcherHandler` 委托给特殊的 bean 来处理请求并渲染适当的响应。
+这里的 `"特殊 beans"` 指的是由基础设施管理的实现框架合同的 `Object` 实例。
+这些通常具有内置的合同，但您可以自定义它们的属性并扩展或替换它们。
 
-The following table lists the special beans detected by the `MockDispatcher`:
+以下表格列出了 `DispatcherHandler` 检测到的特殊 bean：
 
 [[mvc-webappctx-special-beans-tbl]]
 [cols="1,2", options="header"]
 |===
-| Bean type| Explanation
+| Bean 类型 | 解释
 
 | `HandlerMapping`
-| Map a request to a handler along with a list of
-  xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[interceptors] for pre- and post-processing.
-  The mapping is based on some criteria, the details of which vary by `HandlerMapping`
-  implementation.
+| 将请求映射到处理程序，并与一组 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截器]
+一起用于前后处理。映射基于某些标准，其详细信息因 `HandlerMapping` 实现而异。
 
-  The two main `HandlerMapping` implementations are `RequestMappingHandlerMapping`
-  (which supports `@RequestMapping` annotated methods) and `SimpleUrlHandlerMapping`
-  (which maintains explicit registrations of URI path patterns to handlers).
+两个主要的 `HandlerMapping` 实现是 `RequestMappingHandlerMapping`
+（支持 `@RequestMapping` 注解的方法）和 `SimpleUrlHandlerMapping`
+（将 URI 路径模式的显式注册保持为处理程序）。
 
 | `HandlerAdapter`
-| Help the `MockDispatcher` to invoke a handler mapped to a request, regardless of
-  how the handler is actually invoked. For example, invoking an annotated controller
-  requires resolving annotations. The main purpose of a `HandlerAdapter` is
-  to shield the `MockDispatcher` from such details.
+| 帮助 `DispatcherHandler` 调用映射到请求的处理程序，而不管处理程序实际上是如何调用的。
+例如，调用带有注解的控制器需要解析注解。`HandlerAdapter` 的主要目的是保护 `DispatcherHandler` 免受此类细节的影响。
 
-| xref:web/webmvc/mvc-core/exceptionhandlers.adoc[`HandlerExceptionResolver`]
-| Strategy to resolve exceptions, possibly mapping them to handlers, to HTML error
-  views, or other targets. See xref:web/webmvc/mvc-core/exceptionhandlers.adoc[Exceptions].
+| xref:web/webmvc/mvc-core/exceptionhandlers.adoc[`HandlerExceptionHandler`]
+| 处理异常的策略接口，可能将它们映射到处理程序，HTML 错误视图，或其他目标。参见 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]。
 
 | xref:web/webmvc/mvc-core/viewresolver.adoc[`ViewResolver`]
-| Resolve logical `String`-based view names returned from a handler to an actual `View`
-  with which to render to the response. See xref:web/webmvc/mvc-core/viewresolver.adoc[View Resolution] and xref:web/webmvc-view.adoc[View Technologies].
+| 解析处理程序返回的基于逻辑的 `String` 类型的视图名称，以确定要用于呈现响应的实际 `View`。
+参见 xref:web/webmvc/mvc-core/viewresolver.adoc[视图解析] 和 xref:web/webmvc-view.adoc[View 技术]。
 
 | xref:web/webmvc/mvc-core/localeresolver.adoc[`LocaleResolver`], xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[LocaleContextResolver]
-| Resolve the `Locale` a client is using and possibly their time zone, in order to be able
-  to offer internationalized views. See xref:web/webmvc/mvc-core/localeresolver.adoc[Locale].
+| 解析客户端正在使用的 `Locale` 和可能的时区，以便能够提供国际化视图。参见 xref:web/webmvc/mvc-core/localeresolver.adoc[Locale]。
 
-| xref:web/webmvc/mvc-core/themeresolver.adoc[`ThemeResolver`]
-| Resolve themes your web application can use -- for example, to offer personalized layouts.
-  See xref:web/webmvc/mvc-core/themeresolver.adoc[Themes].
+| xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[`RedirectModelManager`]
+| 存储和检索 "`input`" 和 "`output`" `RedirectModel`，可用于在重定向时将属性从一个请求传递到另一个请求。
+参见 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Redirect Attributes]。
 
-| xref:web/webmvc/mvc-core/multipart.adoc[`MultipartResolver`]
-| Abstraction for parsing a multi-part request (for example, browser form file upload) with
-  the help of some multipart parsing library. See xref:web/webmvc/mvc-core/multipart.adoc[Multipart Resolver].
-
-| xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[`FlashMapManager`]
-| Store and retrieve the "`input`" and the "`output`" `FlashMap` that can be used to pass
-  attributes from one request to another, usually across a redirect.
-  See xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash Attributes].
 |===
 
 
