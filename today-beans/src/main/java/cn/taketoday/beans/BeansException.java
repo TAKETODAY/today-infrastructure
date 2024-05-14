@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
 
-import java.io.Serial;
-
-import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -38,19 +32,6 @@ import cn.taketoday.core.NestedRuntimeException;
  * @since 3.0
  */
 public class BeansException extends NestedRuntimeException {
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  public BeansException() { }
-
-  /**
-   * Construct a {@code BeansException} with the specified root cause.
-   *
-   * @param cause the nested exception
-   */
-  public BeansException(Throwable cause) {
-    super(cause);
-  }
 
   /**
    * Create a new BeansException with the specified message.
@@ -70,17 +51,6 @@ public class BeansException extends NestedRuntimeException {
    */
   public BeansException(String msg, Throwable cause) {
     super(msg, cause);
-  }
-
-  public static String getDesc(BeanDefinition def) {
-    if (def != null) {
-      String resourceDescription = def.getResourceDescription();
-      if (resourceDescription == null) {
-        return "";
-      }
-      return " defined in " + resourceDescription;
-    }
-    return "";
   }
 
 }

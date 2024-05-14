@@ -17,9 +17,8 @@
 
 package cn.taketoday.jdbc;
 
-import java.io.Serial;
-
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Represents an exception thrown by today-jdbc.
@@ -29,20 +28,12 @@ import cn.taketoday.dao.DataAccessException;
  */
 public class PersistenceException extends DataAccessException {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  public PersistenceException() { }
-
-  public PersistenceException(String message) {
+  public PersistenceException(@Nullable String message) {
     super(message);
   }
 
-  public PersistenceException(String message, Throwable cause) {
+  public PersistenceException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
-  public PersistenceException(Throwable cause) {
-    super(cause);
-  }
 }

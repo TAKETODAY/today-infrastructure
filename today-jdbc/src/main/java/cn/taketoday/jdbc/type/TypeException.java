@@ -20,6 +20,7 @@ package cn.taketoday.jdbc.type;
 import java.io.Serial;
 
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author Clinton Begin
@@ -31,20 +32,12 @@ public class TypeException extends PersistenceException {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public TypeException() {
-    super();
-  }
-
-  public TypeException(String message) {
+  public TypeException(@Nullable String message) {
     super(message);
   }
 
-  public TypeException(String message, Throwable cause) {
+  public TypeException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
-  }
-
-  public TypeException(Throwable cause) {
-    super(cause);
   }
 
 }

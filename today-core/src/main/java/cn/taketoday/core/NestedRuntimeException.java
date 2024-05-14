@@ -17,8 +17,6 @@
 
 package cn.taketoday.core;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 
@@ -38,15 +36,11 @@ import cn.taketoday.util.ExceptionUtils;
  * @since 3.0 2021/2/2 11:12
  */
 public abstract class NestedRuntimeException extends RuntimeException implements NestedException {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   static {
     // Eagerly load the ExceptionUtils class to avoid classloader deadlock
     ExceptionUtils.class.getName();
   }
-
-  public NestedRuntimeException() { }
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message.
@@ -58,15 +52,6 @@ public abstract class NestedRuntimeException extends RuntimeException implements
   }
 
   /**
-   * Construct a {@code NestedRuntimeException} with the specified nested exception.
-   *
-   * @param cause the nested exception
-   */
-  public NestedRuntimeException(@Nullable Throwable cause) {
-    super(cause);
-  }
-
-  /**
    * Construct a {@code NestedRuntimeException} with the specified detail message
    * and nested exception.
    *
@@ -75,6 +60,23 @@ public abstract class NestedRuntimeException extends RuntimeException implements
    */
   public NestedRuntimeException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
+  }
+
+  /**
+   * Constructs a new {@code NestedRuntimeException} with the specified detail
+   * message, cause, suppression enabled or disabled, and writable
+   * stack trace enabled or disabled.
+   *
+   * @param message the detail message.
+   * @param cause the cause.  (A {@code null} value is permitted,
+   * and indicates that the cause is nonexistent or unknown.)
+   * @param enableSuppression whether suppression is enabled or disabled
+   * @param writableStackTrace whether the stack trace should be writable
+   * @since 5.0
+   */
+  protected NestedRuntimeException(@Nullable String message, @Nullable Throwable cause,
+          boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
   }
 
   /**

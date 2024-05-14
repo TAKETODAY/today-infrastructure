@@ -150,7 +150,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
         return key.factory.createHandler(param);
       }
       catch (SQLException e) {
-        throw new PersistenceException(e);
+        throw new PersistenceException(null, e);
       }
     }
   };

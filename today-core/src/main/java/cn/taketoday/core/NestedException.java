@@ -17,6 +17,8 @@
 
 package cn.taketoday.core;
 
+import java.io.Serializable;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,7 +32,9 @@ import cn.taketoday.lang.Nullable;
  * @see NestedRuntimeException
  * @since 4.0 2024/3/14 10:37
  */
-public interface NestedException {
+public interface NestedException extends Serializable {
+
+  long serialVersionUID = 1L;
 
   /**
    * Return the detail message, including the message from the nested exception

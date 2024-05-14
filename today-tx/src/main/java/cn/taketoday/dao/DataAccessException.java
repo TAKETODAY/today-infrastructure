@@ -39,20 +39,14 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public abstract class DataAccessException extends NestedRuntimeException {
-
-  /**
-   * Constructor for DataAccessException.
-   */
-  public DataAccessException() { }
 
   /**
    * Constructor for DataAccessException.
    *
    * @param msg the detail message
    */
-  public DataAccessException(String msg) {
+  public DataAccessException(@Nullable String msg) {
     super(msg);
   }
 
@@ -65,16 +59,6 @@ public abstract class DataAccessException extends NestedRuntimeException {
    */
   public DataAccessException(@Nullable String msg, @Nullable Throwable cause) {
     super(msg, cause);
-  }
-
-  /**
-   * Constructor for DataAccessException.
-   *
-   * @param cause the root cause (usually from using a underlying
-   * data access API such as JDBC)
-   */
-  public DataAccessException(Throwable cause) {
-    super(cause);
   }
 
 }

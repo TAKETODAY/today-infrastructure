@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.beans.factory;
-
-import java.io.Serial;
 
 import cn.taketoday.beans.FatalBeanException;
 
@@ -32,22 +27,15 @@ import cn.taketoday.beans.FatalBeanException;
  * can throw any exception.
  *
  * @author Juergen Hoeller
- * @author TODAY 2020-02-18 19:10
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanFactoryAware#setBeanFactory
  * @see InitializingBean#afterPropertiesSet
+ * @since 2020-02-18 19:10
  */
 public class BeanInitializationException extends FatalBeanException {
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  public BeanInitializationException() { }
 
   public BeanInitializationException(String message) {
     super(message);
-  }
-
-  public BeanInitializationException(Throwable cause) {
-    super(cause);
   }
 
   public BeanInitializationException(String message, Throwable cause) {
