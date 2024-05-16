@@ -34,10 +34,10 @@ jobs:
         uses: actions/checkout@v4.1.2
 
       - name: Setup JDK 21
-        uses: oracle-actions/setup-java@v1
+        uses: actions/setup-java@v4.2.1
         with:
-          website: jdk.java.net
-          release: ${{ matrix.java }}
+          java-version: ${{ matrix.java }}
+          distribution: adopt
 
       - name: Print JDK Version
         run: java -version
