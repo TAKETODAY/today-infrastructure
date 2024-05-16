@@ -17,38 +17,43 @@
 
 package cn.taketoday.web.handler;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
+import java.beans.PropertyChangeEvent;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 
 import cn.taketoday.beans.ConversionNotSupportedException;
 import cn.taketoday.beans.TypeMismatchException;
+import cn.taketoday.context.support.StaticMessageSource;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
-import cn.taketoday.http.server.MockServerHttpRequest;
 import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.stereotype.Controller;
-import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.MapBindingResult;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -73,11 +78,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ResponseEntityExceptionHandlerTests {
 
-  private ResponseEntityExceptionHandler exceptionHandlerSupport = new ApplicationExceptionHandler();
+  private final ResponseEntityExceptionHandler exceptionHandler = new ApplicationExceptionHandler();
 
   private SimpleHandlerExceptionHandler defaultExceptionResolver = new SimpleHandlerExceptionHandler();
 
-  private HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "/");
+  private HttpMockRequest mockRequest = new HttpMockRequestImpl("GET", "/");
 
   private MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
@@ -85,7 +90,7 @@ class ResponseEntityExceptionHandlerTests {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void supportsAllDefaultHandlerExceptionResolverExceptionTypes() throws Exception {
+  void supportsAllDefaultHandlerExceptionResolverExceptionTypes() throws Exception {
 
     ExceptionHandler annotation = ResponseEntityExceptionHandler.class
             .getMethod("handleException", Exception.class, RequestContext.class)
@@ -101,132 +106,201 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void httpRequestMethodNotSupported() {
-    List<String> supported = Arrays.asList("POST", "DELETE");
-    Exception ex = new HttpRequestMethodNotSupportedException("GET", supported);
+  void httpRequestMethodNotSupported() {
+    ResponseEntity<Object> entity =
+            testException(new HttpRequestMethodNotSupportedException("GET", List.of("POST", "DELETE")));
 
-    ResponseEntity<Object> responseEntity = testException(ex);
-    assertThat(responseEntity.getHeaders().getAllow()).isEqualTo(Set.of(HttpMethod.POST, HttpMethod.DELETE));
+    assertThat(entity.getHeaders().getFirst(HttpHeaders.ALLOW)).isEqualTo("POST,DELETE");
   }
 
   @Test
-  public void handleHttpMediaTypeNotSupported() {
-    List<MediaType> acceptable = Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML);
-    Exception ex = new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_JSON, acceptable);
+  void httpMediaTypeNotSupported() {
+    ResponseEntity<Object> entity = testException(new HttpMediaTypeNotSupportedException(
+            MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML)));
 
-    ResponseEntity<Object> responseEntity = testException(ex);
-    assertThat(responseEntity.getHeaders().getAccept()).isEqualTo(acceptable);
-    assertThat(responseEntity.getHeaders().getAcceptPatch()).isEmpty();
+    assertThat(entity.getHeaders().getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
+    assertThat(entity.getHeaders().getAcceptPatch()).isEmpty();
   }
 
   @Test
-  public void patchHttpMediaTypeNotSupported() {
+  void patchHttpMediaTypeNotSupported() {
     this.mockRequest = new HttpMockRequestImpl("PATCH", "/");
     this.request = new MockRequestContext(null, this.mockRequest, this.mockResponse);
 
-    List<MediaType> acceptable = Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML);
-    Exception ex = new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_JSON, acceptable, HttpMethod.PATCH);
+    ResponseEntity<Object> entity = testException(
+            new HttpMediaTypeNotSupportedException(
+                    MediaType.APPLICATION_JSON,
+                    List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML),
+                    HttpMethod.PATCH));
 
-    ResponseEntity<Object> responseEntity = testException(ex);
-    assertThat(responseEntity.getHeaders().getAccept()).isEqualTo(acceptable);
-    assertThat(responseEntity.getHeaders().getAcceptPatch()).isEqualTo(acceptable);
+    HttpHeaders headers = entity.getHeaders();
+    assertThat(headers.getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
+    assertThat(headers.getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
+    assertThat(headers.getFirst(HttpHeaders.ACCEPT_PATCH)).isEqualTo("application/atom+xml, application/xml");
   }
 
   @Test
-  public void httpMediaTypeNotAcceptable() {
-    Exception ex = new HttpMediaTypeNotAcceptableException("");
-    testException(ex);
+  void httpMediaTypeNotAcceptable() {
+    testException(new HttpMediaTypeNotAcceptableException(""));
   }
 
   @Test
-  public void missingPathVariable() throws NoSuchMethodException {
-    Method method = getClass().getDeclaredMethod("handle", String.class);
-    MethodParameter parameter = new MethodParameter(method, 0);
-    Exception ex = new MissingPathVariableException("param", parameter);
-    testException(ex);
+  void missingPathVariable() throws NoSuchMethodException {
+    testException(new MissingPathVariableException("param",
+            new MethodParameter(getClass().getDeclaredMethod("handle", String.class), 0)));
   }
 
   @Test
-  public void missingMockRequestParameter() {
-    Exception ex = new MissingRequestParameterException("param", "cn/taketoday/core/testfixture/type");
-    testException(ex);
+  void missingServletRequestParameter() {
+    testException(new MissingRequestParameterException("param", "type"));
   }
 
   @Test
-  public void mockRequestBindingException() {
-    Exception ex = new RequestBindingException("message");
-    testException(ex);
+  void servletRequestBindingException() {
+    testException(new RequestBindingException("message"));
   }
 
   @Test
-  public void conversionNotSupported() {
-    Exception ex = new ConversionNotSupportedException(new Object(), Object.class, null);
-    testException(ex);
+  void errorResponseProblemDetailViaMessageSource() {
+    try {
+      Locale locale = Locale.UK;
+      LocaleContextHolder.setLocale(locale);
+
+      String type = "https://example.com/probs/unsupported-content";
+      String title = "Media type is not valid or not supported";
+      Class<HttpMediaTypeNotSupportedException> exceptionType = HttpMediaTypeNotSupportedException.class;
+
+      StaticMessageSource source = new StaticMessageSource();
+      source.addMessage(ErrorResponse.getDefaultTypeMessageCode(exceptionType), locale, type);
+      source.addMessage(ErrorResponse.getDefaultTitleMessageCode(exceptionType), locale, title);
+      source.addMessage(ErrorResponse.getDefaultDetailMessageCode(exceptionType, null), locale,
+              "Content-Type {0} not supported. Supported: {1}");
+
+      this.exceptionHandler.setMessageSource(source);
+
+      ResponseEntity<?> entity = testException(new HttpMediaTypeNotSupportedException(
+              MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML)));
+
+      ProblemDetail problem = (ProblemDetail) entity.getBody();
+      assertThat(problem).isNotNull();
+      assertThat(problem.getType()).isEqualTo(URI.create(type));
+      assertThat(problem.getTitle()).isEqualTo(title);
+      assertThat(problem.getDetail()).isEqualTo(
+              "Content-Type application/json not supported. Supported: [application/atom+xml, application/xml]");
+    }
+    finally {
+      LocaleContextHolder.resetLocaleContext();
+    }
+  }
+
+  @Test // gh-30300
+  public void reasonAsDetailShouldBeUpdatedViaMessageSource() {
+
+    Locale locale = Locale.UK;
+    LocaleContextHolder.setLocale(locale);
+
+    String reason = "bad.request";
+    String message = "Breaking Bad Request";
+    try {
+      StaticMessageSource messageSource = new StaticMessageSource();
+      messageSource.addMessage(reason, locale, message);
+
+      this.exceptionHandler.setMessageSource(messageSource);
+
+      ResponseEntity<?> entity = testException(new ResponseStatusException(HttpStatus.BAD_REQUEST, reason));
+
+      ProblemDetail body = (ProblemDetail) entity.getBody();
+      assertThat(body.getDetail()).isEqualTo(message);
+    }
+    finally {
+      LocaleContextHolder.resetLocaleContext();
+    }
   }
 
   @Test
-  public void typeMismatch() {
-    Exception ex = new TypeMismatchException("foo", String.class);
-    testException(ex);
+  void conversionNotSupported() {
+    testException(new ConversionNotSupportedException(new Object(), Object.class, null));
+  }
+
+  @Test
+  void typeMismatch() {
+    testException(new TypeMismatchException("foo", String.class));
+  }
+
+  @Test
+  void typeMismatchWithProblemDetailViaMessageSource() {
+    Locale locale = Locale.UK;
+    LocaleContextHolder.setLocale(locale);
+
+    try {
+      StaticMessageSource messageSource = new StaticMessageSource();
+      messageSource.addMessage(
+              ErrorResponse.getDefaultDetailMessageCode(TypeMismatchException.class, null), locale,
+              "Failed to set {0} to value: {1}");
+
+      this.exceptionHandler.setMessageSource(messageSource);
+
+      ResponseEntity<?> entity = testException(
+              new TypeMismatchException(new PropertyChangeEvent(this, "name", "John", "James"), String.class));
+
+      ProblemDetail body = (ProblemDetail) entity.getBody();
+      assertThat(body.getDetail()).isEqualTo("Failed to set name to value: James");
+    }
+    finally {
+      LocaleContextHolder.resetLocaleContext();
+    }
   }
 
   @Test
   public void httpMessageNotReadable() {
-    Exception ex = new HttpMessageNotReadableException("message");
-    testException(ex);
+    testException(new HttpMessageNotReadableException("message", null));
   }
 
   @Test
-  public void httpMessageNotWritable() {
-    Exception ex = new HttpMessageNotWritableException("");
-    Assertions.setMaxStackTraceElementsDisplayed(100);
-    testException(ex);
+  void httpMessageNotWritable() {
+    testException(new HttpMessageNotWritableException(""));
   }
 
   @Test
-  public void methodArgumentNotValid() throws Exception {
-    Exception ex = new MethodArgumentNotValidException(
+  void methodArgumentNotValid() throws Exception {
+    testException(new MethodArgumentNotValidException(
             new MethodParameter(getClass().getDeclaredMethod("handle", String.class), 0),
-            new MapBindingResult(Collections.emptyMap(), "name"));
-    testException(ex);
+            new MapBindingResult(Collections.emptyMap(), "name")));
   }
 
   @Test
-  public void missingMockRequestPart() {
-    Exception ex = new MissingRequestPartException("partName");
-    testException(ex);
+  void missingRequestPart() {
+    testException(new MissingRequestPartException("partName"));
   }
 
   @Test
-  public void bindException() {
-    Exception ex = new BindException(new Object(), "name");
-    testException(ex);
-  }
-
-  @Test
-  public void noHandlerFoundException() {
+  void noHandlerFoundException() {
     HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // gh-29626
 
-    var req = new MockServerHttpRequest(new HttpMockRequestImpl("GET", "/resource"));
+    ResponseEntity<Object> responseEntity =
+            testException(new HandlerNotFoundException("GET", "/resource", requestHeaders));
 
-    Exception ex = new HandlerNotFoundException(req.getMethodValue(), req.getRequest().getRequestURI(), requestHeaders);
-    ResponseEntity<Object> responseEntity = testException(ex);
     assertThat(responseEntity.getHeaders()).isEmpty();
   }
 
+//  @Test
+//  void noResourceFoundException() {
+//    testException(new NoResourceFoundException(HttpMethod.GET, "/resource"));
+//  }
+
   @Test
-  public void asyncRequestTimeoutException() {
+  void asyncRequestTimeoutException() {
     testException(new AsyncRequestTimeoutException());
   }
 
   @Test
-  public void maxUploadSizeExceededException() {
+  void maxUploadSizeExceededException() {
     testException(new MaxUploadSizeExceededException(1000));
   }
 
   @Test
-  public void controllerAdvice() throws Exception {
+  void controllerAdvice() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
@@ -249,11 +323,11 @@ class ResponseEntityExceptionHandlerTests {
 
     assertThat(this.mockResponse.getStatus()).isEqualTo(400);
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("error content");
-    assertThat(request.responseHeaders().getFirst("someHeader")).isEqualTo("someHeaderValue");
+    assertThat(this.mockResponse.getHeader("someHeader")).isEqualTo("someHeaderValue");
   }
 
   @Test
-  public void controllerAdviceWithNestedException() throws Exception {
+  void controllerAdviceWithNestedException() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
@@ -270,7 +344,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void controllerAdviceWithinDispatcherMock() throws Exception {
+  void controllerAdviceWithinDispatcherServlet() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("controller", ExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
@@ -295,7 +369,7 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
-  public void controllerAdviceWithNestedExceptionWithinDispatcher() throws Exception {
+  void controllerAdviceWithNestedExceptionWithinDispatcherServlet() throws Exception {
     StaticWebApplicationContext ctx = new StaticWebApplicationContext();
     ctx.registerSingleton("controller", NestedExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
@@ -320,13 +394,13 @@ class ResponseEntityExceptionHandlerTests {
 
   private ResponseEntity<Object> testException(Exception ex) {
     try {
-      ResponseEntity<Object> responseEntity = this.exceptionHandlerSupport.handleException(ex, this.request);
+      ResponseEntity<Object> entity = this.exceptionHandler.handleException(ex, this.request);
+      assertThat(entity).isNotNull();
 
       defaultExceptionResolver.handleException(this.request, ex, null);
+      assertThat(entity.getStatusCode().value()).isEqualTo(this.mockResponse.getStatus());
 
-      assertThat(responseEntity.getStatusCode().value()).isEqualTo(this.mockResponse.getStatus());
-
-      return responseEntity;
+      return entity;
     }
     catch (Exception ex2) {
       throw new IllegalStateException("handleException threw exception", ex2);
@@ -346,7 +420,7 @@ class ResponseEntityExceptionHandlerTests {
   private static class NestedExceptionThrowingController {
 
     @RequestMapping("/")
-    public void handleRequest() throws Exception {
+    public void handleRequest() {
       throw new IllegalStateException(new RequestBindingException("message"));
     }
   }

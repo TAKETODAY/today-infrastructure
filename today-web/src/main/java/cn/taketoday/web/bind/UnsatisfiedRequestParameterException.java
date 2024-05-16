@@ -20,6 +20,7 @@ package cn.taketoday.web.bind;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.MultiValueMap;
@@ -45,7 +46,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
   private final MultiValueMap<String, String> actualParams;
 
   /**
-   * Create a new UnsatisfiedServletRequestParameterException.
+   * Create a new UnsatisfiedRequestParameterException.
    *
    * @param paramConditions the parameter conditions that have been violated
    * @param actualParams the actual parameter Map associated with the ServletRequest
@@ -55,37 +56,30 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
   }
 
   /**
-   * Create a new UnsatisfiedServletRequestParameterException.
+   * Create a new UnsatisfiedRequestParameterException.
    *
    * @param paramConditions all sets of parameter conditions that have been violated
    * @param actualParams the actual parameter Map associated with the ServletRequest
    */
-  public UnsatisfiedRequestParameterException(List<String[]> paramConditions,
-          MultiValueMap<String, String> actualParams) {
-
-    super("");
+  public UnsatisfiedRequestParameterException(List<String[]> paramConditions, MultiValueMap<String, String> actualParams) {
+    super("", null, new Object[] { paramsToStringList(paramConditions) });
     Assert.notEmpty(paramConditions, "Parameter conditions must not be empty");
-    this.paramConditions = paramConditions;
     this.actualParams = actualParams;
-    setDetail("Invalid request parameters.");
+    this.paramConditions = paramConditions;
+    getBody().setDetail("Invalid request parameters.");
+  }
+
+  private static List<String> paramsToStringList(List<String[]> paramConditions) {
+    Assert.notEmpty(paramConditions, "Parameter conditions must not be empty");
+    return paramConditions.stream()
+            .map(condition -> "\"" + StringUtils.arrayToDelimitedString(condition, ", ") + "\"")
+            .collect(Collectors.toList());
   }
 
   @Override
   public String getMessage() {
-    StringBuilder sb = new StringBuilder("Parameter conditions ");
-    int i = 0;
-    for (String[] conditions : this.paramConditions) {
-      if (i > 0) {
-        sb.append(" OR ");
-      }
-      sb.append('"');
-      sb.append(StringUtils.arrayToDelimitedString(conditions, ", "));
-      sb.append('"');
-      i++;
-    }
-    sb.append(" not met for actual request parameters: ");
-    sb.append(requestParameterMapToString(this.actualParams));
-    return sb.toString();
+    return "Parameter conditions %s not met for actual request parameters: %s"
+            .formatted(String.join(" OR ", paramsToStringList(this.paramConditions)), requestParameterMapToString(this.actualParams));
   }
 
   /**

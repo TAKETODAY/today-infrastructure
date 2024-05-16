@@ -19,6 +19,9 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.beans.ConversionNotSupportedException;
 import cn.taketoday.beans.TypeMismatchException;
+import cn.taketoday.context.MessageSource;
+import cn.taketoday.context.MessageSourceAware;
+import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
@@ -41,12 +44,12 @@ import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
+import cn.taketoday.web.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
-import cn.taketoday.web.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -76,12 +79,30 @@ import cn.taketoday.web.view.ModelAndView;
  * @see SimpleHandlerExceptionHandler
  * @since 4.0 2022/3/2 18:12
  */
-public class ResponseEntityExceptionHandler {
+public class ResponseEntityExceptionHandler implements MessageSourceAware {
 
   /**
    * Common logger for use in subclasses.
    */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+  @Nullable
+  private MessageSource messageSource;
+
+  @Override
+  public void setMessageSource(MessageSource messageSource) {
+    this.messageSource = messageSource;
+  }
+
+  /**
+   * Get the {@link MessageSource} that this exception handler uses.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  protected MessageSource getMessageSource() {
+    return this.messageSource;
+  }
 
   /**
    * Provides handling for standard Framework MVC exceptions.
@@ -156,21 +177,21 @@ public class ResponseEntityExceptionHandler {
     }
 
     // Other, lower level exceptions
-
+    HttpHeaders headers = HttpHeaders.forWritable();
     if (ex instanceof ConversionNotSupportedException subEx) {
-      return handleConversionNotSupported(subEx, HttpStatus.INTERNAL_SERVER_ERROR, request);
+      return handleConversionNotSupported(subEx, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
     else if (ex instanceof TypeMismatchException subEx) {
-      return handleTypeMismatch(subEx, HttpStatus.BAD_REQUEST, request);
+      return handleTypeMismatch(subEx, headers, HttpStatus.BAD_REQUEST, request);
     }
     else if (ex instanceof HttpMessageNotReadableException subEx) {
-      return handleHttpMessageNotReadable(subEx, HttpStatus.BAD_REQUEST, request);
+      return handleHttpMessageNotReadable(subEx, headers, HttpStatus.BAD_REQUEST, request);
     }
     else if (ex instanceof HttpMessageNotWritableException subEx) {
-      return handleHttpMessageNotWritable(subEx, HttpStatus.INTERNAL_SERVER_ERROR, request);
+      return handleHttpMessageNotWritable(subEx, headers, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
     else if (ex instanceof BindException subEx) {
-      return handleBindException(subEx, HttpStatus.BAD_REQUEST, request);
+      return handleBindException(subEx, headers, HttpStatus.BAD_REQUEST, request);
     }
     else {
       // Unknown exception, typically a wrapper with a common MVC exception as cause
@@ -382,28 +403,6 @@ public class ResponseEntityExceptionHandler {
   }
 
   /**
-   * Customize the handling of {@link ConversionNotSupportedException}.
-   * <p>By default this method creates a {@link ProblemDetail} with the status
-   * and a short detail message, and then delegates to
-   * {@link #handleExceptionInternal}.
-   *
-   * @param ex the exception to handle
-   * @param status the status code to use for the response
-   * @param request the current request
-   * @return a {@code ResponseEntity} for the response to use, possibly
-   * {@code null} when the response is already committed
-   */
-  @Nullable
-  protected ResponseEntity<Object> handleConversionNotSupported(
-          ConversionNotSupportedException ex, HttpStatusCode status, RequestContext request) {
-
-    ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
-            "Failed to convert '%s' with value: '%s'".formatted(ex.getPropertyName(), ex.getValue()));
-
-    return handleExceptionInternal(ex, body, null, status, request);
-  }
-
-  /**
    * Customize the handling of any {@link MaxUploadSizeExceededException}.
    * <p>This method delegates to {@link #handleExceptionInternal}.
    *
@@ -415,66 +414,104 @@ public class ResponseEntityExceptionHandler {
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
-          MaxUploadSizeExceededException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+          HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
 
   /**
-   * Customize the handling of {@link TypeMismatchException}.
+   * Customize the handling of {@link ConversionNotSupportedException}.
    * <p>By default this method creates a {@link ProblemDetail} with the status
-   * and a short detail message, and then delegates to
+   * and a short detail message, and also looks up an override for the detail
+   * via {@link MessageSource}, before delegating to
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
+   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpStatusCode status, RequestContext request) {
-    ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
-            "Unexpected type for '%s' with value: '%s'".formatted(ex.getPropertyName(), ex.getValue()));
+  protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex,
+          HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
-    return handleExceptionInternal(ex, body, null, status, request);
+    Object[] args = { ex.getPropertyName(), ex.getValue() };
+    String defaultDetail = "Failed to convert '%s' with value: '%s'".formatted(args[0], args[1]);
+    ProblemDetail body = createProblemDetail(ex, status, defaultDetail, null, args, request);
+
+    return handleExceptionInternal(ex, body, headers, status, request);
+  }
+
+  /**
+   * Customize the handling of {@link TypeMismatchException}.
+   * <p>By default this method creates a {@link ProblemDetail} with the status
+   * and a short detail message, and also looks up an override for the detail
+   * via {@link MessageSource}, before delegating to
+   * {@link #handleExceptionInternal}.
+   *
+   * @param ex the exception to handle
+   * @param headers the headers to use for the response
+   * @param status the status code to use for the response
+   * @param request the current request
+   * @return a {@code ResponseEntity} for the response to use, possibly
+   * {@code null} when the response is already committed
+   */
+  @Nullable
+  protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
+          HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+    Object[] args = { ex.getPropertyName(), ex.getValue() };
+
+    String defaultDetail = "Failed to convert '%s' with value: '%s'".formatted(args[0], args[1]);
+    String messageCode = ErrorResponse.getDefaultDetailMessageCode(TypeMismatchException.class, null);
+    ProblemDetail body = createProblemDetail(ex, status, defaultDetail, messageCode, args, request);
+
+    return handleExceptionInternal(ex, body, headers, status, request);
   }
 
   /**
    * Customize the handling of {@link HttpMessageNotReadableException}.
    * <p>By default this method creates a {@link ProblemDetail} with the status
-   * and a short detail message, and then delegates to
+   * and a short detail message, and also looks up an override for the detail
+   * via {@link MessageSource}, before delegating to
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
+   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpStatusCode status, RequestContext request) {
-    ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to read request body");
-    return handleExceptionInternal(ex, body, null, status, request);
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+          HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+    ProblemDetail body = createProblemDetail(ex, status, "Failed to read request", null, null, request);
+    return handleExceptionInternal(ex, body, headers, status, request);
   }
 
   /**
    * Customize the handling of {@link HttpMessageNotWritableException}.
    * <p>By default this method creates a {@link ProblemDetail} with the status
-   * and a short detail message, and then delegates to
+   * and a short detail message, and also looks up an override for the detail
+   * via {@link MessageSource}, before delegating to
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
+   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpStatusCode status, RequestContext request) {
-    ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to write response body");
-    return handleExceptionInternal(ex, body, null, status, request);
+  protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex,
+          HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+
+    ProblemDetail body = createProblemDetail(ex, status, "Failed to write request", null, null, request);
+    return handleExceptionInternal(ex, body, headers, status, request);
   }
 
   /**
@@ -484,15 +521,16 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
+   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleBindException(BindException ex, HttpStatusCode status, RequestContext request) {
-    ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to bind request");
-    return handleExceptionInternal(ex, body, null, status, request);
+  protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+    ProblemDetail body = createProblemDetail(ex, status, "Failed to bind request", null, null, request);
+    return handleExceptionInternal(ex, body, headers, status, request);
   }
 
   /**
@@ -522,10 +560,40 @@ public class ResponseEntityExceptionHandler {
     }
 
     if (body == null && ex instanceof ErrorResponse errorResponse) {
-      body = errorResponse.getBody();
+      body = errorResponse.updateAndGetBody(this.messageSource, LocaleContextHolder.getLocale());
     }
 
     return createResponseEntity(body, headers, statusCode, request);
+  }
+
+  /**
+   * Convenience method to create a {@link ProblemDetail} for any exception
+   * that doesn't implement {@link ErrorResponse}, also performing a
+   * {@link MessageSource} lookup for the "detail" field.
+   *
+   * @param ex the exception being handled
+   * @param status the status to associate with the exception
+   * @param defaultDetail default value for the "detail" field
+   * @param detailMessageCode the code to use to look up the "detail" field
+   * through a {@code MessageSource}; if {@code null} then
+   * {@link ErrorResponse#getDefaultDetailMessageCode(Class, String)} is used
+   * to determine the default message code to use
+   * @param detailMessageArguments the arguments to go with the detailMessageCode
+   * @param request the current request
+   * @return the created {@code ProblemDetail} instance
+   * @since 5.0
+   */
+  protected ProblemDetail createProblemDetail(Exception ex, HttpStatusCode status, String defaultDetail,
+          @Nullable String detailMessageCode, @Nullable Object[] detailMessageArguments, RequestContext request) {
+
+    var builder = ErrorResponse.builder(ex, status, defaultDetail);
+    if (detailMessageCode != null) {
+      builder.detailMessageCode(detailMessageCode);
+    }
+    if (detailMessageArguments != null) {
+      builder.detailMessageArguments(detailMessageArguments);
+    }
+    return builder.build().updateAndGetBody(this.messageSource, LocaleContextHolder.getLocale());
   }
 
   /**

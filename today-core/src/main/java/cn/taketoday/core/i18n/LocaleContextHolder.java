@@ -38,8 +38,8 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Nicholas Williams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LocaleContext
- * @see cn.taketoday.web.mock.DispatcherServlet
  * @since 4.0
  */
 public final class LocaleContextHolder {
@@ -155,7 +155,7 @@ public final class LocaleContextHolder {
   public static void setLocale(@Nullable Locale locale, boolean inheritable) {
     LocaleContext localeContext = getLocaleContext();
     TimeZone timeZone = (localeContext instanceof TimeZoneAwareLocaleContext ?
-                         ((TimeZoneAwareLocaleContext) localeContext).getTimeZone() : null);
+            ((TimeZoneAwareLocaleContext) localeContext).getTimeZone() : null);
     if (timeZone != null) {
       localeContext = new SimpleTimeZoneAwareLocaleContext(locale, timeZone);
     }

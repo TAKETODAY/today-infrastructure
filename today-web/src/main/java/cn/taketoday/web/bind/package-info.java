@@ -16,13 +16,11 @@
  */
 
 /**
- * Request context parameter resolvers
- *
- * @author TODAY 2021/9/23 21:53
+ * Provides web-specific data binding functionality.
  */
 @NonNullApi
 @NonNullFields
-package cn.taketoday.web.bind.resolver;
+package cn.taketoday.web.bind;
 
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.NonNullFields;

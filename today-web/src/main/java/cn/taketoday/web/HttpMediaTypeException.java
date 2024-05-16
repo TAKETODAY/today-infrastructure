@@ -23,6 +23,7 @@ import java.util.List;
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract base for exceptions related to media types. Adds a list of supported {@link MediaType MediaTypes}.
@@ -37,24 +38,28 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
 
   private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
-  /**
-   * Create a new HttpMediaTypeException.
-   *
-   * @param message the exception message
-   */
-  protected HttpMediaTypeException(String message) {
-    super(message);
-    this.supportedMediaTypes = Collections.emptyList();
-  }
+  private final String messageDetailCode;
+
+  @Nullable
+  private final Object[] messageDetailArguments;
 
   /**
    * Create a new HttpMediaTypeException with a list of supported media types.
    *
    * @param supportedMediaTypes the list of supported media types
+   * @param messageDetailCode the code to use to resolve the problem "detail"
+   * through a {@link cn.taketoday.context.MessageSource}
+   * @param messageDetailArguments the arguments to make available when
+   * resolving the problem "detail" through a {@code MessageSource}
+   * @since 5.0
    */
-  protected HttpMediaTypeException(String message, List<MediaType> supportedMediaTypes) {
+  protected HttpMediaTypeException(@Nullable String message, List<MediaType> supportedMediaTypes,
+          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+
     super(message);
+    this.messageDetailArguments = messageDetailArguments;
     this.supportedMediaTypes = Collections.unmodifiableList(supportedMediaTypes);
+    this.messageDetailCode = messageDetailCode != null ? messageDetailCode : ErrorResponse.getDefaultDetailMessageCode(getClass(), null);
   }
 
   /**
@@ -67,6 +72,17 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
   @Override
   public ProblemDetail getBody() {
     return this.body;
+  }
+
+  @Override
+  public String getDetailMessageCode() {
+    return this.messageDetailCode;
+  }
+
+  @Override
+  @Nullable
+  public Object[] getDetailMessageArguments() {
+    return this.messageDetailArguments;
   }
 
 }

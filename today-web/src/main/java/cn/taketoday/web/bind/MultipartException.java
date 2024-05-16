@@ -29,11 +29,11 @@ import cn.taketoday.lang.Nullable;
  */
 public class MultipartException extends HttpMessageNotReadableException {
 
-  public MultipartException(String message) {
-    super(message);
+  public MultipartException(@Nullable String message) {
+    super(message, null, null);
   }
 
-  public MultipartException(String message, @Nullable Throwable cause) {
-    super(message, cause);
+  public MultipartException(@Nullable String message, @Nullable Throwable cause) {
+    super(message, cause, null);
   }
 }

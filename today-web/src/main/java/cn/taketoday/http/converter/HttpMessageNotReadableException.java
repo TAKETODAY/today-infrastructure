@@ -39,30 +39,9 @@ public class HttpMessageNotReadableException extends HttpMessageConversionExcept
    * Create a new HttpMessageNotReadableException.
    *
    * @param msg the detail message
-   */
-  public HttpMessageNotReadableException(String msg) {
-    super(msg);
-    this.httpInputMessage = null;
-  }
-
-  /**
-   * Create a new HttpMessageNotReadableException.
-   *
-   * @param msg the detail message
-   * @param cause the root cause (if any)
-   */
-  public HttpMessageNotReadableException(String msg, @Nullable Throwable cause) {
-    super(msg, cause);
-    this.httpInputMessage = null;
-  }
-
-  /**
-   * Create a new HttpMessageNotReadableException.
-   *
-   * @param msg the detail message
    * @param httpInputMessage the original HTTP message
    */
-  public HttpMessageNotReadableException(String msg, HttpInputMessage httpInputMessage) {
+  public HttpMessageNotReadableException(@Nullable String msg, @Nullable HttpInputMessage httpInputMessage) {
     super(msg);
     this.httpInputMessage = httpInputMessage;
   }
@@ -74,7 +53,7 @@ public class HttpMessageNotReadableException extends HttpMessageConversionExcept
    * @param cause the root cause (if any)
    * @param httpInputMessage the original HTTP message
    */
-  public HttpMessageNotReadableException(String msg, @Nullable Throwable cause, HttpInputMessage httpInputMessage) {
+  public HttpMessageNotReadableException(@Nullable String msg, @Nullable Throwable cause, @Nullable HttpInputMessage httpInputMessage) {
     super(msg, cause);
     this.httpInputMessage = httpInputMessage;
   }

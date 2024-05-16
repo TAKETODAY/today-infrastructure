@@ -47,15 +47,13 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
 
   private final ProblemDetail body;
 
-  /**
-   * Constructor with a {@link HttpStatusCode}.
-   */
-  public ErrorResponseException(HttpStatusCode status) {
-    this(status, null);
-  }
+  private final String messageDetailCode;
+
+  @Nullable
+  private final Object[] messageDetailArguments;
 
   /**
-   * Constructor with a {@link HttpStatusCode} and an optional cause.
+   * Constructor with an {@link HttpStatusCode} and an optional cause.
    */
   public ErrorResponseException(HttpStatusCode status, @Nullable Throwable cause) {
     this(status, ProblemDetail.forStatus(status), cause);
@@ -66,9 +64,26 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
    * subclass of {@code ProblemDetail} with extended fields.
    */
   public ErrorResponseException(HttpStatusCode status, ProblemDetail body, @Nullable Throwable cause) {
+    this(status, body, cause, null, null);
+  }
+
+  /**
+   * Constructor with a given {@link ProblemDetail}, and a
+   * {@link cn.taketoday.context.MessageSource} code and arguments to
+   * resolve the detail message with.
+   *
+   * @since 5.0
+   */
+  public ErrorResponseException(HttpStatusCode status, ProblemDetail body, @Nullable Throwable cause,
+          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
     super(null, cause);
     this.status = status;
     this.body = body;
+    if (messageDetailCode == null) {
+      messageDetailCode = ErrorResponse.getDefaultDetailMessageCode(getClass(), null);
+    }
+    this.messageDetailCode = messageDetailCode;
+    this.messageDetailArguments = messageDetailArguments;
   }
 
   @Override
@@ -135,6 +150,17 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
   @Override
   public final ProblemDetail getBody() {
     return this.body;
+  }
+
+  @Override
+  public String getDetailMessageCode() {
+    return this.messageDetailCode;
+  }
+
+  @Override
+  @Nullable
+  public Object[] getDetailMessageArguments() {
+    return this.messageDetailArguments;
   }
 
   @Override

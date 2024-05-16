@@ -53,13 +53,11 @@ public class MissingPathVariableException extends MissingRequestValueException {
    * @param parameter the method parameter
    * @param missingAfterConversion whether the value became null after conversion
    */
-  public MissingPathVariableException(
-          String variableName, MethodParameter parameter, boolean missingAfterConversion) {
-
-    super("", missingAfterConversion);
+  public MissingPathVariableException(String variableName, MethodParameter parameter, boolean missingAfterConversion) {
+    super("", missingAfterConversion, null, new Object[] { variableName });
     this.variableName = variableName;
     this.parameter = parameter;
-    setDetail("Required path variable '%s' is not present.".formatted(variableName));
+    getBody().setDetail("Required path variable '%s' is not present.".formatted(variableName));
   }
 
   @Override

@@ -19,7 +19,6 @@ package cn.taketoday.web;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -35,13 +34,16 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class NotAcceptableStatusException extends ResponseStatusException {
 
+  private static final String PARSE_ERROR_DETAIL_CODE =
+          ErrorResponse.getDefaultDetailMessageCode(NotAcceptableStatusException.class, "parseError");
+
   private final List<MediaType> supportedMediaTypes;
 
   /**
    * Constructor for when the requested Content-Type is invalid.
    */
   public NotAcceptableStatusException(String reason) {
-    super(HttpStatus.NOT_ACCEPTABLE, reason);
+    super(HttpStatus.NOT_ACCEPTABLE, reason, null, PARSE_ERROR_DETAIL_CODE, null);
     this.supportedMediaTypes = Collections.emptyList();
     setDetail("Could not parse Accept header.");
   }
@@ -50,11 +52,9 @@ public class NotAcceptableStatusException extends ResponseStatusException {
    * Constructor for when the requested Content-Type is not supported.
    */
   public NotAcceptableStatusException(List<MediaType> mediaTypes) {
-    super(HttpStatus.NOT_ACCEPTABLE, "Could not find acceptable representation");
+    super(HttpStatus.NOT_ACCEPTABLE, "Could not find acceptable representation", null, null, new Object[] { mediaTypes });
     this.supportedMediaTypes = Collections.unmodifiableList(mediaTypes);
-    setDetail("Acceptable representations: " +
-            mediaTypes.stream().map(MediaType::toString)
-                    .collect(Collectors.joining(", ", "'", "'")) + ".");
+    setDetail("Acceptable representations: %s.".formatted(mediaTypes));
   }
 
   /**

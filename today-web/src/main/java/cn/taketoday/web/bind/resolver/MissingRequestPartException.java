@@ -44,9 +44,9 @@ public class MissingRequestPartException extends MissingRequestValueException im
    * @param requestPartName the name of the missing part of the multipart request
    */
   public MissingRequestPartException(String requestPartName) {
-    super("Required part '%s' is not present.".formatted(requestPartName));
+    super("Required part '%s' is not present.".formatted(requestPartName), false, null, new Object[] { requestPartName });
     this.requestPartName = requestPartName;
-    setDetail(getMessage());
+    getBody().setDetail(getMessage());
   }
 
   /**

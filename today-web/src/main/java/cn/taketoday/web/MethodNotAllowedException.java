@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -40,25 +39,25 @@ public class MethodNotAllowedException extends ResponseStatusException {
 
   private final String method;
 
-  private final Set<HttpMethod> supportedMethods;
+  private final Set<HttpMethod> httpMethods;
 
   public MethodNotAllowedException(HttpMethod method, Collection<HttpMethod> supportedMethods) {
     this(method.name(), supportedMethods);
   }
 
   public MethodNotAllowedException(String method, @Nullable Collection<HttpMethod> supportedMethods) {
-    super(HttpStatus.METHOD_NOT_ALLOWED, "Request method '" + method + "' is not supported.");
+    super(HttpStatus.METHOD_NOT_ALLOWED, "Request method '%s' is not supported.".formatted(method),
+            null, null, new Object[] { method, supportedMethods });
+
     Assert.notNull(method, "'method' is required");
     if (supportedMethods == null) {
       supportedMethods = Collections.emptySet();
     }
     this.method = method;
-    this.supportedMethods = Collections.unmodifiableSet(new LinkedHashSet<>(supportedMethods));
-
-    setDetail(this.supportedMethods.isEmpty() ? getReason() :
-            "Supported methods: " + this.supportedMethods.stream()
-                    .map(HttpMethod::toString)
-                    .collect(Collectors.joining("', '", "'", "'")));
+    this.httpMethods = Collections.unmodifiableSet(new LinkedHashSet<>(supportedMethods));
+    if (!this.httpMethods.isEmpty()) {
+      setDetail("Supported methods: " + this.httpMethods);
+    }
   }
 
   /**
@@ -67,11 +66,11 @@ public class MethodNotAllowedException extends ResponseStatusException {
    */
   @Override
   public HttpHeaders getHeaders() {
-    if (CollectionUtils.isEmpty(this.supportedMethods)) {
+    if (CollectionUtils.isEmpty(this.httpMethods)) {
       return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.setAllow(this.supportedMethods);
+    headers.setAllow(this.httpMethods);
     return headers;
   }
 
@@ -86,7 +85,7 @@ public class MethodNotAllowedException extends ResponseStatusException {
    * Return the list of supported HTTP methods.
    */
   public Set<HttpMethod> getSupportedMethods() {
-    return this.supportedMethods;
+    return this.httpMethods;
   }
 
 }

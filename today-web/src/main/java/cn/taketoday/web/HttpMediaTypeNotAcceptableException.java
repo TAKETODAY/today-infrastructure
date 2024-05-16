@@ -17,11 +17,12 @@
 
 package cn.taketoday.web;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.CollectionUtils;
 
@@ -34,13 +35,16 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException {
 
+  private static final String PARSE_ERROR_DETAIL_CODE =
+          ErrorResponse.getDefaultDetailMessageCode(HttpMediaTypeNotAcceptableException.class, "parseError");
+
   /**
    * Constructor for when the {@code Accept} header cannot be parsed.
    *
    * @param message the parse error message
    */
   public HttpMediaTypeNotAcceptableException(String message) {
-    super(message);
+    super(message, Collections.emptyList(), PARSE_ERROR_DETAIL_CODE, null);
     getBody().setDetail("Could not parse Accept header.");
   }
 
@@ -50,13 +54,12 @@ public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException 
    * @param mediaTypes the list of supported media types
    */
   public HttpMediaTypeNotAcceptableException(List<MediaType> mediaTypes) {
-    super("No acceptable representation", mediaTypes);
-    getBody().setDetail("Acceptable representations: " +
-            mediaTypes.stream().map(MediaType::toString).collect(Collectors.joining(", ", "'", "'")) + ".");
+    super("No acceptable representation", mediaTypes, null, new Object[] { mediaTypes });
+    getBody().setDetail("Acceptable representations: %s.".formatted(mediaTypes));
   }
 
   @Override
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return HttpStatus.NOT_ACCEPTABLE;
   }
 
@@ -66,7 +69,8 @@ public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException 
       return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.setAccept(this.getSupportedMediaTypes());
+    headers.setAccept(getSupportedMediaTypes());
     return headers;
   }
+
 }

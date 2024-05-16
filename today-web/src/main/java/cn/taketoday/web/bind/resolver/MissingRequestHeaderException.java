@@ -51,12 +51,11 @@ public class MissingRequestHeaderException extends MissingRequestValueException 
    * @param parameter the method parameter
    * @param missingAfterConversion whether the value became null after conversion
    */
-  public MissingRequestHeaderException(
-          String headerName, MethodParameter parameter, boolean missingAfterConversion) {
-    super("", missingAfterConversion);
+  public MissingRequestHeaderException(String headerName, MethodParameter parameter, boolean missingAfterConversion) {
+    super("", missingAfterConversion, null, new Object[] { headerName });
     this.headerName = headerName;
     this.parameter = parameter;
-    setDetail("Required header '%s' is not present.".formatted(this.headerName));
+    getBody().setDetail("Required header '%s' is not present.".formatted(this.headerName));
   }
 
   @Override

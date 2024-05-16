@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.bind.resolver;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
@@ -31,19 +32,11 @@ public class ParameterResolverNotFoundException extends InfraConfigurationExcept
 
   private final ResolvableMethodParameter parameter;
 
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter) {
-    this(parameter, null, null);
-  }
-
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, String message) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, @Nullable String message) {
     this(parameter, message, null);
   }
 
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, Throwable cause) {
-    this(parameter, null, cause);
-  }
-
-  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, String message, Throwable cause) {
+  public ParameterResolverNotFoundException(ResolvableMethodParameter parameter, @Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
     this.parameter = parameter;
   }
@@ -54,10 +47,6 @@ public class ParameterResolverNotFoundException extends InfraConfigurationExcept
 
   public String getParameterName() {
     return parameter.getName();
-  }
-
-  public Class<?> getParameterClass() {
-    return parameter.getParameterType();
   }
 
 }

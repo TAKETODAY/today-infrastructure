@@ -25,6 +25,7 @@ import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -48,7 +49,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   private final ProblemDetail body;
 
   /**
-   * Create a new HttpRequestMethodNotSupportedException.
+   * Create a new {@code HttpRequestMethodNotSupportedException}.
    *
    * @param method the unsupported HTTP request method
    */
@@ -57,48 +58,27 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   }
 
   /**
-   * Create a new HttpRequestMethodNotSupportedException.
+   * Create a new {@code HttpRequestMethodNotSupportedException}.
    *
    * @param method the unsupported HTTP request method
-   * @param msg the detail message
-   */
-  public HttpRequestMethodNotSupportedException(String method, String msg) {
-    this(method, null, msg);
-  }
-
-  /**
-   * Create a new HttpRequestMethodNotSupportedException.
-   *
-   * @param method the unsupported HTTP request method
-   * @param supportedMethods the actually supported HTTP methods (may be {@code null})
+   * @param supportedMethods the actually supported HTTP methods (possibly {@code null})
    */
   public HttpRequestMethodNotSupportedException(String method, @Nullable Collection<String> supportedMethods) {
     this(method, (supportedMethods != null ? StringUtils.toStringArray(supportedMethods) : null));
   }
 
   /**
-   * Create a new HttpRequestMethodNotSupportedException.
+   * Create a new {@code HttpRequestMethodNotSupportedException}.
    *
    * @param method the unsupported HTTP request method
-   * @param supportedMethods the actually supported HTTP methods (may be {@code null})
+   * @param supportedMethods the actually supported HTTP methods (possibly {@code null})
    */
-  public HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods) {
-    this(method, supportedMethods, "Request method '" + method + "' is not supported");
-  }
-
-  /**
-   * Create a new HttpRequestMethodNotSupportedException.
-   *
-   * @param method the unsupported HTTP request method
-   * @param supportedMethods the actually supported HTTP methods
-   * @param msg the detail message
-   */
-  public HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods, String msg) {
-    super(msg);
+  private HttpRequestMethodNotSupportedException(String method, @Nullable String[] supportedMethods) {
+    super("Request method '%s' is not supported".formatted(method));
     this.method = method;
     this.supportedMethods = supportedMethods;
 
-    String detail = "Method '" + method + "' is not supported.";
+    String detail = "Method '%s' is not supported.".formatted(method);
     this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), detail);
   }
 
@@ -135,7 +115,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   }
 
   @Override
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return HttpStatus.METHOD_NOT_ALLOWED;
   }
 
@@ -152,6 +132,11 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
   @Override
   public ProblemDetail getBody() {
     return this.body;
+  }
+
+  @Override
+  public Object[] getDetailMessageArguments() {
+    return new Object[] { getMethod(), getSupportedHttpMethods() };
   }
 
 }

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import cn.taketoday.http.HttpStatus;
@@ -24,8 +25,6 @@ import cn.taketoday.lang.Nullable;
  * @since 2018-12-02 09:14
  */
 public class InternalServerException extends ResponseStatusException {
-
-  public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
   public InternalServerException(@Nullable String message, @Nullable Throwable cause) {
     super(HttpStatus.INTERNAL_SERVER_ERROR, message, cause);

@@ -31,6 +31,8 @@ import cn.taketoday.lang.Nullable;
  */
 public class InfraConfigurationException extends NestedRuntimeException implements ErrorResponse {
 
+  private final ProblemDetail body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
+
   public InfraConfigurationException(@Nullable String message) {
     super(message);
   }
@@ -46,7 +48,7 @@ public class InfraConfigurationException extends NestedRuntimeException implemen
 
   @Override
   public ProblemDetail getBody() {
-    return ProblemDetail.forStatus(getStatusCode());
+    return body;
   }
 
 }

@@ -17,6 +17,9 @@
 
 package cn.taketoday.web.bind;
 
+import cn.taketoday.core.MethodParameter;
+import cn.taketoday.lang.Nullable;
+
 /**
  * {@link RequestBindingException} subclass that indicates a missing parameter.
  *
@@ -29,6 +32,9 @@ public class MissingRequestParameterException extends MissingRequestValueExcepti
 
   private final String parameterType;
 
+  @Nullable
+  private final MethodParameter parameter;
+
   /**
    * Constructor for MissingRequestParameterException.
    *
@@ -36,23 +42,31 @@ public class MissingRequestParameterException extends MissingRequestValueExcepti
    * @param parameterType the expected type of the missing parameter
    */
   public MissingRequestParameterException(String parameterName, String parameterType) {
-    this(parameterName, parameterType, false);
+    super("", false, null, new Object[] { parameterName });
+    this.parameterName = parameterName;
+    this.parameterType = parameterType;
+    this.parameter = null;
+    getBody().setDetail(initBodyDetail(this.parameterName));
   }
 
   /**
-   * Constructor for use when a value was present but converted to {@code null}.
+   * Constructor with a {@link MethodParameter} instead of a String parameterType.
    *
    * @param parameterName the name of the missing parameter
-   * @param parameterType the expected type of the missing parameter
+   * @param parameter the target method parameter for the missing value
    * @param missingAfterConversion whether the value became null after conversion
+   * @since 5.0
    */
-  public MissingRequestParameterException(
-          String parameterName, String parameterType, boolean missingAfterConversion) {
-
-    super("", missingAfterConversion);
+  public MissingRequestParameterException(String parameterName, MethodParameter parameter, boolean missingAfterConversion) {
+    super("", missingAfterConversion, null, new Object[] { parameterName });
     this.parameterName = parameterName;
-    this.parameterType = parameterType;
-    getBody().setDetail("Required parameter '%s' is not present.".formatted(this.parameterName));
+    this.parameterType = parameter.getNestedParameterType().getSimpleName();
+    this.parameter = parameter;
+    getBody().setDetail(initBodyDetail(this.parameterName));
+  }
+
+  private static String initBodyDetail(String name) {
+    return "Required parameter '" + name + "' is not present.";
   }
 
   @Override
@@ -73,6 +87,17 @@ public class MissingRequestParameterException extends MissingRequestValueExcepti
    */
   public final String getParameterType() {
     return this.parameterType;
+  }
+
+  /**
+   * Return the target {@link MethodParameter} if the exception was raised for
+   * a controller method argument.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public MethodParameter getMethodParameter() {
+    return this.parameter;
   }
 
 }

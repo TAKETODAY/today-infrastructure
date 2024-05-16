@@ -23,6 +23,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -36,6 +37,9 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0 2022/1/22 20:16
  */
 public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
+
+  private static final String PARSE_ERROR_DETAIL_CODE =
+          ErrorResponse.getDefaultDetailMessageCode(HttpMediaTypeNotSupportedException.class, "parseError");
 
   @Nullable
   private final MediaType contentType;
@@ -53,13 +57,13 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
   }
 
   /**
-   * Create a new HttpMediaTypeNotSupportedException.
+   * Create a new HttpMediaTypeNotSupportedException for a parse error.
    *
    * @param message the exception message
    * @param mediaTypes list of supported media types
    */
-  public HttpMediaTypeNotSupportedException(String message, List<MediaType> mediaTypes) {
-    super(message, mediaTypes);
+  public HttpMediaTypeNotSupportedException(@Nullable String message, List<MediaType> mediaTypes) {
+    super(message, mediaTypes, PARSE_ERROR_DETAIL_CODE, null);
     this.contentType = null;
     this.httpMethod = null;
     getBody().setDetail("Could not parse Content-Type.");
@@ -82,11 +86,9 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
    * @param mediaTypes the list of supported media types
    * @param httpMethod the HTTP method of the request
    */
-  public HttpMediaTypeNotSupportedException(
-          @Nullable MediaType contentType, List<MediaType> mediaTypes, @Nullable HttpMethod httpMethod) {
-
+  public HttpMediaTypeNotSupportedException(@Nullable MediaType contentType, List<MediaType> mediaTypes, @Nullable HttpMethod httpMethod) {
     this(contentType, mediaTypes, httpMethod,
-            "Content-Type " + (contentType != null ? "'" + contentType + "' " : "") + "is not supported");
+            "Content-Type %sis not supported".formatted(contentType != null ? "'" + contentType + "' " : ""));
   }
 
   /**
@@ -99,11 +101,10 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
    */
   public HttpMediaTypeNotSupportedException(@Nullable MediaType contentType,
           List<MediaType> supportedMediaTypes, @Nullable HttpMethod httpMethod, String message) {
-
-    super(message, supportedMediaTypes);
+    super(message, supportedMediaTypes, null, new Object[] { contentType, supportedMediaTypes });
     this.contentType = contentType;
     this.httpMethod = httpMethod;
-    getBody().setDetail("Content-Type '" + this.contentType + "' is not supported.");
+    getBody().setDetail("Content-Type '%s' is not supported.".formatted(this.contentType));
   }
 
   /**
@@ -115,7 +116,7 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
   }
 
   @Override
-  public HttpStatus getStatusCode() {
+  public HttpStatusCode getStatusCode() {
     return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
   }
 
@@ -126,7 +127,7 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
     }
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setAccept(getSupportedMediaTypes());
-    if (HttpMethod.PATCH.equals(this.httpMethod)) {
+    if (httpMethod == HttpMethod.PATCH) {
       headers.setAcceptPatch(getSupportedMediaTypes());
     }
     return headers;

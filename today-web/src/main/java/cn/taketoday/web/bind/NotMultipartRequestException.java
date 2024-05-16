@@ -17,6 +17,8 @@
 
 package cn.taketoday.web.bind;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Not A Multipart Request Exception
  *
@@ -25,7 +27,7 @@ package cn.taketoday.web.bind;
  */
 public class NotMultipartRequestException extends MultipartException {
 
-  public NotMultipartRequestException(String message, Throwable cause) {
+  public NotMultipartRequestException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 }

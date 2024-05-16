@@ -40,12 +40,12 @@ import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestPart;
+import cn.taketoday.web.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
-import cn.taketoday.web.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.util.WebUtils;
 
@@ -83,7 +83,7 @@ import cn.taketoday.web.util.WebUtils;
  * <td><p>500 (SC_INTERNAL_SERVER_ERROR)</p></td>
  * </tr>
  * <tr class="altColor">
- * <td><p>MissingServletRequestParameterException</p></td>
+ * <td><p>MissingRequestParameterException</p></td>
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="rowColor">
@@ -91,7 +91,7 @@ import cn.taketoday.web.util.WebUtils;
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="rowColor">
- * <td><p>ServletRequestBindingException</p></td>
+ * <td><p>RequestBindingException</p></td>
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="altColor">
@@ -199,6 +199,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
         if (view == null) {
           return handleErrorResponse((ErrorResponse) ex, request, handler);
         }
+        return view;
       }
 
       // Other, lower level exceptions
@@ -316,7 +317,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * <p>The default implementation returns {@code null} in which case the
    * exception is handled in {@link #handleErrorResponse}.
    *
-   * @param ex the MissingServletRequestParameterException to be handled
+   * @param ex the MissingRequestParameterException to be handled
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
@@ -436,24 +437,24 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * {@link RequestContext#sendError(int, String)}.
    *
    * @param errorResponse the exception to be handled
-   * @param request current HTTP request
+   * @param response current HTTP response
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
    * @throws IOException potentially thrown from {@link RequestContext#sendError}
    * @since 4.0
    */
   protected Object handleErrorResponse(ErrorResponse errorResponse,
-          RequestContext request, @Nullable Object handler) throws IOException {
+          RequestContext response, @Nullable Object handler) throws IOException {
 
-    if (!request.isCommitted()) {
+    if (!response.isCommitted()) {
       HttpHeaders headers = errorResponse.getHeaders();
-      request.mergeToResponse(headers);
+      response.mergeToResponse(headers);
 
       String message = errorResponse.getBody().getDetail();
-      request.sendError(errorResponse.getStatusCode(), message);
+      response.sendError(errorResponse.getStatusCode(), message);
     }
     else {
-      logger.warn("Ignoring exception, response committed. : {}", errorResponse);
+      logger.warn("Ignoring exception, response committed already: {}", errorResponse);
     }
 
     return NONE_RETURN_VALUE;

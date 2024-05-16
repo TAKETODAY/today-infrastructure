@@ -19,7 +19,6 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.InfraConfigurationException;
@@ -44,8 +43,6 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
 
   private final HttpHeaders requestHeaders;
 
-  private final ProblemDetail body;
-
   /**
    * Constructor for HandlerNotFoundException.
    *
@@ -58,7 +55,6 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
     this.httpMethod = httpMethod;
     this.requestURI = requestURI;
     this.requestHeaders = headers;
-    this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
   }
 
   @Override
@@ -79,11 +75,6 @@ public class HandlerNotFoundException extends InfraConfigurationException implem
    */
   public HttpHeaders getRequestHeaders() {
     return this.requestHeaders;
-  }
-
-  @Override
-  public ProblemDetail getBody() {
-    return this.body;
   }
 
 }

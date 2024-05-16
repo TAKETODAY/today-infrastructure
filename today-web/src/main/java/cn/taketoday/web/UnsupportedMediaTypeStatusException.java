@@ -37,6 +37,9 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class UnsupportedMediaTypeStatusException extends ResponseStatusException {
 
+  private static final String PARSE_ERROR_DETAIL_CODE =
+          ErrorResponse.getDefaultDetailMessageCode(UnsupportedMediaTypeStatusException.class, "parseError");
+
   @Nullable
   private final MediaType contentType;
 
@@ -59,7 +62,7 @@ public class UnsupportedMediaTypeStatusException extends ResponseStatusException
    * Constructor for when the specified Content-Type is invalid.
    */
   public UnsupportedMediaTypeStatusException(@Nullable String reason, List<MediaType> supportedTypes) {
-    super(HttpStatus.UNSUPPORTED_MEDIA_TYPE, reason);
+    super(HttpStatus.UNSUPPORTED_MEDIA_TYPE, reason, null, PARSE_ERROR_DETAIL_CODE, null);
     this.contentType = null;
     this.supportedMediaTypes = Collections.unmodifiableList(supportedTypes);
     this.bodyType = null;
@@ -77,16 +80,14 @@ public class UnsupportedMediaTypeStatusException extends ResponseStatusException
   /**
    * Constructor for when trying to encode from or decode to a specific Java type.
    */
-  public UnsupportedMediaTypeStatusException(@Nullable MediaType contentType, List<MediaType> supportedTypes,
-          @Nullable ResolvableType bodyType) {
+  public UnsupportedMediaTypeStatusException(@Nullable MediaType contentType, List<MediaType> supportedTypes, @Nullable ResolvableType bodyType) {
     this(contentType, supportedTypes, bodyType, null);
   }
 
   /**
    * Constructor that provides the HTTP method.
    */
-  public UnsupportedMediaTypeStatusException(@Nullable MediaType contentType, List<MediaType> supportedTypes,
-          @Nullable HttpMethod method) {
+  public UnsupportedMediaTypeStatusException(@Nullable MediaType contentType, List<MediaType> supportedTypes, @Nullable HttpMethod method) {
     this(contentType, supportedTypes, null, method);
   }
 
@@ -96,16 +97,19 @@ public class UnsupportedMediaTypeStatusException extends ResponseStatusException
   public UnsupportedMediaTypeStatusException(@Nullable MediaType contentType, List<MediaType> supportedTypes,
           @Nullable ResolvableType bodyType, @Nullable HttpMethod method) {
 
-    super(HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-            "Content type '" + (contentType != null ? contentType : "") + "' not supported" +
-                    (bodyType != null ? " for bodyType=" + bodyType : ""));
+    super(HttpStatus.UNSUPPORTED_MEDIA_TYPE, initMessage(contentType, bodyType),
+            null, null, new Object[] { contentType, supportedTypes });
 
     this.contentType = contentType;
     this.supportedMediaTypes = Collections.unmodifiableList(supportedTypes);
     this.bodyType = bodyType;
     this.method = method;
 
-    setDetail(contentType != null ? "Content-Type '" + contentType + "' is not supported." : null);
+    setDetail(contentType != null ? "Content-Type '%s' is not supported.".formatted(contentType) : null);
+  }
+
+  private static String initMessage(@Nullable MediaType contentType, @Nullable ResolvableType bodyType) {
+    return "Content type '%s' not supported%s".formatted(contentType != null ? contentType : "", bodyType != null ? " for bodyType=" + bodyType : "");
   }
 
   /**

@@ -17,6 +17,9 @@
 
 package cn.taketoday.web.bind;
 
+import java.util.Locale;
+
+import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
@@ -25,6 +28,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.ErrorResponse;
+import cn.taketoday.web.util.BindErrorUtils;
 
 /**
  * Exception to be thrown when validation on an argument annotated with {@code @Valid} fails.
@@ -53,6 +57,13 @@ public class MethodArgumentNotValidException extends BindException implements Er
     this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), "Invalid request content.");
   }
 
+  /**
+   * Return the method parameter that failed validation.
+   */
+  public final MethodParameter getParameter() {
+    return this.parameter;
+  }
+
   @Override
   public HttpStatusCode getStatusCode() {
     return HttpStatus.BAD_REQUEST;
@@ -63,11 +74,18 @@ public class MethodArgumentNotValidException extends BindException implements Er
     return this.body;
   }
 
-  /**
-   * Return the method parameter that failed validation.
-   */
-  public final MethodParameter getParameter() {
-    return this.parameter;
+  @Override
+  public Object[] getDetailMessageArguments(MessageSource source, Locale locale) {
+    return new Object[] {
+            BindErrorUtils.resolveAndJoin(getGlobalErrors(), source, locale),
+            BindErrorUtils.resolveAndJoin(getFieldErrors(), source, locale) };
+  }
+
+  @Override
+  public Object[] getDetailMessageArguments() {
+    return new Object[] {
+            BindErrorUtils.resolveAndJoin(getGlobalErrors()),
+            BindErrorUtils.resolveAndJoin(getFieldErrors()) };
   }
 
   @Override

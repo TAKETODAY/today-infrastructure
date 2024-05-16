@@ -37,6 +37,8 @@ import cn.taketoday.web.ErrorResponse;
  */
 public class AsyncRequestTimeoutException extends RuntimeException implements ErrorResponse {
 
+  private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
+
   @Override
   public HttpStatus getStatusCode() {
     return HttpStatus.SERVICE_UNAVAILABLE;
@@ -44,7 +46,7 @@ public class AsyncRequestTimeoutException extends RuntimeException implements Er
 
   @Override
   public ProblemDetail getBody() {
-    return ProblemDetail.forStatus(getStatusCode());
+    return body;
   }
 
 }

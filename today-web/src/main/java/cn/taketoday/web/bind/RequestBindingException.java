@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.net.URI;
-
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
@@ -43,13 +41,41 @@ public class RequestBindingException extends NestedRuntimeException implements E
 
   private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
+  private final String messageDetailCode;
+
+  @Nullable
+  private final Object[] messageDetailArguments;
+
+  /**
+   * Constructor with a message only.
+   *
+   * @param msg the detail message
+   */
+  public RequestBindingException(@Nullable String msg) {
+    this(msg, null, null);
+  }
+
+  /**
+   * Constructor with a message and a cause.
+   *
+   * @param msg the detail message
+   * @param cause the root cause
+   */
+  public RequestBindingException(@Nullable String msg, @Nullable Throwable cause) {
+    this(msg, cause, null, null);
+  }
+
   /**
    * Constructor for RequestBindingException.
    *
    * @param msg the detail message
+   * @param messageDetailCode the code to use to resolve the problem "detail"
+   * through a {@link cn.taketoday.context.MessageSource}
+   * @param messageDetailArguments the arguments to make available when
+   * resolving the problem "detail" through a {@code MessageSource}
    */
-  public RequestBindingException(String msg) {
-    super(msg);
+  protected RequestBindingException(@Nullable String msg, @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+    this(msg, null, messageDetailCode, messageDetailArguments);
   }
 
   /**
@@ -57,9 +83,21 @@ public class RequestBindingException extends NestedRuntimeException implements E
    *
    * @param msg the detail message
    * @param cause the root cause
+   * @param messageDetailCode the code to use to resolve the problem "detail"
+   * through a {@link cn.taketoday.context.MessageSource}
+   * @param messageDetailArguments the arguments to make available when
+   * resolving the problem "detail" through a {@code MessageSource}
+   * @since 5.0
    */
-  public RequestBindingException(String msg, Throwable cause) {
+  protected RequestBindingException(@Nullable String msg, @Nullable Throwable cause,
+          @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
+
     super(msg, cause);
+    if (messageDetailCode == null) {
+      messageDetailCode = ErrorResponse.getDefaultDetailMessageCode(getClass(), null);
+    }
+    this.messageDetailCode = messageDetailCode;
+    this.messageDetailArguments = messageDetailArguments;
   }
 
   @Override
@@ -72,40 +110,15 @@ public class RequestBindingException extends NestedRuntimeException implements E
     return this.body;
   }
 
-  /**
-   * Set the {@link ProblemDetail#setType(URI) type} field of the response body.
-   *
-   * @param type the problem type
-   */
-  public void setType(URI type) {
-    this.body.setType(type);
+  @Override
+  public String getDetailMessageCode() {
+    return this.messageDetailCode;
   }
 
-  /**
-   * Set the {@link ProblemDetail#setTitle(String) title} field of the response body.
-   *
-   * @param title the problem title
-   */
-  public void setTitle(@Nullable String title) {
-    this.body.setTitle(title);
-  }
-
-  /**
-   * Set the {@link ProblemDetail#setDetail(String) detail} field of the response body.
-   *
-   * @param detail the problem detail
-   */
-  public void setDetail(@Nullable String detail) {
-    this.body.setDetail(detail);
-  }
-
-  /**
-   * Set the {@link ProblemDetail#setInstance(URI) instance} field of the response body.
-   *
-   * @param instance the problem instance
-   */
-  public void setInstance(@Nullable URI instance) {
-    this.body.setInstance(instance);
+  @Override
+  @Nullable
+  public Object[] getDetailMessageArguments() {
+    return this.messageDetailArguments;
   }
 
 }

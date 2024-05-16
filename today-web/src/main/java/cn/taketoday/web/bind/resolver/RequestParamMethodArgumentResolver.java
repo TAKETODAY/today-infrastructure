@@ -210,8 +210,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       }
     }
     else {
-      throw new MissingRequestParameterException(name,
-              parameter.getNestedParameterType().getSimpleName(), missingAfterConversion);
+      throw new MissingRequestParameterException(name, parameter, missingAfterConversion);
     }
   }
 
