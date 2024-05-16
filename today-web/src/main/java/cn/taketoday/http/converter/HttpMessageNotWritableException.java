@@ -17,8 +17,6 @@
 
 package cn.taketoday.http.converter;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,9 +28,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HttpMessageNotWritableException extends HttpMessageConversionException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Create a new HttpMessageNotWritableException.

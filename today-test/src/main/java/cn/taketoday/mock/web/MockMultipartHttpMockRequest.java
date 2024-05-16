@@ -139,7 +139,6 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
     return multipartData;
   }
 
-  @Override
   public String getMultipartContentType(String paramOrFileName) {
     MultipartFile file = getFile(paramOrFileName);
     if (file != null) {

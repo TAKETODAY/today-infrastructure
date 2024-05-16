@@ -32,10 +32,9 @@ import cn.taketoday.web.bind.MultipartException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 21:49
  */
-@SuppressWarnings("serial")
 public class MaxUploadSizeExceededException extends MultipartException implements ErrorResponse {
 
-  private static final ProblemDetail body =
+  private final ProblemDetail body =
           ProblemDetail.forStatusAndDetail(HttpStatus.PAYLOAD_TOO_LARGE, "Maximum upload size exceeded");
 
   private final long maxUploadSize;

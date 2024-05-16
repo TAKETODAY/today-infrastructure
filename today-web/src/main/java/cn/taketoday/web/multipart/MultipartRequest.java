@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.NotMultipartRequestException;
 
 /**
  * This interface defines the multipart request access operations that are exposed
@@ -54,6 +55,8 @@ public interface MultipartRequest {
    *
    * @param name a String specifying the parameter name of the multipart file
    * @return the uploaded content in the form of a {@link MultipartFile} object
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @see #multipartData()
    */
   @Nullable
   MultipartFile getFile(String name);
@@ -64,6 +67,8 @@ public interface MultipartRequest {
    *
    * @param name a String specifying the parameter name of the multipart file
    * @return the uploaded content in the form of a {@link MultipartFile} list
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @see #multipartData()
    */
   @Nullable
   List<MultipartFile> getFiles(String name);
@@ -73,6 +78,8 @@ public interface MultipartRequest {
    * or an empty list if it does not exist.
    *
    * @param name a String specifying the parameter name of the multipart
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @see #multipartData()
    */
   @Nullable
   List<Multipart> multipartData(String name);
@@ -90,6 +97,8 @@ public interface MultipartRequest {
    *
    * @return a map containing the parameter names as keys, and a list of
    * {@link MultipartFile} objects as values
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @see #multipartData()
    */
   MultiValueMap<String, MultipartFile> getMultipartFiles();
 
@@ -99,20 +108,11 @@ public interface MultipartRequest {
    *
    * @return the multipart data, mapping from name to part(s)
    * @throws IOException if an I/O error occurred during the retrieval
-   * @throws cn.taketoday.web.bind.NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
+   * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
    * @see RequestContext#getMultipartRequest()
    * @see MultipartRequest#multipartData()
    */
   MultiValueMap<String, Multipart> multipartData() throws IOException;
-
-  /**
-   * Determine the content type of the specified request part.
-   *
-   * @param paramOrFileName the name of the part
-   * @return the associated content type, or {@code null} if not defined
-   */
-  @Nullable
-  String getMultipartContentType(String paramOrFileName);
 
   /**
    * Return the headers for the specified part of the multipart request.

@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
-
 /**
  * Not A Multipart Request Exception
  *
@@ -26,9 +24,6 @@ import java.io.Serial;
  * @since 3.0
  */
 public class NotMultipartRequestException extends MultipartException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public NotMultipartRequestException(String message, Throwable cause) {
     super(message, cause);

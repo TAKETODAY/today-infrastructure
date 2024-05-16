@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
-
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Nullable;
 
@@ -30,9 +28,6 @@ import cn.taketoday.lang.Nullable;
  * @since 3.0 2021/1/17 10:41
  */
 public class MultipartException extends HttpMessageNotReadableException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public MultipartException(String message) {
     super(message);

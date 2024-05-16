@@ -17,8 +17,6 @@
 
 package cn.taketoday.http.converter;
 
-import java.io.Serial;
-
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -33,9 +31,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HttpMessageNotReadableException extends HttpMessageConversionException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final HttpInputMessage httpInputMessage;

@@ -22,6 +22,9 @@ import java.util.Collection;
 
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.http.HttpMockRequest;
+import cn.taketoday.mock.api.http.Part;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.MultipartException;
@@ -29,9 +32,6 @@ import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
-import cn.taketoday.mock.api.MockException;
-import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.Part;
 
 /**
  * For Servlet Multipart
@@ -100,17 +100,6 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
   @Override
   protected MultiValueMap<String, Multipart> parseRequest() {
     return parseRequest(request);
-  }
-
-  @Override
-  public String getMultipartContentType(String paramOrFileName) {
-    try {
-      Part part = request.getPart(paramOrFileName);
-      return part != null ? part.getContentType() : null;
-    }
-    catch (Throwable ex) {
-      throw new MultipartException("Could not access multipart servlet request", ex);
-    }
   }
 
   @Override

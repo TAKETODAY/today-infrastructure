@@ -35,7 +35,6 @@ import cn.taketoday.web.ErrorResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 18:10
  */
-@SuppressWarnings("serial")
 public class AsyncRequestTimeoutException extends RuntimeException implements ErrorResponse {
 
   @Override

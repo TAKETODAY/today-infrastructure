@@ -20,12 +20,14 @@ package cn.taketoday.web.server.support;
 import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.bind.NotMultipartRequestException;
+import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.FileUpload;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 
 /**
@@ -38,16 +40,6 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
 
   public NettyMultipartRequest(NettyRequestContext context) {
     this.context = context;
-  }
-
-  @Nullable
-  @Override
-  public String getMultipartContentType(String paramOrFileName) {
-    HttpHeaders multipartHeaders = getMultipartHeaders(paramOrFileName);
-    if (multipartHeaders != null) {
-      return multipartHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
-    }
-    return null;
   }
 
   @Override
@@ -70,15 +62,23 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   @Override
   protected MultiValueMap<String, Multipart> parseRequest() {
     var map = MultiValueMap.<String, Multipart>forLinkedHashMap();
-    for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
-      if (data instanceof FileUpload fileUpload) {
-        map.add(data.getName(), new NettyMultipartFile(fileUpload));
+    try {
+      for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
+        if (data instanceof FileUpload fileUpload) {
+          map.add(data.getName(), new NettyMultipartFile(fileUpload));
+        }
+        else if (data instanceof Attribute attribute) {
+          NettyFormData nettyFormData = new NettyFormData(attribute);
+          map.add(attribute.getName(), nettyFormData);
+        }
       }
-      else if (data instanceof Attribute attribute) {
-        NettyFormData nettyFormData = new NettyFormData(attribute);
-        map.add(attribute.getName(), nettyFormData);
-      }
+      return map;
     }
-    return map;
+    catch (HttpPostRequestDecoder.TooLongFormFieldException e) {
+      throw new MaxUploadSizeExceededException(-1, e);
+    }
+    catch (HttpPostRequestDecoder.NotEnoughDataDecoderException e) {
+      throw new NotMultipartRequestException("Not enough data", e);
+    }
   }
 }
