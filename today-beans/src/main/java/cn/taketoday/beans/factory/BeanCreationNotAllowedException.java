@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -26,9 +23,9 @@ package cn.taketoday.beans.factory;
  * the shutdown phase of a bean factory).
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanCreationNotAllowedException extends BeanCreationException {
   private final String beanName;
 
@@ -39,7 +36,7 @@ public class BeanCreationNotAllowedException extends BeanCreationException {
    * @param msg the detail message
    */
   public BeanCreationNotAllowedException(String beanName, String msg) {
-    super("Error creating bean with name '" + beanName + "': " + msg);
+    super("Error creating bean with name '%s': %s".formatted(beanName, msg));
     this.beanName = beanName;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +125,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 400 Bad Request.
    */
-  @SuppressWarnings("serial")
   public static final class BadRequest extends HttpClientErrorException {
 
     private BadRequest(@Nullable String message, String statusText,
@@ -138,7 +137,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 401 Unauthorized.
    */
-  @SuppressWarnings("serial")
   public static final class Unauthorized extends HttpClientErrorException {
 
     private Unauthorized(@Nullable String message, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -149,7 +147,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 403 Forbidden.
    */
-  @SuppressWarnings("serial")
   public static final class Forbidden extends HttpClientErrorException {
 
     private Forbidden(@Nullable String message, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -160,7 +157,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 404 Not Found.
    */
-  @SuppressWarnings("serial")
   public static final class NotFound extends HttpClientErrorException {
 
     private NotFound(@Nullable String message, String statusText,
@@ -173,7 +169,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 405 Method Not Allowed.
    */
-  @SuppressWarnings("serial")
   public static final class MethodNotAllowed extends HttpClientErrorException {
 
     private MethodNotAllowed(@Nullable String message, String statusText,
@@ -186,7 +181,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 406 Not Acceptable.
    */
-  @SuppressWarnings("serial")
   public static final class NotAcceptable extends HttpClientErrorException {
 
     private NotAcceptable(@Nullable String message, String statusText,
@@ -199,7 +193,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 409 Conflict.
    */
-  @SuppressWarnings("serial")
   public static final class Conflict extends HttpClientErrorException {
 
     private Conflict(@Nullable String message, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -210,7 +203,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 410 Gone.
    */
-  @SuppressWarnings("serial")
   public static final class Gone extends HttpClientErrorException {
 
     private Gone(@Nullable String message, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
@@ -221,7 +213,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 415 Unsupported Media Type.
    */
-  @SuppressWarnings("serial")
   public static final class UnsupportedMediaType extends HttpClientErrorException {
 
     private UnsupportedMediaType(@Nullable String message, String statusText,
@@ -234,7 +225,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 422 Unprocessable Entity.
    */
-  @SuppressWarnings("serial")
   public static final class UnprocessableEntity extends HttpClientErrorException {
 
     private UnprocessableEntity(@Nullable String message, String statusText,
@@ -247,7 +237,6 @@ public class HttpClientErrorException extends HttpStatusCodeException {
   /**
    * {@link HttpClientErrorException} for status HTTP 429 Too Many Requests.
    */
-  @SuppressWarnings("serial")
   public static final class TooManyRequests extends HttpClientErrorException {
 
     private TooManyRequests(@Nullable String message, String statusText,

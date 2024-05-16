@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HttpServerErrorException extends HttpStatusCodeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor with a status code only.
@@ -147,9 +144,6 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * {@link HttpServerErrorException} for status HTTP HTTP 502 Bad Gateway.
    */
   public static final class BadGateway extends HttpServerErrorException {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     private BadGateway(@Nullable String message, String statusText,
             HttpHeaders headers, byte[] body, @Nullable Charset charset) {

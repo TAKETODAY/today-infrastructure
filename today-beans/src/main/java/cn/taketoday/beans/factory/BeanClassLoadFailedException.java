@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -30,7 +27,6 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2021/10/23 19:19
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanClassLoadFailedException extends BeansException {
 
   @Nullable
@@ -52,9 +48,8 @@ public class BeanClassLoadFailedException extends BeansException {
    */
   public BeanClassLoadFailedException(@Nullable String resourceDescription, String beanName,
           @Nullable String beanClassName, ClassNotFoundException cause) {
-
-    super("Cannot find class [" + beanClassName + "] for bean with name '" + beanName + "'" +
-            (resourceDescription != null ? " defined in " + resourceDescription : ""), cause);
+    super("Cannot find class [%s] for bean with name '%s'%s".formatted(beanClassName, beanName,
+            resourceDescription != null ? " defined in " + resourceDescription : ""), cause);
     this.resourceDescription = resourceDescription;
     this.beanName = beanName;
     this.beanClassName = beanClassName;
@@ -72,9 +67,8 @@ public class BeanClassLoadFailedException extends BeansException {
   public BeanClassLoadFailedException(@Nullable String resourceDescription, String beanName,
           @Nullable String beanClassName, LinkageError cause) {
 
-    super("Error loading class [" + beanClassName + "] for bean with name '" + beanName + "'" +
-            (resourceDescription != null ? " defined in " + resourceDescription : "") +
-            ": problem with class file or dependent class", cause);
+    super("Error loading class [%s] for bean with name '%s'%s: problem with class file or dependent class"
+            .formatted(beanClassName, beanName, resourceDescription != null ? " defined in " + resourceDescription : ""), cause);
     this.resourceDescription = resourceDescription;
     this.beanName = beanName;
     this.beanClassName = beanClassName;

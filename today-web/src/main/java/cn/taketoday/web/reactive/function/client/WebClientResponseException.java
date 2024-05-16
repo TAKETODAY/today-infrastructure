@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.reactive.function.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -41,9 +40,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class WebClientResponseException extends WebClientException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final HttpStatusCode statusCode;
 
@@ -292,7 +288,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 400 Bad Request.
    */
-  @SuppressWarnings("serial")
   public static class BadRequest extends WebClientResponseException {
 
     BadRequest(String statusText, HttpHeaders headers, byte[] body,
@@ -306,7 +301,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 401 Unauthorized.
    */
-  @SuppressWarnings("serial")
   public static class Unauthorized extends WebClientResponseException {
 
     Unauthorized(String statusText, HttpHeaders headers, byte[] body,
@@ -319,7 +313,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 403 Forbidden.
    */
-  @SuppressWarnings("serial")
   public static class Forbidden extends WebClientResponseException {
 
     Forbidden(String statusText, HttpHeaders headers, byte[] body,
@@ -332,7 +325,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 404 Not Found.
    */
-  @SuppressWarnings("serial")
   public static class NotFound extends WebClientResponseException {
 
     NotFound(String statusText, HttpHeaders headers, byte[] body,
@@ -345,7 +337,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 405 Method Not Allowed.
    */
-  @SuppressWarnings("serial")
   public static class MethodNotAllowed extends WebClientResponseException {
 
     MethodNotAllowed(String statusText, HttpHeaders headers, byte[] body,
@@ -358,7 +349,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 406 Not Acceptable.
    */
-  @SuppressWarnings("serial")
   public static class NotAcceptable extends WebClientResponseException {
 
     NotAcceptable(String statusText, HttpHeaders headers, byte[] body,
@@ -371,7 +361,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 409 Conflict.
    */
-  @SuppressWarnings("serial")
   public static class Conflict extends WebClientResponseException {
 
     Conflict(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
@@ -383,7 +372,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 410 Gone.
    */
-  @SuppressWarnings("serial")
   public static class Gone extends WebClientResponseException {
 
     Gone(String statusText, HttpHeaders headers, byte[] body,
@@ -396,7 +384,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 415 Unsupported Media Type.
    */
-  @SuppressWarnings("serial")
   public static class UnsupportedMediaType extends WebClientResponseException {
 
     UnsupportedMediaType(String statusText, HttpHeaders headers, byte[] body,
@@ -409,7 +396,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 422 Unprocessable Entity.
    */
-  @SuppressWarnings("serial")
   public static class UnprocessableEntity extends WebClientResponseException {
 
     UnprocessableEntity(String statusText, HttpHeaders headers, byte[] body,
@@ -422,7 +408,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 429 Too Many Requests.
    */
-  @SuppressWarnings("serial")
   public static class TooManyRequests extends WebClientResponseException {
 
     TooManyRequests(String statusText, HttpHeaders headers, byte[] body,
@@ -437,7 +422,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 500 Internal Server Error.
    */
-  @SuppressWarnings("serial")
   public static class InternalServerError extends WebClientResponseException {
 
     InternalServerError(String statusText, HttpHeaders headers, byte[] body,
@@ -450,7 +434,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 501 Not Implemented.
    */
-  @SuppressWarnings("serial")
   public static class NotImplemented extends WebClientResponseException {
 
     NotImplemented(String statusText, HttpHeaders headers, byte[] body,
@@ -463,7 +446,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP HTTP 502 Bad Gateway.
    */
-  @SuppressWarnings("serial")
   public static class BadGateway extends WebClientResponseException {
 
     BadGateway(String statusText, HttpHeaders headers, byte[] body,
@@ -476,7 +458,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 503 Service Unavailable.
    */
-  @SuppressWarnings("serial")
   public static class ServiceUnavailable extends WebClientResponseException {
 
     ServiceUnavailable(String statusText, HttpHeaders headers, byte[] body,
@@ -489,7 +470,6 @@ public class WebClientResponseException extends WebClientException {
   /**
    * {@link WebClientResponseException} for status HTTP 504 Gateway Timeout.
    */
-  @SuppressWarnings("serial")
   public static class GatewayTimeout extends WebClientResponseException {
 
     GatewayTimeout(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.reactive.function.client;
 
-import java.io.Serial;
-
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -29,9 +27,6 @@ import cn.taketoday.core.NestedRuntimeException;
  * @since 4.0
  */
 public abstract class WebClientException extends NestedRuntimeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new instance of {@code WebClientException} with the given message.

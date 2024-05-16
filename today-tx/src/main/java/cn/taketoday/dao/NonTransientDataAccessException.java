@@ -29,7 +29,6 @@ import cn.taketoday.lang.Nullable;
  * @see java.sql.SQLNonTransientException
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public abstract class NonTransientDataAccessException extends DataAccessException {
 
   /**

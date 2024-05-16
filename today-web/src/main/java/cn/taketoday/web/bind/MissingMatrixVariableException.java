@@ -29,7 +29,6 @@ import cn.taketoday.core.MethodParameter;
  * @see MissingPathVariableException
  * @since 4.0 2022/1/23 22:30
  */
-@SuppressWarnings("serial")
 public class MissingMatrixVariableException extends MissingRequestValueException {
 
   private final String variableName;

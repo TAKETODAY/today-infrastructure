@@ -34,7 +34,6 @@ import cn.taketoday.web.bind.MissingRequestValueException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class MissingRequestPartException extends MissingRequestValueException implements ErrorResponse {
 
   private final String requestPartName;

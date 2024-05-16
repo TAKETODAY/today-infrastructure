@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -34,7 +31,6 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/12 00:06
  */
-@SuppressWarnings("serial")
 public class TypeMismatchException extends PropertyAccessException {
 
   /**
@@ -71,13 +67,12 @@ public class TypeMismatchException extends PropertyAccessException {
   public TypeMismatchException(PropertyChangeEvent propertyChangeEvent,
           @Nullable Class<?> requiredType, @Nullable Throwable cause) {
 
-    super(propertyChangeEvent,
-            "Failed to convert property value of type '" +
+    super(propertyChangeEvent, "Failed to convert property value of type '" +
                     ClassUtils.getDescriptiveType(propertyChangeEvent.getNewValue()) + "'" +
                     (requiredType != null ?
-                     " to required type '" + ClassUtils.getQualifiedName(requiredType) + "'" : "") +
+                            " to required type '" + ClassUtils.getQualifiedName(requiredType) + "'" : "") +
                     (propertyChangeEvent.getPropertyName() != null ?
-                     " for property '" + propertyChangeEvent.getPropertyName() + "'" : "") +
+                            " for property '" + propertyChangeEvent.getPropertyName() + "'" : "") +
                     (cause != null ? "; " + cause.getMessage() : ""),
             cause);
     this.propertyName = propertyChangeEvent.getPropertyName();

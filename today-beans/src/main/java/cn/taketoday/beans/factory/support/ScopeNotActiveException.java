@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.Scope;
 
 /**
  * A subclass of {@link BeanCreationException} which indicates that the target scope
@@ -36,7 +33,6 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
  * @see BeanDefinition#setScope
  * @since 4.0 2022/1/9 23:23
  */
-@SuppressWarnings("serial")
 public class ScopeNotActiveException extends BeanCreationException {
 
   /**
@@ -47,8 +43,8 @@ public class ScopeNotActiveException extends BeanCreationException {
    * @param cause the root cause, typically from {@link Scope#get}
    */
   public ScopeNotActiveException(String beanName, String scopeName, IllegalStateException cause) {
-    super(beanName, "Scope '" + scopeName + "' is not active for the current thread; consider " +
-            "defining a scoped proxy for this bean if you intend to refer to it from a singleton", cause);
+    super(beanName, "Scope '%s' is not active for the current thread; consider defining a scoped proxy for this bean if you intend to refer to it from a singleton"
+            .formatted(scopeName), cause);
   }
 
 }

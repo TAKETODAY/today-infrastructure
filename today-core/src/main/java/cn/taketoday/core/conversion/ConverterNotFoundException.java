@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.conversion;
-
-import java.io.Serial;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
@@ -32,11 +27,10 @@ import cn.taketoday.lang.Nullable;
  * @author Keith Donald
  * @author Juergen Hoeller
  * @author TODAY 2021/3/22 12:08
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
 public class ConverterNotFoundException extends ConversionException {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final TypeDescriptor sourceType;
@@ -50,7 +44,7 @@ public class ConverterNotFoundException extends ConversionException {
    * @param targetType the target type requested to convert to
    */
   public ConverterNotFoundException(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
-    super("No converter found capable of converting from type [" + sourceType + "] to type [" + targetType + "]");
+    super("No converter found capable of converting from type [%s] to type [%s]".formatted(sourceType, targetType));
     this.sourceType = sourceType;
     this.targetType = targetType;
   }

@@ -17,8 +17,6 @@
 
 package cn.taketoday.orm.mybatis;
 
-import java.io.Serial;
-
 import cn.taketoday.dao.UncategorizedDataAccessException;
 
 /**
@@ -34,9 +32,6 @@ import cn.taketoday.dao.UncategorizedDataAccessException;
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth") // It is the intended design
 public class MyBatisSystemException extends UncategorizedDataAccessException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public MyBatisSystemException(Throwable cause) {
     super(null, cause);

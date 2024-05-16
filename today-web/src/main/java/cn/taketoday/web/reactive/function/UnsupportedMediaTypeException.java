@@ -32,7 +32,6 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
   @Nullable

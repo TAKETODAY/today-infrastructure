@@ -17,7 +17,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,9 +34,6 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/10/1 20:06
  */
 public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final int numberOfBeansFound;
 

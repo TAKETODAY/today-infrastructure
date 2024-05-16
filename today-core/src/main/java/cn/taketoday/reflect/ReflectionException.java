@@ -17,8 +17,6 @@
 
 package cn.taketoday.reflect;
 
-import java.io.Serial;
-
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -28,9 +26,6 @@ import cn.taketoday.core.NestedRuntimeException;
  * @since 2020-08-13 18:46
  */
 public class ReflectionException extends NestedRuntimeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public ReflectionException(String message) {
     super(message);

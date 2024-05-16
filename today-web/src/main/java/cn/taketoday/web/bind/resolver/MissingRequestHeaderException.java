@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.io.Serial;
-
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.bind.MissingRequestValueException;
 import cn.taketoday.web.bind.RequestBindingException;
@@ -31,9 +29,6 @@ import cn.taketoday.web.bind.RequestBindingException;
  * @author TODAY 2021/3/10 20:39
  */
 public class MissingRequestHeaderException extends MissingRequestValueException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final String headerName;
 

@@ -17,8 +17,6 @@
 
 package cn.taketoday.core;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -26,9 +24,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class NoStackTraceRuntimeException extends NestedRuntimeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message

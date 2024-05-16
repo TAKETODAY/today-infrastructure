@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
@@ -31,9 +30,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class UnknownHttpStatusCodeException extends RestClientResponseException {
-
-  @Serial
-  private static final long serialVersionUID = 7103980251635005491L;
 
   /**
    * Construct a new instance of {@code HttpStatusCodeException} based on a

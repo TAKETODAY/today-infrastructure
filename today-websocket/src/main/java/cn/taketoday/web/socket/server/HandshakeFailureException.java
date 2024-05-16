@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.socket.server;
 
-import java.io.Serial;
-
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
 
@@ -37,9 +35,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HandshakeFailureException extends NestedRuntimeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public HandshakeFailureException(String message, @Nullable Throwable cause) {
     super(message, cause);

@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.view;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.InternalServerException;
 
@@ -27,9 +25,6 @@ import cn.taketoday.web.InternalServerException;
  * @since 4.0
  */
 public class ViewRenderingException extends InternalServerException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public ViewRenderingException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);

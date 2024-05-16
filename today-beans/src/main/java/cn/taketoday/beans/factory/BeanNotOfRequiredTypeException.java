@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -31,7 +28,6 @@ import cn.taketoday.util.ClassUtils;
  * @author TODAY 2021/10/26 21:36
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanNotOfRequiredTypeException extends BeansException {
 
   /** The name of the instance that was of the wrong type. */
@@ -52,8 +48,8 @@ public class BeanNotOfRequiredTypeException extends BeansException {
    * the expected type
    */
   public BeanNotOfRequiredTypeException(String beanName, Class<?> requiredType, Class<?> actualType) {
-    super("Bean named '" + beanName + "' is expected to be of type '" + ClassUtils.getQualifiedName(requiredType) +
-            "' but was actually of type '" + ClassUtils.getQualifiedName(actualType) + "'");
+    super("Bean named '%s' is expected to be of type '%s' but was actually of type '%s'"
+            .formatted(beanName, ClassUtils.getQualifiedName(requiredType), ClassUtils.getQualifiedName(actualType)));
     this.beanName = beanName;
     this.actualType = actualType;
     this.requiredType = requiredType;

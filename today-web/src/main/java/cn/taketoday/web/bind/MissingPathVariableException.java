@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
-
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpStatus;
 
@@ -33,9 +31,6 @@ import cn.taketoday.http.HttpStatus;
  * @since 3.0
  */
 public class MissingPathVariableException extends MissingRequestValueException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final String variableName;
 

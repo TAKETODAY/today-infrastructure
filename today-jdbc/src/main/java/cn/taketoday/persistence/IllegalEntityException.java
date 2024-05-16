@@ -17,8 +17,6 @@
 
 package cn.taketoday.persistence;
 
-import java.io.Serial;
-
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.lang.Nullable;
 
@@ -29,9 +27,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/11/15 15:50
  */
 public class IllegalEntityException extends PersistenceException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public IllegalEntityException(@Nullable String message) {
     this(message, null);

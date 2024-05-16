@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.conversion;
-
-import java.io.Serial;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
@@ -35,8 +30,6 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public class ConversionFailedException extends ConversionException {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final TypeDescriptor sourceType;
@@ -57,8 +50,7 @@ public class ConversionFailedException extends ConversionException {
   public ConversionFailedException(@Nullable TypeDescriptor sourceType,
           TypeDescriptor targetType, @Nullable Object value, Throwable cause) {
 
-    super("Failed to convert from type [" + sourceType + "] to type [" + targetType +
-            "] for value [" + ObjectUtils.nullSafeConciseToString(value) + "]", cause);
+    super("Failed to convert from type [%s] to type [%s] for value [%s]".formatted(sourceType, targetType, ObjectUtils.nullSafeConciseToString(value)), cause);
     this.sourceType = sourceType;
     this.targetType = targetType;
     this.value = value;

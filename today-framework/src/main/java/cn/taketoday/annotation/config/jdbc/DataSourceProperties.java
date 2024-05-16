@@ -412,10 +412,10 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
 
   }
 
-  @SuppressWarnings("serial")
   static class DataSourceBeanCreationException extends BeanCreationException {
 
     public final DataSourceProperties properties;
+
     public final EmbeddedDatabaseConnection connection;
 
     DataSourceBeanCreationException(String message,

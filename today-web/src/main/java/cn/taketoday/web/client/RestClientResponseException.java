@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 import java.util.function.Function;
 
@@ -37,9 +36,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class RestClientResponseException extends RestClientException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final HttpStatusCode statusCode;
 

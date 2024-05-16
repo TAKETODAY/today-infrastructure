@@ -16,8 +16,6 @@
  */
 package cn.taketoday.web;
 
-import java.io.Serial;
-
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 
@@ -26,9 +24,6 @@ import cn.taketoday.lang.Nullable;
  * @since 2018-12-02 09:14
  */
 public class InternalServerException extends ResponseStatusException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 

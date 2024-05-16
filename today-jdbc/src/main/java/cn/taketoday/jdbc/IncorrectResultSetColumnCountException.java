@@ -28,7 +28,6 @@ import cn.taketoday.dao.DataRetrievalFailureException;
  * @see cn.taketoday.dao.IncorrectResultSizeDataAccessException
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class IncorrectResultSetColumnCountException extends DataRetrievalFailureException {
 
   private final int expectedCount;
@@ -42,7 +41,7 @@ public class IncorrectResultSetColumnCountException extends DataRetrievalFailure
    * @param actualCount the actual column count
    */
   public IncorrectResultSetColumnCountException(int expectedCount, int actualCount) {
-    super("Incorrect column count: expected " + expectedCount + ", actual " + actualCount);
+    super("Incorrect column count: expected %d, actual %d".formatted(expectedCount, actualCount));
     this.expectedCount = expectedCount;
     this.actualCount = actualCount;
   }

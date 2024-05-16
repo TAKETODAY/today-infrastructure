@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.reactive.function.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
@@ -34,17 +33,12 @@ import cn.taketoday.lang.Nullable;
  */
 public class UnknownHttpStatusCodeException extends WebClientResponseException {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
   /**
    * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
    * parameters.
    */
-  public UnknownHttpStatusCodeException(
-          int statusCode, HttpHeaders headers, byte[] responseBody, Charset responseCharset) {
-
-    super("Unknown status code [" + statusCode + "]", statusCode, "",
+  public UnknownHttpStatusCodeException(int statusCode, HttpHeaders headers, byte[] responseBody, Charset responseCharset) {
+    super("Unknown status code [%d]".formatted(statusCode), statusCode, "",
             headers, responseBody, responseCharset);
   }
 
@@ -52,11 +46,10 @@ public class UnknownHttpStatusCodeException extends WebClientResponseException {
    * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
    * parameters.
    */
-  public UnknownHttpStatusCodeException(
-          int statusCode, HttpHeaders headers, byte[] responseBody, @Nullable Charset responseCharset,
-          @Nullable HttpRequest request) {
+  public UnknownHttpStatusCodeException(int statusCode, HttpHeaders headers, byte[] responseBody,
+          @Nullable Charset responseCharset, @Nullable HttpRequest request) {
 
-    super("Unknown status code [" + statusCode + "]", statusCode, "",
+    super("Unknown status code [%d]".formatted(statusCode), statusCode, "",
             headers, responseBody, responseCharset, request);
   }
 
@@ -64,11 +57,10 @@ public class UnknownHttpStatusCodeException extends WebClientResponseException {
    * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
    * parameters.
    */
-  public UnknownHttpStatusCodeException(
-          HttpStatusCode statusCode, HttpHeaders headers, byte[] responseBody, @Nullable Charset responseCharset,
-          @Nullable HttpRequest request) {
+  public UnknownHttpStatusCodeException(HttpStatusCode statusCode, HttpHeaders headers,
+          byte[] responseBody, @Nullable Charset responseCharset, @Nullable HttpRequest request) {
 
-    super("Unknown status code [" + statusCode + "]", statusCode, "",
+    super("Unknown status code [%s]".formatted(statusCode), statusCode, "",
             headers, responseBody, responseCharset, request);
   }
 

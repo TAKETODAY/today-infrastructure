@@ -17,8 +17,6 @@
 
 package cn.taketoday.beans.factory;
 
-import java.io.Serial;
-
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.NonNull;
@@ -39,9 +37,6 @@ import cn.taketoday.lang.Nullable;
  * @since 2018-07-3 20:24:18
  */
 public class NoSuchBeanDefinitionException extends BeansException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final String beanName;

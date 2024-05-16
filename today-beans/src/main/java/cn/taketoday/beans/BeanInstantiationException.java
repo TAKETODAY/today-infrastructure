@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.beans;
 
-import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -34,11 +30,11 @@ import cn.taketoday.lang.Nullable;
  * @since 2.17
  */
 public class BeanInstantiationException extends FatalBeanException {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final Class<?> beanClass;
+
   private final Method constructingMethod;
+
   private final Constructor<?> constructor;
 
   public BeanInstantiationException(String msg, Throwable cause) {
@@ -53,21 +49,21 @@ public class BeanInstantiationException extends FatalBeanException {
   }
 
   public BeanInstantiationException(Class<?> beanClass, String msg, Throwable cause) {
-    super("Failed to instantiate [" + beanClass.getName() + "]: " + msg, cause);
+    super("Failed to instantiate [%s]: %s".formatted(beanClass.getName(), msg), cause);
     this.beanClass = beanClass;
     this.constructor = null;
     this.constructingMethod = null;
   }
 
   public BeanInstantiationException(Constructor<?> constructor, String msg, Throwable cause) {
-    super("Failed to instantiate [" + constructor.getDeclaringClass().getName() + "]: " + msg, cause);
+    super("Failed to instantiate [%s]: %s".formatted(constructor.getDeclaringClass().getName(), msg), cause);
     this.beanClass = constructor.getDeclaringClass();
     this.constructor = constructor;
     this.constructingMethod = null;
   }
 
   public BeanInstantiationException(Method constructingMethod, String msg, Throwable cause) {
-    super("Failed to instantiate [" + constructingMethod.getReturnType().getName() + "]: " + msg, cause);
+    super("Failed to instantiate [%s]: %s".formatted(constructingMethod.getReturnType().getName(), msg), cause);
     this.beanClass = constructingMethod.getReturnType();
     this.constructor = null;
     this.constructingMethod = constructingMethod;

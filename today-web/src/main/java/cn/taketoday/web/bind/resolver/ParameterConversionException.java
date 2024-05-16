@@ -16,8 +16,6 @@
  */
 package cn.taketoday.web.bind.resolver;
 
-import java.io.Serial;
-
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.bind.MethodParameterResolvingException;
 
@@ -28,8 +26,6 @@ import cn.taketoday.web.bind.MethodParameterResolvingException;
  * @since 3.0
  */
 public class ParameterConversionException extends MethodParameterResolvingException {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final Object value;
 

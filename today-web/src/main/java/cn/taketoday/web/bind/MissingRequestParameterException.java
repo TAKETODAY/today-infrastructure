@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
-
 /**
  * {@link RequestBindingException} subclass that indicates a missing parameter.
  *
@@ -26,9 +24,6 @@ import java.io.Serial;
  * @since 4.0 2022/1/22 23:20
  */
 public class MissingRequestParameterException extends MissingRequestValueException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final String parameterName;
 

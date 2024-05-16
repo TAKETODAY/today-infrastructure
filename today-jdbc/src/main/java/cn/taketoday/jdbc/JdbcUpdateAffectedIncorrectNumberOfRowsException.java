@@ -29,7 +29,6 @@ import cn.taketoday.dao.IncorrectUpdateSemanticsDataAccessException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class JdbcUpdateAffectedIncorrectNumberOfRowsException extends IncorrectUpdateSemanticsDataAccessException {
 
   /** Number of rows that should have been affected. */

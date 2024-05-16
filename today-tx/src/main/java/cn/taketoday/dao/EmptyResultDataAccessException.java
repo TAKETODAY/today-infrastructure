@@ -26,7 +26,6 @@ package cn.taketoday.dao;
  * @see IncorrectResultSizeDataAccessException
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class EmptyResultDataAccessException extends IncorrectResultSizeDataAccessException {
 
   /**

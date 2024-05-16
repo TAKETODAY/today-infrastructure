@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
 import java.net.URI;
 
 import cn.taketoday.core.NestedRuntimeException;
@@ -41,9 +40,6 @@ import cn.taketoday.web.ErrorResponse;
  * @since 4.0 2022/1/22 22:54
  */
 public class RequestBindingException extends NestedRuntimeException implements ErrorResponse {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 

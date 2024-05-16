@@ -35,7 +35,6 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.jdbc.support.rowset.SqlRowSet
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class InvalidResultSetAccessException extends InvalidDataAccessResourceUsageException {
 
   @Nullable

@@ -30,7 +30,6 @@ package cn.taketoday.dao;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DuplicateKeyException extends DataIntegrityViolationException {
 
   /**

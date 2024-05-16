@@ -17,8 +17,6 @@
 
 package cn.taketoday.jdbc;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -28,9 +26,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class ParameterBindFailedException extends PersistenceException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public ParameterBindFailedException(@Nullable String message) {
     super(message);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
@@ -36,9 +35,6 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public abstract class HttpStatusCodeException extends RestClientResponseException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new instance with an {@link HttpStatusCode}.

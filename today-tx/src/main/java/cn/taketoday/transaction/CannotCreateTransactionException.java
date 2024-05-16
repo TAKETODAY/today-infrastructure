@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package cn.taketoday.transaction;
 
-import java.io.Serial;
+package cn.taketoday.transaction;
 
 /**
  * Exception thrown when a transaction can't be created using an underlying
  * transaction API such as JTA.
  *
- * @author TODAY <br>
- * 2019-11-09 15:48
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-11-09 15:48
  */
 public class CannotCreateTransactionException extends TransactionException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor for CannotCreateTransactionException.

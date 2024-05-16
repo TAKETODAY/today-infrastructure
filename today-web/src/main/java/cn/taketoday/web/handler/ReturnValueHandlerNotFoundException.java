@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.Serial;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
@@ -30,9 +28,6 @@ import cn.taketoday.web.ReturnValueHandler;
  * @since 3.0
  */
 public class ReturnValueHandlerNotFoundException extends InfraConfigurationException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final Object handler;

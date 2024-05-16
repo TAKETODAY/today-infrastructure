@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.bind;
 
-import java.io.Serial;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +39,6 @@ import cn.taketoday.web.annotation.RequestMapping;
  * @since 4.0 2022/3/2 16:23
  */
 public class UnsatisfiedRequestParameterException extends RequestBindingException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final List<String[]> paramConditions;
 

@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.Serial;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
@@ -36,9 +35,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class UnknownContentTypeException extends RestClientException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private transient final Type targetType;
 

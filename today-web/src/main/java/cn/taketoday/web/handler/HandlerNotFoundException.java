@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.Serial;
-
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
@@ -39,8 +37,6 @@ import cn.taketoday.web.InfraConfigurationException;
  * @since 4.0 2022/1/28 23:19
  */
 public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final String httpMethod;
 

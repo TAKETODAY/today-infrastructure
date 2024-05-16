@@ -17,8 +17,6 @@
 
 package cn.taketoday.transaction;
 
-import java.io.Serial;
-
 import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
 
@@ -30,9 +28,6 @@ import cn.taketoday.lang.Nullable;
  * @since 2018-11-06 22:46
  */
 public abstract class TransactionException extends NestedRuntimeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   public TransactionException(@Nullable String message) {
     super(message);
