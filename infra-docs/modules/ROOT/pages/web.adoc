@@ -6,13 +6,6 @@
 
 本框架提供了一套通用 Web 接口，用于处理 Web 请求。请求入口 `DispatcherHandler`.
 
-章节包括
-
-. xref:web/webmvc.adoc#mvc[Web MVC]
-. xref:web/session/index.adoc#today-web-session[Web 会话]
-. xref:web/webmvc-view.adoc[View 技术]
-. xref:web/webmvc-cors.adoc[CORS]
-. xref:web/websocket.adoc[WebSocket].
 
 === 默认实现
 自 5.0 开始 Netty 支持，在 `today-web` 模块下的 `cn.taketoday.web.server.support` 包。在实践过程中我们发现 Netty 无论是 性能还是内存占用都要

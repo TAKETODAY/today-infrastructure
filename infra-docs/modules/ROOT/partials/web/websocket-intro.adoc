@@ -1,16 +1,13 @@
 [[introduction-to-websocket]]
-= Introduction to WebSocket
+= 介绍 WebSocket
 
-The WebSocket protocol, {rfc-site}/rfc6455[RFC 6455], provides a standardized
-way to establish a full-duplex, two-way communication channel between client and server
-over a single TCP connection. It is a different TCP protocol from HTTP but is designed to
-work over HTTP, using ports 80 and 443 and allowing re-use of existing firewall rules.
+WebSocket 协议，{rfc-site}/rfc6455[RFC 6455]，提供了一种标准化的方式，在单个 TCP 连接上建立全双工、
+双向通信通道，用于客户端和服务器之间。 它是一个与 HTTP 不同的 TCP 协议，但设计用于通过 HTTP 运行，使用端口 80 和 443，并允许重用现有的防火墙规则。
 
-A WebSocket interaction begins with an HTTP request that uses the HTTP `Upgrade` header
-to upgrade or, in this case, to switch to the WebSocket protocol. The following example
-shows such an interaction:
+WebSocket 交互之前需要一个 HTTP 请求，该请求使用 HTTP `Upgrade` 头部进行升级，
+或者在这种情况下，切换到 WebSocket 协议。以下示例展示了这样一个交互：
 
-[source,yaml,indent=0,subs="verbatim,quotes"]
+[source,httprequest,indent=0,subs="verbatim,quotes"]
 ----
 	GET /today-websocket-portfolio/portfolio HTTP/1.1
 	Host: localhost:8080
@@ -21,12 +18,10 @@ shows such an interaction:
 	Sec-WebSocket-Version: 13
 	Origin: http://localhost:8080
 ----
-<1> The `Upgrade` header.
-<2> Using the `Upgrade` connection.
+<1> `Upgrade` 请求头.
+<2> 使用 `Upgrade` 连接.
 
-
-Instead of the usual 200 status code, a server with WebSocket support returns output
-similar to the following:
+具有 WebSocket 支持的服务器返回的输出与通常的 200 状态码不同，类似于以下内容：
 
 [source,yaml,indent=0,subs="verbatim,quotes"]
 ----
@@ -36,68 +31,44 @@ similar to the following:
 	Sec-WebSocket-Accept: 1qVdfYHU9hPOl4JYYNXF623Gzn0=
 	Sec-WebSocket-Protocol: v10.stomp
 ----
-<1> Protocol switch
+<1> 协议切换
 
 
-After a successful handshake, the TCP socket underlying the HTTP upgrade request remains
-open for both the client and the server to continue to send and receive messages.
+成功握手后，HTTP 升级请求的 TCP 连接保持打开状态，以便客户端和服务器继续发送和接收消息。
 
-A complete introduction of how WebSockets work is beyond the scope of this document.
-See RFC 6455, the WebSocket chapter of HTML5, or any of the many introductions and
-tutorials on the Web.
+如何使用 WebSocket 的完整介绍超出了本文档的范围。请参阅 RFC 6455，HTML5 的 WebSocket 章节，或网络上的许多介绍和教程。
 
-Note that, if a WebSocket server is running behind a web server (e.g. nginx), you
-likely need to configure it to pass WebSocket upgrade requests on to the WebSocket
-server. Likewise, if the application runs in a cloud environment, check the
-instructions of the cloud provider related to WebSocket support.
-
-
+请注意，如果 WebSocket 服务器运行在 Web 服务器（例如 nginx）后面，您可能需要配置它以将
+WebSocket 升级请求传递给 WebSocket 服务器。同样，如果应用程序运行在云环境中，请查阅云提供商关于 WebSocket 支持的相关说明。
 
 
 [[http-versus-websocket]]
-== HTTP Versus WebSocket
+== HTTP 和 WebSocket
 
-Even though WebSocket is designed to be HTTP-compatible and starts with an HTTP request,
-it is important to understand that the two protocols lead to very different
-architectures and application programming models.
+尽管 WebSocket 设计为与 HTTP 兼容，并以 HTTP 请求开始，但重要的是要理解这两种协议导致非常不同的架构和应用程序编程模型。
 
-In HTTP and REST, an application is modeled as many URLs. To interact with the application,
-clients access those URLs, request-response style. Servers route requests to the
-appropriate handler based on the HTTP URL, method, and headers.
+在 HTTP 和 REST 中，一个应用程序被建模为许多 URL。要与应用程序交互，客户端访问这些 URL，
+以请求-响应的方式。服务器根据 HTTP URL、方法和标头将请求路由到适当的处理程序。
 
-By contrast, in WebSockets, there is usually only one URL for the initial connect.
-Subsequently, all application messages flow on that same TCP connection. This points to
-an entirely different asynchronous, event-driven, messaging architecture.
+相比之下，在 WebSocket 中，通常只有一个 URL 用于初始连接。随后，所有应用程序消息都在同一个
+TCP 连接上流动。这指向了完全不同的异步、事件驱动的消息架构。
 
-WebSocket is also a low-level transport protocol, which, unlike HTTP, does not prescribe
-any semantics to the content of messages. That means that there is no way to route or process
-a message unless the client and the server agree on message semantics.
+WebSocket 还是一个低级传输协议，与 HTTP 不同的是，它不对消息内容规定任何语义。
+这意味着除非客户端和服务器就消息语义达成一致，否则无法路由或处理消息。
 
-WebSocket clients and servers can negotiate the use of a higher-level, messaging protocol
-(for example, STOMP), through the `Sec-WebSocket-Protocol` header on the HTTP handshake request.
-In the absence of that, they need to come up with their own conventions.
-
-
+WebSocket 客户端和服务器可以通过 HTTP 握手请求中的 `Sec-WebSocket-Protocol`
+标头协商使用更高级的消息传输协议（例如 STOMP）。在没有这种协议的情况下，它们需要制定自己的约定。
 
 
 [[when-to-use-websockets]]
-== When to Use WebSockets
+== 何时使用 WebSockets
 
-WebSockets can make a web page be dynamic and interactive. However, in many cases,
-a combination of AJAX and HTTP streaming or long polling can provide a simple and
-effective solution.
+WebSocket 可以使网页变得动态和交互。然而，在许多情况下，AJAX 和 HTTP 流或长轮询的组合可以提供简单有效的解决方案。
 
-For example, news, mail, and social feeds need to update dynamically, but it may be
-perfectly okay to do so every few minutes. Collaboration, games, and financial apps, on
-the other hand, need to be much closer to real-time.
+例如，新闻、邮件和社交信息源需要动态更新，但每隔几分钟进行更新可能完全没问题。另一方面，协作、游戏和金融应用程序需要更接近实时。
 
-Latency alone is not a deciding factor. If the volume of messages is relatively low (for example,
-monitoring network failures) HTTP streaming or polling can provide an effective solution.
-It is the combination of low latency, high frequency, and high volume that make the best
-case for the use of WebSocket.
+仅仅延迟不是决定性因素。如果消息量相对较低（例如，监视网络故障），HTTP 流或轮询可以提供有效的解决方案。
+低延迟、高频率和高容量的组合使 WebSocket 的使用成为最佳选择。
 
-Keep in mind also that over the Internet, restrictive proxies that are outside of your control
-may preclude WebSocket interactions, either because they are not configured to pass on the
-`Upgrade` header or because they close long-lived connections that appear idle. This
-means that the use of WebSocket for internal applications within the firewall is a more
-straightforward decision than it is for public facing applications.
+还要注意，在互联网上，不受您控制的限制性代理可能会阻止 WebSocket 交互，要么是因为它们没有配置传递 `Upgrade` 标头，
+要么是因为它们关闭了看似空闲的长连接。这意味着在防火墙内部使用 WebSocket 的内部应用程序比面向公众的应用程序更直接。
