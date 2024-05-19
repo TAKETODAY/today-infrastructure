@@ -27,7 +27,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.lang.Nullable;
@@ -36,7 +35,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.ErrorResponseException;
-import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
@@ -52,26 +50,18 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.web.view.ModelAndView;
 
 /**
- * A convenient base class for {@link ControllerAdvice @ControllerAdvice} classes
- * that wish to provide centralized exception handling across all
- * {@code @RequestMapping} methods through {@code @ExceptionHandler} methods.
+ * A class with an {@code @ExceptionHandler} method that handles all Spring MVC
+ * raised exceptions by returning a {@link ResponseEntity} with RFC 9457
+ * formatted error details in the body.
  *
- * <p>This base class provides an {@code @ExceptionHandler} method for handling
- * internal Framework MVC exceptions. This method returns a {@code ResponseEntity}
- * for writing to the response with a {@link HttpMessageConverter message converter},
- * in contrast to
- * {@link SimpleHandlerExceptionHandler SimpleHandlerExceptionHandler} which returns a
- * {@link ModelAndView ModelAndView}.
- *
- * <p>If there is no need to write error content to the response body, or when
- * using view resolution (e.g., via {@code ContentNegotiatingViewResolver}),
- * then {@code DefaultHandlerExceptionHandler} is good enough.
- *
- * <p>Note that in order for an {@code @ControllerAdvice} subclass to be
- * detected, {@link HandlerExceptionHandler} must be configured.
+ * <p>Convenient as a base class of an {@link ControllerAdvice @ControllerAdvice}
+ * for global exception handling in an application. Subclasses can override
+ * individual methods that handle a specific exception, override
+ * {@link #handleExceptionInternal} to override common handling of all exceptions,
+ * or override {@link #createResponseEntity} to intercept the final step of creating
+ * the {@link ResponseEntity} from the selected HTTP status code, headers, and body.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

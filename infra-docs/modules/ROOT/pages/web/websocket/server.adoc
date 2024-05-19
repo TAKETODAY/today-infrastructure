@@ -1,13 +1,13 @@
 [[websocket-server]]
 = WebSocket API
 
-The TODAY Framework provides a WebSocket API that you can use to write client- and server-side applications that handle WebSocket messages.
+框架提供了一个 WebSocket API，您可以使用它来编写处理 WebSocket 消息的客户端和服务器端应用程序。
 
 [[websocket-server-handler]]
 == `WebSocketHandler`
 
-Creating a WebSocket server is as simple as implementing `WebSocketHandler` or, more likely, extending either `TextWebSocketHandler` or `BinaryWebSocketHandler`.
-The following example uses `TextWebSocketHandler`:
+创建一个 WebSocket 服务器就像实现 `WebSocketHandler` 一样简单，或者更可能是扩展 `TextWebSocketHandler` 或 `BinaryWebSocketHandler` 中的一个。
+以下示例使用了 `TextWebSocketHandler`：
 
 [source,java]
 ----
@@ -20,7 +20,7 @@ public class MyHandler extends TextWebSocketHandler {
 }
 ----
 
-There is dedicated WebSocket programmatic configuration and XML namespace support for mapping the preceding WebSocket handler to a specific URL, as the following example shows:
+有专门的 WebSocket 编程配置支持，用于将前面的 WebSocket 处理程序映射到特定的 URL，如下例所示：
 
 [source,java]
 ----
@@ -40,22 +40,21 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 }
 ----
 
-The preceding example is for use in Web MVC applications and should be included in the configuration of a xref:web/webmvc/mvc-core.adoc[`DispatcherServlet`].
-However, Infra WebSocket support does not depend on Web MVC.
-It is relatively simple to integrate a `WebSocketHandler` into other HTTP-serving environments with the help of
-{today-framework-api}/web/socket/server/support/WebSocketHttpRequestHandler.html[`WebSocketHttpRequestHandler`].
+前面的示例适用于 Web MVC 应用程序，并应包含在 xref:web/webmvc/mvc-core.adoc[`DispatcherHandler`] 的配置中。
+然而 WebSocket 支持不依赖于 Web MVC。通过
+{today-framework-api}/web/socket/server/support/WebSocketHttpRequestHandler.html[`WebSocketHttpRequestHandler`]
+的帮助，将 `WebSocketHandler` 集成到其他 HTTP 服务环境中相对简单。
 
-One option is to wrap the `WebSocketSession` with
-{today-framework-api}/web/socket/handler/ConcurrentWebSocketSessionDecorator.html[`ConcurrentWebSocketSessionDecorator`].
-
-
+一种选择是使用
+{today-framework-api}/web/socket/handler/ConcurrentWebSocketSessionDecorator.html[`ConcurrentWebSocketSessionDecorator`] 包装 `WebSocketSession`。
 
 [[websocket-server-handshake]]
-== WebSocket Handshake
+== WebSocket 握手
 
-The easiest way to customize the initial HTTP WebSocket handshake request is through a `HandshakeInterceptor`, which exposes methods for "`before`" and "`after`" the handshake.
-You can use such an interceptor to preclude the handshake or to make any attributes available to the `WebSocketSession`.
-The following example uses a built-in interceptor to pass HTTP session attributes to the WebSocket session:
+通过 `HandshakeInterceptor` 是定制初始 HTTP WebSocket 握手请求的最简单方法，它公开了 `"before"` 和 `"after"` 握手的方法。
+您可以使用此类拦截器来阻止握手或使任何属性可用于 `WebSocketSession`。
+以下示例使用内置拦截器将 HTTP 会话属性传递到 WebSocket 会话：
+
 
 [source,java]
 ----
@@ -72,142 +71,27 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 }
 ----
 
-A more advanced option is to extend the `DefaultHandshakeHandler` that performs the steps of the WebSocket handshake, including validating the client origin, negotiating a sub-protocol, and other details.
-An application may also need to use this option if it needs to configure a custom `RequestUpgradeStrategy` in order to adapt to a WebSocket server engine and version that is not yet supported (see xref:web/websocket/server.adoc#websocket-server-deployment[Deployment] for more on this subject).
-Both the Java configuration and XML namespace make it possible to configure a custom
-`HandshakeHandler`.
+更高级的选项是扩展 `DefaultHandshakeHandler`，它执行 WebSocket 握手的步骤，
+包括验证客户端来源、协商子协议和其他细节。如果应用程序需要配置自定义的 `RequestUpgradeStrategy`
+以适应尚不支持的 WebSocket 服务器引擎和版本（有关此主题的更多信息，
+请参见 xref:web/websocket/server.adoc#websocket-server-deployment[部署]）时，也可能需要使用此选项。
+Java 配置和 XML 命名空间都可以配置自定义的 `HandshakeHandler`。
 
-TIP: Infra provides a `WebSocketHandlerDecorator` base class that you can use to decorate a `WebSocketHandler` with additional behavior.
-Logging and exception handling implementations are provided and added by default when using the WebSocket Java configuration or XML namespace.
-The `ExceptionWebSocketHandlerDecorator` catches all uncaught exceptions that arise from any `WebSocketHandler` method and closes the WebSocket session with status `1011`, which indicates a server error.
-
+TIP: Infra 提供了一个 `WebSocketHandlerDecorator` 基类，您可以使用它来装饰 `WebSocketHandler`，以添加额外的行为。
+在使用 WebSocket Java 配置或 XML 命名空间时，默认情况下会提供并添加日志记录和异常处理实现。
+`ExceptionWebSocketHandlerDecorator` 捕获所有由任何 `WebSocketHandler` 方法引发的未捕获异常，并使用状态 `1011` 关闭 WebSocket 会话，这表示服务器错误。
 
 
 [[websocket-server-deployment]]
-== Deployment
+== 部署
 
-The Infra WebSocket API is easy to integrate into a Web MVC application where the `MockDispatcher` serves both HTTP WebSocket handshake and other HTTP requests.
-It is also easy to integrate into other HTTP processing scenarios by invoking `WebSocketHttpRequestHandler`.
-This is convenient and easy to understand.
-However, special considerations apply with regards to JSR-356 runtimes.
-
-The Jakarta WebSocket API (JSR-356) provides two deployment mechanisms.
-The first involves a Servlet container classpath scan (a Servlet 3 feature) at startup.
-The other is a registration API to use at Servlet container initialization.
-Neither of these mechanism makes it possible to use a single "`front controller`"
-for all HTTP processing -- including WebSocket handshake and all other HTTP requests -- such as Web MVC's `MockDispatcher`.
-
-This is a significant limitation of JSR-356 that Infra WebSocket support addresses with server-specific `RequestUpgradeStrategy` implementations even when running in a JSR-356 runtime.
-Such strategies currently exist for Tomcat, Jetty, GlassFish, WebLogic, WebSphere, and Undertow (and WildFly).
-As of Jakarta WebSocket 2.1, a standard request upgrade strategy is available which Infra chooses on Jakarta EE 10 based web containers such as Tomcat 10.1 and Jetty 12.
-
-A secondary consideration is that Servlet containers with JSR-356 support are expected to perform a `MockContainerInitializer` (SCI) scan that can slow down application startup -- in some cases, dramatically.
-If a significant impact is observed after an upgrade to a Servlet container version with JSR-356 support, it should be possible to selectively enable or disable web fragments (and SCI scanning) through the use of the `<absolute-ordering />` element in `web.xml`, as the following example shows:
-
-[source,xml,indent=0,subs="verbatim,quotes,attributes"]
-----
- <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="
-    https://jakarta.ee/xml/ns/jakartaee
-    https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-  version="5.0">
-
-  <absolute-ordering/>
-
- </web-app>
-----
-
-You can then selectively enable web fragments by name, such as Infra own
-`InfraServletContainerInitializer` that provides support for the Servlet 3 Java initialization API.
-The following example shows how to do so:
-
-[source,xml,indent=0,subs="verbatim,quotes,attributes"]
-----
- <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="
-    https://jakarta.ee/xml/ns/jakartaee
-    https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-  version="5.0">
-
-  <absolute-ordering>
-    <name>spring_web</name>
-  </absolute-ordering>
-
- </web-app>
-----
-
-
-
-[[websocket-server-runtime-configuration]]
-== Configuring the Server
-
-You can configure of the underlying WebSocket server such as input message buffer size, idle timeout, and more.
-
-For Jakarta WebSocket servers, you can add a `MockServerContainerFactoryBean` to your configuration.
-For example:
-
-[source,java]
-----
-@Configuration
-public class WebSocketConfiguration {
-
-  @Bean
-  public ServletServerContainerFactoryBean createWebSocketContainer() {
-    ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-    container.setMaxTextMessageBufferSize(8192);
-    container.setMaxBinaryMessageBufferSize(8192);
-    return container;
-  }
-}
-----
-
-NOTE: For client Jakarta WebSocket configuration, use ContainerProvider.getWebSocketContainer() in programmatic configuration, or
-`WebSocketContainerFactoryBean` in XML.
-
-For Jetty, you can supply a callback to configure the WebSocket server:
-
-[source,java]
-----
-
-public class MyEchoHandler extends WebSocketHandler {
-
-}
-
-
-@Configuration
-@EnableWebSocket
-public class JettyWebSocketConfiguration implements WebSocketConfigurer {
-
-  @Override
-  public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(echoWebSocketHandler(), "/echo").setHandshakeHandler(handshakeHandler());
-  }
-
-  @Bean
-  public WebSocketHandler echoWebSocketHandler() {
-    return new MyEchoHandler();
-  }
-
-  @Bean
-  public DefaultHandshakeHandler handshakeHandler() {
-    JettyRequestUpgradeStrategy strategy = new JettyRequestUpgradeStrategy();
-//    strategy.addWebSocketConfigurer(configurable -> {
-//      configurable.setInputBufferSize(8192);
-//      configurable.setIdleTimeout(Duration.ofSeconds(600));
-//    });
-    return new DefaultHandshakeHandler(strategy);
-  }
-}
-----
-
-
+WebSocket API 很容易集成到 Web MVC 应用程序中，其中 `DispatcherHandler` 既提供 HTTP WebSocket 握手，也提供其他 HTTP 请求服务。
+通过调用 `WebSocketHttpRequestHandler`，它也很容易集成到其他 HTTP 处理场景中。这非常方便且易于理解。然而，在涉及到 JSR-356 运行时时，需要特别考虑。
 
 [[websocket-server-allowed-origins]]
 == Allowed Origins
 
-As of TODAY Framework 4.1.5, the default behavior for WebSocket and SockJS is to accept only same-origin requests.
+The default behavior for WebSocket and SockJS is to accept only same-origin requests.
 It is also possible to allow all or a specified list of origins.
 This check is mostly designed for browser clients.
 Nothing prevents other types of clients from modifying the `Origin` header value (see
@@ -226,6 +110,21 @@ In this mode, all transports are available.
 
 You can configure WebSocket and SockJS allowed origins, as the following example shows:
 
+WebSocket 的默认行为是仅接受同源请求。
+也可以允许所有或指定的一组来源。
+此检查主要设计用于浏览器客户端。
+没有任何阻止其他类型的客户端修改 `Origin` 标头值（有关详细信息，请参见 {rfc-site}/rfc6454[RFC 6454: Web Origin 概念]）。
+
+三种可能的行为是：
+
+* 仅允许同源请求（默认）：在此模式下，当启用 SockJS 时，Iframe HTTP 响应头 `X-Frame-Options` 被设置为 `SAMEORIGIN`，
+并且禁用了 JSONP 传输，因为它不允许检查请求的来源。因此，当启用此模式时，不支持 IE6 和 IE7。
+* 允许指定的一组来源：每个允许的来源必须以 `http://` 或 `https://` 开头。
+* 允许所有来源：要启用此模式，应将 `{asterisk}` 作为允许的来源值提供。在此模式下，所有传输都可用。
+
+您可以配置 WebSocket 和 SockJS 允许的来源，如下例所示：
+
+
 [source,java]
 ----
 @Configuration
@@ -234,7 +133,8 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(myHandler(), "/myHandler").setAllowedOrigins("https://mydomain.com");
+    registry.addHandler(myHandler(), "/myHandler")
+            .setAllowedOrigins("https://mydomain.com");
   }
 
   @Bean

@@ -1,12 +1,9 @@
 [[websocket-fallback]]
 = Fallback
 
-Over the public Internet, restrictive proxies outside your control may preclude WebSocket interactions, either because they are not configured to pass on the `Upgrade` header or because they close long-lived connections that appear to be idle.
+在公共互联网上，限制性代理可能会阻止 WebSocket 交互，要么是因为它们未配置为传递 `Upgrade` 标头，要么是因为它们关闭看起来处于空闲状态的长连接。
 
-The solution to this problem is WebSocket emulation -- that is, attempting to use WebSocket first and then falling back on HTTP-based techniques that emulate a WebSocket interaction and expose the same application-level API.
-
-On the Servlet stack, the TODAY Framework provides both server (and also client) support for the SockJS protocol.
-
+解决此问题的方法是 WebSocket 模拟 -- 即首先尝试使用 WebSocket，然后退回到模拟 WebSocket 交互并公开相同应用级别 API 的基于 HTTP 的技术。
 
 
 [[websocket-fallback-cors]]
@@ -24,6 +21,13 @@ So, if an application is already configured to provide CORS support (for example
 
 Alternatively, if the CORS configuration allows it, consider excluding URLs with the SockJS endpoint prefix, thus letting Infra `SockJsService` handle it.
 
+如果允许跨域请求（参见 xref:web/websocket/server.adoc#websocket-server-allowed-origins[Allowed Origins]），
+除非检测到响应中存在 CORS 标头，否则将自动添加 CORS 标头。因此，如果应用程序已经配置为提供 CORS 支持，
 
+* `Access-Control-Allow-Origin`：从 `Origin` 请求标头的值初始化。
+* `Access-Control-Allow-Credentials`：始终设置为 `true`。
+* `Access-Control-Request-Headers`：从相应请求标头的值初始化。
+* `Access-Control-Allow-Methods`：传输支持的 HTTP 方法（参见 `TransportType` 枚举）。
+* `Access-Control-Max-Age`：设置为 31536000（1 年）。
 
 

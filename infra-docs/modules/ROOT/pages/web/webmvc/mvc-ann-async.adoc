@@ -1,5 +1,5 @@
 [[mvc-ann-async]]
-= Asynchronous Requests
+= 异步请求
 
 Web MVC has an extensive integration with Servlet asynchronous request
 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-processing[processing]:
@@ -14,6 +14,20 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[reactive types] 
 
 For an overview of how this differs from Infra WebFlux, see the xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC compared to WebFlux] section below.
 
+
+
+Web MVC 与 Servlet 异步请求有着广泛的集成，如下：
+
+* 控制器方法中的 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-deferredresult[`DeferredResult`]
+和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-callable[`Callable`] 返回值提供了对单个异步返回值的基本支持。
+* 控制器可以 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[流式传输] 多个值，
+包括 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-sse[SSE] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-output-stream[原始数据]。
+* 控制器可以使用响应式客户端并返回 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型] 进行响应处理。
+
+有关这与 Infra WebFlux 的区别的概述，请参阅下面的 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC 与 WebFlux 比较] 部分。
+
+
+
 [[mvc-ann-async-deferredresult]]
 == `DeferredResult`
 
@@ -21,10 +35,6 @@ Once the asynchronous request processing feature is xref:web/webmvc/mvc-ann-asyn
 in the Servlet container, controller methods can wrap any supported controller method
 return value with `DeferredResult`, as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/quotes")
@@ -39,8 +49,6 @@ public DeferredResult<String> quotes() {
 deferredResult.setResult(result);
 ----
 
-======
-
 The controller can produce the return value asynchronously, from a different thread -- for
 example, in response to an external event (JMS message), a scheduled task, or other event.
 
@@ -51,10 +59,6 @@ example, in response to an external event (JMS message), a scheduled task, or ot
 A controller can wrap any supported return value with `java.util.concurrent.Callable`,
 as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @PostMapping
@@ -63,7 +67,6 @@ public Callable<String> processUpload(final MultipartFile file) {
 }
 ----
 
-======
 
 The return value can then be obtained by running the given task through the
 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[configured] `AsyncTaskExecutor`.
@@ -196,10 +199,6 @@ each object is serialized with an
 xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter`] and written to the
 response, as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/events")
@@ -218,8 +217,6 @@ emitter.send("Hello again");
 // and done at some point
 emitter.complete();
 ----
-
-======
 
 You can also use `ResponseBodyEmitter` as the body in a `ResponseEntity`, letting you
 customize the status and headers of the response.
@@ -240,10 +237,6 @@ https://www.w3.org/TR/eventsource/[Server-Sent Events], where events sent from t
 are formatted according to the W3C SSE specification. To produce an SSE
 stream from a controller, return `SseEmitter`, as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -263,7 +256,6 @@ emitter.send("Hello again");
 emitter.complete();
 ----
 
-======
 
 While SSE is the main option for streaming into browsers, note that Internet Explorer
 does not support Server-Sent Events. Consider using Infra
@@ -281,10 +273,6 @@ Sometimes, it is useful to bypass message conversion and stream directly to the 
 `OutputStream` (for example, for a file download). You can use the `StreamingResponseBody`
 return value type to do so, as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/download")
@@ -297,8 +285,6 @@ public StreamingResponseBody handle() {
   };
 }
 ----
-
-======
 
 You can use `StreamingResponseBody` as the body in a `ResponseEntity` to
 customize the status and headers of the response.

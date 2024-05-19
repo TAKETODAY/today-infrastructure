@@ -26,7 +26,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Representation for an RFC 7807 problem detail. Includes spec-defined
+ * Representation for an RFC 9457 problem detail. Includes spec-defined
  * properties, and a {@link #getProperties() properties} map for additional,
  * non-standard properties.
  *
@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see <a href="https://datatracker.ietf.org/doc/html/rfc7807">RFC 7807</a>
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc9457">RFC 9457</a>
  * @see cn.taketoday.web.ErrorResponse
  * @see cn.taketoday.web.ErrorResponseException
  * @since 4.0 2022/3/2 12:58
