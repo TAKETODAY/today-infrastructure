@@ -17,13 +17,12 @@
 
 package cn.taketoday.expression.spel.ast;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.Executable;
 import java.util.function.Supplier;
 
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
@@ -34,7 +33,9 @@ import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.SpelNode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * The common supertype of all AST nodes in a parsed Spring Expression Language
@@ -70,12 +71,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
   @Nullable
   protected volatile String exitTypeDescriptor;
 
-  public SpelNodeImpl(int startPos, int endPos) {
-    this.startPos = startPos;
-    this.endPos = endPos;
-  }
-
-  public SpelNodeImpl(int startPos, int endPos, SpelNodeImpl... operands) {
+  public SpelNodeImpl(int startPos, int endPos, @Nullable SpelNodeImpl... operands) {
     this.startPos = startPos;
     this.endPos = endPos;
     if (ObjectUtils.isNotEmpty(operands)) {
@@ -144,12 +140,14 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
    * effectively disabling this feature. Subclasses may override this method to
    * provide an actual implementation.
    *
-   * @param state the current expression state (includes the context)
+   * @param expressionState the current expression state (includes the context)
    * @param valueSupplier a supplier of the new value
    * @throws EvaluationException if any problem occurs evaluating the expression or
    * setting the new value
    */
-  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier) throws EvaluationException {
+  public TypedValue setValueInternal(ExpressionState expressionState, Supplier<TypedValue> valueSupplier)
+          throws EvaluationException {
+
     throw new SpelEvaluationException(getStartPosition(), SpelMessage.SETVALUE_NOT_SUPPORTED, getClass().getName());
   }
 
@@ -169,7 +167,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
     if (obj == null) {
       return null;
     }
-    return (obj instanceof Class ? ((Class<?>) obj) : obj.getClass());
+    return (obj instanceof Class<?> clazz ? clazz : obj.getClass());
   }
 
   @Override
@@ -192,29 +190,6 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
     return false;
   }
 
-  /**
-   * Check whether a node can be compiled to bytecode. The reasoning in each node may
-   * be different but will typically involve checking whether the exit type descriptor
-   * of the node is known and any relevant child nodes are compilable.
-   *
-   * @return {@code true} if this node can be compiled to bytecode
-   */
-  public boolean isCompilable() {
-    return false;
-  }
-
-  /**
-   * Generate the bytecode for this node into the supplied visitor. Context info about
-   * the current expression being compiled is available in the codeflow object, e.g.
-   * including information about the type of the object currently on the stack.
-   *
-   * @param mv the ASM MethodVisitor into which code should be generated
-   * @param cf a context object with info about what is on the stack
-   */
-  public void generateCode(MethodVisitor mv, CodeFlow cf) {
-    throw new IllegalStateException(getClass().getName() + " has no generateCode(..) method");
-  }
-
   @Nullable
   public String getExitDescriptor() {
     return this.exitTypeDescriptor;
@@ -232,66 +207,85 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
   public abstract TypedValue getValueInternal(ExpressionState expressionState) throws EvaluationException;
 
   /**
-   * Generate code that handles building the argument values for the specified method.
-   * <p>This method will take into account whether the invoked method is a varargs method,
-   * and if it is then the argument values will be appropriately packaged into an array.
+   * Generate code that handles building the argument values for the specified
+   * {@link Executable} (method or constructor).
+   * <p>This method takes into account whether the method or constructor was
+   * declared to accept varargs, and if it was then the argument values will be
+   * appropriately packaged into an array.
    *
    * @param mv the method visitor where code should be generated
-   * @param cf the current codeflow
-   * @param member the method or constructor for which arguments are being set up
-   * @param arguments the expression nodes for the expression supplied argument values
+   * @param cf the current {@link CodeFlow}
+   * @param executable the {@link Executable} (method or constructor) for which
+   * arguments are being set up
+   * @param arguments the expression nodes for the expression supplied argument
+   * values
    */
-  protected static void generateCodeForArguments(MethodVisitor mv, CodeFlow cf, Member member, SpelNodeImpl[] arguments) {
-    String[] paramDescriptors;
-    boolean isVarargs;
-    if (member instanceof Constructor<?> ctor) {
-      paramDescriptors = CodeFlow.toDescriptors(ctor.getParameterTypes());
-      isVarargs = ctor.isVarArgs();
-    }
-    else { // Method
-      Method method = (Method) member;
-      paramDescriptors = CodeFlow.toDescriptors(method.getParameterTypes());
-      isVarargs = method.isVarArgs();
-    }
-    if (isVarargs) {
-      // The final parameter may or may not need packaging into an array, or nothing may
-      // have been passed to satisfy the varargs and so something needs to be built.
-      int p = 0; // Current supplied argument being processed
-      int childCount = arguments.length;
+  protected static void generateCodeForArguments(MethodVisitor mv, CodeFlow cf, Executable executable, SpelNodeImpl[] arguments) {
 
-      // Fulfill all the parameter requirements except the last one
-      for (p = 0; p < paramDescriptors.length - 1; p++) {
-        cf.generateCodeForArgument(mv, arguments[p], paramDescriptors[p]);
+    Class<?>[] parameterTypes = executable.getParameterTypes();
+    String[] parameterDescriptors = CodeFlow.toDescriptors(parameterTypes);
+    int parameterCount = parameterTypes.length;
+
+    if (executable.isVarArgs()) {
+      // The final parameter may or may not need packaging into an array, or nothing may
+      // have been passed to satisfy the varargs which means something needs to be built.
+
+      int varargsIndex = parameterCount - 1;
+      int argumentCount = arguments.length;
+      int p = 0;  // Current supplied argument being processed
+
+      // Fulfill all the parameter requirements except the last one (the varargs array).
+      for (p = 0; p < varargsIndex; p++) {
+        cf.generateCodeForArgument(mv, arguments[p], parameterDescriptors[p]);
       }
 
-      SpelNodeImpl lastChild = (childCount == 0 ? null : arguments[childCount - 1]);
-      String arrayType = paramDescriptors[paramDescriptors.length - 1];
+      SpelNodeImpl lastArgument = (argumentCount != 0 ? arguments[argumentCount - 1] : null);
+      ClassLoader classLoader = executable.getDeclaringClass().getClassLoader();
+      Class<?> lastArgumentType = (lastArgument != null ?
+              loadClassForExitDescriptor(lastArgument.getExitDescriptor(), classLoader) : null);
+      Class<?> lastParameterType = parameterTypes[varargsIndex];
+
       // Determine if the final passed argument is already suitably packaged in array
-      // form to be passed to the method
-      if (lastChild != null && arrayType.equals(lastChild.getExitDescriptor())) {
-        cf.generateCodeForArgument(mv, lastChild, paramDescriptors[p]);
+      // form to be passed to the method.
+      if (lastArgument != null && lastArgumentType != null && lastParameterType.isAssignableFrom(lastArgumentType)) {
+        cf.generateCodeForArgument(mv, lastArgument, parameterDescriptors[p]);
       }
       else {
-        arrayType = arrayType.substring(1); // trim the leading '[', may leave other '['
-        // build array big enough to hold remaining arguments
-        CodeFlow.insertNewArrayCode(mv, childCount - p, arrayType);
-        // Package up the remaining arguments into the array
-        int arrayindex = 0;
-        while (p < childCount) {
-          SpelNodeImpl child = arguments[p];
+        String arrayComponentType = parameterDescriptors[varargsIndex];
+        // Trim the leading '[', potentially leaving other '[' characters.
+        arrayComponentType = arrayComponentType.substring(1);
+        // Build array big enough to hold remaining arguments.
+        CodeFlow.insertNewArrayCode(mv, argumentCount - p, arrayComponentType);
+        // Package up the remaining arguments into the array.
+        int arrayIndex = 0;
+        while (p < argumentCount) {
           mv.visitInsn(DUP);
-          CodeFlow.insertOptimalLoad(mv, arrayindex++);
-          cf.generateCodeForArgument(mv, child, arrayType);
-          CodeFlow.insertArrayStore(mv, arrayType);
-          p++;
+          CodeFlow.insertOptimalLoad(mv, arrayIndex++);
+          cf.generateCodeForArgument(mv, arguments[p++], arrayComponentType);
+          CodeFlow.insertArrayStore(mv, arrayComponentType);
         }
       }
     }
     else {
-      for (int i = 0; i < paramDescriptors.length; i++) {
-        cf.generateCodeForArgument(mv, arguments[i], paramDescriptors[i]);
+      for (int i = 0; i < parameterCount; i++) {
+        cf.generateCodeForArgument(mv, arguments[i], parameterDescriptors[i]);
       }
     }
+  }
+
+  @Nullable
+  private static Class<?> loadClassForExitDescriptor(@Nullable String exitDescriptor, ClassLoader classLoader) {
+    if (!StringUtils.hasText(exitDescriptor)) {
+      return null;
+    }
+    String typeDescriptor = exitDescriptor;
+    // If the SpEL exitDescriptor is not for a primitive (single character),
+    // ASM expects the typeDescriptor to end with a ';'.
+    if (typeDescriptor.length() > 1) {
+      typeDescriptor += ";";
+    }
+    String className = Type.fromDescriptor(typeDescriptor).getClassName();
+    return ClassUtils.resolveClassName(className, classLoader);
   }
 
 }
