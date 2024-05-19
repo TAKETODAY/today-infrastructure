@@ -1,31 +1,13 @@
 [[mvc-ann-async]]
 = 异步请求
 
-Web MVC has an extensive integration with Servlet asynchronous request
-xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-processing[processing]:
-
-* xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-deferredresult[`DeferredResult`] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-callable[`Callable`]
-return values in controller methods provide basic support for a single asynchronous
-return value.
-* Controllers can xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[stream] multiple values, including
-xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-sse[SSE] and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-output-stream[raw data].
-* Controllers can use reactive clients and return
-xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[reactive types] for response handling.
-
-For an overview of how this differs from Infra WebFlux, see the xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC compared to WebFlux] section below.
-
-
-
-Web MVC 与 Servlet 异步请求有着广泛的集成，如下：
+Web MVC 异步请求集成，如下：
 
 * 控制器方法中的 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-deferredresult[`DeferredResult`]
 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-callable[`Callable`] 返回值提供了对单个异步返回值的基本支持。
 * 控制器可以 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-http-streaming[流式传输] 多个值，
 包括 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-sse[SSE] 和 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-output-stream[原始数据]。
 * 控制器可以使用响应式客户端并返回 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型] 进行响应处理。
-
-有关这与 Infra WebFlux 的区别的概述，请参阅下面的 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC 与 WebFlux 比较] 部分。
-
 
 
 [[mvc-ann-async-deferredresult]]
