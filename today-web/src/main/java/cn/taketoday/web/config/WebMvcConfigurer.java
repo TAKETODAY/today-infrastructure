@@ -56,7 +56,9 @@ public interface WebMvcConfigurer {
    *
    * @param customizedStrategies {@link ParameterResolvingStrategy} registry
    */
-  default void configureParameterResolving(ParameterResolvingStrategies customizedStrategies) { }
+  default void configureParameterResolving(ParameterResolvingStrategies customizedStrategies) {
+
+  }
 
   /**
    * Configure {@link ParameterResolvingStrategy}
@@ -71,8 +73,7 @@ public interface WebMvcConfigurer {
    * @see ParameterResolvingRegistry#getDefaultStrategies()
    * @since 4.0
    */
-  default void configureParameterResolving(
-          ParameterResolvingRegistry registry, ParameterResolvingStrategies customizedStrategies) {
+  default void configureParameterResolving(ParameterResolvingRegistry registry, ParameterResolvingStrategies customizedStrategies) {
     configureParameterResolving(customizedStrategies);
   }
 
@@ -82,14 +83,18 @@ public interface WebMvcConfigurer {
    * @param manager {@link ReturnValueHandler} registry
    * @see ReturnValueHandlerManager
    */
-  default void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) { }
+  default void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+
+  }
 
   /**
    * Configure static {@link Resource}
    *
    * @param registry {@link ResourceHandlerRegistry}
    */
-  default void addResourceHandlers(ResourceHandlerRegistry registry) { }
+  default void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+  }
 
   /**
    * Configure {@link HandlerMapping}
@@ -97,7 +102,9 @@ public interface WebMvcConfigurer {
    * @param handlerRegistries {@link HandlerMapping}s
    * @since 2.3.7
    */
-  default void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) { }
+  default void configureHandlerRegistry(List<HandlerMapping> handlerRegistries) {
+
+  }
 
   /**
    * Configure {@link HandlerExceptionHandler}
@@ -110,7 +117,9 @@ public interface WebMvcConfigurer {
    * @param handlers a list to add exception handlers to (initially an empty list)
    * @since 3.0
    */
-  default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+  default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+
+  }
 
   /**
    * Override this method to extend or modify the list of
@@ -121,14 +130,18 @@ public interface WebMvcConfigurer {
    * @param handlers the list of configured resolvers to extend.
    * @since 4.0
    */
-  default void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+  default void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+
+  }
 
   /**
    * Configure content negotiation options.
    *
    * @since 4.0
    */
-  default void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
+  default void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+
+  }
 
   /**
    * Configure view resolvers to translate String-based view names returned from
@@ -136,7 +149,9 @@ public interface WebMvcConfigurer {
    *
    * @since 4.0
    */
-  default void configureViewResolvers(ViewResolverRegistry registry) { }
+  default void configureViewResolvers(ViewResolverRegistry registry) {
+
+  }
 
   /**
    * Help with configuring {@link HandlerMapping} path matching options such as
@@ -167,7 +182,9 @@ public interface WebMvcConfigurer {
    * @param converters initially an empty list of converters
    * @since 4.0
    */
-  default void configureMessageConverters(List<HttpMessageConverter<?>> converters) { }
+  default void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+  }
 
   /**
    * Extend or modify the list of converters after it has been, either
@@ -180,7 +197,9 @@ public interface WebMvcConfigurer {
    * @param converters the list of configured converters to be extended
    * @since 4.0
    */
-  default void extendMessageConverters(List<HttpMessageConverter<?>> converters) { }
+  default void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+  }
 
   /**
    * Add {@link Converter Converters} and {@link Formatter Formatters} in addition to the ones
@@ -188,7 +207,9 @@ public interface WebMvcConfigurer {
    *
    * @since 4.0
    */
-  default void addFormatters(FormatterRegistry registry) { }
+  default void addFormatters(FormatterRegistry registry) {
+
+  }
 
   /**
    * Add MVC lifecycle interceptors for pre- and post-processing of
@@ -198,7 +219,9 @@ public interface WebMvcConfigurer {
    *
    * @since 4.0
    */
-  default void addInterceptors(InterceptorRegistry registry) { }
+  default void addInterceptors(InterceptorRegistry registry) {
+
+  }
 
   /**
    * Configure "global" cross-origin request processing. The configured CORS
@@ -213,7 +236,9 @@ public interface WebMvcConfigurer {
    * @see CorsConfiguration#combine(CorsConfiguration)
    * @since 4.0
    */
-  default void addCorsMappings(CorsRegistry registry) { }
+  default void addCorsMappings(CorsRegistry registry) {
+
+  }
 
   /**
    * Configure simple automated controllers pre-configured with the response
@@ -225,7 +250,9 @@ public interface WebMvcConfigurer {
    * @see ViewControllerRegistry
    * @since 4.0
    */
-  default void addViewControllers(ViewControllerRegistry registry) { }
+  default void addViewControllers(ViewControllerRegistry registry) {
+
+  }
 
   /**
    * Provide a custom {@link Validator} instead of the one created by default.
@@ -245,6 +272,8 @@ public interface WebMvcConfigurer {
    *
    * @since 4.0
    */
-  default void configureAsyncSupport(AsyncSupportConfigurer configurer) { }
+  default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+
+  }
 
 }

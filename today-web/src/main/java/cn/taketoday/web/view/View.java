@@ -46,7 +46,6 @@ import cn.taketoday.web.ReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractView
  * @see ReturnValueHandler
- * @see cn.taketoday.web.mock.view.InternalResourceView
  * @since 4.0 2022/1/29 11:07
  */
 public interface View {

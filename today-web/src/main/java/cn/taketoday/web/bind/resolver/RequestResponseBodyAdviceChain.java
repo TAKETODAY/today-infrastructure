@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -46,6 +46,7 @@ import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, ResponseBodyAdvice<Object> {
 
   private final ArrayList<Object> requestBodyAdvice = new ArrayList<>(4);
+
   private final ArrayList<Object> responseBodyAdvice = new ArrayList<>(4);
 
   /**
@@ -63,7 +64,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
       ArrayList<T> result = new ArrayList<>();
       for (Object advice : bodyAdvice) {
         Class<?> beanType = advice instanceof ControllerAdviceBean adviceBean
-                            ? adviceBean.getBeanType() : advice.getClass();
+                ? adviceBean.getBeanType() : advice.getClass();
         if (beanType != null && adviceType.isAssignableFrom(beanType)) {
           result.add((T) advice);
         }

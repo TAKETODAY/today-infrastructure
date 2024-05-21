@@ -185,14 +185,14 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
   private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
+  private static final boolean jaxb2Present = isPresent("jakarta.xml.bind.Binder");
   private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
   private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
           && isPresent("com.fasterxml.jackson.core.JsonGenerator");
-  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
-  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
-  private static final boolean jaxb2Present = isPresent("jakarta.xml.bind.Binder");
+  private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2YamlPresent = isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory");
+  private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
 
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
