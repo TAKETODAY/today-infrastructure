@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.config;
@@ -27,28 +24,20 @@ import cn.taketoday.lang.Nullable;
  * Context object for evaluating an expression within a bean definition.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class BeanExpressionContext {
 
   @Nullable
-  private final Scope scope;
+  public final Scope scope;
 
-  private final ConfigurableBeanFactory beanFactory;
+  public final ConfigurableBeanFactory beanFactory;
 
   public BeanExpressionContext(ConfigurableBeanFactory beanFactory, @Nullable Scope scope) {
     Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
     this.scope = scope;
-  }
-
-  public final ConfigurableBeanFactory getBeanFactory() {
-    return this.beanFactory;
-  }
-
-  @Nullable
-  public final Scope getScope() {
-    return this.scope;
   }
 
   public boolean containsObject(String key) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package cn.taketoday.web.bind.resolver;
 
 import java.util.Map;
 
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
@@ -52,6 +53,14 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
         implements UriComponentsContributor {
 
   private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
+
+  public PathVariableMethodArgumentResolver() {
+
+  }
+
+  public PathVariableMethodArgumentResolver(@Nullable ConfigurableBeanFactory factory) {
+    super(factory);
+  }
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {

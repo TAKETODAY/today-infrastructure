@@ -221,7 +221,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     // Annotation-based argument resolution
     strategies.add(new RequestParamMethodArgumentResolver(beanFactory, false));
     strategies.add(new RequestParamMapMethodArgumentResolver());
-    strategies.add(new PathVariableMethodArgumentResolver());
+    strategies.add(new PathVariableMethodArgumentResolver(beanFactory));
     strategies.add(new PathVariableMapMethodArgumentResolver());
     strategies.add(new MatrixParamMethodArgumentResolver());
     strategies.add(new MatrixParamMapMethodArgumentResolver());

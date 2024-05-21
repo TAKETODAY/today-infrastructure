@@ -48,7 +48,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see BeanExpressionContext#getBeanFactory()
+ * @see BeanExpressionContext#beanFactory
  * @see ExpressionParser
  * @see SpelExpressionParser
  * @see StandardEvaluationContext
@@ -165,10 +165,10 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
         sec.addPropertyAccessor(new BeanFactoryAccessor());
         sec.addPropertyAccessor(new MapAccessor());
         sec.addPropertyAccessor(new EnvironmentAccessor());
-        sec.setBeanResolver(new BeanFactoryResolver(evalContext.getBeanFactory()));
-        sec.setTypeLocator(new StandardTypeLocator(evalContext.getBeanFactory().getBeanClassLoader()));
+        sec.setBeanResolver(new BeanFactoryResolver(evalContext.beanFactory));
+        sec.setTypeLocator(new StandardTypeLocator(evalContext.beanFactory.getBeanClassLoader()));
         sec.setTypeConverter(new StandardTypeConverter(() -> {
-          ConversionService cs = evalContext.getBeanFactory().getConversionService();
+          ConversionService cs = evalContext.beanFactory.getConversionService();
           return cs != null ? cs : ApplicationConversionService.getSharedInstance();
         }));
         customizeEvaluationContext(sec);
