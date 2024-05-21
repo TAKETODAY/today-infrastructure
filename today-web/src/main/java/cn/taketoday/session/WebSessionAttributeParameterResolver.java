@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.session;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -36,10 +37,6 @@ public class WebSessionAttributeParameterResolver extends AbstractNamedValueReso
 
   private final SessionManager sessionManager;
 
-  public WebSessionAttributeParameterResolver(SessionManager sessionManager) {
-    this(sessionManager, null);
-  }
-
   public WebSessionAttributeParameterResolver(
           SessionManager sessionManager, @Nullable ConfigurableBeanFactory beanFactory) {
     super(beanFactory);
@@ -54,8 +51,7 @@ public class WebSessionAttributeParameterResolver extends AbstractNamedValueReso
 
   @Nullable
   @Override
-  protected Object resolveName(
-          String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
     WebSession session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;
