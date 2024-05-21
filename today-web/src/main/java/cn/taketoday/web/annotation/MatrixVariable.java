@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.annotation;
@@ -34,7 +31,7 @@ import cn.taketoday.lang.Constant;
  * resource class field, or resource class bean property. Values are URL decoded
  * A default value can be specified using the {@link #defaultValue()} attribute.
  * <p>
- * Note that the {@code @MatrixParam} {@link #value() annotation value} refers
+ * Note that the {@code @MatrixVariable} {@link #value() annotation value} refers
  * to a name of a matrix parameter that resides in the last matched path segment
  * of the {@link PathVariable}-annotated Java structure that injects the value
  * of the matrix parameter.
@@ -65,8 +62,6 @@ import cn.taketoday.lang.Constant;
  * default per-request resource class lifecycle. Resource classes using
  * other lifecycles should only use this annotation on resource method parameters.
  * </p>
- * <p>
- *   like Framework's MatrixVariable
  *
  * @author TODAY 2021/10/4 11:47
  * @see <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">Matrix URIs</a>
@@ -76,7 +71,7 @@ import cn.taketoday.lang.Constant;
 @RequestParam
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MatrixParam {
+public @interface MatrixVariable {
 
   /**
    * Alias for {@link #name}.

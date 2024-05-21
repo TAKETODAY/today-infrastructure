@@ -37,7 +37,7 @@ import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.MatrixParam;
+import cn.taketoday.web.annotation.MatrixVariable;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.WebDataBinder;
@@ -354,7 +354,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
 
     @RequestMapping("/{root}")
     void handle(@PathVariable("root") int root,
-            @MatrixParam(required = false, defaultValue = "7") String q, Writer writer) throws IOException {
+            @MatrixVariable(required = false, defaultValue = "7") String q, Writer writer) throws IOException {
 
       assertThat(root).as("Invalid path variable value").isEqualTo(42);
       writer.write("test-" + root + "-" + q);
@@ -369,8 +369,8 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
     void handle(@PathVariable("hotel") String hotel,
             @PathVariable int booking,
             @PathVariable String other,
-            @MatrixParam(name = "q", pathVar = "hotel") int qHotel,
-            @MatrixParam(name = "q", pathVar = "other") int qOther,
+            @MatrixVariable(name = "q", pathVar = "hotel") int qHotel,
+            @MatrixVariable(name = "q", pathVar = "other") int qOther,
             Writer writer) throws IOException {
       assertThat(hotel).as("Invalid path variable value").isEqualTo("42");
       assertThat(booking).as("Invalid path variable value").isEqualTo(21);
@@ -388,7 +388,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
 
     @RequestMapping("/hotels/{hotel}/bookings/{booking}-{other}")
     ViewRef handle(@PathVariable("hotel") String hotel, @PathVariable int booking,
-            @PathVariable String other, @MatrixParam MultiValueMap<String, String> params) {
+            @PathVariable String other, @MatrixVariable MultiValueMap<String, String> params) {
 
       assertThat(hotel).as("Invalid path variable value").isEqualTo("42");
       assertThat(booking).as("Invalid path variable value").isEqualTo(21);
@@ -492,7 +492,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
 
     @RequestMapping("/{root:\\d+}{params}")
     void handle(@PathVariable("root") int root, @PathVariable("params") String paramString,
-            @MatrixParam List<Integer> q, Writer writer) throws IOException {
+            @MatrixVariable List<Integer> q, Writer writer) throws IOException {
 
       assertThat(root).as("Invalid path variable value").isEqualTo(42);
       writer.write("test-" + root + "-" + paramString + "-" + q);

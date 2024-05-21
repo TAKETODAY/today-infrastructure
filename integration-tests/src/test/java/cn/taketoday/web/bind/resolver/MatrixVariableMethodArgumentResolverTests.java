@@ -31,7 +31,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.ResolvableMethod;
-import cn.taketoday.web.annotation.MatrixParam;
+import cn.taketoday.web.annotation.MatrixVariable;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockRequestContext;
@@ -47,9 +47,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/10/28 22:08
  */
-class MatrixParamMethodArgumentResolverTests {
+class MatrixVariableMethodArgumentResolverTests {
 
-  private MatrixParamMethodArgumentResolver resolver;
+  private MatrixVariableMethodArgumentResolver resolver;
 
   private MockRequestContext webRequest;
 
@@ -57,7 +57,7 @@ class MatrixParamMethodArgumentResolverTests {
 
   @BeforeEach
   public void setup() throws Exception {
-    this.resolver = new MatrixParamMethodArgumentResolver();
+    this.resolver = new MatrixVariableMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
     this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
@@ -148,8 +148,8 @@ class MatrixParamMethodArgumentResolverTests {
     return params;
   }
 
-  public void handle(String stringArg, @MatrixParam List<String> colors,
-          @MatrixParam(name = "year", pathVar = "cars", required = false, defaultValue = "2013") int preferredYear) {
+  public void handle(String stringArg, @MatrixVariable List<String> colors,
+          @MatrixVariable(name = "year", pathVar = "cars", required = false, defaultValue = "2013") int preferredYear) {
 
   }
 

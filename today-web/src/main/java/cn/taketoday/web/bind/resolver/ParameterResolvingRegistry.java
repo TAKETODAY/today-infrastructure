@@ -223,8 +223,8 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     strategies.add(new RequestParamMapMethodArgumentResolver());
     strategies.add(new PathVariableMethodArgumentResolver(beanFactory));
     strategies.add(new PathVariableMapMethodArgumentResolver());
-    strategies.add(new MatrixParamMethodArgumentResolver());
-    strategies.add(new MatrixParamMapMethodArgumentResolver());
+    strategies.add(new MatrixVariableMethodArgumentResolver());
+    strategies.add(new MatrixVariableMapMethodArgumentResolver());
     strategies.add(new ModelAttributeMethodProcessor(false));
     strategies.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     strategies.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));

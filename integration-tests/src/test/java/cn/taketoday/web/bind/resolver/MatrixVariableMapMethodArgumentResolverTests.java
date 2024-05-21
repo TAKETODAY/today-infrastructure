@@ -32,7 +32,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.ResolvableMethod;
-import cn.taketoday.web.annotation.MatrixParam;
+import cn.taketoday.web.annotation.MatrixVariable;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
@@ -46,9 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/10/28 21:05
  */
-class MatrixParamMapMethodArgumentResolverTests {
+class MatrixVariableMapMethodArgumentResolverTests {
 
-  private MatrixParamMapMethodArgumentResolver resolver;
+  private MatrixVariableMapMethodArgumentResolver resolver;
 
   private MockRequestContext webRequest;
 
@@ -56,7 +56,7 @@ class MatrixParamMapMethodArgumentResolverTests {
 
   @BeforeEach
   public void setup() throws Exception {
-    this.resolver = new MatrixParamMapMethodArgumentResolver();
+    this.resolver = new MatrixVariableMapMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
     this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
@@ -200,10 +200,10 @@ class MatrixParamMapMethodArgumentResolverTests {
 
   @SuppressWarnings("unused")
   public void handle(String stringArg,
-          @MatrixParam Map<String, String> map,
-          @MatrixParam MultiValueMap<String, String> multivalueMap,
-          @MatrixParam(pathVar = "cars") MultiValueMap<String, String> mapForPathVar,
-          @MatrixParam("name") Map<String, String> mapWithName) {
+          @MatrixVariable Map<String, String> map,
+          @MatrixVariable MultiValueMap<String, String> multivalueMap,
+          @MatrixVariable(pathVar = "cars") MultiValueMap<String, String> mapForPathVar,
+          @MatrixVariable("name") Map<String, String> mapWithName) {
   }
 
 }

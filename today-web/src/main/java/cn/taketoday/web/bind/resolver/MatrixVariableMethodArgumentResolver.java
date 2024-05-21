@@ -29,38 +29,38 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.MatrixParam;
+import cn.taketoday.web.annotation.MatrixVariable;
 import cn.taketoday.web.bind.MissingMatrixVariableException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
- * Resolves arguments annotated with {@link MatrixParam @MatrixParam}.
+ * Resolves arguments annotated with {@link MatrixVariable @MatrixVariable}.
  *
  * <p>If the method parameter is of type {@link Map} it will by resolved by
- * {@link MatrixParamMapMethodArgumentResolver} instead unless the annotation
+ * {@link MatrixVariableMapMethodArgumentResolver} instead unless the annotation
  * specifies a name in which case it is considered to be a single attribute of
  * type map (vs multiple attributes collected in a map).
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see MatrixParam
+ * @see MatrixVariable
  * @since 4.0 2022/1/23 22:22
  */
-public class MatrixParamMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
+public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
 
-  public MatrixParamMethodArgumentResolver() {
+  public MatrixVariableMethodArgumentResolver() {
     super(null);
   }
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    if (!resolvable.hasParameterAnnotation(MatrixParam.class)) {
+    if (!resolvable.hasParameterAnnotation(MatrixVariable.class)) {
       return false;
     }
     if (Map.class.isAssignableFrom(resolvable.getParameterType())) {
-      MatrixParam matrixVariable = resolvable.getParameterAnnotation(MatrixParam.class);
+      MatrixVariable matrixVariable = resolvable.getParameterAnnotation(MatrixVariable.class);
       return matrixVariable != null && StringUtils.hasText(matrixVariable.name());
     }
     return true;
@@ -68,15 +68,14 @@ public class MatrixParamMethodArgumentResolver extends AbstractNamedValueResolvi
 
   @Nullable
   @Override
-  protected Object resolveName(
-          String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
+  protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
     Map<String, MultiValueMap<String, String>> pathParameters = request.matchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
     }
 
     MethodParameter parameter = resolvable.getParameter();
-    MatrixParam ann = parameter.getParameterAnnotation(MatrixParam.class);
+    MatrixVariable ann = parameter.getParameterAnnotation(MatrixVariable.class);
     Assert.state(ann != null, "No MatrixVariable annotation");
     String pathVar = ann.pathVar();
     List<String> paramValues = null;
