@@ -26,7 +26,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.RequestBindingException;
+import cn.taketoday.web.bind.MissingRequestValueException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.context.support.RequestScope;
 import cn.taketoday.web.handler.method.MethodArgumentConversionNotSupportedException;
@@ -215,7 +215,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    */
   protected void handleMissingValue(String name, MethodParameter parameter) {
-    throw new RequestBindingException("Missing argument '%s' for method parameter of type %s"
+    throw new MissingRequestValueException("Missing argument '%s' for method parameter of type %s"
             .formatted(name, parameter.getNestedParameterType().getSimpleName()));
   }
 
@@ -227,7 +227,8 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param request the current request
    */
   protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) throws Exception {
-    handleMissingValue(name, parameter, request);
+    throw new MissingRequestValueException("Missing argument '%s' for method parameter of type %s"
+            .formatted(name, parameter.getNestedParameterType().getSimpleName()), true);
   }
 
   /**
