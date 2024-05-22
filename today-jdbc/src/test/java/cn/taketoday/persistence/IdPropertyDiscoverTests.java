@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/15 13:43
+ * @since 4.0 2024/2/15 13:43
  */
 class IdPropertyDiscoverTests {
 

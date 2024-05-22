@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * just use once
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/14 18:46
+ * @since 4.0 2024/2/14 18:46
  */
 public class StreamIterable<T> implements Iterable<T> {
   private final Stream<T> stream;

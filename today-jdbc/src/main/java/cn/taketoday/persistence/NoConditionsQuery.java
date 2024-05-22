@@ -29,7 +29,7 @@ import cn.taketoday.persistence.sql.Select;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/20 17:03
+ * @since 4.0 2024/2/20 17:03
  */
 final class NoConditionsQuery extends ColumnsQueryStatement implements ConditionStatement {
 

@@ -23,7 +23,7 @@ import cn.taketoday.persistence.sql.Select;
  * Render select Columns from table
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/16 18:10
+ * @since 4.0 2024/2/16 18:10
  */
 public abstract class ColumnsQueryStatement implements QueryStatement {
 

@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/5 22:16
+ * @since 4.0 2024/2/5 22:16
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ConditionEvaluationReportLoggingProcessorTests {

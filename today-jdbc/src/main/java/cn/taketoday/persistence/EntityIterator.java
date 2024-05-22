@@ -29,7 +29,7 @@ import cn.taketoday.jdbc.ResultSetIterator;
  * Iterator for a {@link ResultSet}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/22 19:38
+ * @since 4.0 2024/2/22 19:38
  */
 public abstract class EntityIterator<T> extends ResultSetIterator<T> {
 

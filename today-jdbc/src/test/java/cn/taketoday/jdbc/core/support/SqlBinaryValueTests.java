@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/4 21:58
+ * @since 4.0 2024/2/4 21:58
  */
 class SqlBinaryValueTests {
 

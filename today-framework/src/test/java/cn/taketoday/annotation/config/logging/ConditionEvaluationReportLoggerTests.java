@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/5 21:56
+ * @since 4.0 2024/2/5 21:56
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ConditionEvaluationReportLoggerTests {

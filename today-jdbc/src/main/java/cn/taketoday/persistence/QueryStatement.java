@@ -24,7 +24,7 @@ import java.sql.SQLException;
  * Query condition builder
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/16 14:45
+ * @since 4.0 2024/2/16 14:45
  */
 public interface QueryStatement extends DebugDescriptive {
 

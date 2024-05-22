@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/1 19:57
+ * @since 4.0 2024/2/1 19:57
  */
 class RequestParameterSessionIdResolverTests {
 

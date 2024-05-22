@@ -46,7 +46,7 @@ import java.lang.annotation.Target;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/14 21:11
+ * @since 4.0 2024/2/14 21:11
  */
 @Id
 @Documented
