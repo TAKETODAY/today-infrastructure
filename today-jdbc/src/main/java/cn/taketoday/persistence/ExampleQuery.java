@@ -77,7 +77,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     scan(condition -> select.addRestriction(condition.restriction));
-    select.orderBy(example instanceof OrderBySource source ? source.getOrderByClause() : orderByClause);
+    select.orderBy(example instanceof OrderBySource source ? source.orderByClause() : orderByClause);
   }
 
   public void renderWhereClause(StringBuilder sql) {
@@ -92,7 +92,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   @Override
   public OrderByClause getOrderByClause(EntityMetadata metadata) {
     if (example instanceof OrderBySource source) {
-      OrderByClause orderByClause = source.getOrderByClause();
+      OrderByClause orderByClause = source.orderByClause();
       if (!orderByClause.isEmpty()) {
         return orderByClause;
       }
