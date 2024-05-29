@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.annotation;
 
 import java.lang.annotation.Documented;
@@ -35,28 +33,28 @@ import cn.taketoday.lang.Constant;
  * type or any boxed version thereof.
  *
  * <p>For example:-
- * <pre><code>
- * &#64;RequestMapping("/bookings/{guest-id}")
+ * <pre>{@code
+ * @RequestMapping("/bookings/{guest-id}")
  * public class BookingController {
  *
- *     &#64;RequestMapping
+ *     @RequestMapping
  *     public void processBookingRequest(@PathVariable("guest-id") String guestID) {
  *         // process booking from the given guest here
  *     }
  * }
- * </code></pre>
+ * }</pre>
  *
  * <p>For example:-
- * <pre><code>
- * &#64;RequestMapping("/rewards/{vip-level}")
+ * <pre>{@code
+ * @RequestMapping("/rewards/{vip-level}")
  * public class RewardController {
  *
- *     &#64;RequestMapping
+ *     @RequestMapping
  *     public void processReward(@PathVariable("vip-level") Integer vipLevel) {
  *         // process reward here
  *     }
  * }
- * </code></pre>
+ * }</pre>
  *
  * @author TODAY 2018-06-29 16:27:12
  */
