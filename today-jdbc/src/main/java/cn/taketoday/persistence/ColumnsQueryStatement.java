@@ -20,7 +20,7 @@ package cn.taketoday.persistence;
 import cn.taketoday.persistence.sql.Select;
 
 /**
- * Render select Columns from table
+ * Render select columns from table
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/16 18:10

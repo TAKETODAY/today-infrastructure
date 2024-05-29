@@ -21,23 +21,44 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Descriptive;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.sql.OrderByClause;
 import cn.taketoday.persistence.sql.Restriction;
 
 /**
- * Condition Render
+ * Condition statement
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Pageable
+ * @see Descriptive
+ * @see DebugDescriptive
  * @since 4.0 2024/3/31 15:51
  */
-public interface ConditionStatement extends DebugDescriptive {
+public interface ConditionStatement {
 
+  /**
+   * Render where clause
+   *
+   * @param metadata query entity metadata
+   * @param restrictions restrictions list
+   */
   void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions);
 
+  /**
+   * order by
+   */
   @Nullable
   default OrderByClause getOrderByClause(EntityMetadata metadata) {
+    MergedAnnotation<OrderBy> orderBy = metadata.getAnnotation(OrderBy.class);
+    if (orderBy.isPresent()) {
+      String clause = orderBy.getStringValue();
+      if (!Constant.DEFAULT_NONE.equals(clause)) {
+        return OrderByClause.plain(clause);
+      }
+    }
     return null;
   }
 
@@ -48,10 +69,5 @@ public interface ConditionStatement extends DebugDescriptive {
    * @param statement JDBC statement
    */
   void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
-
-  @Override
-  default String getDescription() {
-    return "Query Condition";
-  }
 
 }
