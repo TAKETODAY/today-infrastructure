@@ -1068,14 +1068,13 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private Object getDebugLogMessage(Object handler) {
-    DebugDescriptive descriptive = null;
-    if (handler instanceof DebugDescriptive) {
-      descriptive = (DebugDescriptive) handler;
+    if (handler instanceof DebugDescriptive descriptive) {
+      return descriptive.getDebugLogMessage();
     }
-    if (descriptive == null) {
-      descriptive = NoConditionsQuery.instance;
+    else if (handler instanceof Descriptive) {
+      return LogMessage.format(((Descriptive) handler).getDescription());
     }
-    return descriptive.getDebugLogMessage();
+    return NoConditionsQuery.instance.getDebugLogMessage();
   }
 
   //
