@@ -27,6 +27,8 @@ import java.util.Map;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.server.Ssl;
@@ -58,6 +60,8 @@ import static io.netty.handler.ssl.SslProvider.OPENSSL;
  */
 final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
+  private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
+  
   @Nullable
   private final HashMap<String, SslContext> serverNameSslContexts;
 
