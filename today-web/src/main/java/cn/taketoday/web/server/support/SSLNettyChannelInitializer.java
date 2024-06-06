@@ -72,12 +72,11 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
   public SSLNettyChannelInitializer(ChannelHandler channelHandler, @Nullable ChannelConfigurer channelConfigurer,
           boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
     super(channelHandler, channelConfigurer);
-    this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
-    this.serverNameSslContexts = createServerNameSSLContexts(serverNameSslBundles);
-    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
-
-    this.sslContext = createSslContext(sslBundle);
     this.http2Enabled = http2Enabled;
+    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
+    this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
+    this.sslContext = createSslContext(sslBundle);
+    this.serverNameSslContexts = createServerNameSSLContexts(serverNameSslBundles);
   }
 
   @Override
