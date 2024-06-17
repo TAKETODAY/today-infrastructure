@@ -671,7 +671,7 @@ dependencies {
     api("org.seleniumhq.selenium:selenium-bom:4.8.3")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'mysql:mysql-connector-java:8.0.33'
-    api 'com.mysql:mysql-connector-j:8.3.0'
+    api 'com.mysql:mysql-connector-j:8.4.0'
     api 'org.postgresql:postgresql:42.4.1'
     api("net.minidev:json-smart:2.4.10")
     api 'net.java.dev.jna:jna-platform:5.13.0'

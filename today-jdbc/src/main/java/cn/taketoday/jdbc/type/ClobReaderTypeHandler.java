@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.io.Reader;
@@ -26,10 +24,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * The {@link TypeHandler} for {@link Clob}/{@link Reader} using method supported at JDBC 4.0.
  *
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
@@ -40,8 +41,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
    * @see PreparedStatement#setClob(int, Reader)
    */
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter)
-          throws SQLException {
+  public void setNonNullParameter(PreparedStatement ps, int i, Reader parameter) throws SQLException {
     ps.setClob(i, parameter);
   }
 
@@ -51,8 +51,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
    * @see ResultSet#getClob(String)
    */
   @Override
-  public Reader getResult(ResultSet rs, String columnName)
-          throws SQLException {
+  public Reader getResult(ResultSet rs, String columnName) throws SQLException {
     return toReader(rs.getClob(columnName));
   }
 
@@ -62,8 +61,7 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
    * @see ResultSet#getClob(int)
    */
   @Override
-  public Reader getResult(ResultSet rs, int columnIndex)
-          throws SQLException {
+  public Reader getResult(ResultSet rs, int columnIndex) throws SQLException {
     return toReader(rs.getClob(columnIndex));
   }
 
@@ -73,12 +71,12 @@ public class ClobReaderTypeHandler extends BaseTypeHandler<Reader> {
    * @see CallableStatement#getClob(int)
    */
   @Override
-  public Reader getResult(CallableStatement cs, int columnIndex)
-          throws SQLException {
+  public Reader getResult(CallableStatement cs, int columnIndex) throws SQLException {
     return toReader(cs.getClob(columnIndex));
   }
 
-  private Reader toReader(Clob clob) throws SQLException {
+  @Nullable
+  private Reader toReader(@Nullable Clob clob) throws SQLException {
     if (clob == null) {
       return null;
     }

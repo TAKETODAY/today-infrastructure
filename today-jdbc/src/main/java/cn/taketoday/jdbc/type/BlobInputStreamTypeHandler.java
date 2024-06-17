@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.io.InputStream;
@@ -26,10 +24,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * The {@link TypeHandler} for {@link Blob}/{@link InputStream} using method supported at JDBC 4.0.
  *
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class BlobInputStreamTypeHandler extends BaseTypeHandler<InputStream> {
 
@@ -73,7 +75,8 @@ public class BlobInputStreamTypeHandler extends BaseTypeHandler<InputStream> {
     return toInputStream(cs.getBlob(columnIndex));
   }
 
-  static InputStream toInputStream(Blob blob) throws SQLException {
+  @Nullable
+  static InputStream toInputStream(@Nullable Blob blob) throws SQLException {
     if (blob == null) {
       return null;
     }
