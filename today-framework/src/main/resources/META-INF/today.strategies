@@ -95,7 +95,6 @@ cn.taketoday.framework.annotation.OnWebApplicationCondition
 cn.taketoday.context.ApplicationContextInitializer=\
 cn.taketoday.framework.context.ContextIdApplicationContextInitializer,\
 cn.taketoday.framework.context.config.DelegatingApplicationContextInitializer,\
-cn.taketoday.web.server.context.ServerPortInfoApplicationContextInitializer,\
 cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingListener
 
 #
