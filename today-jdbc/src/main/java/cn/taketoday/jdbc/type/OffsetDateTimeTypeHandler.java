@@ -32,7 +32,15 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class OffsetDateTimeTypeHandler extends BaseTypeHandler<OffsetDateTime> {
+public class OffsetDateTimeTypeHandler extends AbstractZoneIdTypeHandler<OffsetDateTime> {
+
+  public OffsetDateTimeTypeHandler() {
+    super();
+  }
+
+  public OffsetDateTimeTypeHandler(ZoneId zoneId) {
+    super(zoneId);
+  }
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, OffsetDateTime parameter) throws SQLException {
@@ -55,10 +63,11 @@ public class OffsetDateTimeTypeHandler extends BaseTypeHandler<OffsetDateTime> {
   }
 
   @Nullable
-  static OffsetDateTime getOffsetDateTime(@Nullable Timestamp timestamp) {
+  protected OffsetDateTime getOffsetDateTime(@Nullable Timestamp timestamp) {
     if (timestamp != null) {
-      return OffsetDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault());
+      return OffsetDateTime.ofInstant(timestamp.toInstant(), zoneId);
     }
     return null;
   }
+
 }

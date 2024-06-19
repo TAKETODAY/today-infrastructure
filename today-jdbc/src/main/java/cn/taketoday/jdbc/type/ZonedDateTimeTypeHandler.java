@@ -32,7 +32,15 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ZonedDateTimeTypeHandler extends BaseTypeHandler<ZonedDateTime> {
+public class ZonedDateTimeTypeHandler extends AbstractZoneIdTypeHandler<ZonedDateTime> {
+
+  public ZonedDateTimeTypeHandler() {
+    super();
+  }
+
+  public ZonedDateTimeTypeHandler(ZoneId zoneId) {
+    super(zoneId);
+  }
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, ZonedDateTime parameter) throws SQLException {
@@ -55,9 +63,9 @@ public class ZonedDateTimeTypeHandler extends BaseTypeHandler<ZonedDateTime> {
   }
 
   @Nullable
-  static ZonedDateTime getZonedDateTime(@Nullable Timestamp timestamp) {
+  protected ZonedDateTime getZonedDateTime(@Nullable Timestamp timestamp) {
     if (timestamp != null) {
-      return ZonedDateTime.ofInstant(timestamp.toInstant(), ZoneId.systemDefault());
+      return ZonedDateTime.ofInstant(timestamp.toInstant(), zoneId);
     }
     return null;
   }

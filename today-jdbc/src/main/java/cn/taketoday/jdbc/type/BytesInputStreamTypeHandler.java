@@ -31,23 +31,26 @@ import java.sql.SQLException;
 public class BytesInputStreamTypeHandler extends BaseTypeHandler<InputStream> {
 
   @Override
-  public void setNonNullParameter(
-          PreparedStatement ps, int parameterIndex, InputStream parameter) throws SQLException {
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, InputStream parameter) throws SQLException {
     ps.setBinaryStream(parameterIndex, parameter);
   }
 
   @Override
   public InputStream getResult(ResultSet rs, String columnName) throws SQLException {
-    return new ByteArrayInputStream(rs.getBytes(columnName));
+    byte[] bytes = rs.getBytes(columnName);
+    return bytes != null ? new ByteArrayInputStream(bytes) : null;
   }
 
   @Override
   public InputStream getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return new ByteArrayInputStream(rs.getBytes(columnIndex));
+    byte[] bytes = rs.getBytes(columnIndex);
+    return bytes != null ? new ByteArrayInputStream(bytes) : null;
   }
 
   @Override
   public InputStream getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return new ByteArrayInputStream(cs.getBytes(columnIndex));
+    byte[] bytes = cs.getBytes(columnIndex);
+    return bytes != null ? new ByteArrayInputStream(bytes) : null;
   }
+
 }

@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.time.OffsetTime;
+import java.time.ZoneId;
 
 import cn.taketoday.lang.Nullable;
 
@@ -31,7 +32,15 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class OffsetTimeTypeHandler extends BaseTypeHandler<OffsetTime> {
+public class OffsetTimeTypeHandler extends AbstractZoneIdTypeHandler<OffsetTime> {
+
+  public OffsetTimeTypeHandler() {
+    super();
+  }
+
+  public OffsetTimeTypeHandler(ZoneId zoneId) {
+    super(zoneId);
+  }
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, OffsetTime parameter) throws SQLException {
@@ -54,9 +63,9 @@ public class OffsetTimeTypeHandler extends BaseTypeHandler<OffsetTime> {
   }
 
   @Nullable
-  static OffsetTime getOffsetTime(@Nullable Time time) {
+  protected OffsetTime getOffsetTime(@Nullable Time time) {
     if (time != null) {
-      return time.toLocalTime().atOffset(OffsetTime.now().getOffset());
+      return time.toLocalTime().atOffset(OffsetTime.now(zoneId).getOffset());
     }
     return null;
   }
