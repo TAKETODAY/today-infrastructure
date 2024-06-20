@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 import cn.taketoday.beans.BeanProperty;
@@ -61,8 +62,8 @@ import cn.taketoday.lang.TodayStrategies;
 @SuppressWarnings("rawtypes")
 public class TypeHandlerManager implements TypeHandlerResolver {
 
-  public static final TypeHandlerManager sharedInstance = new TypeHandlerManager(
-          ZoneId.of(TodayStrategies.getProperty("type-handler.zoneId", "UTC")));
+  public static final TypeHandlerManager sharedInstance = new TypeHandlerManager(Optional.ofNullable(
+          TodayStrategies.getProperty("type-handler.zoneId")).map(ZoneId::of).orElse(ZoneId.systemDefault()));
 
   private final TypeHandler<Object> unknownTypeHandler;
 
@@ -76,7 +77,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     this(ZoneId.systemDefault());
   }
 
-  public TypeHandlerManager(ZoneId zoneId) {
+  public TypeHandlerManager(@Nullable ZoneId zoneId) {
     this.unknownTypeHandler = new UnknownTypeHandler(this);
     registerDefaults(this, zoneId);
   }
@@ -294,7 +295,10 @@ public class TypeHandlerManager implements TypeHandlerResolver {
 
   // static
 
-  public static void registerDefaults(TypeHandlerManager registry, ZoneId zoneId) {
+  public static void registerDefaults(TypeHandlerManager registry, @Nullable ZoneId zoneId) {
+    if (zoneId == null) {
+      zoneId = ZoneId.systemDefault();
+    }
 
     registry.register(Boolean.class, new BooleanTypeHandler());
     registry.register(boolean.class, new BooleanTypeHandler());
