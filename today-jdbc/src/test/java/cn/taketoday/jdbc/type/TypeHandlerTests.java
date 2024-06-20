@@ -40,7 +40,6 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -59,7 +58,7 @@ import static org.mockito.Mockito.verify;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/6/15 11:15
  */
-class BaseTypeHandlerTests {
+class TypeHandlerTests {
 
   protected final ResultSet resultSet = mock(ResultSet.class);
 
@@ -73,7 +72,7 @@ class BaseTypeHandlerTests {
 
   @ParameterizedTest
   @MethodSource("setParameterArgumentSource")
-  <T> void setParameter(BaseTypeHandler<T> typeHandler, PreparedStatementFunc<T> consumer, T value, T verifyVal) throws SQLException {
+  <T> void setParameter(TypeHandler<T> typeHandler, PreparedStatementFunc<T> consumer, T value, T verifyVal) throws SQLException {
     typeHandler.setParameter(preparedStatement, 0, value);
     consumer.accept(verify(preparedStatement), 0, verifyVal);
 
@@ -83,7 +82,7 @@ class BaseTypeHandlerTests {
 
   @ParameterizedTest
   @MethodSource("getResultColumnIndexArgumentSource")
-  <T> void getResultColumnIndex(BaseTypeHandler<T> typeHandler, BiFunction<ResultSet, Integer, T> consumer,
+  <T> void getResultColumnIndex(TypeHandler<T> typeHandler, BiFunction<ResultSet, Integer, T> consumer,
           T value, T verifyVal, boolean wasNull) throws SQLException {
     given(consumer.apply(resultSet, 1)).willReturn(value);
     given(resultSet.wasNull()).willReturn(wasNull);
@@ -96,9 +95,6 @@ class BaseTypeHandlerTests {
     UUID uuid = UUID.randomUUID();
     java.util.Date date = java.util.Date.from(Instant.now());
 
-    OffsetTime offsetTime = OffsetTime.now(ZoneOffset.UTC);
-    LocalDateTime localDateTime = LocalDateTime.of(1, 1, 1, 1, 1, 1);
-    LocalDate localDate = LocalDate.now();
     OffsetDateTime offsetDateTime = OffsetDateTime.now();
     return Stream.of(
             args(new LongTypeHandler(), ResultSet::getLong, 1L),
@@ -145,23 +141,23 @@ class BaseTypeHandlerTests {
             args(new MonthTypeHandler(), ResultSet::getInt, Month.JANUARY.getValue(), Month.JANUARY),
             args(new MonthTypeHandler(), ResultSet::getInt, 0, null, true),
 
-            args(new OffsetTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetTime.class), offsetTime),
-            args(new OffsetTimeTypeHandler(), (rs, idx) -> rs.getTime(idx), null, null),
+            args(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), OffsetTime.now(ZoneOffset.UTC)),
+            args(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), null),
 
-            args(new OffsetDateTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime),
-            args(new OffsetDateTimeTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), null, null),
+            args(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime),
+            args(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null),
 
-            args(new LocalTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalTime.class), LocalTime.MIN),
-            args(new LocalTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalTime.class), null, null),
+            args(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), null),
+            args(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), LocalTime.now()),
 
-            args(new LocalDateTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalDate.class), localDate),
-            args(new LocalDateTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalDate.class), null),
+            args(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), LocalDate.now()),
+            args(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), null),
 
-            args(new LocalDateTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), localDateTime),
-            args(new LocalDateTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), null),
+            args(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), LocalDateTime.now()),
+            args(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), null),
 
-            args(new ZonedDateTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), null),
-            args(new ZonedDateTimeTypeHandler(), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), ZonedDateTime.of(localDateTime, ZoneId.systemDefault())),
+            args(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), null),
+            args(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), ZonedDateTime.now()),
 
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), new Timestamp(date.getTime()), date),
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), null, null),
@@ -203,13 +199,12 @@ class BaseTypeHandlerTests {
             args(new YearMonthTypeHandler(), PreparedStatement::setString, YearMonth.of(2000, Month.JANUARY).toString(),
                     YearMonth.of(2000, Month.JANUARY)),
 
-            args(new OffsetTimeTypeHandler(), PreparedStatement::setObject, OffsetTime.MIN),
-            args(new OffsetDateTimeTypeHandler(), PreparedStatement::setObject, OffsetDateTime.MAX),
-            args(new LocalTimeTypeHandler(), PreparedStatement::setObject, LocalTime.MIN),
-            args(new LocalDateTypeHandler(), PreparedStatement::setObject, LocalDate.MAX),
-            args(new LocalDateTimeTypeHandler(), PreparedStatement::setObject, LocalDateTime.MAX),
-            args(new ZonedDateTimeTypeHandler(), PreparedStatement::setObject, ZonedDateTime.of(LocalDateTime.MIN, ZoneId.systemDefault())),
-            args(new LocalDateTimeTypeHandler(), PreparedStatement::setObject, LocalDateTime.MIN),
+            args(new AnyTypeHandler<>(LocalDate.class), PreparedStatement::setObject, LocalDate.now()),
+            args(new AnyTypeHandler<>(LocalTime.class), PreparedStatement::setObject, LocalTime.now()),
+            args(new AnyTypeHandler<>(LocalDateTime.class), PreparedStatement::setObject, LocalDateTime.now()),
+            args(new AnyTypeHandler<>(OffsetTime.class), PreparedStatement::setObject, OffsetTime.now()),
+            args(new AnyTypeHandler<>(ZonedDateTime.class), PreparedStatement::setObject, ZonedDateTime.now()),
+            args(new AnyTypeHandler<>(OffsetDateTime.class), PreparedStatement::setObject, OffsetDateTime.now()),
 
             args(new MonthTypeHandler(), PreparedStatement::setInt, Month.JANUARY.getValue(), Month.JANUARY),
             args(new DateTypeHandler(), PreparedStatement::setTimestamp, new Timestamp(date.getTime()), date),
@@ -221,30 +216,30 @@ class BaseTypeHandlerTests {
     );
   }
 
-  static <T> Arguments args(BaseTypeHandler<T> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer, @Nullable T value) {
+  static <T> Arguments args(TypeHandler<T> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer, @Nullable T value) {
     return Arguments.arguments(typeHandler, consumer, value, value, false);
   }
 
-  static <T, E> Arguments args(BaseTypeHandler<E> typeHandler,
+  static <T, E> Arguments args(TypeHandler<E> typeHandler,
           ThrowingBiFunction<ResultSet, Integer, T> consumer, T value, boolean wasNull) {
     return Arguments.arguments(typeHandler, consumer, value, value, wasNull);
   }
 
-  static <T, E> Arguments args(BaseTypeHandler<E> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer,
+  static <T, E> Arguments args(TypeHandler<E> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer,
           @Nullable T value, @Nullable E verifyVal) {
     return Arguments.arguments(typeHandler, consumer, value, verifyVal, false);
   }
 
-  static <T, E> Arguments args(BaseTypeHandler<E> typeHandler,
+  static <T, E> Arguments args(TypeHandler<E> typeHandler,
           ThrowingBiFunction<ResultSet, Integer, T> consumer, T value, @Nullable E verifyVal, boolean wasNull) {
     return Arguments.arguments(typeHandler, consumer, value, verifyVal, wasNull);
   }
 
-  static <T, E> Arguments args(BaseTypeHandler<E> typeHandler, PreparedStatementFunc<T> consumer, T value) {
+  static <T, E> Arguments args(TypeHandler<E> typeHandler, PreparedStatementFunc<T> consumer, T value) {
     return Arguments.arguments(typeHandler, consumer, value, value);
   }
 
-  static <T, E> Arguments args(BaseTypeHandler<T> typeHandler, PreparedStatementFunc<E> consumer, E verifyVal, T value) {
+  static <T, E> Arguments args(TypeHandler<T> typeHandler, PreparedStatementFunc<E> consumer, E verifyVal, T value) {
     return Arguments.arguments(typeHandler, consumer, value, verifyVal);
   }
 

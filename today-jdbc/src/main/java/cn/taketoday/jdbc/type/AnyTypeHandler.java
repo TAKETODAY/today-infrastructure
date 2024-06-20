@@ -18,30 +18,47 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalTime;
+
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
- * @author Tomas Rohovsky
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 5.0 2024/6/20 22:22
  */
-public class LocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
+public final class AnyTypeHandler<T> implements TypeHandler<T> {
 
-  @Override
-  public LocalTime getResult(ResultSet rs, String columnName) throws SQLException {
-    return rs.getObject(columnName, LocalTime.class);
+  private final Class<T> type;
+
+  public AnyTypeHandler(Class<T> type) {
+    Assert.notNull(type, "type is required");
+    this.type = type;
   }
 
   @Override
-  public LocalTime getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return rs.getObject(columnIndex, LocalTime.class);
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
+    ps.setObject(parameterIndex, parameter);
   }
 
+  @Nullable
   @Override
-  public LocalTime getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return cs.getObject(columnIndex, LocalTime.class);
+  public T getResult(ResultSet rs, String columnName) throws SQLException {
+    return rs.getObject(columnName, type);
+  }
+
+  @Nullable
+  @Override
+  public T getResult(ResultSet rs, int columnIndex) throws SQLException {
+    return rs.getObject(columnIndex, type);
+  }
+
+  @Nullable
+  @Override
+  public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
+    return cs.getObject(columnIndex, type);
   }
 
 }
