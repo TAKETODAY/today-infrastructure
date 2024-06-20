@@ -18,56 +18,30 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author Tomas Rohovsky
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ZonedDateTimeTypeHandler extends AbstractZoneIdTypeHandler<ZonedDateTime> {
-
-  public ZonedDateTimeTypeHandler() {
-    super();
-  }
-
-  public ZonedDateTimeTypeHandler(ZoneId zoneId) {
-    super(zoneId);
-  }
-
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, ZonedDateTime parameter) throws SQLException {
-    ps.setTimestamp(i, Timestamp.from(parameter.toInstant()));
-  }
+public class ZonedDateTimeTypeHandler extends BaseTypeHandler<ZonedDateTime> {
 
   @Override
   public ZonedDateTime getResult(ResultSet rs, String columnName) throws SQLException {
-    return getZonedDateTime(rs.getTimestamp(columnName));
+    return rs.getObject(columnName, ZonedDateTime.class);
   }
 
   @Override
   public ZonedDateTime getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return getZonedDateTime(rs.getTimestamp(columnIndex));
+    return rs.getObject(columnIndex, ZonedDateTime.class);
   }
 
   @Override
   public ZonedDateTime getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return getZonedDateTime(cs.getTimestamp(columnIndex));
-  }
-
-  @Nullable
-  protected ZonedDateTime getZonedDateTime(@Nullable Timestamp timestamp) {
-    if (timestamp != null) {
-      return ZonedDateTime.ofInstant(timestamp.toInstant(), zoneId);
-    }
-    return null;
+    return cs.getObject(columnIndex, ZonedDateTime.class);
   }
 
 }

@@ -33,11 +33,9 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Optional;
 import java.util.UUID;
 
 import cn.taketoday.beans.BeanProperty;
@@ -49,7 +47,6 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Enumerable;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 
 /**
  * {@link TypeHandler} Manager
@@ -62,8 +59,7 @@ import cn.taketoday.lang.TodayStrategies;
 @SuppressWarnings("rawtypes")
 public class TypeHandlerManager implements TypeHandlerResolver {
 
-  public static final TypeHandlerManager sharedInstance = new TypeHandlerManager(Optional.ofNullable(
-          TodayStrategies.getProperty("type-handler.zoneId")).map(ZoneId::of).orElse(ZoneId.systemDefault()));
+  public static final TypeHandlerManager sharedInstance = new TypeHandlerManager();
 
   private final TypeHandler<Object> unknownTypeHandler;
 
@@ -74,12 +70,8 @@ public class TypeHandlerManager implements TypeHandlerResolver {
   private TypeHandlerResolver typeHandlerResolver = TypeHandlerResolver.forMappedTypeHandlerAnnotation();
 
   public TypeHandlerManager() {
-    this(ZoneId.systemDefault());
-  }
-
-  public TypeHandlerManager(@Nullable ZoneId zoneId) {
     this.unknownTypeHandler = new UnknownTypeHandler(this);
-    registerDefaults(this, zoneId);
+    registerDefaults(this);
   }
 
   /**
@@ -295,11 +287,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
 
   // static
 
-  public static void registerDefaults(TypeHandlerManager registry, @Nullable ZoneId zoneId) {
-    if (zoneId == null) {
-      zoneId = ZoneId.systemDefault();
-    }
-
+  public static void registerDefaults(TypeHandlerManager registry) {
     registry.register(Boolean.class, new BooleanTypeHandler());
     registry.register(boolean.class, new BooleanTypeHandler());
 
@@ -346,9 +334,9 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(Year.class, new YearTypeHandler());
     registry.register(Month.class, new MonthTypeHandler());
     registry.register(YearMonth.class, new YearMonthTypeHandler());
-    registry.register(OffsetTime.class, new OffsetTimeTypeHandler(zoneId));
-    registry.register(ZonedDateTime.class, new ZonedDateTimeTypeHandler(zoneId));
-    registry.register(OffsetDateTime.class, new OffsetDateTimeTypeHandler(zoneId));
+    registry.register(OffsetTime.class, new OffsetTimeTypeHandler());
+    registry.register(ZonedDateTime.class, new ZonedDateTimeTypeHandler());
+    registry.register(OffsetDateTime.class, new OffsetDateTimeTypeHandler());
 
     registry.register(char.class, new CharacterTypeHandler());
     registry.register(Character.class, new CharacterTypeHandler());

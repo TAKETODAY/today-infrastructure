@@ -18,55 +18,30 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.time.OffsetTime;
-import java.time.ZoneId;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author Tomas Rohovsky
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class OffsetTimeTypeHandler extends AbstractZoneIdTypeHandler<OffsetTime> {
-
-  public OffsetTimeTypeHandler() {
-    super();
-  }
-
-  public OffsetTimeTypeHandler(ZoneId zoneId) {
-    super(zoneId);
-  }
-
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, OffsetTime parameter) throws SQLException {
-    ps.setTime(i, Time.valueOf(parameter.toLocalTime()));
-  }
+public class OffsetTimeTypeHandler extends BaseTypeHandler<OffsetTime> {
 
   @Override
   public OffsetTime getResult(ResultSet rs, String columnName) throws SQLException {
-    return getOffsetTime(rs.getTime(columnName));
+    return rs.getObject(columnName, OffsetTime.class);
   }
 
   @Override
   public OffsetTime getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return getOffsetTime(rs.getTime(columnIndex));
+    return rs.getObject(columnIndex, OffsetTime.class);
   }
 
   @Override
   public OffsetTime getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return getOffsetTime(cs.getTime(columnIndex));
+    return cs.getObject(columnIndex, OffsetTime.class);
   }
 
-  @Nullable
-  protected OffsetTime getOffsetTime(@Nullable Time time) {
-    if (time != null) {
-      return time.toLocalTime().atOffset(OffsetTime.now(zoneId).getOffset());
-    }
-    return null;
-  }
 }

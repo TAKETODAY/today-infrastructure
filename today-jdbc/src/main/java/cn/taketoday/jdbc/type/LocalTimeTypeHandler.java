@@ -18,13 +18,9 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.time.LocalTime;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author Tomas Rohovsky
@@ -34,30 +30,18 @@ import cn.taketoday.lang.Nullable;
 public class LocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, LocalTime parameter) throws SQLException {
-    ps.setTime(i, Time.valueOf(parameter));
-  }
-
-  @Override
   public LocalTime getResult(ResultSet rs, String columnName) throws SQLException {
-    return getLocalTime(rs.getTime(columnName));
+    return rs.getObject(columnName, LocalTime.class);
   }
 
   @Override
   public LocalTime getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return getLocalTime(rs.getTime(columnIndex));
+    return rs.getObject(columnIndex, LocalTime.class);
   }
 
   @Override
   public LocalTime getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return getLocalTime(cs.getTime(columnIndex));
+    return cs.getObject(columnIndex, LocalTime.class);
   }
 
-  @Nullable
-  static LocalTime getLocalTime(@Nullable Time time) {
-    if (time != null) {
-      return time.toLocalTime();
-    }
-    return null;
-  }
 }

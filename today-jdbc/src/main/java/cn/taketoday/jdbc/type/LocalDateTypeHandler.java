@@ -18,13 +18,9 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author Tomas Rohovsky
@@ -34,30 +30,18 @@ import cn.taketoday.lang.Nullable;
 public class LocalDateTypeHandler extends BaseTypeHandler<LocalDate> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, LocalDate parameter) throws SQLException {
-    ps.setDate(i, Date.valueOf(parameter));
-  }
-
-  @Override
   public LocalDate getResult(ResultSet rs, String columnName) throws SQLException {
-    return getLocalDate(rs.getDate(columnName));
+    return rs.getObject(columnName, LocalDate.class);
   }
 
   @Override
   public LocalDate getResult(ResultSet rs, int columnIndex) throws SQLException {
-    return getLocalDate(rs.getDate(columnIndex));
+    return rs.getObject(columnIndex, LocalDate.class);
   }
 
   @Override
   public LocalDate getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    return getLocalDate(cs.getDate(columnIndex));
+    return cs.getObject(columnIndex, LocalDate.class);
   }
 
-  @Nullable
-  static LocalDate getLocalDate(@Nullable Date date) {
-    if (date != null) {
-      return date.toLocalDate();
-    }
-    return null;
-  }
 }
