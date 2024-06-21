@@ -38,11 +38,7 @@ Default logback configuration provided for import
   <property name="FILE_LOG_THRESHOLD" value="${FILE_LOG_THRESHOLD:-TRACE}" />
   <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/infra-app.log}" />
 
-  <logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR" />
-  <logger name="org.apache.catalina.util.LifecycleBase" level="ERROR" />
-  <logger name="org.apache.coyote.http11.Http11NioProtocol" level="WARN" />
   <logger name="org.apache.sshd.common.util.SecurityUtils" level="WARN" />
-  <logger name="org.apache.tomcat.util.net.NioSelectorPool" level="WARN" />
   <logger name="org.hibernate.validator.internal.util.Version" level="WARN" />
   <logger name="cn.taketoday.framework.actuate.endpoint.jmx" level="WARN" />
 </included>
