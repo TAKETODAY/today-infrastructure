@@ -190,6 +190,10 @@ class TypeHandlerTests {
             //call(new BytesInputStreamTypeHandler(), CallableStatement::getBytes, new byte[] { 1 }, new ByteArrayInputStream(new byte[] { 1 })),
             call(new BytesInputStreamTypeHandler(), CallableStatement::getBytes, null, null),
 
+            call(new EnumOrdinalTypeHandler<>(EnumType.class), CallableStatement::getInt, 0, null, true),
+            call(new EnumOrdinalTypeHandler<>(EnumType.class), CallableStatement::getInt, 0, EnumType.ORDINAL),
+            call(new EnumOrdinalTypeHandler<>(EnumType.class), CallableStatement::getInt, 1, EnumType.NAME),
+
             call(new BigDecimalTypeHandler(), CallableStatement::getBigDecimal, BigDecimal.valueOf(1)),
             call(new BigDecimalTypeHandler(), CallableStatement::getBigDecimal, null, null)
     );
@@ -267,6 +271,10 @@ class TypeHandlerTests {
             stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, null, null),
 
             stringArgs(new BytesInputStreamTypeHandler(), ResultSet::getBytes, null, null),
+
+            stringArgs(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 0, null, true),
+            stringArgs(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 0, EnumType.ORDINAL),
+            stringArgs(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 1, EnumType.NAME),
 
             stringArgs(new BigDecimalTypeHandler(), ResultSet::getBigDecimal, BigDecimal.valueOf(1)),
             stringArgs(new BigDecimalTypeHandler(), ResultSet::getBigDecimal, null, null)
@@ -346,6 +354,10 @@ class TypeHandlerTests {
 
             args(new BytesInputStreamTypeHandler(), ResultSet::getBytes, null, null),
 
+            args(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 0, null, true),
+            args(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 0, EnumType.ORDINAL),
+            args(new EnumOrdinalTypeHandler<>(EnumType.class), ResultSet::getInt, 1, EnumType.NAME),
+
             args(new BigDecimalTypeHandler(), (rs, idx) -> rs.getBigDecimal(idx), BigDecimal.valueOf(1)),
             args(new BigDecimalTypeHandler(), (rs, idx) -> rs.getBigDecimal(idx), null, null)
     );
@@ -389,6 +401,7 @@ class TypeHandlerTests {
 
             args(new MonthTypeHandler(), PreparedStatement::setInt, Month.JANUARY.getValue(), Month.JANUARY),
             args(new DateTypeHandler(), PreparedStatement::setTimestamp, new Timestamp(date.getTime()), date),
+            args(new EnumOrdinalTypeHandler<>(EnumType.class), PreparedStatement::setInt, EnumType.ORDINAL.ordinal(), EnumType.ORDINAL),
 
             args(new BytesInputStreamTypeHandler(), PreparedStatement::setBinaryStream, new ByteArrayInputStream(new byte[] { 1 })),
 

@@ -34,6 +34,7 @@ import cn.taketoday.lang.Assert;
 public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
   private final Class<E> type;
+
   private final E[] enums;
 
   public EnumOrdinalTypeHandler(Class<E> type) {
@@ -83,7 +84,7 @@ public class EnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E
     }
     catch (Exception ex) {
       throw new IllegalArgumentException(
-              "Cannot convert " + ordinal + " to " + type.getSimpleName() + " by ordinal value.", ex);
+              "Cannot convert %d to %s by ordinal value.".formatted(ordinal, type.getSimpleName()), ex);
     }
   }
 }
