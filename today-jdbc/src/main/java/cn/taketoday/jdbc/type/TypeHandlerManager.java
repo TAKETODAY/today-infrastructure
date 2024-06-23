@@ -310,13 +310,11 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(double.class, new DoubleTypeHandler());
 
     registry.register(String.class, new StringTypeHandler());
-    registry.register(Reader.class, new ClobReaderTypeHandler());
 
     registry.register(BigInteger.class, new BigIntegerTypeHandler());
     registry.register(BigDecimal.class, new BigDecimalTypeHandler());
 
     registry.register(byte[].class, new ByteArrayTypeHandler());
-    registry.register(InputStream.class, new BlobInputStreamTypeHandler());
 
     registry.register(Object.class, registry.getUnknownTypeHandler());
 
