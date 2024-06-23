@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.CallableStatement;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,6 +63,8 @@ class TypeHandlerTests {
 
   protected final ResultSet resultSet = mock(ResultSet.class);
 
+  protected final CallableStatement callableStatement = mock(CallableStatement.class);
+
   protected final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
   interface PreparedStatementFunc<T> {
@@ -89,6 +92,185 @@ class TypeHandlerTests {
 
     T result = typeHandler.getResult(resultSet, 1);
     assertThat(result).isEqualTo(verifyVal);
+  }
+
+  @ParameterizedTest
+  @MethodSource("getResultColumnNameArgumentSource")
+  <T> void getResultColumnName(TypeHandler<T> typeHandler, BiFunction<ResultSet, String, T> consumer,
+          T value, T verifyVal, boolean wasNull) throws SQLException {
+    given(consumer.apply(resultSet, "columnName")).willReturn(value);
+    given(resultSet.wasNull()).willReturn(wasNull);
+
+    T result = typeHandler.getResult(resultSet, "columnName");
+    assertThat(result).isEqualTo(verifyVal);
+  }
+
+  @ParameterizedTest
+  @MethodSource("getResultColumnIndexFromCallableStatementArgumentSource")
+  <T> void getResultColumnIndexFromCallableStatement(TypeHandler<T> typeHandler,
+          BiFunction<CallableStatement, Integer, T> consumer, T value, T verifyVal, boolean wasNull) throws SQLException {
+    given(consumer.apply(callableStatement, 1)).willReturn(value);
+    given(callableStatement.wasNull()).willReturn(wasNull);
+
+    T result = typeHandler.getResult(callableStatement, 1);
+    assertThat(result).isEqualTo(verifyVal);
+  }
+
+  public static Stream<Arguments> getResultColumnIndexFromCallableStatementArgumentSource() {
+    UUID uuid = UUID.randomUUID();
+    java.util.Date date = java.util.Date.from(Instant.now());
+
+    OffsetDateTime offsetDateTime = OffsetDateTime.now();
+    return Stream.of(
+            call(new LongTypeHandler(), CallableStatement::getLong, 1L),
+            call(new IntegerTypeHandler(), CallableStatement::getInt, 1),
+            call(new DoubleTypeHandler(), CallableStatement::getDouble, 1D),
+            call(new FloatTypeHandler(), CallableStatement::getFloat, 1f),
+            call(new BooleanTypeHandler(), CallableStatement::getBoolean, true),
+            call(new ByteArrayTypeHandler(), CallableStatement::getBytes, new byte[] { 1 }),
+            call(new ByteTypeHandler(), CallableStatement::getByte, (byte) 1),
+            call(new ObjectTypeHandler(), CallableStatement::getObject, 1),
+            call(new ShortTypeHandler(), CallableStatement::getShort, (short) 1),
+            call(new StringTypeHandler(), CallableStatement::getString, "0001"),
+            call(new SqlTimeTypeHandler(), CallableStatement::getTime, Time.valueOf(LocalTime.now())),
+            call(new SqlDateTypeHandler(), CallableStatement::getDate, Date.valueOf(LocalDate.now())),
+            call(new SqlTimestampTypeHandler(), CallableStatement::getTimestamp, Timestamp.from(Instant.now())),
+
+            call(new DurationTypeHandler(), CallableStatement::getLong, Duration.ofDays(1).toNanos(), Duration.ofDays(1)),
+            call(new DurationTypeHandler(), CallableStatement::getLong, 0L, Duration.ZERO),
+            call(new DurationTypeHandler(), CallableStatement::getLong, 0L, null, true),
+
+            call(new InstantTypeHandler(), CallableStatement::getTimestamp, null, null),
+            call(new InstantTypeHandler(), CallableStatement::getTimestamp, Timestamp.from(Instant.EPOCH), Instant.EPOCH),
+
+            call(new DateTypeHandler(), CallableStatement::getTimestamp, new Timestamp(new Date(1).getTime()), new Date(1)),
+            call(new DateTypeHandler(), CallableStatement::getTimestamp, null),
+
+            call(new CharacterTypeHandler(), CallableStatement::getString, "1", '1'),
+            call(new CharacterTypeHandler(), CallableStatement::getString, null, null),
+
+            call(new BigIntegerTypeHandler(), CallableStatement::getBigDecimal, new BigDecimal(BigInteger.valueOf(1)), BigInteger.valueOf(1)),
+            call(new BigIntegerTypeHandler(), CallableStatement::getBigDecimal, null, null),
+
+            call(new UUIDTypeHandler(), CallableStatement::getString, uuid.toString(), uuid),
+            call(new UUIDTypeHandler(), CallableStatement::getString, null, null),
+            call(new UUIDTypeHandler(), CallableStatement::getString, "", null),
+
+            call(new YearTypeHandler(), CallableStatement::getInt, Year.MIN_VALUE, Year.of(Year.MIN_VALUE)),
+            call(new YearTypeHandler(), CallableStatement::getInt, 0, null, true),
+
+            call(new YearMonthTypeHandler(), CallableStatement::getString, YearMonth.of(2000, Month.JANUARY).toString(),
+                    YearMonth.of(2000, Month.JANUARY)),
+            call(new YearMonthTypeHandler(), CallableStatement::getString, null, null),
+
+            call(new MonthTypeHandler(), CallableStatement::getInt, Month.JANUARY.getValue(), Month.JANUARY),
+            call(new MonthTypeHandler(), CallableStatement::getInt, 0, null, true),
+
+            call(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), OffsetTime.now(ZoneOffset.UTC)),
+            call(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), null),
+
+            call(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime),
+            call(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null),
+
+            call(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), null),
+            call(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), LocalTime.now()),
+
+            call(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), LocalDate.now()),
+            call(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), null),
+
+            call(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), LocalDateTime.now()),
+            call(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), null),
+
+            call(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), null),
+            call(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), ZonedDateTime.now()),
+
+            call(new DateTypeHandler(), CallableStatement::getTimestamp, new Timestamp(date.getTime()), date),
+            call(new DateTypeHandler(), CallableStatement::getTimestamp, null, null),
+
+            //call(new BytesInputStreamTypeHandler(), CallableStatement::getBytes, new byte[] { 1 }, new ByteArrayInputStream(new byte[] { 1 })),
+            call(new BytesInputStreamTypeHandler(), CallableStatement::getBytes, null, null),
+
+            call(new BigDecimalTypeHandler(), CallableStatement::getBigDecimal, BigDecimal.valueOf(1)),
+            call(new BigDecimalTypeHandler(), CallableStatement::getBigDecimal, null, null)
+    );
+  }
+
+  public static Stream<Arguments> getResultColumnNameArgumentSource() {
+    UUID uuid = UUID.randomUUID();
+    java.util.Date date = java.util.Date.from(Instant.now());
+
+    OffsetDateTime offsetDateTime = OffsetDateTime.now();
+    return Stream.of(
+            stringArgs(new LongTypeHandler(), ResultSet::getLong, 1L),
+            stringArgs(new IntegerTypeHandler(), ResultSet::getInt, 1),
+            stringArgs(new DoubleTypeHandler(), ResultSet::getDouble, 1D),
+            stringArgs(new FloatTypeHandler(), ResultSet::getFloat, 1f),
+            stringArgs(new BooleanTypeHandler(), ResultSet::getBoolean, true),
+            stringArgs(new ByteArrayTypeHandler(), ResultSet::getBytes, new byte[] { 1 }),
+            stringArgs(new ByteTypeHandler(), ResultSet::getByte, (byte) 1),
+            stringArgs(new ObjectTypeHandler(), ResultSet::getObject, 1),
+            stringArgs(new ShortTypeHandler(), ResultSet::getShort, (short) 1),
+            stringArgs(new StringTypeHandler(), ResultSet::getString, "0001"),
+            stringArgs(new SqlTimeTypeHandler(), ResultSet::getTime, Time.valueOf(LocalTime.now())),
+            stringArgs(new SqlDateTypeHandler(), ResultSet::getDate, Date.valueOf(LocalDate.now())),
+            stringArgs(new SqlTimestampTypeHandler(), ResultSet::getTimestamp, Timestamp.from(Instant.now())),
+
+            stringArgs(new DurationTypeHandler(), ResultSet::getLong, Duration.ofDays(1).toNanos(), Duration.ofDays(1)),
+            stringArgs(new DurationTypeHandler(), ResultSet::getLong, 0L, Duration.ZERO),
+            stringArgs(new DurationTypeHandler(), ResultSet::getLong, 0L, null, true),
+
+            stringArgs(new InstantTypeHandler(), ResultSet::getTimestamp, null, null),
+            stringArgs(new InstantTypeHandler(), ResultSet::getTimestamp, Timestamp.from(Instant.EPOCH), Instant.EPOCH),
+
+            stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, new Timestamp(new Date(1).getTime()), new Date(1)),
+            stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, null),
+
+            stringArgs(new CharacterTypeHandler(), ResultSet::getString, "1", '1'),
+            stringArgs(new CharacterTypeHandler(), ResultSet::getString, null, null),
+
+            stringArgs(new BigIntegerTypeHandler(), ResultSet::getBigDecimal, new BigDecimal(BigInteger.valueOf(1)), BigInteger.valueOf(1)),
+            stringArgs(new BigIntegerTypeHandler(), ResultSet::getBigDecimal, null, null),
+
+            stringArgs(new UUIDTypeHandler(), ResultSet::getString, uuid.toString(), uuid),
+            stringArgs(new UUIDTypeHandler(), ResultSet::getString, null, null),
+            stringArgs(new UUIDTypeHandler(), ResultSet::getString, "", null),
+
+            stringArgs(new YearTypeHandler(), ResultSet::getInt, Year.MIN_VALUE, Year.of(Year.MIN_VALUE)),
+            stringArgs(new YearTypeHandler(), ResultSet::getInt, 0, null, true),
+
+            stringArgs(new YearMonthTypeHandler(), ResultSet::getString, YearMonth.of(2000, Month.JANUARY).toString(),
+                    YearMonth.of(2000, Month.JANUARY)),
+            stringArgs(new YearMonthTypeHandler(), ResultSet::getString, null, null),
+
+            stringArgs(new MonthTypeHandler(), ResultSet::getInt, Month.JANUARY.getValue(), Month.JANUARY),
+            stringArgs(new MonthTypeHandler(), ResultSet::getInt, 0, null, true),
+
+            stringArgs(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), OffsetTime.now(ZoneOffset.UTC)),
+            stringArgs(new AnyTypeHandler<>(OffsetTime.class), (rs, idx) -> rs.getObject(idx, OffsetTime.class), null),
+
+            stringArgs(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime),
+            stringArgs(new AnyTypeHandler<>(OffsetDateTime.class), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null),
+
+            stringArgs(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), null),
+            stringArgs(new AnyTypeHandler<>(LocalTime.class), (rs, idx) -> rs.getObject(idx, LocalTime.class), LocalTime.now()),
+
+            stringArgs(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), LocalDate.now()),
+            stringArgs(new AnyTypeHandler<>(LocalDate.class), (rs, idx) -> rs.getObject(idx, LocalDate.class), null),
+
+            stringArgs(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), LocalDateTime.now()),
+            stringArgs(new AnyTypeHandler<>(LocalDateTime.class), (rs, idx) -> rs.getObject(idx, LocalDateTime.class), null),
+
+            stringArgs(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), null),
+            stringArgs(new AnyTypeHandler<>(ZonedDateTime.class), (rs, idx) -> rs.getObject(idx, ZonedDateTime.class), ZonedDateTime.now()),
+
+            stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, new Timestamp(date.getTime()), date),
+            stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, null, null),
+
+            stringArgs(new BytesInputStreamTypeHandler(), ResultSet::getBytes, null, null),
+
+            stringArgs(new BigDecimalTypeHandler(), ResultSet::getBigDecimal, BigDecimal.valueOf(1)),
+            stringArgs(new BigDecimalTypeHandler(), ResultSet::getBigDecimal, null, null)
+    );
   }
 
   public static Stream<Arguments> getResultColumnIndexArgumentSource() {
@@ -162,7 +344,6 @@ class TypeHandlerTests {
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), new Timestamp(date.getTime()), date),
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), null, null),
 
-            //args(new BytesInputStreamTypeHandler(), ResultSet::getBytes, new byte[] { 1 }, new ByteArrayInputStream(new byte[] { 1 })),
             args(new BytesInputStreamTypeHandler(), ResultSet::getBytes, null, null),
 
             args(new BigDecimalTypeHandler(), (rs, idx) -> rs.getBigDecimal(idx), BigDecimal.valueOf(1)),
@@ -209,20 +390,42 @@ class TypeHandlerTests {
             args(new MonthTypeHandler(), PreparedStatement::setInt, Month.JANUARY.getValue(), Month.JANUARY),
             args(new DateTypeHandler(), PreparedStatement::setTimestamp, new Timestamp(date.getTime()), date),
 
-            args(new BlobInputStreamTypeHandler(), PreparedStatement::setBlob, new ByteArrayInputStream(new byte[] { 1 })),
             args(new BytesInputStreamTypeHandler(), PreparedStatement::setBinaryStream, new ByteArrayInputStream(new byte[] { 1 })),
 
             args(new BigDecimalTypeHandler(), PreparedStatement::setBigDecimal, BigDecimal.valueOf(1))
     );
   }
 
-  static <T> Arguments args(TypeHandler<T> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer, @Nullable T value) {
+  static <T> Arguments call(TypeHandler<T> typeHandler, ThrowingBiFunction<CallableStatement, Integer, T> consumer, @Nullable T value) {
     return Arguments.arguments(typeHandler, consumer, value, value, false);
   }
 
-  static <T, E> Arguments args(TypeHandler<E> typeHandler,
-          ThrowingBiFunction<ResultSet, Integer, T> consumer, T value, boolean wasNull) {
-    return Arguments.arguments(typeHandler, consumer, value, value, wasNull);
+  static <T, E> Arguments call(TypeHandler<E> typeHandler, ThrowingBiFunction<CallableStatement, Integer, T> consumer,
+          @Nullable T value, @Nullable E verifyVal) {
+    return Arguments.arguments(typeHandler, consumer, value, verifyVal, false);
+  }
+
+  static <T, E> Arguments call(TypeHandler<E> typeHandler,
+          ThrowingBiFunction<CallableStatement, Integer, T> consumer, T value, @Nullable E verifyVal, boolean wasNull) {
+    return Arguments.arguments(typeHandler, consumer, value, verifyVal, wasNull);
+  }
+
+  static <T> Arguments stringArgs(TypeHandler<T> typeHandler, ThrowingBiFunction<ResultSet, String, T> consumer, @Nullable T value) {
+    return Arguments.arguments(typeHandler, consumer, value, value, false);
+  }
+
+  static <T, E> Arguments stringArgs(TypeHandler<E> typeHandler, ThrowingBiFunction<ResultSet, String, T> consumer,
+          @Nullable T value, @Nullable E verifyVal) {
+    return Arguments.arguments(typeHandler, consumer, value, verifyVal, false);
+  }
+
+  static <T, E> Arguments stringArgs(TypeHandler<E> typeHandler,
+          ThrowingBiFunction<ResultSet, String, T> consumer, T value, @Nullable E verifyVal, boolean wasNull) {
+    return Arguments.arguments(typeHandler, consumer, value, verifyVal, wasNull);
+  }
+
+  static <T> Arguments args(TypeHandler<T> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer, @Nullable T value) {
+    return Arguments.arguments(typeHandler, consumer, value, value, false);
   }
 
   static <T, E> Arguments args(TypeHandler<E> typeHandler, ThrowingBiFunction<ResultSet, Integer, T> consumer,
