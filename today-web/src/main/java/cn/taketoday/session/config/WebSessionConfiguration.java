@@ -18,7 +18,6 @@
 package cn.taketoday.session.config;
 
 import java.io.File;
-import java.util.List;
 
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -75,9 +74,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
    * @since 4.0
    */
   @Override
-  public synchronized void postProcessMergedBeanDefinition(
-          RootBeanDefinition beanDefinition, Class<?> bean, String beanName) {
-
+  public synchronized void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> bean, String beanName) {
     // register SessionScope automatically
     if (!destructionCallbackRegistered
             && RequestContext.SCOPE_SESSION.equals(beanDefinition.getScope())) {
@@ -91,21 +88,14 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @Component(SessionManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(value = SessionManager.class, name = SessionManager.BEAN_NAME)
-  static DefaultSessionManager webSessionManager(
-          SessionIdResolver sessionIdResolver, SessionRepository repository) {
+  static DefaultSessionManager webSessionManager(SessionIdResolver sessionIdResolver, SessionRepository repository) {
     return new DefaultSessionManager(repository, sessionIdResolver);
   }
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static SessionEventDispatcher sessionEventDispatcher(
-          List<WebSessionListener> webSessionListeners,
-          List<WebSessionAttributeListener> webSessionAttributeListeners) {
-
-    SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
-    eventDispatcher.addSessionListeners(webSessionListeners);
-    eventDispatcher.addAttributeListeners(webSessionAttributeListeners);
-    return eventDispatcher;
+  static SessionEventDispatcher sessionEventDispatcher() {
+    return new SessionEventDispatcher();
   }
 
   /**
@@ -192,6 +182,9 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @Override
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     SessionEventDispatcher eventDispatcher = beanFactory.getBean(SessionEventDispatcher.class);
+    eventDispatcher.addSessionListeners(beanFactory.getBeanProvider(WebSessionListener.class).orderedList());
+    eventDispatcher.addAttributeListeners(beanFactory.getBeanProvider(WebSessionAttributeListener.class).orderedList());
+
     if (destructionCallbackRegistered) {
       eventDispatcher.addAttributeListeners(SessionScope.createDestructionCallback());
     }
