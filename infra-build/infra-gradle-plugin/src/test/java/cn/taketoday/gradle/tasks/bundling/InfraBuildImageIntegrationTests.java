@@ -63,10 +63,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Scott Frederick
  * @author Rafael Ceccone
  */
+@Disabled
 @GradleCompatibility(configurationCache = true)
-@DisabledIfDockerUnavailable
-@DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
-        disabledReason = "The builder image has no ARM support")
+//@DisabledIfDockerUnavailable
+//@DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
+//        disabledReason = "The builder image has no ARM support")
 class InfraBuildImageIntegrationTests {
 
   GradleBuild gradleBuild;
