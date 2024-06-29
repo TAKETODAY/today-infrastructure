@@ -135,8 +135,8 @@ public class ControllerAdviceBean implements Ordered {
     this.isSingleton = beanFactory.isSingleton(beanName);
     this.beanType = getBeanType(beanName, beanFactory);
     this.beanTypePredicate = controllerAdvice != null
-                             ? createBeanTypePredicate(controllerAdvice)
-                             : createBeanTypePredicate(this.beanType);
+            ? createBeanTypePredicate(controllerAdvice)
+            : createBeanTypePredicate(this.beanType);
     this.beanFactory = beanFactory;
   }
 
@@ -146,8 +146,8 @@ public class ControllerAdviceBean implements Ordered {
     this.isSingleton = beanFactory.isSingleton(beanName);
     this.beanType = beanType;
     this.beanTypePredicate = controllerAdvice != null
-                             ? createBeanTypePredicate(controllerAdvice)
-                             : createBeanTypePredicate(this.beanType);
+            ? createBeanTypePredicate(controllerAdvice)
+            : createBeanTypePredicate(this.beanType);
     this.beanFactory = beanFactory;
   }
 
@@ -242,17 +242,18 @@ public class ControllerAdviceBean implements Ordered {
    * singleton, thereby avoiding repeated lookups in the {@code BeanFactory}.
    */
   public Object resolveBean() {
-    if (this.resolvedBean == null) {
+    Object resolvedBean = this.resolvedBean;
+    if (resolvedBean == null) {
       // this.beanOrName must be a String representing the bean name if
       // this.resolvedBean is null.
-      Object resolvedBean = obtainBeanFactory().getBean((String) this.beanOrName);
-      // Don't cache non-singletons (e.g., prototypes).
+      resolvedBean = obtainBeanFactory().getBean((String) this.beanOrName);
       if (!this.isSingleton) {
+        // Don't cache non-singletons (e.g., prototypes).
         return resolvedBean;
       }
       this.resolvedBean = resolvedBean;
     }
-    return this.resolvedBean;
+    return resolvedBean;
   }
 
   private BeanFactory obtainBeanFactory() {

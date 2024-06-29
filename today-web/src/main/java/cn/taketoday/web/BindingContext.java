@@ -28,8 +28,6 @@ import cn.taketoday.ui.ModelMap;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.BindParamNameResolver;
-import cn.taketoday.web.bind.support.SessionStatus;
-import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.BindingAwareModelMap;
 import cn.taketoday.web.view.ModelAndView;
@@ -62,9 +60,6 @@ public class BindingContext {
 
   @Nullable
   private Set<String> bindingDisabled;
-
-  @Nullable
-  private SessionStatus sessionStatus;
 
   @Nullable
   private final WebBindingInitializer initializer;
@@ -288,25 +283,6 @@ public class BindingContext {
     else {
       noBinding.remove(attributeName);
     }
-  }
-
-  /**
-   * Return the {@link SessionStatus} instance to use that can be used to
-   * signal that session processing is complete.
-   */
-  public SessionStatus getSessionStatus() {
-    if (sessionStatus == null) {
-      sessionStatus = new SimpleSessionStatus();
-    }
-    return sessionStatus;
-  }
-
-  /**
-   * Return whether the current handler's session processing has been marked
-   * as complete.
-   */
-  public boolean isSessionComplete() {
-    return sessionStatus != null && sessionStatus.isComplete();
   }
 
   /**

@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.web.bind.annotation.SessionAttributes;
 
 /**
  * Annotation to bind a method parameter to a session attribute.
@@ -36,12 +35,8 @@ import cn.taketoday.web.bind.annotation.SessionAttributes;
  * <p>For use cases that require adding or removing session attributes consider
  * injecting {@link cn.taketoday.session.WebSession} into the controller method.
  *
- * <p>For temporary storage of model attributes in the session as part of the
- * workflow for a controller, consider using {@link SessionAttributes} instead.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestMapping
- * @see SessionAttributes
  * @see RequestAttribute
  * @since 2018-08-21 20:19
  */

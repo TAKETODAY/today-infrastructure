@@ -42,8 +42,8 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
@@ -54,7 +54,6 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyAdviceChain;
@@ -122,17 +121,6 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.handle(context, handlerMethod);
     context.flush();
     assertThat(response.getHeader("Cache-Control")).contains("max-age");
-  }
-
-  @Test
-  public void cacheControlWithSessionAttributes() throws Throwable {
-    SessionAttributeController handler = new SessionAttributeController();
-    this.handlerAdapter.setCacheSeconds(100);
-    this.handlerAdapter.afterPropertiesSet();
-
-    this.handlerAdapter.handle(context, handlerMethod(handler, "handle"));
-    context.flush();
-    assertThat(this.response.getHeader("Cache-Control")).isEqualTo("no-store");
   }
 
   @Test
@@ -276,14 +264,6 @@ class RequestMappingHandlerAdapterTests {
     @ResponseBody
     public String handleBody(@Nullable @RequestBody Map<String, String> body) {
       return "Body: " + body;
-    }
-  }
-
-  @SessionAttributes("attr1")
-  private static class SessionAttributeController {
-
-    @SuppressWarnings("unused")
-    public void handle() {
     }
   }
 

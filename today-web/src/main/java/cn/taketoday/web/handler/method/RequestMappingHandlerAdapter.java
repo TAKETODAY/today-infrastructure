@@ -27,15 +27,12 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
-import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -63,11 +60,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   private WebBindingInitializer webBindingInitializer;
 
-  private int cacheSecondsForSessionAttributeHandlers = 0;
-
   private boolean synchronizeOnSession = false;
-
-  private SessionAttributeStore sessionAttributeStore = new DefaultSessionAttributeStore();
 
   private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
@@ -106,37 +99,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   public WebBindingInitializer getWebBindingInitializer() {
     return this.webBindingInitializer;
-  }
-
-  /**
-   * Specify the strategy to store session attributes with. The default is
-   * {@link cn.taketoday.web.bind.support.DefaultSessionAttributeStore},
-   * storing session attributes in the WebSession with the same attribute
-   * name as in the model.
-   */
-  public void setSessionAttributeStore(SessionAttributeStore sessionAttributeStore) {
-    this.sessionAttributeStore = sessionAttributeStore;
-  }
-
-  /**
-   * Cache content produced by {@code @SessionAttributes} annotated handlers
-   * for the given number of seconds.
-   * <p>Possible values are:
-   * <ul>
-   * <li>-1: no generation of cache-related headers</li>
-   * <li>0 (default value): "Cache-Control: no-store" will prevent caching</li>
-   * <li>1 or higher: "Cache-Control: max-age=seconds" will ask to cache content;
-   * not advised when dealing with session attributes</li>
-   * </ul>
-   * <p>In contrast to the "cacheSeconds" property which will apply to all general
-   * handlers (but not to {@code @SessionAttributes} annotated handlers),
-   * this setting will apply to {@code @SessionAttributes} handlers only.
-   *
-   * @see #setCacheSeconds
-   * @see cn.taketoday.web.bind.annotation.SessionAttributes
-   */
-  public void setCacheSecondsForSessionAttributeHandlers(int cacheSecondsForSessionAttributeHandlers) {
-    this.cacheSecondsForSessionAttributeHandlers = cacheSecondsForSessionAttributeHandlers;
   }
 
   /**
@@ -201,16 +163,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
 
-    this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,
-            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer)
-    );
+    this.methodResolver = new ControllerMethodResolver(context,
+            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer));
 
     this.modelHandler = new ModelHandler(methodResolver);
-
-    if (sessionManager != null
-            && sessionAttributeStore instanceof DefaultSessionAttributeStore attributeStore) {
-      attributeStore.setSessionManager(sessionManager);
-    }
   }
 
   /**
@@ -249,14 +205,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       returnValue = invokeHandlerMethod(request, handlerMethod);
     }
 
-    HttpHeaders headers = request.getHeaders();
-    if (!headers.containsKey(HttpHeaders.CACHE_CONTROL)) {
-      if (methodResolver.getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
-        applyCacheSeconds(request, cacheSecondsForSessionAttributeHandlers);
-      }
-      else {
-        prepareResponse(request);
-      }
+    if (!request.containsResponseHeader(HttpHeaders.CACHE_CONTROL)) {
+      prepareResponse(request);
     }
 
     return returnValue;
@@ -282,7 +232,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   @Nullable
   protected Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
-    BindingContext binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
+    var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     request.setBinding(binding);
 
     // add last RedirectModel to this request
@@ -297,8 +247,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return invocableMethod.invokeAndHandle(request);
     }
 
-    var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
-    return invocableMethod.invokeAndHandle(request);
+    return methodResolver.createHandlerMethod(handlerMethod)
+            .invokeAndHandle(request);
   }
 
 }

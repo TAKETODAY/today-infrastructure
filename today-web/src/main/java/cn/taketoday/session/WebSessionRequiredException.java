@@ -33,7 +33,7 @@ public class WebSessionRequiredException extends NestedRuntimeException {
   private final String expectedAttribute;
 
   /**
-   * Create a new HttpSessionRequiredException.
+   * Create a new WebSessionRequiredException.
    *
    * @param msg the detail message
    */
@@ -43,7 +43,7 @@ public class WebSessionRequiredException extends NestedRuntimeException {
   }
 
   /**
-   * Create a new HttpSessionRequiredException.
+   * Create a new WebSessionRequiredException.
    *
    * @param msg the detail message
    * @param expectedAttribute the name of the expected session attribute

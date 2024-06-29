@@ -23,8 +23,6 @@ The `Pet` instance may be:
 
 * Accessed from the model where it could have been added by a
   xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute method].
-* Accessed from the HTTP session if the model attribute was listed in
-  the class-level xref:web/webmvc/mvc-controller/ann-methods/sessionattributes.adoc[`@SessionAttributes`] annotation.
 * Obtained through a `Converter` if the model attribute name matches the name of a
   request value such as a path variable or a request parameter (example follows).
 * Instantiated through a default constructor.
