@@ -31,7 +31,6 @@ import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
-import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,8 +126,7 @@ class InitBinderDataBinderFactoryTests {
     var parameterFactory = new RegistryResolvableParameterFactory(argumentResolvers);
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method, parameterFactory);
 
-    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null,
-            new DefaultSessionAttributeStore(), parameterFactory);
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, parameterFactory);
 
     ModelHandler modelHandler = new ModelHandler(methodResolver);
 

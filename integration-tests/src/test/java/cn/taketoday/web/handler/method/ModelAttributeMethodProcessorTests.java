@@ -39,9 +39,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.annotation.SessionAttributes;
-import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.multipart.MultipartFile;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
@@ -378,7 +377,6 @@ class ModelAttributeMethodProcessorTests {
   public @interface Valid {
   }
 
-  @SessionAttributes(types = TestBean.class)
   private static class ModelAttributeHandler {
 
     @SuppressWarnings("unused")

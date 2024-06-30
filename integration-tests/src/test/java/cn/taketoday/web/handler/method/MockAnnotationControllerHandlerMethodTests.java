@@ -136,7 +136,6 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.BindParam;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
@@ -366,10 +365,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     WebSession session = (WebSession) request.getAttribute("session");
 
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
 
     request = new HttpMockRequestImpl("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
@@ -377,13 +372,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   void sessionAttributeExposureWithInterface() throws Exception {
     initDispatcher(MySessionAttributesControllerImpl.class, wac -> {
@@ -403,10 +393,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     WebSession session = (WebSession) request.getAttribute("session");
 
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
 
     request = new HttpMockRequestImpl("POST", "/myPage");
     request.setCookies(new Cookie("SESSION", session.getId()));
@@ -414,10 +400,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -435,10 +417,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     WebSession session = (WebSession) request.getAttribute("session");
 
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
     request = new HttpMockRequestImpl("POST", "/myPage");
@@ -447,10 +425,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
   }
 
@@ -470,10 +444,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     WebSession session = (WebSession) request.getAttribute("session");
 
     assertThat(session).isNotNull();
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
     request = new HttpMockRequestImpl("POST", "/myPage");
@@ -482,10 +452,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     response = new MockHttpResponseImpl();
     getMockApi().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
-    assertThat(session.getAttribute("object1")).isNotNull();
-    assertThat(session.getAttribute("object2")).isNotNull();
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object1");
-    assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
   }
 
@@ -2427,7 +2393,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Controller
   @EnableWebSession
   @RequestMapping("/myPage")
-  @SessionAttributes(names = { "object1", "object2" })
   static class MySessionAttributesController extends AbstractSessionManagerAutowired {
 
     public MySessionAttributesController(SessionManager sessionManager) {
@@ -2452,7 +2417,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @RequestMapping("/myPage")
-  @SessionAttributes({ "object1", "object2" })
   @Controller
   interface MySessionAttributesControllerIfc {
 
@@ -2506,7 +2470,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @RequestMapping("/myPage")
-  @SessionAttributes({ "object1", "object2" })
   interface MyParameterizedControllerIfc<T> {
 
     @ModelAttribute("testBeanList")

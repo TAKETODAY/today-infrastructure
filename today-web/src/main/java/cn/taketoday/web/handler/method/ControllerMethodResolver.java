@@ -36,7 +36,6 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.support.SessionAttributeStore;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -58,8 +57,6 @@ final class ControllerMethodResolver {
           !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)
                   && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
 
-  private final Map<Class<?>, SessionAttributesHandler> sessionAttributesHandlerCache = new ConcurrentHashMap<>(64);
-
   private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
 
   private final LinkedHashMap<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
@@ -70,13 +67,9 @@ final class ControllerMethodResolver {
 
   private final ConcurrentHashMap<HandlerMethod, InvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
-  private final SessionAttributeStore sessionAttributeStore;
-
   private final ResolvableParameterFactory resolvableParameterFactory;
 
-  ControllerMethodResolver(@Nullable ApplicationContext context,
-          SessionAttributeStore sessionStore, ResolvableParameterFactory parameterFactory) {
-    this.sessionAttributeStore = sessionStore;
+  ControllerMethodResolver(@Nullable ApplicationContext context, ResolvableParameterFactory parameterFactory) {
     this.resolvableParameterFactory = parameterFactory;
 
     if (context != null) {
@@ -113,31 +106,19 @@ final class ControllerMethodResolver {
     }
   }
 
-  /**
-   * Return the {@link SessionAttributesHandler} instance for the given handler type
-   * (never {@code null}).
-   */
-  public SessionAttributesHandler getSessionAttributesHandler(HandlerMethod handlerMethod) {
-    return sessionAttributesHandlerCache.computeIfAbsent(
-            handlerMethod.getBeanType(), type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
-  }
-
-  public SessionAttributesHandler getSessionAttributesHandler(Class<?> handler) {
-    return sessionAttributesHandlerCache.computeIfAbsent(
-            handler, type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
-  }
-
   public List<InvocableHandlerMethod> getModelAttributeMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
 
     ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
     // Global methods first
-    for (var entry : modelAttributeAdviceCache.entrySet()) {
-      ControllerAdviceBean controllerAdviceBean = entry.getKey();
-      if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
-        Object bean = controllerAdviceBean.resolveBean();
-        for (Method method : entry.getValue()) {
-          attrMethods.add(createHandlerMethod(bean, method));
+    if (!modelAttributeAdviceCache.isEmpty()) {
+      for (var entry : modelAttributeAdviceCache.entrySet()) {
+        ControllerAdviceBean controllerAdviceBean = entry.getKey();
+        if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
+          Object bean = controllerAdviceBean.resolveBean();
+          for (Method method : entry.getValue()) {
+            attrMethods.add(createHandlerMethod(bean, method));
+          }
         }
       }
     }
@@ -147,9 +128,12 @@ final class ControllerMethodResolver {
       methods = MethodIntrospector.filterMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
       modelAttributeCache.put(handlerType, methods);
     }
-    for (Method method : methods) {
-      Object bean = handlerMethod.getBean();
-      attrMethods.add(createHandlerMethod(bean, method));
+
+    if (!methods.isEmpty()) {
+      for (Method method : methods) {
+        Object bean = handlerMethod.getBean();
+        attrMethods.add(createHandlerMethod(bean, method));
+      }
     }
 
     return attrMethods;

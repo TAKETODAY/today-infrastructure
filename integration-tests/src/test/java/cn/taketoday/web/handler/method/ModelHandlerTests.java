@@ -23,12 +23,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
 import cn.taketoday.validation.BindingResult;
@@ -37,16 +35,12 @@ import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
-import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -58,15 +52,11 @@ class ModelHandlerTests {
 
   private MockRequestContext webRequest;
 
-  private SessionAttributesHandler attributeHandler;
-
-  private SessionAttributeStore attributeStore;
-
   private TestController controller = new TestController();
 
   private BindingContext bindingContext;
 
-  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SessionAttributesHandlerTests.SessionConfig.class);
+  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SessionConfig.class);
   ControllerMethodResolver methodResolver;
 
   ReturnValueHandlerManager returnValueHandlerManager;
@@ -81,8 +71,6 @@ class ModelHandlerTests {
     this.webRequest = new MockRequestContext(
             context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
-    this.attributeStore = new DefaultSessionAttributeStore();
-
     webRequest.setBinding(new BindingContext());
     bindingContext = webRequest.getBinding();
     returnValueHandlerManager = new ReturnValueHandlerManager();
@@ -90,9 +78,7 @@ class ModelHandlerTests {
     returnValueHandlerManager.registerDefaultHandlers();
     ResolvableParameterFactory resolvableParameterFactory = new ResolvableParameterFactory();
 
-    this.attributeHandler = new SessionAttributesHandler(TestController.class, attributeStore);
-    this.methodResolver = new ControllerMethodResolver(
-            context, attributeStore, resolvableParameterFactory);
+    this.methodResolver = new ControllerMethodResolver(context, resolvableParameterFactory);
     this.controller = new TestController();
   }
 
@@ -155,48 +141,6 @@ class ModelHandlerTests {
   }
 
   @Test
-  public void modelAttributeFromSessionWithBindingDisabled() throws Throwable {
-
-    Foo foo = new Foo();
-    this.attributeStore.storeAttribute(this.webRequest, "foo", foo);
-
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
-    ModelHandler modelHandler = createModelFactory(
-            handlerMethod, "modelAttrWithBindingDisabled");
-    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
-
-    assertThat(bindingContext.containsAttribute("foo")).isTrue();
-    assertThat(bindingContext.getModel().get("foo")).isSameAs(foo);
-    assertThat(bindingContext.isBindingDisabled("foo")).isTrue();
-  }
-
-  @Test
-  public void sessionAttribute() throws Throwable {
-    this.attributeStore.storeAttribute(this.webRequest, "sessionAttr", "sessionAttrValue");
-
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
-    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
-    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
-
-    assertThat(bindingContext.getModel().get("sessionAttr")).isEqualTo("sessionAttrValue");
-  }
-
-  @Test
-  public void sessionAttributeNotPresent() throws Throwable {
-    HandlerMethod handlerMethod = createHandlerMethod("handleSessionAttr", String.class);
-    ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
-
-    assertThatExceptionOfType(WebSessionRequiredException.class)
-            .isThrownBy(() -> modelHandler.initModel(this.webRequest, bindingContext, handlerMethod));
-
-    // Now add attribute and try again
-    this.attributeStore.storeAttribute(this.webRequest, "sessionAttr", "sessionAttrValue");
-
-    modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
-    assertThat(bindingContext.getModel().get("sessionAttr")).isEqualTo("sessionAttrValue");
-  }
-
-  @Test
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
@@ -205,7 +149,7 @@ class ModelHandlerTests {
     container.addAttribute(commandName, command);
 
     ModelHandler modelHandler = new ModelHandler(methodResolver);
-    modelHandler.updateModel(this.webRequest, container, TestController.class);
+    modelHandler.updateModel(this.webRequest, container);
 
     assertThat(container.getModel().get(commandName)).isEqualTo(command);
     String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + commandName;
@@ -226,40 +170,6 @@ class ModelHandlerTests {
     }
   }
 
-  @Test
-  public void updateModelSessionAttributesSaved() throws Throwable {
-    String attributeName = "sessionAttr";
-    String attribute = "value";
-    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
-    BindingContext container = new BindingContext0(dataBinder);
-    container.addAttribute(attributeName, attribute);
-
-    ModelHandler modelHandler = new ModelHandler(methodResolver);
-    modelHandler.updateModel(this.webRequest, container, TestController.class);
-
-    assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
-    assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isEqualTo(attribute);
-  }
-
-  @Test
-  public void updateModelSessionAttributesRemoved() throws Throwable {
-    String attributeName = "sessionAttr";
-    String attribute = "value";
-    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
-    BindingContext container = new BindingContext0(dataBinder);
-    container.addAttribute(attributeName, attribute);
-
-    this.attributeStore.storeAttribute(this.webRequest, attributeName, attribute);
-
-    container.getSessionStatus().setComplete();
-
-    ModelHandler modelHandler = new ModelHandler(methodResolver);
-    modelHandler.updateModel(this.webRequest, container, TestController.class);
-
-    assertThat(container.getModel().get(attributeName)).isEqualTo(attribute);
-    assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isNull();
-  }
-
   @Test  // SPR-12542
   public void updateModelWhenRedirecting() throws Throwable {
     String attributeName = "sessionAttr";
@@ -274,18 +184,16 @@ class ModelHandlerTests {
     container.setRedirectModel(new RedirectModel(queryParamName, queryParam));
 
     ModelHandler modelHandler = new ModelHandler(methodResolver);
-    modelHandler.updateModel(this.webRequest, container, TestController.class);
+    modelHandler.updateModel(this.webRequest, container);
 
     assertThat(container.getRedirectModel().get(queryParamName)).isEqualTo(queryParam);
     assertThat(container.getRedirectModel().size()).isEqualTo(1);
-    assertThat(this.attributeStore.retrieveAttribute(this.webRequest, attributeName)).isEqualTo(attribute);
   }
 
   private ModelHandler createModelFactory(
           HandlerMethod handlerMethod, String methodName, Class<?>... parameterTypes) throws Throwable {
     ControllerMethodResolver methodResolver = mock(ControllerMethodResolver.class);
 
-    given(methodResolver.getSessionAttributesHandler(handlerMethod)).willReturn(attributeHandler);
     given(methodResolver.getModelAttributeMethods(handlerMethod))
             .willReturn(List.of(createHandlerMethod(methodName, parameterTypes)));
 
@@ -303,7 +211,6 @@ class ModelHandlerTests {
     return new InvocableHandlerMethod(this.controller, method, parameterFactory);
   }
 
-  @SessionAttributes(names = { "sessionAttr", "foo" }, types = TestBean.class)
   static class TestController {
 
     @ModelAttribute

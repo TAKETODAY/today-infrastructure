@@ -34,7 +34,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
-import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.view.View;
 
 /**
@@ -156,7 +155,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * {@link ParameterResolvingStrategies ParameterResolvingStrategies}.
    * The {@code providedArgs} parameter however may supply argument values to be used directly,
    * i.e. without argument resolution. Examples of provided argument values include a
-   * {@link WebDataBinder}, a {@link SessionStatus}, or a thrown exception instance.
+   * {@link WebDataBinder} or a thrown exception instance.
    * Provided argument values are checked before argument resolvers.
    * <p>Delegates to {@link #getMethodArgumentValues} and calls {@link Method#invoke(Object, Object...)} with the
    * resolved arguments.

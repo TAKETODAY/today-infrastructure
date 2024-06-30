@@ -40,8 +40,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,8 +55,6 @@ class ModelHandlerOrderingTests {
           null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
   private final BindingContext mavContainer = new BindingContext();
-
-  private final SessionAttributeStore sessionAttributeStore = new DefaultSessionAttributeStore();
 
   @BeforeEach
   void setup() {
@@ -120,8 +116,7 @@ class ModelHandlerOrderingTests {
     }
     Collections.shuffle(modelMethods);
 
-    ControllerMethodResolver methodResolver = new ControllerMethodResolver(
-            null, sessionAttributeStore, parameterFactory);
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, parameterFactory);
 
     ModelHandler factory = new ModelHandler(methodResolver);
     factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));
