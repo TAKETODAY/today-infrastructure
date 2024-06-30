@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * Create an instance from a bean instance and a method.
    */
   public InvocableHandlerMethod(Object bean, Method method, ResolvableParameterFactory factory) {
-    super(bean, method);
+    this(bean, method, null, factory);
+  }
+
+  public InvocableHandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource, ResolvableParameterFactory factory) {
+    super(bean, method, messageSource);
     this.resolvableParameters = factory.getParameters(this);
   }
 
@@ -94,6 +98,23 @@ public class InvocableHandlerMethod extends HandlerMethod {
   @Nullable
   public Object invokeAndHandle(RequestContext request) throws Throwable {
     Object returnValue = invokeForRequest(request, (Object[]) null);
+    applyResponseStatus(request);
+
+    if (returnValue == null) {
+      if (request.isNotModified() || getResponseStatus() != null) {
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      }
+    }
+    else if (StringUtils.hasText(getResponseStatusReason())) {
+      return HttpRequestHandler.NONE_RETURN_VALUE;
+    }
+
+    return returnValue;
+  }
+
+  @Nullable
+  public Object invokeAndHandle(RequestContext request, @Nullable Object... providedArgs) throws Throwable {
+    Object returnValue = invokeForRequest(request, providedArgs);
     applyResponseStatus(request);
 
     if (returnValue == null) {

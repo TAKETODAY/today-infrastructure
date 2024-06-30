@@ -38,7 +38,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.socket.client.WebSocketClient;
 import cn.taketoday.web.socket.client.support.NettyWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
@@ -88,7 +87,6 @@ public abstract class AbstractWebSocketIntegrationTests {
     this.wac = new AnnotationConfigApplicationContext();
     this.wac.register(getAnnotatedConfigClasses());
 
-    wac.register(AnnotationHandlerFactory.class);
     wac.register(ParameterResolvingRegistry.class);
     wac.register(ReturnValueHandlerManager.class);
 

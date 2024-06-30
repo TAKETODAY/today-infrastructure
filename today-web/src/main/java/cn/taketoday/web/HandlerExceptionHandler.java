@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import java.util.ArrayList;
@@ -30,10 +31,11 @@ import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandle
 /**
  * Handle Exception from handler
  *
- * @author TODAY <br>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2020-03-29 20:52
  */
 public interface HandlerExceptionHandler {
+
   /**
    * Well-known name for the HandlerExceptionHandler object in the bean factory for this namespace.
    * Only used when "detectAllHandlerExceptionHandlers" is turned off.
@@ -86,8 +88,7 @@ public interface HandlerExceptionHandler {
       }
     }
     else {
-      var exceptionHandler = BeanFactoryUtils.find(
-              context, BEAN_NAME, HandlerExceptionHandler.class);
+      var exceptionHandler = BeanFactoryUtils.find(context, BEAN_NAME, HandlerExceptionHandler.class);
       if (exceptionHandler != null) {
         return exceptionHandler;
       }

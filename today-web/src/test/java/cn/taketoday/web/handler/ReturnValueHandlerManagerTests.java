@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -24,16 +24,15 @@ import java.util.List;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.session.SessionRedirectModelManager;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
-import cn.taketoday.session.SessionRedirectModelManager;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 
@@ -90,23 +89,16 @@ class ReturnValueHandlerManagerTests {
     when(handler.isReturn(HttpStatus.class))
             .thenReturn(true);
 
-    ActionMappingAnnotationHandler annotationHandler = new ActionMappingAnnotationHandler(handler, null, Object.class) {
-      @Override
-      public Object getHandlerObject() {
-        return null;
-      }
-    };
-
-    assertThat(manager.getHandler(annotationHandler))
+    assertThat(manager.getHandler(handler))
             .isNotNull();
 
     // obtainHandler
 
-    assertThat(manager.obtainHandler(annotationHandler))
+    assertThat(manager.obtainHandler(handler))
             .isEqualTo(returnValueHandler)
             .isNotNull();
 
-    assertThat(manager.obtainHandler(annotationHandler))
+    assertThat(manager.obtainHandler(handler))
             .isEqualTo(returnValueHandler)
             .isNotNull();
 

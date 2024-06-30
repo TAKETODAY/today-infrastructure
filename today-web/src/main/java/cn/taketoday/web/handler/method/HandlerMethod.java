@@ -525,9 +525,6 @@ public class HandlerMethod implements AsyncHandler {
     if (handler instanceof HandlerMethod) {
       return (HandlerMethod) handler;
     }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return annotationHandler.getMethod();
-    }
     else if (handler instanceof HandlerWrapper wrapper
             && wrapper.getRawHandler() instanceof HandlerMethod target) {
       return target;

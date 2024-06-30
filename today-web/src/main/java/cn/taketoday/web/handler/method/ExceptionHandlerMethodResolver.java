@@ -65,6 +65,7 @@ public class ExceptionHandlerMethodResolver {
   }
 
   private final Map<Class<? extends Throwable>, Method> mappedMethods = new HashMap<>(16);
+
   private final Map<Class<? extends Throwable>, Method> exceptionLookupCache = new ConcurrentReferenceHashMap<>(16);
 
   /**

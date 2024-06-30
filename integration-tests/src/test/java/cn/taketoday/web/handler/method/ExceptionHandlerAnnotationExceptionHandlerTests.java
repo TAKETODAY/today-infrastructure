@@ -119,11 +119,9 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
-    assertThat(mav).isNull();
-//    assertThat(mav.getViewName()).isNull();
-
-//    assertThat(mav.getViewName()).isEqualTo("errorView");
-//    assertThat(mav.getModel().get("detail")).isEqualTo("Bad argument");
+    assertThat(mav).isNotNull();
+    assertThat(mav.getViewName()).isEqualTo("errorView");
+    assertThat(mav.getModel().get("detail")).isEqualTo("Bad argument");
   }
 
   private ModelAndView handleException(Exception ex, HandlerMethod handlerMethod) throws Exception {
@@ -132,8 +130,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     return handleException(context, ex, handlerMethod);
   }
 
-  private ModelAndView handleException(
-          ApplicationContext context, Exception ex, HandlerMethod handlerMethod) throws Exception {
+  private ModelAndView handleException(ApplicationContext context, Exception ex, HandlerMethod handlerMethod) throws Exception {
     MockRequestContext context1 = new MockRequestContext(context, request, response);
     context1.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
@@ -161,12 +158,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("IllegalArgumentException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("IllegalArgumentException");
   }
 
   @Test
-    // gh-26317
   void handleExceptionResponseBodyMatchingCauseLevel2() throws Exception {
     Exception ex = new Exception(new Exception(new IllegalArgumentException()));
     HandlerMethod handlerMethod = new HandlerMethod(new ResponseBodyController(), "handle");
@@ -175,8 +171,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("IllegalArgumentException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("IllegalArgumentException");
   }
 
   @Test
@@ -187,13 +183,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     ModelAndView mav = handleException(ex, handlerMethod);
 
-    assertThat(mav).isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
+    assertThat(mav).isNull();
     assertThat(this.response.getContentAsString()).isEqualTo("IllegalArgumentException");
   }
 
   @Test
-    // SPR-13546
   void handleExceptionModelAtArgument() throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException();
     HandlerMethod handlerMethod = new HandlerMethod(new ModelArgumentController(), "handle");
@@ -201,18 +195,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     ResolvableParameterFactory factory = new ResolvableParameterFactory();
 
-    ActionMappingAnnotationHandler handler = new ActionMappingAnnotationHandler(
-            handlerMethod, factory.createArray(handlerMethod.getMethod()), handlerMethod.getBeanType()) {
-      @Override
-      public Object getHandlerObject() {
-        return handlerMethod.getBean();
-      }
-    };
-
     MockRequestContext context = new MockRequestContext(null, request, response);
     context.setBinding(new BindingContext());
 
-    Object ret = this.handler.handleException(context, ex, handler);
+    Object ret = this.handler.handleException(context, ex, handlerMethod);
 
     ModelMap model = context.getBinding().getModel();
     assertThat(model.size()).isEqualTo(1);
@@ -230,8 +216,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("AnotherTestExceptionResolver: IllegalAccessException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("AnotherTestExceptionResolver: IllegalAccessException");
   }
 
   @Test
@@ -245,12 +231,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("TestExceptionResolver: IllegalStateException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("TestExceptionResolver: IllegalStateException");
   }
 
   @Test
-    // gh-26317
   void handleExceptionGlobalHandlerOrderedMatchingCauseLevel2() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
     this.handler.setApplicationContext(ctx);
@@ -261,12 +246,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("TestExceptionResolver: IllegalStateException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("TestExceptionResolver: IllegalStateException");
   }
 
   @Test
-    // SPR-12605
   void handleExceptionWithHandlerMethodArg() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
     this.handler.setApplicationContext(ctx);
@@ -277,8 +261,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("HandlerMethod: handle");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("HandlerMethod: handle");
   }
 
   @Test
@@ -292,8 +276,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(new MockException("Handler dispatch failed", err), handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo(err.toString());
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo(err.toString());
   }
 
   @Test
@@ -309,12 +293,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo(rootCause.toString());
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo(rootCause.toString());
   }
 
   @Test
-    //gh-27156
   void handleExceptionWithReasonResolvedByMessageSource() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
     StaticApplicationContext context = new StaticApplicationContext(ctx);
@@ -347,8 +330,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
   }
 
   @Test
@@ -363,8 +346,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
   }
 
   @Test
@@ -377,11 +360,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     Object mav = this.handler.handleException(new MockRequestContext(this.request, this.response), ex, null);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
+    assertThat(mav).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
   }
 
   @Test
-    // SPR-16496
   void handleExceptionControllerAdviceAgainstProxy() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
     handler.setApplicationContext(ctx);
@@ -392,12 +374,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     ModelAndView mav = handleException(ctx, ex, handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
+    assertThat(mav.isEmpty()).isFalse();
+    assertThat(mav.getViewName()).isEqualTo("BasePackageTestExceptionResolver: IllegalStateException");
   }
 
   @Test
-    // gh-22619
   void handleExceptionViaMappedHandler() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, MyControllerAdviceConfig.class);
     this.handler.setMappedHandlerClasses(HttpRequestHandler.class);
@@ -410,7 +391,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
             new MockRequestContext(ctx, this.request, this.response), ex, handler);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
+    assertThat(mav).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
   }
 
   @Controller
