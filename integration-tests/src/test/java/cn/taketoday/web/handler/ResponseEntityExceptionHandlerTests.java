@@ -319,7 +319,8 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     RequestBindingException ex = new RequestBindingException("message");
-    assertThat(resolver.handleException(request, ex, null)).isNotNull();
+
+    manager.handleReturnValue(request, null, resolver.handleException(request, ex, null));
 
     assertThat(this.mockResponse.getStatus()).isEqualTo(400);
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("error content");
@@ -340,7 +341,8 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
-    assertThat(resolver.handleException(new MockRequestContext(null, this.mockRequest, this.mockResponse), ex, null)).isNull();
+    MockRequestContext context = new MockRequestContext(null, this.mockRequest, this.mockResponse);
+    assertThat(resolver.handleException(context, ex, null)).isNotNull().isInstanceOf(ResponseEntity.class);
   }
 
   @Test

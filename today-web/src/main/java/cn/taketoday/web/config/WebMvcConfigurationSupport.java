@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -93,7 +92,6 @@ import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
 import cn.taketoday.web.handler.function.support.RouterFunctionMapping;
-import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
@@ -600,11 +598,11 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerExceptionHandler handlerExceptionHandler(AnnotationHandlerFactory handlerFactory) {
+  public HandlerExceptionHandler handlerExceptionHandler(ParameterResolvingRegistry registry, ReturnValueHandlerManager manager) {
     var handlers = new ArrayList<HandlerExceptionHandler>();
     configureExceptionHandlers(handlers);
     if (handlers.isEmpty()) {
-      addDefaultHandlerExceptionHandlers(handlers, handlerFactory);
+      addDefaultHandlerExceptionHandlers(handlers, registry);
     }
     extendExceptionHandlers(handlers);
     CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler();
@@ -646,14 +644,13 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * <li>{@link SimpleHandlerExceptionHandler} for resolving known Framework exception types
    * </ul>
    */
-  protected final void addDefaultHandlerExceptionHandlers(
-          List<HandlerExceptionHandler> handlers, AnnotationHandlerFactory handlerFactory) {
+  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers, ParameterResolvingRegistry registry) {
     var handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
       handler.setApplicationContext(this.applicationContext);
     }
-    handler.setHandlerFactory(handlerFactory);
+    handler.setParameterResolvingRegistry(registry);
     handler.afterPropertiesSet();
     handlers.add(handler);
 
@@ -704,20 +701,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
     return new RequestMappingHandlerMapping();
-  }
-
-  /**
-   * core {@link cn.taketoday.web.handler.method.AnnotationHandlerFactory} to create annotation-handler
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public AnnotationHandlerFactory annotationHandlerFactory(
-          BeanFactory beanFactory, ParameterResolvingRegistry registry, ReturnValueHandlerManager manager) {
-    var handlerFactory = new AnnotationHandlerFactory(beanFactory);
-    handlerFactory.setReturnValueHandlerManager(manager);
-    handlerFactory.setParameterResolvingRegistry(registry);
-    return handlerFactory;
   }
 
   /**

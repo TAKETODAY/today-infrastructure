@@ -205,7 +205,9 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @param handler the handler object to validate
    * @param request current HTTP request
    */
-  protected void validateHandler(Object handler, RequestContext request) { }
+  protected void validateHandler(Object handler, RequestContext request) {
+    
+  }
 
   /**
    * Register the specified handler for the given URL paths.

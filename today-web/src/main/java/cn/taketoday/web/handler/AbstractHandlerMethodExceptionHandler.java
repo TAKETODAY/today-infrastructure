@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -23,19 +20,18 @@ package cn.taketoday.web.handler;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * Abstract base class for {@link HandlerExceptionHandler HandlerExceptionHandler}
  * implementations that support handling exceptions from handlers of type
- * {@link cn.taketoday.web.handler.method.ActionMappingAnnotationHandler}.
+ * {@link cn.taketoday.web.handler.method.HandlerMethod}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 21:53
  */
-public abstract class AbstractActionMappingMethodExceptionHandler extends AbstractHandlerExceptionHandler {
+public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHandlerExceptionHandler {
 
   /**
    * Checks if the handler is a {@link HandlerMethod} and then delegates to the
@@ -49,17 +45,12 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
     }
 
     // unwrap HandlerExecutionChain
-    if (handler instanceof HandlerExecutionChain chain) {
+    if (handler instanceof HandlerWrapper chain) {
       handler = chain.getRawHandler();
     }
 
     if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
-      return super.shouldApplyTo(request, handler);
-    }
-
-    if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      handler = annotationHandler.getHandlerObject();
       return super.shouldApplyTo(request, handler);
     }
 
@@ -88,11 +79,8 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
     if (handler instanceof HandlerMethod handlerMethod) {
       return handleInternal(request, handlerMethod, ex);
     }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return handleInternal(request, annotationHandler.getMethod(), ex);
-    }
     else {
-      return handleInternal(request, (HandlerMethod) null, ex);
+      return handleInternal(request, null, ex);
     }
   }
 

@@ -98,8 +98,6 @@ public class HandlerMethod implements AsyncHandler {
   /** parameter list **/
   private final MethodParameter[] parameters;
 
-  private final String description;
-
   /** @since 2.3.7 */
   private final Class<?> returnType;
 
@@ -137,17 +135,24 @@ public class HandlerMethod implements AsyncHandler {
    * Create an instance from a bean instance and a method.
    */
   public HandlerMethod(Object bean, Method method) {
-    Assert.notNull(bean, "Bean is required");
+    this(bean, method, null);
+  }
+
+  /**
+   * Variant of {@link #HandlerMethod(Object, Method)} that
+   * also accepts a {@link MessageSource} for use from subclasses.
+   *
+   * @since 5.0
+   */
+  protected HandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
     Assert.notNull(method, "Method is required");
     this.bean = bean;
-    this.messageSource = null;
-    this.beanType = ClassUtils.getUserClass(bean);
     this.method = method;
-    this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+    this.messageSource = messageSource;
+    this.bridgedMethod = ReflectionUtils.makeAccessible(BridgeMethodResolver.findBridgedMethod(method));
+    this.beanType = ClassUtils.getUserClass(bean);
     this.returnType = bridgedMethod.getReturnType();
-    ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    this.description = initDescription(beanType, method);
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
   }
@@ -168,7 +173,6 @@ public class HandlerMethod implements AsyncHandler {
     this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    this.description = initDescription(beanType, method);
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
   }
@@ -201,7 +205,6 @@ public class HandlerMethod implements AsyncHandler {
     this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    this.description = initDescription(this.beanType, method);
     this.responseBody = computeResponseBody();
     evaluateResponseStatus();
   }
@@ -209,74 +212,40 @@ public class HandlerMethod implements AsyncHandler {
   /**
    * Copy constructor for use in subclasses.
    */
-  protected HandlerMethod(HandlerMethod handlerMethod) {
-    Assert.notNull(handlerMethod, "HandlerMethod is required");
-    this.bean = handlerMethod.bean;
-    this.messageSource = handlerMethod.messageSource;
-    this.method = handlerMethod.method;
-    this.beanType = handlerMethod.beanType;
-    this.returnType = handlerMethod.returnType;
-    this.bridgedMethod = handlerMethod.bridgedMethod;
-    this.parameters = handlerMethod.parameters;
-    this.responseStatus = handlerMethod.responseStatus;
-    this.responseStatusReason = handlerMethod.responseStatusReason;
-    this.description = handlerMethod.description;
-    this.responseBody = handlerMethod.responseBody;
-    this.corsConfig = handlerMethod.corsConfig;
+  protected HandlerMethod(HandlerMethod other) {
+    Assert.notNull(other, "HandlerMethod is required");
+    this.bean = other.bean;
+    this.messageSource = other.messageSource;
+    this.method = other.method;
+    this.beanType = other.beanType;
+    this.returnType = other.returnType;
+    this.bridgedMethod = other.bridgedMethod;
+    this.parameters = other.parameters;
+    this.responseStatus = other.responseStatus;
+    this.responseStatusReason = other.responseStatusReason;
+    this.responseBody = other.responseBody;
+    this.corsConfig = other.corsConfig;
+    this.returnTypeParameter = other.returnTypeParameter;
+    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
   }
 
   /**
    * Re-create HandlerMethod with the resolved handler.
    */
-  HandlerMethod(HandlerMethod handlerMethod, Object handler) {
+  protected HandlerMethod(HandlerMethod other, Object handler) {
     this.bean = handler;
-    this.messageSource = handlerMethod.messageSource;
-    this.beanType = handlerMethod.beanType;
-    this.method = handlerMethod.method;
-    this.returnType = handlerMethod.returnType;
-    this.bridgedMethod = handlerMethod.bridgedMethod;
-    this.parameters = handlerMethod.parameters;
-    this.responseStatus = handlerMethod.responseStatus;
-    this.responseStatusReason = handlerMethod.responseStatusReason;
-    this.description = handlerMethod.description;
-    this.responseBody = handlerMethod.responseBody;
-    this.corsConfig = handlerMethod.corsConfig;
-  }
-
-  private MethodParameter[] initMethodParameters() {
-    int count = bridgedMethod.getParameterCount();
-    MethodParameter[] result = new MethodParameter[count];
-    for (int i = 0; i < count; i++) {
-      result[i] = new HandlerMethodParameter(i);
-    }
-    return result;
-  }
-
-  private void evaluateResponseStatus() {
-    ResponseStatus annotation = getMethodAnnotation(ResponseStatus.class);
-    if (annotation == null) {
-      annotation = AnnotatedElementUtils.findMergedAnnotation(getBeanType(), ResponseStatus.class);
-    }
-    if (annotation != null) {
-      String reason = annotation.reason();
-      String resolvedReason = StringUtils.hasText(reason) && messageSource != null
-              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
-              : reason;
-
-      this.responseStatus = annotation.code();
-      this.responseStatusReason = resolvedReason;
-      if (StringUtils.hasText(resolvedReason) && getMethod().getReturnType() != void.class) {
-        log.warn("Return value of [{}] will be ignored since @ResponseStatus 'reason' attribute is set.", getMethod());
-      }
-    }
-  }
-
-  private static String initDescription(Class<?> beanType, Method method) {
-    StringJoiner joiner = new StringJoiner(", ", "(", ")");
-    for (Class<?> paramType : method.getParameterTypes()) {
-      joiner.add(paramType.getSimpleName());
-    }
-    return beanType.getName() + "#" + method.getName() + joiner;
+    this.messageSource = other.messageSource;
+    this.beanType = other.beanType;
+    this.method = other.method;
+    this.returnType = other.returnType;
+    this.bridgedMethod = other.bridgedMethod;
+    this.parameters = other.parameters;
+    this.responseStatus = other.responseStatus;
+    this.responseStatusReason = other.responseStatusReason;
+    this.responseBody = other.responseBody;
+    this.corsConfig = other.corsConfig;
+    this.returnTypeParameter = other.returnTypeParameter;
+    this.interfaceParameterAnnotations = other.interfaceParameterAnnotations;
   }
 
   // ---- useful methods
@@ -434,7 +403,7 @@ public class HandlerMethod implements AsyncHandler {
   }
 
   @Override
-  public ConcurrentResultHandlerMethod wrapConcurrentResult(Object result) {
+  public ConcurrentResultHandlerMethod wrapConcurrentResult(@Nullable Object result) {
     return new ConcurrentResultHandlerMethod(new ConcurrentResultMethodParameter(result), this);
   }
 
@@ -454,6 +423,29 @@ public class HandlerMethod implements AsyncHandler {
    */
   public String getShortLogMessage() {
     return "%s#%s[%d args]".formatted(getBeanType().getName(), this.method.getName(), this.method.getParameterCount());
+  }
+
+  // Object
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof HandlerMethod otherMethod)) {
+      return false;
+    }
+    return (this.bean.equals(otherMethod.bean) && this.method.equals(otherMethod.method));
+  }
+
+  @Override
+  public int hashCode() {
+    return (this.bean.hashCode() * 31 + this.method.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return initDescription(beanType, method);
   }
 
   private ArrayList<Annotation[][]> getInterfaceParameterAnnotations() {
@@ -490,27 +482,40 @@ public class HandlerMethod implements AsyncHandler {
     return true;
   }
 
-  // Object
-
-  @Override
-  public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
+  private MethodParameter[] initMethodParameters() {
+    int count = bridgedMethod.getParameterCount();
+    MethodParameter[] result = new MethodParameter[count];
+    for (int i = 0; i < count; i++) {
+      result[i] = new HandlerMethodParameter(i);
     }
-    if (!(other instanceof HandlerMethod otherMethod)) {
-      return false;
-    }
-    return (this.bean.equals(otherMethod.bean) && this.method.equals(otherMethod.method));
+    return result;
   }
 
-  @Override
-  public int hashCode() {
-    return (this.bean.hashCode() * 31 + this.method.hashCode());
+  private void evaluateResponseStatus() {
+    ResponseStatus annotation = getMethodAnnotation(ResponseStatus.class);
+    if (annotation == null) {
+      annotation = AnnotatedElementUtils.findMergedAnnotation(getBeanType(), ResponseStatus.class);
+    }
+    if (annotation != null) {
+      String reason = annotation.reason();
+      String resolvedReason = StringUtils.hasText(reason) && messageSource != null
+              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
+              : reason;
+
+      this.responseStatus = annotation.code();
+      this.responseStatusReason = resolvedReason;
+      if (StringUtils.hasText(resolvedReason) && getMethod().getReturnType() != void.class) {
+        log.warn("Return value of [{}] will be ignored since @ResponseStatus 'reason' attribute is set.", getMethod());
+      }
+    }
   }
 
-  @Override
-  public String toString() {
-    return description;
+  private static String initDescription(Class<?> beanType, Method method) {
+    StringJoiner joiner = new StringJoiner(", ", "(", ")");
+    for (Class<?> paramType : method.getParameterTypes()) {
+      joiner.add(paramType.getSimpleName());
+    }
+    return beanType.getName() + "#" + method.getName() + joiner;
   }
 
   // HandlerMethod
@@ -519,9 +524,6 @@ public class HandlerMethod implements AsyncHandler {
   public static HandlerMethod unwrap(@Nullable Object handler) {
     if (handler instanceof HandlerMethod) {
       return (HandlerMethod) handler;
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      return annotationHandler.getMethod();
     }
     else if (handler instanceof HandlerWrapper wrapper
             && wrapper.getRawHandler() instanceof HandlerMethod target) {

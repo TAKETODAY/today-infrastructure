@@ -57,23 +57,18 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
 
 /**
  * Extends {@link AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
  * return values by writing to the response with {@link HttpMessageConverter HttpMessageConverters}.
- * <p>
- * write {@link ActionMappingAnnotationHandler} return value
- * </p>
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ActionMappingAnnotationHandler
  * @since 4.0 2022/1/23 12:30
  */
 public abstract class AbstractMessageConverterMethodProcessor

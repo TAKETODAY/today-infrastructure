@@ -22,9 +22,9 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
@@ -33,7 +33,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
-import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
+import cn.taketoday.web.handler.AbstractHandlerMethodExceptionHandler;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.util.DisconnectedClientHelper;
 
@@ -46,15 +47,15 @@ import cn.taketoday.web.util.DisconnectedClientHelper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 19:17
  */
-public class ExceptionHandlerAnnotationExceptionHandler
-        extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
+public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
+        implements ApplicationContextAware, InitializingBean {
+
   /**
    * Log category to use for network failure after a client has gone away.
    *
    * @see DisconnectedClientHelper
    */
-  private static final String DISCONNECTED_CLIENT_LOG_CATEGORY =
-          "cn.taketoday.web.handler.DisconnectedClient";
+  private static final String DISCONNECTED_CLIENT_LOG_CATEGORY = "cn.taketoday.web.handler.DisconnectedClient";
 
   private static final DisconnectedClientHelper disconnectedClientHelper =
           new DisconnectedClientHelper(DISCONNECTED_CLIENT_LOG_CATEGORY);
@@ -65,20 +66,16 @@ public class ExceptionHandlerAnnotationExceptionHandler
   private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
           new LinkedHashMap<>();
 
-  // TODO optimise
-  private final ConcurrentHashMap<Method, ActionMappingAnnotationHandler> exceptionHandlerMapping =
-          new ConcurrentHashMap<>(64);
-
   @Nullable
   private ApplicationContext applicationContext;
 
-  private AnnotationHandlerFactory handlerFactory;
+  private ResolvableParameterFactory parameterFactory;
 
   @Nullable
   @Override
   protected Object handleInternal(RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
-    var exHandler = lookupExceptionHandler(handlerMethod, target);
+    var exHandler = getExceptionHandlerMethod(handlerMethod, target);
     if (exHandler == null) {
       return null; // next
     }
@@ -103,9 +100,12 @@ public class ExceptionHandlerAnnotationExceptionHandler
         arguments[arguments.length - 2] = handlerMethod.getMethod();
       }
 
-      Object returnValue = exHandler.invoke(context, arguments);
-      exHandler.handleReturnValue(context, exHandler, returnValue);
-      return NONE_RETURN_VALUE;
+      var metadata = context.getMatchingMetadata();
+      if (metadata != null) {
+        metadata.setHandler(exHandler);
+      }
+
+      return exHandler.invokeAndHandle(context, arguments);
     }
     catch (Throwable invocationEx) {
       if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {
@@ -125,17 +125,15 @@ public class ExceptionHandlerAnnotationExceptionHandler
    * implementation searches methods in the class hierarchy of the controller first
    * and if not found, it continues searching for additional {@code @ExceptionHandler}
    * methods assuming some {@linkplain ControllerAdvice @ControllerAdvice}
-   * Framework-managed beans were detected.
+   * Infra-managed beans were detected.
    *
+   * @param handlerMethod the method where the exception was raised (may be {@code null})
    * @param exception the raised exception
    * @return a method to handle the exception, or {@code null} if none
    */
   @Nullable
-  protected ActionMappingAnnotationHandler lookupExceptionHandler(
-          @Nullable HandlerMethod handlerMethod, Throwable exception) {
-
+  protected InvocableHandlerMethod getExceptionHandlerMethod(@Nullable HandlerMethod handlerMethod, Throwable exception) {
     Class<?> handlerType = null;
-
     if (handlerMethod != null) {
       // Local exception handler methods on the controller class itself.
       // To be invoked through the proxy, even in case of an interface-based proxy.
@@ -143,8 +141,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
       var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
       Method method = resolver.resolveMethod(exception);
       if (method != null) {
-        return exceptionHandlerMapping.computeIfAbsent(method,
-                key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
+        return createHandlerMethod(handlerMethod.getBean(), method);
       }
       // For advice applicability check below (involving base packages, assignable types
       // and annotation presence), use target class instead of interface-based proxy.
@@ -159,8 +156,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
         ExceptionHandlerMethodResolver resolver = entry.getValue();
         Method method = resolver.resolveMethod(exception);
         if (method != null) {
-          return exceptionHandlerMapping.computeIfAbsent(method,
-                  key -> getHandler(advice::resolveBean, key, advice.getBeanType()));
+          return createHandlerMethod(advice.resolveBean(), method);
         }
       }
     }
@@ -168,9 +164,8 @@ public class ExceptionHandlerAnnotationExceptionHandler
     return null;
   }
 
-  private ActionMappingAnnotationHandler getHandler(
-          Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
-    return handlerFactory.create(handlerBean, method, errorHandlerType, null);
+  private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {
+    return new InvocableHandlerMethod(bean, method, applicationContext, parameterFactory);
   }
 
   @Override
@@ -186,28 +181,27 @@ public class ExceptionHandlerAnnotationExceptionHandler
 
   //
 
+  public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
+    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
+  }
+
   @Override
   public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
     this.applicationContext = applicationContext;
   }
 
-  @Nullable
-  public ApplicationContext getApplicationContext() {
-    return this.applicationContext;
-  }
-
-  public void setHandlerFactory(AnnotationHandlerFactory handlerFactory) {
-    this.handlerFactory = handlerFactory;
-  }
-
   @Override
   public void afterPropertiesSet() {
-    ApplicationContext context = getApplicationContext();
+    ApplicationContext context = applicationContext;
     Assert.state(context != null, "No ApplicationContext");
-
-    if (handlerFactory == null) {
-      handlerFactory = new AnnotationHandlerFactory(context);
-      handlerFactory.initDefaults();
+    if (parameterFactory == null) {
+      ParameterResolvingRegistry registry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
+      if (registry != null) {
+        parameterFactory = new RegistryResolvableParameterFactory(registry);
+      }
+      else {
+        parameterFactory = new ResolvableParameterFactory();
+      }
     }
     initExceptionHandlerAdviceCache(context);
   }
