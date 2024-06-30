@@ -123,10 +123,10 @@ public class MediaType extends MimeType implements Serializable {
   public static final String APPLICATION_PDF_VALUE = "application/pdf";
 
   /**
-   * Public constant media type for {@code application/problem+json}.*
+   * Public constant media type for {@code application/problem+json}.
    *
-   * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.1"> Problem
-   * Details for HTTP APIs, 6.1. application/problem+json</a>
+   * @see <a href="https://www.iana.org/assignments/media-types/application/problem+json">
+   * Problem Details for HTTP APIs, 6.1. application/problem+json</a>
    */
   public static final MediaType APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
 
@@ -136,8 +136,8 @@ public class MediaType extends MimeType implements Serializable {
   /**
    * Public constant media type for {@code application/problem+xml}.
    *
-   * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.2"> Problem
-   * Details for HTTP APIs, 6.2. application/problem+xml</a>
+   * @see <a href="https://www.iana.org/assignments/media-types/application/problem+xml">
+   * Problem Details for HTTP APIs, 6.2. application/problem+xml</a>
    */
   public static final MediaType APPLICATION_PROBLEM_XML = new MediaType("application", "problem+xml");
 
