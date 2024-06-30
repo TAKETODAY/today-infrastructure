@@ -27,6 +27,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.Validator;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.ReturnValueHandler;
@@ -255,6 +256,27 @@ public interface WebMvcConfigurer {
   }
 
   /**
+   * Add to the list of {@link ErrorResponse.Interceptor}'s to apply when
+   * rendering an RFC 7807 {@link cn.taketoday.http.ProblemDetail}
+   * error response.
+   *
+   * @param interceptors the interceptors to use
+   * @since 5.0
+   */
+  default void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+
+  }
+
+  /**
+   * Configure asynchronous request handling options.
+   *
+   * @since 4.0
+   */
+  default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+
+  }
+
+  /**
    * Provide a custom {@link Validator} instead of the one created by default.
    * The default implementation, assuming JSR-303 is on the classpath, is:
    * {@link cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean}.
@@ -265,15 +287,6 @@ public interface WebMvcConfigurer {
   @Nullable
   default Validator getValidator() {
     return null;
-  }
-
-  /**
-   * Configure asynchronous request handling options.
-   *
-   * @since 4.0
-   */
-  default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-
   }
 
 }

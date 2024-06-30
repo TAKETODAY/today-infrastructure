@@ -46,12 +46,12 @@ import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -71,10 +71,7 @@ import cn.taketoday.web.util.pattern.PathPattern;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 12:30
  */
-public abstract class AbstractMessageConverterMethodProcessor
-        extends AbstractMessageConverterMethodArgumentResolver implements ReturnValueHandler {
-
-  private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
+public abstract class AbstractMessageConverterMethodProcessor extends AbstractMessageConverterMethodArgumentResolver implements ReturnValueHandler {
 
   /* Extensions associated with the built-in message converters */
   private static final Set<String> SAFE_EXTENSIONS = Set.of(
@@ -87,15 +84,19 @@ public abstract class AbstractMessageConverterMethodProcessor
 
   private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES = List.of(MediaType.ALL, new MediaType("application"));
 
-  private static final Type RESOURCE_REGION_LIST_TYPE =
-          new ParameterizedTypeReference<List<ResourceRegion>>() { }.getType();
+  private static final Type RESOURCE_REGION_LIST_TYPE = new ParameterizedTypeReference<List<ResourceRegion>>() {
 
-  private static final List<MediaType> problemMediaTypes =
-          Arrays.asList(MediaType.APPLICATION_PROBLEM_JSON, MediaType.APPLICATION_PROBLEM_XML);
+  }.getType();
+
+  private static final List<MediaType> problemMediaTypes = Arrays.asList(
+          MediaType.APPLICATION_PROBLEM_JSON, MediaType.APPLICATION_PROBLEM_XML);
 
   private final ContentNegotiationManager contentNegotiationManager;
 
   private final HashSet<String> safeExtensions = new HashSet<>();
+
+  @Nullable
+  private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   /**
    * Constructor with list of converters only.
@@ -118,10 +119,29 @@ public abstract class AbstractMessageConverterMethodProcessor
    */
   protected AbstractMessageConverterMethodProcessor(List<HttpMessageConverter<?>> converters,
           @Nullable ContentNegotiationManager manager, @Nullable List<Object> requestResponseBodyAdvice) {
+
+    this(converters, manager, requestResponseBodyAdvice, null);
+  }
+
+  /**
+   * Variant of {@link #AbstractMessageConverterMethodProcessor(List, ContentNegotiationManager, List)}
+   * with additional list of {@link ErrorResponse.Interceptor}s for return
+   * value handling.
+   *
+   * @since 5.0
+   */
+  protected AbstractMessageConverterMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable List<ErrorResponse.Interceptor> interceptors) {
     super(converters, requestResponseBodyAdvice);
     this.contentNegotiationManager = manager != null ? manager : new ContentNegotiationManager();
     this.safeExtensions.addAll(contentNegotiationManager.getAllFileExtensions());
     this.safeExtensions.addAll(SAFE_EXTENSIONS);
+    if (CollectionUtils.isNotEmpty(interceptors)) {
+      this.errorResponseInterceptors = new ArrayList<>(interceptors);
+    }
+    else {
+      this.errorResponseInterceptors = null;
+    }
   }
 
   // ReturnValueHandler
@@ -192,8 +212,8 @@ public abstract class AbstractMessageConverterMethodProcessor
       MediaType mediaType = MediaType.parseMediaType(contentType);
       isContentTypePreset = mediaType.isConcrete();
       if (isContentTypePreset) {
-        if (log.isDebugEnabled()) {
-          log.debug("Found 'Content-Type:{}' in response", contentType);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Found 'Content-Type:{}' in response", contentType);
         }
         selectedMediaType = mediaType;
       }
@@ -207,8 +227,8 @@ public abstract class AbstractMessageConverterMethodProcessor
       catch (HttpMediaTypeNotAcceptableException ex) {
         int series = context.getStatus() / 100;
         if (body == null || series == 4 || series == 5) {
-          if (log.isDebugEnabled()) {
-            log.debug("Ignoring error response content (if any). {}", ex.toString());
+          if (logger.isDebugEnabled()) {
+            logger.debug("Ignoring error response content (if any). {}", ex.toString());
           }
           return;
         }
@@ -230,8 +250,8 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
 
       if (compatibleMediaTypes.isEmpty()) {
-        if (log.isDebugEnabled()) {
-          log.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
+        if (logger.isDebugEnabled()) {
+          logger.debug("No match for {}, supported: {}", acceptableTypes, producibleTypes);
         }
         if (body != null) {
           throw new HttpMediaTypeNotAcceptableException(producibleTypes);
@@ -252,8 +272,8 @@ public abstract class AbstractMessageConverterMethodProcessor
         }
       }
 
-      if (log.isDebugEnabled()) {
-        log.debug("Using '{}', given {} and supported {}", selectedMediaType, acceptableTypes, producibleTypes);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Using '{}', given {} and supported {}", selectedMediaType, acceptableTypes, producibleTypes);
       }
     }
 
@@ -266,9 +286,9 @@ public abstract class AbstractMessageConverterMethodProcessor
 
           body = advice.beforeBodyWrite(body, returnType, selectedMediaType, converter, context);
           if (body != null) {
-            if (log.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
               Object theBody = body;
-              LogFormatUtils.traceDebug(log,
+              LogFormatUtils.traceDebug(logger,
                       traceOn -> "Writing [%s]".formatted(LogFormatUtils.formatValue(theBody, !traceOn)));
             }
             addContentDispositionHeader(context);
@@ -279,8 +299,8 @@ public abstract class AbstractMessageConverterMethodProcessor
               converter.write(body, selectedMediaType, context.asHttpOutputMessage());
             }
           }
-          else if (log.isDebugEnabled()) {
-            log.debug("Nothing to write: null body");
+          else if (logger.isDebugEnabled()) {
+            logger.debug("Nothing to write: null body");
           }
           return;
         }
@@ -375,6 +395,24 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
     }
     return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
+  }
+
+  /**
+   * Invoke the configured {@link ErrorResponse.Interceptor}'s.
+   *
+   * @since 5.0
+   */
+  protected void invokeErrorResponseInterceptors(ProblemDetail detail, @Nullable ErrorResponse errorResponse) {
+    if (errorResponseInterceptors != null) {
+      try {
+        for (ErrorResponse.Interceptor handler : errorResponseInterceptors) {
+          handler.handleError(detail, errorResponse);
+        }
+      }
+      catch (Throwable ex) {
+        // ignore
+      }
+    }
   }
 
   private List<MediaType> getAcceptableMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {

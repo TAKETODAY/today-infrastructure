@@ -68,6 +68,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
@@ -211,6 +212,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   @Nullable
   private AsyncSupportConfigurer asyncSupportConfigurer;
+
+  @Nullable
+  private List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   @Override
   protected void initApplicationContext() {
@@ -1020,6 +1024,32 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
     strategies.addAll(registry.getCustomizedStrategies().getStrategies());
     return new CompositeUriComponentsContributor(strategies, conversionService);
+  }
+
+  /**
+   * Provide access to the list of {@link ErrorResponse.Interceptor}'s to apply
+   * when rendering error responses.
+   * <p>This method cannot be overridden; use {@link #configureErrorResponseInterceptors(List)} instead.
+   *
+   * @since 5.0
+   */
+  protected final List<ErrorResponse.Interceptor> getErrorResponseInterceptors() {
+    if (this.errorResponseInterceptors == null) {
+      this.errorResponseInterceptors = new ArrayList<>();
+      configureErrorResponseInterceptors(this.errorResponseInterceptors);
+    }
+    return this.errorResponseInterceptors;
+  }
+
+  /**
+   * Override this method for control over the {@link ErrorResponse.Interceptor}'s
+   * to apply when rendering error responses.
+   *
+   * @param interceptors the list to add handlers to
+   * @since 5.0
+   */
+  protected void configureErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+
   }
 
   static boolean isPresent(String name) {

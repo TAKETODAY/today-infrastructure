@@ -27,6 +27,7 @@ import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -91,6 +92,18 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     super(converters, manager, requestResponseBodyAdvice);
   }
 
+  /**
+   * Variant of{@link #RequestResponseBodyMethodProcessor(List, ContentNegotiationManager, List)}
+   * with an additional {@link ErrorResponse.Interceptor} argument for return
+   * value handling.
+   *
+   * @since 5.0
+   */
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          @Nullable List<Object> requestResponseBodyAdvice, List<ErrorResponse.Interceptor> interceptors) {
+    super(converters, manager, requestResponseBodyAdvice, interceptors);
+  }
+
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     return resolvable.hasParameterAnnotation(RequestBody.class);
@@ -146,14 +159,15 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public void handleReturnValue(RequestContext context,
-          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
       if (detail.getInstance() == null) {
         URI path = URI.create(context.getRequestURI());
         detail.setInstance(path);
       }
+
+      invokeErrorResponseInterceptors(detail, null);
     }
 
     // Try even with null return value. ResponseBodyAdvice could get involved.

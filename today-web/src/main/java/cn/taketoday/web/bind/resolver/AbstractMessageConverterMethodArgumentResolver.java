@@ -71,8 +71,6 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
  */
 public abstract class AbstractMessageConverterMethodArgumentResolver implements ParameterResolvingStrategy {
 
-  private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodArgumentResolver.class);
-
   private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
           HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH
   );
@@ -80,6 +78,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   private static final Object NO_VALUE = new Object();
 
   protected final List<HttpMessageConverter<?>> messageConverters;
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final RequestResponseBodyAdviceChain advice;
 
@@ -225,10 +225,10 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
               getSupportedMediaTypes(targetClass != null ? targetClass : Object.class), httpMethod);
     }
 
-    if (log.isDebugEnabled()) {
+    if (logger.isDebugEnabled()) {
       Object theBody = body;
       MediaType selectedContentType = contentType;
-      LogFormatUtils.traceDebug(log, traceOn -> "Read \"%s\" to [%s]".formatted(
+      LogFormatUtils.traceDebug(logger, traceOn -> "Read \"%s\" to [%s]".formatted(
               selectedContentType, LogFormatUtils.formatValue(theBody, !traceOn)));
     }
 

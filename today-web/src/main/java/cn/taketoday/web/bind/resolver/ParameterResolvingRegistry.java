@@ -28,13 +28,11 @@ import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.ConversionServiceAware;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RedirectModelManager;
@@ -259,9 +257,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     strategies.add(new RequestParamMethodArgumentResolver(beanFactory, true));
     strategies.add(new ModelAttributeMethodProcessor(true));
 
-    // apply conversionService @since 4.0
-    applyConversionService(conversionService, strategies);
-
     // trim size
     strategies.trimToSize();
   }
@@ -337,38 +332,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    */
   public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService;
-  }
-
-  /**
-   * apply conversionService to resolvers
-   *
-   * @throws IllegalArgumentException ConversionService is null
-   * @since 4.0
-   */
-  public void applyConversionService(ConversionService conversionService) {
-    Assert.notNull(conversionService, "conversionService is required");
-    setConversionService(conversionService);
-    applyConversionService(conversionService, defaultStrategies);
-    applyConversionService(conversionService, customizedStrategies);
-  }
-
-  static void applyConversionService(@Nullable ConversionService conversionService,
-          Iterable<ParameterResolvingStrategy> strategies) {
-    if (conversionService != null) {
-      for (final ParameterResolvingStrategy resolver : strategies) {
-        if (resolver instanceof ConversionServiceAware aware) {
-          aware.setConversionService(conversionService);
-        }
-      }
-    }
-  }
-
-  /**
-   * @since 4.0
-   */
-  @Nullable
-  public ConversionService getConversionService() {
-    return conversionService;
   }
 
   /**
