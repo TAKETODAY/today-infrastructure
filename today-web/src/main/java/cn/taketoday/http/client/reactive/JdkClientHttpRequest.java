@@ -35,6 +35,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.MultiValueMap;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -107,12 +108,12 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyCookies() {
-    builder.header(
-            HttpHeaders.COOKIE, getCookies().values().stream()
-                    .flatMap(List::stream)
-                    .map(HttpCookie::toString)
-                    .collect(Collectors.joining(";"))
-    );
+    MultiValueMap<String, HttpCookie> cookies = getCookies();
+    if (cookies.isEmpty()) {
+      return;
+    }
+    this.builder.header(HttpHeaders.COOKIE, cookies.values().stream()
+            .flatMap(List::stream).map(HttpCookie::toString).collect(Collectors.joining(";")));
   }
 
   @Override
@@ -124,8 +125,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   }
 
   private HttpRequest.BodyPublisher toBodyPublisher(Publisher<? extends DataBuffer> body) {
-    Publisher<ByteBuffer> byteBufferBody =
-            body instanceof Mono
+    Publisher<ByteBuffer> byteBufferBody = body instanceof Mono
             ? Mono.from(body).map(this::toByteBuffer)
             : Flux.from(body).map(this::toByteBuffer);
 
