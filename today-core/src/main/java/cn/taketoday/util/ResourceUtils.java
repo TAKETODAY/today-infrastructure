@@ -145,6 +145,17 @@ public abstract class ResourceUtils {
       }
     }
     else {
+      String urlString = url.toString();
+      String cleanedPath = StringUtils.cleanPath(urlString);
+      if (!cleanedPath.equals(urlString)) {
+        // Prefer cleaned URL, aligned with UrlResource#createRelative(String)
+        try {
+          return new UrlResource(ResourceUtils.toURI(cleanedPath));
+        }
+        catch (URISyntaxException | MalformedURLException ex) {
+          // Fallback to regular URL construction below...
+        }
+      }
       return new UrlResource(url);
     }
   }
