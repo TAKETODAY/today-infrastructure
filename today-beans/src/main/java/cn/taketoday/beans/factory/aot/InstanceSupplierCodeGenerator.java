@@ -124,8 +124,7 @@ public class InstanceSupplierCodeGenerator {
     if (constructorOrFactoryMethod instanceof Method method) {
       return generateCodeForFactoryMethod(registeredBean, method, instantiationDescriptor.targetClass());
     }
-    throw new IllegalStateException(
-            "No suitable executor found for " + registeredBean.getBeanName());
+    throw new AotBeanProcessingException(registeredBean, "no suitable constructor or factory method found");
   }
 
   private void registerRuntimeHintsIfNecessary(RegisteredBean registeredBean, Executable constructorOrFactoryMethod) {
@@ -217,7 +216,8 @@ public class InstanceSupplierCodeGenerator {
 
     CodeBlock arguments = hasArguments ?
             new AutowiredArgumentsCodeGenerator(declaringClass, constructor)
-                    .generateCode(constructor.getParameterTypes(), parameterOffset) : NO_ARGS;
+                    .generateCode(constructor.getParameterTypes(), parameterOffset)
+            : NO_ARGS;
 
     CodeBlock newInstance = generateNewInstanceCodeForConstructor(dependsOnBean, declaringClass, arguments);
     code.add(generateWithGeneratorCode(hasArguments, newInstance));
@@ -314,8 +314,7 @@ public class InstanceSupplierCodeGenerator {
 
     boolean hasArguments = factoryMethod.getParameterCount() > 0;
     CodeBlock arguments = hasArguments ?
-            new AutowiredArgumentsCodeGenerator(targetClass, factoryMethod)
-                    .generateCode(factoryMethod.getParameterTypes()) : NO_ARGS;
+            new AutowiredArgumentsCodeGenerator(targetClass, factoryMethod).generateCode(factoryMethod.getParameterTypes()) : NO_ARGS;
 
     CodeBlock newInstance = generateNewInstanceCodeForMethod(
             dependsOnBean, targetClass, factoryMethodName, arguments);

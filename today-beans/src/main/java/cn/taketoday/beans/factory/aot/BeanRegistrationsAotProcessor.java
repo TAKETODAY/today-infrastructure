@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.taketoday.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -41,15 +42,14 @@ class BeanRegistrationsAotProcessor implements BeanFactoryInitializationAotProce
   @Nullable
   public BeanRegistrationsAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
     var beanDefinitionMethodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(beanFactory);
-    var registrations = new LinkedHashMap<BeanRegistrationKey, Registration>();
+    var registrations = new ArrayList<Registration>();
 
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       RegisteredBean registeredBean = RegisteredBean.of(beanFactory, beanName);
       BeanDefinitionMethodGenerator beanDefinitionMethodGenerator =
               beanDefinitionMethodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean);
       if (beanDefinitionMethodGenerator != null) {
-        registrations.put(new BeanRegistrationKey(beanName, registeredBean.getBeanClass()),
-                new Registration(beanDefinitionMethodGenerator, beanFactory.getAliases(beanName)));
+        registrations.add(new Registration(registeredBean, beanDefinitionMethodGenerator, beanFactory.getAliases(beanName)));
       }
     }
 

@@ -49,7 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -73,7 +73,8 @@ class DefaultBeanRegistrationCodeFragmentsTests {
     beanDefinition.setInstanceSupplier(SimpleBean::new);
     RegisteredBean registeredBean = registerTestBean(beanDefinition);
     BeanRegistrationCodeFragments codeFragments = createInstance(registeredBean);
-    assertThatIllegalStateException().isThrownBy(() -> codeFragments.getTarget(registeredBean))
+    assertThatExceptionOfType(AotBeanProcessingException.class)
+            .isThrownBy(() -> codeFragments.getTarget(registeredBean))
             .withMessageContaining("Error processing bean with name 'testBean': instance supplier is not supported");
   }
 
@@ -84,7 +85,8 @@ class DefaultBeanRegistrationCodeFragmentsTests {
     beanDefinition.setResourceDescription("my test resource");
     RegisteredBean registeredBean = registerTestBean(beanDefinition);
     BeanRegistrationCodeFragments codeFragments = createInstance(registeredBean);
-    assertThatIllegalStateException().isThrownBy(() -> codeFragments.getTarget(registeredBean))
+    assertThatExceptionOfType(AotBeanProcessingException.class)
+            .isThrownBy(() -> codeFragments.getTarget(registeredBean))
             .withMessageContaining("Error processing bean with name 'testBean' defined in my test resource: "
                     + "instance supplier is not supported");
   }
@@ -153,7 +155,6 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   }
 
   @Test
-    // gh-32609
   void getTargetOnMethodFromInterface() {
     this.beanFactory.registerBeanDefinition("configuration",
             new RootBeanDefinition(DefaultSimpleBeanContract.class));

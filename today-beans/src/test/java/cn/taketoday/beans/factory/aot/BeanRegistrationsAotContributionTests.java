@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -31,6 +30,7 @@ import cn.taketoday.aot.generate.ClassNameGenerator;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
 import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
+import cn.taketoday.aot.generate.ValueCodeGenerationException;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
@@ -40,6 +40,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.AgeHolder;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanFactoryInitializationCode;
 import cn.taketoday.core.test.io.support.MockTodayStrategies;
@@ -53,6 +54,7 @@ import cn.taketoday.javapoet.ParameterizedTypeName;
 
 import static cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates.reflection;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link BeanRegistrationsAotContribution}.
@@ -78,7 +80,7 @@ class BeanRegistrationsAotContributionTests {
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
             registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator);
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     compile((consumer, compiled) -> {
       StandardBeanFactory freshBeanFactory = new StandardBeanFactory();
@@ -92,7 +94,7 @@ class BeanRegistrationsAotContributionTests {
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
             registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator, "testAlias");
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator, "testAlias");
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     compile((consumer, compiled) -> {
       StandardBeanFactory freshBeanFactory = new StandardBeanFactory();
@@ -109,7 +111,7 @@ class BeanRegistrationsAotContributionTests {
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
             registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator);
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     compile((consumer, compiled) -> {
       SourceFile sourceFile = compiled.getSourceFile(".*BeanDefinitions");
@@ -132,7 +134,7 @@ class BeanRegistrationsAotContributionTests {
       }
 
     };
-    BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator);
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     assertThat(beanRegistrationsCodes).hasSize(1);
     BeanRegistrationsCode actual = beanRegistrationsCodes.get(0);
@@ -144,7 +146,7 @@ class BeanRegistrationsAotContributionTests {
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(Employee.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
             registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(Employee.class, generator);
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     assertThat(reflection().onType(Employee.class)
             .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS))
@@ -155,6 +157,57 @@ class BeanRegistrationsAotContributionTests {
     assertThat(reflection().onType(AgeHolder.class)
             .withMemberCategory(MemberCategory.INTROSPECT_PUBLIC_METHODS))
             .accepts(this.generationContext.getRuntimeHints());
+  }
+
+  @Test
+  void applyToFailingDoesNotWrapAotException() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(TestBean.class);
+    beanDefinition.setInstanceSupplier(TestBean::new);
+    RegisteredBean registeredBean = registerBean(beanDefinition);
+
+    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
+            registeredBean, null, List.of());
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator, "testAlias");
+    assertThatExceptionOfType(AotProcessingException.class)
+            .isThrownBy(() -> contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode))
+            .withMessage("Error processing bean with name 'testBean': instance supplier is not supported")
+            .withNoCause();
+  }
+
+  @Test
+  void applyToFailingWrapsValueCodeGeneration() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(TestBean.class);
+    beanDefinition.getPropertyValues().add("doctor", new NestedTestBean());
+    RegisteredBean registeredBean = registerBean(beanDefinition);
+
+    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
+            registeredBean, null, List.of());
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator, "testAlias");
+    assertThatExceptionOfType(AotProcessingException.class)
+            .isThrownBy(() -> contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode))
+            .withMessage("Error processing bean with name 'testBean': failed to generate code for bean definition")
+            .havingCause().isInstanceOf(ValueCodeGenerationException.class)
+            .withMessageContaining("Failed to generate code for")
+            .withMessageContaining(NestedTestBean.class.getName());
+  }
+
+  @Test
+  void applyToFailingProvidesDedicatedException() {
+    RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
+
+    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
+            registeredBean, null, List.of()) {
+      @Override
+      MethodReference generateBeanDefinitionMethod(GenerationContext generationContext,
+              BeanRegistrationsCode beanRegistrationsCode) {
+        throw new IllegalStateException("Test exception");
+      }
+    };
+    BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator, "testAlias");
+    assertThatExceptionOfType(AotProcessingException.class)
+            .isThrownBy(() -> contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode))
+            .withMessage("Error processing bean with name 'testBean': failed to generate code for bean definition")
+            .havingCause().isInstanceOf(IllegalStateException.class).withMessage("Test exception");
   }
 
   private RegisteredBean registerBean(RootBeanDefinition rootBeanDefinition) {
@@ -186,10 +239,10 @@ class BeanRegistrationsAotContributionTests {
             result.accept(compiled.getInstance(Consumer.class), compiled));
   }
 
-  private BeanRegistrationsAotContribution createContribution(Class<?> beanClass,
+  private BeanRegistrationsAotContribution createContribution(RegisteredBean registeredBean,
           BeanDefinitionMethodGenerator methodGenerator, String... aliases) {
     return new BeanRegistrationsAotContribution(
-            Map.of(new BeanRegistrationKey("testBean", beanClass), new Registration(methodGenerator, aliases)));
+            List.of(new Registration(registeredBean, methodGenerator, aliases)));
   }
 
 }

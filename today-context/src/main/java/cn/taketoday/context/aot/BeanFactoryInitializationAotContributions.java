@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.aot;
@@ -25,11 +22,14 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.aot.generate.GenerationContext;
+import cn.taketoday.beans.factory.aot.AotException;
+import cn.taketoday.beans.factory.aot.AotProcessingException;
 import cn.taketoday.beans.factory.aot.AotServices;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationCode;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A collection of {@link BeanFactoryInitializationAotContribution AOT
@@ -53,23 +53,39 @@ class BeanFactoryInitializationAotContributions {
     this.contributions = getContributions(beanFactory, getProcessors(loader));
   }
 
-  private static List<BeanFactoryInitializationAotProcessor> getProcessors(
-          AotServices.Loader loader) {
-    var processors = new ArrayList<>(loader.load(BeanFactoryInitializationAotProcessor.class).asList());
+  private static List<BeanFactoryInitializationAotProcessor> getProcessors(AotServices.Loader loader) {
+    List<BeanFactoryInitializationAotProcessor> processors = new ArrayList<>(
+            loader.load(BeanFactoryInitializationAotProcessor.class).asList());
     processors.add(new RuntimeHintsBeanFactoryInitializationAotProcessor());
     return Collections.unmodifiableList(processors);
   }
 
   private List<BeanFactoryInitializationAotContribution> getContributions(
           StandardBeanFactory beanFactory, List<BeanFactoryInitializationAotProcessor> processors) {
-    var contributions = new ArrayList<BeanFactoryInitializationAotContribution>();
+    List<BeanFactoryInitializationAotContribution> contributions = new ArrayList<>();
     for (BeanFactoryInitializationAotProcessor processor : processors) {
-      var contribution = processor.processAheadOfTime(beanFactory);
+      BeanFactoryInitializationAotContribution contribution = processAheadOfTime(processor, beanFactory);
       if (contribution != null) {
         contributions.add(contribution);
       }
     }
     return Collections.unmodifiableList(contributions);
+  }
+
+  @Nullable
+  private BeanFactoryInitializationAotContribution processAheadOfTime(BeanFactoryInitializationAotProcessor processor,
+          StandardBeanFactory beanFactory) {
+
+    try {
+      return processor.processAheadOfTime(beanFactory);
+    }
+    catch (AotException ex) {
+      throw ex;
+    }
+    catch (Exception ex) {
+      throw new AotProcessingException("Error executing '" +
+              processor.getClass().getName() + "': " + ex.getMessage(), ex);
+    }
   }
 
   void applyTo(GenerationContext generationContext,

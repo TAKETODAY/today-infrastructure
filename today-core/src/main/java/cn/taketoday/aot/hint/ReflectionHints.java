@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.hint;
@@ -42,6 +39,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReflectionHints {
@@ -185,6 +183,29 @@ public class ReflectionHints {
    */
   public ReflectionHints registerTypes(Iterable<TypeReference> types, Consumer<TypeHint.Builder> typeHint) {
     types.forEach(type -> registerType(type, typeHint));
+    return this;
+  }
+
+  /**
+   * Register or customize reflection hints for all the interfaces implemented by
+   * the given type and its parent classes, ignoring the common Java language interfaces.
+   * The specified {@code typeHint} consumer is invoked for each type.
+   *
+   * @param type the type to consider
+   * @param typeHint a builder to further customize hints for each type
+   * @return {@code this}, to facilitate method chaining
+   */
+  public ReflectionHints registerForInterfaces(Class<?> type, Consumer<TypeHint.Builder> typeHint) {
+    Class<?> currentClass = type;
+    while (currentClass != null && currentClass != Object.class) {
+      for (Class<?> interfaceType : currentClass.getInterfaces()) {
+        if (!ClassUtils.isJavaLanguageInterface(interfaceType)) {
+          this.registerType(interfaceType, typeHint);
+          registerForInterfaces(interfaceType, typeHint);
+        }
+      }
+      currentClass = currentClass.getSuperclass();
+    }
     return this;
   }
 
