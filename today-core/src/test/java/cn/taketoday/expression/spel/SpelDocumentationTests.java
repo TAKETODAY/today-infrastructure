@@ -33,15 +33,19 @@ import java.util.Map;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.ExpressionParser;
+import cn.taketoday.expression.IndexAccessor;
 import cn.taketoday.expression.Operation;
 import cn.taketoday.expression.OperatorOverloader;
 import cn.taketoday.expression.common.TemplateParserContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.ReflectiveIndexAccessor;
 import cn.taketoday.expression.spel.support.SimpleEvaluationContext;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.expression.spel.testresources.Inventor;
 import cn.taketoday.expression.spel.testresources.PlaceOfBirth;
 import cn.taketoday.util.ReflectionUtils;
+import example.Color;
+import example.FruitMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -167,6 +171,7 @@ class SpelDocumentationTests extends AbstractExpressionTests {
       int year = (Integer) parser.parseExpression("Birthdate.Year + 1900").getValue(context); // 1856
       assertThat(year).isEqualTo(1856);
 
+      // evaluates to "Smiljan"
       String city = (String) parser.parseExpression("placeOfBirth.City").getValue(context);
       assertThat(city).isEqualTo("SmilJan");
     }
@@ -250,6 +255,24 @@ class SpelDocumentationTests extends AbstractExpressionTests {
       String name = parser.parseExpression("#root['name']")
               .getValue(context, tesla, String.class);
       assertThat(name).isEqualTo("Nikola Tesla");
+    }
+
+    @Test
+    void indexingIntoCustomStructure() {
+      // Create a ReflectiveIndexAccessor for FruitMap
+      IndexAccessor fruitMapAccessor = new ReflectiveIndexAccessor(
+              FruitMap.class, Color.class, "getFruit", "setFruit");
+
+      // Register the IndexAccessor for FruitMap
+      context.addIndexAccessor(fruitMapAccessor);
+
+      // Register the fruitMap variable
+      context.setVariable("fruitMap", new FruitMap());
+
+      // evaluates to "cherry"
+      String fruit = parser.parseExpression("#fruitMap[T(example.Color).RED]")
+              .getValue(context, String.class);
+      assertThat(fruit).isEqualTo("cherry");
     }
 
   }
