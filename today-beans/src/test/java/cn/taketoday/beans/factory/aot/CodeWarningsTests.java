@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,21 +12,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javax.lang.model.element.Modifier;
 
 import cn.taketoday.aot.test.generate.TestGenerationContext;
+import cn.taketoday.beans.testfixture.beans.GenericBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
 import cn.taketoday.beans.testfixture.beans.factory.generator.deprecation.DeprecatedBean;
 import cn.taketoday.beans.testfixture.beans.factory.generator.deprecation.DeprecatedForRemovalBean;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.test.tools.Compiled;
 import cn.taketoday.core.test.tools.TestCompiler;
 import cn.taketoday.javapoet.MethodSpec;
@@ -43,14 +49,9 @@ class CodeWarningsTests {
   private static final TestCompiler TEST_COMPILER = TestCompiler.forSystem()
           .withCompilerOptions("-Xlint:all", "-Werror");
 
-  private final CodeWarnings codeWarnings;
+  private final CodeWarnings codeWarnings = new CodeWarnings();
 
-  private final TestGenerationContext generationContext;
-
-  CodeWarningsTests() {
-    this.codeWarnings = new CodeWarnings();
-    this.generationContext = new TestGenerationContext();
-  }
+  private final TestGenerationContext generationContext = new TestGenerationContext();
 
   @Test
   void registerNoWarningDoesNotIncludeAnnotation() {
@@ -67,8 +68,7 @@ class CodeWarningsTests {
     compile(method -> {
       this.codeWarnings.suppress(method);
       method.addStatement("$T bean = new $T()", DeprecatedBean.class, DeprecatedBean.class);
-    }, compiled -> assertThat(compiled.getSourceFile())
-            .contains("@SuppressWarnings(\"deprecation\")"));
+    }, compiled -> assertThat(compiled.getSourceFile()).contains("@SuppressWarnings(\"deprecation\")"));
   }
 
   @Test
@@ -80,26 +80,59 @@ class CodeWarningsTests {
       this.codeWarnings.suppress(method);
       method.addStatement("$T bean = new $T()", DeprecatedBean.class, DeprecatedBean.class);
       method.addStatement("$T another = new $T()", DeprecatedForRemovalBean.class, DeprecatedForRemovalBean.class);
-    }, compiled -> assertThat(compiled.getSourceFile())
-            .contains("@SuppressWarnings({ \"deprecation\", \"removal\" })"));
+    }, compiled -> assertThat(compiled.getSourceFile()).contains("@SuppressWarnings({ \"deprecation\", \"removal\" })"));
   }
 
   @Test
   @SuppressWarnings("deprecation")
   void detectDeprecationOnAnnotatedElementWithDeprecated() {
     this.codeWarnings.detectDeprecation(DeprecatedBean.class);
-    assertThat(this.codeWarnings.getWarnings()).containsExactly("deprecation");
+    assertThat(this.codeWarnings.getWarnings()).containsOnly("deprecation");
   }
 
   @Test
   @SuppressWarnings("removal")
   void detectDeprecationOnAnnotatedElementWithDeprecatedForRemoval() {
     this.codeWarnings.detectDeprecation(DeprecatedForRemovalBean.class);
+    assertThat(this.codeWarnings.getWarnings()).containsOnly("removal");
+  }
+
+  @ParameterizedTest
+  @MethodSource("resolvableTypesWithDeprecated")
+  void detectDeprecationOnResolvableTypeWithDeprecated(ResolvableType resolvableType) {
+    this.codeWarnings.detectDeprecation(resolvableType);
+    assertThat(this.codeWarnings.getWarnings()).containsExactly("deprecation");
+  }
+
+  @SuppressWarnings("deprecation")
+  static Stream<Arguments> resolvableTypesWithDeprecated() {
+    return Stream.of(
+            Arguments.of(ResolvableType.forClass(DeprecatedBean.class)),
+            Arguments.of(ResolvableType.forClassWithGenerics(GenericBean.class, DeprecatedBean.class)),
+            Arguments.of(ResolvableType.forClassWithGenerics(GenericBean.class,
+                    ResolvableType.forClassWithGenerics(GenericBean.class, DeprecatedBean.class)))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("resolvableTypesWithDeprecatedForRemoval")
+  void detectDeprecationOnResolvableTypeWithDeprecatedForRemoval(ResolvableType resolvableType) {
+    this.codeWarnings.detectDeprecation(resolvableType);
     assertThat(this.codeWarnings.getWarnings()).containsExactly("removal");
   }
 
+  @SuppressWarnings("removal")
+  static Stream<Arguments> resolvableTypesWithDeprecatedForRemoval() {
+    return Stream.of(
+            Arguments.of(ResolvableType.forClass(DeprecatedForRemovalBean.class)),
+            Arguments.of(ResolvableType.forClassWithGenerics(GenericBean.class, DeprecatedForRemovalBean.class)),
+            Arguments.of(ResolvableType.forClassWithGenerics(GenericBean.class,
+                    ResolvableType.forClassWithGenerics(GenericBean.class, DeprecatedForRemovalBean.class)))
+    );
+  }
+
   @Test
-  void toStringIncludeWarnings() {
+  void toStringIncludesWarnings() {
     this.codeWarnings.register("deprecation");
     this.codeWarnings.register("rawtypes");
     assertThat(this.codeWarnings).hasToString("CodeWarnings[deprecation, rawtypes]");

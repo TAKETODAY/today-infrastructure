@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -168,7 +168,7 @@ class BeanDefinitionMethodGenerator {
     this.aotContributions.forEach(aotContribution -> aotContribution.applyTo(generationContext, codeGenerator));
 
     CodeWarnings codeWarnings = new CodeWarnings();
-    codeWarnings.detectDeprecation(this.registeredBean.getBeanClass());
+    codeWarnings.detectDeprecation(this.registeredBean.getBeanType());
     return generatedMethods.add("getBeanDefinition", method -> {
       method.addJavadoc("Get the $L definition for '$L'.",
               (this.registeredBean.isInnerBean() ? "inner-bean" : "bean"),
