@@ -17,10 +17,10 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.support.AopUtils;
@@ -28,9 +28,13 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
@@ -71,11 +75,35 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private ResolvableParameterFactory parameterFactory;
 
+  private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+
+  /**
+   * @since 5.0
+   */
+  public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
+    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
+  }
+
+  @Override
+  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
+
+  /**
+   * Set the {@link ContentNegotiationManager} to use to determine requested media types.
+   * If not set, the default constructor is used.
+   *
+   * @since 5.0
+   */
+  public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
+    this.contentNegotiationManager = contentNegotiationManager;
+  }
+
   @Nullable
   @Override
   protected Object handleInternal(RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
-    var exHandler = getExceptionHandlerMethod(handlerMethod, target);
+    var exHandler = getExceptionHandlerMethod(context, handlerMethod, target);
     if (exHandler == null) {
       return null; // next
     }
@@ -127,22 +155,37 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
    * methods assuming some {@linkplain ControllerAdvice @ControllerAdvice}
    * Infra-managed beans were detected.
    *
+   * @param context the original web request that resulted in a handler error
    * @param handlerMethod the method where the exception was raised (may be {@code null})
    * @param exception the raised exception
    * @return a method to handle the exception, or {@code null} if none
    */
   @Nullable
-  protected InvocableHandlerMethod getExceptionHandlerMethod(@Nullable HandlerMethod handlerMethod, Throwable exception) {
+  protected InvocableHandlerMethod getExceptionHandlerMethod(RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
+    List<MediaType> acceptedMediaTypes = List.of(MediaType.ALL);
+    try {
+      acceptedMediaTypes = contentNegotiationManager.resolveMediaTypes(context);
+    }
+    catch (HttpMediaTypeNotAcceptableException mediaTypeExc) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Could not resolve accepted media types for @ExceptionHandler [{}]",
+                context.requestHeaders().getFirst(HttpHeaders.ACCEPT), mediaTypeExc);
+      }
+    }
+
     Class<?> handlerType = null;
     if (handlerMethod != null) {
       // Local exception handler methods on the controller class itself.
       // To be invoked through the proxy, even in case of an interface-based proxy.
       handlerType = handlerMethod.getBeanType();
       var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
-      Method method = resolver.resolveMethod(exception);
-      if (method != null) {
-        return createHandlerMethod(handlerMethod.getBean(), method);
+      for (MediaType mediaType : acceptedMediaTypes) {
+        ExceptionHandlerMappingInfo mappingInfo = resolver.resolveExceptionMapping(exception, mediaType);
+        if (mappingInfo != null) {
+          return createHandlerMethod(mappingInfo, context, handlerMethod.getBean());
+        }
       }
+
       // For advice applicability check below (involving base packages, assignable types
       // and annotation presence), use target class instead of interface-based proxy.
       if (Proxy.isProxyClass(handlerType)) {
@@ -154,9 +197,11 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       ControllerAdviceBean advice = entry.getKey();
       if (advice.isApplicableToBeanType(handlerType)) {
         ExceptionHandlerMethodResolver resolver = entry.getValue();
-        Method method = resolver.resolveMethod(exception);
-        if (method != null) {
-          return createHandlerMethod(advice.resolveBean(), method);
+        for (MediaType mediaType : acceptedMediaTypes) {
+          ExceptionHandlerMappingInfo mappingInfo = resolver.resolveExceptionMapping(exception, mediaType);
+          if (mappingInfo != null) {
+            return createHandlerMethod(mappingInfo, context, advice.resolveBean());
+          }
         }
       }
     }
@@ -164,8 +209,11 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     return null;
   }
 
-  private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {
-    return new InvocableHandlerMethod(bean, method, applicationContext, parameterFactory);
+  private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, RequestContext context, Object advice) {
+    if (!mappingInfo.getProducibleTypes().isEmpty()) {
+      context.matchingMetadata().setProducibleMediaTypes(mappingInfo.getProducibleTypes().toArray(new MediaType[0]));
+    }
+    return new InvocableHandlerMethod(advice, mappingInfo.getHandlerMethod(), applicationContext, parameterFactory);
   }
 
   @Override
@@ -180,15 +228,6 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   //
-
-  public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
-  }
-
-  @Override
-  public void setApplicationContext(@Nullable ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
 
   @Override
   public void afterPropertiesSet() {

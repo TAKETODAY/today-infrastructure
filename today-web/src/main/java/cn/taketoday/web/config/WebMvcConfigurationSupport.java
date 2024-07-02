@@ -426,7 +426,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   /**
    * Override this method to configure content negotiation.
    */
-  protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) { }
+  protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+
+  }
 
   //---------------------------------------------------------------------
   // PathMatchConfigurer
@@ -602,11 +604,12 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerExceptionHandler handlerExceptionHandler(ParameterResolvingRegistry registry, ReturnValueHandlerManager manager) {
+  public HandlerExceptionHandler handlerExceptionHandler(ParameterResolvingRegistry registry,
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     var handlers = new ArrayList<HandlerExceptionHandler>();
     configureExceptionHandlers(handlers);
     if (handlers.isEmpty()) {
-      addDefaultHandlerExceptionHandlers(handlers, registry);
+      addDefaultHandlerExceptionHandlers(handlers, registry, contentNegotiationManager);
     }
     extendExceptionHandlers(handlers);
     CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler();
@@ -648,12 +651,15 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * <li>{@link SimpleHandlerExceptionHandler} for resolving known Framework exception types
    * </ul>
    */
-  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers, ParameterResolvingRegistry registry) {
+  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers,
+          ParameterResolvingRegistry registry, ContentNegotiationManager contentNegotiationManager) {
     var handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
       handler.setApplicationContext(this.applicationContext);
     }
+
+    handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
     handler.afterPropertiesSet();
     handlers.add(handler);

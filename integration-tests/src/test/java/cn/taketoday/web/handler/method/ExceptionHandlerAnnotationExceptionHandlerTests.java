@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
@@ -394,6 +395,60 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     assertThat(mav).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
   }
 
+  @Test
+  void resolveExceptionJsonMediaType() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+    handler.setApplicationContext(ctx);
+    IllegalArgumentException ex = new IllegalArgumentException();
+    HandlerMethod handlerMethod = new HandlerMethod(new MediaTypeController(), "handle");
+    this.handler.afterPropertiesSet();
+    this.request.addHeader("Accept", "application/json");
+
+    ModelAndView mav = (ModelAndView) this.handler.handleException(
+            new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
+
+    assertExceptionHandledAsBody(mav, "jsonBody");
+  }
+
+  @Test
+  void resolveExceptionHtmlMediaType() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+    handler.setApplicationContext(ctx);
+
+    IllegalArgumentException ex = new IllegalArgumentException();
+    HandlerMethod handlerMethod = new HandlerMethod(new MediaTypeController(), "handle");
+    this.handler.afterPropertiesSet();
+    this.request.addHeader("Accept", "text/html");
+
+    ModelAndView mav = (ModelAndView) this.handler.handleException(
+            new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
+
+    assertThat(mav).isNotNull();
+    assertThat(mav.getViewName()).isEqualTo("htmlView");
+  }
+
+  @Test
+  void resolveExceptionDefaultMediaType() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
+    handler.setApplicationContext(ctx);
+    IllegalArgumentException ex = new IllegalArgumentException();
+    HandlerMethod handlerMethod = new HandlerMethod(new MediaTypeController(), "handle");
+    this.handler.afterPropertiesSet();
+    this.request.addHeader("Accept", "*/*");
+
+    ModelAndView mav = (ModelAndView) this.handler.handleException(
+            new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
+
+    assertThat(mav).isNotNull();
+    assertThat(mav.getViewName()).isEqualTo("htmlView");
+  }
+
+  private void assertExceptionHandledAsBody(ModelAndView mav, String expectedBody) throws UnsupportedEncodingException {
+    assertThat(mav).as("Exception was not handled").isNotNull();
+    assertThat(mav.isEmpty()).isTrue();
+    assertThat(this.response.getContentAsString()).isEqualTo(expectedBody);
+  }
+
   @Controller
   static class ModelAndViewController {
 
@@ -596,6 +651,23 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
             MethodParameter returnType, MediaType contentType,
             HttpMessageConverter<?> converter, RequestContext context) {
       return null;
+    }
+  }
+
+  @Controller
+  static class MediaTypeController {
+
+    public void handle() { }
+
+    @ExceptionHandler(exception = IllegalArgumentException.class, produces = "application/json")
+    @ResponseBody
+    public String handleExceptionJson() {
+      return "jsonBody";
+    }
+
+    @ExceptionHandler(exception = IllegalArgumentException.class, produces = { "text/html", "*/*" })
+    public String handleExceptionHtml() {
+      return "htmlView";
     }
   }
 

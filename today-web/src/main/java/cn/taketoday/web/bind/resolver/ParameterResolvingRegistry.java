@@ -27,7 +27,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -68,11 +67,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    */
   @Nullable
   private RedirectModelManager redirectModelManager;
-
-  /**
-   * @since 4.0
-   */
-  private ConversionService conversionService;
 
   // @since 4.0
   private List<HttpMessageConverter<?>> messageConverters;
@@ -324,13 +318,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    */
   public List<Object> getRequestResponseBodyAdvice() {
     return requestResponseBodyAdvice;
-  }
-
-  /**
-   * @since 4.0
-   */
-  public void setConversionService(@Nullable ConversionService conversionService) {
-    this.conversionService = conversionService;
   }
 
   /**
