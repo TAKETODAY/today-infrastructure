@@ -15,24 +15,18 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop.testfixture;
+package cn.taketoday.aop.testfixture.mixin;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+/**
+ * Simple interface to use for mixins.
+ *
+ * @author Rod Johnson
+ */
+public interface Lockable {
 
-@Aspect
-public class TwoAdviceAspect {
-  private int totalCalls;
+	void lock();
 
-  @Around("execution(* cn.taketoday.beans.testfixture.beans.ITestBean.age())")
-  public int returnCallCount(ProceedingJoinPoint pjp) throws Exception {
-    return totalCalls;
-  }
+	void unlock();
 
-  @Before("execution(* cn.taketoday.beans.testfixture.beans.ITestBean.setAge(int)) && args(newAge)")
-  public void countSet(int newAge) throws Exception {
-    ++totalCalls;
-  }
+	boolean locked();
 }
