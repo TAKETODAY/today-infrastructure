@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,7 +142,7 @@ class BeanDefinitionPropertiesCodeGenerator {
           @Nullable String[] methodNames, String format) {
     // For Publisher-based destroy methods
     hints.reflection().registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
-    if (!ObjectUtils.isEmpty(methodNames)) {
+    if (ObjectUtils.isNotEmpty(methodNames)) {
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName));
       CodeBlock arguments = Arrays.stream(methodNames)

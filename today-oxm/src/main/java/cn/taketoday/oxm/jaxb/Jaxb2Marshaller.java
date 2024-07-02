@@ -484,8 +484,8 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
   @Override
   public void afterPropertiesSet() throws Exception {
     boolean hasContextPath = StringUtils.isNotEmpty(this.contextPath);
-    boolean hasClassesToBeBound = !ObjectUtils.isEmpty(this.classesToBeBound);
-    boolean hasPackagesToScan = !ObjectUtils.isEmpty(this.packagesToScan);
+    boolean hasClassesToBeBound = ObjectUtils.isNotEmpty(this.classesToBeBound);
+    boolean hasPackagesToScan = ObjectUtils.isNotEmpty(this.packagesToScan);
 
     if (hasContextPath && (hasClassesToBeBound || hasPackagesToScan) ||
             (hasClassesToBeBound && hasPackagesToScan)) {
@@ -498,7 +498,7 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
     if (!this.lazyInit) {
       getJaxbContext();
     }
-    if (!ObjectUtils.isEmpty(this.schemaResources)) {
+    if (ObjectUtils.isNotEmpty(this.schemaResources)) {
       this.schema = loadSchema(this.schemaResources, this.schemaLanguage);
     }
   }
@@ -520,10 +520,10 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
           if (StringUtils.isNotEmpty(this.contextPath)) {
             context = createJaxbContextFromContextPath(this.contextPath);
           }
-          else if (!ObjectUtils.isEmpty(this.classesToBeBound)) {
+          else if (ObjectUtils.isNotEmpty(this.classesToBeBound)) {
             context = createJaxbContextFromClasses(this.classesToBeBound);
           }
-          else if (!ObjectUtils.isEmpty(this.packagesToScan)) {
+          else if (ObjectUtils.isNotEmpty(this.packagesToScan)) {
             context = createJaxbContextFromPackages(this.packagesToScan);
           }
           else {
