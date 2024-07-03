@@ -48,6 +48,8 @@ public final class ResponseCookie extends HttpCookie {
 
   private final boolean httpOnly;
 
+  private final boolean partitioned;
+
   @Nullable
   private final String sameSite;
 
@@ -55,15 +57,17 @@ public final class ResponseCookie extends HttpCookie {
    * Private constructor. See {@link #from(String, String)}.
    */
   private ResponseCookie(String name, @Nullable String value, Duration maxAge, @Nullable String domain,
-          @Nullable String path, boolean secure, boolean httpOnly, @Nullable String sameSite) {
+          @Nullable String path, boolean secure, boolean httpOnly, boolean partitioned, @Nullable String sameSite) {
+
     super(name, value);
-    Assert.notNull(maxAge, "Max age is required");
+    Assert.notNull(maxAge, "Max age must not be null");
 
     this.maxAge = maxAge;
     this.domain = domain;
     this.path = path;
     this.secure = secure;
     this.httpOnly = httpOnly;
+    this.partitioned = partitioned;
     this.sameSite = sameSite;
 
     Rfc6265Utils.validateCookieName(name);
@@ -109,10 +113,20 @@ public final class ResponseCookie extends HttpCookie {
   /**
    * Return {@code true} if the cookie has the "HttpOnly" attribute.
    *
-   * @see <a href="https://www.owasp.org/index.php/HTTPOnly">https://www.owasp.org/index.php/HTTPOnly</a>
+   * @see <a href="https://owasp.org/www-community/HttpOnly">https://owasp.org/www-community/HttpOnly</a>
    */
   public boolean isHttpOnly() {
     return this.httpOnly;
+  }
+
+  /**
+   * Return {@code true} if the cookie has the "Partitioned" attribute.
+   *
+   * @see <a href="https://datatracker.ietf.org/doc/html/draft-cutler-httpbis-partitioned-cookies#section-2.1">The Partitioned attribute spec</a>
+   * @since 5.0
+   */
+  public boolean isPartitioned() {
+    return this.partitioned;
   }
 
   /**
@@ -132,25 +146,21 @@ public final class ResponseCookie extends HttpCookie {
    */
   public ResponseCookieBuilder mutate() {
     return new DefaultResponseCookieBuilder(getName(), getValue(), false)
-            .maxAge(maxAge)
-            .domain(domain)
-            .path(path)
-            .secure(secure)
-            .httpOnly(httpOnly)
-            .sameSite(sameSite);
+            .maxAge(this.maxAge)
+            .domain(this.domain)
+            .path(this.path)
+            .secure(this.secure)
+            .httpOnly(this.httpOnly)
+            .partitioned(this.partitioned)
+            .sameSite(this.sameSite);
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (other instanceof ResponseCookie otherCookie) {
-      return getName().equalsIgnoreCase(otherCookie.getName())
-              && ObjectUtils.nullSafeEquals(this.path, otherCookie.getPath())
-              && ObjectUtils.nullSafeEquals(this.domain, otherCookie.getDomain());
-    }
-    return false;
+    return (this == other || (other instanceof ResponseCookie that &&
+            getName().equalsIgnoreCase(that.getName()) &&
+            ObjectUtils.nullSafeEquals(this.path, that.getPath()) &&
+            ObjectUtils.nullSafeEquals(this.domain, that.getDomain())));
   }
 
   @Override
@@ -168,25 +178,26 @@ public final class ResponseCookie extends HttpCookie {
     if (StringUtils.hasText(getPath())) {
       sb.append("; Path=").append(getPath());
     }
-    if (StringUtils.hasText(domain)) {
-      sb.append("; Domain=").append(domain);
+    if (StringUtils.hasText(this.domain)) {
+      sb.append("; Domain=").append(this.domain);
     }
-    if (!maxAge.isNegative()) {
-      sb.append("; Max-Age=").append(maxAge.getSeconds());
+    if (!this.maxAge.isNegative()) {
+      sb.append("; Max-Age=").append(this.maxAge.getSeconds());
       sb.append("; Expires=");
-      long millis = maxAge.getSeconds() > 0
-                    ? System.currentTimeMillis() + maxAge.toMillis()
-                    : 0;
+      long millis = (this.maxAge.getSeconds() > 0 ? System.currentTimeMillis() + this.maxAge.toMillis() : 0);
       sb.append(HttpHeaders.formatDate(millis));
     }
-    if (secure) {
+    if (this.secure) {
       sb.append("; Secure");
     }
-    if (httpOnly) {
+    if (this.httpOnly) {
       sb.append("; HttpOnly");
     }
-    if (StringUtils.hasText(sameSite)) {
-      sb.append("; SameSite=").append(sameSite);
+    if (this.partitioned) {
+      sb.append("; Partitioned");
+    }
+    if (StringUtils.hasText(this.sameSite)) {
+      sb.append("; SameSite=").append(this.sameSite);
     }
     return sb.toString();
   }
@@ -272,9 +283,17 @@ public final class ResponseCookie extends HttpCookie {
     /**
      * Add the "HttpOnly" attribute to the cookie.
      *
-     * @see <a href="https://www.owasp.org/index.php/HTTPOnly">https://www.owasp.org/index.php/HTTPOnly</a>
+     * @see <a href="https://owasp.org/www-community/HttpOnly">https://owasp.org/www-community/HttpOnly</a>
      */
     ResponseCookieBuilder httpOnly(boolean httpOnly);
+
+    /**
+     * Add the "Partitioned" attribute to the cookie.
+     *
+     * @see <a href="https://datatracker.ietf.org/doc/html/draft-cutler-httpbis-partitioned-cookies#section-2.1">The Partitioned attribute spec</a>
+     * @since 5.0
+     */
+    ResponseCookieBuilder partitioned(boolean partitioned);
 
     /**
      * Add the "SameSite" attribute to the cookie.
@@ -311,7 +330,7 @@ public final class ResponseCookie extends HttpCookie {
         }
         if (SEPARATOR_CHARS.indexOf(c) >= 0) {
           throw new IllegalArgumentException(
-                  "%s: RFC2616 token cannot have separator chars such as '%s'".formatted(name, c));
+                  name + ": RFC2616 token cannot have separator chars such as '" + c + "'");
         }
         if (c >= 0x80) {
           throw new IllegalArgumentException(
@@ -334,7 +353,7 @@ public final class ResponseCookie extends HttpCookie {
         char c = value.charAt(i);
         if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c || c == 0x7f) {
           throw new IllegalArgumentException(
-                  "RFC2616 cookie value cannot have '%s'".formatted(c));
+                  "RFC2616 cookie value cannot have '" + c + "'");
         }
         if (c >= 0x80) {
           throw new IllegalArgumentException(
@@ -398,6 +417,8 @@ public final class ResponseCookie extends HttpCookie {
     private boolean secure;
 
     private boolean httpOnly;
+
+    private boolean partitioned;
 
     @Nullable
     private String sameSite;
@@ -464,6 +485,12 @@ public final class ResponseCookie extends HttpCookie {
     }
 
     @Override
+    public ResponseCookieBuilder partitioned(boolean partitioned) {
+      this.partitioned = partitioned;
+      return this;
+    }
+
+    @Override
     public ResponseCookieBuilder sameSite(@Nullable String sameSite) {
       this.sameSite = sameSite;
       return this;
@@ -472,7 +499,7 @@ public final class ResponseCookie extends HttpCookie {
     @Override
     public ResponseCookie build() {
       return new ResponseCookie(this.name, this.value, this.maxAge,
-              this.domain, this.path, this.secure, this.httpOnly, this.sameSite);
+              this.domain, this.path, this.secure, this.httpOnly, this.partitioned, this.sameSite);
     }
   }
 
