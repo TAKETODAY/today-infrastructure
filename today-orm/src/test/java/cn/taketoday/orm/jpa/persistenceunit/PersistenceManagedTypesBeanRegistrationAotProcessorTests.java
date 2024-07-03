@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.persistenceunit;
 
+import org.hibernate.tuple.CreationTimestampGeneration;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.BiConsumer;
@@ -34,7 +32,6 @@ import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.aot.ApplicationContextAotGenerator;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.io.ResourceLoader;
@@ -55,7 +52,6 @@ import cn.taketoday.orm.jpa.vendor.Database;
 import cn.taketoday.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -67,7 +63,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
   @Test
   void processEntityManagerWithPackagesToScan() {
     GenericApplicationContext context = new AnnotationConfigApplicationContext();
-    context.registerBean(EntityManagerWithPackagesToScanConfiguration.class);
+    context.registerBean(JpaDomainConfiguration.class);
     compile(context, (initializer, compiled) -> {
       GenericApplicationContext freshApplicationContext = toFreshApplicationContext(
               initializer);
@@ -78,14 +74,14 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
               EmployeeLocationConverter.class.getName());
       assertThat(persistenceManagedTypes.getManagedPackages()).isEmpty();
       assertThat(freshApplicationContext.getBean(
-              EntityManagerWithPackagesToScanConfiguration.class).scanningInvoked).isFalse();
+              JpaDomainConfiguration.class).scanningInvoked).isFalse();
     });
   }
 
   @Test
-  void contributeHints() {
+  void contributeJpaHints() {
     GenericApplicationContext context = new AnnotationConfigApplicationContext();
-    context.registerBean(EntityManagerWithPackagesToScanConfiguration.class);
+    context.registerBean(JpaDomainConfiguration.class);
     contributeHints(context, hints -> {
       assertThat(RuntimeHintsPredicates.reflection().onType(DriversLicense.class)
               .withMemberCategories(MemberCategory.DECLARED_FIELDS)).accepts(hints);
@@ -111,6 +107,16 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
     });
   }
 
+  @Test
+  void contributeHibernateHints() {
+    GenericApplicationContext context = new AnnotationConfigApplicationContext();
+    context.registerBean(HibernateDomainConfiguration.class);
+    contributeHints(context, hints ->
+            assertThat(RuntimeHintsPredicates.reflection().onType(CreationTimestampGeneration.class)
+                    .withMemberCategories(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(hints));
+  }
+
+  @SuppressWarnings("unchecked")
   private void compile(GenericApplicationContext applicationContext,
           BiConsumer<ApplicationContextInitializer, Compiled> result) {
     ApplicationContextAotGenerator generator = new ApplicationContextAotGenerator();
@@ -136,10 +142,25 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
     result.accept(generationContext.getRuntimeHints());
   }
 
-  @Configuration(proxyBeanMethods = false)
-  public static class EntityManagerWithPackagesToScanConfiguration {
+  public static class JpaDomainConfiguration extends AbstractEntityManagerWithPackagesToScanConfiguration {
 
-    private boolean scanningInvoked;
+    @Override
+    protected String packageToScan() {
+      return "cn.taketoday.orm.jpa.domain";
+    }
+  }
+
+  public static class HibernateDomainConfiguration extends AbstractEntityManagerWithPackagesToScanConfiguration {
+
+    @Override
+    protected String packageToScan() {
+      return "cn.taketoday.orm.jpa.hibernate.domain";
+    }
+  }
+
+  public abstract static class AbstractEntityManagerWithPackagesToScanConfiguration {
+
+    protected boolean scanningInvoked;
 
     @Bean
     public DataSource mockDataSource() {
@@ -157,7 +178,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
     public PersistenceManagedTypes persistenceManagedTypes(ResourceLoader resourceLoader) {
       this.scanningInvoked = true;
       return new PersistenceManagedTypesScanner(resourceLoader)
-              .scan("cn.taketoday.orm.jpa.domain");
+              .scan(packageToScan());
     }
 
     @Bean
@@ -169,6 +190,8 @@ class PersistenceManagedTypesBeanRegistrationAotProcessorTests {
       entityManagerFactoryBean.setManagedTypes(persistenceManagedTypes);
       return entityManagerFactoryBean;
     }
+
+    protected abstract String packageToScan();
 
   }
 
