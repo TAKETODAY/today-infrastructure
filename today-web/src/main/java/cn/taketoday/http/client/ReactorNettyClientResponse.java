@@ -25,6 +25,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.support.Netty4HttpHeaders;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
 import reactor.netty.Connection;
 import reactor.netty.http.client.HttpClientResponse;
 
@@ -73,21 +74,33 @@ final class ReactorNettyClientResponse implements ClientHttpResponse {
   @Override
   public InputStream getBody() throws IOException {
     InputStream body = this.body;
-    if (body == null) {
-      body = this.connection.inbound().receive()
-              .aggregate().asInputStream().block(this.readTimeout);
-      if (body != null) {
-        this.body = body;
-      }
-      else {
-        throw new IOException("Could not receive body");
-      }
+    if (body != null) {
+      return body;
     }
+
+    try {
+      body = this.connection.inbound().receive().aggregate().asInputStream().block(this.readTimeout);
+    }
+    catch (RuntimeException ex) {
+      throw ReactorNettyClientRequest.convertException(ex);
+    }
+
+    if (body == null) {
+      body = InputStream.nullInputStream();
+    }
+    this.body = body;
     return body;
   }
 
   @Override
   public void close() {
-    this.connection.dispose();
+    try {
+      InputStream body = getBody();
+      StreamUtils.drain(body);
+      body.close();
+    }
+    catch (IOException ignored) {
+    }
   }
+
 }
