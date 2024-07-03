@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
@@ -57,6 +56,8 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.handler.function.HandlerFunction;
+import cn.taketoday.web.handler.function.ServerResponse;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -404,10 +405,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     this.request.addHeader("Accept", "application/json");
 
-    ModelAndView mav = (ModelAndView) this.handler.handleException(
+    Object mav = this.handler.handleException(
             new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
 
-    assertExceptionHandledAsBody(mav, "jsonBody");
+    assertThat(mav).isEqualTo("jsonBody");
   }
 
   @Test
@@ -420,11 +421,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     this.request.addHeader("Accept", "text/html");
 
-    ModelAndView mav = (ModelAndView) this.handler.handleException(
+    Object mav = this.handler.handleException(
             new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
 
     assertThat(mav).isNotNull();
-    assertThat(mav.getViewName()).isEqualTo("htmlView");
+    assertThat(mav).isEqualTo("htmlView");
   }
 
   @Test
@@ -436,17 +437,26 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     this.request.addHeader("Accept", "*/*");
 
-    ModelAndView mav = (ModelAndView) this.handler.handleException(
+    Object mav = this.handler.handleException(
             new MockRequestContext(ctx, this.request, this.response), ex, handlerMethod);
 
     assertThat(mav).isNotNull();
-    assertThat(mav.getViewName()).isEqualTo("htmlView");
+    assertThat(mav).isEqualTo("htmlView");
   }
 
-  private void assertExceptionHandledAsBody(ModelAndView mav, String expectedBody) throws UnsupportedEncodingException {
-    assertThat(mav).as("Exception was not handled").isNotNull();
-    assertThat(mav.isEmpty()).isTrue();
-    assertThat(this.response.getContentAsString()).isEqualTo(expectedBody);
+  @Test
+  void resolveExceptionGlobalHandlerForHandlerFunction() throws Exception {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
+    handler.setApplicationContext(ctx);
+    handler.afterPropertiesSet();
+
+    IllegalAccessException ex = new IllegalAccessException();
+    HandlerFunction<ServerResponse> handlerFunction = req -> {
+      throw new IllegalAccessException();
+    };
+
+    Object mav = this.handler.handleException(new MockRequestContext(ctx, this.request, this.response), ex, handlerFunction);
+    assertThat(mav).isEqualTo("AnotherTestExceptionResolver: IllegalAccessException");
   }
 
   @Controller

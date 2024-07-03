@@ -211,7 +211,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, RequestContext context, Object advice) {
     if (!mappingInfo.getProducibleTypes().isEmpty()) {
-      context.matchingMetadata().setProducibleMediaTypes(mappingInfo.getProducibleTypes().toArray(new MediaType[0]));
+      var matchingMetadata = context.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        matchingMetadata.setProducibleMediaTypes(mappingInfo.getProducibleTypes().toArray(new MediaType[0]));
+      }
     }
     return new InvocableHandlerMethod(advice, mappingInfo.getHandlerMethod(), applicationContext, parameterFactory);
   }

@@ -20,6 +20,7 @@ package cn.taketoday.web.handler;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.function.HandlerFunction;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -52,6 +53,10 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
     if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
       return super.shouldApplyTo(request, handler);
+    }
+
+    if (handler instanceof HandlerFunction<?> handlerFunction) {
+      return super.shouldApplyTo(request, handlerFunction);
     }
 
     if (hasGlobalExceptionHandlers() && hasHandlerMappings()) {
