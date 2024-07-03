@@ -619,7 +619,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     if (result instanceof CompletableFuture<?> future) {
       return future.whenComplete((value, ex) -> {
         if (ex == null) {
-          performCacheEvicts(applicable, result);
+          performCacheEvicts(applicable, value);
         }
       });
     }
