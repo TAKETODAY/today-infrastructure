@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -26,24 +23,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
+import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Helper for retrieving @AspectJ beans from a BeanFactory and building
  * Framework Advisors based on them, for use with auto-proxying.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationAwareAspectJAutoProxyCreator
  * @since 4.0
  */
 public class BeanFactoryAspectJAdvisorsBuilder {
+
+  private static final Logger logger = LoggerFactory.getLogger(BeanFactoryAspectJAdvisorsBuilder.class);
 
   private final BeanFactory beanFactory;
 
@@ -95,43 +97,50 @@ public class BeanFactoryAspectJAdvisorsBuilder {
         if (aspectNames == null) {
           List<Advisor> advisors = new ArrayList<>();
           aspectNames = new ArrayList<>();
-          Set<String> beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+          var beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
                   this.beanFactory, Object.class, true, false);
           for (String beanName : beanNames) {
             if (!isEligibleBean(beanName)) {
               continue;
             }
             // We must be careful not to instantiate beans eagerly as in this case they
-            // would be cached by the Framework container but would not have been weaved.
+            // would be cached by the Infra container but would not have been weaved.
             Class<?> beanType = this.beanFactory.getType(beanName, false);
             if (beanType == null) {
               continue;
             }
             if (this.advisorFactory.isAspect(beanType)) {
-              aspectNames.add(beanName);
-              AspectMetadata amd = new AspectMetadata(beanType, beanName);
-              if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
-                MetadataAwareAspectInstanceFactory factory =
-                        new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
-                List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
-                if (this.beanFactory.isSingleton(beanName)) {
-                  this.advisorsCache.put(beanName, classAdvisors);
+              try {
+                AspectMetadata amd = new AspectMetadata(beanType, beanName);
+                if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+                  MetadataAwareAspectInstanceFactory factory =
+                          new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+                  List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
+                  if (this.beanFactory.isSingleton(beanName)) {
+                    this.advisorsCache.put(beanName, classAdvisors);
+                  }
+                  else {
+                    this.aspectFactoryCache.put(beanName, factory);
+                  }
+                  advisors.addAll(classAdvisors);
                 }
                 else {
+                  // Per target or per this.
+                  if (this.beanFactory.isSingleton(beanName)) {
+                    throw new IllegalArgumentException("Bean with name '" + beanName +
+                            "' is a singleton, but aspect instantiation model is not singleton");
+                  }
+                  MetadataAwareAspectInstanceFactory factory =
+                          new PrototypeAspectInstanceFactory(this.beanFactory, beanName);
                   this.aspectFactoryCache.put(beanName, factory);
+                  advisors.addAll(this.advisorFactory.getAdvisors(factory));
                 }
-                advisors.addAll(classAdvisors);
+                aspectNames.add(beanName);
               }
-              else {
-                // Per target or per this.
-                if (this.beanFactory.isSingleton(beanName)) {
-                  throw new IllegalArgumentException("Bean with name '" + beanName +
-                          "' is a singleton, but aspect instantiation model is not singleton");
+              catch (IllegalArgumentException | IllegalStateException | AopConfigException ex) {
+                if (logger.isDebugEnabled()) {
+                  logger.debug("Ignoring incompatible aspect [%s]: %s".formatted(beanType.getName(), ex));
                 }
-                MetadataAwareAspectInstanceFactory factory =
-                        new PrototypeAspectInstanceFactory(this.beanFactory, beanName);
-                this.aspectFactoryCache.put(beanName, factory);
-                advisors.addAll(this.advisorFactory.getAdvisors(factory));
               }
             }
           }
