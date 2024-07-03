@@ -1079,7 +1079,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       ReactiveAdapter adapter = (result != null ? registry.getAdapter(result.getClass()) : null);
       if (adapter != null) {
         return adapter.fromPublisher(Mono.from(adapter.toPublisher(result))
-                .doOnSuccess(value -> performCacheEvicts(contexts, result)));
+                .doOnSuccess(value -> performCacheEvicts(contexts, value)));
       }
       return NOT_HANDLED;
     }
