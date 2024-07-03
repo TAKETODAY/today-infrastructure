@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -24,7 +21,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBufferFactory;
@@ -47,6 +49,9 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
   private final HttpClient httpClient;
 
   private DataBufferFactory bufferFactory = DefaultDataBufferFactory.sharedInstance;
+
+  @Nullable
+  private Duration readTimeout = null;
 
   /**
    * Default constructor that uses {@link HttpClient#newHttpClient()}.
@@ -89,18 +94,33 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
     this.bufferFactory = bufferFactory;
   }
 
+  /**
+   * Set the underlying {@code HttpClient}'s read timeout as a {@code Duration}.
+   * <p>Default is the system's default timeout.
+   *
+   * @see java.net.http.HttpRequest.Builder#timeout
+   * @since 5.0
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    Assert.notNull(readTimeout, "readTimeout is required");
+    this.readTimeout = readTimeout;
+  }
+
   @Override
   public Mono<ClientHttpResponse> connect(
           HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
-    var jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory);
-    return requestCallback.apply(jdkClientHttpRequest)
-            .then(Mono.defer(() -> {
-              HttpRequest httpRequest = jdkClientHttpRequest.getNativeRequest();
-              var future = httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofPublisher());
-              return Mono.fromCompletionStage(future)
-                      .map(response -> new JdkClientHttpResponse(response, this.bufferFactory));
-            }));
+    JdkClientHttpRequest jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory, this.readTimeout);
+
+    return requestCallback.apply(jdkClientHttpRequest).then(Mono.defer(() -> {
+      HttpRequest httpRequest = jdkClientHttpRequest.getNativeRequest();
+
+      CompletableFuture<HttpResponse<Flow.Publisher<List<ByteBuffer>>>> future =
+              this.httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofPublisher());
+
+      return Mono.fromCompletionStage(future)
+              .map(response -> new JdkClientHttpResponse(response, this.bufferFactory));
+    }));
   }
 
 }

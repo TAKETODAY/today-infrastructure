@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.ByteBuffer;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Flow;
@@ -35,6 +36,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
@@ -58,7 +60,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
   private final HttpRequest.Builder builder;
 
-  public JdkClientHttpRequest(HttpMethod httpMethod, URI uri, DataBufferFactory bufferFactory) {
+  public JdkClientHttpRequest(HttpMethod httpMethod, URI uri, DataBufferFactory bufferFactory, @Nullable Duration readTimeout) {
     Assert.notNull(httpMethod, "HttpMethod is required");
     Assert.notNull(uri, "URI is required");
     Assert.notNull(bufferFactory, "DataBufferFactory is required");
@@ -67,27 +69,30 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
     this.uri = uri;
     this.bufferFactory = bufferFactory;
     this.builder = HttpRequest.newBuilder(uri);
+    if (readTimeout != null) {
+      this.builder.timeout(readTimeout);
+    }
   }
 
   @Override
   public HttpMethod getMethod() {
-    return method;
+    return this.method;
   }
 
   @Override
   public URI getURI() {
-    return uri;
+    return this.uri;
   }
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return bufferFactory;
+    return this.bufferFactory;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNativeRequest() {
-    return (T) builder.build();
+    return (T) this.builder.build();
   }
 
   @Override
@@ -98,11 +103,11 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
         continue;
       }
       for (String value : entry.getValue()) {
-        builder.header(entry.getKey(), value);
+        this.builder.header(entry.getKey(), value);
       }
     }
     if (!getHeaders().containsKey(HttpHeaders.ACCEPT)) {
-      builder.header(HttpHeaders.ACCEPT, "*/*");
+      this.builder.header(HttpHeaders.ACCEPT, "*/*");
     }
   }
 
@@ -119,15 +124,15 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return doCommit(() -> {
-      builder.method(method.name(), toBodyPublisher(body));
+      this.builder.method(this.method.name(), toBodyPublisher(body));
       return Mono.empty();
     });
   }
 
   private HttpRequest.BodyPublisher toBodyPublisher(Publisher<? extends DataBuffer> body) {
-    Publisher<ByteBuffer> byteBufferBody = body instanceof Mono
-            ? Mono.from(body).map(this::toByteBuffer)
-            : Flux.from(body).map(this::toByteBuffer);
+    Publisher<ByteBuffer> byteBufferBody = (body instanceof Mono ?
+            Mono.from(body).map(this::toByteBuffer) :
+            Flux.from(body).map(this::toByteBuffer));
 
     Flow.Publisher<ByteBuffer> bodyFlow = JdkFlowAdapter.publisherToFlowPublisher(byteBufferBody);
 
@@ -150,7 +155,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> setComplete() {
     return doCommit(() -> {
-      builder.method(method.name(), HttpRequest.BodyPublishers.noBody());
+      this.builder.method(this.method.name(), HttpRequest.BodyPublishers.noBody());
       return Mono.empty();
     });
   }
