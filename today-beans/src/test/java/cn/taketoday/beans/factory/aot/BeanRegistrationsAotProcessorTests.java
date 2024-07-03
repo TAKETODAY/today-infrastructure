@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -23,8 +20,8 @@ package cn.taketoday.beans.factory.aot;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.AnnotatedBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
@@ -55,7 +52,7 @@ class BeanRegistrationsAotProcessorTests {
     BeanRegistrationsAotContribution contribution = processor
             .processAheadOfTime(beanFactory);
     assertThat(contribution).extracting("registrations")
-            .asInstanceOf(InstanceOfAssertFactories.MAP).hasSize(2);
+            .asInstanceOf(InstanceOfAssertFactories.LIST).hasSize(2);
   }
 
   @Test
@@ -66,8 +63,8 @@ class BeanRegistrationsAotProcessorTests {
     beanFactory.registerAlias("test", "testAlias");
     BeanRegistrationsAotContribution contribution = processor
             .processAheadOfTime(beanFactory);
-    assertThat(contribution).extracting("registrations").asInstanceOf(InstanceOfAssertFactories.MAP)
-            .hasEntrySatisfying(new BeanRegistrationKey("test", TestBean.class), registration ->
+    assertThat(contribution).extracting("registrations").asInstanceOf(InstanceOfAssertFactories.LIST)
+            .singleElement().satisfies(registration ->
                     assertThat(registration).extracting("aliases").asInstanceOf(InstanceOfAssertFactories.ARRAY)
                             .singleElement().isEqualTo("testAlias"));
   }
