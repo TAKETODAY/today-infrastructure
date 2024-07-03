@@ -43,6 +43,7 @@ import cn.taketoday.web.server.ChannelWebServerFactory;
 import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.web.server.ServerProperties.Netty.Multipart;
 import cn.taketoday.web.server.Ssl;
+import cn.taketoday.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.web.server.error.SendErrorHandler;
 import cn.taketoday.web.server.support.ChannelConfigurer;
 import cn.taketoday.web.server.support.NettyChannelHandler;
@@ -67,6 +68,13 @@ import static cn.taketoday.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BE
 @EnableConfigurationProperties(ServerProperties.class)
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
+
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
+    return new WebServerFactoryCustomizerBeanPostProcessor();
+  }
 
   @Component(CHANNEL_HANDLER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
