@@ -96,6 +96,9 @@ final class AttributeMethods {
   /**
    * Determine if values from the given annotation can be safely accessed without
    * causing any {@link TypeNotPresentException TypeNotPresentExceptions}.
+   * <p>This method is designed to cover Google App Engine's late arrival of such
+   * exceptions for {@code Class} values (instead of the more typical early
+   * {@code Class.getAnnotations() failure} on a regular JVM).
    *
    * @param annotation the annotation to check
    * @return {@code true} if all values are present
@@ -107,9 +110,13 @@ final class AttributeMethods {
     for (int i = 0; i < attributes.length; i++) {
       if (canThrowTypeNotPresentException(i)) {
         try {
-          attributes[i].invoke(annotation);
+          AnnotationUtils.invokeAnnotationMethod(attributes[i], annotation);
+        }
+        catch (IllegalStateException ex) {
+          throw ex;
         }
         catch (Throwable ex) {
+          // TypeNotPresentException etc. -> annotation type not actually loadable.
           return false;
         }
       }
@@ -134,11 +141,14 @@ final class AttributeMethods {
     for (int i = 0; i < attributes.length; i++) {
       if (canThrowTypeNotPresentException(i)) {
         try {
-          attributes[i].invoke(annotation);
+          AnnotationUtils.invokeAnnotationMethod(attributes[i], annotation);
+        }
+        catch (IllegalStateException ex) {
+          throw ex;
         }
         catch (Throwable ex) {
-          throw new IllegalStateException("Could not obtain annotation attribute value for " +
-                  attributes[i].getName() + " declared on " + getName(annotation.annotationType()), ex);
+          throw new IllegalStateException("Could not obtain annotation attribute value for %s declared on @%s"
+                  .formatted(attributes[i].getName(), getName(annotation.annotationType())), ex);
         }
       }
     }

@@ -33,7 +33,6 @@ import java.util.Set;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -280,7 +279,7 @@ final class AnnotationTypeMapping {
       mapping.claimedAliases.addAll(aliases);
       if (mapping.annotation != null) {
         int[] resolvedMirrors = mapping.mirrorSets.resolve(
-                null, mapping.annotation, ReflectionUtils::invokeMethod);
+                null, mapping.annotation, AnnotationUtils::invokeAnnotationMethod);
         Method[] attributes = mapping.methods.attributes;
         for (int i = 0; i < attributes.length; i++) {
           if (aliases.contains(attributes[i])) {
@@ -499,7 +498,7 @@ final class AnnotationTypeMapping {
     if (source == this && metaAnnotationsOnly) {
       return null;
     }
-    return ReflectionUtils.invokeMethod(source.methods.get(mappedIndex), source.annotation);
+    return AnnotationUtils.invokeAnnotationMethod(source.methods.get(mappedIndex), source.annotation);
   }
 
   /**
@@ -565,7 +564,7 @@ final class AnnotationTypeMapping {
   private static boolean areEquivalent(Annotation annotation, @Nullable Object extractedValue, ValueExtractor valueExtractor) {
     AttributeMethods methods = AttributeMethods.forAnnotationType(annotation.annotationType());
     for (Method attribute : methods.attributes) {
-      Object value1 = ReflectionUtils.invokeMethod(attribute, annotation);
+      Object value1 = AnnotationUtils.invokeAnnotationMethod(attribute, annotation);
       Object value2;
       if (extractedValue instanceof TypeMappedAnnotation<?> typeMappedAnno) {
         value2 = typeMappedAnno.getValue(attribute.getName()).orElse(null);

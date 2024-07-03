@@ -19,9 +19,7 @@ package cn.taketoday.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -30,7 +28,6 @@ import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Strategy used to determine annotations that act as containers for other
@@ -144,19 +141,6 @@ public class RepeatableContainers {
     return new ExplicitRepeatableContainer(null, repeatable, container);
   }
 
-  private static Object invokeAnnotationMethod(Annotation annotation, Method method) {
-    if (Proxy.isProxyClass(annotation.getClass())) {
-      try {
-        InvocationHandler handler = Proxy.getInvocationHandler(annotation);
-        return handler.invoke(annotation, method, null);
-      }
-      catch (Throwable ex) {
-        // ignore and fall back to reflection below
-      }
-    }
-    return ReflectionUtils.invokeMethod(method, annotation);
-  }
-
   /**
    * Standard {@link RepeatableContainers} implementation that searches using
    * Java's {@link Repeatable @Repeatable} annotation.
@@ -177,7 +161,7 @@ public class RepeatableContainers {
     Annotation[] findRepeatedAnnotations(Annotation annotation) {
       Method method = getRepeatedAnnotationsMethod(annotation.annotationType());
       if (method != null) {
-        return (Annotation[]) invokeAnnotationMethod(annotation, method);
+        return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(method, annotation);
       }
       return super.findRepeatedAnnotations(annotation);
     }
@@ -268,7 +252,7 @@ public class RepeatableContainers {
     @Nullable
     Annotation[] findRepeatedAnnotations(Annotation annotation) {
       if (this.container.isAssignableFrom(annotation.annotationType())) {
-        return (Annotation[]) invokeAnnotationMethod(annotation, valueMethod);
+        return (Annotation[]) AnnotationUtils.invokeAnnotationMethod(valueMethod, annotation);
       }
       return super.findRepeatedAnnotations(annotation);
     }
