@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -48,9 +48,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorNettyClientRequestFactory.class);
 
-  private final static Function<HttpClient, HttpClient> defaultInitializer = client -> client.compress(true);
-
-  private HttpClient httpClient;
+  private static final Function<HttpClient, HttpClient> defaultInitializer = client -> client.compress(true);
 
   @Nullable
   private final ReactorResourceFactory resourceFactory;
@@ -58,11 +56,15 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
   @Nullable
   private final Function<HttpClient, HttpClient> mapper;
 
-  private Duration exchangeTimeout = Duration.ofSeconds(5);
+  @Nullable
+  private Integer connectTimeout;
 
   private Duration readTimeout = Duration.ofSeconds(10);
 
-  private volatile boolean running = true;
+  private Duration exchangeTimeout = Duration.ofSeconds(5);
+
+  @Nullable
+  private volatile HttpClient httpClient;
 
   private final Object lifecycleMonitor = new Object();
 
@@ -83,7 +85,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * @param httpClient the client to base on
    */
   public ReactorNettyClientRequestFactory(HttpClient httpClient) {
-    Assert.notNull(httpClient, "HttpClient is required");
+    Assert.notNull(httpClient, "HttpClient must not be null");
     this.httpClient = httpClient;
     this.resourceFactory = null;
     this.mapper = null;
@@ -100,33 +102,19 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * fixed, shared resources are favored for event loop concurrency. However,
    * consider declaring a {@link ReactorResourceFactory} bean with
    * {@code globalResources=true} in order to ensure the Reactor Netty global
-   * resources are shut down when the Infra ApplicationContext is stopped or closed
-   * and restarted properly when the Infra ApplicationContext is
+   * resources are shut down when the Spring ApplicationContext is stopped or closed
+   * and restarted properly when the Spring ApplicationContext is
    * (with JVM Checkpoint Restore for example).
    *
    * @param resourceFactory the resource factory to obtain the resources from
    * @param mapper a mapper for further initialization of the created client
    */
   public ReactorNettyClientRequestFactory(ReactorResourceFactory resourceFactory, Function<HttpClient, HttpClient> mapper) {
-    this.httpClient = createHttpClient(resourceFactory, mapper);
     this.resourceFactory = resourceFactory;
     this.mapper = mapper;
-  }
-
-  private static HttpClient createHttpClient(ReactorResourceFactory resourceFactory, Function<HttpClient, HttpClient> mapper) {
-    ConnectionProvider provider = resourceFactory.getConnectionProvider();
-    Assert.notNull(provider, "No ConnectionProvider: is ReactorResourceFactory not initialized yet?");
-    return defaultInitializer.andThen(mapper)
-            .andThen(applyLoopResources(resourceFactory))
-            .apply(HttpClient.create(provider));
-  }
-
-  private static Function<HttpClient, HttpClient> applyLoopResources(ReactorResourceFactory factory) {
-    return httpClient -> {
-      LoopResources resources = factory.getLoopResources();
-      Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
-      return httpClient.runOn(resources);
-    };
+    if (resourceFactory.isRunning()) {
+      this.httpClient = createHttpClient(resourceFactory, mapper);
+    }
   }
 
   /**
@@ -139,7 +127,11 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    */
   public void setConnectTimeout(int connectTimeout) {
     Assert.isTrue(connectTimeout >= 0, "Timeout must be a non-negative value");
-    this.httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+    this.connectTimeout = connectTimeout;
+    HttpClient httpClient = this.httpClient;
+    if (httpClient != null) {
+      this.httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
+    }
   }
 
   /**
@@ -151,9 +143,8 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * @see ChannelOption#CONNECT_TIMEOUT_MILLIS
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout is required");
-    Assert.isTrue(!connectTimeout.isNegative(), "Timeout must be a non-negative value");
-    this.httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectTimeout.toMillis());
+    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    setConnectTimeout((int) connectTimeout.toMillis());
   }
 
   /**
@@ -170,14 +161,14 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * <p>Default is 10 seconds.
    */
   public void setReadTimeout(Duration readTimeout) {
-    Assert.notNull(readTimeout, "ReadTimeout is required");
+    Assert.notNull(readTimeout, "ReadTimeout must not be null");
     Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
     this.readTimeout = readTimeout;
   }
 
   /**
    * Set the timeout for the HTTP exchange in milliseconds.
-   * <p>Default is 30 seconds.
+   * <p>Default is 5 seconds.
    */
   public void setExchangeTimeout(long exchangeTimeout) {
     Assert.isTrue(exchangeTimeout > 0, "Timeout must be a positive value");
@@ -186,59 +177,61 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
 
   /**
    * Set the timeout for the HTTP exchange.
-   * <p>Default is 30 seconds.
+   * <p>Default is 5 seconds.
    */
   public void setExchangeTimeout(Duration exchangeTimeout) {
-    Assert.notNull(exchangeTimeout, "ExchangeTimeout is required");
+    Assert.notNull(exchangeTimeout, "ExchangeTimeout must not be null");
     Assert.isTrue(!exchangeTimeout.isNegative(), "Timeout must be a non-negative value");
     this.exchangeTimeout = exchangeTimeout;
   }
 
+  private HttpClient createHttpClient(ReactorResourceFactory factory, Function<HttpClient, HttpClient> mapper) {
+    HttpClient httpClient = defaultInitializer.andThen(mapper)
+            .apply(HttpClient.create(factory.getConnectionProvider()));
+    httpClient = httpClient.runOn(factory.getLoopResources());
+    if (this.connectTimeout != null) {
+      httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
+    }
+    return httpClient;
+  }
+
   @Override
   public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
-    return new ReactorNettyClientRequest(this.httpClient, uri, httpMethod, this.exchangeTimeout, this.readTimeout);
+    HttpClient httpClient = this.httpClient;
+    if (httpClient == null) {
+      Assert.state(this.resourceFactory != null && this.mapper != null, "Illegal configuration");
+      httpClient = createHttpClient(this.resourceFactory, this.mapper);
+    }
+    return new ReactorNettyClientRequest(httpClient, uri, httpMethod, this.exchangeTimeout, this.readTimeout);
   }
 
   @Override
   public void start() {
-    synchronized(this.lifecycleMonitor) {
-      if (!isRunning()) {
-        if (this.resourceFactory != null && this.mapper != null) {
+    if (this.resourceFactory != null && this.mapper != null) {
+      synchronized(this.lifecycleMonitor) {
+        if (this.httpClient == null) {
           this.httpClient = createHttpClient(this.resourceFactory, this.mapper);
         }
-        else {
-          logger.warn("Restarting a ReactorNettyClientRequestFactory bean is only supported with externally managed Reactor Netty resources");
-        }
-        this.running = true;
       }
+    }
+    else {
+      logger.warn("Restarting a ReactorNettyClientRequestFactory bean is only supported " +
+              "with externally managed Reactor Netty resources");
     }
   }
 
   @Override
   public void stop() {
-    synchronized(this.lifecycleMonitor) {
-      if (isRunning()) {
-        this.running = false;
+    if (this.resourceFactory != null && this.mapper != null) {
+      synchronized(this.lifecycleMonitor) {
+        this.httpClient = null;
       }
     }
   }
 
   @Override
-  public final void stop(Runnable callback) {
-    synchronized(this.lifecycleMonitor) {
-      stop();
-      callback.run();
-    }
-  }
-
-  @Override
   public boolean isRunning() {
-    return this.running;
-  }
-
-  @Override
-  public boolean isAutoStartup() {
-    return false;
+    return (this.httpClient != null);
   }
 
   @Override
