@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.framework.autoproxy;
@@ -24,7 +21,9 @@ import java.util.List;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.TargetSource;
+import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -103,7 +102,13 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
     List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
     extendAdvisors(eligibleAdvisors);
     if (!eligibleAdvisors.isEmpty()) {
-      eligibleAdvisors = sortAdvisors(eligibleAdvisors);
+      try {
+        eligibleAdvisors = sortAdvisors(eligibleAdvisors);
+      }
+      catch (BeanCreationException ex) {
+        throw new AopConfigException("Advisor sorting failed with unexpected bean creation, probably due " +
+                "to custom use of the Ordered interface. Consider using the @Order annotation instead.", ex);
+      }
     }
     return eligibleAdvisors;
   }
