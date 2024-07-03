@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -23,7 +23,9 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.Lifecycle;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import reactor.netty.http.HttpResources;
@@ -33,22 +35,23 @@ import reactor.netty.resources.LoopResources;
 /**
  * Factory to manage Reactor Netty resources, i.e. {@link LoopResources} for
  * event loop threads, and {@link ConnectionProvider} for the connection pool,
- * within the lifecycle of a Infra {@code ApplicationContext}.
+ * within the lifecycle of a Spring {@code ApplicationContext}.
  *
- * <p>This factory implements {@link InitializingBean}, {@link DisposableBean}
- * and {@link Lifecycle} and is expected typically to be declared as a
- * Infra-managed bean.
+ * <p>This factory implements {@link SmartLifecycle} and is expected typically
+ * to be declared as a Infra-managed bean.
  *
- * <p>Notice that after a {@link Lifecycle} stop/restart, new instances of
+ * <p>Notice that after a {@link SmartLifecycle} stop/restart, new instances of
  * the configured {@link LoopResources} and {@link ConnectionProvider} are
  * created, so any references to those should be updated.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author Sebastien Deleuze
+ * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ReactorResourceFactory implements InitializingBean, DisposableBean, Lifecycle {
+public class ReactorResourceFactory implements ApplicationContextAware, InitializingBean, DisposableBean, SmartLifecycle {
 
   private boolean useGlobalResources = true;
 
@@ -62,21 +65,28 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
   private Consumer<HttpResources> globalResourcesConsumer;
 
   private Supplier<LoopResources> loopResourcesSupplier = () -> LoopResources.create("reactive-http");
+
   private Supplier<ConnectionProvider> connectionProviderSupplier = () -> ConnectionProvider.create("reactive", 500);
 
   private boolean manageLoopResources = false;
+
   private boolean manageConnectionProvider = false;
+
   private Duration shutdownTimeout = Duration.ofSeconds(LoopResources.DEFAULT_SHUTDOWN_TIMEOUT);
+
   private Duration shutdownQuietPeriod = Duration.ofSeconds(LoopResources.DEFAULT_SHUTDOWN_QUIET_PERIOD);
 
   private volatile boolean running;
 
   private final Object lifecycleMonitor = new Object();
 
+  @Nullable
+  private ApplicationContext applicationContext;
+
   /**
    * Whether to use global Reactor Netty resources via {@link HttpResources}.
    * <p>Default is "true" in which case this factory initializes and stops the
-   * global Reactor Netty resources within {@code ApplicationContext}
+   * global Reactor Netty resources within Infra {@code ApplicationContext}
    * lifecycle. If set to "false" the factory manages its resources independent
    * of the global ones.
    *
@@ -105,9 +115,8 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
    */
   public void addGlobalResourcesConsumer(Consumer<HttpResources> consumer) {
     this.useGlobalResources = true;
-    this.globalResourcesConsumer = this.globalResourcesConsumer != null
-                                   ? this.globalResourcesConsumer.andThen(consumer)
-                                   : consumer;
+    this.globalResourcesConsumer = (this.globalResourcesConsumer != null ?
+            this.globalResourcesConsumer.andThen(consumer) : consumer);
   }
 
   /**
@@ -135,16 +144,23 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
 
   /**
    * Return the configured {@link ConnectionProvider}.
+   * <p>Lazily tries to start the resources on demand if not initialized yet.
+   *
+   * @see #start()
    */
   public ConnectionProvider getConnectionProvider() {
-    Assert.state(this.connectionProvider != null, "ConnectionProvider not initialized yet");
-    return this.connectionProvider;
+    if (this.connectionProvider == null) {
+      start();
+    }
+    ConnectionProvider connectionProvider = this.connectionProvider;
+    Assert.state(connectionProvider != null, "ConnectionProvider not initialized");
+    return connectionProvider;
   }
 
   /**
    * Use this when you don't want to participate in global resources and
    * you want to customize the creation of the managed {@code LoopResources}.
-   * <p>By default, {@code LoopResources.create("reactor-http")} is used.
+   * <p>By default, {@code LoopResources.create("reactive-http")} is used.
    * <p>Note that this option is ignored if {@code userGlobalResources=false} or
    * {@link #setLoopResources(LoopResources)} is set.
    *
@@ -166,10 +182,17 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
 
   /**
    * Return the configured {@link LoopResources}.
+   * <p>Lazily tries to start the resources on demand if not initialized yet.
+   *
+   * @see #start()
    */
   public LoopResources getLoopResources() {
-    Assert.state(this.loopResources != null, "LoopResources not initialized yet");
-    return this.loopResources;
+    if (this.loopResources == null) {
+      start();
+    }
+    LoopResources loopResources = this.loopResources;
+    Assert.state(loopResources != null, "LoopResources not initialized");
+    return loopResources;
   }
 
   /**
@@ -206,20 +229,49 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
     this.shutdownTimeout = shutdownTimeout;
   }
 
+  /**
+   * Setting an {@link ApplicationContext} is optional: If set, Reactor resources
+   * will be initialized in the {@link #start() lifecycle start} phase and closed
+   * in the {@link #stop() lifecycle stop} phase. If not set, it will happen in
+   * {@link #afterPropertiesSet()} and {@link #destroy()}, respectively.
+   */
   @Override
-  public void afterPropertiesSet() {
-    start();
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
   }
 
+  /**
+   * Starts the resources if initialized outside an ApplicationContext.
+   * This is for backwards compatibility; the preferred way is to rely on
+   * the ApplicationContext's {@link SmartLifecycle lifecycle management}.
+   *
+   * @see #start()
+   */
+  @Override
+  public void afterPropertiesSet() {
+    if (this.applicationContext == null) {
+      start();
+    }
+  }
+
+  /**
+   * Stops the resources if initialized outside an ApplicationContext.
+   * This is for backwards compatibility; the preferred way is to rely on
+   * the ApplicationContext's {@link SmartLifecycle lifecycle management}.
+   *
+   * @see #stop()
+   */
   @Override
   public void destroy() {
-    stop();
+    if (this.applicationContext == null) {
+      stop();
+    }
   }
 
   @Override
   public void start() {
     synchronized(this.lifecycleMonitor) {
-      if (!isRunning()) {
+      if (!this.running) {
         if (this.useGlobalResources) {
           Assert.isTrue(this.loopResources == null && this.connectionProvider == null,
                   "'useGlobalResources' is mutually exclusive with explicitly configured resources");
@@ -249,7 +301,7 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
   @Override
   public void stop() {
     synchronized(this.lifecycleMonitor) {
-      if (isRunning()) {
+      if (this.running) {
         if (this.useGlobalResources) {
           HttpResources.disposeLoopsAndConnectionsLater(this.shutdownQuietPeriod, this.shutdownTimeout).block();
           this.connectionProvider = null;
@@ -287,4 +339,11 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean,
   public boolean isRunning() {
     return this.running;
   }
+
+  @Override
+  public int getPhase() {
+    // Same as plain Lifecycle
+    return 0;
+  }
+
 }
