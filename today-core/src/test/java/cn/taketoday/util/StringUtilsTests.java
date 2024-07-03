@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -301,8 +301,8 @@ class StringUtilsTests {
     assertThat(StringUtils.cleanPath("/a/:b/../../mypath/myfile")).isEqualTo("/mypath/myfile");
     assertThat(StringUtils.cleanPath("/")).isEqualTo("/");
     assertThat(StringUtils.cleanPath("/mypath/../")).isEqualTo("/");
-    assertThat(StringUtils.cleanPath("mypath/..")).isEqualTo("");
-    assertThat(StringUtils.cleanPath("mypath/../.")).isEqualTo("");
+    assertThat(StringUtils.cleanPath("mypath/..")).isEmpty();
+    assertThat(StringUtils.cleanPath("mypath/../.")).isEmpty();
     assertThat(StringUtils.cleanPath("mypath/../")).isEqualTo("./");
     assertThat(StringUtils.cleanPath("././")).isEqualTo("./");
     assertThat(StringUtils.cleanPath("./")).isEqualTo("./");
@@ -323,7 +323,7 @@ class StringUtilsTests {
     assertThat(StringUtils.cleanPath("file:///c:/some/../path/the%20file.txt")).isEqualTo("file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:\\some\\..\\path\\.\\the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:/some/../path/./the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
-
+    assertThat(StringUtils.cleanPath("jar:file:///c:\\\\some\\\\..\\\\path\\\\.\\\\the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
   }
 
   @Test
