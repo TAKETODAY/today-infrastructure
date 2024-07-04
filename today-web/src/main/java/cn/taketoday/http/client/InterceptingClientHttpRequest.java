@@ -89,6 +89,11 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
         // Assert.state(method != null, "No standard HTTP method");
         ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);
         delegate.getHeaders().addAll(request.getHeaders());
+
+        if (request.hasAttributes()) {
+          delegate.copyAttributesFrom(request);
+        }
+
         if (body.length > 0) {
           StreamingHttpOutputMessage.writeBody(delegate, body);
         }

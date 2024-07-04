@@ -18,11 +18,16 @@
 package cn.taketoday.http.client.support;
 
 import java.net.URI;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Provides a convenient implementation of the {@link HttpRequest} interface
@@ -85,6 +90,70 @@ public class HttpRequestDecorator implements HttpRequest {
   @Override
   public HttpHeaders getHeaders() {
     return this.request.getHeaders();
+  }
+
+  // AttributeAccessor
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return request.getAttributes();
+  }
+
+  @Override
+  public void addAttributes(@Nullable Map<String, Object> attributes) {
+    request.addAttributes(attributes);
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    return request.attributeNames();
+  }
+
+  @Override
+  public void clearAttributes() {
+    request.clearAttributes();
+  }
+
+  @Override
+  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+    return request.computeAttribute(name, computeFunction);
+  }
+
+  @Override
+  public void copyAttributesFrom(AttributeAccessor source) {
+    request.copyAttributesFrom(source);
+  }
+
+  @Override
+  @Nullable
+  public Object getAttribute(String name) {
+    return request.getAttribute(name);
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    return request.getAttributeNames();
+  }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return request.hasAttribute(name);
+  }
+
+  @Override
+  public boolean hasAttributes() {
+    return request.hasAttributes();
+  }
+
+  @Override
+  @Nullable
+  public Object removeAttribute(String name) {
+    return request.removeAttribute(name);
+  }
+
+  @Override
+  public void setAttribute(String name, @Nullable Object value) {
+    request.setAttribute(name, value);
   }
 
 }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -251,6 +252,9 @@ final class DefaultRestClient implements RestClient {
     @Nullable
     private Consumer<ClientHttpRequest> httpRequestConsumer;
 
+    @Nullable
+    private Map<String, Object> attributes;
+
     public DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
     }
@@ -300,6 +304,41 @@ final class DefaultRestClient implements RestClient {
     public DefaultRequestBodyUriSpec headers(Consumer<HttpHeaders> headersConsumer) {
       headersConsumer.accept(getHeaders());
       return this;
+    }
+
+    @Override
+    public RequestBodySpec headers(@Nullable HttpHeaders headers) {
+      getHeaders().addAll(headers);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attribute(String name, Object value) {
+      getAttributes().put(name, value);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attributes(Consumer<Map<String, Object>> attributesConsumer) {
+      attributesConsumer.accept(getAttributes());
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attributes(@Nullable Map<String, Object> attributes) {
+      if (attributes != null) {
+        getAttributes().putAll(attributes);
+      }
+      return this;
+    }
+
+    private Map<String, Object> getAttributes() {
+      Map<String, Object> attributes = this.attributes;
+      if (attributes == null) {
+        attributes = new ConcurrentHashMap<>(4);
+        this.attributes = attributes;
+      }
+      return attributes;
     }
 
     @Override
@@ -437,6 +476,7 @@ final class DefaultRestClient implements RestClient {
         HttpHeaders headers = initHeaders();
         ClientHttpRequest clientRequest = createRequest(uri);
         clientRequest.getHeaders().addAll(headers);
+        clientRequest.addAttributes(attributes);
         if (this.body != null) {
           this.body.writeTo(clientRequest);
         }

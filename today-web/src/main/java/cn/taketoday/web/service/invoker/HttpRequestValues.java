@@ -49,8 +49,7 @@ import cn.taketoday.web.util.UriUtils;
  */
 public class HttpRequestValues {
 
-  private static final MultiValueMap<String, String> EMPTY_COOKIES_MAP =
-          MultiValueMap.forAdaption(Collections.emptyMap());
+  private static final MultiValueMap<String, String> EMPTY_COOKIES_MAP = MultiValueMap.empty();
 
   @Nullable
   private final HttpMethod httpMethod;
@@ -396,16 +395,14 @@ public class HttpRequestValues {
         headers.putAll(this.headers);
       }
 
-      MultiValueMap<String, String> cookies =
-              this.cookies != null ?
-                      new LinkedMultiValueMap<>(this.cookies) : EMPTY_COOKIES_MAP;
+      MultiValueMap<String, String> cookies = this.cookies != null
+              ? MultiValueMap.copyOf(this.cookies) : EMPTY_COOKIES_MAP;
 
       Map<String, Object> attributes = (this.attributes != null ?
               new HashMap<>(this.attributes) : Collections.emptyMap());
 
-      return createRequestValues(
-              this.httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
-              headers, cookies, attributes, bodyValue);
+      return createRequestValues(this.httpMethod, uri, uriBuilderFactory,
+              uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
     }
 
     protected boolean hasParts() {

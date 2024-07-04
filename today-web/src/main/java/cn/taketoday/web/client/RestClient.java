@@ -512,6 +512,43 @@ public interface RestClient {
     S headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     */
+    S headers(@Nullable HttpHeaders headers);
+
+    /**
+     * Set the attribute with the given name to the given value.
+     *
+     * @param name the name of the attribute to add
+     * @param value the value of the attribute to add
+     * @return this builder
+     * @since 5.0
+     */
+    S attribute(String name, Object value);
+
+    /**
+     * Provides access to every attribute declared so far with the
+     * possibility to add, replace, or remove values.
+     *
+     * @param attributesConsumer the consumer to provide access to
+     * @return this builder
+     * @since 5.0
+     */
+    S attributes(Consumer<Map<String, Object>> attributesConsumer);
+
+    /**
+     * Add the attributes with the given name to the given value.
+     *
+     * @param attributes the attributes to add
+     * @return this builder
+     * @since 5.0
+     */
+    S attributes(@Nullable Map<String, Object> attributes);
+
+    /**
      * Callback for access to the {@link ClientHttpRequest} that in turn
      * provides access to the native request of the underlying HTTP library.
      * <p>This could be useful for setting advanced, per-request options that

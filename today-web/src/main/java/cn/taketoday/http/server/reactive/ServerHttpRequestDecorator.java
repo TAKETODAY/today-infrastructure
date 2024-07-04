@@ -19,7 +19,11 @@ package cn.taketoday.http.server.reactive;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -114,6 +118,68 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
   @Override
   public Flux<DataBuffer> getBody() {
     return getDelegate().getBody();
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return getDelegate().getAttributes();
+  }
+
+  @Override
+  public void addAttributes(@Nullable Map<String, Object> attributes) {
+    getDelegate().addAttributes(attributes);
+  }
+
+  @Override
+  public Iterator<String> attributeNames() {
+    return getDelegate().attributeNames();
+  }
+
+  @Override
+  public void clearAttributes() {
+    getDelegate().clearAttributes();
+  }
+
+  @Override
+  public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
+    return getDelegate().computeAttribute(name, computeFunction);
+  }
+
+  @Override
+  public void copyAttributesFrom(AttributeAccessor source) {
+    getDelegate().copyAttributesFrom(source);
+  }
+
+  @Override
+  @Nullable
+  public Object getAttribute(String name) {
+    return getDelegate().getAttribute(name);
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    return getDelegate().getAttributeNames();
+  }
+
+  @Override
+  public boolean hasAttribute(String name) {
+    return getDelegate().hasAttribute(name);
+  }
+
+  @Override
+  public boolean hasAttributes() {
+    return getDelegate().hasAttributes();
+  }
+
+  @Override
+  @Nullable
+  public Object removeAttribute(String name) {
+    return getDelegate().removeAttribute(name);
+  }
+
+  @Override
+  public void setAttribute(String name, @Nullable Object value) {
+    getDelegate().setAttribute(name, value);
   }
 
   /**

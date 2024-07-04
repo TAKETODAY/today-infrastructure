@@ -52,7 +52,6 @@ import cn.taketoday.test.util.AssertionErrors;
 import cn.taketoday.test.util.ExceptionCollector;
 import cn.taketoday.test.util.JsonExpectationsHelper;
 import cn.taketoday.test.util.XmlExpectationsHelper;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MultiValueMap;
@@ -371,23 +370,11 @@ class DefaultWebTestClient implements WebTestClient {
 
     private ClientRequest.Builder initRequestBuilder() {
       ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
-              .headers(headersToUse -> {
-                if (CollectionUtils.isNotEmpty(defaultHeaders)) {
-                  headersToUse.putAll(defaultHeaders);
-                }
-                if (CollectionUtils.isNotEmpty(this.headers)) {
-                  headersToUse.putAll(this.headers);
-                }
-              })
-              .cookies(cookiesToUse -> {
-                if (CollectionUtils.isNotEmpty(defaultCookies)) {
-                  cookiesToUse.putAll(defaultCookies);
-                }
-                if (CollectionUtils.isNotEmpty(this.cookies)) {
-                  cookiesToUse.putAll(this.cookies);
-                }
-              })
-              .attributes(attributes -> attributes.putAll(this.attributes));
+              .headers(defaultHeaders)
+              .headers(headers)
+              .cookies(defaultCookies)
+              .cookies(cookies)
+              .attributes(attributes);
 
       if (this.httpRequestConsumer != null) {
         builder.httpRequest(this.httpRequestConsumer);

@@ -37,6 +37,7 @@ import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
@@ -48,6 +49,7 @@ import reactor.core.publisher.Mono;
  * Default implementation of {@link ClientRequest.Builder}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class DefaultClientRequestBuilder implements ClientRequest.Builder {
@@ -60,7 +62,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   private final MultiValueMap<String, String> cookies = new LinkedMultiValueMap<>();
 
-  private final Map<String, Object> attributes = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
 
   private BodyInserter<?, ? super ClientHttpRequest> body = BodyInserters.empty();
 
@@ -71,9 +73,9 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     Assert.notNull(other, "ClientRequest is required");
     this.method = other.method();
     this.url = other.url();
-    headers(headers -> headers.addAll(other.headers()));
-    cookies(cookies -> cookies.addAll(other.cookies()));
-    attributes(attributes -> attributes.putAll(other.attributes()));
+    headers(other.headers());
+    cookies(other.cookies());
+    attributes(other.attributes());
     body(other.body());
     this.httpRequestConsumer = other.httpRequest();
   }
@@ -114,6 +116,12 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
+  public ClientRequest.Builder headers(@Nullable HttpHeaders headers) {
+    this.headers.addAll(headers);
+    return this;
+  }
+
+  @Override
   public ClientRequest.Builder cookie(String name, String... values) {
     for (String value : values) {
       this.cookies.add(name, value);
@@ -124,6 +132,14 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   @Override
   public ClientRequest.Builder cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
+    return this;
+  }
+
+  @Override
+  public ClientRequest.Builder cookies(@Nullable MultiValueMap<String, String> cookies) {
+    if (CollectionUtils.isNotEmpty(cookies)) {
+      this.cookies.putAll(cookies);
+    }
     return this;
   }
 
@@ -154,9 +170,17 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
+  public ClientRequest.Builder attributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      this.attributes.putAll(attributes);
+    }
+    return this;
+  }
+
+  @Override
   public ClientRequest.Builder httpRequest(Consumer<ClientHttpRequest> requestConsumer) {
     this.httpRequestConsumer = (this.httpRequestConsumer != null ?
-                                this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
+            this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
     return this;
   }
 
@@ -168,9 +192,8 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest build() {
-    return new BodyInserterRequest(
-            this.method, this.url, this.headers, this.cookies, this.body,
-            this.attributes, this.httpRequestConsumer);
+    return new BodyInserterRequest(this.method, this.url, this.headers, this.cookies,
+            this.body, this.attributes, this.httpRequestConsumer);
   }
 
   private static class BodyInserterRequest implements ClientRequest {

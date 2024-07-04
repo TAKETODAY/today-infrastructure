@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
+import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Constant;
@@ -33,7 +34,7 @@ import cn.taketoday.util.StreamUtils;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public class MockHttpOutputMessage implements HttpOutputMessage {
+public class MockHttpOutputMessage extends AttributeAccessorSupport implements HttpOutputMessage {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 

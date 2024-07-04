@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -43,6 +43,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Brian Clozel
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ClientRequest {
@@ -189,6 +190,15 @@ public interface ClientRequest {
     Builder headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @since 5.0
+     */
+    Builder headers(@Nullable HttpHeaders headers);
+
+    /**
      * Add a cookie with the given name and value(s).
      *
      * @param name the cookie name
@@ -208,6 +218,15 @@ public interface ClientRequest {
      * @return this builder
      */
     Builder cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @since 5.0
+     */
+    Builder cookies(@Nullable MultiValueMap<String, String> cookies);
 
     /**
      * Set the body of the request to the given {@code BodyInserter}.
@@ -257,6 +276,15 @@ public interface ClientRequest {
      * @return this builder
      */
     Builder attributes(Consumer<Map<String, Object>> attributesConsumer);
+
+    /**
+     * Add the attributes with the given name to the given value.
+     *
+     * @param attributes the attributes of to add
+     * @return this builder
+     * @since 5.0
+     */
+    Builder attributes(@Nullable Map<String, Object> attributes);
 
     /**
      * Callback for access to the {@link ClientHttpRequest} that in turn

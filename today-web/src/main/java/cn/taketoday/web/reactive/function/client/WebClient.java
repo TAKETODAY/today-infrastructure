@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -32,8 +29,8 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
@@ -43,6 +40,7 @@ import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyInserter;
@@ -462,6 +460,15 @@ public interface WebClient {
     S cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
 
     /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @since 5.0
+     */
+    S cookies(@Nullable MultiValueMap<String, String> cookies);
+
+    /**
      * Set the value of the {@code If-Modified-Since} header.
      * <p>The date should be specified as the number of milliseconds since
      * January 1, 1970 GMT.
@@ -498,6 +505,15 @@ public interface WebClient {
     S headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @since 5.0
+     */
+    S headers(@Nullable HttpHeaders headers);
+
+    /**
      * Set the attribute with the given name to the given value.
      *
      * @param name the name of the attribute to add
@@ -514,6 +530,15 @@ public interface WebClient {
      * @return this builder
      */
     S attributes(Consumer<Map<String, Object>> attributesConsumer);
+
+    /**
+     * Add the attributes with the given name to the given value.
+     *
+     * @param attributes the attributes to add
+     * @return this builder
+     * @since 5.0
+     */
+    S attributes(@Nullable Map<String, Object> attributes);
 
     /**
      * Provide a function to populate the Reactor {@code Context}.

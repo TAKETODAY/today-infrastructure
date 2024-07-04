@@ -222,4 +222,11 @@ public class MockServerHttpRequestTests {
     assertThat(result).isEqualTo("name=Test&lastName=Test%40er".getBytes(StandardCharsets.UTF_8));
     assertThat(request.getHeaders().getContentLength()).isEqualTo(result.length);
   }
+
+  @Test
+  void attributes() {
+    request.getAttributes().put("foo", "bar");
+    assertThat(mockRequest.getAttribute("foo")).isEqualTo("bar");
+  }
+
 }

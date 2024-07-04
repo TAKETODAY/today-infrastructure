@@ -19,6 +19,7 @@ package cn.taketoday.http.client.reactive;
 
 import java.net.URI;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
@@ -32,7 +33,7 @@ import cn.taketoday.util.MultiValueMap;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ClientHttpRequest extends ReactiveHttpOutputMessage {
+public interface ClientHttpRequest extends ReactiveHttpOutputMessage, AttributeAccessor {
 
   /**
    * Return the HTTP method of the request.

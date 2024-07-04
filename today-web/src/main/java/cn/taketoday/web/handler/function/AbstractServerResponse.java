@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.handler.function;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +75,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     if (cookies != null) {
       return this.cookies;
     }
-    return MultiValueMap.forAdaption(Collections.emptyMap());
+    return MultiValueMap.empty();
   }
 
   @Nullable

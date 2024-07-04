@@ -20,6 +20,7 @@ package cn.taketoday.http.client;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -32,7 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
+public abstract class AbstractClientHttpRequest extends AbstractHttpRequest implements ClientHttpRequest {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
