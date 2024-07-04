@@ -81,11 +81,6 @@ public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
-    values.forEach(this.headers::set);
-  }
-
-  @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
     this.headers.forEach(entry -> singleValueMap.putIfAbsent(

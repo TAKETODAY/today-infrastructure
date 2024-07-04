@@ -79,7 +79,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 4.0
    */
   default void addAll(K key, @Nullable V[] values) {
-    if (values != null) {
+    if (ObjectUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);
       }
@@ -95,7 +95,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 4.0
    */
   default void addAll(K key, @Nullable Collection<? extends V> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);
       }
@@ -125,7 +125,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param values the values to be added
    */
   default void addAll(@Nullable Map<K, List<V>> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       for (Entry<K, List<V>> entry : values.entrySet()) {
         addAll(entry.getKey(), entry.getValue());
       }
@@ -169,7 +169,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param values the values.
    */
   default void setAll(@Nullable Map<K, V> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       for (Entry<K, V> entry : values.entrySet()) {
         set(entry.getKey(), entry.getValue());
       }
