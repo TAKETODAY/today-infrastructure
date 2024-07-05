@@ -57,8 +57,10 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public void addAttributes(Map<String, Object> attributes) {
-    getAttributes().putAll(attributes);
+  public void addAttributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      getAttributes().putAll(attributes);
+    }
   }
 
   @Nullable

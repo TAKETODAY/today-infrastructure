@@ -24,6 +24,7 @@ import java.util.function.Function;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -54,9 +55,11 @@ public interface AttributeAccessor {
    *
    * @param attributes The attributes
    */
-  default void addAttributes(Map<String, Object> attributes) {
-    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-      setAttribute(entry.getKey(), entry.getValue());
+  default void addAttributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+        setAttribute(entry.getKey(), entry.getValue());
+      }
     }
   }
 
