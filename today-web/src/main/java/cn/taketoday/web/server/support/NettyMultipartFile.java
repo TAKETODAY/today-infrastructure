@@ -18,6 +18,7 @@
 package cn.taketoday.web.server.support;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +47,13 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return new ByteBufInputStream(fileUpload.getByteBuf());
+    if (fileUpload.isInMemory()) {
+      ByteBuf byteBuf = fileUpload.getByteBuf();
+      byteBuf.resetReaderIndex();
+      return new ByteBufInputStream(byteBuf);
+    }
+
+    return new FileInputStream(fileUpload.getFile());
   }
 
   @Override
