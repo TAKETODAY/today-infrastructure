@@ -126,8 +126,8 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
   }
 
   @Override
-  public void addAttributes(@Nullable Map<String, Object> attributes) {
-    getDelegate().addAttributes(attributes);
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    getDelegate().setAttributes(attributes);
   }
 
   @Override

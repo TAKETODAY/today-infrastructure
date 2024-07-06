@@ -232,7 +232,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
-  public void setAll(Map<K, V> values) {
+  public void setAll(@Nullable Map<K, List<V>> values) {
     throw new UnsupportedOperationException();
   }
 

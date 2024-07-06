@@ -140,7 +140,7 @@ public final class Netty4HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Override
   public void putAll(Map<? extends String, ? extends List<String>> m) {
-    for (final Entry<? extends String, ? extends List<String>> entry : m.entrySet()) {
+    for (var entry : m.entrySet()) {
       headers.set(entry.getKey(), entry.getValue());
     }
   }

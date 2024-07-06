@@ -102,7 +102,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void addAll(String key, Enumeration<? extends String> values) {
+  public void addAll(String key, @Nullable Enumeration<? extends String> values) {
     throw new UnsupportedOperationException();
   }
 
@@ -112,7 +112,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
+  public void setAll(@Nullable Map<String, List<String>> values) {
     throw new UnsupportedOperationException();
   }
 

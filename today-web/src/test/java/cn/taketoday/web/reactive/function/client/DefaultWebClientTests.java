@@ -87,7 +87,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path");
+    assertThat(request.uri().toString()).isEqualTo("/base/path");
     assertThat(request.headers()).isEqualTo(HttpHeaders.forWritable());
     assertThat(request.cookies()).isEqualTo(Collections.emptyMap());
   }
@@ -99,7 +99,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path?q=12");
+    assertThat(request.uri().toString()).isEqualTo("/base/path?q=12");
   }
 
   @Test // gh-22705
@@ -109,7 +109,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path/identifier?q=12");
+    assertThat(request.uri().toString()).isEqualTo("/base/path/identifier?q=12");
     assertThat(request.attribute(WebClient.class.getName() + ".uriTemplate").get()).isEqualTo("/path/{id}");
   }
 
@@ -120,7 +120,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/path");
+    assertThat(request.uri().toString()).isEqualTo("/path");
   }
 
   @Test

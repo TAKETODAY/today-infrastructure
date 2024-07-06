@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -73,7 +70,7 @@ public class DefaultClientRequestBuilderTests {
             .cookies(cookies -> cookies.set("baz", "quux"))
             .build();
 
-    assertThat(result.url()).isEqualTo(DEFAULT_URL);
+    assertThat(result.uri()).isEqualTo(DEFAULT_URL);
     assertThat(result.method()).isEqualTo(GET);
     assertThat(result.headers().size()).isEqualTo(1);
     assertThat(result.headers().getFirst("foo")).isEqualTo("baar");
@@ -120,14 +117,14 @@ public class DefaultClientRequestBuilderTests {
   }
 
   @Test
-  public void url() throws URISyntaxException {
+  public void uri() throws URISyntaxException {
     URI url1 = new URI("https://example.com/foo");
     URI url2 = new URI("https://example.com/bar");
     ClientRequest.Builder builder = ClientRequest.create(DELETE, url1);
-    assertThat(builder.build().url()).isEqualTo(url1);
+    assertThat(builder.build().uri()).isEqualTo(url1);
 
-    builder.url(url2);
-    assertThat(builder.build().url()).isEqualTo(url2);
+    builder.uri(url2);
+    assertThat(builder.build().uri()).isEqualTo(url2);
   }
 
   @Test

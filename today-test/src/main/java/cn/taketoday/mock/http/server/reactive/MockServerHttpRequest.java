@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.http.server.reactive;
@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -310,6 +311,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
      * Add the given cookies.
      *
      * @param cookies the cookies.
+     * @see MultiValueMap#addAll(Map)
      */
     B cookies(MultiValueMap<String, HttpCookie> cookies);
 
@@ -326,6 +328,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
      * Add the given header values.
      *
      * @param headers the header values
+     * @see MultiValueMap#addAll(Map)
      */
     B headers(MultiValueMap<String, String> headers);
 
@@ -513,7 +516,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     @Override
     public BodyBuilder cookies(MultiValueMap<String, HttpCookie> cookies) {
-      this.cookies.putAll(cookies);
+      this.cookies.addAll(cookies);
       return this;
     }
 
@@ -527,7 +530,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     @Override
     public BodyBuilder headers(MultiValueMap<String, String> headers) {
-      this.headers.putAll(headers);
+      this.headers.addAll(headers);
       return this;
     }
 

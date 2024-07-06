@@ -234,7 +234,7 @@ class DefaultWebClient implements WebClient {
       return this;
     }
 
-    private HttpHeaders getHeaders() {
+    private HttpHeaders headers() {
       if (this.headers == null) {
         this.headers = HttpHeaders.forWritable();
       }
@@ -251,44 +251,44 @@ class DefaultWebClient implements WebClient {
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
       for (String headerValue : headerValues) {
-        getHeaders().add(headerName, headerValue);
+        headers().add(headerName, headerValue);
       }
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(getHeaders());
+      headersConsumer.accept(headers());
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec headers(@Nullable HttpHeaders headers) {
-      getHeaders().addAll(headers);
+      headers().setAll(headers);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec accept(MediaType... acceptableMediaTypes) {
-      getHeaders().setAccept(Arrays.asList(acceptableMediaTypes));
+      headers().setAccept(Arrays.asList(acceptableMediaTypes));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec acceptCharset(Charset... acceptableCharsets) {
-      getHeaders().setAcceptCharset(Arrays.asList(acceptableCharsets));
+      headers().setAcceptCharset(Arrays.asList(acceptableCharsets));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentType(MediaType contentType) {
-      getHeaders().setContentType(contentType);
+      headers().setContentType(contentType);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentLength(long contentLength) {
-      getHeaders().setContentLength(contentLength);
+      headers().setContentLength(contentLength);
       return this;
     }
 
@@ -306,19 +306,19 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public RequestBodySpec cookies(@Nullable MultiValueMap<String, String> cookies) {
-      getCookies().addAll(cookies);
+      getCookies().setAll(cookies);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec ifModifiedSince(ZonedDateTime ifModifiedSince) {
-      getHeaders().setIfModifiedSince(ifModifiedSince);
+      headers().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec ifNoneMatch(String... ifNoneMatches) {
-      getHeaders().setIfNoneMatch(Arrays.asList(ifNoneMatches));
+      headers().setIfNoneMatch(Arrays.asList(ifNoneMatches));
       return this;
     }
 

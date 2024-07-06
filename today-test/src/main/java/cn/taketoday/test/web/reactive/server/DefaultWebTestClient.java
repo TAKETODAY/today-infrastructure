@@ -52,6 +52,7 @@ import cn.taketoday.test.util.AssertionErrors;
 import cn.taketoday.test.util.ExceptionCollector;
 import cn.taketoday.test.util.JsonExpectationsHelper;
 import cn.taketoday.test.util.XmlExpectationsHelper;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MultiValueMap;
@@ -191,9 +192,6 @@ class DefaultWebTestClient implements WebTestClient {
     private BodyInserter<?, ? super ClientHttpRequest> inserter;
 
     private final Map<String, Object> attributes = new LinkedHashMap<>(4);
-
-    @Nullable
-    private Consumer<ClientHttpRequest> httpRequestConsumer;
 
     @Nullable
     private String uriTemplate;
@@ -375,10 +373,6 @@ class DefaultWebTestClient implements WebTestClient {
               .cookies(defaultCookies)
               .cookies(cookies)
               .attributes(attributes);
-
-      if (this.httpRequestConsumer != null) {
-        builder.httpRequest(this.httpRequestConsumer);
-      }
 
       if (this.inserter != null) {
         builder.body(this.inserter);

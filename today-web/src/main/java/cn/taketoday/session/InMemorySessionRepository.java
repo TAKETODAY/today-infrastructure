@@ -533,6 +533,7 @@ public class InMemorySessionRepository implements SessionRepository {
     public int hashCode() {
       return Objects.hash(super.hashCode(), id, creationTime, lastAccessTime, maxIdleTime, state);
     }
+
   }
 
   private final class ExpiredSessionChecker {

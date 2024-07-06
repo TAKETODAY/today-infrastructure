@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.support;
@@ -198,6 +198,15 @@ public class DefaultTestContext implements TestContext {
       }
       else {
         this.attributes.remove(name);
+      }
+    }
+  }
+
+  @Override
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      for (var entry : attributes.entrySet()) {
+        setAttribute(entry.getKey(), entry.getValue());
       }
     }
   }

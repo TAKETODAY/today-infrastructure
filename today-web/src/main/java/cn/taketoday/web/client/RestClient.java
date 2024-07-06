@@ -43,6 +43,7 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilder;
@@ -516,6 +517,8 @@ public interface RestClient {
      *
      * @param headers the headers
      * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
      */
     S headers(@Nullable HttpHeaders headers);
 
@@ -544,6 +547,7 @@ public interface RestClient {
      *
      * @param attributes the attributes to add
      * @return this builder
+     * @see Map#putAll(Map)
      * @since 5.0
      */
     S attributes(@Nullable Map<String, Object> attributes);

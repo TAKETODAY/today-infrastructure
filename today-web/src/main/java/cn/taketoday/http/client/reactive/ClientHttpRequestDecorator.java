@@ -115,8 +115,8 @@ public class ClientHttpRequestDecorator implements ClientHttpRequest {
   }
 
   @Override
-  public void addAttributes(@Nullable Map<String, Object> attributes) {
-    delegate.addAttributes(attributes);
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    delegate.setAttributes(attributes);
   }
 
   @Override

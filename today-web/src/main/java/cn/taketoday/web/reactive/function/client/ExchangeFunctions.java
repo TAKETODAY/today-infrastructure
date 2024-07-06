@@ -98,10 +98,10 @@ public abstract class ExchangeFunctions {
     public Mono<ClientResponse> exchange(ClientRequest clientRequest) {
       Assert.notNull(clientRequest, "ClientRequest is required");
       HttpMethod httpMethod = clientRequest.method();
-      URI url = clientRequest.url();
+      URI uri = clientRequest.uri();
 
       var responseMono = connector.connect(
-              httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, strategies));
+              httpMethod, uri, httpRequest -> clientRequest.writeTo(httpRequest, strategies));
 
       if (log.isDebugEnabled()) {
         responseMono = responseMono.doOnRequest(n -> logRequest(clientRequest))
@@ -114,14 +114,14 @@ public abstract class ExchangeFunctions {
                 String logPrefix = getLogPrefix(clientRequest, httpResponse);
                 logResponse(httpResponse, logPrefix);
                 return new DefaultClientResponse(
-                        httpResponse, strategies, logPrefix, httpMethod.name() + " " + url,
+                        httpResponse, strategies, logPrefix, httpMethod.name() + " " + uri,
                         () -> createRequest(clientRequest));
               });
     }
 
     private void logRequest(ClientRequest request) {
       LogFormatUtils.traceDebug(log, traceOn ->
-              request.logPrefix() + "HTTP " + request.method() + " " + request.url() +
+              request.logPrefix() + "HTTP " + request.method() + " " + request.uri() +
                       (traceOn ? ", headers=" + formatHeaders(request.headers()) : "")
       );
     }
@@ -143,7 +143,7 @@ public abstract class ExchangeFunctions {
     }
 
     private <T> Mono<T> wrapException(Throwable t, ClientRequest r) {
-      return Mono.error(() -> new WebClientRequestException(t, r.method(), r.url(), r.headers()));
+      return Mono.error(() -> new WebClientRequestException(t, r.method(), r.uri(), r.headers()));
     }
 
     private HttpRequest createRequest(ClientRequest request) {
@@ -156,7 +156,7 @@ public abstract class ExchangeFunctions {
 
         @Override
         public URI getURI() {
-          return request.url();
+          return request.uri();
         }
 
         @Override

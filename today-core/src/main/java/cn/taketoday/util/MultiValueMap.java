@@ -164,15 +164,14 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   void set(K key, @Nullable V value);
 
   /**
-   * Set the given values under.
+   * Null check for {@link #putAll(Map)}
    *
    * @param values the values.
+   * @see #putAll(Map)
    */
-  default void setAll(@Nullable Map<K, V> values) {
+  default void setAll(@Nullable Map<K, List<V>> values) {
     if (CollectionUtils.isNotEmpty(values)) {
-      for (Entry<K, V> entry : values.entrySet()) {
-        set(entry.getKey(), entry.getValue());
-      }
+      putAll(values);
     }
   }
 

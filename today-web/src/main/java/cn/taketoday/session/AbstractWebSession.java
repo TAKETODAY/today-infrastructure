@@ -26,6 +26,7 @@ import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -48,6 +49,15 @@ public abstract class AbstractWebSession implements WebSession {
 
   protected AbstractWebSession(SessionEventDispatcher eventDispatcher) {
     this.eventDispatcher = eventDispatcher;
+  }
+
+  @Override
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+        setAttribute(entry.getKey(), entry.getValue());
+      }
+    }
   }
 
   @Override

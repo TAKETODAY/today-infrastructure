@@ -100,8 +100,8 @@ public class HttpRequestDecorator implements HttpRequest {
   }
 
   @Override
-  public void addAttributes(@Nullable Map<String, Object> attributes) {
-    request.addAttributes(attributes);
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    request.setAttributes(attributes);
   }
 
   @Override

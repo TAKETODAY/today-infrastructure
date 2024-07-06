@@ -153,7 +153,7 @@ class MultiValueMapTests {
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.set("key", "value"));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
-              .isThrownBy(() -> unmodifiableMap.setAll(exampleHashMap()));
+              .isThrownBy(() -> unmodifiableMap.setAll(Map.of("key", exampleListOfValues())));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.put("key", exampleListOfValues()));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)

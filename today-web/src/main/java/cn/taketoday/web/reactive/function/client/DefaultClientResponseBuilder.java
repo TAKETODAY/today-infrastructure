@@ -96,6 +96,10 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     public void setAttribute(String name, @Nullable Object value) {
     }
 
+    @Override
+    public void setAttributes(@Nullable Map<String, Object> attributes) {
+    }
+
     @Nullable
     @Override
     public Object getAttribute(String name) {

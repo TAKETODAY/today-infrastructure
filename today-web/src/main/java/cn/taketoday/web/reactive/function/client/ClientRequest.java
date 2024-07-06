@@ -65,7 +65,7 @@ public interface ClientRequest {
   /**
    * Return the request URI.
    */
-  URI url();
+  URI uri();
 
   /**
    * Return the headers of this request.
@@ -162,10 +162,10 @@ public interface ClientRequest {
     /**
      * Set the url of the request.
      *
-     * @param url the new url
+     * @param uri the new url
      * @return this builder
      */
-    Builder url(URI url);
+    Builder uri(URI uri);
 
     /**
      * Add the given header value(s) under the given name.
@@ -194,6 +194,7 @@ public interface ClientRequest {
      *
      * @param headers the headers
      * @return this builder
+     * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
     Builder headers(@Nullable HttpHeaders headers);
@@ -224,6 +225,7 @@ public interface ClientRequest {
      *
      * @param cookies the cookies
      * @return this builder
+     * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
     Builder cookies(@Nullable MultiValueMap<String, String> cookies);
@@ -282,6 +284,7 @@ public interface ClientRequest {
      *
      * @param attributes the attributes of to add
      * @return this builder
+     * @see Map#putAll(Map)
      * @since 5.0
      */
     Builder attributes(@Nullable Map<String, Object> attributes);

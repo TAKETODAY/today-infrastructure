@@ -231,7 +231,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
+  public void setAll(Map<String, List<String>> values) {
     this.headers.setAll(values);
   }
 

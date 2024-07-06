@@ -100,7 +100,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     }
 
     WebSocketSession session = createSession(nettyContext, sessionDecorator);
-    session.addAttributes(attributes);
+    session.setAttributes(attributes);
 
     FullHttpRequest request = nettyContext.nativeRequest();
     WebSocketServerHandshaker handShaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);

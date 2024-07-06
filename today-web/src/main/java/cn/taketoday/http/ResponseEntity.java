@@ -499,7 +499,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * @param body the body of the response entity
      * @return the built response entity
      */
-    <T> ResponseEntity<T> body(T body);
+    <T> ResponseEntity<T> body(@Nullable T body);
   }
 
   private static class DefaultBuilder implements BodyBuilder {

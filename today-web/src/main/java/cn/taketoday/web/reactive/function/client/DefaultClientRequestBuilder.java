@@ -56,7 +56,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   private HttpMethod method;
 
-  private URI url;
+  private URI uri;
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
@@ -72,7 +72,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   public DefaultClientRequestBuilder(ClientRequest other) {
     Assert.notNull(other, "ClientRequest is required");
     this.method = other.method();
-    this.url = other.url();
+    this.uri = other.uri();
     headers(other.headers());
     cookies(other.cookies());
     attributes(other.attributes());
@@ -80,11 +80,11 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     this.httpRequestConsumer = other.httpRequest();
   }
 
-  public DefaultClientRequestBuilder(HttpMethod method, URI url) {
+  public DefaultClientRequestBuilder(HttpMethod method, URI uri) {
     Assert.notNull(method, "HttpMethod is required");
-    Assert.notNull(url, "URI is required");
+    Assert.notNull(uri, "URI is required");
     this.method = method;
-    this.url = url;
+    this.uri = uri;
   }
 
   @Override
@@ -95,9 +95,9 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
-  public ClientRequest.Builder url(URI url) {
-    Assert.notNull(url, "URI is required");
-    this.url = url;
+  public ClientRequest.Builder uri(URI uri) {
+    Assert.notNull(uri, "URI is required");
+    this.uri = uri;
     return this;
   }
 
@@ -117,7 +117,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest.Builder headers(@Nullable HttpHeaders headers) {
-    this.headers.addAll(headers);
+    this.headers.setAll(headers);
     return this;
   }
 
@@ -137,9 +137,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest.Builder cookies(@Nullable MultiValueMap<String, String> cookies) {
-    if (CollectionUtils.isNotEmpty(cookies)) {
-      this.cookies.putAll(cookies);
-    }
+    this.cookies.setAll(cookies);
     return this;
   }
 
@@ -192,7 +190,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest build() {
-    return new BodyInserterRequest(this.method, this.url, this.headers, this.cookies,
+    return new BodyInserterRequest(this.method, this.uri, this.headers, this.cookies,
             this.body, this.attributes, this.httpRequestConsumer);
   }
 
@@ -237,7 +235,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     }
 
     @Override
-    public URI url() {
+    public URI uri() {
       return this.url;
     }
 
@@ -275,18 +273,24 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     public Mono<Void> writeTo(ClientHttpRequest request, ExchangeStrategies strategies) {
       HttpHeaders requestHeaders = request.getHeaders();
       if (!this.headers.isEmpty()) {
-        this.headers.entrySet().stream()
-                .filter(entry -> !requestHeaders.containsKey(entry.getKey()))
-                .forEach(entry -> requestHeaders.put(entry.getKey(), entry.getValue()));
+        for (var entry : this.headers.entrySet()) {
+          requestHeaders.putIfAbsent(entry.getKey(), entry.getValue());
+        }
       }
 
       MultiValueMap<String, HttpCookie> requestCookies = request.getCookies();
       if (!this.cookies.isEmpty()) {
-        this.cookies.forEach((name, values) -> values.forEach(value -> {
-          HttpCookie cookie = new HttpCookie(name, value);
-          requestCookies.add(name, cookie);
-        }));
+        for (var entry : cookies.entrySet()) {
+          String name = entry.getKey();
+          for (String value : entry.getValue()) {
+            HttpCookie cookie = new HttpCookie(name, value);
+            requestCookies.add(name, cookie);
+          }
+        }
       }
+
+      request.setAttributes(attributes);
+
       if (this.httpRequestConsumer != null) {
         this.httpRequestConsumer.accept(request);
       }

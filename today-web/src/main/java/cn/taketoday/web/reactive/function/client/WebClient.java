@@ -460,10 +460,11 @@ public interface WebClient {
     S cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
 
     /**
-     * Add a cookies with the given name and values.
+     * Add cookies with the given name and values.
      *
      * @param cookies the cookies
      * @return this builder
+     * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
     S cookies(@Nullable MultiValueMap<String, String> cookies);
@@ -509,6 +510,7 @@ public interface WebClient {
      *
      * @param headers the headers
      * @return this builder
+     * @see MultiValueMap#setAll(Map)
      * @since 5.0
      */
     S headers(@Nullable HttpHeaders headers);
@@ -536,6 +538,7 @@ public interface WebClient {
      *
      * @param attributes the attributes to add
      * @return this builder
+     * @see Map#putAll(Map)
      * @since 5.0
      */
     S attributes(@Nullable Map<String, Object> attributes);
