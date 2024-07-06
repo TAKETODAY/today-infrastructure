@@ -437,7 +437,7 @@ public class TodayStrategies {
    * @see System#getProperty(java.lang.String, java.lang.String)
    */
   @Nullable
-  public static Long getLong(String key, Long val) {
+  public static Long getLong(String key, @Nullable Long val) {
     try {
       String v = getProperty(key);
       if (v != null) {
@@ -456,6 +456,7 @@ public class TodayStrategies {
   // Strategies
   //---------------------------------------------------------------------
 
+  @Nullable
   private final ClassLoader classLoader;
 
   private final Map<String, List<String>> strategies;
