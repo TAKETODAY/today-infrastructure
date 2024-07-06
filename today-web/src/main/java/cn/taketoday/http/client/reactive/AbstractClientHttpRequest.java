@@ -139,6 +139,7 @@ public abstract class AbstractClientHttpRequest extends AttributeAccessorSupport
     this.commitActions.add(() -> Mono.fromRunnable(() -> {
       applyHeaders();
       applyCookies();
+      applyAttributes();
       this.state.set(State.COMMITTED);
     }));
 
@@ -165,4 +166,12 @@ public abstract class AbstractClientHttpRequest extends AttributeAccessorSupport
    */
   protected abstract void applyCookies();
 
+  /**
+   * Add attributes from {@link #getAttributes()} to the underlying request.
+   * This method is called once only.
+   *
+   * @since 5.0
+   */
+  protected void applyAttributes() {
+  }
 }
