@@ -1642,10 +1642,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    */
   @Override
   protected ResolvableType getTypeForFactoryBean(String beanName, RootBeanDefinition merged, boolean allowInit) {
+    ResolvableType result;
     // Check if the bean definition itself has defined the type with an attribute
-    ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
-    if (result != ResolvableType.NONE) {
-      return result;
+    try {
+      result = getTypeForFactoryBeanFromAttributes(merged);
+      if (result != ResolvableType.NONE) {
+        return result;
+      }
+    }
+    catch (IllegalArgumentException ex) {
+      throw new BeanDefinitionStoreException(merged.getResourceDescription(), beanName,
+              String.valueOf(ex.getMessage()));
     }
 
     // For instance supplied beans, try the target type and bean class immediately

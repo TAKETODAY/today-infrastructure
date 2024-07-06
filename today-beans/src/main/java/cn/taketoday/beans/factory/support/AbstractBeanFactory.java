@@ -919,9 +919,15 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @since 4.0
    */
   protected ResolvableType getTypeForFactoryBean(String beanName, RootBeanDefinition merged, boolean allowInit) {
-    ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
-    if (result != ResolvableType.NONE) {
-      return result;
+    try {
+      ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
+      if (result != ResolvableType.NONE) {
+        return result;
+      }
+    }
+    catch (IllegalArgumentException ex) {
+      throw new BeanDefinitionStoreException(merged.getResourceDescription(), beanName,
+              String.valueOf(ex.getMessage()));
     }
 
     if (allowInit && merged.isSingleton()) {
