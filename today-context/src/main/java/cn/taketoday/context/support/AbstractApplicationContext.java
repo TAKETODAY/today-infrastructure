@@ -1013,6 +1013,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
+  public boolean isClosed() {
+    return this.closed.get();
+  }
+
+  @Override
   public boolean isActive() {
     return active.get();
   }
