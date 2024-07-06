@@ -151,9 +151,9 @@ public interface AttributeAccessor {
   }
 
   /**
-   * @since 3.0 TODO rename
+   * @since 3.0
    */
-  void copyAttributesFrom(AttributeAccessor source);
+  void copyFrom(AttributeAccessor source);
 
   /**
    * @see Map#clear()

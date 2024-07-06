@@ -510,7 +510,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public void copyAttributesFrom(AttributeAccessor source) {
+    public void copyFrom(AttributeAccessor source) {
       Assert.notNull(source, "Source is required");
       for (String attributeName : source.getAttributeNames()) {
         setAttribute(attributeName, source.getAttribute(attributeName));

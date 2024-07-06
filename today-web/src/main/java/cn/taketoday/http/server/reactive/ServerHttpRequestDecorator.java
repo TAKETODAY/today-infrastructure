@@ -146,8 +146,8 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
   }
 
   @Override
-  public void copyAttributesFrom(AttributeAccessor source) {
-    getDelegate().copyAttributesFrom(source);
+  public void copyFrom(AttributeAccessor source) {
+    getDelegate().copyFrom(source);
   }
 
   @Override

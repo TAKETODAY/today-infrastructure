@@ -120,8 +120,8 @@ public class HttpRequestDecorator implements HttpRequest {
   }
 
   @Override
-  public void copyAttributesFrom(AttributeAccessor source) {
-    request.copyAttributesFrom(source);
+  public void copyFrom(AttributeAccessor source) {
+    request.copyFrom(source);
   }
 
   @Override

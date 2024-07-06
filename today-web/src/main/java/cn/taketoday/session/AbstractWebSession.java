@@ -222,7 +222,7 @@ public abstract class AbstractWebSession implements WebSession {
   }
 
   @Override
-  public void copyAttributesFrom(AttributeAccessor source) {
+  public void copyFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     for (String attributeName : source.getAttributeNames()) {
       setAttribute(attributeName, source.getAttribute(attributeName));

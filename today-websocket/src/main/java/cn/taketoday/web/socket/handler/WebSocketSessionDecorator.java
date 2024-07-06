@@ -227,8 +227,8 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
-  public void copyAttributesFrom(AttributeAccessor source) {
-    delegate.copyAttributesFrom(source);
+  public void copyFrom(AttributeAccessor source) {
+    delegate.copyFrom(source);
   }
 
   @Override
