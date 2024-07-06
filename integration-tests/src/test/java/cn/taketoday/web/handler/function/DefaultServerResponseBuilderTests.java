@@ -206,6 +206,11 @@ class DefaultServerResponseBuilderTests {
             .headers(headers -> headers.addAll(newHeaders))
             .build();
     assertThat(response.headers()).isEqualTo(newHeaders);
+
+    response = ServerResponse.ok()
+            .headers(newHeaders)
+            .build();
+    assertThat(response.headers()).isEqualTo(newHeaders);
   }
 
   @Test
@@ -214,6 +219,16 @@ class DefaultServerResponseBuilderTests {
     newCookies.add("name", new HttpCookie("name", "value"));
     ServerResponse response = ServerResponse.ok()
             .cookies(cookies -> cookies.addAll(newCookies))
+            .build();
+    assertThat(response.cookies()).isEqualTo(newCookies);
+
+    response = ServerResponse.ok()
+            .cookies(newCookies)
+            .build();
+    assertThat(response.cookies()).isEqualTo(newCookies);
+
+    response = ServerResponse.ok()
+            .cookie("name", "value")
             .build();
     assertThat(response.cookies()).isEqualTo(newCookies);
   }
