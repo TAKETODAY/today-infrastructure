@@ -32,9 +32,10 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 /**
- * JavaBean to configure FreeMarker for web usage, via the "configLocation"
- * and/or "freemarkerSettings" and/or "templateLoaderPath" properties.
- * The simplest way to use this class is to specify just a "templateLoaderPath";
+ * Bean to configure FreeMarker for web usage, via the "configLocation",
+ * "freemarkerSettings", or "templateLoaderPath" properties.
+ *
+ * <p>The simplest way to use this class is to specify just a "templateLoaderPath";
  * you do not need any further configuration then.
  *
  * <pre>{@code

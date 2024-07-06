@@ -638,7 +638,7 @@ dependencies {
     api("org.eclipse.persistence:org.eclipse.persistence.jpa:3.0.4")
     api("org.eclipse:yasson:2.0.4")
     api("org.ehcache:jcache:1.0.1")
-    api("org.freemarker:freemarker:2.3.32")
+    api("org.freemarker:freemarker:2.3.33")
     api("org.glassfish:jakarta.el:4.0.2")
     api("org.graalvm.sdk:graal-sdk:22.3.1")
     api("org.hibernate:hibernate-core-jakarta:5.6.15.Final")

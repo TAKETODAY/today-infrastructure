@@ -19,6 +19,7 @@ package cn.taketoday.ui.freemarker;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,6 +147,19 @@ public class FreeMarkerConfigurationFactory {
    */
   public void setDefaultEncoding(@Nullable String defaultEncoding) {
     this.defaultEncoding = defaultEncoding;
+  }
+
+  /**
+   * Set the {@link Charset} for the default encoding for the FreeMarker
+   * {@link Configuration}, which is used to decode byte sequences to character
+   * sequences when reading template files.
+   * <p>See {@link #setDefaultEncoding(String)} for details.
+   *
+   * @see java.nio.charset.StandardCharsets
+   * @since 5.0
+   */
+  public void setDefaultCharset(Charset defaultCharset) {
+    this.defaultEncoding = defaultCharset.name();
   }
 
   /**
