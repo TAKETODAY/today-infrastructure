@@ -183,20 +183,20 @@ final class DefaultRestClient implements RestClient {
         return null;
       }
 
-      for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter genericHttpMessageConverter) {
-          if (genericHttpMessageConverter.canRead(bodyType, null, contentType)) {
+      for (HttpMessageConverter<?> hmc : this.messageConverters) {
+        if (hmc instanceof GenericHttpMessageConverter ghmc) {
+          if (ghmc.canRead(bodyType, null, contentType)) {
             if (logger.isDebugEnabled()) {
               logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
             }
-            return (T) genericHttpMessageConverter.read(bodyType, null, responseWrapper);
+            return (T) ghmc.read(bodyType, null, responseWrapper);
           }
         }
-        if (messageConverter.canRead(bodyClass, contentType)) {
+        if (hmc.canRead(bodyClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
           }
-          return (T) messageConverter.read((Class) bodyClass, responseWrapper);
+          return (T) hmc.read((Class) bodyClass, responseWrapper);
         }
       }
       throw new UnknownContentTypeException(bodyType, contentType,
