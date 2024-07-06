@@ -19,6 +19,7 @@ package cn.taketoday.validation;
 
 import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.BeanInstantiationException;
@@ -56,6 +59,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
@@ -953,11 +957,24 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
         String paramPath = nestedPath + lookupName;
         Class<?> paramType = paramTypes[i];
+        ResolvableType resolvableType = ResolvableType.forMethodParameter(param);
+
         Object value = valueResolver.resolveValue(paramPath, paramType);
 
+        if (value == null) {
+          if (List.class.isAssignableFrom(paramType)) {
+            value = createList(paramPath, paramType, resolvableType, valueResolver);
+          }
+          else if (Map.class.isAssignableFrom(paramType)) {
+            value = createMap(paramPath, paramType, resolvableType, valueResolver);
+          }
+          else if (paramType.isArray()) {
+            value = createArray(paramPath, resolvableType, valueResolver);
+          }
+        }
+
         if (value == null && shouldConstructArgument(param) && hasValuesFor(paramPath, valueResolver)) {
-          ResolvableType type = ResolvableType.forMethodParameter(param);
-          args[i] = createObject(type, paramPath + ".", valueResolver);
+          args[i] = createObject(resolvableType, paramPath + ".", valueResolver);
         }
         else {
           try {
@@ -1028,11 +1045,81 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return false;
   }
 
-  private void validateConstructorArgument(
-          Class<?> constructorClass, String nestedPath, String name, @Nullable Object value) {
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private <V> List<V> createList(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
+    ResolvableType elementType = type.getNested(2);
+    SortedSet<Integer> indexes = getIndexes(paramPath, valueResolver);
+    if (indexes == null) {
+      return null;
+    }
+    int size = (indexes.last() < this.autoGrowCollectionLimit ? indexes.last() + 1 : 0);
+    List<V> list = (List<V>) CollectionUtils.createCollection(paramType, size);
+    indexes.forEach(i -> list.add(null));
+    for (int index : indexes) {
+      list.set(index, (V) createObject(elementType, paramPath + "[" + index + "].", valueResolver));
+    }
+    return list;
+  }
 
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private <V> Map<String, V> createMap(String paramPath, Class<?> paramType, ResolvableType type, ValueResolver valueResolver) {
+    ResolvableType elementType = type.getNested(2);
+    Map<String, V> map = null;
+    for (String name : valueResolver.getNames()) {
+      if (!name.startsWith(paramPath + "[")) {
+        continue;
+      }
+      int startIdx = paramPath.length() + 1;
+      int endIdx = name.indexOf(']', startIdx);
+      String nestedPath = name.substring(0, endIdx + 2);
+      boolean quoted = (endIdx - startIdx > 2 && name.charAt(startIdx) == '\'' && name.charAt(endIdx - 1) == '\'');
+      String key = (quoted ? name.substring(startIdx + 1, endIdx - 1) : name.substring(startIdx, endIdx));
+      if (map == null) {
+        map = CollectionUtils.createMap(paramType, 16);
+      }
+      if (!map.containsKey(key)) {
+        map.put(key, (V) createObject(elementType, nestedPath, valueResolver));
+      }
+    }
+    return map;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private <V> V[] createArray(String paramPath, ResolvableType type, ValueResolver valueResolver) {
+    ResolvableType elementType = type.getNested(2);
+    SortedSet<Integer> indexes = getIndexes(paramPath, valueResolver);
+    if (indexes == null) {
+      return null;
+    }
+    int size = (indexes.last() < this.autoGrowCollectionLimit ? indexes.last() + 1 : 0);
+    V[] array = (V[]) Array.newInstance(elementType.resolve(), size);
+    for (int index : indexes) {
+      array[index] = (V) createObject(elementType, paramPath + "[" + index + "].", valueResolver);
+    }
+    return array;
+  }
+
+  @Nullable
+  private static SortedSet<Integer> getIndexes(String paramPath, ValueResolver valueResolver) {
+    SortedSet<Integer> indexes = null;
+    for (String name : valueResolver.getNames()) {
+      if (name.startsWith(paramPath + "[")) {
+        int endIndex = name.indexOf(']', paramPath.length() + 2);
+        String rawIndex = name.substring(paramPath.length() + 1, endIndex);
+        int index = Integer.parseInt(rawIndex);
+        indexes = (indexes != null ? indexes : new TreeSet<>());
+        indexes.add(index);
+      }
+    }
+    return indexes;
+  }
+
+  private void validateConstructorArgument(Class<?> constructorClass, String nestedPath, String name, @Nullable Object value) {
     Object[] hints = null;
-    if (this.targetType.getSource() instanceof MethodParameter parameter) {
+    if (targetType != null && targetType.getSource() instanceof MethodParameter parameter) {
       for (Annotation ann : parameter.getParameterAnnotations()) {
         hints = ValidationAnnotationUtils.determineValidationHints(ann);
         if (hints != null) {
