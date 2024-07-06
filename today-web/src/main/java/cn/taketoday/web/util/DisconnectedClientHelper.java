@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ import cn.taketoday.util.ExceptionUtils;
 public class DisconnectedClientHelper {
 
   private static final Set<String> EXCEPTION_PHRASES =
-          Set.of("broken pipe", "connection reset by peer");
+          Set.of("broken pipe", "connection reset");
 
   private static final Set<String> EXCEPTION_TYPE_NAMES =
           Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
@@ -61,8 +61,7 @@ public class DisconnectedClientHelper {
         logger.trace("Looks like the client has gone away", ex);
       }
       else if (logger.isDebugEnabled()) {
-        logger.debug("Looks like the client has gone away: " + ex +
-                " (For a full stack trace, set the log category '" + logger + "' to TRACE level.)");
+        logger.debug("Looks like the client has gone away: {} (For a full stack trace, set the log category '{}' to TRACE level.)", ex, logger);
       }
       return true;
     }
@@ -71,11 +70,12 @@ public class DisconnectedClientHelper {
 
   /**
    * Whether the given exception indicates the client has gone away.
-   * Known cases covered:
+   * <p>Known cases covered:
    * <ul>
    * <li>ClientAbortException or EOFException for Tomcat
    * <li>EofException for Jetty
    * <li>IOException "Broken pipe" or "connection reset by peer"
+   * <li>SocketException "Connection reset"
    * </ul>
    */
   public static boolean isClientDisconnectedException(Throwable ex) {
