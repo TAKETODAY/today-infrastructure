@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,14 +42,14 @@ import static org.mockito.Mockito.verify;
  */
 public class SimpleClientHttpResponseTests {
 
-  private final HttpURLConnection connection = mock(HttpURLConnection.class);
+  private final HttpURLConnection connection = mock();
 
   private final SimpleClientHttpResponse response = new SimpleClientHttpResponse(this.connection);
 
   @Test  // SPR-14040
   public void shouldNotCloseConnectionWhenResponseClosed() throws Exception {
     TestByteArrayInputStream is = new TestByteArrayInputStream("Spring".getBytes(StandardCharsets.UTF_8));
-    given(this.connection.getErrorStream()).willReturn(null);
+    given(this.connection.getResponseCode()).willReturn(200);
     given(this.connection.getInputStream()).willReturn(is);
 
     InputStream responseStream = this.response.getBody();
@@ -68,7 +64,7 @@ public class SimpleClientHttpResponseTests {
   public void shouldDrainStreamWhenResponseClosed() throws Exception {
     byte[] buf = new byte[6];
     TestByteArrayInputStream is = new TestByteArrayInputStream("SpringSpring".getBytes(StandardCharsets.UTF_8));
-    given(this.connection.getErrorStream()).willReturn(null);
+    given(this.connection.getResponseCode()).willReturn(200);
     given(this.connection.getInputStream()).willReturn(is);
 
     InputStream responseStream = this.response.getBody();
@@ -86,6 +82,7 @@ public class SimpleClientHttpResponseTests {
   public void shouldDrainErrorStreamWhenResponseClosed() throws Exception {
     byte[] buf = new byte[6];
     TestByteArrayInputStream is = new TestByteArrayInputStream("SpringSpring".getBytes(StandardCharsets.UTF_8));
+    given(this.connection.getResponseCode()).willReturn(404);
     given(this.connection.getErrorStream()).willReturn(is);
 
     InputStream responseStream = this.response.getBody();
@@ -101,7 +98,8 @@ public class SimpleClientHttpResponseTests {
 
   @Test  // SPR-16773
   public void shouldNotDrainWhenErrorStreamClosed() throws Exception {
-    InputStream is = mock(InputStream.class);
+    InputStream is = mock();
+    given(this.connection.getResponseCode()).willReturn(404);
     given(this.connection.getErrorStream()).willReturn(is);
     willDoNothing().given(is).close();
     given(is.transferTo(any())).willCallRealMethod();
@@ -119,7 +117,7 @@ public class SimpleClientHttpResponseTests {
   @Test // SPR-17181
   public void shouldDrainResponseEvenIfResponseNotRead() throws Exception {
     TestByteArrayInputStream is = new TestByteArrayInputStream("SpringSpring".getBytes(StandardCharsets.UTF_8));
-    given(this.connection.getErrorStream()).willReturn(null);
+    given(this.connection.getResponseCode()).willReturn(200);
     given(this.connection.getInputStream()).willReturn(is);
 
     this.response.close();
