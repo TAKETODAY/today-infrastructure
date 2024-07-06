@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
@@ -30,26 +27,24 @@ import java.util.Map;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.function.ThrowingConsumer;
 
 /**
  * {@link GeneratedFiles} implementation that keeps generated files in-memory.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class InMemoryGeneratedFiles implements GeneratedFiles {
+public class InMemoryGeneratedFiles extends GeneratedFiles {
 
   private final Map<Kind, Map<String, InputStreamSource>> files = new HashMap<>();
 
   @Override
-  public void addFile(Kind kind, String path, InputStreamSource content) {
-    Assert.notNull(kind, "'kind' is required");
-    Assert.hasLength(path, "'path' must not be empty");
-    Assert.notNull(content, "'content' is required");
+  public void handleFile(Kind kind, String path, ThrowingConsumer<FileHandler> handler) {
     Map<String, InputStreamSource> paths = this.files.computeIfAbsent(kind,
             key -> new LinkedHashMap<>());
-    Assert.state(!paths.containsKey(path), () -> "Path '" + path + "' already in use");
-    paths.put(path, content);
+    handler.accept(new InMemoryFileHandler(paths, path));
   }
 
   /**
@@ -92,7 +87,30 @@ public class InMemoryGeneratedFiles implements GeneratedFiles {
     Assert.notNull(kind, "'kind' is required");
     Assert.hasLength(path, "'path' must not be empty");
     Map<String, InputStreamSource> paths = this.files.get(kind);
-    return (paths != null) ? paths.get(path) : null;
+    return (paths != null ? paths.get(path) : null);
+  }
+
+  private static class InMemoryFileHandler extends FileHandler {
+
+    private final Map<String, InputStreamSource> paths;
+
+    private final String key;
+
+    InMemoryFileHandler(Map<String, InputStreamSource> paths, String key) {
+      super(paths.containsKey(key), () -> paths.get(key));
+      this.paths = paths;
+      this.key = key;
+    }
+
+    @Override
+    protected void copy(InputStreamSource content, boolean override) {
+      this.paths.put(this.key, content);
+    }
+
+    @Override
+    public String toString() {
+      return this.key;
+    }
   }
 
 }

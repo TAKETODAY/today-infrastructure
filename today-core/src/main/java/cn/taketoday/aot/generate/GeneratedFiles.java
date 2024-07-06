@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.javapoet.JavaFile;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
@@ -38,7 +41,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  * @see FileSystemGeneratedFiles
  * @since 4.0
  */
-public interface GeneratedFiles {
+public abstract class GeneratedFiles {
 
   /**
    * Add a generated {@link Kind#SOURCE source file} with content from the
@@ -46,7 +49,7 @@ public interface GeneratedFiles {
    *
    * @param javaFile the java file to add
    */
-  default void addSourceFile(JavaFile javaFile) {
+  public void addSourceFile(JavaFile javaFile) {
     validatePackage(javaFile.packageName, javaFile.typeSpec.name);
     String className = javaFile.packageName + "." + javaFile.typeSpec.name;
     addSourceFile(className, javaFile::writeTo);
@@ -60,7 +63,7 @@ public interface GeneratedFiles {
    * of the file
    * @param content the contents of the file
    */
-  default void addSourceFile(String className, CharSequence content) {
+  public void addSourceFile(String className, CharSequence content) {
     addSourceFile(className, appendable -> appendable.append(content));
   }
 
@@ -73,7 +76,7 @@ public interface GeneratedFiles {
    * @param content a {@link ThrowingConsumer} that accepts an
    * {@link Appendable} which will receive the file contents
    */
-  default void addSourceFile(String className, ThrowingConsumer<Appendable> content) {
+  public void addSourceFile(String className, ThrowingConsumer<Appendable> content) {
     addFile(Kind.SOURCE, getClassNamePath(className), content);
   }
 
@@ -86,7 +89,7 @@ public interface GeneratedFiles {
    * @param content an {@link InputStreamSource} that will provide an input
    * stream containing the file contents
    */
-  default void addSourceFile(String className, InputStreamSource content) {
+  public void addSourceFile(String className, InputStreamSource content) {
     addFile(Kind.SOURCE, getClassNamePath(className), content);
   }
 
@@ -97,7 +100,7 @@ public interface GeneratedFiles {
    * @param path the relative path of the file
    * @param content the contents of the file
    */
-  default void addResourceFile(String path, CharSequence content) {
+  public void addResourceFile(String path, CharSequence content) {
     addResourceFile(path, appendable -> appendable.append(content));
   }
 
@@ -109,7 +112,7 @@ public interface GeneratedFiles {
    * @param content a {@link ThrowingConsumer} that accepts an
    * {@link Appendable} which will receive the file contents
    */
-  default void addResourceFile(String path, ThrowingConsumer<Appendable> content) {
+  public void addResourceFile(String path, ThrowingConsumer<Appendable> content) {
     addFile(Kind.RESOURCE, path, content);
   }
 
@@ -121,7 +124,7 @@ public interface GeneratedFiles {
    * @param content an {@link InputStreamSource} that will provide an input
    * stream containing the file contents
    */
-  default void addResourceFile(String path, InputStreamSource content) {
+  public void addResourceFile(String path, InputStreamSource content) {
     addFile(Kind.RESOURCE, path, content);
   }
 
@@ -133,7 +136,7 @@ public interface GeneratedFiles {
    * @param content an {@link InputStreamSource} that will provide an input
    * stream containing the file contents
    */
-  default void addClassFile(String path, InputStreamSource content) {
+  public void addClassFile(String path, InputStreamSource content) {
     addFile(Kind.CLASS, path, content);
   }
 
@@ -145,7 +148,7 @@ public interface GeneratedFiles {
    * @param path the relative path of the file
    * @param content the contents of the file
    */
-  default void addFile(Kind kind, String path, CharSequence content) {
+  public void addFile(Kind kind, String path, CharSequence content) {
     addFile(kind, path, appendable -> appendable.append(content));
   }
 
@@ -158,7 +161,7 @@ public interface GeneratedFiles {
    * @param content a {@link ThrowingConsumer} that accepts an
    * {@link Appendable} which will receive the file contents
    */
-  default void addFile(Kind kind, String path, ThrowingConsumer<Appendable> content) {
+  public void addFile(Kind kind, String path, ThrowingConsumer<Appendable> content) {
     Assert.notNull(content, "'content' is required");
     addFile(kind, path, new AppendableConsumerInputStreamSource(content));
   }
@@ -172,13 +175,30 @@ public interface GeneratedFiles {
    * @param content an {@link InputStreamSource} that will provide an input
    * stream containing the file contents
    */
-  void addFile(Kind kind, String path, InputStreamSource content);
+  public void addFile(Kind kind, String path, InputStreamSource content) {
+    Assert.notNull(kind, "'kind' is required");
+    Assert.hasLength(path, "'path' must not be empty");
+    Assert.notNull(content, "'content' is required");
+    handleFile(kind, path, handler -> handler.create(content));
+  }
+
+  /**
+   * Handle a generated file of the specified {@link Kind} with the given
+   * {@linkplain FileHandler handler}. The file handler lets you consume
+   * the content of the already generated file, if any and provide a way
+   * to override its content if necessary.
+   *
+   * @param kind the kind of file
+   * @param path the relative path of the file
+   * @param handler a consumer of a {@link FileHandler} for the file
+   */
+  public abstract void handleFile(Kind kind, String path, ThrowingConsumer<FileHandler> handler);
 
   private static String getClassNamePath(String className) {
     Assert.hasLength(className, "'className' must not be empty");
     validatePackage(ClassUtils.getPackageName(className), className);
     Assert.isTrue(isJavaIdentifier(className),
-            () -> "'className' must be a valid identifier, got '" + className + "'");
+            "'className' must be a valid identifier, got '" + className + "'");
     return ClassUtils.convertClassNameToResourcePath(className) + ".java";
   }
 
@@ -206,7 +226,7 @@ public interface GeneratedFiles {
   /**
    * The various kinds of generated files that are supported.
    */
-  enum Kind {
+  public enum Kind {
 
     /**
      * A source file containing Java code that should be compiled.
@@ -224,6 +244,68 @@ public interface GeneratedFiles {
      * generated using CGLIB.
      */
     CLASS
+
+  }
+
+  /**
+   * Provide access to a particular file and offer convenient method to save
+   * or override its content.
+   *
+   * @since 5.0
+   */
+  public abstract static class FileHandler {
+
+    private final boolean exists;
+
+    private final Supplier<InputStreamSource> existingContent;
+
+    protected FileHandler(boolean exists, Supplier<InputStreamSource> existingContent) {
+      this.exists = exists;
+      this.existingContent = existingContent;
+    }
+
+    /**
+     * Specify whether the file already exists.
+     *
+     * @return {@code true} if the file already exists
+     */
+    public boolean exists() {
+      return this.exists;
+    }
+
+    /**
+     * Return an {@link InputStreamSource} for the content of the file or
+     * {@code null} if the file does not exist.
+     */
+    @Nullable
+    public InputStreamSource getContent() {
+      return (exists() ? this.existingContent.get() : null);
+    }
+
+    /**
+     * Create a file with the given {@linkplain InputStreamSource content}.
+     *
+     * @throws IllegalStateException if the file already exists
+     */
+    public void create(InputStreamSource content) {
+      Assert.notNull(content, "'content' is required");
+      if (exists()) {
+        throw new IllegalStateException("%s already exists".formatted(this));
+      }
+      copy(content, false);
+    }
+
+    /**
+     * Override the content of the file handled by this instance using the
+     * given {@linkplain InputStreamSource content}. If the file does not
+     * exist, it is created.
+     */
+    public void override(InputStreamSource content) {
+      Assert.notNull(content, "'content' is required");
+      copy(content, true);
+    }
+
+    protected abstract void copy(InputStreamSource content, boolean override);
 
   }
 
