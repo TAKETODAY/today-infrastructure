@@ -763,7 +763,7 @@ public class AntPathMatcher implements PathMatcher {
    */
   @Override
   public Comparator<String> getPatternComparator(String path) {
-    return new AntPatternComparator(path);
+    return new AntPatternComparator(path, pathSeparator);
   }
 
   /**
@@ -925,8 +925,11 @@ public class AntPathMatcher implements PathMatcher {
 
     private final String path;
 
-    public AntPatternComparator(String path) {
+    private final String pathSeparator;
+
+    public AntPatternComparator(String path, String pathSeparator) {
       this.path = path;
+      this.pathSeparator = pathSeparator;
     }
 
     /**
@@ -938,8 +941,8 @@ public class AntPathMatcher implements PathMatcher {
      */
     @Override
     public int compare(String pattern1, String pattern2) {
-      PatternInfo info1 = new PatternInfo(pattern1);
-      PatternInfo info2 = new PatternInfo(pattern2);
+      PatternInfo info1 = new PatternInfo(pattern1, this.pathSeparator);
+      PatternInfo info2 = new PatternInfo(pattern2, this.pathSeparator);
 
       if (info1.isLeastSpecific() && info2.isLeastSpecific()) {
         return 0;
@@ -1016,15 +1019,15 @@ public class AntPathMatcher implements PathMatcher {
       @Nullable
       private final String pattern;
 
-      public PatternInfo(@Nullable String pattern) {
+      PatternInfo(@Nullable String pattern, String pathSeparator) {
         this.pattern = pattern;
-        if (pattern != null) {
+        if (this.pattern != null) {
           initCounters(pattern);
-          this.catchAllPattern = pattern.equals("/**");
-          this.prefixPattern = !this.catchAllPattern && pattern.endsWith("/**");
+          this.catchAllPattern = this.pattern.equals(pathSeparator + "**");
+          this.prefixPattern = !this.catchAllPattern && this.pattern.endsWith(pathSeparator + "**");
         }
         if (this.uriVars == 0) {
-          this.length = (pattern != null ? pattern.length() : 0);
+          this.length = (this.pattern != null ? this.pattern.length() : 0);
         }
       }
 

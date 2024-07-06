@@ -474,7 +474,7 @@ class AntPathMatcherTests {
   }
 
   @Test
-  public void patternComparator() {
+  void patternComparator() {
     Comparator<String> comparator = pathMatcher.getPatternComparator("/hotels/new");
 
     assertThat(comparator.compare(null, null)).isEqualTo(0);
@@ -525,6 +525,15 @@ class AntPathMatcherTests {
     // SPR-13139
     assertThat(comparator.compare("*", "*/**")).isEqualTo(-1);
     assertThat(comparator.compare("*/**", "*")).isEqualTo(1);
+  }
+
+  @Test
+  void patternComparatorWithDotSeparator() {
+    Comparator<String> comparator = dotSeparatedPathMatcher.getPatternComparator("price.stock.spring");
+
+    assertThat(comparator.compare(null, null)).isEqualTo(0);
+    assertThat(comparator.compare("price.stock.ticker/symbol", "price.stock.ticker/symbol")).isEqualTo(0);
+    assertThat(comparator.compare("price.stock.**", "price.stock.ticker")).isEqualTo(1);
   }
 
   @Test
