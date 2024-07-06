@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.validation;
@@ -37,7 +37,6 @@ import cn.taketoday.validation.beanvalidation.FilteredMethodValidationPostProces
 import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
 import cn.taketoday.validation.beanvalidation.MethodValidationExcludeFilter;
 import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
-import cn.taketoday.validation.beanvalidation.SuppliedValidator;
 import jakarta.validation.Validator;
 import jakarta.validation.executable.ExecutableValidator;
 
@@ -84,7 +83,7 @@ public class ValidationAutoConfiguration {
     var processor = new FilteredMethodValidationPostProcessor(excludeFilters);
     boolean proxyTargetClass = environment.getFlag("infra.aop.proxy-target-class", true);
     processor.setProxyTargetClass(proxyTargetClass);
-    processor.setValidator(new SuppliedValidator(validator));
+    processor.setValidatorProvider(validator);
     return processor;
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.beanvalidation;
@@ -23,6 +20,8 @@ package cn.taketoday.validation.beanvalidation;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,7 +30,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -44,7 +43,9 @@ import cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
-import jakarta.validation.ValidationException;
+import cn.taketoday.validation.method.MethodValidationException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
@@ -58,31 +59,43 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class MethodValidationProxyTests {
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
   @SuppressWarnings("unchecked")
-  public void testMethodValidationInterceptor() {
+  void testMethodValidationInterceptor(boolean adaptViolations) {
     MyValidBean bean = new MyValidBean();
     ProxyFactory factory = new ProxyFactory(bean);
-    factory.addAdvice(new MethodValidationInterceptor());
+    factory.addAdvice(adaptViolations ?
+            new MethodValidationInterceptor(() -> Validation.buildDefaultValidatorFactory().getValidator(), true) :
+            new MethodValidationInterceptor());
     factory.addAdvisor(new AsyncAnnotationAdvisor());
-    doTestProxyValidation((MyValidInterface<String>) factory.getProxy());
+    doTestProxyValidation((MyValidInterface<String>) factory.getProxy(),
+            (adaptViolations ? MethodValidationException.class : ConstraintViolationException.class));
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
   @SuppressWarnings("unchecked")
-  public void testMethodValidationPostProcessor() {
+  void testMethodValidationPostProcessor(boolean adaptViolations) {
     StaticApplicationContext context = new StaticApplicationContext();
-    context.registerSingleton("mvpp", MethodValidationPostProcessor.class);
+    context.registerBean(MethodValidationPostProcessor.class, adaptViolations ?
+            () -> {
+              MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
+              postProcessor.setAdaptConstraintViolations(true);
+              return postProcessor;
+            } :
+            MethodValidationPostProcessor::new);
     PropertyValues pvs = new PropertyValues();
     pvs.add("beforeExistingAdvisors", false);
     context.registerSingleton("aapp", AsyncAnnotationBeanPostProcessor.class, pvs);
     context.registerSingleton("bean", MyValidBean.class);
     context.refresh();
-    doTestProxyValidation(context.getBean("bean", MyValidInterface.class));
+    doTestProxyValidation(context.getBean("bean", MyValidInterface.class),
+            adaptViolations ? MethodValidationException.class : ConstraintViolationException.class);
     context.close();
   }
 
-  @Test // gh-29782
+  @Test
   @SuppressWarnings("unchecked")
   public void testMethodValidationPostProcessorForInterfaceOnlyProxy() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
@@ -90,37 +103,49 @@ public class MethodValidationProxyTests {
     context.registerBean(MyValidInterface.class, () ->
             ProxyFactory.getProxy(MyValidInterface.class, new MyValidClientInterfaceMethodInterceptor()));
     context.refresh();
-    doTestProxyValidation(context.getBean(MyValidInterface.class));
+    doTestProxyValidation(context.getBean(MyValidInterface.class), ConstraintViolationException.class);
     context.close();
   }
 
   @SuppressWarnings("DataFlowIssue")
-  private void doTestProxyValidation(MyValidInterface<String> proxy) {
+  private void doTestProxyValidation(MyValidInterface<String> proxy, Class<? extends Exception> expectedExceptionClass) {
     assertThat(proxy.myValidMethod("value", 5)).isNotNull();
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod(null, 5));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod("value", 0));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myValidMethod("value", 15));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myValidMethod(null, 5));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myValidMethod("value", 0));
     proxy.myValidAsyncMethod("value", 5);
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidAsyncMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidAsyncMethod(null, 5));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myValidAsyncMethod("value", 15));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myValidAsyncMethod(null, 5));
     assertThat(proxy.myGenericMethod("myValue")).isEqualTo("myValue");
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myGenericMethod(null));
+    assertThatExceptionOfType(expectedExceptionClass).isThrownBy(() -> proxy.myGenericMethod(null));
   }
 
   @Test
-  public void testLazyValidatorForMethodValidation() {
-    ApplicationContext context = new AnnotationConfigApplicationContext(
-            LazyMethodValidationConfig.class, CustomValidatorBean.class,
-            MyValidBean.class, MyValidFactoryBean.class);
-    context.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
+  void testLazyValidatorForMethodValidation() {
+    doTestLazyValidatorForMethodValidation(LazyMethodValidationConfig.class);
   }
 
   @Test
-  public void testLazyValidatorForMethodValidationWithProxyTargetClass() {
-    ApplicationContext context = new AnnotationConfigApplicationContext(
-            LazyMethodValidationConfigWithProxyTargetClass.class, CustomValidatorBean.class,
-            MyValidBean.class, MyValidFactoryBean.class);
+  void testLazyValidatorForMethodValidationWithProxyTargetClass() {
+    doTestLazyValidatorForMethodValidation(LazyMethodValidationConfigWithProxyTargetClass.class);
+  }
+
+  @Test
+  void testLazyValidatorForMethodValidationWithValidatorProvider() {
+    doTestLazyValidatorForMethodValidation(LazyMethodValidationConfigWithValidatorProvider.class);
+  }
+
+  private void doTestLazyValidatorForMethodValidation(Class<?> configClass) {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(configClass, CustomValidatorBean.class, MyValidBean.class, MyValidFactoryBean.class);
+    context.getBeanFactory().getBeanDefinition("customValidatorBean").setLazyInit(true);
+    context.refresh();
+
+    assertThat(context.getBeanFactory().containsSingleton("customValidatorBean")).isFalse();
     context.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
+    assertThat(context.getBeanFactory().containsSingleton("customValidatorBean")).isTrue();
+
+    context.close();
   }
 
   @MyStereotype
@@ -192,7 +217,7 @@ public class MethodValidationProxyTests {
 
     @Nullable
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object invoke(MethodInvocation invocation) {
       Method method;
       try {
         method = ReflectionUtils.getMethod(MyValidBean.class, invocation.getMethod().getName(), (Class<?>[]) null);
@@ -240,6 +265,17 @@ public class MethodValidationProxyTests {
       MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
       postProcessor.setValidator(validator);
       postProcessor.setProxyTargetClass(true);
+      return postProcessor;
+    }
+  }
+
+  @Configuration
+  public static class LazyMethodValidationConfigWithValidatorProvider {
+
+    @Bean
+    public static MethodValidationPostProcessor methodValidationPostProcessor(ObjectProvider<Validator> validator) {
+      MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
+      postProcessor.setValidatorProvider(validator);
       return postProcessor;
     }
   }
