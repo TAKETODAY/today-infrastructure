@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ import java.util.concurrent.Future;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.core.InfrastructureProxy;
+import cn.taketoday.core.InfraProxy;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -411,7 +411,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
   public SessionFactory buildSessionFactory(AsyncTaskExecutor bootstrapExecutor) {
     Assert.notNull(bootstrapExecutor, "AsyncTaskExecutor is required");
     return (SessionFactory) Proxy.newProxyInstance(patternResourceLoader.getClassLoader(),
-            new Class<?>[] { SessionFactoryImplementor.class, InfrastructureProxy.class },
+            new Class<?>[] { SessionFactoryImplementor.class, InfraProxy.class },
             new BootstrapSessionFactoryInvocationHandler(bootstrapExecutor));
   }
 

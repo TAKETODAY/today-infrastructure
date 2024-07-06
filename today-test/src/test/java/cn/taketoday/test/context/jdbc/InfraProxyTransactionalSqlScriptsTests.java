@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.jdbc;
@@ -33,7 +30,7 @@ import javax.sql.DataSource;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.core.InfrastructureProxy;
+import cn.taketoday.core.InfraProxy;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -46,20 +43,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Transactional integration tests for {@link Sql @Sql} support when the
  * {@link DataSource} is wrapped in a proxy that implements
- * {@link InfrastructureProxy}.
+ * {@link InfraProxy}.
  *
  * @author Sam Brannen
  * @since 4.0
  */
 @JUnitConfig
 @DirtiesContext
-class InfrastructureProxyTransactionalSqlScriptsTests extends AbstractTransactionalTests {
+class InfraProxyTransactionalSqlScriptsTests extends AbstractTransactionalTests {
 
   @BeforeEach
   void preconditions(@Autowired DataSource dataSource, @Autowired DataSourceTransactionManager transactionManager) {
     assertThat(dataSource).isNotEqualTo(transactionManager.getDataSource());
     assertThat(transactionManager.getDataSource()).isNotEqualTo(dataSource);
-    assertThat(transactionManager.getDataSource()).isInstanceOf(InfrastructureProxy.class);
+    assertThat(transactionManager.getDataSource()).isInstanceOf(InfraProxy.class);
   }
 
   @Test
@@ -92,8 +89,8 @@ class InfrastructureProxyTransactionalSqlScriptsTests extends AbstractTransactio
 
   private static DataSource wrapDataSource(DataSource dataSource) {
     return (DataSource) Proxy.newProxyInstance(
-            InfrastructureProxyTransactionalSqlScriptsTests.class.getClassLoader(),
-            new Class<?>[] { DataSource.class, InfrastructureProxy.class },
+            InfraProxyTransactionalSqlScriptsTests.class.getClassLoader(),
+            new Class<?>[] { DataSource.class, InfraProxy.class },
             new DataSourceInvocationHandler(dataSource));
   }
 

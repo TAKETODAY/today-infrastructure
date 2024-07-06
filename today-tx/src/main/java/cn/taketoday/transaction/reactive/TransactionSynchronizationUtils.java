@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.reactive;
@@ -20,7 +20,7 @@ package cn.taketoday.transaction.reactive;
 import java.util.Collection;
 
 import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.core.InfrastructureProxy;
+import cn.taketoday.core.InfraProxy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -49,14 +49,14 @@ abstract class TransactionSynchronizationUtils {
    * Unwrap the given resource handle if necessary; otherwise return
    * the given handle as-is.
    *
-   * @see InfrastructureProxy#getWrappedObject()
+   * @see InfraProxy#getWrappedObject()
    */
   static Object unwrapResourceIfNecessary(Object resource) {
     Assert.notNull(resource, "Resource is required");
     Object resourceRef = resource;
     // unwrap infrastructure proxy
-    if (resourceRef instanceof InfrastructureProxy) {
-      resourceRef = ((InfrastructureProxy) resourceRef).getWrappedObject();
+    if (resourceRef instanceof InfraProxy) {
+      resourceRef = ((InfraProxy) resourceRef).getWrappedObject();
     }
     if (aopAvailable) {
       // now unwrap scoped proxy
