@@ -22,8 +22,6 @@ import java.sql.Savepoint;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.transaction.CannotCreateTransactionException;
 import cn.taketoday.transaction.NestedTransactionNotSupportedException;
 import cn.taketoday.transaction.SavepointManager;
@@ -48,8 +46,6 @@ import cn.taketoday.transaction.support.SmartTransactionObject;
  * @since 4.0
  */
 public abstract class JdbcTransactionObjectSupport implements SavepointManager, SmartTransactionObject {
-
-  private static final Logger logger = LoggerFactory.getLogger(JdbcTransactionObjectSupport.class);
 
   @Nullable
   private ConnectionHolder connectionHolder;
