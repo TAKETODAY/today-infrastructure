@@ -29,6 +29,7 @@ import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Unmodifiable;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -240,6 +241,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   // static
 
   @SuppressWarnings({ "unchecked" })
+  @Unmodifiable
   static <K, V> MultiValueMap<K, V> empty() {
     return EMPTY;
   }

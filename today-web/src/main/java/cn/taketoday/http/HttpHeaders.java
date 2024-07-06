@@ -47,7 +47,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Unmodifiable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
@@ -1969,6 +1971,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return returns empty http-headers
    * @since 4.0
    */
+  @Unmodifiable
   public static HttpHeaders empty() {
     return ReadOnlyHttpHeaders.EMPTY;
   }
@@ -1977,6 +1980,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return returns a new DefaultHttpHeaders
    * @since 4.0
    */
+  @Modifiable
   public static DefaultHttpHeaders forWritable() {
     return new DefaultHttpHeaders();
   }
@@ -1990,6 +1994,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
+  @Modifiable
   public static DefaultHttpHeaders forWritable(MultiValueMap<String, String> headers) {
     return new DefaultHttpHeaders(headers);
   }
@@ -2003,6 +2008,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * (in case it happens to be a read-only {@code HttpHeaders} instance already)
    * @since 4.0
    */
+  @Unmodifiable
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
     return headers instanceof HttpHeaders
             ? ((HttpHeaders) headers).asReadOnly()
@@ -2013,20 +2019,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * copy targetMap’s all entries to a new HttpHeaders
    *
    * @param targetMap can be null
-   * @return returns {@link #empty()} if {@code targetMap} is null
+   * @return returns a new HttpHeaders with copy headers
    * @since 4.0
    */
+  @Modifiable
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
-    if (targetMap == null) {
-      return HttpHeaders.empty();
-    }
-    else {
-      HttpHeaders result = HttpHeaders.forWritable();
-      for (Map.Entry<String, List<String>> entry : targetMap.entrySet()) {
-        result.addAll(entry);
-      }
-      return result;
-    }
+    HttpHeaders result = HttpHeaders.forWritable();
+    result.addAll(targetMap);
+    return result;
   }
 
   // Package-private: used in ResponseCookie
