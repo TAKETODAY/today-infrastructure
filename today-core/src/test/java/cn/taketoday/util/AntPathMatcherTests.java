@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -43,9 +40,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  */
-public class AntPathMatcherTest {
+class AntPathMatcherTests {
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+  private final AntPathMatcher dotSeparatedPathMatcher = new AntPathMatcher(".");
 
   @Test
   public void match() {
@@ -135,7 +134,7 @@ public class AntPathMatcherTest {
 
     assertThat(pathMatcher.match("/{bla}.*", "/testing.html")).isTrue();
 
-    		assertThat(pathMatcher.match("/{var:.*}", "/x\ny")).isTrue();
+    assertThat(pathMatcher.match("/{var:.*}", "/x\ny")).isTrue();
 
   }
 
@@ -362,6 +361,25 @@ public class AntPathMatcherTest {
     expected.put("name", "test");
     expected.put("extension", "html");
     assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+    // gh-26264
+  void extractUriTemplateVariablesFromDotSeparatedPath() {
+    Map<String, String> result = dotSeparatedPathMatcher.extractUriTemplateVariables("price.stock.{tickerSymbol}", "price.stock.aaa");
+    assertThat(result).isEqualTo(Collections.singletonMap("tickerSymbol", "aaa"));
+
+    result = dotSeparatedPathMatcher.extractUriTemplateVariables("price.stock.{ticker/symbol}", "price.stock.aaa");
+    assertThat(result).isEqualTo(Collections.singletonMap("ticker/symbol", "aaa"));
+
+    result = dotSeparatedPathMatcher.extractUriTemplateVariables("notification.**.{operation}", "notification.foo.update");
+    assertThat(result).isEqualTo(Collections.singletonMap("operation", "update"));
+
+    result = dotSeparatedPathMatcher.extractUriTemplateVariables("news.sports.feed/{type}", "news.sports.feed/xml");
+    assertThat(result).isEqualTo(Collections.singletonMap("type", "xml"));
+
+    result = dotSeparatedPathMatcher.extractUriTemplateVariables("news.sports.{operation}/*", "news.sports.feed/xml");
+    assertThat(result).isEqualTo(Collections.singletonMap("operation", "feed"));
   }
 
   @Test
