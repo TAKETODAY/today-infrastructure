@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.testfixture.codec;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
@@ -35,7 +34,9 @@ import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import static cn.taketoday.core.io.buffer.DataBufferUtils.release;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Abstract base class for {@link Encoder} unit tests. Subclasses need to implement
@@ -57,7 +58,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    * @param encoder the encoder
    */
   protected AbstractEncoderTests(E encoder) {
-    Assert.notNull(encoder, "Encoder is required");
+    Assert.notNull(encoder, "Encoder must not be null");
     this.encoder = encoder;
   }
 
@@ -65,14 +66,14 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    * Subclasses should implement this method to test {@link Encoder#canEncode}.
    */
   @Test
-  public abstract void canEncode() throws Exception;
+  protected abstract void canEncode() throws Exception;
 
   /**
    * Subclasses should implement this method to test {@link Encoder#encode}, possibly using
    * {@link #testEncodeAll} or other helper methods.
    */
   @Test
-  public abstract void encode() throws Exception;
+  protected abstract void encode() throws Exception;
 
   /**
    * Helper method that tests for a variety of encoding scenarios. This method
@@ -235,8 +236,8 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
     return dataBuffer -> {
       byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
       dataBuffer.read(resultBytes);
-      DataBufferUtils.release(dataBuffer);
-      Assertions.assertThat(resultBytes).isEqualTo(expected);
+      release(dataBuffer);
+      assertThat(resultBytes).isEqualTo(expected);
     };
   }
 
@@ -249,8 +250,8 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   protected Consumer<DataBuffer> expectString(String expected) {
     return dataBuffer -> {
       String actual = dataBuffer.toString(UTF_8);
-      DataBufferUtils.release(dataBuffer);
-      Assertions.assertThat(actual).isEqualTo(expected);
+      release(dataBuffer);
+      assertThat(actual).isEqualToNormalizingNewlines(expected);
     };
   }
 

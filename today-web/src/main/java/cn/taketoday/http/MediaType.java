@@ -257,6 +257,20 @@ public class MediaType extends MimeType implements Serializable {
   /** A String equivalent of {@link MediaType#TEXT_XML}. */
   public static final String TEXT_XML_VALUE = "text/xml";
 
+  /**
+   * Public constant media type for {@code application/x-protobuf}.
+   *
+   * @since 5.0
+   */
+  public static final MediaType APPLICATION_PROTOBUF = new MediaType("application", "x-protobuf");
+
+  /**
+   * A String equivalent of {@link MediaType#APPLICATION_PROTOBUF}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_PROTOBUF_VALUE = "application/x-protobuf";
+
   private static final String PARAM_QUALITY_FACTOR = "q";
 
   /**

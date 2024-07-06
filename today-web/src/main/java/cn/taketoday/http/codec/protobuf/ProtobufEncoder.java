@@ -49,7 +49,7 @@ import reactor.core.publisher.Mono;
  *
  * <p>To generate {@code Message} Java classes, you need to install the {@code protoc} binary.
  *
- * <p>This encoder requires Protobuf 3 or higher, and supports
+ * <p>This encoder requires Protobuf 3.29 or higher, and supports
  * {@code "application/x-protobuf"} and {@code "application/octet-stream"} with the official
  * {@code "com.google.protobuf:protobuf-java"} library.
  *
