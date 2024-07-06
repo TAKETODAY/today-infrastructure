@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.config;
 
+import org.assertj.core.api.ObjectAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import cn.taketoday.beans.DirectFieldAccessor;
@@ -36,6 +33,7 @@ import cn.taketoday.scheduling.TriggerContext;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 /**
  * @author Mark Fisher
@@ -53,7 +51,7 @@ public class ScheduledTasksBeanDefinitionParserTests {
   private Object testBean;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     this.context = new ClassPathXmlApplicationContext(
             "scheduledTasksContext.xml", ScheduledTasksBeanDefinitionParserTests.class);
     this.registrar = this.context.getBeansOfType(
@@ -62,58 +60,60 @@ public class ScheduledTasksBeanDefinitionParserTests {
   }
 
   @Test
-  public void checkScheduler() {
+  void checkScheduler() {
     Object schedulerBean = this.context.getBean("testScheduler");
     Object schedulerRef = new DirectFieldAccessor(this.registrar).getPropertyValue("taskScheduler");
     assertThat(schedulerRef).isEqualTo(schedulerBean);
   }
 
   @Test
-  public void checkTarget() {
+  void checkTarget() {
     List<IntervalTask> tasks = (List<IntervalTask>) new DirectFieldAccessor(
             this.registrar).getPropertyValue("fixedRateTasks");
     Runnable runnable = tasks.get(0).getRunnable();
-    assertThat(runnable.getClass()).isEqualTo(ScheduledMethodRunnable.class);
-    Object targetObject = ((ScheduledMethodRunnable) runnable).getTarget();
-    Method targetMethod = ((ScheduledMethodRunnable) runnable).getMethod();
-    assertThat(targetObject).isEqualTo(this.testBean);
-    assertThat(targetMethod.getName()).isEqualTo("test");
+
+    ObjectAssert<ScheduledMethodRunnable> runnableAssert = assertThat(runnable)
+            .extracting("runnable")
+            .isInstanceOf(ScheduledMethodRunnable.class)
+            .asInstanceOf(type(ScheduledMethodRunnable.class));
+    runnableAssert.extracting("target").isEqualTo(testBean);
+    runnableAssert.extracting("method.name").isEqualTo("test");
   }
 
   @Test
-  public void fixedRateTasks() {
+  void fixedRateTasks() {
     List<IntervalTask> tasks = (List<IntervalTask>) new DirectFieldAccessor(
             this.registrar).getPropertyValue("fixedRateTasks");
-    assertThat(tasks.size()).isEqualTo(3);
-    assertThat(tasks.get(0).getInterval()).isEqualTo(1000L);
-    assertThat(tasks.get(1).getInterval()).isEqualTo(2000L);
-    assertThat(tasks.get(2).getInterval()).isEqualTo(4000L);
-    assertThat(tasks.get(2).getInitialDelay()).isEqualTo(500);
+    assertThat(tasks).hasSize(3);
+    assertThat(tasks.get(0).getIntervalDuration()).isEqualTo(Duration.ofMillis(1000L));
+    assertThat(tasks.get(1).getIntervalDuration()).isEqualTo(Duration.ofMillis(2000L));
+    assertThat(tasks.get(2).getIntervalDuration()).isEqualTo(Duration.ofMillis(4000L));
+    assertThat(tasks.get(2).getInitialDelayDuration()).isEqualTo(Duration.ofMillis(500));
   }
 
   @Test
-  public void fixedDelayTasks() {
+  void fixedDelayTasks() {
     List<IntervalTask> tasks = (List<IntervalTask>) new DirectFieldAccessor(
             this.registrar).getPropertyValue("fixedDelayTasks");
-    assertThat(tasks.size()).isEqualTo(2);
-    assertThat(tasks.get(0).getInterval()).isEqualTo(3000L);
-    assertThat(tasks.get(1).getInterval()).isEqualTo(3500L);
-    assertThat(tasks.get(1).getInitialDelay()).isEqualTo(250);
+    assertThat(tasks).hasSize(2);
+    assertThat(tasks.get(0).getIntervalDuration()).isEqualTo(Duration.ofMillis(3000L));
+    assertThat(tasks.get(1).getIntervalDuration()).isEqualTo(Duration.ofMillis(3500L));
+    assertThat(tasks.get(1).getInitialDelayDuration()).isEqualTo(Duration.ofMillis(250));
   }
 
   @Test
-  public void cronTasks() {
+  void cronTasks() {
     List<CronTask> tasks = (List<CronTask>) new DirectFieldAccessor(
             this.registrar).getPropertyValue("cronTasks");
-    assertThat(tasks.size()).isEqualTo(1);
+    assertThat(tasks).hasSize(1);
     assertThat(tasks.get(0).getExpression()).isEqualTo("*/4 * 9-17 * * MON-FRI");
   }
 
   @Test
-  public void triggerTasks() {
+  void triggerTasks() {
     List<TriggerTask> tasks = (List<TriggerTask>) new DirectFieldAccessor(
             this.registrar).getPropertyValue("triggerTasks");
-    assertThat(tasks.size()).isEqualTo(1);
+    assertThat(tasks).hasSize(1);
     assertThat(tasks.get(0).getTrigger()).isInstanceOf(TestTrigger.class);
   }
 
@@ -124,11 +124,6 @@ public class ScheduledTasksBeanDefinitionParserTests {
   }
 
   static class TestTrigger implements Trigger {
-
-    @Override
-    public Date nextExecutionTime(TriggerContext triggerContext) {
-      return null;
-    }
 
     @Override
     public Instant nextExecution(TriggerContext triggerContext) {

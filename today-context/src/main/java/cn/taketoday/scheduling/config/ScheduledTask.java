@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.config;
 
+import java.time.Instant;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Nullable;
 
@@ -29,6 +28,7 @@ import cn.taketoday.lang.Nullable;
  * used as a return value for scheduling methods.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScheduledTaskRegistrar#scheduleCronTask(CronTask)
  * @see ScheduledTaskRegistrar#scheduleFixedRateTask(FixedRateTask)
  * @see ScheduledTaskRegistrar#scheduleFixedDelayTask(FixedDelayTask)
@@ -75,6 +75,24 @@ public final class ScheduledTask {
     if (future != null) {
       future.cancel(mayInterruptIfRunning);
     }
+  }
+
+  /**
+   * Return the next scheduled execution of the task, or {@code null}
+   * if the task has been cancelled or no new execution is scheduled.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public Instant nextExecution() {
+    ScheduledFuture<?> future = this.future;
+    if (future != null && !future.isCancelled()) {
+      long delay = future.getDelay(TimeUnit.MILLISECONDS);
+      if (delay > 0) {
+        return Instant.now().plusMillis(delay);
+      }
+    }
+    return null;
   }
 
   @Override
