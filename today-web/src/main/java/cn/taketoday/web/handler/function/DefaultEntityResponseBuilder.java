@@ -27,6 +27,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +55,7 @@ import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
@@ -108,9 +110,32 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   }
 
   @Override
-  public EntityResponse.Builder<T> cookies(
-          Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
+  public EntityResponse.Builder<T> cookie(String name, String... values) {
+    for (String value : values) {
+      this.cookies.add(name, new HttpCookie(name, value));
+    }
+    return this;
+  }
+
+  @Override
+  public EntityResponse.Builder<T> cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
+    return this;
+  }
+
+  @Override
+  public EntityResponse.Builder<T> cookies(@Nullable Collection<HttpCookie> cookies) {
+    if (CollectionUtils.isNotEmpty(cookies)) {
+      for (HttpCookie cookie : cookies) {
+        this.cookies.add(cookie.getName(), cookie);
+      }
+    }
+    return this;
+  }
+
+  @Override
+  public EntityResponse.Builder<T> cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+    this.cookies.setAll(cookies);
     return this;
   }
 
@@ -125,6 +150,12 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   @Override
   public EntityResponse.Builder<T> headers(Consumer<HttpHeaders> headersConsumer) {
     headersConsumer.accept(this.headers);
+    return this;
+  }
+
+  @Override
+  public EntityResponse.Builder<T> headers(@Nullable HttpHeaders headers) {
+    this.headers.setAll(headers);
     return this;
   }
 
