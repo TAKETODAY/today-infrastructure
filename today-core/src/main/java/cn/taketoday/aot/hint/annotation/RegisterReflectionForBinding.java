@@ -26,67 +26,81 @@ import java.lang.annotation.Target;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * Indicates that the classes specified in the annotation attributes require some
- * reflection hints for binding or reflection-based serialization purposes. For each
- * class specified, hints on constructors, fields, properties, record components,
- * including types transitively used on properties and record components are registered.
- * At least one class must be specified in the {@code value} or {@code classes} annotation
- * attributes.
+ * Register reflection hints for data binding or reflection-based serialization
+ * against an arbitrary number of target classes.
+ *
+ * <p>For each class hints are registered for constructors, fields, properties,
+ * and record components. Hints are also registered for types transitively used
+ * on properties and record components.
  *
  * <p>The annotated element can be a configuration class &mdash; for example:
- *
  * <pre>{@code
- *  @Configuration
- *  @RegisterReflectionForBinding({Foo.class,Bar.class})
- *  public class MyConfig {
+ * @Configuration
+ * @RegisterReflectionForBinding({Foo.class, Bar.class})
+ * public class MyConfig {
  *     // ...
- *  }
  * }
- * </pre>
+ * }</pre>
  *
- * <p>The annotated element can be any Infra bean class, constructor, field,
- * or method &mdash; for example:
+ * <p>When the annotated element is a type, the type itself is registered if no
+ * candidates are provided:<pre>{@code
+ * @Component
+ * @RegisterReflectionForBinding
+ * public class MyBean {
+ *     // ...
+ * }}</pre>
  *
- * <pre>{@code
- * @Service
+ * The annotation can also be specified on a method. In that case, at least one
+ * target class must be specified:<pre>{@code
+ * @Component
  * public class MyService {
  *
  *     @RegisterReflectionForBinding(Baz.class)
- *     public void process() {
+ *     public Baz process() {
  *         // ...
  *     }
  *
  * }
  * }</pre>
  *
- * <p>The annotated element can also be any test class that uses the <em>Infra
+ * <p>The annotated element can also be any test class that uses the <em>Spring
  * TestContext Framework</em> to load an {@code ApplicationContext}.
  *
  * @author Sebastien Deleuze
+ * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.aot.hint.BindingReflectionHintsRegistrar
- * @see Reflective @Reflective
+ * @see RegisterReflection @RegisterReflection
  * @since 4.0
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@RegisterReflection
 @Reflective(RegisterReflectionForBindingProcessor.class)
 public @interface RegisterReflectionForBinding {
 
   /**
    * Alias for {@link #classes()}.
    */
-  @AliasFor("classes")
+  @AliasFor(annotation = RegisterReflection.class, attribute = "classes")
   Class<?>[] value() default {};
 
   /**
    * Classes for which reflection hints should be registered.
-   * <p>At least one class must be specified either via {@link #value} or
-   * {@link #classes}.
+   * <p>At least one class must be specified either via {@link #value} or {@code classes}.
    *
    * @see #value()
    */
-  @AliasFor("value")
+  @AliasFor(annotation = RegisterReflection.class, attribute = "classes")
   Class<?>[] classes() default {};
+
+  /**
+   * Alternative to {@link #classes()} to specify the classes as class names.
+   *
+   * @see #classes()
+   */
+  @AliasFor(annotation = RegisterReflection.class, attribute = "classNames")
+  String[] classNames() default {};
 
 }
