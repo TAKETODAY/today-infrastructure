@@ -15,17 +15,11 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.testfixture.context.annotation;
+package cn.taketoday.context.testfixture.context.annotation.subpkg;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.testfixture.context.annotation.PackagePrivateMethodResourceSample;
 
-@Configuration(proxyBeanMethods = false)
-public class GenericTemplateConfiguration {
+public class PackagePrivateMethodResourceFromParentSample extends PackagePrivateMethodResourceSample {
 
-  @Bean
-  public GenericTemplate<?> genericTemplate() {
-    return v -> { };
-  }
-
+  // see one from parent
 }

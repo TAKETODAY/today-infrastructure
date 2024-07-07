@@ -17,15 +17,15 @@
 
 package cn.taketoday.context.testfixture.context.annotation;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
+import jakarta.annotation.Resource;
 
-@Configuration(proxyBeanMethods = false)
-public class GenericTemplateConfiguration {
+public class PublicMethodResourceSample {
 
-  @Bean
-  public GenericTemplate<?> genericTemplate() {
-    return v -> { };
-  }
+	private String one;
+
+	@Resource
+	public void setOne(String one) {
+		this.one = one;
+	}
 
 }

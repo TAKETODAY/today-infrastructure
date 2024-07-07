@@ -21,26 +21,26 @@ import jakarta.annotation.Resource;
 
 public class ResourceComponent {
 
-	private String text;
+  private String text;
 
-	private Integer counter;
+  private Integer counter;
 
-	public String getText() {
-		return this.text;
-	}
+  public String getText() {
+    return this.text;
+  }
 
-	@Resource
-	public void setText(String text) {
-		this.text = text;
-	}
+  @Resource
+  public void setText(String text) {
+    this.text = text;
+  }
 
-	public Integer getCounter() {
-		return this.counter;
-	}
+  public Integer getCounter() {
+    return this.counter;
+  }
 
-	@Resource
-	public void setCounter(Integer counter) {
-		this.counter = counter;
-	}
+  @Resource
+  public void setCounter(Integer counter) {
+    this.counter = counter;
+  }
 
 }
