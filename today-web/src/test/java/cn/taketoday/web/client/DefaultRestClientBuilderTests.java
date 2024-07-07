@@ -102,7 +102,7 @@ class DefaultRestClientBuilderTests {
     assertThat(builder).isInstanceOf(DefaultRestClientBuilder.class);
     DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
 
-    assertThat(fieldValue("baseUrl", defaultBuilder)).isEqualTo(baseUrl.toString());
+    assertThat(fieldValue("baseURI", defaultBuilder)).isEqualTo(baseUrl);
   }
 
   @Nullable

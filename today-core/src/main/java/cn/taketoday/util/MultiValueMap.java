@@ -77,6 +77,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param key they key
    * @param values the values to be added
+   * @see ObjectUtils#isNotEmpty(Object[])
    * @since 4.0
    */
   default void addAll(K key, @Nullable V[] values) {
@@ -93,6 +94,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param key they key
    * @param values the values to be added
+   * @see CollectionUtils#isNotEmpty(Collection)
    * @since 4.0
    */
   default void addAll(K key, @Nullable Collection<? extends V> values) {
@@ -157,12 +159,59 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
-   * Set the given single value under the given key.
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
    *
    * @param key the key
-   * @param value the value to set
+   * @param value the value, or {@code null} for none
+   * @return the previous value associated with {@code key}, or
+   * {@code null} if there was no mapping for {@code key}.
+   * (A {@code null} return can also indicate that the map
+   * previously associated {@code null} with {@code key}.)
+   * @see #remove(Object)
+   * @since 5.0
    */
-  void set(K key, @Nullable V value);
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable V value);
+
+  /**
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
+   *
+   * @param key they key
+   * @param value the values
+   * @see Map#put(Object, Object)
+   * @see #remove(Object)
+   * @since 5.0
+   */
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable V[] value);
+
+  /**
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
+   *
+   * @param key key with which the specified value is to be associated
+   * @param value value to be associated with the specified key
+   * @return the previous value associated with {@code key}, or
+   * {@code null} if there was no mapping for {@code key}.
+   * (A {@code null} return can also indicate that the map
+   * previously associated {@code null} with {@code key}.)
+   * @see Map#put(Object, Object)
+   * @see #remove(Object)
+   * @since 5.0
+   */
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable Collection<V> value);
 
   /**
    * Null check for {@link #putAll(Map)}

@@ -34,39 +34,38 @@ import java.util.Set;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MultiValueMap;
 
 /**
- * {@code MultiValueMap} implementation for wrapping Apache HttpComponents
+ * {@code HttpHeaders} implementation for wrapping Apache HttpComponents
  * HttpClient headers.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
+class HttpComponentsHeaders extends HttpHeaders {
 
   private final HttpMessage message;
 
-  HttpComponentsHeadersAdapter(HttpMessage message) {
+  HttpComponentsHeaders(HttpMessage message) {
     this.message = message;
   }
 
   @Nullable
   @Override
-  public String getFirst(String key) {
-    Header header = this.message.getFirstHeader(key);
+  public String getFirst(String name) {
+    Header header = this.message.getFirstHeader(name);
     return header != null ? header.getValue() : null;
   }
 
   @Override
-  public void add(String key, @Nullable String value) {
-    this.message.addHeader(key, value);
+  public void add(String name, @Nullable String value) {
+    this.message.addHeader(name, value);
   }
 
   @Override
-  public void set(String key, @Nullable String value) {
-    this.message.setHeader(key, value);
+  protected void setHeader(String name, String value) {
+    this.message.setHeader(name, value);
   }
 
   @Override
@@ -99,10 +98,10 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Nullable
   @Override
-  public List<String> get(Object key) {
+  public List<String> get(Object name) {
     ArrayList<String> values = null;
-    if (containsKey(key)) {
-      Header[] headers = message.getHeaders((String) key);
+    if (containsKey(name)) {
+      Header[] headers = message.getHeaders((String) name);
       values = new ArrayList<>(headers.length);
       for (Header header : headers) {
         values.add(header.getValue());
@@ -123,9 +122,9 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
   @Nullable
   @Override
-  public List<String> remove(Object key) {
-    if (key instanceof String headerName) {
-      List<String> oldValues = get(key);
+  public List<String> remove(Object name) {
+    if (name instanceof String headerName) {
+      List<String> oldValues = get(name);
       message.removeHeaders(headerName);
       return oldValues;
     }
@@ -172,14 +171,9 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
       @Override
       public int size() {
-        return HttpComponentsHeadersAdapter.this.size();
+        return HttpComponentsHeaders.this.size();
       }
     };
-  }
-
-  @Override
-  public String toString() {
-    return HttpHeaders.formatHeaders(this);
   }
 
   private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
@@ -212,14 +206,14 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
     @Override
     public List<String> getValue() {
-      List<String> values = HttpComponentsHeadersAdapter.this.get(key);
+      List<String> values = HttpComponentsHeaders.this.get(key);
       return values != null ? values : Collections.emptyList();
     }
 
     @Override
     public List<String> setValue(List<String> value) {
       List<String> previousValues = getValue();
-      HttpComponentsHeadersAdapter.this.put(this.key, value);
+      HttpComponentsHeaders.this.put(this.key, value);
       return previousValues;
     }
   }

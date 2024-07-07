@@ -19,7 +19,6 @@ package cn.taketoday.web.reactive.function.client;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,10 +160,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient.Builder defaultHeader(String header, String... values) {
-    HttpHeaders headers = initHeaders();
-    for (String headerValue : values) {
-      headers.add(header, headerValue);
-    }
+    initHeaders().setOrRemove(header, values);
     return this;
   }
 
@@ -189,7 +185,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient.Builder defaultCookie(String cookie, String... values) {
-    initCookies().addAll(cookie, Arrays.asList(values));
+    initCookies().setOrRemove(cookie, values);
     return this;
   }
 
@@ -376,7 +372,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
     if (defaultHeaders != null) {
-      return HttpHeaders.copyOf(defaultCookies).asReadOnly();
+      return HttpHeaders.copyOf(defaultHeaders).asReadOnly();
     }
     else {
       return null;

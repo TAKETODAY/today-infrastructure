@@ -49,14 +49,14 @@ public final class Netty4HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Override
   @Nullable
-  public String getFirst(String key) {
-    return this.headers.get(key);
+  public String getFirst(String name) {
+    return this.headers.get(name);
   }
 
   @Override
-  public void add(String key, @Nullable String value) {
+  public void add(String name, @Nullable String value) {
     if (value != null) {
-      this.headers.add(key, value);
+      this.headers.add(name, value);
     }
   }
 
@@ -68,10 +68,8 @@ public final class Netty4HttpHeaders extends cn.taketoday.http.HttpHeaders {
   }
 
   @Override
-  public void set(String key, @Nullable String value) {
-    if (value != null) {
-      this.headers.set(key, value);
-    }
+  public void setHeader(String name, String value) {
+    this.headers.set(name, value);
   }
 
   @Override
@@ -112,9 +110,9 @@ public final class Netty4HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Override
   @Nullable
-  public List<String> get(Object key) {
-    if (containsKey(key)) {
-      return this.headers.getAll((String) key);
+  public List<String> get(Object name) {
+    if (containsKey(name)) {
+      return this.headers.getAll((String) name);
     }
     return null;
   }
@@ -129,8 +127,8 @@ public final class Netty4HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Nullable
   @Override
-  public List<String> remove(Object key) {
-    if (key instanceof String headerName) {
+  public List<String> remove(Object name) {
+    if (name instanceof String headerName) {
       List<String> previousValues = this.headers.getAll(headerName);
       this.headers.remove(headerName);
       return previousValues;

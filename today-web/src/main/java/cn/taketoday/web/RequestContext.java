@@ -1327,7 +1327,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
       }
     }
   }
@@ -1339,7 +1339,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setLastModified(lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
       }
     }
   }

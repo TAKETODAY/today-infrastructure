@@ -101,9 +101,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
 
   @Override
   public RenderingResponse.ViewBuilder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    this.headers.setOrRemove(headerName, headerValues);
     return this;
   }
 

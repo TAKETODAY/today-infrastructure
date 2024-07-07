@@ -86,13 +86,13 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public List<String> get(Object key) {
-    List<String> values = this.headers.get(key);
+  public List<String> get(Object name) {
+    List<String> values = this.headers.get(name);
     return (values != null ? Collections.unmodifiableList(values) : null);
   }
 
   @Override
-  public void add(String headerName, @Nullable String headerValue) {
+  public void add(String name, @Nullable String value) {
     throw new UnsupportedOperationException();
   }
 
@@ -107,7 +107,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void set(String headerName, @Nullable String headerValue) {
+  public List<String> setOrRemove(String name, @Nullable String value) {
     throw new UnsupportedOperationException();
   }
 
@@ -122,7 +122,7 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public List<String> remove(Object key) {
+  public List<String> remove(Object name) {
     throw new UnsupportedOperationException();
   }
 

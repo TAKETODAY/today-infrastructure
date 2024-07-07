@@ -250,9 +250,7 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        headers().add(headerName, headerValue);
-      }
+      headers().setOrRemove(headerName, headerValues);
       return this;
     }
 
@@ -294,7 +292,7 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public DefaultRequestBodyUriSpec cookie(String name, String value) {
-      getCookies().add(name, value);
+      getCookies().setOrRemove(name, value);
       return this;
     }
 

@@ -261,8 +261,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   protected void setProtoHeader(HttpOutputMessage response, MessageOrBuilder message) {
     HttpHeaders headers = response.getHeaders();
     Descriptors.Descriptor descriptorForType = message.getDescriptorForType();
-    headers.set(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
-    headers.set(X_PROTOBUF_MESSAGE_HEADER, descriptorForType.getFullName());
+    headers.setOrRemove(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
+    headers.setOrRemove(X_PROTOBUF_MESSAGE_HEADER, descriptorForType.getFullName());
   }
 
   @Override

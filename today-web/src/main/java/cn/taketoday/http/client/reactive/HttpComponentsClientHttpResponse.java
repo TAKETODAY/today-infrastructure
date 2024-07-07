@@ -26,7 +26,6 @@ import org.reactivestreams.Publisher;
 import java.nio.ByteBuffer;
 
 import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -47,10 +46,8 @@ class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse {
           Message<HttpResponse, Publisher<ByteBuffer>> message, HttpClientContext context) {
 
     super(HttpStatusCode.valueOf(message.getHead().getCode()),
-            HttpHeaders.readOnlyHttpHeaders(new HttpComponentsHeadersAdapter(message.getHead())),
-            adaptCookies(context),
-            Flux.from(message.getBody()).map(dataBufferFactory::wrap)
-    );
+            new HttpComponentsHeaders(message.getHead()).asReadOnly(),
+            adaptCookies(context), Flux.from(message.getBody()).map(dataBufferFactory::wrap));
   }
 
   private static MultiValueMap<String, ResponseCookie> adaptCookies(HttpClientContext context) {

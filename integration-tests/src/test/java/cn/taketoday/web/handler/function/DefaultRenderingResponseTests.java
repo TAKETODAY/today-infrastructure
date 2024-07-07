@@ -85,7 +85,7 @@ public class DefaultRenderingResponseTests {
   @Test
   public void headers() throws Throwable {
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.set("foo", "bar");
+    headers.setOrRemove("foo", "bar");
     RenderingResponse result = RenderingResponse.create("foo")
             .headers(h -> h.addAll(headers))
             .build();

@@ -80,23 +80,35 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public String getFirst(String headerName) {
-    return headers.getFirst(headerName);
+  public String getFirst(String name) {
+    return headers.getFirst(name);
   }
 
   @Override
-  public void add(String headerName, @Nullable String headerValue) {
-    headers.add(headerName, headerValue);
+  public void add(String name, @Nullable String value) {
+    headers.add(name, value);
   }
 
   @Override
-  public void set(String headerName, @Nullable String headerValue) {
-    headers.set(headerName, headerValue);
+  protected void setHeader(String name, String value) {
+    headers.setOrRemove(name, value);
+  }
+
+  @Nullable
+  @Override
+  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    return headers.setOrRemove(name, value);
+  }
+
+  @Nullable
+  @Override
+  public List<String> setOrRemove(String name, @Nullable String[] value) {
+    return headers.setOrRemove(name, value);
   }
 
   @Override
-  public List<String> remove(Object key) {
-    return headers.remove(key);
+  public List<String> remove(Object name) {
+    return headers.remove(name);
   }
 
   @Override
@@ -120,8 +132,8 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public List<String> get(Object key) {
-    return headers.get(key);
+  public List<String> get(Object name) {
+    return headers.get(name);
   }
 
   @Override

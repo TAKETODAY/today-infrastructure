@@ -65,16 +65,27 @@ final class DefaultErrorResponseBuilder implements ErrorResponse.Builder {
 
   @Override
   public ErrorResponse.Builder header(String headerName, String... headerValues) {
-    this.headers = (this.headers != null ? this.headers : HttpHeaders.forWritable());
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    httpHeaders().setOrRemove(headerName, headerValues);
     return this;
   }
 
   @Override
   public ErrorResponse.Builder headers(Consumer<HttpHeaders> headersConsumer) {
+    headersConsumer.accept(httpHeaders());
     return this;
+  }
+
+  @Override
+  public ErrorResponse.Builder headers(@Nullable HttpHeaders headers) {
+    httpHeaders().setAll(headers);
+    return this;
+  }
+
+  private HttpHeaders httpHeaders() {
+    if (this.headers == null) {
+      this.headers = HttpHeaders.forWritable();
+    }
+    return this.headers;
   }
 
   @Override

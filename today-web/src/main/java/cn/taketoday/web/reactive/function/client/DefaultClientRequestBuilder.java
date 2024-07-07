@@ -103,9 +103,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest.Builder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    headers.setOrRemove(headerName, headerValues);
     return this;
   }
 
@@ -123,9 +121,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest.Builder cookie(String name, String... values) {
-    for (String value : values) {
-      this.cookies.add(name, value);
-    }
+    this.cookies.setOrRemove(name, values);
     return this;
   }
 

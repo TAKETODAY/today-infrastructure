@@ -180,7 +180,7 @@ public interface ClientRequest {
     /**
      * Manipulate this request's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -211,7 +211,7 @@ public interface ClientRequest {
     /**
      * Manipulate this request's cookies with the given consumer. The
      * map provided to the consumer is "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookie values,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookie values,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *

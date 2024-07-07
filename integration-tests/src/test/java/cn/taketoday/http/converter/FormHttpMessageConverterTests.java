@@ -136,7 +136,7 @@ public class FormHttpMessageConverterTests {
   @Test
   public void writeForm() throws IOException {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-    body.set("name 1", "value 1");
+    body.setOrRemove("name 1", "value 1");
     body.add("name 2", "value 2+1");
     body.add("name 2", "value 2+2");
     body.add("name 3", null);

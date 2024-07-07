@@ -60,9 +60,9 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void set() {
-    map.set("key", "value1");
-    map.set("key", "value2");
+  public void setOrRemove() {
+    map.setOrRemove("key", "value1");
+    map.setOrRemove("key", "value2");
     assertThat(map.get("key")).containsExactly("value2");
   }
 
@@ -120,10 +120,10 @@ public class MultiValueMapTest {
 
   @Test
   public void equals() {
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
     assertThat(map).isEqualTo(map);
     MultiValueMap<String, String> o1 = new MappingMultiValueMap<>();
-    o1.set("key1", "value1");
+    o1.setOrRemove("key1", "value1");
     assertThat(o1).isEqualTo(map);
     assertThat(map).isEqualTo(o1);
     Map<String, List<String>> o2 = new HashMap<>();
@@ -134,7 +134,7 @@ public class MultiValueMapTest {
 
   @Test
   public void toArrayMap() {
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
 
     final Map<String, String[]> arrayMap = map.toArrayMap(String[]::new);
     System.out.println(arrayMap);

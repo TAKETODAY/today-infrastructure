@@ -50,7 +50,7 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
       for (InterfaceHttpData bodyHttpData : bodyHttpDatas) {
         if (bodyHttpData instanceof FileUpload httpData) {
           String contentType = httpData.getContentType();
-          headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+          headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
           break;
         }
       }

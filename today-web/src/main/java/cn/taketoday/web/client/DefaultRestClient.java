@@ -300,10 +300,7 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
-      HttpHeaders headers = httpHeaders();
-      for (String headerValue : headerValues) {
-        headers.add(headerName, headerValue);
-      }
+      httpHeaders().setOrRemove(headerName, headerValues);
       return this;
     }
 

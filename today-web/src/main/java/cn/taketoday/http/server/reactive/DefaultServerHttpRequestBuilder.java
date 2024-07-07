@@ -20,7 +20,6 @@ package cn.taketoday.http.server.reactive;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -107,7 +106,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest.Builder header(String headerName, String... headerValues) {
-    this.headers.put(headerName, Arrays.asList(headerValues));
+    this.headers.setOrRemove(headerName, headerValues);
     return this;
   }
 

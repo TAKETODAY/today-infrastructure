@@ -435,7 +435,7 @@ class ResponseEntityExceptionHandlerTests {
             RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
       headers = HttpHeaders.forWritable();
-      headers.set("someHeader", "someHeaderValue");
+      headers.setOrRemove("someHeader", "someHeaderValue");
       return handleExceptionInternal(ex, "error content", headers, status, request);
     }
   }

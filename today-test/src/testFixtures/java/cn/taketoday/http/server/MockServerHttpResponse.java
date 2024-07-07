@@ -159,23 +159,23 @@ public class MockServerHttpResponse implements ServerHttpResponse {
 
     @Override
     @Nullable
-    public String getFirst(String headerName) {
-      if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
+    public String getFirst(String name) {
+      if (name.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so check super first
-        String value = super.getFirst(headerName);
+        String value = super.getFirst(name);
         return (value != null ? value : mockResponse.getContentType());
       }
       else {
-        String value = mockResponse.getHeader(headerName);
-        return value != null ? value : super.getFirst(headerName);
+        String value = mockResponse.getHeader(name);
+        return value != null ? value : super.getFirst(name);
       }
     }
 
     @Override
-    public List<String> get(Object key) {
-      Assert.isInstanceOf(String.class, key, "Key must be a String-based header name");
+    public List<String> get(Object name) {
+      Assert.isInstanceOf(String.class, name, "Key must be a String-based header name");
 
-      String headerName = (String) key;
+      String headerName = (String) name;
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so don't merge
         String value = getFirst(headerName);
@@ -188,7 +188,7 @@ public class MockServerHttpResponse implements ServerHttpResponse {
       }
       boolean isEmpty1 = CollectionUtils.isEmpty(values1);
 
-      List<String> values2 = super.get(key);
+      List<String> values2 = super.get(name);
       boolean isEmpty2 = CollectionUtils.isEmpty(values2);
 
       if (isEmpty1 && isEmpty2) {

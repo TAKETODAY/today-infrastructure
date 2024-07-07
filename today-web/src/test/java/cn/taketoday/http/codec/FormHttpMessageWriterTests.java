@@ -76,7 +76,7 @@ public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @Test
   public void writeForm() {
     MultiValueMap<String, String> body = new MappingMultiValueMap<>(new LinkedHashMap<>());
-    body.set("name 1", "value 1");
+    body.setOrRemove("name 1", "value 1");
     body.add("name 2", "value 2+1");
     body.add("name 2", "value 2+2");
     body.add("name 3", null);

@@ -71,9 +71,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   @Override
   public ServerResponse.BodyBuilder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    this.headers.setOrRemove(headerName, headerValues);
     return this;
   }
 

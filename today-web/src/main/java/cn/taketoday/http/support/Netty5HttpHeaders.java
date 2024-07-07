@@ -56,15 +56,15 @@ public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Override
   @Nullable
-  public String getFirst(String key) {
-    CharSequence value = this.headers.get(key);
+  public String getFirst(String name) {
+    CharSequence value = this.headers.get(name);
     return (value != null ? value.toString() : null);
   }
 
   @Override
-  public void add(String key, @Nullable String value) {
+  public void add(String name, @Nullable String value) {
     if (value != null) {
-      this.headers.add(key, value);
+      this.headers.add(name, value);
     }
   }
 
@@ -74,10 +74,8 @@ public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
   }
 
   @Override
-  public void set(String key, @Nullable String value) {
-    if (value != null) {
-      this.headers.set(key, value);
-    }
+  public void setHeader(String name, String value) {
+    this.headers.set(name, value);
   }
 
   @Override
@@ -117,8 +115,8 @@ public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Override
   @Nullable
-  public List<String> get(Object key) {
-    Iterator<CharSequence> iterator = this.headers.valuesIterator((CharSequence) key);
+  public List<String> get(Object name) {
+    Iterator<CharSequence> iterator = this.headers.valuesIterator((CharSequence) name);
     if (iterator.hasNext()) {
       List<String> result = new ArrayList<>();
       iterator.forEachRemaining(value -> result.add(value.toString()));
@@ -137,8 +135,8 @@ public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   @Nullable
   @Override
-  public List<String> remove(Object key) {
-    if (key instanceof String headerName) {
+  public List<String> remove(Object name) {
+    if (name instanceof String headerName) {
       List<String> previousValues = get(headerName);
       this.headers.remove(headerName);
       return previousValues;

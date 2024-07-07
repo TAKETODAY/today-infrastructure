@@ -109,7 +109,7 @@ final class SimpleClientHttpRequest extends AbstractStreamingClientHttpRequest {
             && StringUtils.isBlank(headers.getFirst(HttpHeaders.ACCEPT))) {
       // Avoid "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
       // from HttpUrlConnection which prevents JSON error response details.
-      headers.set(HttpHeaders.ACCEPT, "*/*");
+      headers.setOrRemove(HttpHeaders.ACCEPT, "*/*");
     }
 
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {

@@ -811,7 +811,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         List<String> headerValues = entry.getValue();
         for (String headerValue : headerValues) {
           if (first) {
-            responseHeaders.set(headerName, headerValue);
+            responseHeaders.setOrRemove(headerName, headerValue);
           }
           else {
             responseHeaders.add(headerName, headerValue);
@@ -821,7 +821,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       }
     }
 
-    responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");
+    responseHeaders.setOrRemove(HttpHeaders.ACCEPT_RANGES, "bytes");
   }
 
   @Override

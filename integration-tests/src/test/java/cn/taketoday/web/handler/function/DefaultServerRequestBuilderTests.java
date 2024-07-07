@@ -60,13 +60,13 @@ class DefaultServerRequestBuilderTests {
     ServerRequest result = ServerRequest.from(other)
             .method(HttpMethod.HEAD)
             .header("baz", "qux")
-            .headers(httpHeaders -> httpHeaders.set("quux", "quuz"))
+            .headers(httpHeaders -> httpHeaders.setOrRemove("quux", "quuz"))
             .cookie("baz", "qux")
-            .cookies(cookies -> cookies.set("quux", new HttpCookie("quux", "quuz")))
+            .cookies(cookies -> cookies.setOrRemove("quux", new HttpCookie("quux", "quuz")))
             .attribute("baz", "qux")
             .attributes(attributes -> attributes.put("quux", "quuz"))
             .param("baz", "qux")
-            .params(params -> params.set("quux", "quuz"))
+            .params(params -> params.setOrRemove("quux", "quuz"))
             .body("baz")
             .build();
 

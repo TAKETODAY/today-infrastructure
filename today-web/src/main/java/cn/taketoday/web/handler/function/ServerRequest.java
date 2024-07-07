@@ -529,7 +529,7 @@ public interface ServerRequest extends ServerResponse.Context {
     /**
      * Manipulate this request's headers with the given consumer.
      * <p>The headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -550,7 +550,7 @@ public interface ServerRequest extends ServerResponse.Context {
     /**
      * Manipulate this request's cookies with the given consumer.
      * <p>The map provided to the consumer is "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *
@@ -614,7 +614,7 @@ public interface ServerRequest extends ServerResponse.Context {
     /**
      * Manipulate this request's parameters with the given consumer.
      * <p>The map provided to the consumer is "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *

@@ -121,7 +121,7 @@ public class MultipartRequestMatchersTests {
     this.input.add(bar.getName(), bar.getResource());
 
     this.expected.addAll(this.input);
-    this.expected.set(foo.getName(), bar.getResource());
+    this.expected.setOrRemove(foo.getName(), bar.getResource());
 
     assertThatExceptionOfType(AssertionError.class).isThrownBy(this::writeAndAssert);
   }
@@ -139,9 +139,9 @@ public class MultipartRequestMatchersTests {
     this.input.add(f3.getName(), f3.getResource());
 
     this.expected.addAll(this.input);
-    this.expected.set(f1.getName(), f1.getBytes());
-    this.expected.set(f2.getName(), f2.getBytes());
-    this.expected.set(f3.getName(), f3.getBytes());
+    this.expected.setOrRemove(f1.getName(), f1.getBytes());
+    this.expected.setOrRemove(f2.getName(), f2.getBytes());
+    this.expected.setOrRemove(f3.getName(), f3.getBytes());
 
     writeAndAssert();
   }
@@ -157,7 +157,7 @@ public class MultipartRequestMatchersTests {
     this.input.add(f2.getName(), f2.getResource());
 
     this.expected.addAll(this.input);
-    this.expected.set(f1.getName(), f2.getBytes());
+    this.expected.setOrRemove(f1.getName(), f2.getBytes());
 
     assertThatExceptionOfType(AssertionError.class).isThrownBy(this::writeAndAssert);
   }

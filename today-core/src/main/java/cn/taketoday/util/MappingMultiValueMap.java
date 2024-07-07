@@ -100,15 +100,15 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
 
   @Override
   public void add(K key, @Nullable V value) {
-    List<V> values = targetMap.computeIfAbsent(key, mappingFunction);
-    values.add(value);
+    targetMap.computeIfAbsent(key, mappingFunction)
+            .add(value);
   }
 
   @Override
   public void addAll(K key, @Nullable Collection<? extends V> values) {
     if (values != null) {
-      List<V> currentValues = targetMap.computeIfAbsent(key, mappingFunction);
-      currentValues.addAll(values);
+      targetMap.computeIfAbsent(key, mappingFunction)
+              .addAll(values);
     }
   }
 
@@ -127,10 +127,35 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
   }
 
   @Override
-  public void set(K key, @Nullable V value) {
-    List<V> values = mappingFunction.apply(key);
-    values.add(value);
-    targetMap.put(key, values);
+  public List<V> setOrRemove(K key, @Nullable V value) {
+    if (value != null) {
+      List<V> values = mappingFunction.apply(key);
+      values.add(value);
+      return targetMap.put(key, values);
+    }
+    else {
+      return targetMap.remove(key);
+    }
+  }
+
+  @Override
+  public List<V> setOrRemove(K key, @Nullable V[] value) {
+    if (value != null) {
+      List<V> values = mappingFunction.apply(key);
+      CollectionUtils.addAll(values, value);
+      return targetMap.put(key, values);
+    }
+    return targetMap.remove(key);
+  }
+
+  @Override
+  public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
+    if (value != null) {
+      List<V> values = mappingFunction.apply(key);
+      CollectionUtils.addAll(values, value);
+      return targetMap.put(key, values);
+    }
+    return targetMap.remove(key);
   }
 
   /**

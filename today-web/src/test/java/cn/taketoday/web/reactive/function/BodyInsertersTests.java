@@ -328,7 +328,7 @@ public class BodyInsertersTests {
   @Test
   public void fromFormDataMap() {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-    body.set("name 1", "value 1");
+    body.setOrRemove("name 1", "value 1");
     body.add("name 2", "value 2+1");
     body.add("name 2", "value 2+2");
     body.add("name 3", null);
@@ -379,7 +379,7 @@ public class BodyInsertersTests {
   @Test
   public void fromMultipartData() {
     MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-    map.set("name 3", "value 3");
+    map.setOrRemove("name 3", "value 3");
 
     BodyInserters.FormInserter<Object> inserter =
             BodyInserters.fromMultipartData("name 1", "value 1")

@@ -116,9 +116,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   @Override
   public ServerRequest.Builder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    headers.setOrRemove(headerName, headerValues);
     return this;
   }
 

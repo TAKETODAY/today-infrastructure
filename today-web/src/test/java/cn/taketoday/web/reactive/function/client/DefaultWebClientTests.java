@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.reactivestreams.Publisher;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
@@ -214,7 +215,7 @@ public class DefaultWebClientTests {
             .build();
     WebClient client2 = this.builder
             .defaultHeader("Accept", "application/xml")
-            .defaultCookies(cookies -> cookies.set("id", "456"))
+            .defaultCookies(cookies -> cookies.setOrRemove("id", "456"))
             .build();
 
     client1.get().uri("/path")
@@ -319,7 +320,7 @@ public class DefaultWebClientTests {
 
     WebClient.Builder clonedBuilder = builder.clone();
 
-    assertThat(clonedBuilder).extracting("baseUrl").isEqualTo("https://example.org");
+    assertThat(clonedBuilder).extracting("baseURI").isEqualTo(URI.create("https://example.org"));
     assertThat(clonedBuilder).extracting("filters").isNotNull();
     assertThat(clonedBuilder).extracting("strategiesConfigurers").isNotNull();
     assertThat(clonedBuilder).extracting("exchangeFunction").isEqualTo(exchangeFunction);

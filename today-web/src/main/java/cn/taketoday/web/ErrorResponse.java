@@ -19,6 +19,7 @@ package cn.taketoday.web;
 
 import java.net.URI;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.MessageSource;
@@ -27,6 +28,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Representation of a complete RFC 9457 error response including status,
@@ -265,7 +267,7 @@ public interface ErrorResponse extends HttpStatusProvider {
 
     /**
      * Manipulate this response's headers with the given consumer. This is
-     * useful to {@linkplain HttpHeaders#set(String, String) overwrite} or
+     * useful to {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} or
      * {@linkplain HttpHeaders#remove(Object) remove} existing values, or
      * use any other {@link HttpHeaders} methods.
      *
@@ -273,6 +275,15 @@ public interface ErrorResponse extends HttpStatusProvider {
      * @return the same builder instance
      */
     Builder headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     */
+    Builder headers(@Nullable HttpHeaders headers);
 
     /**
      * Set the underlying {@link ProblemDetail#setType(URI) type} field.

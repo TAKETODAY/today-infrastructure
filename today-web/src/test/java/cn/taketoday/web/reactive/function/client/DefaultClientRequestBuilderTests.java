@@ -66,8 +66,8 @@ public class DefaultClientRequestBuilderTests {
             .build();
 
     ClientRequest result = ClientRequest.from(other)
-            .headers(httpHeaders -> httpHeaders.set("foo", "baar"))
-            .cookies(cookies -> cookies.set("baz", "quux"))
+            .headers(httpHeaders -> httpHeaders.setOrRemove("foo", "baar"))
+            .cookies(cookies -> cookies.setOrRemove("baz", "quux"))
             .build();
 
     assertThat(result.uri()).isEqualTo(DEFAULT_URL);

@@ -210,7 +210,7 @@ public class ResponseEntityTests {
   @Test
   public void headersCopy() {
     HttpHeaders customHeaders = HttpHeaders.forWritable();
-    customHeaders.set("X-CustomHeader", "vale");
+    customHeaders.setOrRemove("X-CustomHeader", "vale");
 
     ResponseEntity<Void> responseEntity = ResponseEntity.ok().headers(customHeaders).build();
     HttpHeaders responseHeaders = responseEntity.getHeaders();

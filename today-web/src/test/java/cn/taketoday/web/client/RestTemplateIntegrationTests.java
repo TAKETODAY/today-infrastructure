@@ -366,7 +366,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     setUpClient(clientHttpRequestFactory);
 
     HttpHeaders requestHeaders = HttpHeaders.forWritable();
-    requestHeaders.set("MyHeader", "MyValue");
+    requestHeaders.setOrRemove("MyHeader", "MyValue");
     HttpEntity<String> requestEntity = new HttpEntity<>(requestHeaders);
     ResponseEntity<String> response =
             template.exchange(baseUrl + "/{method}", HttpMethod.GET, requestEntity, String.class, "get");
@@ -378,7 +378,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     setUpClient(clientHttpRequestFactory);
 
     HttpHeaders requestHeaders = HttpHeaders.forWritable();
-    requestHeaders.set("MyHeader", "MyValue");
+    requestHeaders.setOrRemove("MyHeader", "MyValue");
     requestHeaders.setContentType(textContentType);
     HttpEntity<String> entity = new HttpEntity<>(helloWorld, requestHeaders);
     HttpEntity<Void> result = template.exchange(baseUrl + "/{method}", POST, entity, Void.class, "post");

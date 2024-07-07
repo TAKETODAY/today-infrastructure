@@ -552,7 +552,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   public void setParameter(String key, String value) {
-    getParameters().set(key, value);
+    getParameters().setOrRemove(key, value);
   }
 
   public void addParameter(String key, String value) {

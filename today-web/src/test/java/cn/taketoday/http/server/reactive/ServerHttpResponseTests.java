@@ -105,7 +105,7 @@ public class ServerHttpResponseTests {
     TestServerHttpResponse response = new TestServerHttpResponse();
     HttpHeaders headers = response.getHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(HttpHeaders.CONTENT_ENCODING, "gzip");
+    headers.setOrRemove(HttpHeaders.CONTENT_ENCODING, "gzip");
     headers.setContentLength(12);
     response.writeWith(body).onErrorComplete().block();
 

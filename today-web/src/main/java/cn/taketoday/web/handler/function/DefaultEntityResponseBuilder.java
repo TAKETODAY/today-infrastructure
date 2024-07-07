@@ -141,9 +141,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
   @Override
   public EntityResponse.Builder<T> header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    headers.setOrRemove(headerName, headerValues);
     return this;
   }
 

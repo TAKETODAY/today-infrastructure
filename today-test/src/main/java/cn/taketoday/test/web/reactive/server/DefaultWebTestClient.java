@@ -52,7 +52,6 @@ import cn.taketoday.test.util.AssertionErrors;
 import cn.taketoday.test.util.ExceptionCollector;
 import cn.taketoday.test.util.JsonExpectationsHelper;
 import cn.taketoday.test.util.XmlExpectationsHelper;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MultiValueMap;
@@ -242,9 +241,7 @@ class DefaultWebTestClient implements WebTestClient {
 
     @Override
     public RequestBodySpec header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        getHeaders().add(headerName, headerValue);
-      }
+      getHeaders().setOrRemove(headerName, headerValues);
       return this;
     }
 
@@ -292,7 +289,7 @@ class DefaultWebTestClient implements WebTestClient {
 
     @Override
     public RequestBodySpec cookie(String name, String value) {
-      getCookies().add(name, value);
+      getCookies().setOrRemove(name, value);
       return this;
     }
 

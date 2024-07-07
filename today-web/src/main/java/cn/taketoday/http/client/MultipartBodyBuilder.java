@@ -19,7 +19,6 @@ package cn.taketoday.http.client;
 
 import org.reactivestreams.Publisher;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -291,7 +290,7 @@ public final class MultipartBodyBuilder {
 
     @Override
     public PartBuilder header(String headerName, String... headerValues) {
-      initHeadersIfNecessary().addAll(headerName, Arrays.asList(headerValues));
+      initHeadersIfNecessary().setOrRemove(headerName, headerValues);
       return this;
     }
 

@@ -81,7 +81,7 @@ class UnmodifiableMultiValueMapTests {
     assertThatUnsupportedOperationException().isThrownBy(() -> map.addAll("foo", List.of("bar")));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.addAll(new MappingMultiValueMap<>()));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.addIfAbsent("foo", "baz"));
-    assertThatUnsupportedOperationException().isThrownBy(() -> map.set("foo", "baz"));
+    assertThatUnsupportedOperationException().isThrownBy(() -> map.setOrRemove("foo", "baz"));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.setAll(Map.of("foo", List.of("baz"))));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.replaceAll((s, strings) -> strings));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.remove("foo", List.of("bar")));
