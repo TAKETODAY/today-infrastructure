@@ -1,56 +1,35 @@
 [[dao]]
-= DAO Support
+= DAO 支持
 
-The Data Access Object (DAO) support in Infra is aimed at making it easy to work with
-data access technologies (such as JDBC, Hibernate, or JPA) in a consistent way. This
-lets you switch between the aforementioned persistence technologies fairly easily,
-and it also lets you code without worrying about catching exceptions that are
-specific to each technology.
-
-
+数据访问对象（DAO）支持在 Infra 中旨在以一种一致的方式简化与数据访问技术（如 JDBC、Hibernate 或 JPA）的工作。
+这使您能够在这些持久化技术之间相对容易地切换，并且让您在编码时不必担心捕获每种技术特有的异常。
 
 [[dao-exceptions]]
-== Consistent Exception Hierarchy
+== 一致的异常层次结构
 
-Infra provides a convenient translation from technology-specific exceptions, such as
-`SQLException` to its own exception class hierarchy, which has `DataAccessException` as
-the root exception. These exceptions wrap the original exception so that there is never
-any risk that you might lose any information about what might have gone wrong.
+Infra 提供了一种方便的技术特定异常（如 `SQLException`）到其自己的异常类层次结构的转换，
+以 `DataAccessException` 作为根异常。这些异常包装了原始异常，因此永远不会有丢失有关可能出错信息的风险。
 
-In addition to JDBC exceptions, Infra can also wrap JPA- and Hibernate-specific exceptions,
-converting them to a set of focused runtime exceptions. This lets you handle most
-non-recoverable persistence exceptions in only the appropriate layers, without having
-annoying boilerplate catch-and-throw blocks and exception declarations in your DAOs.
-(You can still trap and handle exceptions anywhere you need to though.) As mentioned above,
-JDBC exceptions (including database-specific dialects) are also converted to the same
-hierarchy, meaning that you can perform some operations with JDBC within a consistent
-programming model.
+除了 JDBC 异常外，Infra 还可以包装 JPA 和 Hibernate 特定异常，将它们转换为一组集中的运行时异常。
+这使您只需在适当的层处理大多数不可恢复的持久性异常，而无需在您的 DAO 中有烦人的样板 catch-and-throw 块和异常声明。
+（您仍然可以在需要的任何地方捕获和处理异常。）如上所述，JDBC 异常（包括特定于数据库的方言）也转换为相同的层次结构，这意味着您可以在一致的编程模型内使用 JDBC 执行一些操作。
 
-The preceding discussion holds true for the various template classes in Infra support
-for various ORM frameworks. If you use the interceptor-based classes, the application must
-care about handling `HibernateExceptions` and `PersistenceExceptions` itself, preferably by
-delegating to the `convertHibernateAccessException(..)` or `convertJpaAccessException(..)`
-methods, respectively, of `SessionFactoryUtils`. These methods convert the exceptions
-to exceptions that are compatible with the exceptions in the `cn.taketoday.dao`
-exception hierarchy. As `PersistenceExceptions` are unchecked, they can get thrown, too
-(sacrificing generic DAO abstraction in terms of exceptions, though).
+对于 Infra 支持的各种 ORM 框架中的各种模板类，上述讨论同样适用。如果您使用基于拦截器的类，则应用程序必须自己处理
+`HibernateExceptions` 和 `PersistenceExceptions`，最好通过分别委托给 `SessionFactoryUtils`
+的 `convertHibernateAccessException(..)` 或 `convertJpaAccessException(..)` 方法。
+这些方法将异常转换为与 `cn.taketoday.dao` 异常层次结构中的异常兼容的异常。
+由于 `PersistenceExceptions` 是未检查的，它们也可以被抛出（尽管这牺牲了异常方面的通用 DAO 抽象）。
 
-The following image shows the exception hierarchy that Infra provides.
-(Note that the class hierarchy detailed in the image shows only a subset of the entire
-`DataAccessException` hierarchy.)
+下图显示了 Infra 提供的异常层次结构。
+（注意，图中详细说明的类层次结构只显示了整个 `DataAccessException` 层次结构的一个子集。）
 
 image::DataAccessException.png[]
 
-
-
 [[dao-annotations]]
-== Annotations Used to Configure DAO or Repository Classes
+== 用于配置 DAO 或存储库类的注解
 
-The best way to guarantee that your Data Access Objects (DAOs) or repositories provide
-exception translation is to use the `@Repository` annotation. This annotation also
-lets the component scanning support find and configure your DAOs and repositories
-without having to provide XML configuration entries for them. The following example shows
-how to use the `@Repository` annotation:
+确保您的数据访问对象（DAO）或存储库提供异常转换的最佳方法是使用 `@Repository` 注解。
+此注解还允许组件扫描支持在不需要为它们提供 XML 配置条目的情况下找到并配置您的 DAO 和存储库。以下示例展示了如何使用 `@Repository` 注解：
 
 [tabs]
 ======
@@ -63,16 +42,12 @@ public class SomeMovieFinder implements MovieFinder {
   // ...
 }
 ----
-<1> The `@Repository` annotation.
+<1> `@Repository` 注解。
 ======
 
-
-Any DAO or repository implementation needs access to a persistence resource,
-depending on the persistence technology used. For example, a JDBC-based repository
-needs access to a JDBC `DataSource`, and a JPA-based repository needs access to an
-`EntityManager`. The easiest way to accomplish this is to have this resource dependency
-injected by using one of the `@Autowired`, `@Inject`, `@Resource` or `@PersistenceContext`
-annotations. The following example works for a JPA repository:
+任何 DAO 或存储库实现都需要根据使用的持久性技术访问持久性资源。例如，基于 JDBC 的存储库需要访问 JDBC `DataSource`，
+基于 JPA 的存储库需要访问 `EntityManager`。实现这一点的最简单方法是使用 `@Autowired`、`@Inject`、`@Resource`
+或 `@PersistenceContext` 注解之一注入此资源依赖项。以下示例适用于 JPA 存储库：
 
 [tabs]
 ======
@@ -91,9 +66,7 @@ public class JpaMovieFinder implements MovieFinder {
 ----
 ======
 
-
-If you use the classic Hibernate APIs, you can inject `SessionFactory`, as the following
-example shows:
+如果您使用传统的 Hibernate API，您可以注入 `SessionFactory`，如下例所示：
 
 [tabs]
 ======
@@ -114,13 +87,11 @@ public class HibernateMovieFinder implements MovieFinder {
   // ...
 }
 ----
-
 ======
 
-The last example we show here is for typical JDBC support. You could have the `DataSource`
-injected into an initialization method or a constructor, where you would create a `JdbcTemplate`
-and other data access support classes (such as `SimpleJdbcCall` and others) by using this
-`DataSource`. The following example autowires a `DataSource`:
+这里展示的最后一个示例是典型的 JDBC 支持。您可以将 `DataSource` 注入到初始化方法或构造函数中，
+在那里您将使用此 `DataSource` 创建 `JdbcTemplate` 和其他数据访问支持类（如 `SimpleJdbcCall` 等）。
+以下示例自动装配了 `DataSource`：
 
 [tabs]
 ======
@@ -141,12 +112,6 @@ public class JdbcMovieFinder implements MovieFinder {
   // ...
 }
 ----
-
 ======
 
-NOTE: See the specific coverage of each persistence technology for details on how to
-configure the application context to take advantage of these annotations.
-
-
-
-
+注意：有关如何配置应用程序上下文以利用这些注解的详细信息，请参见每种持久性技术的特定覆盖范围。
