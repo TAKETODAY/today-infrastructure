@@ -41,7 +41,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class FileSystemGeneratedFiles extends GeneratedFiles {
+public class FileSystemGeneratedFiles implements GeneratedFiles {
 
   private final Function<Kind, Path> roots;
 

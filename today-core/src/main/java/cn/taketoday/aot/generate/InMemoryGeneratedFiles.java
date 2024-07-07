@@ -36,7 +36,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class InMemoryGeneratedFiles extends GeneratedFiles {
+public class InMemoryGeneratedFiles implements GeneratedFiles {
 
   private final Map<Kind, Map<String, InputStreamSource>> files = new HashMap<>();
 

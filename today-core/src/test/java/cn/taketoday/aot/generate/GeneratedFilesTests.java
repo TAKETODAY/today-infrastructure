@@ -222,7 +222,7 @@ class GeneratedFilesTests {
     return this.generatedFiles.assertThatFileAdded(kind, path);
   }
 
-  static class TestGeneratedFiles extends GeneratedFiles {
+  static class TestGeneratedFiles implements GeneratedFiles {
 
     private Kind kind;
 
