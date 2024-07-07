@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.propertyeditors;
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.beans.PropertyEditor;
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import cn.taketoday.util.ClassUtils;
 
@@ -35,65 +33,65 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class PathEditorTests {
+class PathEditorTests {
 
   @Test
-  public void testClasspathPathName() {
+  void testClasspathPathName() {
     PropertyEditor pathEditor = new PathEditor();
     pathEditor.setAsText("classpath:" + ClassUtils.classPackageAsResourcePath(getClass()) + "/" +
             ClassUtils.getShortName(getClass()) + ".class");
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
-    assertThat(path.toFile().exists()).isTrue();
+    assertThat(path.toFile()).exists();
   }
 
   @Test
-  public void testWithNonExistentResource() {
-    PropertyEditor propertyEditor = new PathEditor();
+  void testWithNonExistentResource() {
+    PropertyEditor pathEditor = new PathEditor();
     assertThatIllegalArgumentException().isThrownBy(() ->
-            propertyEditor.setAsText("classpath:/no_way_this_file_is_found.doc"));
+            pathEditor.setAsText("classpath:/no_way_this_file_is_found.doc"));
   }
 
   @Test
-  public void testWithNonExistentPath() {
+  void testWithNonExistentPath() {
     PropertyEditor pathEditor = new PathEditor();
     pathEditor.setAsText("file:/no_way_this_file_is_found.doc");
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
-    assertThat(!path.toFile().exists()).isTrue();
+    assertThat(path.toFile()).doesNotExist();
   }
 
   @Test
-  public void testAbsolutePath() {
+  void testAbsolutePath() {
     PropertyEditor pathEditor = new PathEditor();
     pathEditor.setAsText("/no_way_this_file_is_found.doc");
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
-    assertThat(!path.toFile().exists()).isTrue();
+    assertThat(path.toFile()).doesNotExist();
   }
 
   @Test
-  public void testWindowsAbsolutePath() {
+  void testWindowsAbsolutePath() {
     PropertyEditor pathEditor = new PathEditor();
     pathEditor.setAsText("C:\\no_way_this_file_is_found.doc");
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
-    assertThat(!path.toFile().exists()).isTrue();
+    assertThat(path.toFile()).doesNotExist();
   }
 
   @Test
-  public void testWindowsAbsoluteFilePath() {
+  void testWindowsAbsoluteFilePath() {
     PropertyEditor pathEditor = new PathEditor();
     try {
       pathEditor.setAsText("file://C:\\no_way_this_file_is_found.doc");
       Object value = pathEditor.getValue();
-      assertThat(value instanceof Path).isTrue();
+      assertThat(value).isInstanceOf(Path.class);
       Path path = (Path) value;
-      assertThat(!path.toFile().exists()).isTrue();
+      assertThat(path.toFile()).doesNotExist();
     }
     catch (IllegalArgumentException ex) {
       if (File.separatorChar == '\\') {  // on Windows, otherwise silently ignore
@@ -103,39 +101,49 @@ public class PathEditorTests {
   }
 
   @Test
-  public void testUnqualifiedPathNameFound() {
+  void testCurrentDirectory() {
+    PropertyEditor pathEditor = new PathEditor();
+    pathEditor.setAsText("file:.");
+    Object value = pathEditor.getValue();
+    assertThat(value).isInstanceOf(Path.class);
+    Path path = (Path) value;
+    assertThat(path).isEqualTo(Paths.get("."));
+  }
+
+  @Test
+  void testUnqualifiedPathNameFound() {
     PropertyEditor pathEditor = new PathEditor();
     String fileName = ClassUtils.classPackageAsResourcePath(getClass()) + "/" +
             ClassUtils.getShortName(getClass()) + ".class";
     pathEditor.setAsText(fileName);
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
     File file = path.toFile();
-    assertThat(file.exists()).isTrue();
+    assertThat(file).exists();
     String absolutePath = file.getAbsolutePath();
     if (File.separatorChar == '\\') {
       absolutePath = absolutePath.replace('\\', '/');
     }
-    assertThat(absolutePath.endsWith(fileName)).isTrue();
+    assertThat(absolutePath).endsWith(fileName);
   }
 
   @Test
-  public void testUnqualifiedPathNameNotFound() {
+  void testUnqualifiedPathNameNotFound() {
     PropertyEditor pathEditor = new PathEditor();
     String fileName = ClassUtils.classPackageAsResourcePath(getClass()) + "/" +
             ClassUtils.getShortName(getClass()) + ".clazz";
     pathEditor.setAsText(fileName);
     Object value = pathEditor.getValue();
-    assertThat(value instanceof Path).isTrue();
+    assertThat(value).isInstanceOf(Path.class);
     Path path = (Path) value;
     File file = path.toFile();
-    assertThat(file.exists()).isFalse();
+    assertThat(file).doesNotExist();
     String absolutePath = file.getAbsolutePath();
     if (File.separatorChar == '\\') {
       absolutePath = absolutePath.replace('\\', '/');
     }
-    assertThat(absolutePath.endsWith(fileName)).isTrue();
+    assertThat(absolutePath).endsWith(fileName);
   }
 
 }
