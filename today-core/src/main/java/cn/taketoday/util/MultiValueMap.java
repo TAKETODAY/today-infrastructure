@@ -308,14 +308,40 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
-   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   * Copy a {@code Map<K, List<V>>} to an {@code LinkedMultiValueMap<K, V>}.
    *
    * @param targetMap the original map
-   * @return the adapted multi-value map (wrapping the original map)
+   * @return the copied LinkedMultiValueMap
    * @since 4.0
    */
   static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
     return new LinkedMultiValueMap<>(targetMap);
+  }
+
+  /**
+   * Copy a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the copied multi-value map
+   * @since 5.0
+   */
+  static <K, V> MappingMultiValueMap<K, V> copyOf(Function<K, List<V>> mappingFunction, Map<K, List<V>> targetMap) {
+    MappingMultiValueMap<K, V> map = forAdaption(mappingFunction);
+    map.addAll(targetMap);
+    return map;
+  }
+
+  /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 5.0
+   */
+  static <K, V> MappingMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction, Map<K, List<V>> source) {
+    MappingMultiValueMap<K, V> map = forAdaption(targetMap, mappingFunction);
+    map.addAll(source);
+    return map;
   }
 
   /**
