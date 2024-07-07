@@ -119,7 +119,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromControllerWithCustomBaseUrlViaStaticCall() {
+  public void fromControllerWithCustomBaseURIViaStaticCall() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     UriComponents uriComponents = fromController(builder, PersonControllerImpl.class).build();
 
@@ -128,7 +128,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromControllerWithCustomBaseUrlViaInstance() {
+  public void fromControllerWithCustomBaseURIViaInstance() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents uriComponents = mvcBuilder.withController(PersonControllerImpl.class).build();
@@ -201,7 +201,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMethodNameWithCustomBaseUrlViaStaticCall() {
+  public void fromMethodNameWithCustomBaseURIViaStaticCall() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     UriComponents uriComponents = fromMethodName(builder, ControllerWithMethods.class,
             "methodWithPathVariable", "1").build();
@@ -211,7 +211,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMethodNameWithCustomBaseUrlViaInstance() {
+  public void fromMethodNameWithCustomBaseURIViaInstance() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents uriComponents = mvcBuilder.withMethodName(ControllerWithMethods.class,
@@ -327,7 +327,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMethodCallWithCustomBaseUrlViaStaticCall() {
+  public void fromMethodCallWithCustomBaseURIViaStaticCall() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     UriComponents uriComponents = fromMethodCall(builder, on(ControllerWithMethods.class).myMethod(null)).build();
 
@@ -336,7 +336,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMethodCallWithCustomBaseUrlViaInstance() {
+  public void fromMethodCallWithCustomBaseURIViaInstance() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents result = mvcBuilder.withMethodCall(on(ControllerWithMethods.class).myMethod(null)).build();
@@ -408,7 +408,7 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMappingNameWithCustomBaseUrl() {
+  public void fromMappingNameWithCustomBaseURI() {
     initWebApplicationContext(WebConfig.class);
 
     UriComponentsBuilder baseUrl = UriComponentsBuilder.fromUriString("https://example.org:9999/base");

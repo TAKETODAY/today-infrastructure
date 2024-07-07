@@ -78,7 +78,7 @@ public class DefaultWebClientTests {
     when(mockResponse.statusCode()).thenReturn(HttpStatus.OK);
     when(mockResponse.bodyToMono(Void.class)).thenReturn(Mono.empty());
     given(this.exchangeFunction.exchange(this.captor.capture())).willReturn(Mono.just(mockResponse));
-    this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
+    this.builder = WebClient.builder().baseURI("/base").exchangeFunction(this.exchangeFunction);
   }
 
   @Test
@@ -312,7 +312,7 @@ public class DefaultWebClientTests {
   void cloneBuilder() {
     Consumer<ClientCodecConfigurer> codecsConfig = c -> { };
     ExchangeFunction exchangeFunction = request -> Mono.empty();
-    WebClient.Builder builder = WebClient.builder().baseUrl("https://example.org")
+    WebClient.Builder builder = WebClient.builder().baseURI("https://example.org")
             .exchangeFunction(exchangeFunction)
             .filter((request, next) -> Mono.empty())
             .codecs(codecsConfig);
@@ -382,7 +382,7 @@ public class DefaultWebClientTests {
   public void switchToErrorOnEmptyClientResponseMono() {
     ExchangeFunction exchangeFunction = mock(ExchangeFunction.class);
     given(exchangeFunction.exchange(any())).willReturn(Mono.empty());
-    WebClient client = WebClient.builder().baseUrl("/base").exchangeFunction(exchangeFunction).build();
+    WebClient client = WebClient.builder().baseURI("/base").exchangeFunction(exchangeFunction).build();
     StepVerifier.create(client.get().uri("/path").retrieve().bodyToMono(Void.class))
             .expectErrorMessage("The underlying HTTP client completed without emitting a response.")
             .verify(Duration.ofSeconds(5));

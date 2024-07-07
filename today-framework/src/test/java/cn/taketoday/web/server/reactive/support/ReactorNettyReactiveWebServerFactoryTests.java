@@ -203,7 +203,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   private Mono<String> executeSslRequest() {
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
-            .baseUrl("https://localhost:" + this.webServer.getPort())
+            .baseURI("https://localhost:" + this.webServer.getPort())
             .clientConnector(connector)
             .build();
     return client.post()

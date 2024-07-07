@@ -119,7 +119,7 @@ class WebClientIntegrationTests {
     this.webClient = WebClient
             .builder()
             .clientConnector(connector)
-            .baseUrl(this.server.url("/").toString())
+            .baseURI(this.server.url("/").toString())
             .build();
   }
 
@@ -402,7 +402,7 @@ class WebClientIntegrationTests {
     WebClient webClient = WebClient
             .builder()
             .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider)))
-            .baseUrl(this.server.url("/").toString())
+            .baseURI(this.server.url("/").toString())
             .build();
 
     for (int i = 1; i <= 2; i++) {
@@ -1314,7 +1314,7 @@ class WebClientIntegrationTests {
     return portSink.asMono().flatMap(port -> {
       WebClient client = WebClient.builder()
               .clientConnector(connector)
-              .baseUrl("http://localhost:" + port)
+              .baseURI("http://localhost:" + port)
               .build();
       return handler.apply(client.post().retrieve());
     });
