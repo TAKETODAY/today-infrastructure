@@ -1,2 +1,0 @@
-cn.taketoday.orm.jpa.domain.Person=jakarta.persistence.Entity
-cn.taketoday.orm.jpa.domain.DriversLicense=jakarta.persistence.Entity

@@ -19,7 +19,6 @@ dependencies {
   jacocoAggregation project(':today-jcache')
   jacocoAggregation project(':today-jdbc')
   jacocoAggregation project(':today-mybatis')
-  jacocoAggregation project(':today-orm')
   jacocoAggregation project(':today-oxm')
   jacocoAggregation project(':today-retry')
   jacocoAggregation project(':today-test')

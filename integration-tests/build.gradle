@@ -45,7 +45,6 @@ dependencies {
   testImplementation(project(":today-tx"))
   testImplementation(project(":today-web"))
   testImplementation project(':today-websocket')
-  testImplementation project(':today-orm')
   testImplementation project(':today-oxm')
   testImplementation(project(":today-core-test"))
 

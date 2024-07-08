@@ -23,7 +23,6 @@ dependencies {
   optional(project(":today-beans"))
   optional(project(":today-context"))
   optional(project(":today-jdbc"))
-  optional(project(":today-orm"))
   optional(project(":today-tx"))
   optional(project(":today-web"))
   optional(project(":today-websocket"))
