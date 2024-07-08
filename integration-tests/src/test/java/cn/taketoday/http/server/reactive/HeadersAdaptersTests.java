@@ -100,7 +100,7 @@ class HeadersAdaptersTests {
   void nullValuesShouldNotFail(MultiValueMap<String, String> headers) {
     headers.add("TestHeader", null);
     assertThat(headers.getFirst("TestHeader")).isNull();
-    headers.set("TestHeader", null);
+    headers.setOrRemove("TestHeader", (String) null);
     assertThat(headers.getFirst("TestHeader")).isNull();
   }
 
