@@ -75,7 +75,7 @@ public final class MockFormData extends AbstractMultipart {
   }
 
   @Override
-  public void delete() throws IOException {
+  public void cleanup() throws IOException {
     part.delete();
   }
 

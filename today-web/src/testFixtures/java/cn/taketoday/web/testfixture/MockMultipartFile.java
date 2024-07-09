@@ -173,7 +173,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void delete() throws IOException { }
+  public void cleanup() throws IOException { }
 
   @Override
   public InputStream getInputStream() throws IOException {

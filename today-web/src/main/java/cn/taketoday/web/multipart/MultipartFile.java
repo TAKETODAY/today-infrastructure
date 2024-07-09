@@ -116,7 +116,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * @since 2.3.3
    */
   @Override
-  void delete() throws IOException;
+  void cleanup() throws IOException;
 
   /**
    * Return a Resource representation of this MultipartFile. This can be used
