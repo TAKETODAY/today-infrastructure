@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4.rules;
@@ -51,11 +48,11 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   @Parameters(name = "{0}")
   public static Object[] testData() {
     return new Object[] {//
-            AlwaysFailingBeforeTestClassSpringRuleTestCase.class.getSimpleName(),//
-            AlwaysFailingAfterTestClassSpringRuleTestCase.class.getSimpleName(),//
-            AlwaysFailingPrepareTestInstanceSpringRuleTestCase.class.getSimpleName(),//
-            AlwaysFailingBeforeTestMethodSpringRuleTestCase.class.getSimpleName(),//
-            AlwaysFailingAfterTestMethodSpringRuleTestCase.class.getSimpleName(),//
+            AlwaysFailingBeforeTestClassInfraRuleTestCase.class.getSimpleName(),//
+            AlwaysFailingAfterTestClassInfraRuleTestCase.class.getSimpleName(),//
+            AlwaysFailingPrepareTestInstanceInfraRuleTestCase.class.getSimpleName(),//
+            AlwaysFailingBeforeTestMethodInfraRuleTestCase.class.getSimpleName(),//
+            AlwaysFailingAfterTestMethodInfraRuleTestCase.class.getSimpleName(),//
             FailingBeforeTransactionSpringRuleTestCase.class.getSimpleName(),//
             FailingAfterTransactionSpringRuleTestCase.class.getSimpleName() //
     };
@@ -73,7 +70,7 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
   // All tests are in superclass.
 
   @RunWith(JUnit4.class)
-  public static abstract class BaseSpringRuleTestCase {
+  public static abstract class BaseInfraRuleTestCase {
 
     @ClassRule
     public static final InfraClassRule applicationClassRule = new InfraClassRule();
@@ -88,27 +85,27 @@ public class FailingBeforeAndAfterMethodsSpringRuleTests extends FailingBeforeAn
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners(AlwaysFailingBeforeTestClassTestExecutionListener.class)
-  public static class AlwaysFailingBeforeTestClassSpringRuleTestCase extends BaseSpringRuleTestCase {
+  public static class AlwaysFailingBeforeTestClassInfraRuleTestCase extends BaseInfraRuleTestCase {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners(AlwaysFailingAfterTestClassTestExecutionListener.class)
-  public static class AlwaysFailingAfterTestClassSpringRuleTestCase extends BaseSpringRuleTestCase {
+  public static class AlwaysFailingAfterTestClassInfraRuleTestCase extends BaseInfraRuleTestCase {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners(AlwaysFailingPrepareTestInstanceTestExecutionListener.class)
-  public static class AlwaysFailingPrepareTestInstanceSpringRuleTestCase extends BaseSpringRuleTestCase {
+  public static class AlwaysFailingPrepareTestInstanceInfraRuleTestCase extends BaseInfraRuleTestCase {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners(AlwaysFailingBeforeTestMethodTestExecutionListener.class)
-  public static class AlwaysFailingBeforeTestMethodSpringRuleTestCase extends BaseSpringRuleTestCase {
+  public static class AlwaysFailingBeforeTestMethodInfraRuleTestCase extends BaseInfraRuleTestCase {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")
   @TestExecutionListeners(AlwaysFailingAfterTestMethodTestExecutionListener.class)
-  public static class AlwaysFailingAfterTestMethodSpringRuleTestCase extends BaseSpringRuleTestCase {
+  public static class AlwaysFailingAfterTestMethodInfraRuleTestCase extends BaseInfraRuleTestCase {
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -27,6 +24,7 @@ import org.junit.Test;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListener;
@@ -35,7 +33,6 @@ import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListene
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.transaction.TransactionAssert;
-import cn.taketoday.transaction.annotation.Propagation;
 import cn.taketoday.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,18 +52,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * </ul>
  *
  * <p>This class specifically tests usage of {@code @Transactional} defined
- * at the <strong>class level</strong>.
+ * at the <strong>method level</strong>.
  *
  * @author Sam Brannen
- * @see MethodLevelTransactionalSpringRunnerTests
+ * @see ClassLevelTransactionalInfraRunnerTests
  * @since 4.0
  */
-@Transactional
-public class ClassLevelTransactionalSpringRunnerTests extends AbstractTransactionalSpringRunnerTests {
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+        TransactionalTestExecutionListener.class })
+public class MethodLevelTransactionalInfraRunnerTests extends AbstractTransactionalInfraRunnerTests {
 
   protected static JdbcTemplate jdbcTemplate;
 
   @Autowired
+  @Qualifier("dataSource2")
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
@@ -84,6 +83,7 @@ public class ClassLevelTransactionalSpringRunnerTests extends AbstractTransactio
   }
 
   @Test
+  @Transactional("transactionManager2")
   public void modifyTestDataWithinTransaction() {
     TransactionAssert.assertThatTransaction().isActive();
     assertThat(deletePerson(jdbcTemplate, BOB)).as("Deleting bob").isEqualTo(1);
@@ -93,7 +93,6 @@ public class ClassLevelTransactionalSpringRunnerTests extends AbstractTransactio
   }
 
   @Test
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public void modifyTestDataWithoutTransaction() {
     TransactionAssert.assertThatTransaction().isNotActive();
     assertThat(addPerson(jdbcTemplate, LUKE)).as("Adding luke").isEqualTo(1);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -48,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * resource locations will be detected by default, this test class's dependencies will be
  * injected via {@link Autowired annotation-based autowiring} from beans defined in the
  * {@link ApplicationContext} loaded from the default classpath resource: &quot;
- * {@code /cn/taketoday/test/junit4/PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties}
+ * {@code /cn/taketoday/test/junit4/PropertiesBasedInfraJUnit4ClassRunnerAppCtxTests-context.properties}
  * &quot;.
  * </p>
  *
@@ -59,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(InfraRunner.class)
 @ContextConfiguration(loader = cn.taketoday.test.context.support.GenericPropertiesContextLoader.class)
-public class PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests {
+public class PropertiesBasedInfraJUnit4ClassRunnerAppCtxTests {
 
   @Autowired
   private Pet cat;

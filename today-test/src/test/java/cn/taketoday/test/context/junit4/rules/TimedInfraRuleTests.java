@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4.rules;
@@ -27,19 +24,19 @@ import org.junit.runner.Runner;
 import org.junit.runners.JUnit4;
 
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit4.TimedSpringRunnerTests;
+import cn.taketoday.test.context.junit4.TimedInfraRunnerTests;
 
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * This class is an extension of {@link TimedSpringRunnerTests}
+ * This class is an extension of {@link TimedInfraRunnerTests}
  * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
  */
-public class TimedSpringRuleTests extends TimedSpringRunnerTests {
+public class TimedInfraRuleTests extends TimedInfraRunnerTests {
 
   // All tests are in superclass.
 

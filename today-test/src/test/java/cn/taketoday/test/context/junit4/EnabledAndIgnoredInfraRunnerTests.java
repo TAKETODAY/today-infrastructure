@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.fail;
  * listeners.
  *
  * @author Sam Brannen
- * @see HardCodedProfileValueSourceSpringRunnerTests
+ * @see HardCodedProfileValueSourceInfraRunnerTests
  * @since 4.0
  */
 @RunWith(InfraRunner.class)
@@ -52,9 +52,9 @@ import static org.assertj.core.api.Assertions.fail;
 // Since this test class does not load an ApplicationContext,
 // this test class simply is not supported for AOT processing.
 @DisabledInAotMode
-public class EnabledAndIgnoredSpringRunnerTests {
+public class EnabledAndIgnoredInfraRunnerTests {
 
-  protected static final String NAME = "EnabledAndIgnoredSpringRunnerTests.profile_value.name";
+  protected static final String NAME = "EnabledAndIgnoredInfraRunnerTests.profile_value.name";
 
   protected static final String VALUE = "enigma";
 

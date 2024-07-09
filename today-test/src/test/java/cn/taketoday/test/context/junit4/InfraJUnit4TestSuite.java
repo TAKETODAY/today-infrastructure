@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -37,7 +34,6 @@ import cn.taketoday.test.context.junit4.annotation.DefaultLoaderExplicitConfigCl
 import cn.taketoday.test.context.junit4.annotation.DefaultLoaderExplicitConfigClassesInheritedTests;
 import cn.taketoday.test.context.junit4.annotation.ExplicitConfigClassesBaseTests;
 import cn.taketoday.test.context.junit4.annotation.ExplicitConfigClassesInheritedTests;
-import cn.taketoday.test.context.junit4.orm.HibernateSessionFlushingTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DefaultProfileAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DevProfileAnnotationConfigTests;
 import cn.taketoday.test.context.junit4.profile.annotation.DevProfileResolverAnnotationConfigTests;
@@ -65,8 +61,8 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
 // Note: the following 'multi-line' layout is for enhanced code readability.
 @SuiteClasses({//
         StandardJUnit4FeaturesTests.class,//
-        StandardJUnit4FeaturesSpringRunnerTests.class,//
-        SpringJUnit47ClassRunnerRuleTests.class,//
+        StandardJUnit4FeaturesInfraRunnerTests.class,//
+        InfraJUnit47ClassRunnerRuleTests.class,//
         AnnotationConfigJUnit4ClassRunnerAppCtxTests.class,//
         DefaultConfigClassesBaseTests.class,//
         DefaultConfigClassesInheritedTests.class,//
@@ -86,31 +82,30 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
         DefaultProfileXmlConfigTests.class,//
         DevProfileXmlConfigTests.class,//
         DevProfileResolverXmlConfigTests.class,//
-        ExpectedExceptionSpringRunnerTests.class,//
-        TimedSpringRunnerTests.class,//
-        RepeatedSpringRunnerTests.class,//
-        EnabledAndIgnoredSpringRunnerTests.class,//
-        HardCodedProfileValueSourceSpringRunnerTests.class,//
+        ExpectedExceptionInfraRunnerTests.class,//
+        TimedInfraRunnerTests.class,//
+        RepeatedInfraRunnerTests.class,//
+        EnabledAndIgnoredInfraRunnerTests.class,//
+        HardCodedProfileValueSourceInfraRunnerTests.class,//
         JUnit4ClassRunnerAppCtxTests.class,//
         ClassPathResourceJUnit4ClassRunnerAppCtxTests.class,//
         AbsolutePathJUnit4ClassRunnerAppCtxTests.class,//
         RelativePathJUnit4ClassRunnerAppCtxTests.class,//
         MultipleResourcesJUnit4ClassRunnerAppCtxTests.class,//
         InheritedConfigJUnit4ClassRunnerAppCtxTests.class,//
-        PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests.class,//
-        CustomDefaultContextLoaderClassSpringRunnerTests.class,//
+        PropertiesBasedInfraJUnit4ClassRunnerAppCtxTests.class,//
+        CustomDefaultContextLoaderClassInfraRunnerTests.class,//
         ParameterizedDependencyInjectionTests.class,//
         ConcreteTransactionalJUnit4ContextTests.class,//
-        ClassLevelTransactionalSpringRunnerTests.class,//
-        MethodLevelTransactionalSpringRunnerTests.class,//
+        ClassLevelTransactionalInfraRunnerTests.class,//
+        MethodLevelTransactionalInfraRunnerTests.class,//
         DefaultRollbackTrueRollbackAnnotationTransactionalTests.class,//
         DefaultRollbackFalseRollbackAnnotationTransactionalTests.class,//
         RollbackOverrideDefaultRollbackTrueTransactionalTests.class,//
         RollbackOverrideDefaultRollbackFalseTransactionalTests.class,//
         BeforeAndAfterTransactionAnnotationTests.class,//
         TimedTransactionalRunnerTests.class,//
-        HibernateSessionFlushingTests.class //
 })
-public class SpringJUnit4TestSuite {
+public class InfraJUnit4TestSuite {
   /* this test case consists entirely of tests loaded as a suite. */
 }

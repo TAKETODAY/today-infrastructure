@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,51 +12,37 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.test.context.junit4;
+package cn.taketoday.test.context.junit4.rules;
 
+import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.runner.Runner;
+import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.test.annotation.Repeat;
 import cn.taketoday.test.annotation.Timed;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.util.ClassUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.test.context.junit4.RepeatedInfraRunnerTests;
 
 /**
- * Verifies proper handling of the following in conjunction with the
- * {@link InfraRunner}:
- * <ul>
- * <li>Infra {@link Repeat @Repeat}</li>
- * <li>Infra {@link Timed @Timed}</li>
- * </ul>
+ * This class is an extension of {@link RepeatedInfraRunnerTests}
+ * that has been modified to use {@link InfraClassRule} and
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(Parameterized.class)
-public class RepeatedSpringRunnerTests {
-
-  protected static final AtomicInteger invocationCount = new AtomicInteger();
-
-  private final Class<?> testClass;
-
-  private final int expectedFailureCount;
-  private final int expectedStartedCount;
-  private final int expectedFinishedCount;
-  private final int expectedInvocationCount;
+public class RepeatedInfraRuleTests extends RepeatedInfraRunnerTests {
 
   @Parameters(name = "{0}")
   public static Object[][] repetitionData() {
@@ -73,31 +56,28 @@ public class RepeatedSpringRunnerTests {
     };
   }
 
-  public RepeatedSpringRunnerTests(String testClassName, int expectedFailureCount,
-          int expectedTestStartedCount, int expectedTestFinishedCount, int expectedInvocationCount) throws Exception {
-    this.testClass = ClassUtils.forName(getClass().getName() + "." + testClassName, getClass().getClassLoader());
-    this.expectedFailureCount = expectedFailureCount;
-    this.expectedStartedCount = expectedTestStartedCount;
-    this.expectedFinishedCount = expectedTestFinishedCount;
-    this.expectedInvocationCount = expectedInvocationCount;
+  public RepeatedInfraRuleTests(String testClassName, int expectedFailureCount, int expectedTestStartedCount,
+          int expectedTestFinishedCount, int expectedInvocationCount) throws Exception {
+
+    super(testClassName, expectedFailureCount, expectedTestStartedCount, expectedTestFinishedCount,
+            expectedInvocationCount);
   }
 
-  protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
-    return InfraRunner.class;
+  @Override
+  protected Class<? extends Runner> getRunnerClass() {
+    return JUnit4.class;
   }
 
-  @Test
-  public void assertRepetitions() throws Exception {
-    invocationCount.set(0);
-
-    JUnitTestingUtils.runTestsAndAssertCounters(getRunnerClass(), this.testClass, expectedStartedCount, expectedFailureCount,
-            expectedFinishedCount, 0, 0);
-
-    assertThat(invocationCount.get()).as("invocations for [" + testClass + "]:").isEqualTo(expectedInvocationCount);
-  }
+  // All tests are in superclass.
 
   @TestExecutionListeners({})
   public abstract static class AbstractRepeatedTestCase {
+
+    @ClassRule
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
+
+    @Rule
+    public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
     protected void incrementInvocationCount() throws IOException {
       invocationCount.incrementAndGet();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4.nested;
@@ -42,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @RunWith(HierarchicalContextRunner.class)
-@ContextConfiguration(classes = NestedTestsWithSpringRulesTests.TopLevelConfig.class)
-public class NestedTestsWithSpringRulesTests extends SpringRuleConfigurer {
+@ContextConfiguration(classes = NestedTestsWithInfraRulesTests.TopLevelConfig.class)
+public class NestedTestsWithInfraRulesTests extends InfraRuleConfigurer {
 
   @Autowired
   String foo;
@@ -54,7 +51,7 @@ public class NestedTestsWithSpringRulesTests extends SpringRuleConfigurer {
   }
 
   @ContextConfiguration(classes = NestedConfig.class)
-  public class NestedTestCase extends SpringRuleConfigurer {
+  public class NestedTestCase extends InfraRuleConfigurer {
 
     @Autowired
     String bar;

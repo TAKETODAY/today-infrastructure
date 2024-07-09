@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4.rules;
@@ -25,10 +22,10 @@ import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import cn.taketoday.test.context.junit4.BeforeAndAfterTransactionAnnotationTests;
+import cn.taketoday.test.context.junit4.EnabledAndIgnoredInfraRunnerTests;
 
 /**
- * This class is an extension of {@link BeforeAndAfterTransactionAnnotationTests}
+ * This class is an extension of {@link EnabledAndIgnoredInfraRunnerTests}
  * that has been modified to use {@link InfraClassRule} and
  * {@link InfraMethodRule}.
  *
@@ -36,7 +33,7 @@ import cn.taketoday.test.context.junit4.BeforeAndAfterTransactionAnnotationTests
  * @since 4.0
  */
 @RunWith(JUnit4.class)
-public class BeforeAndAfterTransactionAnnotationSpringRuleTests extends BeforeAndAfterTransactionAnnotationTests {
+public class EnabledAndIgnoredInfraRuleTests extends EnabledAndIgnoredInfraRunnerTests {
 
   @ClassRule
   public static final InfraClassRule applicationClassRule = new InfraClassRule();

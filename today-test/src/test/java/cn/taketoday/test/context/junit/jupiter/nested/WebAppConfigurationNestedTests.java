@@ -26,7 +26,7 @@ import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.test.context.junit4.nested.NestedTestsWithSpringRulesTests;
+import cn.taketoday.test.context.junit4.nested.NestedTestsWithInfraRulesTests;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.mock.WebApplicationContext;
 
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sam Brannen
  * @see ConstructorInjectionNestedTests
- * @see NestedTestsWithSpringRulesTests
+ * @see NestedTestsWithInfraRulesTests
  * @since 4.0
  */
 @JUnitWebConfig(WebAppConfigurationNestedTests.Config.class)
