@@ -129,7 +129,9 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
    * @since 4.0
    */
   default long transferTo(OutputStream out) throws IOException {
-    return getInputStream().transferTo(out);
+    try (InputStream in = getInputStream()) {
+      return in.transferTo(out);
+    }
   }
 
   /**

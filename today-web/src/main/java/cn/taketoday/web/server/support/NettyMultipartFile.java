@@ -83,10 +83,16 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public long transferTo(OutputStream out) throws IOException {
-    ByteBuf byteBuf = fileUpload.getByteBuf();
-    int length = byteBuf.readableBytes();
-    byteBuf.readBytes(out, length);
-    return length;
+    if (fileUpload.isInMemory()) {
+      ByteBuf byteBuf = fileUpload.getByteBuf();
+      int length = byteBuf.readableBytes();
+      byteBuf.readBytes(out, length);
+      return length;
+    }
+
+    try (var in = new FileInputStream(fileUpload.getFile())) {
+      return in.transferTo(out);
+    }
   }
 
   @Override
