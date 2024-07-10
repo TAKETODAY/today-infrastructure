@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * /**
  * Indicate that the annotated element requires reflection.
  *
  * <p>When present, either directly or as a meta-annotation, this annotation
