@@ -141,7 +141,7 @@ public class HeaderResultMatchers {
 
       HttpHeaders headers = HttpHeaders.forWritable();
       headers.setDate("expected", value);
-      headers.set("actual", headerValue);
+      headers.setOrRemove("actual", headerValue);
 
       assertEquals("Response header '" + name + "'='" + headerValue + "' " +
                       "does not match expected value '" + headers.getFirst("expected") + "'",

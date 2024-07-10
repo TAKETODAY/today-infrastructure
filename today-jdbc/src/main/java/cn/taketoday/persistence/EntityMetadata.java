@@ -21,7 +21,6 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.beans.BeanMetadata;
@@ -40,6 +39,7 @@ public class EntityMetadata {
   public final String tableName;
 
   public final BeanMetadata root;
+
   public final Class<?> entityClass;
 
   @Nullable
@@ -62,9 +62,9 @@ public class EntityMetadata {
   @Nullable
   private MergedAnnotations annotations;
 
-  private final Map<String, EntityProperty> propertyMap;
+  private final HashMap<String, EntityProperty> propertyMap;
 
-  EntityMetadata(BeanMetadata root, Class<?> entityClass, @Nullable EntityProperty idProperty, String tableName,
+  protected EntityMetadata(BeanMetadata root, Class<?> entityClass, @Nullable EntityProperty idProperty, String tableName,
           List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
     this.root = root;
     this.tableName = tableName;

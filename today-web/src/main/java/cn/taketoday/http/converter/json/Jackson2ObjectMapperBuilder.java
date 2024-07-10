@@ -813,7 +813,7 @@ public class Jackson2ObjectMapperBuilder {
       modulesToRegister.add(SimpleModule.class.getName(), module);
     }
     else {
-      modulesToRegister.set(module.getTypeId(), module);
+      modulesToRegister.setOrRemove(module.getTypeId(), module);
     }
   }
 
@@ -875,7 +875,7 @@ public class Jackson2ObjectMapperBuilder {
       Class<? extends Module> jdk8ModuleClass = ClassUtils.forName(
               "com.fasterxml.jackson.datatype.jdk8.Jdk8Module", this.moduleClassLoader);
       Module jdk8Module = BeanUtils.newInstance(jdk8ModuleClass);
-      modulesToRegister.set(jdk8Module.getTypeId(), jdk8Module);
+      modulesToRegister.setOrRemove(jdk8Module.getTypeId(), jdk8Module);
     }
     catch (ClassNotFoundException ex) {
       // jackson-datatype-jdk8 not available
@@ -885,7 +885,7 @@ public class Jackson2ObjectMapperBuilder {
       Class<? extends Module> parameterNamesModuleClass = ClassUtils.forName(
               "com.fasterxml.jackson.module.paramnames.ParameterNamesModule", this.moduleClassLoader);
       Module parameterNamesModule = BeanUtils.newInstance(parameterNamesModuleClass);
-      modulesToRegister.set(parameterNamesModule.getTypeId(), parameterNamesModule);
+      modulesToRegister.setOrRemove(parameterNamesModule.getTypeId(), parameterNamesModule);
     }
     catch (ClassNotFoundException ex) {
       // jackson-module-parameter-names not available
@@ -895,7 +895,7 @@ public class Jackson2ObjectMapperBuilder {
       Class<? extends Module> javaTimeModuleClass = ClassUtils.forName(
               "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", this.moduleClassLoader);
       Module javaTimeModule = BeanUtils.newInstance(javaTimeModuleClass);
-      modulesToRegister.set(javaTimeModule.getTypeId(), javaTimeModule);
+      modulesToRegister.setOrRemove(javaTimeModule.getTypeId(), javaTimeModule);
     }
     catch (ClassNotFoundException ex) {
       // jackson-datatype-jsr310 not available

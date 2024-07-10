@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -21,6 +21,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
@@ -69,15 +71,19 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   @Override
   public ServerResponse.BodyBuilder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    this.headers.setOrRemove(headerName, headerValues);
     return this;
   }
 
   @Override
   public ServerResponse.BodyBuilder headers(Consumer<HttpHeaders> headersConsumer) {
     headersConsumer.accept(this.headers);
+    return this;
+  }
+
+  @Override
+  public ServerResponse.BodyBuilder headers(@Nullable HttpHeaders headers) {
+    this.headers.setAll(headers);
     return this;
   }
 
@@ -89,8 +95,32 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
+  public ServerResponse.BodyBuilder cookie(String name, String... values) {
+    for (String value : values) {
+      this.cookies.add(name, new HttpCookie(name, value));
+    }
+    return this;
+  }
+
+  @Override
   public ServerResponse.BodyBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
+    return this;
+  }
+
+  @Override
+  public ServerResponse.BodyBuilder cookies(@Nullable Collection<HttpCookie> cookies) {
+    if (CollectionUtils.isNotEmpty(cookies)) {
+      for (HttpCookie cookie : cookies) {
+        this.cookies.add(cookie.getName(), cookie);
+      }
+    }
+    return this;
+  }
+
+  @Override
+  public ServerResponse.BodyBuilder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies) {
+    this.cookies.setAll(cookies);
     return this;
   }
 
@@ -173,27 +203,27 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   @Override
   public ServerResponse body(Object body) {
     return new DefaultEntityResponseBuilder<>(body, null)
-            .status(this.statusCode)
-            .headers(headers -> headers.putAll(this.headers))
-            .cookies(cookies -> cookies.addAll(this.cookies))
+            .status(statusCode)
+            .headers(headers)
+            .cookies(cookies)
             .build();
   }
 
   @Override
   public <T> ServerResponse body(T body, ParameterizedTypeReference<T> bodyType) {
     return new DefaultEntityResponseBuilder<>(body, bodyType.getType())
-            .status(this.statusCode)
-            .headers(headers -> headers.putAll(this.headers))
-            .cookies(cookies -> cookies.addAll(this.cookies))
+            .status(statusCode)
+            .headers(headers)
+            .cookies(cookies)
             .build();
   }
 
   @Override
   public ServerResponse render(String name, Object... modelAttributes) {
     return new DefaultRenderingResponseBuilder(name)
-            .status(this.statusCode)
-            .headers(headers -> headers.putAll(this.headers))
-            .cookies(cookies -> cookies.addAll(this.cookies))
+            .status(statusCode)
+            .headers(headers)
+            .cookies(cookies)
             .modelAttributes(modelAttributes)
             .build();
   }
@@ -201,9 +231,9 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   @Override
   public ServerResponse render(String name, Map<String, ?> model) {
     return new DefaultRenderingResponseBuilder(name)
-            .status(this.statusCode)
-            .headers(headers -> headers.putAll(this.headers))
-            .cookies(cookies -> cookies.addAll(this.cookies))
+            .status(statusCode)
+            .headers(headers)
+            .cookies(cookies)
             .modelAttributes(model)
             .build();
   }
@@ -211,9 +241,9 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   @Override
   public ServerResponse render(ModelAndView modelAndView) {
     return new ModelAndViewRenderingResponseBuilder(modelAndView)
-            .status(this.statusCode)
-            .headers(headers -> headers.putAll(this.headers))
-            .cookies(cookies -> cookies.addAll(this.cookies))
+            .status(statusCode)
+            .headers(headers)
+            .cookies(cookies)
             .build();
   }
 

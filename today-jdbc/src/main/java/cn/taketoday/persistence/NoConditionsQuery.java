@@ -21,17 +21,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.persistence.sql.OrderByClause;
 import cn.taketoday.persistence.sql.Restriction;
 import cn.taketoday.persistence.sql.Select;
 
 /**
+ * resolving {@link OrderByClause} from entity
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/20 17:03
  */
-final class NoConditionsQuery extends ColumnsQueryStatement implements ConditionStatement {
+final class NoConditionsQuery extends ColumnsQueryStatement implements ConditionStatement, DebugDescriptive {
 
   static final NoConditionsQuery instance = new NoConditionsQuery();
 
@@ -58,12 +59,6 @@ final class NoConditionsQuery extends ColumnsQueryStatement implements Condition
   @Override
   public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
     // noop
-  }
-
-  @Nullable
-  @Override
-  public OrderByClause getOrderByClause(EntityMetadata metadata) {
-    return null;
   }
 
 }

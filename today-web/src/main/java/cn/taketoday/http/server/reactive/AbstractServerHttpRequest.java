@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -41,7 +42,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
+public abstract class AbstractServerHttpRequest extends AttributeAccessorSupport implements ServerHttpRequest {
 
   private static final Pattern QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
 

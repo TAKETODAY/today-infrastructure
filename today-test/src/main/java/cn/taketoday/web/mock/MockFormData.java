@@ -75,7 +75,7 @@ public final class MockFormData extends AbstractMultipart {
   }
 
   @Override
-  public void delete() throws IOException {
+  public void cleanup() throws IOException {
     part.delete();
   }
 
@@ -91,7 +91,7 @@ public final class MockFormData extends AbstractMultipart {
     }
 
     if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
-      headers.set(HttpHeaders.CONTENT_TYPE, part.getContentType());
+      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, part.getContentType());
     }
     return headers;
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -32,8 +29,8 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
@@ -43,7 +40,9 @@ import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyInserter;
 import cn.taketoday.web.reactive.function.BodyInserters;
@@ -158,13 +157,25 @@ public interface WebClient {
 
   /**
    * Variant of {@link #create()} that accepts a default base URL. For more
-   * details see {@link Builder#baseUrl(String) Builder.baseUrl(String)}.
+   * details see {@link Builder#baseURI(String) Builder.baseUrl(String)}.
    *
-   * @param baseUrl the base URI for all requests
+   * @param baseURI the base URI for all requests
    * @see #builder()
    */
-  static WebClient create(String baseUrl) {
-    return new DefaultWebClientBuilder().baseUrl(baseUrl).build();
+  static WebClient create(String baseURI) {
+    return new DefaultWebClientBuilder().baseURI(baseURI).build();
+  }
+
+  /**
+   * Variant of {@link #create()} that accepts a default base {@code URI}. For more
+   * details see {@link RestClient.Builder#baseURI(URI) Builder.baseUrl(URI)}.
+   *
+   * @param baseURI the base URI for all requests
+   * @see #builder()
+   * @since 5.0
+   */
+  static WebClient create(URI baseURI) {
+    return new DefaultWebClientBuilder().baseURI(baseURI).build();
   }
 
   /**
@@ -182,11 +193,11 @@ public interface WebClient {
     /**
      * Configure a base URL for requests. Effectively a shortcut for:
      * <p>
-     * <pre class="code">
+     * <pre>{@code
      * String baseUrl = "https://abc.go.com/v1";
      * DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
      * WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
-     * </pre>
+     * }</pre>
      * <p>The {@code DefaultUriBuilderFactory} is used to prepare the URL
      * for every request with the given base URL, unless the URL request
      * for a given URL is absolute in which case the base URL is ignored.
@@ -197,7 +208,28 @@ public interface WebClient {
      * @see DefaultUriBuilderFactory#DefaultUriBuilderFactory(String)
      * @see #uriBuilderFactory(UriBuilderFactory)
      */
-    Builder baseUrl(String baseUrl);
+    Builder baseURI(@Nullable String baseURI);
+
+    /**
+     * Configure a base {@code URI} for requests. Effectively a shortcut for:
+     * <pre>{@code
+     * URI baseUri = URI.create("https://abc.go.com/v1");
+     * var factory = new DefaultUriBuilderFactory(baseUri.toString());
+     * WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
+     * }</pre>
+     * <p>The {@code DefaultUriBuilderFactory} is used to prepare the URL
+     * for every request with the given base URL, unless the URL request
+     * for a given URL is absolute in which case the base URL is ignored.
+     * <p><strong>Note:</strong> this method is mutually exclusive with
+     * {@link #uriBuilderFactory(UriBuilderFactory)}. If both are used, the
+     * {@code baseUrl} value provided here will be ignored.
+     *
+     * @return this builder
+     * @see DefaultUriBuilderFactory#DefaultUriBuilderFactory(String)
+     * @see #uriBuilderFactory(UriBuilderFactory)
+     * @since 5.0
+     */
+    Builder baseURI(@Nullable URI baseURI);
 
     /**
      * Configure default URL variable values to use when expanding URI
@@ -216,22 +248,22 @@ public interface WebClient {
      * @see DefaultUriBuilderFactory#setDefaultUriVariables(Map)
      * @see #uriBuilderFactory(UriBuilderFactory)
      */
-    Builder defaultUriVariables(Map<String, ?> defaultUriVariables);
+    Builder defaultUriVariables(@Nullable Map<String, ?> defaultUriVariables);
 
     /**
      * Provide a pre-configured {@link UriBuilderFactory} instance. This is
      * an alternative to, and effectively overrides the following shortcut
      * properties:
      * <ul>
-     * <li>{@link #baseUrl(String)}
+     * <li>{@link #baseURI(String)}
      * <li>{@link #defaultUriVariables(Map)}.
      * </ul>
      *
      * @param uriBuilderFactory the URI builder factory to use
-     * @see #baseUrl(String)
+     * @see #baseURI(String)
      * @see #defaultUriVariables(Map)
      */
-    Builder uriBuilderFactory(UriBuilderFactory uriBuilderFactory);
+    Builder uriBuilderFactory(@Nullable UriBuilderFactory uriBuilderFactory);
 
     /**
      * Global option to specify a header to be added to every request,
@@ -251,6 +283,16 @@ public interface WebClient {
     Builder defaultHeaders(Consumer<HttpHeaders> headersConsumer);
 
     /**
+     * Global option to specify headers to be added to every request,
+     * if the request does not already contain such a header.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @since 5.0
+     */
+    Builder defaultHeaders(HttpHeaders headers);
+
+    /**
      * Global option to specify a cookie to be added to every request,
      * if the request does not already contain such a cookie.
      *
@@ -266,6 +308,15 @@ public interface WebClient {
      * @param cookiesConsumer a function that consumes the cookies map
      */
     Builder defaultCookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
+
+    /**
+     * Global option to specify cookies to be added to every request,
+     * if the request does not already contain such a cookie.
+     *
+     * @param cookies the cookies
+     * @since 5.0
+     */
+    Builder defaultCookies(MultiValueMap<String, String> cookies);
 
     /**
      * Provide a consumer to customize every request being built.
@@ -384,7 +435,11 @@ public interface WebClient {
   interface UriSpec<S extends RequestHeadersSpec<?>> {
 
     /**
-     * Specify the URI using an absolute, fully constructed {@link URI}.
+     * Specify the URI using a fully constructed {@link URI}.
+     * <p>If the given URI is absolute, it is used as given. If it is
+     * a relative URI, the {@link UriBuilderFactory} configured for
+     * the client (e.g. with a base URI) will be used to
+     * {@linkplain URI#resolve(URI) resolve} the given URI against.
      */
     S uri(URI uri);
 
@@ -462,6 +517,16 @@ public interface WebClient {
     S cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
 
     /**
+     * Add cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    S cookies(@Nullable MultiValueMap<String, String> cookies);
+
+    /**
      * Set the value of the {@code If-Modified-Since} header.
      * <p>The date should be specified as the number of milliseconds since
      * January 1, 1970 GMT.
@@ -498,6 +563,16 @@ public interface WebClient {
     S headers(Consumer<HttpHeaders> headersConsumer);
 
     /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    S headers(@Nullable HttpHeaders headers);
+
+    /**
      * Set the attribute with the given name to the given value.
      *
      * @param name the name of the attribute to add
@@ -514,6 +589,16 @@ public interface WebClient {
      * @return this builder
      */
     S attributes(Consumer<Map<String, Object>> attributesConsumer);
+
+    /**
+     * Add the attributes with the given name to the given value.
+     *
+     * @param attributes the attributes to add
+     * @return this builder
+     * @see Map#putAll(Map)
+     * @since 5.0
+     */
+    S attributes(@Nullable Map<String, Object> attributes);
 
     /**
      * Provide a function to populate the Reactor {@code Context}.

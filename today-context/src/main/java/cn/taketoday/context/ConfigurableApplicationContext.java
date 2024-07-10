@@ -199,6 +199,19 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
   void close();
 
   /**
+   * Return whether this context has been closed already, that is,
+   * whether {@link #close()} has been called on an active context
+   * in order to initiate its shutdown.
+   * <p>Note: This does not indicate whether context shutdown has completed.
+   * Use {@link #isActive()} for differentiating between those scenarios:
+   * a context becomes inactive once it has been fully shut down and the
+   * original {@code close()} call has returned.
+   *
+   * @since 5.0
+   */
+  boolean isClosed();
+
+  /**
    * Add a new ApplicationListener that will be notified on context events
    * such as context refresh and context shutdown.
    * <p>Note that any ApplicationListener registered here will be applied

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -24,10 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.aspectj.AspectJExpressionPointcut;
-import cn.taketoday.aop.aspectj.AspectJExpressionPointcutTests;
 import cn.taketoday.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactoryTests.ExceptionThrowingAspect;
 import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.aop.testfixture.PerTargetAspect;
+import cn.taketoday.aop.testfixture.aspectj.CommonExpressions;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,9 +39,9 @@ public class AspectJPointcutAdvisorTests {
   private final AspectJAdvisorFactory af = new ReflectiveAspectJAdvisorFactory();
 
   @Test
-  public void testSingleton() throws SecurityException, NoSuchMethodException {
+  void testSingleton() throws SecurityException, NoSuchMethodException {
     AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
-    ajexp.setExpression(AspectJExpressionPointcutTests.MATCH_ALL_METHODS);
+    ajexp.setExpression(CommonExpressions.MATCH_ALL_METHODS);
 
     InstantiationModelAwarePointcutAdvisorImpl ajpa = new InstantiationModelAwarePointcutAdvisorImpl(
             ajexp, TestBean.class.getMethod("getAge"), af,
@@ -56,9 +53,9 @@ public class AspectJPointcutAdvisorTests {
   }
 
   @Test
-  public void testPerTarget() throws SecurityException, NoSuchMethodException {
+  void testPerTarget() throws SecurityException, NoSuchMethodException {
     AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
-    ajexp.setExpression(AspectJExpressionPointcutTests.MATCH_ALL_METHODS);
+    ajexp.setExpression(CommonExpressions.MATCH_ALL_METHODS);
 
     InstantiationModelAwarePointcutAdvisorImpl ajpa = new InstantiationModelAwarePointcutAdvisorImpl(
             ajexp, TestBean.class.getMethod("getAge"), af,
@@ -79,13 +76,13 @@ public class AspectJPointcutAdvisorTests {
   }
 
   @Test
-  public void testPerCflowTarget() {
+  void testPerCflowTarget() {
     assertThatExceptionOfType(AopConfigException.class).isThrownBy(() ->
             testIllegalInstantiationModel(ReflectiveAspectJAdvisorFactoryTests.PerCflowAspect.class));
   }
 
   @Test
-  public void testPerCflowBelowTarget() {
+  void testPerCflowBelowTarget() {
     assertThatExceptionOfType(AopConfigException.class).isThrownBy(() ->
             testIllegalInstantiationModel(ReflectiveAspectJAdvisorFactoryTests.PerCflowBelowAspect.class));
   }

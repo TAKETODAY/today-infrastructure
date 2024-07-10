@@ -43,7 +43,9 @@ import cn.taketoday.web.server.ChannelWebServerFactory;
 import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.web.server.ServerProperties.Netty.Multipart;
 import cn.taketoday.web.server.Ssl;
+import cn.taketoday.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.web.server.error.SendErrorHandler;
+import cn.taketoday.web.server.support.ChannelConfigurer;
 import cn.taketoday.web.server.support.NettyChannelHandler;
 import cn.taketoday.web.server.support.NettyRequestConfig;
 import cn.taketoday.web.server.support.NettyWebServerFactory;
@@ -67,6 +69,13 @@ import static cn.taketoday.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BE
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
+  @Component
+  @ConditionalOnMissingBean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
+    return new WebServerFactoryCustomizerBeanPostProcessor();
+  }
+
   @Component(CHANNEL_HANDLER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(name = CHANNEL_HANDLER_BEAN_NAME)
@@ -84,7 +93,8 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties, @Nullable SslBundles sslBundles,
+  static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
+          @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
 
@@ -92,6 +102,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
     factory.applyFrom(serverProperties.netty);
     factory.setBootstrapCustomizers(customizers);
+    factory.setChannelConfigurer(channelConfigurer);
     return factory;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -140,7 +140,7 @@ public interface RenderingResponse extends ServerResponse {
     /**
      * Manipulate this response's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -148,6 +148,16 @@ public interface RenderingResponse extends ServerResponse {
      * @return this builder
      */
     Builder headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder headers(@Nullable HttpHeaders headers);
 
     /**
      * Set the HTTP status.
@@ -174,9 +184,19 @@ public interface RenderingResponse extends ServerResponse {
     Builder cookie(HttpCookie cookie);
 
     /**
+     * Add a cookie with the given name and value(s).
+     *
+     * @param name the cookie name
+     * @param values the cookie value(s)
+     * @return this builder
+     * @since 5.0
+     */
+    Builder cookie(String name, String... values);
+
+    /**
      * Manipulate this response's cookies with the given consumer. The
      * cookies provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *
@@ -184,6 +204,26 @@ public interface RenderingResponse extends ServerResponse {
      * @return this builder
      */
     Builder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder cookies(@Nullable Collection<HttpCookie> cookies);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
 
     /**
      * Build the response.
@@ -211,7 +251,7 @@ public interface RenderingResponse extends ServerResponse {
     /**
      * Manipulate this response's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -219,6 +259,16 @@ public interface RenderingResponse extends ServerResponse {
      * @return this builder
      */
     ViewBuilder headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    ViewBuilder headers(@Nullable HttpHeaders headers);
 
     /**
      * Set the HTTP status.
@@ -245,9 +295,19 @@ public interface RenderingResponse extends ServerResponse {
     ViewBuilder cookie(HttpCookie cookie);
 
     /**
+     * Add a cookie with the given name and value(s).
+     *
+     * @param name the cookie name
+     * @param values the cookie value(s)
+     * @return this builder
+     * @since 5.0
+     */
+    ViewBuilder cookie(String name, String... values);
+
+    /**
      * Manipulate this response's cookies with the given consumer. The
      * cookies provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *
@@ -255,6 +315,26 @@ public interface RenderingResponse extends ServerResponse {
      * @return this builder
      */
     ViewBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    ViewBuilder cookies(@Nullable Collection<HttpCookie> cookies);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    ViewBuilder cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
 
     /**
      * Build the response.

@@ -68,13 +68,17 @@ import cn.taketoday.web.async.DeferredResult;
  * @since 4.0 2022/4/8 23:54
  */
 final class ReactiveTypeHandler {
+
   private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
   private static final long STREAMING_TIMEOUT_VALUE = -1;
+
   private static final MediaType WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON = MediaType.valueOf("application/*+x-ndjson");
 
   private final TaskExecutor taskExecutor;
+
   private final ReactiveAdapterRegistry adapterRegistry;
+
   private final ContentNegotiationManager contentNegotiationManager;
 
   public ReactiveTypeHandler() {
@@ -85,8 +89,7 @@ final class ReactiveTypeHandler {
     this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), manager);
   }
 
-  public ReactiveTypeHandler(ReactiveAdapterRegistry registry,
-          TaskExecutor executor, ContentNegotiationManager manager) {
+  public ReactiveTypeHandler(ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notNull(executor, "TaskExecutor is required");
     Assert.notNull(registry, "ReactiveAdapterRegistry is required");
     Assert.notNull(manager, "ContentNegotiationManager is required");
@@ -110,8 +113,7 @@ final class ReactiveTypeHandler {
    * with a {@link DeferredResult}
    */
   @Nullable
-  public ResponseBodyEmitter handleValue(
-          Object returnValue, MethodParameter returnType, RequestContext request) throws Exception {
+  public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType, RequestContext request) throws Exception {
     Assert.notNull(returnValue, "Expected return value");
 
     ReactiveAdapter adapter = adapterRegistry.getAdapter(returnValue.getClass());
@@ -196,8 +198,7 @@ final class ReactiveTypeHandler {
     return null; // not a concrete streaming type
   }
 
-  private Collection<MediaType> getMediaTypes(RequestContext request)
-          throws HttpMediaTypeNotAcceptableException {
+  private Collection<MediaType> getMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
@@ -325,6 +326,7 @@ final class ReactiveTypeHandler {
             log.trace("Send for {} failed: {}", emitter, ex);
           }
           terminate();
+          this.emitter.completeWithError(ex);
           return;
         }
       }

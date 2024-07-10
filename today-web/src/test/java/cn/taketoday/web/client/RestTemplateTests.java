@@ -355,7 +355,7 @@ class RestTemplateTests {
     given(response.getHeaders()).willReturn(responseHeaders);
 
     HttpHeaders entityHeaders = HttpHeaders.forWritable();
-    entityHeaders.set("MyHeader", "MyValue");
+    entityHeaders.setOrRemove("MyHeader", "MyValue");
     HttpEntity<String> entity = new HttpEntity<>("Hello World", entityHeaders);
 
     URI result = template.postForLocation("https://example.com", entity);
@@ -639,7 +639,7 @@ class RestTemplateTests {
     mockResponseBody(expected, MediaType.TEXT_PLAIN);
 
     HttpHeaders entityHeaders = HttpHeaders.forWritable();
-    entityHeaders.set("MyHeader", "MyValue");
+    entityHeaders.setOrRemove("MyHeader", "MyValue");
     HttpEntity<String> entity = new HttpEntity<>("Hello World", entityHeaders);
     ResponseEntity<String> result = template.exchange("https://example.com", POST, entity, String.class);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);
@@ -674,7 +674,7 @@ class RestTemplateTests {
     given(converter.read(eq(intList.getType()), eq(null), any(HttpInputMessage.class))).willReturn(expected);
 
     HttpHeaders entityHeaders = HttpHeaders.forWritable();
-    entityHeaders.set("MyHeader", "MyValue");
+    entityHeaders.setOrRemove("MyHeader", "MyValue");
     HttpEntity<String> requestEntity = new HttpEntity<>("Hello World", entityHeaders);
     ResponseEntity<List<Integer>> result = template.exchange("https://example.com", POST, requestEntity, intList);
     assertThat(result.getBody()).as("Invalid POST result").isEqualTo(expected);

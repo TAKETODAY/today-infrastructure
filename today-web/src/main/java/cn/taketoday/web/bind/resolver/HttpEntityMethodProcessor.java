@@ -65,8 +65,7 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:43
  */
-public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor
-        implements HandlerMethodReturnValueHandler {
+public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private final RedirectModelManager redirectModelManager;
@@ -99,6 +98,19 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
           @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
     super(converters, manager, requestResponseBodyAdvice);
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  /**
+   * Variant of {@link #HttpEntityMethodProcessor(List, ContentNegotiationManager, List, RedirectModelManager)}
+   * with additional list of {@link ErrorResponse.Interceptor}s for return
+   * value handling.
+   *
+   * @since 5.0
+   */
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager, List<ErrorResponse.Interceptor> interceptors) {
+    super(converters, manager, requestResponseBodyAdvice, interceptors);
     this.redirectModelManager = redirectModelManager;
   }
 
@@ -190,6 +202,17 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
         URI path = URI.create(context.getRequestURI());
         detail.setInstance(path);
       }
+
+      if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
+        if (responseEntity.getStatusCode().value() != detail.getStatus()) {
+          HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+          if (handlerMethod != null) {
+            logger.warn("%s returned ResponseEntity: %s, but its status doesn't match the ProblemDetail status: %d"
+                    .formatted(handlerMethod.getMethod().toGenericString(), responseEntity, detail.getStatus()));
+          }
+        }
+      }
+      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null);
     }
 
     HttpHeaders entityHeaders = httpEntity.getHeaders();

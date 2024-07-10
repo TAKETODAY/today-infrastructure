@@ -37,6 +37,7 @@ import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
@@ -48,19 +49,20 @@ import reactor.core.publisher.Mono;
  * Default implementation of {@link ClientRequest.Builder}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   private HttpMethod method;
 
-  private URI url;
+  private URI uri;
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final MultiValueMap<String, String> cookies = new LinkedMultiValueMap<>();
 
-  private final Map<String, Object> attributes = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
 
   private BodyInserter<?, ? super ClientHttpRequest> body = BodyInserters.empty();
 
@@ -70,19 +72,19 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   public DefaultClientRequestBuilder(ClientRequest other) {
     Assert.notNull(other, "ClientRequest is required");
     this.method = other.method();
-    this.url = other.url();
-    headers(headers -> headers.addAll(other.headers()));
-    cookies(cookies -> cookies.addAll(other.cookies()));
-    attributes(attributes -> attributes.putAll(other.attributes()));
+    this.uri = other.uri();
+    headers(other.headers());
+    cookies(other.cookies());
+    attributes(other.attributes());
     body(other.body());
     this.httpRequestConsumer = other.httpRequest();
   }
 
-  public DefaultClientRequestBuilder(HttpMethod method, URI url) {
+  public DefaultClientRequestBuilder(HttpMethod method, URI uri) {
     Assert.notNull(method, "HttpMethod is required");
-    Assert.notNull(url, "URI is required");
+    Assert.notNull(uri, "URI is required");
     this.method = method;
-    this.url = url;
+    this.uri = uri;
   }
 
   @Override
@@ -93,17 +95,15 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
-  public ClientRequest.Builder url(URI url) {
-    Assert.notNull(url, "URI is required");
-    this.url = url;
+  public ClientRequest.Builder uri(URI uri) {
+    Assert.notNull(uri, "URI is required");
+    this.uri = uri;
     return this;
   }
 
   @Override
   public ClientRequest.Builder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      this.headers.add(headerName, headerValue);
-    }
+    headers.setOrRemove(headerName, headerValues);
     return this;
   }
 
@@ -114,16 +114,26 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
+  public ClientRequest.Builder headers(@Nullable HttpHeaders headers) {
+    this.headers.setAll(headers);
+    return this;
+  }
+
+  @Override
   public ClientRequest.Builder cookie(String name, String... values) {
-    for (String value : values) {
-      this.cookies.add(name, value);
-    }
+    this.cookies.setOrRemove(name, values);
     return this;
   }
 
   @Override
   public ClientRequest.Builder cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer) {
     cookiesConsumer.accept(this.cookies);
+    return this;
+  }
+
+  @Override
+  public ClientRequest.Builder cookies(@Nullable MultiValueMap<String, String> cookies) {
+    this.cookies.setAll(cookies);
     return this;
   }
 
@@ -154,9 +164,17 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   @Override
+  public ClientRequest.Builder attributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      this.attributes.putAll(attributes);
+    }
+    return this;
+  }
+
+  @Override
   public ClientRequest.Builder httpRequest(Consumer<ClientHttpRequest> requestConsumer) {
     this.httpRequestConsumer = (this.httpRequestConsumer != null ?
-                                this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
+            this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
     return this;
   }
 
@@ -168,9 +186,8 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public ClientRequest build() {
-    return new BodyInserterRequest(
-            this.method, this.url, this.headers, this.cookies, this.body,
-            this.attributes, this.httpRequestConsumer);
+    return new BodyInserterRequest(this.method, this.uri, this.headers, this.cookies,
+            this.body, this.attributes, this.httpRequestConsumer);
   }
 
   private static class BodyInserterRequest implements ClientRequest {
@@ -214,7 +231,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     }
 
     @Override
-    public URI url() {
+    public URI uri() {
       return this.url;
     }
 
@@ -252,18 +269,24 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
     public Mono<Void> writeTo(ClientHttpRequest request, ExchangeStrategies strategies) {
       HttpHeaders requestHeaders = request.getHeaders();
       if (!this.headers.isEmpty()) {
-        this.headers.entrySet().stream()
-                .filter(entry -> !requestHeaders.containsKey(entry.getKey()))
-                .forEach(entry -> requestHeaders.put(entry.getKey(), entry.getValue()));
+        for (var entry : this.headers.entrySet()) {
+          requestHeaders.putIfAbsent(entry.getKey(), entry.getValue());
+        }
       }
 
       MultiValueMap<String, HttpCookie> requestCookies = request.getCookies();
       if (!this.cookies.isEmpty()) {
-        this.cookies.forEach((name, values) -> values.forEach(value -> {
-          HttpCookie cookie = new HttpCookie(name, value);
-          requestCookies.add(name, cookie);
-        }));
+        for (var entry : cookies.entrySet()) {
+          String name = entry.getKey();
+          for (String value : entry.getValue()) {
+            HttpCookie cookie = new HttpCookie(name, value);
+            requestCookies.add(name, cookie);
+          }
+        }
       }
+
+      request.setAttributes(attributes);
+
       if (this.httpRequestConsumer != null) {
         this.httpRequestConsumer.accept(request);
       }

@@ -50,6 +50,7 @@ import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
 import cn.taketoday.bytecode.transform.ClassEmitterTransformer;
 import cn.taketoday.bytecode.transform.TransformingClassGenerator;
+import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -127,14 +128,22 @@ class ConfigurationClassEnhancer {
   private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
     Enhancer enhancer = new Enhancer();
     enhancer.setUseFactory(false);
-    enhancer.setAttemptLoad(true);
     enhancer.setSuperclass(configSuperClass);
     enhancer.setInterfaces(EnhancedConfiguration.class);
     enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
     enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
+    enhancer.setAttemptLoad(!isClassReloadable(configSuperClass, classLoader));
     enhancer.setCallbackFilter(CALLBACK_FILTER);
     enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
     return enhancer;
+  }
+
+  /**
+   * Checks whether the given configuration class is reloadable.
+   */
+  private boolean isClassReloadable(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
+    return classLoader instanceof SmartClassLoader scl
+            && scl.isClassReloadable(configSuperClass);
   }
 
   /**

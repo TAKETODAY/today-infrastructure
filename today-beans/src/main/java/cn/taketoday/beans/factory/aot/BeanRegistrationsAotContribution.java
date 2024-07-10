@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
@@ -30,11 +30,11 @@ import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * AOT contribution from a {@link BeanRegistrationsAotProcessor} used to
@@ -52,9 +52,9 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
 
   private static final String BEAN_FACTORY_PARAMETER_NAME = "beanFactory";
 
-  private final Map<BeanRegistrationKey, Registration> registrations;
+  private final List<Registration> registrations;
 
-  BeanRegistrationsAotContribution(Map<BeanRegistrationKey, Registration> registrations) {
+  BeanRegistrationsAotContribution(List<Registration> registrations) {
     this.registrations = registrations;
   }
 
@@ -81,63 +81,66 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
           GenerationContext generationContext, BeanRegistrationsCode beanRegistrationsCode) {
 
     method.addJavadoc("Register the bean definitions.");
-    method.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+    method.addModifiers(Modifier.PUBLIC);
     method.addParameter(StandardBeanFactory.class, BEAN_FACTORY_PARAMETER_NAME);
     CodeBlock.Builder code = CodeBlock.builder();
-    this.registrations.forEach((registeredBean, registration) -> {
-      MethodReference beanDefinitionMethod = registration.methodGenerator
-              .generateBeanDefinitionMethod(generationContext, beanRegistrationsCode);
-      CodeBlock methodInvocation = beanDefinitionMethod.toInvokeCodeBlock(
-              ArgumentCodeGenerator.none(), beanRegistrationsCode.getClassName());
-      code.addStatement("$L.registerBeanDefinition($S, $L)",
-              BEAN_FACTORY_PARAMETER_NAME, registeredBean.beanName(), methodInvocation);
+    this.registrations.forEach(registration -> {
+      try {
+        MethodReference beanDefinitionMethod = registration.methodGenerator
+                .generateBeanDefinitionMethod(generationContext, beanRegistrationsCode);
+        CodeBlock methodInvocation = beanDefinitionMethod.toInvokeCodeBlock(
+                ArgumentCodeGenerator.none(), beanRegistrationsCode.getClassName());
+        code.addStatement("$L.registerBeanDefinition($S, $L)",
+                BEAN_FACTORY_PARAMETER_NAME, registration.beanName(), methodInvocation);
+      }
+      catch (AotException ex) {
+        throw ex;
+      }
+      catch (Exception ex) {
+        throw new AotBeanProcessingException(registration.registeredBean,
+                "failed to generate code for bean definition", ex);
+      }
     });
     method.addCode(code.build());
   }
 
   private void generateRegisterAliasesMethod(MethodSpec.Builder method) {
     method.addJavadoc("Register the aliases.");
-    method.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+    method.addModifiers(Modifier.PUBLIC);
     method.addParameter(StandardBeanFactory.class, BEAN_FACTORY_PARAMETER_NAME);
     CodeBlock.Builder code = CodeBlock.builder();
-    this.registrations.forEach((registeredBean, registration) -> {
-      for (String alias : registration.aliases) {
+    this.registrations.forEach(registration -> {
+      for (String alias : registration.aliases()) {
         code.addStatement("$L.registerAlias($S, $S)", BEAN_FACTORY_PARAMETER_NAME,
-                registeredBean.beanName(), alias);
+                registration.beanName(), alias);
       }
     });
     method.addCode(code.build());
   }
 
-  private void generateRegisterHints(RuntimeHints runtimeHints, Map<BeanRegistrationKey, Registration> registrations) {
-    registrations.keySet().forEach(beanRegistrationKey -> {
+  private void generateRegisterHints(RuntimeHints runtimeHints, List<Registration> registrations) {
+    registrations.forEach(registration -> {
       ReflectionHints hints = runtimeHints.reflection();
-      Class<?> beanClass = beanRegistrationKey.beanClass();
+      Class<?> beanClass = registration.registeredBean.getBeanClass();
       hints.registerType(beanClass, MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS);
-      introspectPublicMethodsOnAllInterfaces(hints, beanClass);
+      hints.registerForInterfaces(beanClass, typeHint -> typeHint.withMembers(MemberCategory.INTROSPECT_PUBLIC_METHODS));
     });
-  }
-
-  private void introspectPublicMethodsOnAllInterfaces(ReflectionHints hints, Class<?> type) {
-    Class<?> currentClass = type;
-    while (currentClass != null && currentClass != Object.class) {
-      for (Class<?> interfaceType : currentClass.getInterfaces()) {
-        if (!ClassUtils.isJavaLanguageInterface(interfaceType)) {
-          hints.registerType(interfaceType, MemberCategory.INTROSPECT_PUBLIC_METHODS);
-          introspectPublicMethodsOnAllInterfaces(hints, interfaceType);
-        }
-      }
-      currentClass = currentClass.getSuperclass();
-    }
   }
 
   /**
    * Gather the necessary information to register a particular bean.
    *
+   * @param registeredBean the bean to register
    * @param methodGenerator the {@link BeanDefinitionMethodGenerator} to use
    * @param aliases the bean aliases, if any
    */
-  record Registration(BeanDefinitionMethodGenerator methodGenerator, String[] aliases) { }
+  record Registration(RegisteredBean registeredBean, BeanDefinitionMethodGenerator methodGenerator, String[] aliases) {
+
+    String beanName() {
+      return this.registeredBean.getBeanName();
+    }
+
+  }
 
   /**
    * {@link BeanRegistrationsCode} with generation support.

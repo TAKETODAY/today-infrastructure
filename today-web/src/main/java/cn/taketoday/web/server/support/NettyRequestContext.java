@@ -517,17 +517,18 @@ public class NettyRequestContext extends RequestContext {
       if (responseCookies != null) {
         ServerCookieEncoder cookieEncoder = config.cookieEncoder;
         for (HttpCookie cookie : responseCookies) {
-          DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
-          if (cookie instanceof ResponseCookie responseCookie) {
-            nettyCookie.setPath(responseCookie.getPath());
-            nettyCookie.setDomain(responseCookie.getDomain());
-            nettyCookie.setMaxAge(responseCookie.getMaxAge().getSeconds());
-            nettyCookie.setSecure(responseCookie.isSecure());
-            nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
-            nettyCookie.setSameSite(forSameSite(responseCookie.getSameSite()));
+          DefaultCookie nc = new DefaultCookie(cookie.getName(), cookie.getValue());
+          if (cookie instanceof ResponseCookie rc) {
+            nc.setPath(rc.getPath());
+            nc.setDomain(rc.getDomain());
+            nc.setMaxAge(rc.getMaxAge().getSeconds());
+            nc.setSecure(rc.isSecure());
+            nc.setHttpOnly(rc.isHttpOnly());
+            nc.setSameSite(forSameSite(rc.getSameSite()));
+            nc.setPartitioned(rc.isPartitioned());
           }
 
-          headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nettyCookie));
+          headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nc));
         }
       }
 

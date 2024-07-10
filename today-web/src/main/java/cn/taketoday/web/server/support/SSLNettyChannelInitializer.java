@@ -26,10 +26,12 @@ import java.util.Map;
 
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
-import cn.taketoday.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.server.Ssl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
@@ -58,6 +60,8 @@ import static io.netty.handler.ssl.SslProvider.OPENSSL;
  */
 final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
+  private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
+  
   @Nullable
   private final HashMap<String, SslContext> serverNameSslContexts;
 
@@ -69,19 +73,21 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private volatile SslContext sslContext;
 
-  public SSLNettyChannelInitializer(ChannelHandler channelHandler, boolean http2Enabled,
-          Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    super(channelHandler);
-    this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
-    this.serverNameSslContexts = createServerNameSSLContexts(serverNameSslBundles);
-    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
-
-    this.sslContext = createSslContext(sslBundle);
+  public SSLNettyChannelInitializer(ChannelHandler channelHandler, @Nullable ChannelConfigurer channelConfigurer,
+          boolean http2Enabled, Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
+    super(channelHandler, channelConfigurer);
     this.http2Enabled = http2Enabled;
+    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
+    this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
+    this.sslContext = createSslContext(sslBundle);
+    this.serverNameSslContexts = createServerNameSSLContexts(serverNameSslBundles);
   }
 
   @Override
-  protected void initChannel(final Channel ch) {
+  protected void preInitChannel(@Nullable ChannelConfigurer configurer, final Channel ch) {
+    if (configurer != null) {
+      configurer.initChannel(ch);
+    }
     if (serverNameSslContexts != null) {
       SniHandler sniHandler = new SniHandler((hostname, promise) ->
               promise.setSuccess(serverNameSslContexts.getOrDefault(hostname, sslContext)), handshakeTimeout);
@@ -92,7 +98,6 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
       sslHandler.setHandshakeTimeoutMillis(handshakeTimeout);
       ch.pipeline().addLast("SSL-handler", sslHandler);
     }
-    super.initChannel(ch);
   }
 
   public void updateSSLBundle(@Nullable String serverName, SslBundle sslBundle) {

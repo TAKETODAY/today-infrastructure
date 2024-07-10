@@ -106,6 +106,9 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   private Netty nettyConfig = new Netty();
 
+  @Nullable
+  private ChannelConfigurer channelConfigurer;
+
   /**
    * EventLoopGroup for acceptor
    *
@@ -201,6 +204,20 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     this.loggingLevel = loggingLevel;
   }
 
+  /**
+   * Set {@link ChannelConfigurer}
+   *
+   * @param channelConfigurer ChannelConfigurer
+   */
+  public void setChannelConfigurer(@Nullable ChannelConfigurer channelConfigurer) {
+    this.channelConfigurer = channelConfigurer;
+  }
+
+  /**
+   * Set {@link ServerBootstrapCustomizer}
+   *
+   * @param bootstrapCustomizers ServerBootstrapCustomizer list
+   */
   public void setBootstrapCustomizers(@Nullable List<ServerBootstrapCustomizer> bootstrapCustomizers) {
     this.bootstrapCustomizers = bootstrapCustomizers;
   }
@@ -369,15 +386,15 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   private NettyChannelInitializer createInitializer(ChannelHandler channelHandler) {
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(
-              channelHandler, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
+      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler,
+              channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(null, ssl.bundle, initializer);
       for (var pair : ssl.serverNameBundles) {
         addBundleUpdateHandler(pair.getServerName(), pair.getBundle(), initializer);
       }
       return initializer;
     }
-    return new NettyChannelInitializer(channelHandler);
+    return new NettyChannelInitializer(channelHandler, channelConfigurer);
   }
 
   private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SSLNettyChannelInitializer initializer) {

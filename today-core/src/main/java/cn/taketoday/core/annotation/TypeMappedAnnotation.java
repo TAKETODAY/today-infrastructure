@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -128,10 +128,10 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     this.attributeFilter = null;
     this.resolvedRootMirrors =
             resolvedRootMirrors != null
-            ? resolvedRootMirrors : mapping.root.mirrorSets.resolve(source, rootAttributes, valueExtractor);
+                    ? resolvedRootMirrors : mapping.root.mirrorSets.resolve(source, rootAttributes, valueExtractor);
     this.resolvedMirrors =
             getDistance() == 0
-            ? resolvedRootMirrors : mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
+                    ? resolvedRootMirrors : mapping.mirrorSets.resolve(source, this, this::getValueForMirrorResolution);
   }
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
@@ -284,7 +284,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     for (int i = 0; i < attributes.length; i++) {
       Method attribute = attributes[i];
       Object value = isFiltered(attribute.getName())
-                     ? null : getValue(i, getTypeForMapOptions(attribute, adaptations));
+              ? null : getValue(i, getTypeForMapOptions(attribute, adaptations));
       if (value != null) {
         map.put(attribute.getName(), adaptValueForMapOptions(
                 attribute, value, map.getClass(), factory, adaptations));
@@ -307,8 +307,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
     if (value instanceof MergedAnnotation<?> annotation) {
       return Adapt.ANNOTATION_TO_MAP.containsIn(adaptations)
-             ? annotation.asMap(factory, adaptations)
-             : annotation.synthesize();
+              ? annotation.asMap(factory, adaptations)
+              : annotation.synthesize();
     }
     if (value instanceof MergedAnnotation<?>[] annotations) {
       if (Adapt.ANNOTATION_TO_MAP.containsIn(adaptations)) {
@@ -435,7 +435,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     }
     if (value == null) {
       Method attribute = mapping.methods.get(attributeIndex);
-      value = ReflectionUtils.invokeMethod(attribute, mapping.annotation);
+      value = AnnotationUtils.invokeAnnotationMethod(attribute, mapping.annotation);
     }
     return value;
   }
@@ -575,7 +575,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
 
   private ValueExtractor getValueExtractor(Object value) {
     if (value instanceof Annotation) {
-      return ReflectionUtils::invokeMethod;
+      return AnnotationUtils::invokeAnnotationMethod;
     }
     if (value instanceof Map) {
       return TypeMappedAnnotation::extractFromMap;
@@ -634,7 +634,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   static <A extends Annotation> TypeMappedAnnotation<A> from(@Nullable Object source, A annotation) {
     Assert.notNull(annotation, "Annotation is required");
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(annotation.annotationType());
-    return new TypeMappedAnnotation<>(mappings.get(0), null, source, annotation, ReflectionUtils::invokeMethod, 0);
+    return new TypeMappedAnnotation<>(mappings.get(0), null, source,
+            annotation, AnnotationUtils::invokeAnnotationMethod, 0);
   }
 
   static <A extends Annotation> MergedAnnotation<A> of(
@@ -666,7 +667,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
           int aggregateIndex, IntrospectionFailureLogger logger) {
 
     return createIfPossible(
-            mapping, source, annotation, ReflectionUtils::invokeMethod, aggregateIndex, logger);
+            mapping, source, annotation, AnnotationUtils::invokeAnnotationMethod, aggregateIndex, logger);
   }
 
   @Nullable
@@ -683,7 +684,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       if (logger.isEnabled()) {
         String type = mapping.annotationType.getName();
         String item = (mapping.distance == 0 ? "annotation " + type :
-                       "meta-annotation " + type + " from " + mapping.root.annotationType.getName());
+                "meta-annotation " + type + " from " + mapping.root.annotationType.getName());
         logger.log("Failed to introspect " + item, source, ex);
       }
       return null;

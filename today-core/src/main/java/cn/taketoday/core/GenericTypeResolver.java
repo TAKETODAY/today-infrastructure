@@ -121,7 +121,7 @@ public abstract class GenericTypeResolver {
   @Nullable
   public static Class<?>[] resolveTypeArguments(Class<?> clazz, Class<?> genericIfc) {
     ResolvableType type = ResolvableType.forClass(clazz).as(genericIfc);
-    if (!type.hasGenerics() || type.isEntirelyUnresolvable()) {
+    if (!type.hasGenerics() || !type.hasResolvableGenerics()) {
       return null;
     }
     return type.resolveGenerics(Object.class);

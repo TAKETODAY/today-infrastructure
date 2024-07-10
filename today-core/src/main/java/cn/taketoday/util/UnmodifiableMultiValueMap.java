@@ -49,8 +49,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
+
   @Serial
-  private static final long serialVersionUID = -8697084563854098920L;
+  private static final long serialVersionUID = 1L;
 
   private final MultiValueMap<K, V> delegate;
 
@@ -227,12 +228,24 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
-  public void set(K key, @Nullable V value) {
+  public List<V> setOrRemove(K key, @Nullable V value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public List<V> setOrRemove(K key, @Nullable V[] values) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Nullable
+  @Override
+  public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setAll(Map<K, V> values) {
+  public void setAll(@Nullable Map<K, List<V>> values) {
     throw new UnsupportedOperationException();
   }
 

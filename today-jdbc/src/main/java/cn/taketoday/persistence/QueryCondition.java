@@ -31,7 +31,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/11 21:51
  */
-public abstract class QueryCondition extends ColumnsQueryStatement implements QueryStatement {
+public abstract class QueryCondition extends ColumnsQueryStatement implements QueryStatement, DebugDescriptive {
 
   @Nullable
   protected String logic;

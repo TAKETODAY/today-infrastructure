@@ -284,7 +284,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    */
   public MockHttpRequestBuilder accept(MediaType... mediaTypes) {
     Assert.notEmpty(mediaTypes, "'mediaTypes' must not be empty");
-    this.headers.set("Accept", MediaType.toString(Arrays.asList(mediaTypes)));
+    this.headers.setOrRemove("Accept", MediaType.toString(Arrays.asList(mediaTypes)));
     return this;
   }
 
@@ -297,7 +297,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    */
   public MockHttpRequestBuilder accept(String... mediaTypes) {
     Assert.notEmpty(mediaTypes, "'mediaTypes' must not be empty");
-    this.headers.set("Accept", String.join(", ", mediaTypes));
+    this.headers.setOrRemove("Accept", String.join(", ", mediaTypes));
     return this;
   }
 

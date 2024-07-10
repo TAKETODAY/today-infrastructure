@@ -1,7 +1,7 @@
 [[expressions-properties-arrays]]
 = Properties, Arrays, Lists, Maps, and Indexers
 
-The Infra Expression Language provides support for navigating object graphs and indexing
+The Spring Expression Language provides support for navigating object graphs and indexing
 into various structures.
 
 NOTE: Numerical index values are zero-based, such as when accessing the n^th^ element of
@@ -21,10 +21,6 @@ xref:core/expressions/example-classes.adoc[Classes used in the examples] section
 navigate _down_ the object graph and get Tesla's year of birth and Pupin's city of birth,
 we use the following expressions:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // evaluates to 1856
@@ -33,7 +29,6 @@ int year = (Integer) parser.parseExpression("birthdate.year + 1900").getValue(co
 // evaluates to "Smiljan"
 String city = (String) parser.parseExpression("placeOfBirth.city").getValue(context);
 ----
-======
 
 [NOTE]
 ====
@@ -59,10 +54,6 @@ For any other type of `Collection`, the n^th^ element will be accessed by iterat
 the collection using its `Iterator` and returning the n^th^ element encountered.
 ====
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ExpressionParser parser = new SpelExpressionParser();
@@ -87,8 +78,6 @@ String invention = parser.parseExpression("members[0].inventions[6]").getValue(
     context, ieee, String.class);
 ----
 
-======
-
 [[expressions-indexing-strings]]
 == Indexing into Strings
 
@@ -98,18 +87,12 @@ brackets, as demonstrated in the following example.
 NOTE: The n^th^ character of a string will evaluate to a `java.lang.String`, not a
 `java.lang.Character`.
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // evaluates to "T" (8th letter of "Nikola Tesla")
 String character = parser.parseExpression("members[0].name[7]")
     .getValue(societyContext, String.class);
 ----
-
-======
 
 [[expressions-indexing-maps]]
 == Indexing into Maps
@@ -118,10 +101,6 @@ The contents of maps are obtained by specifying the key value within square brac
 the following example, because keys for the `officers` map are strings, we can specify
 string literals such as `'president'`:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // Officer's Map
@@ -145,8 +124,6 @@ String country = parser.parseExpression(countryExpression)
     .getValue(societyContext, String.class);
 ----
 
-======
-
 [[expressions-indexing-objects]]
 == Indexing into Objects
 
@@ -155,10 +132,6 @@ square brackets. This is analogous to accessing the value of a map based on its 
 following example demonstrates how to _index_ into an object to retrieve a specific
 property.
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // Create an inventor to use as the root context object.
@@ -169,5 +142,91 @@ String name = parser.parseExpression("#root['name']")
     .getValue(context, tesla, String.class);
 ----
 
-======
+[[expressions-indexing-custom]]
+== Indexing into Custom Structures
+
+Since Spring Framework 6.2, the Spring Expression Language supports indexing into custom
+structures by allowing developers to implement and register an `IndexAccessor` with the
+`EvaluationContext`. If you would like to support
+xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation] of
+expressions that rely on a custom index accessor, that index accessor must implement the
+`CompilableIndexAccessor` SPI.
+
+To support common use cases, Spring provides a built-in `ReflectiveIndexAccessor` which
+is a flexible `IndexAccessor` that uses reflection to read from and optionally write to
+an indexed structure of a target object. The indexed structure can be accessed through a
+`public` read-method (when being read) or a `public` write-method (when being written).
+The relationship between the read-method and write-method is based on a convention that
+is applicable for typical implementations of indexed structures.
+
+NOTE: `ReflectiveIndexAccessor` also implements `CompilableIndexAccessor` in order to
+support xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation]
+to bytecode for read access. Note, however, that the configured read-method must be
+invokable via a `public` class or `public` interface for compilation to succeed.
+
+The following code listings define a `Color` enum and `FruitMap` type that behaves like a
+map but does not implement the `java.util.Map` interface. Thus, if you want to index into
+a `FruitMap` within a SpEL expression, you will need to register an `IndexAccessor`.
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+package example;
+
+public enum Color {
+  RED, ORANGE, YELLOW
+}
+----
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+public class FruitMap {
+
+  private final Map<Color, String> map = new HashMap<>();
+
+  public FruitMap() {
+    this.map.put(Color.RED, "cherry");
+    this.map.put(Color.ORANGE, "orange");
+    this.map.put(Color.YELLOW, "banana");
+  }
+
+  public String getFruit(Color color) {
+    return this.map.get(color);
+  }
+
+  public void setFruit(Color color, String fruit) {
+    this.map.put(color, fruit);
+  }
+}
+----
+
+A read-only `IndexAccessor` for `FruitMap` can be created via `new
+ReflectiveIndexAccessor(FruitMap.class, Color.class, "getFruit")`. With that accessor
+registered and a `FruitMap` registered as a variable named `#fruitMap`, the SpEL
+expression `#fruitMap[T(example.Color).RED]` will evaluate to `"cherry"`.
+
+A read-write `IndexAccessor` for `FruitMap` can be created via `new
+ReflectiveIndexAccessor(FruitMap.class, Color.class, "getFruit", "setFruit")`. With that
+accessor registered and a `FruitMap` registered as a variable named `#fruitMap`, the SpEL
+expression `#fruitMap[T(example.Color).RED] = 'strawberry'` can be used to change the
+fruit mapping for the color red from `"cherry"` to `"strawberry"`.
+
+The following example demonstrates how to register a `ReflectiveIndexAccessor` to index
+into a `FruitMap` and then index into the `FruitMap` within a SpEL expression.
+
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+// Create a ReflectiveIndexAccessor for FruitMap
+IndexAccessor fruitMapAccessor = new ReflectiveIndexAccessor(
+    FruitMap.class, Color.class, "getFruit", "setFruit");
+
+// Register the IndexAccessor for FruitMap
+context.addIndexAccessor(fruitMapAccessor);
+
+// Register the fruitMap variable
+context.setVariable("fruitMap", new FruitMap());
+
+// evaluates to "cherry"
+String fruit = parser.parseExpression("#fruitMap[T(example.Color).RED]")
+    .getValue(context, String.class);
+----
 

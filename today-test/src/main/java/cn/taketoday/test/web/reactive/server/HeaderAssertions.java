@@ -94,7 +94,7 @@ public class HeaderAssertions {
 
       HttpHeaders headers = HttpHeaders.forWritable();
       headers.setDate("expected", value);
-      headers.set("actual", headerValue);
+      headers.setOrRemove("actual", headerValue);
 
       assertEquals("Response header '" + headerName + "'='" + headerValue + "' " +
                       "does not match expected value '" + headers.getFirst("expected") + "'",

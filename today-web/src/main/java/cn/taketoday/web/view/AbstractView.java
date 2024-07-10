@@ -542,8 +542,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   protected String formatViewName() {
-    return getBeanName() != null ? "name '" + getBeanName() + "'"
-            : "[" + getClass().getSimpleName() + "]";
+    return getBeanName() != null ? "name [%s]".formatted(getBeanName()) : "[%s]".formatted(getClass().getSimpleName());
   }
 
 }

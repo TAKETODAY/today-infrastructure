@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.InvalidMediaTypeException;
@@ -40,11 +41,11 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.MockUtils;
-import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * {@link ServerHttpRequest} implementation that is based on a {@link HttpMockRequest}.
@@ -55,7 +56,7 @@ import cn.taketoday.mock.api.http.HttpMockRequest;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
-public class MockServerHttpRequest implements ServerHttpRequest {
+public class MockServerHttpRequest extends AbstractHttpRequest implements ServerHttpRequest {
 
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 

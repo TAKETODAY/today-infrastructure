@@ -592,20 +592,24 @@ public class ResolvableType implements Serializable {
   }
 
   /**
-   * Return {@code true} if this type contains unresolvable generics only,
-   * that is, no substitute for any of its declared type variables.
+   * Return {@code true} if this type contains at least a generic type
+   * that is resolved. In other words, this returns {@code false} if
+   * the type contains unresolvable generics only, that is, no substitute
+   * for any of its declared type variables.
+   *
+   * @since 5.0
    */
-  boolean isEntirelyUnresolvable() {
+  public boolean hasResolvableGenerics() {
     if (this == NONE) {
       return false;
     }
     ResolvableType[] generics = getGenerics();
     for (ResolvableType generic : generics) {
       if (!generic.isUnresolvableTypeVariable() && !generic.isWildcardWithoutBounds()) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   /**

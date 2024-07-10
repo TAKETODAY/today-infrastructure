@@ -137,7 +137,7 @@ public class MockMultipartFile implements MultipartFile {
 
   protected DefaultHttpHeaders createHttpHeaders() {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
-    headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
+    headers.setOrRemove(HttpHeaders.CONTENT_TYPE, getContentType());
     return headers;
   }
 
@@ -173,7 +173,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   @Override
-  public void delete() throws IOException { }
+  public void cleanup() throws IOException { }
 
   @Override
   public InputStream getInputStream() throws IOException {

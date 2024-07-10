@@ -22,9 +22,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import cn.taketoday.persistence.sql.OrderByClause;
 import cn.taketoday.persistence.sql.Restriction;
 import cn.taketoday.persistence.sql.SimpleSelect;
 
@@ -50,7 +47,8 @@ final class MapQueryHandlerFactory implements QueryHandlerFactory {
     return null;
   }
 
-  static class MapQueryStatement extends SimpleSelectQueryStatement implements QueryStatement, ConditionStatement {
+  static class MapQueryStatement extends SimpleSelectQueryStatement
+          implements QueryStatement, ConditionStatement, DebugDescriptive {
 
     private final Map<?, ?> map;
 
@@ -68,12 +66,6 @@ final class MapQueryHandlerFactory implements QueryHandlerFactory {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
         restrictions.add(Restriction.equal(entry.getKey().toString()));
       }
-    }
-
-    @Nullable
-    @Override
-    public OrderByClause getOrderByClause(EntityMetadata metadata) {
-      return null;
     }
 
     @Override

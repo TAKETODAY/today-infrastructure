@@ -69,23 +69,44 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   @Override
   @SuppressWarnings({ "unchecked" })
   public void add(K key, @Nullable V value) {
-    List<V> values = this.targetMap.computeIfAbsent(key, defaultMappingFunction);
-    values.add(value);
+    targetMap.computeIfAbsent(key, defaultMappingFunction)
+            .add(value);
   }
 
   @Override
   public void addAll(K key, @Nullable Collection<? extends V> values) {
     if (values != null) {
-      List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(values.size()));
-      currentValues.addAll(values);
+      targetMap.computeIfAbsent(key, k -> new ArrayList<>(values.size()))
+              .addAll(values);
     }
   }
 
   @Override
-  public void set(K key, @Nullable V value) {
-    ArrayList<V> values = new ArrayList<>(1);
-    values.add(value);
-    this.targetMap.put(key, values);
+  public List<V> setOrRemove(K key, @Nullable V value) {
+    if (value != null) {
+      ArrayList<V> values = new ArrayList<>(1);
+      values.add(value);
+      return targetMap.put(key, values);
+    }
+    else {
+      return targetMap.remove(key);
+    }
+  }
+
+  @Override
+  public List<V> setOrRemove(K key, @Nullable V[] value) {
+    if (value != null) {
+      return targetMap.put(key, CollectionUtils.newArrayList(value));
+    }
+    return targetMap.remove(key);
+  }
+
+  @Override
+  public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
+    if (value != null) {
+      return targetMap.put(key, new ArrayList<>(value));
+    }
+    return targetMap.remove(key);
   }
 
   // Map implementation

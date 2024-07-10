@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,7 +48,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Unmodifiable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
@@ -62,7 +65,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * <ul>
  * <li>{@link #getFirst(String)} returns the first value associated with a given header name</li>
  * <li>{@link #add(String, String)} adds a header value to the list of values for a header name</li>
- * <li>{@link #set(String, String)} sets the header value to a single string value</li>
+ * <li>{@link #setOrRemove(String, String)} sets the header value to a single string value</li>
  * </ul>
  *
  * <p>Note that {@code HttpHeaders} generally treats header names in a case-insensitive manner.
@@ -558,7 +561,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * by the {@code Accept} header.
    */
   public void setAccept(Collection<MediaType> acceptableMediaTypes) {
-    set(ACCEPT, MediaType.toString(acceptableMediaTypes));
+    setOrRemove(ACCEPT, MediaType.toString(acceptableMediaTypes));
   }
 
   /**
@@ -585,7 +588,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
       DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
       return range.getRange() + ";q=" + decimal.format(range.getWeight());
     }).collect(Collectors.toList());
-    set(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
+    setOrRemove(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
   }
 
   /**
@@ -600,9 +603,20 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
-    return StringUtils.isNotEmpty(value)
-            ? Locale.LanguageRange.parse(value)
-            : Collections.emptyList();
+    if (StringUtils.hasText(value)) {
+      try {
+        return Locale.LanguageRange.parse(value);
+      }
+      catch (IllegalArgumentException ignored) {
+        String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
+        for (int i = 0; i < tokens.length; i++) {
+          tokens[i] = StringUtils.trimTrailingCharacter(tokens[i], ';');
+        }
+        value = StringUtils.arrayToCommaDelimitedString(tokens);
+        return Locale.LanguageRange.parse(value);
+      }
+    }
+    return Collections.emptyList();
   }
 
   /**
@@ -643,7 +657,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @since 4.0
    */
   public void setAcceptPatch(Collection<MediaType> mediaTypes) {
-    set(ACCEPT_PATCH, MediaType.toString(mediaTypes));
+    setOrRemove(ACCEPT_PATCH, MediaType.toString(mediaTypes));
   }
 
   /**
@@ -662,7 +676,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * header.
    */
   public void setAccessControlAllowCredentials(boolean allowCredentials) {
-    set(ACCESS_CONTROL_ALLOW_CREDENTIALS, Boolean.toString(allowCredentials));
+    setOrRemove(ACCESS_CONTROL_ALLOW_CREDENTIALS, Boolean.toString(allowCredentials));
   }
 
   /**
@@ -678,7 +692,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * header.
    */
   public void setAccessControlAllowHeaders(Collection<String> allowedHeaders) {
-    set(ACCESS_CONTROL_ALLOW_HEADERS, toCommaDelimitedString(allowedHeaders));
+    setOrRemove(ACCESS_CONTROL_ALLOW_HEADERS, toCommaDelimitedString(allowedHeaders));
   }
 
   /**
@@ -693,7 +707,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * header.
    */
   public void setAccessControlAllowMethods(Collection<?> allowedMethods) {
-    set(ACCESS_CONTROL_ALLOW_METHODS, toCommaDelimitedString(allowedMethods));
+    setOrRemove(ACCESS_CONTROL_ALLOW_METHODS, toCommaDelimitedString(allowedMethods));
   }
 
   /**
@@ -732,7 +746,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * header.
    */
   public void setAccessControlExposeHeaders(Collection<String> exposedHeaders) {
-    set(ACCESS_CONTROL_EXPOSE_HEADERS, toCommaDelimitedString(exposedHeaders));
+    setOrRemove(ACCESS_CONTROL_EXPOSE_HEADERS, toCommaDelimitedString(exposedHeaders));
   }
 
   /**
@@ -747,14 +761,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Set the (new) value of the {@code Access-Control-Max-Age} response header.
    */
   public void setAccessControlMaxAge(Duration maxAge) {
-    set(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge.getSeconds()));
+    setOrRemove(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge.getSeconds()));
   }
 
   /**
    * Set the (new) value of the {@code Access-Control-Max-Age} response header.
    */
   public void setAccessControlMaxAge(long maxAge) {
-    set(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge));
+    setOrRemove(ACCESS_CONTROL_MAX_AGE, Long.toString(maxAge));
   }
 
   /**
@@ -772,7 +786,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * header.
    */
   public void setAccessControlRequestHeaders(Collection<String> requestHeaders) {
-    set(ACCESS_CONTROL_REQUEST_HEADERS, toCommaDelimitedString(requestHeaders));
+    setOrRemove(ACCESS_CONTROL_REQUEST_HEADERS, toCommaDelimitedString(requestHeaders));
   }
 
   /**
@@ -812,7 +826,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     for (Charset charset : acceptableCharsets) {
       joiner.add(charset.name().toLowerCase(Locale.ENGLISH));
     }
-    set(ACCEPT_CHARSET, joiner.toString());
+    setOrRemove(ACCEPT_CHARSET, joiner.toString());
   }
 
   /**
@@ -849,7 +863,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * the {@code Allow} header.
    */
   public void setAllow(Collection<HttpMethod> allowedMethods) {
-    set(ALLOW, StringUtils.collectionToCommaDelimitedString(allowedMethods)); // special case
+    setOrRemove(ALLOW, StringUtils.collectionToCommaDelimitedString(allowedMethods)); // special case
   }
 
   /**
@@ -857,7 +871,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * the {@code Allow} header.
    */
   public void setAllow(HttpMethod... allowedMethods) {
-    set(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
+    setOrRemove(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
   }
 
   /**
@@ -865,7 +879,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * the {@code Allow} header.
    */
   public void setAllow(String... allowedMethods) {
-    set(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
+    setOrRemove(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
   }
 
   /**
@@ -899,7 +913,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public void setBasicAuth(String encodedCredentials) {
     Assert.hasText(encodedCredentials, "'encodedCredentials' must not be null or blank");
-    set(AUTHORIZATION, "Basic " + encodedCredentials);
+    setOrRemove(AUTHORIZATION, "Basic " + encodedCredentials);
   }
 
   /**
@@ -948,7 +962,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
    */
   public void setBearerAuth(String token) {
-    set(AUTHORIZATION, "Bearer " + token);
+    setOrRemove(AUTHORIZATION, "Bearer " + token);
   }
 
   /**
@@ -978,14 +992,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Set the (new) value of the {@code Connection} header.
    */
   public void setConnection(String connection) {
-    set(CONNECTION, connection);
+    setOrRemove(CONNECTION, connection);
   }
 
   /**
    * Set the (new) value of the {@code Connection} header.
    */
   public void setConnection(Collection<String> connection) {
-    set(CONNECTION, toCommaDelimitedString(connection));
+    setOrRemove(CONNECTION, toCommaDelimitedString(connection));
   }
 
   /**
@@ -1029,11 +1043,11 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @see #getContentDisposition()
    */
   public void setContentDisposition(ContentDisposition contentDisposition) {
-    set(CONTENT_DISPOSITION, contentDisposition.toString());
+    setOrRemove(CONTENT_DISPOSITION, contentDisposition.toString());
   }
 
   public void setContentDisposition(String contentDisposition) {
-    set(CONTENT_DISPOSITION, contentDisposition);
+    setOrRemove(CONTENT_DISPOSITION, contentDisposition);
   }
 
   /**
@@ -1084,7 +1098,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * {@code Content-Length} header.
    */
   public void setContentLength(long contentLength) {
-    set(CONTENT_LENGTH, Long.toString(contentLength));
+    setOrRemove(CONTENT_LENGTH, Long.toString(contentLength));
   }
 
   /**
@@ -1106,7 +1120,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     if (mediaType != null) {
       Assert.isTrue(!mediaType.isWildcardType(), "Content-Type cannot contain wildcard type '*'");
       Assert.isTrue(!mediaType.isWildcardSubtype(), "Content-Type cannot contain wildcard subtype '*'");
-      set(CONTENT_TYPE, mediaType.toString());
+      setOrRemove(CONTENT_TYPE, mediaType.toString());
     }
     else {
       remove(CONTENT_TYPE);
@@ -1175,7 +1189,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     if (etag != null) {
       Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/"), "Invalid ETag: does not start with W/ or \"");
       Assert.isTrue(etag.endsWith("\""), "Invalid ETag: does not end with \"");
-      set(ETAG, etag);
+      setOrRemove(ETAG, etag);
     }
     else {
       remove(ETAG);
@@ -1244,7 +1258,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
       if (port != 0) {
         value = value + ':' + port;
       }
-      set(HOST, value);
+      setOrRemove(HOST, value);
     }
     else {
       remove(HOST);
@@ -1291,14 +1305,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Set the (new) value of the {@code If-Match} header.
    */
   public void setIfMatch(String ifMatch) {
-    set(IF_MATCH, ifMatch);
+    setOrRemove(IF_MATCH, ifMatch);
   }
 
   /**
    * Set the (new) value of the {@code If-Match} header.
    */
   public void setIfMatch(Collection<String> ifMatchList) {
-    set(IF_MATCH, toCommaDelimitedString(ifMatchList));
+    setOrRemove(IF_MATCH, toCommaDelimitedString(ifMatchList));
   }
 
   /**
@@ -1357,7 +1371,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Set the (new) values of the {@code If-None-Match} header.
    */
   public void setIfNoneMatch(Collection<String> ifNoneMatchList) {
-    set(IF_NONE_MATCH, toCommaDelimitedString(ifNoneMatchList));
+    setOrRemove(IF_NONE_MATCH, toCommaDelimitedString(ifNoneMatchList));
   }
 
   /**
@@ -1510,7 +1524,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public void setRange(Collection<HttpRange> ranges) {
     String value = HttpRange.toString(ranges);
-    set(RANGE, value);
+    setOrRemove(RANGE, value);
   }
 
   /**
@@ -1545,7 +1559,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param requestHeaders the request header names
    */
   public void setVary(Collection<String> requestHeaders) {
-    set(VARY, StringUtils.collectionToDelimitedString(requestHeaders, ", "));
+    setOrRemove(VARY, StringUtils.collectionToDelimitedString(requestHeaders, ", "));
   }
 
   /**
@@ -1556,7 +1570,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param requestHeaders the request header names
    */
   public void setVary(String... requestHeaders) {
-    set(VARY, StringUtils.arrayToDelimitedString(requestHeaders, ", "));
+    setOrRemove(VARY, StringUtils.arrayToDelimitedString(requestHeaders, ", "));
   }
 
   /**
@@ -1569,16 +1583,16 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Set the given date under the given header name after formatting it as a
    * string using the RFC-1123 date-time formatter. The equivalent of
-   * {@link #set(String, String)} but for date headers.
+   * {@link #setOrRemove(String, String)} but for date headers.
    */
   public void setZonedDateTime(String headerName, ZonedDateTime date) {
-    set(headerName, DATE_FORMATTER.format(date));
+    setOrRemove(headerName, DATE_FORMATTER.format(date));
   }
 
   /**
    * Set the given date under the given header name after formatting it as a
    * string using the RFC-1123 date-time formatter. The equivalent of
-   * {@link #set(String, String)} but for date headers.
+   * {@link #setOrRemove(String, String)} but for date headers.
    */
   public void setInstant(String headerName, Instant date) {
     setZonedDateTime(headerName, ZonedDateTime.ofInstant(date, GMT));
@@ -1587,7 +1601,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Set the given date under the given header name after formatting it as a
    * string using the RFC-1123 date-time formatter. The equivalent of
-   * {@link #set(String, String)} but for date headers.
+   * {@link #setOrRemove(String, String)} but for date headers.
    *
    * @see #setZonedDateTime(String, ZonedDateTime)
    */
@@ -1771,11 +1785,12 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Retrieve a combined result from the field values of the ETag header.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @return the combined result
    */
-  public List<String> getETagValuesAsList(String headerName) {
-    List<String> values = get(headerName);
+  @Unmodifiable
+  public List<String> getETagValuesAsList(String name) {
+    List<String> values = get(name);
     if (values != null) {
       ArrayList<String> result = new ArrayList<>();
       for (String value : values) {
@@ -1790,7 +1805,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
             }
           }
           if (result.isEmpty()) {
-            throw new IllegalArgumentException("Could not parse header '%s' with value '%s'".formatted(headerName, value));
+            throw new IllegalArgumentException("Could not parse header '%s' with value '%s'".formatted(name, value));
           }
         }
       }
@@ -1802,44 +1817,32 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   /**
    * Retrieve a combined result from the field values of multi-valued headers.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @return the combined result
    */
   @Nullable
-  public String getFieldValues(String headerName) {
-    List<String> headerValues = get(headerName);
-    return (headerValues != null ? toCommaDelimitedString(headerValues) : null);
+  public String getFieldValues(String name) {
+    return toCommaDelimitedString(get(name));
   }
 
   /**
    * Turn the given list of header values into a comma-delimited result.
    *
-   * @param headerValues the list of header values
+   * @param value the list of header values
    * @return a combined result with comma delimitation
    */
-  protected String toCommaDelimitedString(Collection<?> headerValues) {
+  @Nullable
+  protected String toCommaDelimitedString(@Nullable Collection<?> value) {
+    if (value == null) {
+      return null;
+    }
     StringJoiner joiner = new StringJoiner(", ");
-    for (Object val : headerValues) {
+    for (Object val : value) {
       if (val != null) {
         joiner.add(val.toString());
       }
     }
     return joiner.toString();
-  }
-
-  /**
-   * Set the given header value, or remove the header if {@code null}.
-   *
-   * @param headerName the header name
-   * @param headerValue the header value, or {@code null} for none
-   */
-  public void setOrRemove(String headerName, @Nullable String headerValue) {
-    if (headerValue != null) {
-      set(headerName, headerValue);
-    }
-    else {
-      remove(headerName);
-    }
   }
 
   /**
@@ -1870,37 +1873,71 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   // abstract for subclasses
   // ---------------------------------------------------------------------
 
+  @Override
+  public List<String> setOrRemove(String name, @Nullable String[] value) {
+    return setOrRemove(name, value == null ? null : toCommaDelimitedString(Arrays.asList(value)));
+  }
+
+  @Override
+  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    return setOrRemove(name, toCommaDelimitedString(value));
+  }
+
+  /**
+   * Set the given header value, or remove the header if {@code null}.
+   *
+   * @param name the header name
+   * @param value the header value, or {@code null} for none
+   * @return returns {@code null} if value is not {@code null}
+   */
+  @Override
+  public List<String> setOrRemove(String name, @Nullable String value) {
+    if (value != null) {
+      setHeader(name, value);
+      return null;
+    }
+    else {
+      return remove(name);
+    }
+  }
+
   /**
    * Return the first header value for the given header name, if any.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @return the first header value, or {@code null} if none
    */
   @Nullable
   @Override
-  public abstract String getFirst(String headerName);
+  public abstract String getFirst(String name);
 
   /**
    * Add the given, single header value under the given name.
    *
-   * @param headerName the header name
-   * @param headerValue the header value
+   * @param name the header name
+   * @param value the header value
    * @throws UnsupportedOperationException if adding headers is not supported
-   * @see #set(String, String)
+   * @see #setOrRemove(String, String)
    */
   @Override
-  public abstract void add(String headerName, @Nullable String headerValue);
+  public abstract void add(String name, @Nullable String value);
 
-  @Override
-  public abstract void set(String headerName, @Nullable String headerValue);
+  /**
+   * Set the given, single header value under the given name.
+   *
+   * @param name the header name
+   * @param value the header value
+   * @throws UnsupportedOperationException if adding headers is not supported
+   */
+  protected abstract void setHeader(String name, String value);
 
   @Nullable
   @Override
-  public abstract List<String> get(Object headerName);
+  public abstract List<String> get(Object name);
 
   @Nullable
   @Override
-  public abstract List<String> remove(Object headerName);
+  public abstract List<String> remove(Object name);
 
   @Override
   public String toString() {
@@ -1969,6 +2006,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return returns empty http-headers
    * @since 4.0
    */
+  @Unmodifiable
   public static HttpHeaders empty() {
     return ReadOnlyHttpHeaders.EMPTY;
   }
@@ -1977,6 +2015,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return returns a new DefaultHttpHeaders
    * @since 4.0
    */
+  @Modifiable
   public static DefaultHttpHeaders forWritable() {
     return new DefaultHttpHeaders();
   }
@@ -1990,6 +2029,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
+  @Modifiable
   public static DefaultHttpHeaders forWritable(MultiValueMap<String, String> headers) {
     return new DefaultHttpHeaders(headers);
   }
@@ -2003,6 +2043,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * (in case it happens to be a read-only {@code HttpHeaders} instance already)
    * @since 4.0
    */
+  @Unmodifiable
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
     return headers instanceof HttpHeaders
             ? ((HttpHeaders) headers).asReadOnly()
@@ -2013,20 +2054,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * copy targetMap’s all entries to a new HttpHeaders
    *
    * @param targetMap can be null
-   * @return returns {@link #empty()} if {@code targetMap} is null
+   * @return returns a new HttpHeaders with copy headers
    * @since 4.0
    */
+  @Modifiable
   public static HttpHeaders copyOf(@Nullable Map<String, List<String>> targetMap) {
-    if (targetMap == null) {
-      return HttpHeaders.empty();
-    }
-    else {
-      HttpHeaders result = HttpHeaders.forWritable();
-      for (Map.Entry<String, List<String>> entry : targetMap.entrySet()) {
-        result.addAll(entry);
-      }
-      return result;
-    }
+    HttpHeaders result = HttpHeaders.forWritable();
+    result.addAll(targetMap);
+    return result;
   }
 
   // Package-private: used in ResponseCookie

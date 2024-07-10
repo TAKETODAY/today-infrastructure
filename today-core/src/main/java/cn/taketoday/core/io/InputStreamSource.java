@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
 
   /**
    * Return an {@link InputStream} for the content of an underlying resource.
-   * <p>It is expected that each call creates a <i>fresh</i> stream.
+   * <p>It is usually expected that every such call creates a <i>fresh</i> stream.
    * <p>This requirement is particularly important when you consider an API such
    * as JavaMail, which needs to be able to read the stream multiple times when
    * creating mail attachments. For such a use case, it is <i>required</i>
@@ -63,6 +63,7 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
    * @throws java.io.FileNotFoundException if the underlying resource does not exist
    * @throws IOException if the content stream could not be opened
    * @see Resource#isReadable()
+   * @see Resource#isOpen()
    */
   InputStream getInputStream() throws IOException;
 
@@ -128,7 +129,9 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
    * @since 4.0
    */
   default long transferTo(OutputStream out) throws IOException {
-    return getInputStream().transferTo(out);
+    try (InputStream in = getInputStream()) {
+      return in.transferTo(out);
+    }
   }
 
   /**

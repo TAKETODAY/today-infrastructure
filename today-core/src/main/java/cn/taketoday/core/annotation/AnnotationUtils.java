@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package cn.taketoday.core.annotation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -169,8 +169,8 @@ public abstract class AnnotationUtils {
     }
     if (logger.isEnabled()) {
       String message = meta ?
-                       "Failed to meta-introspect annotation " :
-                       "Failed to introspect annotations on ";
+              "Failed to meta-introspect annotation " :
+              "Failed to introspect annotations on ";
       logger.log(message + element + ": " + ex);
     }
   }
@@ -445,8 +445,8 @@ public abstract class AnnotationUtils {
 
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-            : RepeatableContainers.standard();
+                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.SUPERCLASS, repeatableContainers)
             .stream(annotationType)
@@ -521,8 +521,8 @@ public abstract class AnnotationUtils {
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-            ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
-            : RepeatableContainers.standard();
+                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, SearchStrategy.DIRECT, repeatableContainers)
             .stream(annotationType)
@@ -1095,24 +1095,63 @@ public abstract class AnnotationUtils {
    */
   @Nullable
   public static Object getValue(@Nullable Annotation annotation, @Nullable String attributeName) {
-    if (annotation == null || StringUtils.isBlank(attributeName)) {
+    if (annotation == null || !StringUtils.hasText(attributeName)) {
       return null;
     }
     try {
-      Method method = annotation.annotationType().getDeclaredMethod(attributeName);
-      ReflectionUtils.makeAccessible(method);
-      return method.invoke(annotation);
-    }
-    catch (NoSuchMethodException ex) {
-      return null;
-    }
-    catch (InvocationTargetException ex) {
-      rethrowAnnotationConfigurationException(ex.getTargetException());
-      throw new IllegalStateException("Could not obtain value for annotation attribute '" + attributeName + "' in " + annotation, ex);
+      for (Method method : annotation.annotationType().getDeclaredMethods()) {
+        if (method.getName().equals(attributeName) && method.getParameterCount() == 0) {
+          return invokeAnnotationMethod(method, annotation);
+        }
+      }
     }
     catch (Throwable ex) {
-      handleIntrospectionFailure(annotation.getClass(), ex);
+      handleValueRetrievalFailure(annotation, ex);
+    }
+    return null;
+  }
+
+  /**
+   * Invoke the supplied annotation attribute {@link Method} on the supplied
+   * {@link Annotation}.
+   * <p>An attempt will first be made to invoke the method via the annotation's
+   * {@link InvocationHandler} (if the annotation instance is a JDK dynamic proxy).
+   * If that fails, an attempt will be made to invoke the method via reflection.
+   *
+   * @param method the method to invoke
+   * @param annotation the annotation on which to invoke the method
+   * @return the value returned from the method invocation
+   * @since 5.0
+   */
+  @Nullable
+  static Object invokeAnnotationMethod(Method method, @Nullable Object annotation) {
+    if (annotation == null) {
       return null;
+    }
+    if (Proxy.isProxyClass(annotation.getClass())) {
+      try {
+        InvocationHandler handler = Proxy.getInvocationHandler(annotation);
+        return handler.invoke(annotation, method, null);
+      }
+      catch (Throwable ex) {
+        // Ignore and fall back to reflection below
+      }
+    }
+    return ReflectionUtils.invokeMethod(method, annotation);
+  }
+
+  /**
+   * Handle the supplied value retrieval exception.
+   *
+   * @param annotation the annotation instance from which to retrieve the value
+   * @param ex the exception that we encountered
+   * @see #handleIntrospectionFailure
+   */
+  private static void handleValueRetrievalFailure(Annotation annotation, Throwable ex) {
+    rethrowAnnotationConfigurationException(ex);
+    IntrospectionFailureLogger logger = IntrospectionFailureLogger.INFO;
+    if (logger.isEnabled()) {
+      logger.log("Failed to retrieve value from %s: %s".formatted(annotation, ex));
     }
   }
 

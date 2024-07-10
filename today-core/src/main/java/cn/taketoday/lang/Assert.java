@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.lang;
 
@@ -160,7 +160,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is not {@code null}
    */
-  public static void isNull(Object object, String message) {
+  public static void isNull(@Nullable Object object, String message) {
     if (object != null) {
       throw new IllegalArgumentException(message);
     }
@@ -175,7 +175,7 @@ public abstract class Assert {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is not {@code null}
    */
-  public static void isNull(Object object, Supplier<String> messageSupplier) {
+  public static void isNull(@Nullable Object object, Supplier<String> messageSupplier) {
     if (object != null) {
       throw new IllegalArgumentException(nullSafeGet(messageSupplier));
     }
@@ -184,7 +184,7 @@ public abstract class Assert {
   /**
    * Assert that an object is {@code null}.
    */
-  public static void isNull(Object object) {
+  public static void isNull(@Nullable Object object) {
     isNull(object, "[Assertion failed] - the object argument must be null");
   }
 
@@ -196,7 +196,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is {@code null}
    */
-  public static void notNull(Object object, String message) {
+  public static void notNull(@Nullable Object object, String message) {
     if (object == null) {
       throw new IllegalArgumentException(message);
     }
@@ -211,7 +211,7 @@ public abstract class Assert {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is {@code null}
    */
-  public static void notNull(Object object, Supplier<String> messageSupplier) {
+  public static void notNull(@Nullable Object object, Supplier<String> messageSupplier) {
     if (object == null) {
       throw new IllegalArgumentException(nullSafeGet(messageSupplier));
     }
@@ -263,7 +263,7 @@ public abstract class Assert {
    */
   public static void hasLength(String text) {
     hasLength(text,
-              "[Assertion failed] - this String argument must have length; it must not be null or empty");
+            "[Assertion failed] - this String argument must have length; it must not be null or empty");
   }
 
   /**
@@ -353,7 +353,7 @@ public abstract class Assert {
    */
   public static void doesNotContain(String textToSearch, String substring) {
     doesNotContain(textToSearch, substring,
-                   () -> "[Assertion failed] - this String argument must not contain the substring [%s]".formatted(substring));
+            () -> "[Assertion failed] - this String argument must not contain the substring [%s]".formatted(substring));
   }
 
   /**
@@ -405,7 +405,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object array contains a {@code null} element
    */
-  public static void noNullElements(Object[] array, String message) {
+  public static void noNullElements(@Nullable Object[] array, String message) {
     if (array != null) {
       for (Object element : array) {
         if (element == null) {
@@ -426,7 +426,7 @@ public abstract class Assert {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object array contains a {@code null} element
    */
-  public static void noNullElements(Object[] array, Supplier<String> messageSupplier) {
+  public static void noNullElements(@Nullable Object[] array, Supplier<String> messageSupplier) {
     if (array != null) {
       for (Object element : array) {
         if (element == null) {
@@ -480,7 +480,7 @@ public abstract class Assert {
    */
   public static void notEmpty(Collection<?> collection) {
     notEmpty(collection,
-             "[Assertion failed] - this collection must not be empty: it must contain at least 1 element");
+            "[Assertion failed] - this collection must not be empty: it must contain at least 1 element");
   }
 
   /**
@@ -493,7 +493,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the collection contains a {@code null} element
    */
-  public static void noNullElements(Collection<?> collection, String message) {
+  public static void noNullElements(@Nullable Collection<?> collection, String message) {
     if (collection != null) {
       for (Object element : collection) {
         if (element == null) {
@@ -514,7 +514,7 @@ public abstract class Assert {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the collection contains a {@code null} element
    */
-  public static void noNullElements(Collection<?> collection, Supplier<String> messageSupplier) {
+  public static void noNullElements(@Nullable Collection<?> collection, Supplier<String> messageSupplier) {
     if (collection != null) {
       for (Object element : collection) {
         if (element == null) {
@@ -533,7 +533,7 @@ public abstract class Assert {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the map is {@code null} or contains no entries
    */
-  public static void notEmpty(Map<?, ?> map, String message) {
+  public static void notEmpty(@Nullable Map<?, ?> map, String message) {
     if (CollectionUtils.isEmpty(map)) {
       throw new IllegalArgumentException(message);
     }
@@ -549,7 +549,7 @@ public abstract class Assert {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the map is {@code null} or contains no entries
    */
-  public static void notEmpty(Map<?, ?> map, Supplier<String> messageSupplier) {
+  public static void notEmpty(@Nullable Map<?, ?> map, Supplier<String> messageSupplier) {
     if (CollectionUtils.isEmpty(map)) {
       throw new IllegalArgumentException(nullSafeGet(messageSupplier));
     }
@@ -559,7 +559,7 @@ public abstract class Assert {
    * Assert that a Map contains entries; that is, it must not be {@code null} and
    * must contain at least one entry.
    */
-  public static void notEmpty(Map<?, ?> map) {
+  public static void notEmpty(@Nullable Map<?, ?> map) {
     notEmpty(map, "[Assertion failed] - this map must not be empty; it must contain at least one entry");
   }
 
@@ -630,7 +630,7 @@ public abstract class Assert {
    * a space and the name of the offending sub type will be appended.
    * @throws IllegalArgumentException if the classes are not assignable
    */
-  public static void isAssignable(Class<?> superType, Class<?> subType, String message) {
+  public static void isAssignable(Class<?> superType, @Nullable Class<?> subType, String message) {
     notNull(superType, "Super type to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, message);
@@ -650,7 +650,7 @@ public abstract class Assert {
    * details.
    * @throws IllegalArgumentException if the classes are not assignable
    */
-  public static void isAssignable(Class<?> superType, Class<?> subType, Supplier<String> messageSupplier) {
+  public static void isAssignable(Class<?> superType, @Nullable Class<?> subType, Supplier<String> messageSupplier) {
     notNull(superType, "Super type to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, nullSafeGet(messageSupplier));
@@ -669,7 +669,7 @@ public abstract class Assert {
     isAssignable(superType, subType, Constant.BLANK);
   }
 
-  private static void instanceCheckFailed(Class<?> type, Object obj, String msg) {
+  private static void instanceCheckFailed(Class<?> type, @Nullable Object obj, @Nullable String msg) {
     String className = (obj != null ? obj.getClass().getName() : "null");
     String result = Constant.BLANK;
     boolean defaultMessage = true;
@@ -688,7 +688,7 @@ public abstract class Assert {
     throw new IllegalArgumentException(result);
   }
 
-  private static void assignableCheckFailed(Class<?> superType, Class<?> subType, String msg) {
+  private static void assignableCheckFailed(Class<?> superType, @Nullable Class<?> subType, @Nullable String msg) {
     String result = Constant.BLANK;
     boolean defaultMessage = true;
     if (StringUtils.isNotEmpty(msg)) {
@@ -710,11 +710,12 @@ public abstract class Assert {
     return (msg.endsWith(":") || msg.endsWith(";") || msg.endsWith(",") || msg.endsWith("."));
   }
 
-  private static String messageWithTypeName(String msg, Object typeName) {
+  private static String messageWithTypeName(String msg, @Nullable Object typeName) {
     return msg + (msg.endsWith(" ") ? Constant.BLANK : ": ") + typeName;
   }
 
-  private static String nullSafeGet(Supplier<String> messageSupplier) {
+  @Nullable
+  private static String nullSafeGet(@Nullable Supplier<String> messageSupplier) {
     return (messageSupplier != null ? messageSupplier.get() : null);
   }
 

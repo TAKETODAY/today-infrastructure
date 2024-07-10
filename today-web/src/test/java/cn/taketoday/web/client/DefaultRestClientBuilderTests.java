@@ -20,6 +20,7 @@ package cn.taketoday.web.client;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.List;
 
 import cn.taketoday.http.client.ClientHttpRequestFactory;
@@ -90,6 +91,18 @@ class DefaultRestClientBuilderTests {
     DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
 
     assertThat(fieldValue("uriBuilderFactory", defaultBuilder)).isNull();
+  }
+
+  @Test
+  void defaultUri() {
+    URI baseUrl = URI.create("https://example.org");
+    RestClient.Builder builder = RestClient.builder();
+    builder.baseURI(baseUrl);
+
+    assertThat(builder).isInstanceOf(DefaultRestClientBuilder.class);
+    DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
+
+    assertThat(fieldValue("baseURI", defaultBuilder)).isEqualTo(baseUrl);
   }
 
   @Nullable

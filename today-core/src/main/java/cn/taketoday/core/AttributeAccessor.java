@@ -53,12 +53,9 @@ public interface AttributeAccessor {
    * Add the attributes from map
    *
    * @param attributes The attributes
+   * @see Map#putAll(Map)
    */
-  default void addAttributes(Map<String, Object> attributes) {
-    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-      setAttribute(entry.getKey(), entry.getValue());
-    }
-  }
+  void setAttributes(@Nullable Map<String, Object> attributes);
 
   /**
    * Get the value of the attribute identified by {@code name}. Return
@@ -156,8 +153,11 @@ public interface AttributeAccessor {
   /**
    * @since 3.0
    */
-  void copyAttributesFrom(AttributeAccessor source);
+  void copyFrom(AttributeAccessor source);
 
+  /**
+   * @see Map#clear()
+   */
   void clearAttributes();
 
 }

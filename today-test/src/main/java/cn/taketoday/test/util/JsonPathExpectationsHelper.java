@@ -293,7 +293,7 @@ public class JsonPathExpectationsHelper {
    */
   public void assertValueIsNotEmpty(String content) {
     Object value = evaluateJsonPath(content);
-    AssertionErrors.assertTrue(failureReason("a non-empty value", value), !ObjectUtils.isEmpty(value));
+    AssertionErrors.assertTrue(failureReason("a non-empty value", value), ObjectUtils.isNotEmpty(value));
   }
 
   /**

@@ -26,7 +26,6 @@ import java.util.List;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockContextImpl;
@@ -119,34 +118,6 @@ class ParameterResolvingRegistryTests {
             .isNotNull()
             .isEqualTo(registry.obtainStrategy(new MockResolvableMethodParameter(parameter, "data")))
             .isInstanceOf(RequestParamMethodArgumentResolver.class);
-
-  }
-
-  @Test
-  void conversionService() {
-    assertThat(registry.getConversionService()).isNull();
-
-    registry.setConversionService(null);
-    assertThat(registry.getConversionService()).isNull();
-
-    registry.setConversionService(DefaultConversionService.getSharedInstance());
-    assertThat(registry.getConversionService()).isEqualTo(DefaultConversionService.getSharedInstance());
-
-    registry.setConversionService(null);
-
-    assertThatThrownBy(() -> registry.applyConversionService(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("conversionService is required");
-
-    assertThat(registry.getConversionService()).isNull();
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.refresh();
-    context.setMockContext(new MockContextImpl());
-
-    registry.setApplicationContext(context);
-    registry.registerDefaultStrategies();
-    registry.applyConversionService(DefaultConversionService.getSharedInstance());
-    assertThat(registry.getConversionService()).isEqualTo(DefaultConversionService.getSharedInstance());
 
   }
 

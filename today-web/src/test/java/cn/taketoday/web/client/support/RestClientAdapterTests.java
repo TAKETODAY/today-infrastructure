@@ -90,7 +90,7 @@ class RestClientAdapterTests {
   public static Stream<Object[]> arguments() {
     return Stream.of(
             args(url -> {
-              RestClient restClient = RestClient.builder().baseUrl(url).build();
+              RestClient restClient = RestClient.builder().baseURI(url).build();
               return RestClientAdapter.create(restClient);
             }),
             args(url -> {

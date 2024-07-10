@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.session;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.io.WriteAbortedException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +55,8 @@ public class InMemorySessionRepository implements SessionRepository {
   private static final Logger log = LoggerFactory.getLogger(InMemorySessionRepository.class);
 
   private int maxSessions = 10000;
-  private Clock clock = Clock.system(ZoneId.of("GMT"));
+
+  private Clock clock = Clock.systemUTC();
 
   /**
    * When an attribute that is already present in the session is added again
@@ -80,8 +81,11 @@ public class InMemorySessionRepository implements SessionRepository {
   private Duration maxIdleTime = Duration.ofMinutes(30);
 
   private final SessionIdGenerator idGenerator;
+
   private final SessionEventDispatcher eventDispatcher;
+
   private final ExpiredSessionChecker expiredSessionChecker = new ExpiredSessionChecker();
+
   private final ConcurrentHashMap<String, InMemoryWebSession> sessions = new ConcurrentHashMap<>();
 
   public InMemorySessionRepository(SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator) {
@@ -264,17 +268,19 @@ public class InMemorySessionRepository implements SessionRepository {
     expiredSessionChecker.removeExpiredSessions(clock.instant());
   }
 
-  final class InMemoryWebSession extends AbstractWebSession
-          implements WebSession, Serializable, SerializableSession {
+  final class InMemoryWebSession extends AbstractWebSession implements WebSession, Serializable, SerializableSession {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private Instant creationTime;
+
     private volatile Duration maxIdleTime;
+
     private volatile Instant lastAccessTime;
 
     private final AtomicReference<String> id;
+
     private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
 
     InMemoryWebSession(String id, Instant creationTime, Duration maxIdleTime) {
@@ -527,6 +533,7 @@ public class InMemorySessionRepository implements SessionRepository {
     public int hashCode() {
       return Objects.hash(super.hashCode(), id, creationTime, lastAccessTime, maxIdleTime, state);
     }
+
   }
 
   private final class ExpiredSessionChecker {

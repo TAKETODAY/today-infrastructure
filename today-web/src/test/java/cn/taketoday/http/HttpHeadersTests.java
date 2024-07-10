@@ -136,7 +136,7 @@ public class HttpHeadersTests {
 
   @Test
   void acceptCharsetWildcard() {
-    headers.set("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+    headers.setOrRemove("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
     assertThat(headers.getAcceptCharset()).as("Invalid Accept header").isEqualTo(Arrays.asList(StandardCharsets.ISO_8859_1, StandardCharsets.UTF_8));
   }
 
@@ -270,13 +270,13 @@ public class HttpHeadersTests {
     assertThat(headers.getFirst("date")).as("Invalid Date header").isEqualTo("Thu, 18 Dec 2008 10:20:00 GMT");
 
     // RFC 850
-    headers.set("Date", "Thu, 18 Dec 2008 10:20:00 GMT");
+    headers.setOrRemove("Date", "Thu, 18 Dec 2008 10:20:00 GMT");
     assertThat(headers.getDate()).as("Invalid Date header").isEqualTo(date);
   }
 
   @Test
   void dateInvalid() {
-    headers.set("Date", "Foo Bar Baz");
+    headers.setOrRemove("Date", "Foo Bar Baz");
     assertThatIllegalArgumentException().isThrownBy(headers::getDate);
   }
 
@@ -328,7 +328,7 @@ public class HttpHeadersTests {
   @Test
     // SPR-10648 (example is from INT-3063)
   void expiresInvalidDate() {
-    headers.set("Expires", "-1");
+    headers.setOrRemove("Expires", "-1");
     assertThat(headers.getExpires()).isEqualTo(-1);
   }
 
@@ -345,13 +345,13 @@ public class HttpHeadersTests {
   @Test
     // SPR-14144
   void invalidIfModifiedSinceHeader() {
-    headers.set(HttpHeaders.IF_MODIFIED_SINCE, "0");
+    headers.setOrRemove(HttpHeaders.IF_MODIFIED_SINCE, "0");
     assertThat(headers.getIfModifiedSince()).isEqualTo(-1);
 
-    headers.set(HttpHeaders.IF_MODIFIED_SINCE, "-1");
+    headers.setOrRemove(HttpHeaders.IF_MODIFIED_SINCE, "-1");
     assertThat(headers.getIfModifiedSince()).isEqualTo(-1);
 
-    headers.set(HttpHeaders.IF_MODIFIED_SINCE, "XXX");
+    headers.setOrRemove(HttpHeaders.IF_MODIFIED_SINCE, "XXX");
     assertThat(headers.getIfModifiedSince()).isEqualTo(-1);
   }
 
@@ -512,9 +512,22 @@ public class HttpHeadersTests {
   }
 
   @Test
-    // SPR-15603
+  void acceptLanguageTrailingSemicolon() {
+    String headerValue = "en-us,en;,nl;";
+    headers.setOrRemove(HttpHeaders.ACCEPT_LANGUAGE, headerValue);
+    assertThat(headers.getFirst(HttpHeaders.ACCEPT_LANGUAGE)).isEqualTo(headerValue);
+
+    List<Locale.LanguageRange> expectedRanges = Arrays.asList(
+            new Locale.LanguageRange("en-us"),
+            new Locale.LanguageRange("en"),
+            new Locale.LanguageRange("nl")
+    );
+    assertThat(headers.getAcceptLanguage()).isEqualTo(expectedRanges);
+  }
+
+  @Test
   void acceptLanguageWithEmptyValue() {
-    this.headers.set(HttpHeaders.ACCEPT_LANGUAGE, "");
+    this.headers.setOrRemove(HttpHeaders.ACCEPT_LANGUAGE, "");
     assertThat(this.headers.getAcceptLanguageAsLocales()).isEqualTo(Collections.emptyList());
   }
 
@@ -527,7 +540,7 @@ public class HttpHeadersTests {
 
   @Test
   void contentLanguageSerialized() {
-    headers.set(HttpHeaders.CONTENT_LANGUAGE, "de, en_CA");
+    headers.setOrRemove(HttpHeaders.CONTENT_LANGUAGE, "de, en_CA");
     assertThat(headers.getContentLanguage()).as("Expected one (first) locale").isEqualTo(Locale.GERMAN);
   }
 
@@ -559,12 +572,12 @@ public class HttpHeadersTests {
 
     // obsolete RFC 850 format
     headers.clear();
-    headers.set(HttpHeaders.DATE, "Friday, 02-Jun-17 02:22:00 GMT");
+    headers.setOrRemove(HttpHeaders.DATE, "Friday, 02-Jun-17 02:22:00 GMT");
     assertThat(headers.getFirstZonedDateTime(HttpHeaders.DATE).isEqual(date)).isTrue();
 
     // ANSI C's asctime() format
     headers.clear();
-    headers.set(HttpHeaders.DATE, "Fri Jun 02 02:22:00 2017");
+    headers.setOrRemove(HttpHeaders.DATE, "Fri Jun 02 02:22:00 2017");
     assertThat(headers.getFirstZonedDateTime(HttpHeaders.DATE).isEqual(date)).isTrue();
   }
 

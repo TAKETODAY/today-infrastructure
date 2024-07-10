@@ -29,7 +29,6 @@ import java.util.NoSuchElementException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * {@link InvocationHandler} for an {@link Annotation} that has
@@ -99,7 +98,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
       }
       for (Method attribute : attributeMethods.attributes) {
         Object thisValue = getAttributeValue(attribute, false);
-        Object otherValue = ReflectionUtils.invokeMethod(attribute, other);
+        Object otherValue = AnnotationUtils.invokeAnnotationMethod(attribute, other);
         if (!ObjectUtils.nullSafeEquals(thisValue, otherValue)) {
           return false;
         }

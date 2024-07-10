@@ -37,13 +37,14 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
-import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
@@ -105,6 +106,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
   private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
+  private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors = new ArrayList<>();
+
   public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
@@ -151,6 +154,29 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
   public List<ReturnValueHandler> getHandlers() {
     return handlers;
+  }
+
+  /**
+   * Configure a list of {@link ErrorResponse.Interceptor}'s to apply when
+   * rendering an RFC 7807 {@link cn.taketoday.http.ProblemDetail}
+   * error response.
+   *
+   * @param interceptors the interceptors to use
+   * @since 5.0
+   */
+  public void setErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+    this.errorResponseInterceptors.clear();
+    this.errorResponseInterceptors.addAll(interceptors);
+  }
+
+  /**
+   * Return the {@link #setErrorResponseInterceptors(List) configured}
+   * {@link ErrorResponse.Interceptor}'s.
+   *
+   * @since 5.0
+   */
+  public List<ErrorResponse.Interceptor> getErrorResponseInterceptors() {
+    return this.errorResponseInterceptors;
   }
 
   /**
@@ -319,11 +345,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
       handlers.add(new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager));
     }
 
-    handlers.add(new HttpEntityMethodProcessor(
-            messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager));
-    handlers.add(new RequestResponseBodyMethodProcessor(
-            messageConverters, contentNegotiationManager, bodyAdvice));
-
+    handlers.add(new HttpEntityMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, redirectModelManager, errorResponseInterceptors));
+    handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, errorResponseInterceptors));
     handlers.add(new ModelAttributeMethodProcessor(true));
 
     // fall back

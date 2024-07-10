@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +12,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.CopyOption;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
 
+import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.function.ThrowingConsumer;
 
 /**
  * {@link GeneratedFiles} implementation that stores generated files using a
  * {@link FileSystem}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class FileSystemGeneratedFiles implements GeneratedFiles {
@@ -84,21 +86,54 @@ public class FileSystemGeneratedFiles implements GeneratedFiles {
   }
 
   @Override
-  public void addFile(Kind kind, String path, InputStreamSource content) {
+  public void handleFile(Kind kind, String path, ThrowingConsumer<FileHandler> handler) {
+    FileSystemFileHandler fileHandler = new FileSystemFileHandler(toPath(kind, path));
+    handler.accept(fileHandler);
+  }
+
+  private Path toPath(Kind kind, String path) {
     Assert.notNull(kind, "'kind' is required");
     Assert.hasLength(path, "'path' must not be empty");
-    Assert.notNull(content, "'content' is required");
     Path root = this.roots.apply(kind).toAbsolutePath().normalize();
     Path relativePath = root.resolve(path).toAbsolutePath().normalize();
     Assert.isTrue(relativePath.startsWith(root), "'path' must be relative");
-    try {
-      try (InputStream inputStream = content.getInputStream()) {
-        Files.createDirectories(relativePath.getParent());
-        Files.copy(inputStream, relativePath);
+    return relativePath;
+  }
+
+  static final class FileSystemFileHandler extends FileHandler {
+
+    private final Path path;
+
+    FileSystemFileHandler(Path path) {
+      super(Files.exists(path), () -> new FileSystemResource(path));
+      this.path = path;
+    }
+
+    @Override
+    protected void copy(InputStreamSource content, boolean override) {
+      if (override) {
+        copy(content, StandardCopyOption.REPLACE_EXISTING);
+      }
+      else {
+        copy(content);
       }
     }
-    catch (IOException ex) {
-      throw new IllegalStateException(ex);
+
+    private void copy(InputStreamSource content, CopyOption... copyOptions) {
+      try {
+        try (InputStream inputStream = content.getInputStream()) {
+          Files.createDirectories(this.path.getParent());
+          Files.copy(inputStream, this.path, copyOptions);
+        }
+      }
+      catch (IOException ex) {
+        throw new IllegalStateException(ex);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return this.path.toString();
     }
   }
 

@@ -20,13 +20,11 @@ package cn.taketoday.http.server.reactive;
 import org.reactivestreams.Publisher;
 
 import java.nio.file.Path;
-import java.util.List;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
@@ -36,6 +34,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelId;
+import io.netty.handler.codec.http.cookie.CookieHeaderNames;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.ChannelOperationsId;
@@ -100,11 +100,25 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   @Override
   protected void applyCookies() {
-    // Netty Cookie doesn't support sameSite. When this is resolved, we can adapt to it again:
-    // https://github.com/netty/netty/issues/8161
-    for (List<ResponseCookie> cookies : getCookies().values()) {
-      for (ResponseCookie cookie : cookies) {
-        this.response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    for (String name : getCookies().keySet()) {
+      for (ResponseCookie httpCookie : getCookies().get(name)) {
+        DefaultCookie cookie = new DefaultCookie(name, httpCookie.getValue());
+        if (!httpCookie.getMaxAge().isNegative()) {
+          cookie.setMaxAge(httpCookie.getMaxAge().getSeconds());
+        }
+        if (httpCookie.getDomain() != null) {
+          cookie.setDomain(httpCookie.getDomain());
+        }
+        if (httpCookie.getPath() != null) {
+          cookie.setPath(httpCookie.getPath());
+        }
+        cookie.setSecure(httpCookie.isSecure());
+        cookie.setHttpOnly(httpCookie.isHttpOnly());
+        cookie.setPartitioned(httpCookie.isPartitioned());
+        if (httpCookie.getSameSite() != null) {
+          cookie.setSameSite(CookieHeaderNames.SameSite.valueOf(httpCookie.getSameSite()));
+        }
+        this.response.addCookie(cookie);
       }
     }
   }

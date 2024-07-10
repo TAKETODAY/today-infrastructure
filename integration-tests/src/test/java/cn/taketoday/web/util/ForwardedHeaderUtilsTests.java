@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 
+import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
@@ -364,9 +365,8 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // gh-19890
   void fromHttpRequestWithEmptyScheme() {
-    HttpRequest request = new HttpRequest() {
+    HttpRequest request = new AbstractHttpRequest() {
       @Override
       public HttpMethod getMethod() {
         return HttpMethod.GET;

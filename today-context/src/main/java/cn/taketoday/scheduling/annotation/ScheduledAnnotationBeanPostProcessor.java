@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
@@ -113,13 +115,6 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         DisposableBean, BeanFactoryAware, ApplicationContextAware, MergedBeanDefinitionPostProcessor,
         EmbeddedValueResolverAware, SmartInitializingSingleton, ApplicationListener<ApplicationContextEvent> {
 
-  /**
-   * The default name of the {@link TaskScheduler} bean to pick up: {@value}.
-   * <p>Note that the initial lookup happens by type; this is just the fallback
-   * in case of multiple scheduler beans found in the context.
-   */
-  public static final String DEFAULT_TASK_SCHEDULER_BEAN_NAME = TaskSchedulerRouter.DEFAULT_TASK_SCHEDULER_BEAN_NAME;
-
   private static final Logger log = LoggerFactory.getLogger(ScheduledAnnotationBeanPostProcessor.class);
 
   private final ScheduledTaskRegistrar registrar;
@@ -147,6 +142,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   private final IdentityHashMap<Object, Set<ScheduledTask>> scheduledTasks = new IdentityHashMap<>(16);
 
   private final IdentityHashMap<Object, List<Runnable>> reactiveSubscriptions = new IdentityHashMap<>(16);
+
+  private final Set<Object> manualCancellationOnContextClose = Collections.newSetFromMap(new IdentityHashMap<>(16));
 
   /**
    * Create a default {@code ScheduledAnnotationBeanPostProcessor}.
@@ -182,7 +179,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * a {@link ScheduledExecutorService} bean. If neither of the two is resolvable,
    * a local single-threaded default scheduler will be created within the registrar.
    *
-   * @see #DEFAULT_TASK_SCHEDULER_BEAN_NAME
+   * @see TaskSchedulerRouter#DEFAULT_TASK_SCHEDULER_BEAN_NAME
    */
   public void setScheduler(Object scheduler) {
     this.scheduler = scheduler;
@@ -300,6 +297,13 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         if (log.isTraceEnabled()) {
           log.trace("{} @Scheduled methods processed on bean '{}': {}",
                   annotatedMethods.size(), beanName, annotatedMethods);
+        }
+
+        if ((this.beanFactory != null && !this.beanFactory.isSingleton(beanName))
+                || (this.beanFactory instanceof SingletonBeanRegistry sbr && sbr.containsSingleton(beanName))) {
+          // Either a prototype/scoped bean or a FactoryBean with a pre-existing managed singleton
+          // -> trigger manual cancellation when ContextClosedEvent comes in
+          this.manualCancellationOnContextClose.add(bean);
         }
       }
     }
@@ -574,6 +578,18 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
 
   @Override
   public void postProcessBeforeDestruction(Object bean, String beanName) {
+    cancelScheduledTasks(bean);
+    this.manualCancellationOnContextClose.remove(bean);
+  }
+
+  @Override
+  public boolean requiresDestruction(Object bean) {
+    synchronized(this.scheduledTasks) {
+      return (this.scheduledTasks.containsKey(bean) || this.reactiveSubscriptions.containsKey(bean));
+    }
+  }
+
+  private void cancelScheduledTasks(Object bean) {
     Set<ScheduledTask> tasks;
     List<Runnable> liveSubscriptions;
     synchronized(this.scheduledTasks) {
@@ -593,13 +609,6 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   }
 
   @Override
-  public boolean requiresDestruction(Object bean) {
-    synchronized(this.scheduledTasks) {
-      return (this.scheduledTasks.containsKey(bean) || this.reactiveSubscriptions.containsKey(bean));
-    }
-  }
-
-  @Override
   public void destroy() {
     synchronized(this.scheduledTasks) {
       Collection<Set<ScheduledTask>> allTasks = this.scheduledTasks.values();
@@ -615,6 +624,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
           liveSubscription.run();  // equivalent to cancelling the subscription
         }
       }
+      this.reactiveSubscriptions.clear();
+      this.manualCancellationOnContextClose.clear();
     }
     this.registrar.destroy();
     if (this.localScheduler != null) {
@@ -637,15 +648,10 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         finishRegistration();
       }
       else if (event instanceof ContextClosedEvent) {
-        synchronized(this.scheduledTasks) {
-          Collection<Set<ScheduledTask>> allTasks = this.scheduledTasks.values();
-          for (Set<ScheduledTask> tasks : allTasks) {
-            for (ScheduledTask task : tasks) {
-              // At this early point, let in-progress tasks complete still
-              task.cancel(false);
-            }
-          }
+        for (Object bean : this.manualCancellationOnContextClose) {
+          cancelScheduledTasks(bean);
         }
+        this.manualCancellationOnContextClose.clear();
       }
     }
   }

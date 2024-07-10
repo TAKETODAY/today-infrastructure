@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -39,16 +36,19 @@ import cn.taketoday.lang.Nullable;
  * A variant of {@link Supplier} designed specifically for injection points,
  * allowing for programmatic optionality and lenient not-unique handling.
  *
+ * <p>In a {@link BeanFactory} environment, every {@code ObjectProvider} obtained
+ * from the factory will be bound to its {@code BeanFactory} for a specific bean
+ * type, matching all provider calls against factory-registered bean definitions.
+ *
  * <p>this interface extends {@link Iterable} and provides {@link Stream}
  * support. It can be therefore be used in {@code for} loops, provides {@link #forEach}
  * iteration and allows for collection-style {@link #stream} access.
- * <p>
- * Iteration pre-ordered according to the factory's common order comparator.
- * <p>In a standard application context, this will be ordered
- * according to {@link Ordered} conventions,
- * and in case of annotation-based configuration also considering the
- * {@link Order} annotation,
- * analogous to multi-element injection points of list/array type.
+ *
+ * <p>As of 5.0, this interface declares default implementations for all methods.
+ * This makes it easier to implement in a custom fashion, e.g. for unit tests.
+ * For typical purposes, implement {@link #stream()} to enable all other methods.
+ * Alternatively, you may implement the specific methods that your callers expect,
+ * e.g. just {@link #get()} or {@link #getIfAvailable()}.
  *
  * @param <T> the object type
  * @author Juergen Hoeller
@@ -70,7 +70,15 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    */
   @Override
   default T get() throws BeansException {
-    return get((Object[]) null);
+    Iterator<T> it = iterator();
+    if (!it.hasNext()) {
+      throw new NoSuchBeanDefinitionException(Object.class);
+    }
+    T result = it.next();
+    if (it.hasNext()) {
+      throw new NoUniqueBeanDefinitionException(Object.class, 2, "more than 1 matching bean");
+    }
+    return result;
   }
 
   /**
@@ -85,7 +93,10 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #get()
    * @since 4.0
    */
-  T get(Object... args) throws BeansException;
+  default T get(Object... args) throws BeansException {
+    throw new UnsupportedOperationException("Retrieval with arguments not supported -" +
+            "for custom ObjectProvider classes, implement getObject(Object...) for your purposes");
+  }
 
   /**
    * Return an instance (possibly shared or independent) of the object
@@ -96,7 +107,17 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #get()
    */
   @Nullable
-  T getIfAvailable() throws BeansException;
+  default T getIfAvailable() throws BeansException {
+    try {
+      return get();
+    }
+    catch (NoUniqueBeanDefinitionException ex) {
+      throw ex;
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      return null;
+    }
+  }
 
   /**
    * Return an instance (possibly shared or independent) of the object
@@ -143,7 +164,14 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #get()
    */
   @Nullable
-  T getIfUnique() throws BeansException;
+  default T getIfUnique() throws BeansException {
+    try {
+      return get();
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      return null;
+    }
+  }
 
   /**
    * Return an instance (possibly shared or independent) of the object
@@ -191,7 +219,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * {@link Order} annotation,
    * analogous to multi-element injection points of list/array type.
    *
-   * @see #stream()
+   * @see #orderedStream()
    */
   @Override
   default Iterator<T> iterator() {
@@ -206,7 +234,8 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #orderedStream()
    */
   default Stream<T> stream() {
-    throw new UnsupportedOperationException("Multi element access not supported");
+    throw new UnsupportedOperationException("Element access not supported - " +
+            "for custom ObjectProvider classes, implement stream() to enable all other methods");
   }
 
   /**
@@ -222,7 +251,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see OrderComparator
    */
   default Stream<T> orderedStream() {
-    throw new UnsupportedOperationException("Ordered element access not supported");
+    return stream().sorted(OrderComparator.INSTANCE);
   }
 
   /**

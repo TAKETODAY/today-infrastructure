@@ -165,7 +165,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
 
     MediaType contentType = responseHeaders.getContentType();
     String boundaryString = MimeTypeUtils.generateMultipartBoundaryString();
-    responseHeaders.set(HttpHeaders.CONTENT_TYPE, "multipart/byteranges; boundary=" + boundaryString);
+    responseHeaders.setOrRemove(HttpHeaders.CONTENT_TYPE, "multipart/byteranges; boundary=" + boundaryString);
     OutputStream out = outputMessage.getBody();
 
     Resource resource = null;

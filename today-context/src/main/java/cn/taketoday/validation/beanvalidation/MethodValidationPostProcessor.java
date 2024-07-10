@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.beanvalidation;
@@ -20,6 +20,7 @@ package cn.taketoday.validation.beanvalidation;
 import org.aopalliance.aop.Advice;
 
 import java.lang.annotation.Annotation;
+import java.util.function.Supplier;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
@@ -122,6 +123,16 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
   }
 
   /**
+   * Set a lazily initialized Validator to delegate to for validating methods.
+   *
+   * @see #setValidator
+   * @since 5.0
+   */
+  public void setValidatorProvider(Supplier<Validator> validatorProvider) {
+    this.validator = new SuppliedValidator(validatorProvider);
+  }
+
+  /**
    * Whether to adapt {@link ConstraintViolation}s to {@link MethodValidationResult}.
    * <p>By default {@code false} in which case
    * {@link jakarta.validation.ConstraintViolationException} is raised in case of
@@ -148,8 +159,8 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    */
   protected Advice createMethodValidationAdvice(@Nullable Validator validator) {
     return validator != null
-           ? new MethodValidationInterceptor(validator, adaptConstraintViolations)
-           : new MethodValidationInterceptor(adaptConstraintViolations);
+            ? new MethodValidationInterceptor(validator, adaptConstraintViolations)
+            : new MethodValidationInterceptor(adaptConstraintViolations);
   }
 
 }

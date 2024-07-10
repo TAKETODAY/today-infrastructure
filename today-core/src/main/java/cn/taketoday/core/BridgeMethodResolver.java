@@ -101,8 +101,12 @@ public abstract class BridgeMethodResolver {
 
   private static Method resolveBridgeMethod(Method bridgeMethod, Class<?> targetClass) {
     boolean localBridge = (targetClass == bridgeMethod.getDeclaringClass());
+    Class<?> userClass = targetClass;
     if (!bridgeMethod.isBridge() && localBridge) {
-      return bridgeMethod;
+      userClass = ClassUtils.getUserClass(targetClass);
+      if (userClass == targetClass) {
+        return bridgeMethod;
+      }
     }
 
     Object cacheKey = localBridge ? bridgeMethod : new MethodClassKey(bridgeMethod, targetClass);
@@ -111,11 +115,10 @@ public abstract class BridgeMethodResolver {
       // Gather all methods with matching name and parameter size.
       ArrayList<Method> candidateMethods = new ArrayList<>();
       MethodFilter filter = candidateMethod -> isBridgedCandidateFor(candidateMethod, bridgeMethod);
-      ReflectionUtils.doWithMethods(targetClass, candidateMethods::add, filter);
+      ReflectionUtils.doWithMethods(userClass, candidateMethods::add, filter);
       if (!candidateMethods.isEmpty()) {
-        bridgedMethod = candidateMethods.size() == 1 ?
-                candidateMethods.get(0) :
-                searchCandidates(candidateMethods, bridgeMethod);
+        bridgedMethod = candidateMethods.size() == 1 ? candidateMethods.get(0)
+                : searchCandidates(candidateMethods, bridgeMethod);
       }
       if (bridgedMethod == null) {
         // A bridge method was passed in but we couldn't find the bridged method.
@@ -276,7 +279,12 @@ public abstract class BridgeMethodResolver {
    */
   public static boolean isVisibilityBridgeMethodPair(Method bridgeMethod, Method bridgedMethod) {
     if (bridgeMethod == bridgedMethod) {
+      // Same method: for common purposes, return true to proceed as if it was a visibility bridge.
       return true;
+    }
+    if (ClassUtils.getUserClass(bridgeMethod.getDeclaringClass()) != bridgeMethod.getDeclaringClass()) {
+      // Method on generated subclass: return false to consistently ignore it for visibility purposes.
+      return false;
     }
     return (bridgeMethod.getReturnType().equals(bridgedMethod.getReturnType()) &&
             bridgeMethod.getParameterCount() == bridgedMethod.getParameterCount() &&

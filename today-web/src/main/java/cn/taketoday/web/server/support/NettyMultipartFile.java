@@ -18,10 +18,13 @@
 package cn.taketoday.web.server.support;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.AbstractMultipartFile;
@@ -46,7 +49,13 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return new ByteBufInputStream(fileUpload.getByteBuf());
+    if (fileUpload.isInMemory()) {
+      ByteBuf byteBuf = fileUpload.getByteBuf();
+      byteBuf.resetReaderIndex();
+      return new ByteBufInputStream(byteBuf);
+    }
+
+    return new FileInputStream(fileUpload.getFile());
   }
 
   @Override
@@ -76,15 +85,35 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
 
   @Override
   public long transferTo(OutputStream out) throws IOException {
-    ByteBuf byteBuf = fileUpload.getByteBuf();
-    int length = byteBuf.readableBytes();
-    byteBuf.readBytes(out, length);
-    return length;
+    if (fileUpload.isInMemory()) {
+      ByteBuf byteBuf = fileUpload.getByteBuf();
+      int length = byteBuf.readableBytes();
+      byteBuf.readBytes(out, length);
+      return length;
+    }
+
+    try (var in = new FileInputStream(fileUpload.getFile())) {
+      return in.transferTo(out);
+    }
+  }
+
+  @Override
+  public long transferTo(FileChannel out, long position, long count) throws IOException {
+    if (fileUpload.isInMemory()) {
+      // int is ok, you cannot save more than 4GB data in memory
+      return fileUpload.getByteBuf().readBytes(out, position, Math.toIntExact(count));
+    }
+
+    try (var channel = FileChannel.open(fileUpload.getFile().toPath())) {
+      return channel.transferTo(position, count, out);
+    }
   }
 
   @Override
   public void transferTo(Path dest) throws IOException, IllegalStateException {
-    transferTo(dest.toFile());
+    try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+      transferTo(channel, 0, fileUpload.length());
+    }
   }
 
   @Override

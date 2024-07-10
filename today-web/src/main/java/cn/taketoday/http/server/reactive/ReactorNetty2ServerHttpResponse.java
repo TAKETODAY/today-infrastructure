@@ -20,13 +20,11 @@ package cn.taketoday.http.server.reactive;
 import org.reactivestreams.Publisher;
 
 import java.nio.file.Path;
-import java.util.List;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
@@ -36,6 +34,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty5.buffer.Buffer;
 import io.netty5.channel.ChannelId;
+import io.netty5.handler.codec.http.headers.DefaultHttpSetCookie;
+import io.netty5.handler.codec.http.headers.HttpSetCookie;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty5.ChannelOperationsId;
@@ -104,11 +104,14 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
 
   @Override
   protected void applyCookies() {
-    // Netty Cookie doesn't support sameSite. When this is resolved, we can adapt to it again:
-    // https://github.com/netty/netty/issues/8161
-    for (List<ResponseCookie> cookies : getCookies().values()) {
-      for (ResponseCookie cookie : cookies) {
-        this.response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    for (String name : getCookies().keySet()) {
+      for (ResponseCookie httpCookie : getCookies().get(name)) {
+        Long maxAge = (!httpCookie.getMaxAge().isNegative()) ? httpCookie.getMaxAge().getSeconds() : null;
+        HttpSetCookie.SameSite sameSite = (httpCookie.getSameSite() != null) ? HttpSetCookie.SameSite.valueOf(httpCookie.getSameSite()) : null;
+        // TODO: support Partitioned attribute when available in Netty 5 API
+        DefaultHttpSetCookie cookie = new DefaultHttpSetCookie(name, httpCookie.getValue(), httpCookie.getPath(),
+                httpCookie.getDomain(), null, maxAge, sameSite, false, httpCookie.isSecure(), httpCookie.isHttpOnly());
+        this.response.addCookie(cookie);
       }
     }
   }

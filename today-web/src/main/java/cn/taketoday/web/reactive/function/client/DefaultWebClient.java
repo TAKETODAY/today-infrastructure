@@ -234,7 +234,7 @@ class DefaultWebClient implements WebClient {
       return this;
     }
 
-    private HttpHeaders getHeaders() {
+    private HttpHeaders headers() {
       if (this.headers == null) {
         this.headers = HttpHeaders.forWritable();
       }
@@ -250,45 +250,49 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        getHeaders().add(headerName, headerValue);
-      }
+      headers().setOrRemove(headerName, headerValues);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(getHeaders());
+      headersConsumer.accept(headers());
+      return this;
+    }
+
+    @Override
+    public DefaultRequestBodyUriSpec headers(@Nullable HttpHeaders headers) {
+      headers().setAll(headers);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec accept(MediaType... acceptableMediaTypes) {
-      getHeaders().setAccept(Arrays.asList(acceptableMediaTypes));
+      headers().setAccept(Arrays.asList(acceptableMediaTypes));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec acceptCharset(Charset... acceptableCharsets) {
-      getHeaders().setAcceptCharset(Arrays.asList(acceptableCharsets));
+      headers().setAcceptCharset(Arrays.asList(acceptableCharsets));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentType(MediaType contentType) {
-      getHeaders().setContentType(contentType);
+      headers().setContentType(contentType);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentLength(long contentLength) {
-      getHeaders().setContentLength(contentLength);
+      headers().setContentLength(contentLength);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec cookie(String name, String value) {
-      getCookies().add(name, value);
+      getCookies().setOrRemove(name, value);
       return this;
     }
 
@@ -299,14 +303,20 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
+    public RequestBodySpec cookies(@Nullable MultiValueMap<String, String> cookies) {
+      getCookies().setAll(cookies);
+      return this;
+    }
+
+    @Override
     public DefaultRequestBodyUriSpec ifModifiedSince(ZonedDateTime ifModifiedSince) {
-      getHeaders().setIfModifiedSince(ifModifiedSince);
+      headers().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec ifNoneMatch(String... ifNoneMatches) {
-      getHeaders().setIfNoneMatch(Arrays.asList(ifNoneMatches));
+      headers().setIfNoneMatch(Arrays.asList(ifNoneMatches));
       return this;
     }
 
@@ -319,6 +329,14 @@ class DefaultWebClient implements WebClient {
     @Override
     public RequestBodySpec attributes(Consumer<Map<String, Object>> attributesConsumer) {
       attributesConsumer.accept(this.attributes);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attributes(@Nullable Map<String, Object> attributes) {
+      if (attributes != null) {
+        this.attributes.putAll(attributes);
+      }
       return this;
     }
 
@@ -415,7 +433,7 @@ class DefaultWebClient implements WebClient {
       return Mono.defer(() -> {
         ClientRequest request = requestBuilder.build();
         Mono<ClientResponse> responseMono = exchangeFunction.exchange(request)
-                .checkpoint("Request to " + httpMethod.name() + " " + this.uri + " [DefaultWebClient]")
+                .checkpoint("Request to %s %s [DefaultWebClient]".formatted(httpMethod.name(), this.uri))
                 .switchIfEmpty(NO_HTTP_CLIENT_RESPONSE_ERROR);
         if (this.contextModifier != null) {
           responseMono = responseMono.contextWrite(this.contextModifier);
@@ -425,10 +443,13 @@ class DefaultWebClient implements WebClient {
     }
 
     private ClientRequest.Builder initRequestBuilder() {
-      ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
-              .headers(this::initHeaders)
-              .cookies(this::initCookies)
-              .attributes(attributes -> attributes.putAll(this.attributes));
+      var builder = ClientRequest.create(this.httpMethod, initUri())
+              .headers(defaultHeaders)
+              .headers(headers)
+              .cookies(defaultCookies)
+              .cookies(cookies)
+              .attributes(attributes);
+
       if (httpRequestConsumer != null) {
         builder.httpRequest(httpRequestConsumer);
       }
@@ -440,24 +461,6 @@ class DefaultWebClient implements WebClient {
 
     private URI initUri() {
       return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
-    }
-
-    private void initHeaders(HttpHeaders out) {
-      if (CollectionUtils.isNotEmpty(defaultHeaders)) {
-        out.putAll(defaultHeaders);
-      }
-      if (CollectionUtils.isNotEmpty(this.headers)) {
-        out.putAll(this.headers);
-      }
-    }
-
-    private void initCookies(MultiValueMap<String, String> out) {
-      if (CollectionUtils.isNotEmpty(defaultCookies)) {
-        out.putAll(defaultCookies);
-      }
-      if (CollectionUtils.isNotEmpty(this.cookies)) {
-        out.putAll(this.cookies);
-      }
     }
 
   }
@@ -635,8 +638,8 @@ class DefaultWebClient implements WebClient {
             exMono = releaseIfNotConsumed(response, ex2);
           }
           Mono<T> result = exMono.flatMap(Mono::error);
-          return result.checkpoint(statusCode + " from " +
-                  this.httpMethod + " " + getUriToLog(this.uri) + " [DefaultWebClient]");
+          return result.checkpoint("%s from %s %s [DefaultWebClient]"
+                  .formatted(statusCode, this.httpMethod, getUriToLog(this.uri)));
         }
       }
       return null;

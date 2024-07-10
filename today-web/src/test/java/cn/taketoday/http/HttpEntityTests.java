@@ -52,7 +52,7 @@ public class HttpEntityTests {
   @Test
   public void multiValueMap() {
     MultiValueMap<String, String> map = new MappingMultiValueMap<>();
-    map.set("Content-Type", "text/plain");
+    map.setOrRemove("Content-Type", "text/plain");
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, map);
     assertThat(entity.getBody()).isEqualTo(body);
@@ -63,10 +63,10 @@ public class HttpEntityTests {
   @Test
   public void testEquals() {
     MultiValueMap<String, String> map1 = new MappingMultiValueMap<>();
-    map1.set("Content-Type", "text/plain");
+    map1.setOrRemove("Content-Type", "text/plain");
 
     MultiValueMap<String, String> map2 = new MappingMultiValueMap<>();
-    map2.set("Content-Type", "application/json");
+    map2.setOrRemove("Content-Type", "application/json");
 
     assertThat(new HttpEntity<>().equals(new HttpEntity<>())).isTrue();
     assertThat(new HttpEntity<>(map1).equals(new HttpEntity<>())).isFalse();

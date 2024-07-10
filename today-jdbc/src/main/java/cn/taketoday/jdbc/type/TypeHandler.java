@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
@@ -28,7 +26,8 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * @author Clinton Begin
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public interface TypeHandler<T> {
 
@@ -69,13 +68,14 @@ public interface TypeHandler<T> {
    * this method is called on a closed {@code PreparedStatement}
    * or the type of the given object is ambiguous
    */
-  void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException;
+  void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter)
+          throws SQLException;
 
   /**
    * Gets the result.
    *
    * @param rs the rs
-   * @param columnName Colunm name, when configuration <code>useColumnLabel</code> is <code>false</code>
+   * @param columnName Column name, when configuration <code>useColumnLabel</code> is <code>false</code>
    * @return the result
    * @throws SQLException the SQL exception
    */

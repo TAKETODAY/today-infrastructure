@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
@@ -25,7 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class LongTypeHandler extends BaseTypeHandler<Long> {
 
@@ -37,18 +36,18 @@ public class LongTypeHandler extends BaseTypeHandler<Long> {
   @Override
   public Long getResult(ResultSet rs, String columnName) throws SQLException {
     long result = rs.getLong(columnName);
-    return result == 0 && rs.wasNull() ? null : result;
+    return result == 0L && rs.wasNull() ? null : result;
   }
 
   @Override
   public Long getResult(ResultSet rs, int columnIndex) throws SQLException {
     long result = rs.getLong(columnIndex);
-    return result == 0 && rs.wasNull() ? null : result;
+    return result == 0L && rs.wasNull() ? null : result;
   }
 
   @Override
   public Long getResult(CallableStatement cs, int columnIndex) throws SQLException {
     long result = cs.getLong(columnIndex);
-    return result == 0 && cs.wasNull() ? null : result;
+    return result == 0L && cs.wasNull() ? null : result;
   }
 }

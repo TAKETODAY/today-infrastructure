@@ -98,7 +98,7 @@ class WebClientAdapterTests {
     Map<String, Object> attributes = new HashMap<>();
 
     WebClient webClient = WebClient.builder()
-            .baseUrl(this.server.url("/").toString())
+            .baseURI(this.server.url("/").toString())
             .filter((request, next) -> {
               attributes.putAll(request.attributes());
               return next.exchange(request);

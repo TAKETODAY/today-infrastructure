@@ -36,7 +36,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @since 4.0 2022/2/17 14:16
  */
 public class HandlerMatchingMetadata {
-  private final Object handler;
+  private Object handler;
 
   // direct handler lookup path
   private final String directLookupPath;
@@ -82,7 +82,7 @@ public class HandlerMatchingMetadata {
   }
 
   public HandlerMatchingMetadata(Object handler, String directLookupPath,
-          PathContainer lookupPath, PathPattern bestMatchingPattern, PathPatternParser patternParser) {
+          PathContainer lookupPath, @Nullable PathPattern bestMatchingPattern, PathPatternParser patternParser) {
     this.handler = handler;
     this.lookupPath = lookupPath;
     this.patternParser = patternParser;
@@ -191,6 +191,10 @@ public class HandlerMatchingMetadata {
 
   public Object getHandler() {
     return handler;
+  }
+
+  public void setHandler(Object handler) {
+    this.handler = handler;
   }
 
 }

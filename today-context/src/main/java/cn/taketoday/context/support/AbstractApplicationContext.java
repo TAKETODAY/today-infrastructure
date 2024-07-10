@@ -34,6 +34,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryInitializer;
+import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
@@ -1012,6 +1014,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
+  public boolean isClosed() {
+    return this.closed.get();
+  }
+
+  @Override
   public boolean isActive() {
     return active.get();
   }
@@ -1640,11 +1647,22 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
       beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolveRequiredPlaceholders(strVal));
     }
 
+    // Call BeanFactoryInitializer beans early to allow for initializing specific other beans early.
+    var initializerNames = beanFactory.getBeanNamesForType(BeanFactoryInitializer.class, false, false);
+    for (String initializerName : initializerNames) {
+      beanFactory.getBean(initializerName, BeanFactoryInitializer.class).initialize(beanFactory);
+    }
+
     // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
-    Set<String> weaverAwareNames = beanFactory.getBeanNamesForType(
-            LoadTimeWeaverAware.class, false, false);
+    var weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
     for (String weaverAwareName : weaverAwareNames) {
-      beanFactory.getBean(weaverAwareName, LoadTimeWeaverAware.class);
+      try {
+        beanFactory.getBean(weaverAwareName, LoadTimeWeaverAware.class);
+      }
+      catch (BeanNotOfRequiredTypeException ex) {
+        logger.debug("Failed to initialize LoadTimeWeaverAware bean '{}' due to unexpected type mismatch: {}",
+                weaverAwareName, ex.getMessage());
+      }
     }
 
     // Stop using the temporary ClassLoader for type matching.

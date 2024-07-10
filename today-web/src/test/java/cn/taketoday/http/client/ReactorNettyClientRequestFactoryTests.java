@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -39,7 +39,7 @@ class ReactorNettyClientRequestFactoryTests extends AbstractHttpRequestFactoryTe
 
   @Override
   @Test
-  public void httpMethods() throws Exception {
+  void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
   }
@@ -51,7 +51,20 @@ class ReactorNettyClientRequestFactoryTests extends AbstractHttpRequestFactoryTe
     requestFactory.start();
     assertThat(requestFactory.isRunning()).isTrue();
     requestFactory.stop();
-    assertThat(requestFactory.isRunning()).isFalse();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+  }
+
+  @Test
+  void restartWithHttpClient() {
+    HttpClient httpClient = HttpClient.create();
+    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory(httpClient);
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.stop();
+    assertThat(requestFactory.isRunning()).isTrue();
     requestFactory.start();
     assertThat(requestFactory.isRunning()).isTrue();
   }
@@ -72,10 +85,12 @@ class ReactorNettyClientRequestFactoryTests extends AbstractHttpRequestFactoryTe
   }
 
   @Test
-  void restartWithHttpClient() {
-    HttpClient httpClient = HttpClient.create();
-    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory(httpClient);
-    assertThat(requestFactory.isRunning()).isTrue();
+  void lateStartWithExternalResourceFactory() {
+    ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
+    Function<HttpClient, HttpClient> mapper = Function.identity();
+    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory(resourceFactory, mapper);
+    assertThat(requestFactory.isRunning()).isFalse();
+    resourceFactory.start();
     requestFactory.start();
     assertThat(requestFactory.isRunning()).isTrue();
     requestFactory.stop();

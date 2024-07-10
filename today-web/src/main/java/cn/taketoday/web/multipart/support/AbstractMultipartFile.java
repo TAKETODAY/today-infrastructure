@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   }
 
   @Override
-  public final void delete() throws IOException {
+  public final void cleanup() throws IOException {
     cachedBytes = null;
     deleteInternal();
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
@@ -28,18 +26,18 @@ import java.util.Date;
 
 /**
  * @author Clinton Begin
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class DateTypeHandler extends BaseTypeHandler<Date> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Date parameter)
-          throws SQLException {
+  public void setNonNullParameter(PreparedStatement ps, int i, Date parameter) throws SQLException {
     ps.setTimestamp(i, new Timestamp(parameter.getTime()));
   }
 
   @Override
-  public Date getResult(ResultSet rs, String columnName)
-          throws SQLException {
+  public Date getResult(ResultSet rs, String columnName) throws SQLException {
     Timestamp sqlTimestamp = rs.getTimestamp(columnName);
     if (sqlTimestamp != null) {
       return new Date(sqlTimestamp.getTime());
@@ -48,8 +46,7 @@ public class DateTypeHandler extends BaseTypeHandler<Date> {
   }
 
   @Override
-  public Date getResult(ResultSet rs, int columnIndex)
-          throws SQLException {
+  public Date getResult(ResultSet rs, int columnIndex) throws SQLException {
     Timestamp sqlTimestamp = rs.getTimestamp(columnIndex);
     if (sqlTimestamp != null) {
       return new Date(sqlTimestamp.getTime());
@@ -58,12 +55,12 @@ public class DateTypeHandler extends BaseTypeHandler<Date> {
   }
 
   @Override
-  public Date getResult(CallableStatement cs, int columnIndex)
-          throws SQLException {
+  public Date getResult(CallableStatement cs, int columnIndex) throws SQLException {
     Timestamp sqlTimestamp = cs.getTimestamp(columnIndex);
     if (sqlTimestamp != null) {
       return new Date(sqlTimestamp.getTime());
     }
     return null;
   }
+
 }

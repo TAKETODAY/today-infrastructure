@@ -366,7 +366,14 @@ public class DispatcherHandler extends InfraHandler {
     if (exception != null) {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
-      handler = null;
+
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        handler = matchingMetadata.getHandler();
+      }
+      else {
+        handler = null;
+      }
     }
 
     // Did the handler return a view to render?

@@ -478,7 +478,7 @@ public class AntPathMatcher implements PathMatcher {
       matcher = this.stringMatcherCache.get(pattern);
     }
     if (matcher == null) {
-      matcher = new AntPathStringMatcher(pattern, this.caseSensitive);
+      matcher = new AntPathStringMatcher(pattern, this.pathSeparator, this.caseSensitive);
       if (cachePatterns == null && this.stringMatcherCache.size() >= CACHE_TURNOFF_THRESHOLD) {
         // Try to adapt to the runtime situation that we're encountering:
         // There are obviously too many different patterns coming in here...
@@ -763,7 +763,7 @@ public class AntPathMatcher implements PathMatcher {
    */
   @Override
   public Comparator<String> getPatternComparator(String path) {
-    return new AntPatternComparator(path);
+    return new AntPatternComparator(path, pathSeparator);
   }
 
   /**
@@ -775,8 +775,6 @@ public class AntPathMatcher implements PathMatcher {
    * template pattern. For example <tt>/users/{user}</tt>.
    */
   protected static class AntPathStringMatcher {
-
-    private static final Pattern GLOB_PATTERN = Pattern.compile("\\?|\\*|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
     private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
 
@@ -791,11 +789,11 @@ public class AntPathMatcher implements PathMatcher {
 
     private final boolean exactMatch;
 
-    public AntPathStringMatcher(final String pattern, final boolean caseSensitive) {
+    protected AntPathStringMatcher(String pattern, String pathSeparator, boolean caseSensitive) {
       this.rawPattern = pattern;
       this.caseSensitive = caseSensitive;
       StringBuilder patternBuilder = new StringBuilder();
-      Matcher matcher = GLOB_PATTERN.matcher(pattern);
+      Matcher matcher = getGlobPattern(pathSeparator).matcher(pattern);
       int end = 0;
       final ArrayList<String> variableNames = new ArrayList<>(4);
       while (matcher.find()) {
@@ -836,6 +834,11 @@ public class AntPathMatcher implements PathMatcher {
                 Pattern.DOTALL | (this.caseSensitive ? 0 : Pattern.CASE_INSENSITIVE));
       }
       this.variableNames = variableNames;
+    }
+
+    private static Pattern getGlobPattern(String pathSeparator) {
+      String pattern = "\\?|\\*|\\{((?:\\{[^" + pathSeparator + "]+?\\}|[^" + pathSeparator + "{}]|\\\\[{}])+?)\\}";
+      return Pattern.compile(pattern);
     }
 
     private String quote(String s, int start, int end) {
@@ -922,8 +925,11 @@ public class AntPathMatcher implements PathMatcher {
 
     private final String path;
 
-    public AntPatternComparator(String path) {
+    private final String pathSeparator;
+
+    public AntPatternComparator(String path, String pathSeparator) {
       this.path = path;
+      this.pathSeparator = pathSeparator;
     }
 
     /**
@@ -935,8 +941,8 @@ public class AntPathMatcher implements PathMatcher {
      */
     @Override
     public int compare(String pattern1, String pattern2) {
-      PatternInfo info1 = new PatternInfo(pattern1);
-      PatternInfo info2 = new PatternInfo(pattern2);
+      PatternInfo info1 = new PatternInfo(pattern1, this.pathSeparator);
+      PatternInfo info2 = new PatternInfo(pattern2, this.pathSeparator);
 
       if (info1.isLeastSpecific() && info2.isLeastSpecific()) {
         return 0;
@@ -1013,15 +1019,15 @@ public class AntPathMatcher implements PathMatcher {
       @Nullable
       private final String pattern;
 
-      public PatternInfo(@Nullable String pattern) {
+      PatternInfo(@Nullable String pattern, String pathSeparator) {
         this.pattern = pattern;
-        if (pattern != null) {
+        if (this.pattern != null) {
           initCounters(pattern);
-          this.catchAllPattern = pattern.equals("/**");
-          this.prefixPattern = !this.catchAllPattern && pattern.endsWith("/**");
+          this.catchAllPattern = this.pattern.equals(pathSeparator + "**");
+          this.prefixPattern = !this.catchAllPattern && this.pattern.endsWith(pathSeparator + "**");
         }
         if (this.uriVars == 0) {
-          this.length = (pattern != null ? pattern.length() : 0);
+          this.length = (this.pattern != null ? this.pattern.length() : 0);
         }
       }
 

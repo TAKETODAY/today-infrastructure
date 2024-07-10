@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.javapoet.JavaFile;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
@@ -172,13 +175,30 @@ public interface GeneratedFiles {
    * @param content an {@link InputStreamSource} that will provide an input
    * stream containing the file contents
    */
-  void addFile(Kind kind, String path, InputStreamSource content);
+  default void addFile(Kind kind, String path, InputStreamSource content) {
+    Assert.notNull(kind, "'kind' is required");
+    Assert.hasLength(path, "'path' must not be empty");
+    Assert.notNull(content, "'content' is required");
+    handleFile(kind, path, handler -> handler.create(content));
+  }
+
+  /**
+   * Handle a generated file of the specified {@link Kind} with the given
+   * {@linkplain FileHandler handler}. The file handler lets you consume
+   * the content of the already generated file, if any and provide a way
+   * to override its content if necessary.
+   *
+   * @param kind the kind of file
+   * @param path the relative path of the file
+   * @param handler a consumer of a {@link FileHandler} for the file
+   */
+  void handleFile(Kind kind, String path, ThrowingConsumer<FileHandler> handler);
 
   private static String getClassNamePath(String className) {
     Assert.hasLength(className, "'className' must not be empty");
     validatePackage(ClassUtils.getPackageName(className), className);
     Assert.isTrue(isJavaIdentifier(className),
-            () -> "'className' must be a valid identifier, got '" + className + "'");
+            "'className' must be a valid identifier, got '" + className + "'");
     return ClassUtils.convertClassNameToResourcePath(className) + ".java";
   }
 
@@ -224,6 +244,68 @@ public interface GeneratedFiles {
      * generated using CGLIB.
      */
     CLASS
+
+  }
+
+  /**
+   * Provide access to a particular file and offer convenient methods to retrieve,
+   * save, or override its content.
+   *
+   * @since 6.2
+   */
+  abstract class FileHandler {
+
+    private final boolean exists;
+
+    private final Supplier<InputStreamSource> existingContent;
+
+    protected FileHandler(boolean exists, Supplier<InputStreamSource> existingContent) {
+      this.exists = exists;
+      this.existingContent = existingContent;
+    }
+
+    /**
+     * Specify whether the file already exists.
+     *
+     * @return {@code true} if the file already exists
+     */
+    public boolean exists() {
+      return this.exists;
+    }
+
+    /**
+     * Return an {@link InputStreamSource} for the content of the file or
+     * {@code null} if the file does not exist.
+     */
+    @Nullable
+    public InputStreamSource getContent() {
+      return (exists() ? this.existingContent.get() : null);
+    }
+
+    /**
+     * Create a file with the given {@linkplain InputStreamSource content}.
+     *
+     * @throws IllegalStateException if the file already exists
+     */
+    public void create(InputStreamSource content) {
+      Assert.notNull(content, "'content' is required");
+      if (exists()) {
+        throw new IllegalStateException("%s already exists".formatted(this));
+      }
+      copy(content, false);
+    }
+
+    /**
+     * Override the content of the file handled by this instance using the
+     * given {@linkplain InputStreamSource content}. If the file does not
+     * exist, it is created.
+     */
+    public void override(InputStreamSource content) {
+      Assert.notNull(content, "'content' is required");
+      copy(content, true);
+    }
+
+    protected abstract void copy(InputStreamSource content, boolean override);
 
   }
 

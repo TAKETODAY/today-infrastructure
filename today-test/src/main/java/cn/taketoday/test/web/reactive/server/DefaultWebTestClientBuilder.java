@@ -141,7 +141,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
   @Override
   public WebTestClient.Builder defaultHeader(String header, String... values) {
-    initHeaders().put(header, Arrays.asList(values));
+    initHeaders().setOrRemove(header, values);
     return this;
   }
 

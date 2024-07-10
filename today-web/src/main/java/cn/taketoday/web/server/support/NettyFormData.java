@@ -61,7 +61,7 @@ public class NettyFormData extends AbstractMultipart {
   }
 
   @Override
-  public void delete() throws IOException {
+  public void cleanup() throws IOException {
     attribute.delete();
   }
 

@@ -84,7 +84,7 @@ class PrintingResultHandlerTests {
     this.handler.handle(this.mvcResult);
 
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.set("header", "headerValue");
+    headers.setOrRemove("header", "headerValue");
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
@@ -109,7 +109,7 @@ class PrintingResultHandlerTests {
     this.handler.handle(this.mvcResult);
 
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.set("header", "headerValue");
+    headers.setOrRemove("header", "headerValue");
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
@@ -134,7 +134,7 @@ class PrintingResultHandlerTests {
     this.handler.handle(this.mvcResult);
 
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.set("header", "headerValue");
+    headers.setOrRemove("header", "headerValue");
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("param", "paramValue");
@@ -175,7 +175,7 @@ class PrintingResultHandlerTests {
             "enigma=42; Path=/crumbs; Domain=.example.com; Max-Age=1234; Expires=")).as("Actual: " + cookieValues.get(1)).isTrue();
 
     HttpHeaders headers = HttpHeaders.forWritable();
-    headers.set("header", "headerValue");
+    headers.setOrRemove("header", "headerValue");
     headers.setContentType(MediaType.TEXT_PLAIN);
     headers.setLocation(URI.create("/redirectFoo"));
     headers.put("Set-Cookie", cookieValues);

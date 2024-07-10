@@ -144,7 +144,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
       headers.setContentType(resourceMediaType);
       if (message instanceof ServerHttpResponse) {
         // server side
-        headers.set(HttpHeaders.ACCEPT_RANGES, "bytes");
+        headers.setOrRemove(HttpHeaders.ACCEPT_RANGES, "bytes");
       }
 
       if (headers.getContentLength() < 0) {
@@ -216,7 +216,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
           ServerHttpResponse response, Map<String, Object> hints) {
 
     HttpHeaders headers = response.getHeaders();
-    headers.set(HttpHeaders.ACCEPT_RANGES, "bytes");
+    headers.setOrRemove(HttpHeaders.ACCEPT_RANGES, "bytes");
 
     List<HttpRange> ranges;
     try {

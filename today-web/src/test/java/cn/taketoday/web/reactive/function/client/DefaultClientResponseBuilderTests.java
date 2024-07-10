@@ -86,8 +86,8 @@ public class DefaultClientResponseBuilderTests {
 
     ClientResponse result = otherResponse.mutate()
             .statusCode(HttpStatus.BAD_REQUEST)
-            .headers(headers -> headers.set("foo", "baar"))
-            .cookies(cookies -> cookies.set("baz", ResponseCookie.from("baz", "quux").build()))
+            .headers(headers -> headers.setOrRemove("foo", "baar"))
+            .cookies(cookies -> cookies.setOrRemove("baz", ResponseCookie.from("baz", "quux").build()))
             .build();
 
     assertThat(result.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

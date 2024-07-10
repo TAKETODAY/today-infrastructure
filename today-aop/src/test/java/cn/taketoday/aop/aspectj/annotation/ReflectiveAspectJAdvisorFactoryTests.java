@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -32,7 +29,6 @@ import org.aspectj.lang.annotation.DeclareParents;
 import org.aspectj.lang.annotation.DeclarePrecedence;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
@@ -51,10 +47,10 @@ import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.aop.testfixture.DefaultLockable;
-import cn.taketoday.aop.testfixture.Lockable;
 import cn.taketoday.aop.testfixture.PerTargetAspect;
 import cn.taketoday.aop.testfixture.TwoAdviceAspect;
+import cn.taketoday.aop.testfixture.mixin.DefaultLockable;
+import cn.taketoday.aop.testfixture.mixin.Lockable;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.OrderComparator;
@@ -129,7 +125,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
   }
 
   @Test
-  void multiplePerTargetAspects() throws Exception {
+  void multiplePerTargetAspects() {
     TestBean target = new TestBean();
     int realAge = 65;
     target.setAge(realAge);
@@ -155,7 +151,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
   }
 
   @Test
-  void multiplePerTargetAspectsWithOrderAnnotation() throws Exception {
+  void multiplePerTargetAspectsWithOrderAnnotation() {
     TestBean target = new TestBean();
     int realAge = 65;
     target.setAge(realAge);
@@ -321,10 +317,10 @@ class ReflectiveAspectJAdvisorFactoryTests {
   @Test
   void introductionOnTargetNotImplementingInterface() {
     NotLockable notLockableTarget = new NotLockable();
-    assertThat(notLockableTarget instanceof Lockable).isFalse();
+    assertThat(notLockableTarget).isNotInstanceOf(Lockable.class);
     NotLockable notLockable1 = createProxy(notLockableTarget, NotLockable.class,
             getAdvisorFactory().getAdvisors(aspectInstanceFactory(new MakeLockable(), "someBean")));
-    assertThat(notLockable1 instanceof Lockable).isTrue();
+    assertThat(notLockable1).isInstanceOf(Lockable.class);
     Lockable lockable = (Lockable) notLockable1;
     assertThat(lockable.locked()).isFalse();
     lockable.lock();
@@ -333,7 +329,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     NotLockable notLockable2Target = new NotLockable();
     NotLockable notLockable2 = createProxy(notLockable2Target, NotLockable.class,
             getAdvisorFactory().getAdvisors(aspectInstanceFactory(new MakeLockable(), "someBean")));
-    assertThat(notLockable2 instanceof Lockable).isTrue();
+    assertThat(notLockable2).isInstanceOf(Lockable.class);
     Lockable lockable2 = (Lockable) notLockable2;
     assertThat(lockable2.locked()).isFalse();
     notLockable2.setIntValue(1);
@@ -347,7 +343,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     assertThat(AopUtils.filterAdvisors(
             getAdvisorFactory().getAdvisors(
                     aspectInstanceFactory(new MakeLockable(), "someBean")),
-            CannotBeUnlocked.class).isEmpty()).isTrue();
+            CannotBeUnlocked.class)).isEmpty();
     assertThat(AopUtils.filterAdvisors(getAdvisorFactory().getAdvisors(
             aspectInstanceFactory(new MakeLockable(), "someBean")), NotLockable.class)).hasSize(2);
   }
@@ -361,24 +357,24 @@ class ReflectiveAspectJAdvisorFactoryTests {
                     getAdvisorFactory().getAdvisors(aspectInstanceFactory(new MakeLockable(), "someBean")),
                     CannotBeUnlocked.class));
     assertThat(proxy).isInstanceOf(Lockable.class);
-    assertThat(proxy.locked()).as("Already locked").isTrue();
-    proxy.lock();
-    assertThat(proxy.locked()).as("Real target ignores locking").isTrue();
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(proxy::unlock);
+    Lockable lockable = proxy;
+    assertThat(lockable.locked()).as("Already locked").isTrue();
+    lockable.lock();
+    assertThat(lockable.locked()).as("Real target ignores locking").isTrue();
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(lockable::unlock);
   }
 
   @Test
   void introductionOnTargetExcludedByTypePattern() {
     ArrayList<Object> target = new ArrayList<>();
     List<?> proxy = createProxy(target, List.class,
-            AopUtils.filterAdvisors(getAdvisorFactory()
-                    .getAdvisors(aspectInstanceFactory(new MakeLockable(), "someBean")), List.class));
-    assertThat(proxy instanceof Lockable).as("Type pattern must have excluded mixin").isFalse();
+            AopUtils.filterAdvisors(
+                    getAdvisorFactory().getAdvisors(aspectInstanceFactory(new MakeLockable(), "someBean")),
+                    List.class));
+    assertThat(proxy).as("Type pattern must have excluded mixin").isNotInstanceOf(Lockable.class);
   }
 
   @Test
-  @Disabled
   void introductionBasedOnAnnotationMatch() { // gh-9980
     AnnotatedTarget target = new AnnotatedTargetImpl();
     List<Advisor> advisors = getAdvisorFactory().getAdvisors(
@@ -391,9 +387,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     assertThat(lockable.locked()).isTrue();
   }
 
-  // TODO: Why does this test fail? It hasn't been run before, so it maybe never actually passed...
   @Test
-  @Disabled
   void introductionWithArgumentBinding() {
     TestBean target = new TestBean();
 
@@ -432,7 +426,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     UnsupportedOperationException expectedException = new UnsupportedOperationException();
     List<Advisor> advisors = getAdvisorFactory().getAdvisors(
             aspectInstanceFactory(new ExceptionThrowingAspect(expectedException), "someBean"));
-    assertThat(advisors.size()).as("One advice method was found").isEqualTo(1);
+    assertThat(advisors).as("One advice method was found").hasSize(1);
     ITestBean itb = createProxy(target, ITestBean.class, advisors);
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(itb::getAge);
   }
@@ -445,7 +439,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     RemoteException expectedException = new RemoteException();
     List<Advisor> advisors = getAdvisorFactory().getAdvisors(
             aspectInstanceFactory(new ExceptionThrowingAspect(expectedException), "someBean"));
-    assertThat(advisors.size()).as("One advice method was found").isEqualTo(1);
+    assertThat(advisors).as("One advice method was found").hasSize(1);
     ITestBean itb = createProxy(target, ITestBean.class, advisors);
     assertThatExceptionOfType(UndeclaredThrowableException.class)
             .isThrownBy(itb::getAge)
@@ -458,13 +452,13 @@ class ReflectiveAspectJAdvisorFactoryTests {
     TwoAdviceAspect twoAdviceAspect = new TwoAdviceAspect();
     List<Advisor> advisors = getAdvisorFactory().getAdvisors(
             aspectInstanceFactory(twoAdviceAspect, "someBean"));
-    assertThat(advisors.size()).as("Two advice methods found").isEqualTo(2);
+    assertThat(advisors).as("Two advice methods found").hasSize(2);
     ITestBean itb = createProxy(target, ITestBean.class, advisors);
     itb.setName("");
-    assertThat(itb.getAge()).isEqualTo(0);
+    assertThat(itb.age()).isEqualTo(0);
     int newAge = 32;
     itb.setAge(newAge);
-    assertThat(itb.getAge()).isEqualTo(1);
+    assertThat(itb.age()).isEqualTo(1);
   }
 
   @Test
@@ -485,7 +479,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
   }
 
   @Test
-  void nonAbstractParentAspect() throws Exception {
+  void nonAbstractParentAspect() {
     IncrementingAspect aspect = new IncrementingAspect();
 
     // Precondition:
@@ -631,17 +625,24 @@ class ReflectiveAspectJAdvisorFactoryTests {
     }
   }
 
+  static class CommonPointcuts {
+
+    @Pointcut("execution(* getAge())")
+    void getAge() {
+    }
+  }
+
   @Aspect
   static class NamedPointcutAspectWithFQN {
 
     @SuppressWarnings("unused")
-    private ITestBean fieldThatShouldBeIgnoredBySpringAtAspectJProcessing = new TestBean();
+    private final ITestBean fieldThatShouldBeIgnoredBySpringAtAspectJProcessing = new TestBean();
 
     @Pointcut("execution(* getAge())")
     void getAge() {
     }
 
-    @Around("cn.taketoday.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactoryTests.NamedPointcutAspectWithFQN.getAge()")
+    @Around("cn.taketoday.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactoryTests.CommonPointcuts.getAge()")
     int changeReturnValue(ProceedingJoinPoint pjp) {
       return -1;
     }
@@ -748,7 +749,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
   }
 
   @Aspect
-  class DoublingAspect {
+  static class DoublingAspect {
 
     @Around("execution(* getAge())")
     public Object doubleAge(ProceedingJoinPoint pjp) throws Throwable {
@@ -757,7 +758,12 @@ class ReflectiveAspectJAdvisorFactoryTests {
   }
 
   @Aspect
-  class IncrementingAspect extends DoublingAspect {
+  static class IncrementingAspect extends DoublingAspect {
+
+    @Override
+    public Object doubleAge(ProceedingJoinPoint pjp) throws Throwable {
+      return ((int) pjp.proceed()) * 2;
+    }
 
     @Around("execution(* getAge())")
     public int incrementAge(ProceedingJoinPoint pjp) throws Throwable {
@@ -880,8 +886,7 @@ abstract class AbstractMakeModifiable {
     }
   }
 
-  @Before(value = "execution(void set*(*)) && this(modifiable) && args(newValue)",
-          argNames = "jp,mixin,newValue")
+  @Before(value="execution(void set*(*)) && this(modifiable) && args(newValue)", argNames="modifiable,newValue")
   void recordModificationIfSetterArgumentDiffersFromOldValue(
           JoinPoint jp, MutableModifiable mixin, Object newValue) {
 
@@ -943,7 +948,7 @@ abstract class AbstractMakeModifiable {
 class MakeITestBeanModifiable extends AbstractMakeModifiable {
 
   @DeclareParents(value = "cn.taketoday.beans.testfixture.beans.ITestBean+",
-                  defaultImpl = ModifiableImpl.class)
+          defaultImpl = ModifiableImpl.class)
   static MutableModifiable mixin;
 
 }
@@ -958,7 +963,7 @@ class MakeITestBeanModifiable extends AbstractMakeModifiable {
 class MakeAnnotatedTypeModifiable extends AbstractMakeModifiable {
 
   @DeclareParents(value = "(@cn.taketoday.aop.aspectj.annotation.Measured *)",
-                  defaultImpl = DefaultLockable.class)
+          defaultImpl = DefaultLockable.class)
   static Lockable mixin;
 
 }

@@ -104,7 +104,7 @@ class AcceptHeaderLocaleResolverTests {
     MockRequestContext context = new MockRequestContext(null, request, null);
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(JAPANESE);
 
-    context.requestHeaders().set("Accept-Language", US.toLanguageTag());
+    context.requestHeaders().setOrRemove("Accept-Language", US.toLanguageTag());
     request.setPreferredLocales(Collections.singletonList(US));
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(US);
   }

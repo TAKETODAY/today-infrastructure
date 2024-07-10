@@ -19,9 +19,11 @@ package cn.taketoday.web.reactive.function.client;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
@@ -33,6 +35,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -59,6 +62,54 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     @Override
     public URI getURI() {
       return this.empty;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+      return Map.of();
+    }
+
+    @Override
+    public void copyFrom(AttributeAccessor source) {
+    }
+
+    @Override
+    public void clearAttributes() {
+    }
+
+    @Override
+    public boolean hasAttributes() {
+      return false;
+    }
+
+    @Override
+    public boolean hasAttribute(String name) {
+      return false;
+    }
+
+    @Override
+    public String[] getAttributeNames() {
+      return Constant.EMPTY_STRING_ARRAY;
+    }
+
+    @Override
+    public void setAttribute(String name, @Nullable Object value) {
+    }
+
+    @Override
+    public void setAttributes(@Nullable Map<String, Object> attributes) {
+    }
+
+    @Nullable
+    @Override
+    public Object getAttribute(String name) {
+      return null;
+    }
+
+    @Nullable
+    @Override
+    public Object removeAttribute(String name) {
+      return null;
     }
 
     @Override
@@ -105,7 +156,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     }
     this.originalResponse = other;
     this.request = (other instanceof DefaultClientResponse defaultClientResponse ?
-                    defaultClientResponse.request() : EMPTY_REQUEST);
+            defaultClientResponse.request() : EMPTY_REQUEST);
   }
 
   @Override
@@ -122,9 +173,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   @Override
   public ClientResponse.Builder header(String headerName, String... headerValues) {
-    for (String headerValue : headerValues) {
-      getHeaders().add(headerName, headerValue);
-    }
+    getHeaders().setOrRemove(headerName, headerValues);
     return this;
   }
 

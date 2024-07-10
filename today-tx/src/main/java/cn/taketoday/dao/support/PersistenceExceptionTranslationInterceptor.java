@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.dao.support;
@@ -21,6 +21,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanCreationNotAllowedException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -59,7 +60,9 @@ public class PersistenceExceptionTranslationInterceptor
    *
    * @see #setPersistenceExceptionTranslator
    */
-  public PersistenceExceptionTranslationInterceptor() { }
+  public PersistenceExceptionTranslationInterceptor() {
+
+  }
 
   /**
    * Create a new PersistenceExceptionTranslationInterceptor
@@ -68,7 +71,7 @@ public class PersistenceExceptionTranslationInterceptor
    * @param pet the PersistenceExceptionTranslator to use
    */
   public PersistenceExceptionTranslationInterceptor(PersistenceExceptionTranslator pet) {
-    Assert.notNull(pet, "PersistenceExceptionTranslator is required");
+    Assert.notNull(pet, "PersistenceExceptionTranslator must not be null");
     this.persistenceExceptionTranslator = pet;
   }
 
@@ -100,7 +103,7 @@ public class PersistenceExceptionTranslationInterceptor
    * raw exception when declared, i.e. when the originating method signature's exception
    * declarations allow for the raw exception to be thrown ("false").
    * <p>Default is "false". Switch this flag to "true" in order to always translate
-   * applicable exceptions, independent from the originating method signature.
+   * applicable exceptions, independent of the originating method signature.
    * <p>Note that the originating method does not have to declare the specific exception.
    * Any base class will do as well, even {@code throws Exception}: As long as the
    * originating method does explicitly declare compatible exceptions, the raw exception
@@ -141,8 +144,15 @@ public class PersistenceExceptionTranslationInterceptor
         PersistenceExceptionTranslator translator = this.persistenceExceptionTranslator;
         if (translator == null) {
           Assert.state(this.beanFactory != null,
-                  "Cannot use PersistenceExceptionTranslator autodetection without BeanFactory");
-          translator = detectPersistenceExceptionTranslators(this.beanFactory);
+                  "Cannot use PersistenceExceptionTranslator auto-detection without ListableBeanFactory");
+          try {
+            translator = detectPersistenceExceptionTranslators(this.beanFactory);
+          }
+          catch (BeanCreationNotAllowedException ex2) {
+            // Cannot create PersistenceExceptionTranslator bean on shutdown:
+            // fall back to rethrowing original exception without translation
+            throw ex;
+          }
           this.persistenceExceptionTranslator = translator;
         }
         throw DataAccessUtils.translateIfNecessary(ex, translator);

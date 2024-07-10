@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,12 +29,16 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.core.testfixture.EnabledForTestGroups;
@@ -44,6 +49,7 @@ import cn.taketoday.scheduling.config.IntervalTask;
 import cn.taketoday.scheduling.config.ScheduledTaskHolder;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
+import jakarta.annotation.PreDestroy;
 
 import static cn.taketoday.core.testfixture.TestGroup.LONG_RUNNING;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,11 +65,19 @@ public class EnableSchedulingTests {
 
   private AnnotationConfigApplicationContext ctx;
 
+  private static final AtomicBoolean shutdownFailure = new AtomicBoolean();
+
+  @BeforeEach
+  void reset() {
+    shutdownFailure.set(false);
+  }
+
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     if (ctx != null) {
       ctx.close();
     }
+    assertThat(shutdownFailure).isFalse();
   }
 
   /*
@@ -73,7 +87,7 @@ public class EnableSchedulingTests {
   @ParameterizedTest
   @ValueSource(classes = { FixedRateTaskConfig.class, FixedRateTaskConfigSubclass.class })
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withFixedRateTask(Class<?> configClass) throws InterruptedException {
+  void withFixedRateTask(Class<?> configClass) throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(configClass);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(2);
 
@@ -90,7 +104,7 @@ public class EnableSchedulingTests {
   @ValueSource(classes = { ExplicitSchedulerConfig.class, ExplicitSchedulerConfigSubclass.class })
   @Timeout(2)  // should actually complete within 1s
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withExplicitScheduler(Class<?> configClass) throws InterruptedException {
+  void withExplicitScheduler(Class<?> configClass) throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(configClass);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(1);
 
@@ -138,14 +152,14 @@ public class EnableSchedulingTests {
   }
 
   @Test
-  public void withExplicitSchedulerAmbiguity_andSchedulingEnabled() {
+  void withExplicitSchedulerAmbiguity_andSchedulingEnabled() {
     // No exception raised as of 4.3, aligned with the behavior for @Async methods (SPR-14030)
     ctx = new AnnotationConfigApplicationContext(AmbiguousExplicitSchedulerConfig.class);
   }
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withExplicitScheduledTaskRegistrar() throws InterruptedException {
+  void withExplicitScheduledTaskRegistrar() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(ExplicitScheduledTaskRegistrarConfig.class);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(1);
 
@@ -156,7 +170,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withQualifiedScheduler() throws InterruptedException {
+  void withQualifiedScheduler() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(QualifiedExplicitSchedulerConfig.class);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(1);
 
@@ -167,7 +181,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withQualifiedSchedulerAndPlaceholder() throws InterruptedException {
+  void withQualifiedSchedulerAndPlaceholder() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(QualifiedExplicitSchedulerConfigWithPlaceholder.class);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(1);
 
@@ -179,7 +193,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withQualifiedSchedulerWithFixedDelayTask() throws InterruptedException {
+  void withQualifiedSchedulerWithFixedDelayTask() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(QualifiedExplicitSchedulerConfigWithFixedDelayTask.class);
     assertThat(ctx.getBean(ScheduledTaskHolder.class).getScheduledTasks()).hasSize(1);
 
@@ -190,19 +204,19 @@ public class EnableSchedulingTests {
   }
 
   @Test
-  public void withAmbiguousTaskSchedulers_butNoActualTasks() {
+  void withAmbiguousTaskSchedulers_butNoActualTasks() {
     ctx = new AnnotationConfigApplicationContext(SchedulingEnabled_withAmbiguousTaskSchedulers_butNoActualTasks.class);
   }
 
   @Test
-  public void withAmbiguousTaskSchedulers_andSingleTask() {
+  void withAmbiguousTaskSchedulers_andSingleTask() {
     // No exception raised as of 4.3, aligned with the behavior for @Async methods (SPR-14030)
     ctx = new AnnotationConfigApplicationContext(SchedulingEnabled_withAmbiguousTaskSchedulers_andSingleTask.class);
   }
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withAmbiguousTaskSchedulers_andSingleTask_disambiguatedByScheduledTaskRegistrarBean() throws InterruptedException {
+  void withAmbiguousTaskSchedulers_andSingleTask_disambiguatedByScheduledTaskRegistrarBean() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(
             SchedulingEnabled_withAmbiguousTaskSchedulers_andSingleTask_disambiguatedByScheduledTaskRegistrar.class);
 
@@ -212,7 +226,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withAmbiguousTaskSchedulers_andSingleTask_disambiguatedBySchedulerNameAttribute() throws InterruptedException {
+  void withAmbiguousTaskSchedulers_andSingleTask_disambiguatedBySchedulerNameAttribute() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(
             SchedulingEnabled_withAmbiguousTaskSchedulers_andSingleTask_disambiguatedBySchedulerNameAttribute.class);
 
@@ -222,7 +236,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withTaskAddedVia_configureTasks() throws InterruptedException {
+  void withTaskAddedVia_configureTasks() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(SchedulingEnabled_withTaskAddedVia_configureTasks.class);
 
     Thread.sleep(110);
@@ -231,7 +245,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withInitiallyDelayedFixedRateTask() throws InterruptedException {
+  void withInitiallyDelayedFixedRateTask() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(FixedRateTaskConfig_withInitialDelay.class);
 
     Thread.sleep(1950);
@@ -244,7 +258,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withInitiallyDelayedFixedDelayTask() throws InterruptedException {
+  void withInitiallyDelayedFixedDelayTask() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(FixedDelayTaskConfig_withInitialDelay.class);
 
     Thread.sleep(1950);
@@ -257,7 +271,35 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withOneTimeTask() throws InterruptedException {
+  void withPrototypeContainedFixedDelayTask() throws InterruptedException {
+    ctx = new AnnotationConfigApplicationContext(FixedDelayTaskConfig_withPrototypeBean.class);
+
+    ctx.getBean(PrototypeBeanWithScheduled.class);
+    Thread.sleep(1950);
+    AtomicInteger counter = ctx.getBean(AtomicInteger.class);
+
+    // The @Scheduled method should have been called several times
+    // but not more times than the delay allows.
+    assertThat(counter.get()).isBetween(1, 5);
+  }
+
+  @Test
+  @EnabledForTestGroups(LONG_RUNNING)
+  void withPrototypeFactoryContainedFixedDelayTask() throws InterruptedException {
+    ctx = new AnnotationConfigApplicationContext(FixedDelayTaskConfig_withFactoryBean.class);
+
+    ctx.getBean(PrototypeBeanWithScheduled.class);
+    Thread.sleep(1950);
+    AtomicInteger counter = ctx.getBean(AtomicInteger.class);
+
+    // The @Scheduled method should have been called several times
+    // but not more times than the delay allows.
+    assertThat(counter.get()).isBetween(1, 5);
+  }
+
+  @Test
+  @EnabledForTestGroups(LONG_RUNNING)
+  void withOneTimeTask() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(OneTimeTaskConfig.class);
 
     Thread.sleep(110);
@@ -269,7 +311,7 @@ public class EnableSchedulingTests {
 
   @Test
   @EnabledForTestGroups(LONG_RUNNING)
-  public void withTriggerTask() throws InterruptedException {
+  void withTriggerTask() throws InterruptedException {
     ctx = new AnnotationConfigApplicationContext(TriggerTaskConfig.class);
 
     Thread.sleep(110);
@@ -662,6 +704,9 @@ public class EnableSchedulingTests {
   @EnableScheduling
   static class FixedRateTaskConfig_withInitialDelay {
 
+    @Autowired
+    ScheduledAnnotationBeanPostProcessor bpp;
+
     @Bean
     public AtomicInteger counter() {
       return new AtomicInteger();
@@ -672,11 +717,21 @@ public class EnableSchedulingTests {
       counter().incrementAndGet();
       Thread.sleep(100);
     }
+
+    @PreDestroy
+    public void validateLateCancellation() {
+      if (this.bpp.getScheduledTasks().isEmpty()) {
+        shutdownFailure.set(true);
+      }
+    }
   }
 
   @Configuration
   @EnableScheduling
   static class FixedDelayTaskConfig_withInitialDelay {
+
+    @Autowired
+    ScheduledAnnotationBeanPostProcessor bpp;
 
     @Bean
     public AtomicInteger counter() {
@@ -687,6 +742,98 @@ public class EnableSchedulingTests {
     public void task() throws InterruptedException {
       counter().incrementAndGet();
       Thread.sleep(100);
+    }
+
+    @PreDestroy
+    public void validateLateCancellation() {
+      if (this.bpp.getScheduledTasks().isEmpty()) {
+        shutdownFailure.set(true);
+      }
+    }
+  }
+
+  @Configuration
+  @EnableScheduling
+  static class FixedDelayTaskConfig_withPrototypeBean {
+
+    @Autowired
+    ScheduledAnnotationBeanPostProcessor bpp;
+
+    @Bean
+    public AtomicInteger counter() {
+      return new AtomicInteger();
+    }
+
+    @Bean
+    @Scope("prototype")
+    public PrototypeBeanWithScheduled prototypeBean() {
+      return new PrototypeBeanWithScheduled(counter());
+    }
+
+    @PreDestroy
+    public void validateEarlyCancellation() {
+      if (!this.bpp.getScheduledTasks().isEmpty()) {
+        shutdownFailure.set(true);
+      }
+    }
+  }
+
+  @Configuration
+  @EnableScheduling
+  static class FixedDelayTaskConfig_withFactoryBean {
+
+    @Autowired
+    ScheduledAnnotationBeanPostProcessor bpp;
+
+    @Bean
+    public AtomicInteger counter() {
+      return new AtomicInteger();
+    }
+
+    @Bean
+    public FactoryBeanForScheduled prototypeBean() {
+      return new FactoryBeanForScheduled(counter());
+    }
+
+    @PreDestroy
+    public void validateEarlyCancellation() {
+      if (!this.bpp.getScheduledTasks().isEmpty()) {
+        shutdownFailure.set(true);
+      }
+    }
+  }
+
+  static class PrototypeBeanWithScheduled {
+
+    private AtomicInteger counter;
+
+    public PrototypeBeanWithScheduled(AtomicInteger counter) {
+      this.counter = counter;
+    }
+
+    @Scheduled(initialDelay = 1000, fixedDelay = 100)
+    public void task() throws InterruptedException {
+      this.counter.incrementAndGet();
+      Thread.sleep(100);
+    }
+  }
+
+  static class FactoryBeanForScheduled implements FactoryBean<PrototypeBeanWithScheduled> {
+
+    private AtomicInteger counter;
+
+    public FactoryBeanForScheduled(AtomicInteger counter) {
+      this.counter = counter;
+    }
+
+    @Override
+    public PrototypeBeanWithScheduled getObject() {
+      return new PrototypeBeanWithScheduled(this.counter);
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return PrototypeBeanWithScheduled.class;
     }
   }
 

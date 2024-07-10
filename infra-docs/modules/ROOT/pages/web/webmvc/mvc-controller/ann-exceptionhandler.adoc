@@ -156,15 +156,11 @@ level, xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionResolver]
 | `java.util.Map`, `cn.taketoday.ui.Model`, `cn.taketoday.ui.ModelMap`
 | For access to the model for an error response. Always empty.
 
-| `RedirectAttributes`
+| `RedirectModel`
 | Specify attributes to use in case of a redirect -- (that is to be appended to the query
   string) and flash attributes to be stored temporarily until the request after the redirect.
   See xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[Redirect Attributes] and xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash Attributes].
 
-| `@SessionAttribute`
-| For access to any session attribute, in contrast to model attributes stored in the
-  session as a result of a class-level `@SessionAttributes` declaration.
-  See xref:web/webmvc/mvc-controller/ann-methods/sessionattribute.adoc[`@SessionAttribute`] for more details.
 
 | `@RequestAttribute`
 | For access to request attributes. See xref:web/webmvc/mvc-controller/ann-methods/requestattrib.adoc[`@RequestAttribute`] for more details.

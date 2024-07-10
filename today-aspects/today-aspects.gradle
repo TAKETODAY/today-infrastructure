@@ -25,7 +25,6 @@ dependencies {
   optional(project(":today-jcache"))
   optional(project(":today-beans"))  // for @Configurable support
   optional(project(":today-context"))  // for @Enable* support
-  optional(project(":today-orm"))  // for JPA exception translation support
   optional(project(":today-tx"))  // for JPA, @Transactional support
   optional("javax.cache:cache-api")  // for JCache aspect
   optional("jakarta.transaction:jakarta.transaction-api")  // for @jakarta.transaction.Transactional support

@@ -71,7 +71,7 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
   @Test
   public void customizeDisallowedHeaders() throws IOException {
     ClientHttpRequest request = this.factory.createRequest(URI.create(this.baseUrl + "/status/299"), HttpMethod.PUT);
-    request.getHeaders().set("Expect", "299");
+    request.getHeaders().setOrRemove("Expect", "299");
 
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));

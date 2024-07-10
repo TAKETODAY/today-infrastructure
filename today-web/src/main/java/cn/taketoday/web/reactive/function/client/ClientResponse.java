@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -355,14 +355,14 @@ public interface ClientResponse {
      * @param headerName the header name
      * @param headerValues the header value(s)
      * @return this builder
-     * @see HttpHeaders#add(String, String)
+     * @see HttpHeaders#setOrRemove(String, String[])
      */
     Builder header(String headerName, String... headerValues);
 
     /**
      * Manipulate this response's headers with the given consumer.
      * <p>The headers provided to the consumer are "live", so that the consumer
-     * can be used to {@linkplain HttpHeaders#set(String, String) overwrite}
+     * can be used to {@linkplain HttpHeaders#setOrRemove(String, String) overwrite}
      * existing header values, {@linkplain HttpHeaders#remove(Object) remove}
      * values, or use any of the other {@link HttpHeaders} methods.
      *
@@ -383,7 +383,7 @@ public interface ClientResponse {
     /**
      * Manipulate this response's cookies with the given consumer.
      * <p>The map provided to the consumer is "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookie values,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookie values,
      * {@linkplain MultiValueMap#remove(Object) remove} values, or use any of the other
      * {@link MultiValueMap} methods.
      *

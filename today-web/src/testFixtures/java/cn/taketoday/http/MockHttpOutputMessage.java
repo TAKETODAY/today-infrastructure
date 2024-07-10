@@ -23,12 +23,14 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.core.AttributeAccessorSupport;
+
 /**
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public class MockHttpOutputMessage implements HttpOutputMessage {
+public class MockHttpOutputMessage extends AttributeAccessorSupport implements HttpOutputMessage {
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 

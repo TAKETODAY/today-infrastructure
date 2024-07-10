@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.reactivestreams.Publisher;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class DefaultWebClientTests {
     when(mockResponse.statusCode()).thenReturn(HttpStatus.OK);
     when(mockResponse.bodyToMono(Void.class)).thenReturn(Mono.empty());
     given(this.exchangeFunction.exchange(this.captor.capture())).willReturn(Mono.just(mockResponse));
-    this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
+    this.builder = WebClient.builder().baseURI("/base").exchangeFunction(this.exchangeFunction);
   }
 
   @Test
@@ -87,7 +88,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path");
+    assertThat(request.uri().toString()).isEqualTo("/base/path");
     assertThat(request.headers()).isEqualTo(HttpHeaders.forWritable());
     assertThat(request.cookies()).isEqualTo(Collections.emptyMap());
   }
@@ -99,7 +100,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path?q=12");
+    assertThat(request.uri().toString()).isEqualTo("/base/path?q=12");
   }
 
   @Test // gh-22705
@@ -109,7 +110,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/base/path/identifier?q=12");
+    assertThat(request.uri().toString()).isEqualTo("/base/path/identifier?q=12");
     assertThat(request.attribute(WebClient.class.getName() + ".uriTemplate").get()).isEqualTo("/path/{id}");
   }
 
@@ -120,7 +121,7 @@ public class DefaultWebClientTests {
             .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
 
     ClientRequest request = verifyAndGetRequest();
-    assertThat(request.url().toString()).isEqualTo("/path");
+    assertThat(request.uri().toString()).isEqualTo("/path");
   }
 
   @Test
@@ -214,7 +215,7 @@ public class DefaultWebClientTests {
             .build();
     WebClient client2 = this.builder
             .defaultHeader("Accept", "application/xml")
-            .defaultCookies(cookies -> cookies.set("id", "456"))
+            .defaultCookies(cookies -> cookies.setOrRemove("id", "456"))
             .build();
 
     client1.get().uri("/path")
@@ -312,14 +313,14 @@ public class DefaultWebClientTests {
   void cloneBuilder() {
     Consumer<ClientCodecConfigurer> codecsConfig = c -> { };
     ExchangeFunction exchangeFunction = request -> Mono.empty();
-    WebClient.Builder builder = WebClient.builder().baseUrl("https://example.org")
+    WebClient.Builder builder = WebClient.builder().baseURI("https://example.org")
             .exchangeFunction(exchangeFunction)
             .filter((request, next) -> Mono.empty())
             .codecs(codecsConfig);
 
     WebClient.Builder clonedBuilder = builder.clone();
 
-    assertThat(clonedBuilder).extracting("baseUrl").isEqualTo("https://example.org");
+    assertThat(clonedBuilder).extracting("baseURI").isEqualTo(URI.create("https://example.org"));
     assertThat(clonedBuilder).extracting("filters").isNotNull();
     assertThat(clonedBuilder).extracting("strategiesConfigurers").isNotNull();
     assertThat(clonedBuilder).extracting("exchangeFunction").isEqualTo(exchangeFunction);
@@ -382,7 +383,7 @@ public class DefaultWebClientTests {
   public void switchToErrorOnEmptyClientResponseMono() {
     ExchangeFunction exchangeFunction = mock(ExchangeFunction.class);
     given(exchangeFunction.exchange(any())).willReturn(Mono.empty());
-    WebClient client = WebClient.builder().baseUrl("/base").exchangeFunction(exchangeFunction).build();
+    WebClient client = WebClient.builder().baseURI("/base").exchangeFunction(exchangeFunction).build();
     StepVerifier.create(client.get().uri("/path").retrieve().bodyToMono(Void.class))
             .expectErrorMessage("The underlying HTTP client completed without emitting a response.")
             .verify(Duration.ofSeconds(5));

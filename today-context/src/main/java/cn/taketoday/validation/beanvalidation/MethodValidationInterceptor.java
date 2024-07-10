@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.beanvalidation;
@@ -168,7 +168,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     Object returnValue = invocation.proceed();
 
     if (this.adaptViolations) {
-      this.delegate.applyReturnValueValidation(target, method, null, arguments, groups);
+      this.delegate.applyReturnValueValidation(target, method, null, returnValue, groups);
     }
     else {
       violations = this.delegate.invokeValidatorForReturnValue(target, method, returnValue, groups);

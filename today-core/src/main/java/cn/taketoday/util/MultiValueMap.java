@@ -29,6 +29,7 @@ import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Unmodifiable;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -76,10 +77,11 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param key they key
    * @param values the values to be added
+   * @see ObjectUtils#isNotEmpty(Object[])
    * @since 4.0
    */
   default void addAll(K key, @Nullable V[] values) {
-    if (values != null) {
+    if (ObjectUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);
       }
@@ -92,10 +94,11 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @param key they key
    * @param values the values to be added
+   * @see CollectionUtils#isNotEmpty(Collection)
    * @since 4.0
    */
   default void addAll(K key, @Nullable Collection<? extends V> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       for (V element : values) {
         add(key, element);
       }
@@ -125,7 +128,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param values the values to be added
    */
   default void addAll(@Nullable Map<K, List<V>> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       for (Entry<K, List<V>> entry : values.entrySet()) {
         addAll(entry.getKey(), entry.getValue());
       }
@@ -156,23 +159,69 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
-   * Set the given single value under the given key.
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
    *
    * @param key the key
-   * @param value the value to set
+   * @param value the value, or {@code null} for none
+   * @return the previous value associated with {@code key}, or
+   * {@code null} if there was no mapping for {@code key}.
+   * (A {@code null} return can also indicate that the map
+   * previously associated {@code null} with {@code key}.)
+   * @see #remove(Object)
+   * @since 5.0
    */
-  void set(K key, @Nullable V value);
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable V value);
 
   /**
-   * Set the given values under.
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
+   *
+   * @param key they key
+   * @param value the values
+   * @see Map#put(Object, Object)
+   * @see #remove(Object)
+   * @since 5.0
+   */
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable V[] value);
+
+  /**
+   * Associates the specified value with the specified key in this map.
+   * If the map previously contained a mapping for the key, the old
+   * value is replaced.
+   *
+   * <p> remove the value if value is {@code null}.
+   *
+   * @param key key with which the specified value is to be associated
+   * @param value value to be associated with the specified key
+   * @return the previous value associated with {@code key}, or
+   * {@code null} if there was no mapping for {@code key}.
+   * (A {@code null} return can also indicate that the map
+   * previously associated {@code null} with {@code key}.)
+   * @see Map#put(Object, Object)
+   * @see #remove(Object)
+   * @since 5.0
+   */
+  @Nullable
+  List<V> setOrRemove(K key, @Nullable Collection<V> value);
+
+  /**
+   * Null check for {@link #putAll(Map)}
    *
    * @param values the values.
+   * @see #putAll(Map)
    */
-  default void setAll(@Nullable Map<K, V> values) {
-    if (values != null) {
-      for (Entry<K, V> entry : values.entrySet()) {
-        set(entry.getKey(), entry.getValue());
-      }
+  default void setAll(@Nullable Map<K, List<V>> values) {
+    if (CollectionUtils.isNotEmpty(values)) {
+      putAll(values);
     }
   }
 
@@ -241,6 +290,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   // static
 
   @SuppressWarnings({ "unchecked" })
+  @Unmodifiable
   static <K, V> MultiValueMap<K, V> empty() {
     return EMPTY;
   }
@@ -307,14 +357,40 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
-   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   * Copy a {@code Map<K, List<V>>} to an {@code LinkedMultiValueMap<K, V>}.
    *
    * @param targetMap the original map
-   * @return the adapted multi-value map (wrapping the original map)
+   * @return the copied LinkedMultiValueMap
    * @since 4.0
    */
   static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
     return new LinkedMultiValueMap<>(targetMap);
+  }
+
+  /**
+   * Copy a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the copied multi-value map
+   * @since 5.0
+   */
+  static <K, V> MappingMultiValueMap<K, V> copyOf(Function<K, List<V>> mappingFunction, Map<K, List<V>> targetMap) {
+    MappingMultiValueMap<K, V> map = forAdaption(mappingFunction);
+    map.addAll(targetMap);
+    return map;
+  }
+
+  /**
+   * Adapt a {@code Map<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param targetMap the original map
+   * @return the adapted multi-value map (wrapping the original map)
+   * @since 5.0
+   */
+  static <K, V> MappingMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction, Map<K, List<V>> source) {
+    MappingMultiValueMap<K, V> map = forAdaption(targetMap, mappingFunction);
+    map.addAll(source);
+    return map;
   }
 
   /**

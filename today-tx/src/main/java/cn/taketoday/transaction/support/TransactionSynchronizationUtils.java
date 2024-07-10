@@ -20,7 +20,7 @@ package cn.taketoday.transaction.support;
 import java.util.List;
 
 import cn.taketoday.aop.scope.ScopedObject;
-import cn.taketoday.core.InfrastructureProxy;
+import cn.taketoday.core.InfraProxy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -47,14 +47,14 @@ public abstract class TransactionSynchronizationUtils {
    * Unwrap the given resource handle if necessary; otherwise return
    * the given handle as-is.
    *
-   * @see InfrastructureProxy#getWrappedObject()
+   * @see InfraProxy#getWrappedObject()
    */
   public static Object unwrapResourceIfNecessary(Object resource) {
     Assert.notNull(resource, "Resource is required");
     Object resourceRef = resource;
     // unwrap infrastructure proxy
-    if (resourceRef instanceof InfrastructureProxy) {
-      resourceRef = ((InfrastructureProxy) resourceRef).getWrappedObject();
+    if (resourceRef instanceof InfraProxy) {
+      resourceRef = ((InfraProxy) resourceRef).getWrappedObject();
     }
     if (aopAvailable) {
       // now unwrap scoped proxy

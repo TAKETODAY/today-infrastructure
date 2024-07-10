@@ -47,7 +47,7 @@ public abstract class AbstractMultipart implements Multipart {
     DefaultHttpHeaders headers = HttpHeaders.forWritable();
     String contentType = getContentType();
     if (contentType != null) {
-      headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+      headers.setOrRemove(HttpHeaders.CONTENT_TYPE, contentType);
     }
     return headers;
   }

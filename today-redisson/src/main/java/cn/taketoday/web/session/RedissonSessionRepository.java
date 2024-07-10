@@ -48,6 +48,7 @@ import cn.taketoday.session.SessionEventDispatcher;
 import cn.taketoday.session.SessionIdGenerator;
 import cn.taketoday.session.SessionRepository;
 import cn.taketoday.session.WebSession;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -88,10 +89,8 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     this(redissonClient, null, null, null);
   }
 
-  public RedissonSessionRepository(RedissonClient redisson,
-          @Nullable String keyPrefix,
-          @Nullable SessionIdGenerator idGenerator,
-          @Nullable SessionEventDispatcher eventDispatcher) {
+  public RedissonSessionRepository(RedissonClient redisson, @Nullable String keyPrefix,
+          @Nullable SessionIdGenerator idGenerator, @Nullable SessionEventDispatcher eventDispatcher) {
 
     if (StringUtils.hasText(keyPrefix)) {
       this.keyPrefix = keyPrefix;
@@ -333,6 +332,15 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
+    public void setAttributes(@Nullable Map<String, Object> attributes) {
+      if (CollectionUtils.isNotEmpty(attributes)) {
+        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+          setAttribute(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+
+    @Override
     public void setAttribute(String attributeName, @Nullable Object attributeValue) {
       if (attributeValue == null) {
         removeAttribute(attributeName);
@@ -510,7 +518,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public void copyAttributesFrom(AttributeAccessor source) {
+    public void copyFrom(AttributeAccessor source) {
       Assert.notNull(source, "Source is required");
       for (String attributeName : source.getAttributeNames()) {
         setAttribute(attributeName, source.getAttribute(attributeName));

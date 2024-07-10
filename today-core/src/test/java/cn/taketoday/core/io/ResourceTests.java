@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import cn.taketoday.util.FileCopyUtils;
@@ -167,7 +168,7 @@ class ResourceTests {
     @Test
     void hasDescription() {
       Resource resource = new ByteArrayResource("testString".getBytes(), "my description");
-      assertThat(resource.toString().contains("my description")).isTrue();
+      assertThat(resource.toString()).contains("my description");
     }
   }
 
@@ -183,14 +184,21 @@ class ResourceTests {
       String content = FileCopyUtils.copyToString(new InputStreamReader(resource1.getInputStream()));
       assertThat(content).isEqualTo(testString);
       assertThat(new InputStreamResource(is)).isEqualTo(resource1);
+      assertThat(new InputStreamResource(() -> is)).isNotEqualTo(resource1);
       assertThatIllegalStateException().isThrownBy(resource1::getInputStream);
 
       Resource resource2 = new InputStreamResource(new ByteArrayInputStream(testBytes));
       assertThat(resource2.getContentAsByteArray()).containsExactly(testBytes);
       assertThatIllegalStateException().isThrownBy(resource2::getContentAsByteArray);
 
-      Resource resource3 = new InputStreamResource(new ByteArrayInputStream(testBytes));
+      AtomicBoolean obtained = new AtomicBoolean();
+      Resource resource3 = new InputStreamResource(() -> {
+        obtained.set(true);
+        return new ByteArrayInputStream(testBytes);
+      });
+      assertThat(obtained).isFalse();
       assertThat(resource3.getContentAsString(StandardCharsets.US_ASCII)).isEqualTo(testString);
+      assertThat(obtained).isTrue();
       assertThatIllegalStateException().isThrownBy(() -> resource3.getContentAsString(StandardCharsets.US_ASCII));
     }
 
@@ -200,13 +208,20 @@ class ResourceTests {
       Resource resource = new InputStreamResource(is);
       assertThat(resource.exists()).isTrue();
       assertThat(resource.isOpen()).isTrue();
+
+      resource = new InputStreamResource(() -> is);
+      assertThat(resource.exists()).isTrue();
+      assertThat(resource.isOpen()).isTrue();
     }
 
     @Test
     void hasDescription() {
       InputStream is = new ByteArrayInputStream("testString".getBytes());
       Resource resource = new InputStreamResource(is, "my description");
-      assertThat(resource.toString().contains("my description")).isTrue();
+      assertThat(resource.toString()).contains("my description");
+
+      resource = new InputStreamResource(() -> is, "my description");
+      assertThat(resource.toString()).contains("my description");
     }
   }
 
@@ -420,7 +435,7 @@ class ResourceTests {
       }
 
       @Override
-      protected void customizeConnection(HttpURLConnection con) throws IOException {
+      protected void customizeConnection(HttpURLConnection con) {
         con.setRequestProperty("Framework-Name", "Spring");
       }
     }
@@ -428,18 +443,17 @@ class ResourceTests {
     class ResourceDispatcher extends Dispatcher {
 
       @Override
-      public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+      public MockResponse dispatch(RecordedRequest request) {
         if (request.getPath().equals("/resource")) {
-          switch (request.getMethod()) {
-            case "HEAD":
-              return new MockResponse()
-                      .addHeader("Content-Length", "6");
-            case "GET":
-              return new MockResponse()
-                      .addHeader("Content-Length", "6")
-                      .addHeader("Content-Type", "text/plain")
-                      .setBody("Spring");
-          }
+          return switch (request.getMethod()) {
+            case "HEAD" -> new MockResponse()
+                    .addHeader("Content-Length", "6");
+            case "GET" -> new MockResponse()
+                    .addHeader("Content-Length", "6")
+                    .addHeader("Content-Type", "text/plain")
+                    .setBody("Spring");
+            default -> new MockResponse().setResponseCode(404);
+          };
         }
         return new MockResponse().setResponseCode(404);
       }

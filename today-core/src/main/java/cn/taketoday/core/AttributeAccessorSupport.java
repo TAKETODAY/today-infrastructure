@@ -57,8 +57,10 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   }
 
   @Override
-  public void addAttributes(Map<String, Object> attributes) {
-    getAttributes().putAll(attributes);
+  public void setAttributes(@Nullable Map<String, Object> attributes) {
+    if (CollectionUtils.isNotEmpty(attributes)) {
+      getAttributes().putAll(attributes);
+    }
   }
 
   @Nullable
@@ -129,7 +131,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
    *
    * @param source the AttributeAccessor to copy from
    */
-  public void copyAttributesFrom(AttributeAccessor source) {
+  public void copyFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source is required");
     Map<String, Object> attributes;
     if (source instanceof AttributeAccessorSupport) {

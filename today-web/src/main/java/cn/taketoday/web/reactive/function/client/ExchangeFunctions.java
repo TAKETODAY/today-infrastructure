@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
 
 import java.net.URI;
 
+import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
@@ -100,10 +98,10 @@ public abstract class ExchangeFunctions {
     public Mono<ClientResponse> exchange(ClientRequest clientRequest) {
       Assert.notNull(clientRequest, "ClientRequest is required");
       HttpMethod httpMethod = clientRequest.method();
-      URI url = clientRequest.url();
+      URI uri = clientRequest.uri();
 
       var responseMono = connector.connect(
-              httpMethod, url, httpRequest -> clientRequest.writeTo(httpRequest, strategies));
+              httpMethod, uri, httpRequest -> clientRequest.writeTo(httpRequest, strategies));
 
       if (log.isDebugEnabled()) {
         responseMono = responseMono.doOnRequest(n -> logRequest(clientRequest))
@@ -116,14 +114,14 @@ public abstract class ExchangeFunctions {
                 String logPrefix = getLogPrefix(clientRequest, httpResponse);
                 logResponse(httpResponse, logPrefix);
                 return new DefaultClientResponse(
-                        httpResponse, strategies, logPrefix, httpMethod.name() + " " + url,
+                        httpResponse, strategies, logPrefix, httpMethod.name() + " " + uri,
                         () -> createRequest(clientRequest));
               });
     }
 
     private void logRequest(ClientRequest request) {
       LogFormatUtils.traceDebug(log, traceOn ->
-              request.logPrefix() + "HTTP " + request.method() + " " + request.url() +
+              request.logPrefix() + "HTTP " + request.method() + " " + request.uri() +
                       (traceOn ? ", headers=" + formatHeaders(request.headers()) : "")
       );
     }
@@ -145,11 +143,11 @@ public abstract class ExchangeFunctions {
     }
 
     private <T> Mono<T> wrapException(Throwable t, ClientRequest r) {
-      return Mono.error(() -> new WebClientRequestException(t, r.method(), r.url(), r.headers()));
+      return Mono.error(() -> new WebClientRequestException(t, r.method(), r.uri(), r.headers()));
     }
 
     private HttpRequest createRequest(ClientRequest request) {
-      return new HttpRequest() {
+      return new AbstractHttpRequest() {
 
         @Override
         public HttpMethod getMethod() {
@@ -158,7 +156,7 @@ public abstract class ExchangeFunctions {
 
         @Override
         public URI getURI() {
-          return request.url();
+          return request.uri();
         }
 
         @Override

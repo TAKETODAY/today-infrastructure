@@ -298,7 +298,7 @@ class DefaultServerRequest implements ServerRequest {
     if (response.checkNotModified(etag, lastModifiedTimestamp)) {
       return Optional.of(
               ServerResponse.status(response.status)
-                      .headers(headers -> headers.addAll(response.headers))
+                      .headers(response.headers)
                       .build()
       );
     }

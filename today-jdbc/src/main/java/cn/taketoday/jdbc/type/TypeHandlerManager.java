@@ -288,7 +288,6 @@ public class TypeHandlerManager implements TypeHandlerResolver {
   // static
 
   public static void registerDefaults(TypeHandlerManager registry) {
-
     registry.register(Boolean.class, new BooleanTypeHandler());
     registry.register(boolean.class, new BooleanTypeHandler());
 
@@ -311,14 +310,11 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(double.class, new DoubleTypeHandler());
 
     registry.register(String.class, new StringTypeHandler());
-    registry.register(Reader.class, new ClobReaderTypeHandler());
 
     registry.register(BigInteger.class, new BigIntegerTypeHandler());
     registry.register(BigDecimal.class, new BigDecimalTypeHandler());
 
     registry.register(byte[].class, new ByteArrayTypeHandler());
-    registry.register(Byte[].class, new ByteObjectArrayTypeHandler());
-    registry.register(InputStream.class, new BlobInputStreamTypeHandler());
 
     registry.register(Object.class, registry.getUnknownTypeHandler());
 
@@ -329,22 +325,21 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(java.sql.Timestamp.class, new SqlTimestampTypeHandler());
 
     registry.register(Instant.class, new InstantTypeHandler());
-    registry.register(LocalDate.class, new LocalDateTypeHandler());
-    registry.register(LocalTime.class, new LocalTimeTypeHandler());
-    registry.register(LocalDateTime.class, new LocalDateTimeTypeHandler());
-
     registry.register(Year.class, new YearTypeHandler());
     registry.register(Month.class, new MonthTypeHandler());
     registry.register(YearMonth.class, new YearMonthTypeHandler());
-    registry.register(OffsetTime.class, new OffsetTimeTypeHandler());
-    registry.register(ZonedDateTime.class, new ZonedDateTimeTypeHandler());
-    registry.register(OffsetDateTime.class, new OffsetDateTimeTypeHandler());
-
     registry.register(char.class, new CharacterTypeHandler());
     registry.register(Character.class, new CharacterTypeHandler());
 
     registry.register(UUID.class, new UUIDTypeHandler());
     registry.register(Duration.class, new DurationTypeHandler());
+
+    registry.register(LocalDate.class, new AnyTypeHandler<>(LocalDate.class));
+    registry.register(LocalTime.class, new AnyTypeHandler<>(LocalTime.class));
+    registry.register(LocalDateTime.class, new AnyTypeHandler<>(LocalDateTime.class));
+    registry.register(OffsetTime.class, new AnyTypeHandler<>(OffsetTime.class));
+    registry.register(ZonedDateTime.class, new AnyTypeHandler<>(ZonedDateTime.class));
+    registry.register(OffsetDateTime.class, new AnyTypeHandler<>(OffsetDateTime.class));
   }
 
 }

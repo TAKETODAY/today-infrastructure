@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.aot.hint.annotation.Reflective;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -118,9 +119,26 @@ import cn.taketoday.web.view.View;
 public @interface ExceptionHandler {
 
   /**
+   * Exceptions handled by the annotated method.
+   * <p>This is an alias for {@link #exception}.
+   */
+  @AliasFor("exception")
+  Class<? extends Throwable>[] value() default {};
+
+  /**
    * Exceptions handled by the annotated method. If empty, will default to any
    * exceptions listed in the method argument list.
+   *
+   * @since 5.0
    */
-  Class<? extends Throwable>[] value() default {};
+  @AliasFor("value")
+  Class<? extends Throwable>[] exception() default {};
+
+  /**
+   * Media Types that can be produced by the annotated method.
+   *
+   * @since 5.0
+   */
+  String[] produces() default {};
 
 }

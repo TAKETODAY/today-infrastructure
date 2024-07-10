@@ -69,6 +69,7 @@ import cn.taketoday.util.xml.StaxUtils;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
@@ -84,9 +85,10 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
   private boolean processExternalEntities = false;
 
   @Nullable
-  private DocumentBuilderFactory documentBuilderFactory;
+  private volatile DocumentBuilderFactory documentBuilderFactory;
 
-  private final Object documentBuilderFactoryMonitor = new Object();
+  @Nullable
+  private volatile SAXParserFactory saxParserFactory;
 
   /**
    * Indicate whether DTD parsing should be supported.
@@ -94,6 +96,8 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    */
   public void setSupportDtd(boolean supportDtd) {
     this.supportDtd = supportDtd;
+    this.documentBuilderFactory = null;
+    this.saxParserFactory = null;
   }
 
   /**
@@ -118,6 +122,8 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
     if (processExternalEntities) {
       this.supportDtd = true;
     }
+    this.documentBuilderFactory = null;
+    this.saxParserFactory = null;
   }
 
   /**
@@ -138,14 +144,13 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    */
   protected Document buildDocument() {
     try {
-      DocumentBuilder documentBuilder;
-      synchronized(this.documentBuilderFactoryMonitor) {
-        if (this.documentBuilderFactory == null) {
-          this.documentBuilderFactory = createDocumentBuilderFactory();
-        }
-        documentBuilder = createDocumentBuilder(this.documentBuilderFactory);
+      DocumentBuilderFactory builderFactory = this.documentBuilderFactory;
+      if (builderFactory == null) {
+        builderFactory = createDocumentBuilderFactory();
+        this.documentBuilderFactory = builderFactory;
       }
-      return documentBuilder.newDocument();
+      DocumentBuilder builder = createDocumentBuilder(builderFactory);
+      return builder.newDocument();
     }
     catch (ParserConfigurationException ex) {
       throw new UnmarshallingFailureException("Could not create document placeholder: " + ex.getMessage(), ex);
@@ -165,7 +170,6 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setValidating(false);
     factory.setNamespaceAware(true);
-    factory.setExpandEntityReferences(false);
     factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
     factory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
     return factory;
@@ -183,11 +187,11 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
   protected DocumentBuilder createDocumentBuilder(DocumentBuilderFactory factory)
           throws ParserConfigurationException {
 
-    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+    DocumentBuilder builder = factory.newDocumentBuilder();
     if (!isProcessExternalEntities()) {
-      documentBuilder.setEntityResolver(NO_OP_ENTITY_RESOLVER);
+      builder.setEntityResolver(NO_OP_ENTITY_RESOLVER);
     }
-    return documentBuilder;
+    return builder;
   }
 
   /**
@@ -198,11 +202,15 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @throws ParserConfigurationException if thrown by JAXP methods
    */
   protected XMLReader createXmlReader() throws SAXException, ParserConfigurationException {
-    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-    saxParserFactory.setNamespaceAware(true);
-    saxParserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
-    saxParserFactory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
-    SAXParser saxParser = saxParserFactory.newSAXParser();
+    SAXParserFactory parserFactory = this.saxParserFactory;
+    if (parserFactory == null) {
+      parserFactory = SAXParserFactory.newInstance();
+      parserFactory.setNamespaceAware(true);
+      parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
+      parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
+      this.saxParserFactory = parserFactory;
+    }
+    SAXParser saxParser = parserFactory.newSAXParser();
     XMLReader xmlReader = saxParser.getXMLReader();
     if (!isProcessExternalEntities()) {
       xmlReader.setEntityResolver(NO_OP_ENTITY_RESOLVER);
@@ -233,9 +241,9 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @throws XmlMappingException if the given object cannot be marshalled to the result
    * @throws IllegalArgumentException if {@code result} if neither a {@code DOMResult},
    * a {@code SAXResult}, nor a {@code StreamResult}
-   * @see #marshalDomResult(Object, DOMResult)
-   * @see #marshalSaxResult(Object, SAXResult)
-   * @see #marshalStreamResult(Object, StreamResult)
+   * @see #marshalDomResult(Object, javax.xml.transform.dom.DOMResult)
+   * @see #marshalSaxResult(Object, javax.xml.transform.sax.SAXResult)
+   * @see #marshalStreamResult(Object, javax.xml.transform.stream.StreamResult)
    */
   @Override
   public final void marshal(Object graph, Result result) throws IOException, XmlMappingException {
@@ -264,7 +272,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @param domResult the {@code DOMResult}
    * @throws XmlMappingException if the given object cannot be marshalled to the result
    * @throws IllegalArgumentException if the {@code domResult} is empty
-   * @see #marshalDomNode(Object, Node)
+   * @see #marshalDomNode(Object, org.w3c.dom.Node)
    */
   protected void marshalDomResult(Object graph, DOMResult domResult) throws XmlMappingException {
     if (domResult.getNode() == null) {
@@ -283,7 +291,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @param staxResult a JAXP 1.4 {@link StAXSource}
    * @throws XmlMappingException if the given object cannot be marshalled to the result
    * @throws IllegalArgumentException if the {@code domResult} is empty
-   * @see #marshalDomNode(Object, Node)
+   * @see #marshalDomNode(Object, org.w3c.dom.Node)
    */
   protected void marshalStaxResult(Object graph, Result staxResult) throws XmlMappingException {
     XMLStreamWriter streamWriter = StaxUtils.getXMLStreamWriter(staxResult);
@@ -308,7 +316,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @param graph the root of the object graph to marshal
    * @param saxResult the {@code SAXResult}
    * @throws XmlMappingException if the given object cannot be marshalled to the result
-   * @see #marshalSaxHandlers(Object, ContentHandler, LexicalHandler)
+   * @see #marshalSaxHandlers(Object, org.xml.sax.ContentHandler, org.xml.sax.ext.LexicalHandler)
    */
   protected void marshalSaxResult(Object graph, SAXResult saxResult) throws XmlMappingException {
     ContentHandler contentHandler = saxResult.getHandler();
@@ -356,9 +364,9 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @throws XmlMappingException if the given source cannot be mapped to an object
    * @throws IllegalArgumentException if {@code source} is neither a {@code DOMSource},
    * a {@code SAXSource}, nor a {@code StreamSource}
-   * @see #unmarshalDomSource(DOMSource)
-   * @see #unmarshalSaxSource(SAXSource)
-   * @see #unmarshalStreamSource(StreamSource)
+   * @see #unmarshalDomSource(javax.xml.transform.dom.DOMSource)
+   * @see #unmarshalSaxSource(javax.xml.transform.sax.SAXSource)
+   * @see #unmarshalStreamSource(javax.xml.transform.stream.StreamSource)
    */
   @Override
   public final Object unmarshal(Source source) throws IOException, XmlMappingException {
@@ -389,7 +397,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @return the object graph
    * @throws XmlMappingException if the given source cannot be mapped to an object
    * @throws IllegalArgumentException if the {@code domSource} is empty
-   * @see #unmarshalDomNode(Node)
+   * @see #unmarshalDomNode(org.w3c.dom.Node)
    */
   protected Object unmarshalDomSource(DOMSource domSource) throws XmlMappingException {
     if (domSource.getNode() == null) {
@@ -441,7 +449,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @return the object graph
    * @throws XmlMappingException if the given source cannot be mapped to an object
    * @throws IOException if an I/O Exception occurs
-   * @see #unmarshalSaxReader(XMLReader, InputSource)
+   * @see #unmarshalSaxReader(org.xml.sax.XMLReader, org.xml.sax.InputSource)
    */
   protected Object unmarshalSaxSource(SAXSource saxSource) throws XmlMappingException, IOException {
     if (saxSource.getXMLReader() == null) {
@@ -511,7 +519,7 @@ public abstract class AbstractMarshaller implements Marshaller, Unmarshaller {
    * @param graph the root of the object graph to marshal
    * @param node the DOM node that will contain the result tree
    * @throws XmlMappingException if the given object cannot be marshalled to the DOM node
-   * @see Document
+   * @see org.w3c.dom.Document
    * @see org.w3c.dom.DocumentFragment
    * @see org.w3c.dom.Element
    */

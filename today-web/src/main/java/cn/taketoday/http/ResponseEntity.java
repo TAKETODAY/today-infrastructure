@@ -366,7 +366,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     /**
      * Manipulate this entity's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -499,7 +499,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * @param body the body of the response entity
      * @return the built response entity
      */
-    <T> ResponseEntity<T> body(T body);
+    <T> ResponseEntity<T> body(@Nullable T body);
   }
 
   private static class DefaultBuilder implements BodyBuilder {
@@ -514,9 +514,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 
     @Override
     public BodyBuilder header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        this.headers.add(headerName, headerValue);
-      }
+      headers.setOrRemove(headerName, headerValues);
       return this;
     }
 

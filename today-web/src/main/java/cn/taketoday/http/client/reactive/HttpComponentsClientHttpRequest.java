@@ -161,7 +161,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new HttpComponentsHeadersAdapter(httpRequest));
+    return new HttpComponentsHeaders(httpRequest).asReadOnly();
   }
 
   public AsyncRequestProducer toRequestProducer() {

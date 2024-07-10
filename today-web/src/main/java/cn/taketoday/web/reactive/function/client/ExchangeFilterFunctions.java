@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -46,7 +46,7 @@ public abstract class ExchangeFilterFunctions {
    * Name of the request attribute with {@link Credentials} for {@link #basicAuthentication()}.
    */
   private static final String BASIC_AUTHENTICATION_CREDENTIALS_ATTRIBUTE =
-      ExchangeFilterFunctions.class.getName() + ".basicAuthenticationCredentials";
+          ExchangeFilterFunctions.class.getName() + ".basicAuthenticationCredentials";
 
   /**
    * Consume up to the specified number of bytes from the response body and
@@ -58,10 +58,10 @@ public abstract class ExchangeFilterFunctions {
    */
   public static ExchangeFilterFunction limitResponseSize(long maxByteCount) {
     return (request, next) ->
-        next.exchange(request).map(response ->
-            response.mutate()
-                .body(body -> DataBufferUtils.takeUntilByteCount(body, maxByteCount))
-                .build());
+            next.exchange(request).map(response ->
+                    response.mutate()
+                            .body(body -> DataBufferUtils.takeUntilByteCount(body, maxByteCount))
+                            .build());
   }
 
   /**
@@ -73,14 +73,14 @@ public abstract class ExchangeFilterFunctions {
    * @return the filter to generate an error signal
    */
   public static ExchangeFilterFunction statusError(Predicate<HttpStatusCode> statusPredicate,
-      Function<ClientResponse, ? extends Throwable> exceptionFunction) {
+          Function<ClientResponse, ? extends Throwable> exceptionFunction) {
 
     Assert.notNull(statusPredicate, "Predicate is required");
     Assert.notNull(exceptionFunction, "Function is required");
 
     return ExchangeFilterFunction.ofResponseProcessor(
-        response -> (statusPredicate.test(response.statusCode()) ?
-                     Mono.error(exceptionFunction.apply(response)) : Mono.just(response)));
+            response -> (statusPredicate.test(response.statusCode()) ?
+                    Mono.error(exceptionFunction.apply(response)) : Mono.just(response)));
   }
 
   /**
@@ -97,9 +97,9 @@ public abstract class ExchangeFilterFunctions {
   public static ExchangeFilterFunction basicAuthentication(String username, String password) {
     String encodedCredentials = HttpHeaders.encodeBasicAuth(username, password, null);
     return (request, next) ->
-        next.exchange(ClientRequest.from(request)
-            .headers(headers -> headers.setBasicAuth(encodedCredentials))
-            .build());
+            next.exchange(ClientRequest.from(request)
+                    .headers(headers -> headers.setBasicAuth(encodedCredentials))
+                    .build());
   }
 
   /**
@@ -115,8 +115,8 @@ public abstract class ExchangeFilterFunctions {
       Object attr = request.attributes().get(BASIC_AUTHENTICATION_CREDENTIALS_ATTRIBUTE);
       if (attr instanceof Credentials cred) {
         return next.exchange(ClientRequest.from(request)
-            .headers(headers -> headers.setBasicAuth(cred.username, cred.password))
-            .build());
+                .headers(headers -> headers.setBasicAuth(cred.username, cred.password))
+                .build());
       }
       else {
         return next.exchange(request);
@@ -150,6 +150,7 @@ public abstract class ExchangeFilterFunctions {
      * @return a consumer that can be passed into
      * {@linkplain ClientRequest.Builder#attributes(Consumer)}
      * @see ClientRequest.Builder#attributes(Consumer)
+     * @see ClientRequest.Builder#attributes(Map)
      * @see #BASIC_AUTHENTICATION_CREDENTIALS_ATTRIBUTE
      */
     public static Consumer<Map<String, Object>> basicAuthenticationCredentials(String username, String password) {

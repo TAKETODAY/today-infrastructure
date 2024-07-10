@@ -28,11 +28,11 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.server.context.GenericWebServerApplicationContext;
-import cn.taketoday.web.server.support.ConfigurableNettyWebEnvironment;
 import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.server.support.ConfigurableNettyWebEnvironment;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -82,7 +82,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     }
     if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
             && !ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet, netty web application classes").atAll());
+      return ConditionOutcome.noMatch(message.didNotFind("reactive, netty web application classes").atAll());
     }
     return null;
   }
@@ -143,10 +143,18 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   /**
-   * no Mock classes
+   * web netty classes
    */
   private ConditionOutcome isNettyWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
+
+    if (!ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
+    }
+
+    if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("netty classes").atAll());
+    }
 
     if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));

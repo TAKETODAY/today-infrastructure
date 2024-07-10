@@ -68,7 +68,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param secWebSocketAccept the value of the header
    */
   public void setSecWebSocketAccept(@Nullable String secWebSocketAccept) {
-    set(SEC_WEBSOCKET_ACCEPT, secWebSocketAccept);
+    setOrRemove(SEC_WEBSOCKET_ACCEPT, secWebSocketAccept);
   }
 
   /**
@@ -111,7 +111,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
     for (WebSocketExtension extension : extensions) {
       result.add(extension.toString());
     }
-    set(SEC_WEBSOCKET_EXTENSIONS, toCommaDelimitedString(result));
+    setOrRemove(SEC_WEBSOCKET_EXTENSIONS, toCommaDelimitedString(result));
   }
 
   /**
@@ -120,7 +120,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param secWebSocketKey the value of the header
    */
   public void setSecWebSocketKey(@Nullable String secWebSocketKey) {
-    set(SEC_WEBSOCKET_KEY, secWebSocketKey);
+    setOrRemove(SEC_WEBSOCKET_KEY, secWebSocketKey);
   }
 
   /**
@@ -139,7 +139,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param secWebSocketProtocol the value of the header
    */
   public void setSecWebSocketProtocol(String secWebSocketProtocol) {
-    set(SEC_WEBSOCKET_PROTOCOL, secWebSocketProtocol);
+    setOrRemove(SEC_WEBSOCKET_PROTOCOL, secWebSocketProtocol);
   }
 
   /**
@@ -148,7 +148,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param secWebSocketProtocols the value of the header
    */
   public void setSecWebSocketProtocol(List<String> secWebSocketProtocols) {
-    set(SEC_WEBSOCKET_PROTOCOL, toCommaDelimitedString(secWebSocketProtocols));
+    setOrRemove(SEC_WEBSOCKET_PROTOCOL, toCommaDelimitedString(secWebSocketProtocols));
   }
 
   /**
@@ -175,7 +175,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @param secWebSocketVersion the value of the header
    */
   public void setSecWebSocketVersion(@Nullable String secWebSocketVersion) {
-    set(SEC_WEBSOCKET_VERSION, secWebSocketVersion);
+    setOrRemove(SEC_WEBSOCKET_VERSION, secWebSocketVersion);
   }
 
   /**
@@ -193,45 +193,57 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   /**
    * Return the first header value for the given header name, if any.
    *
-   * @param headerName the header name
+   * @param name the header name
    * @return the first header value; or {@code null}
    */
   @Override
   @Nullable
-  public String getFirst(String headerName) {
-    return this.headers.getFirst(headerName);
+  public String getFirst(String name) {
+    return this.headers.getFirst(name);
   }
 
   /**
    * Add the given, single header value under the given name.
    *
-   * @param headerName the header name
-   * @param headerValue the header value
+   * @param name the header name
+   * @param value the header value
    * @throws UnsupportedOperationException if adding headers is not supported
    * @see #put(String, List)
-   * @see #set(String, String)
+   * @see #setOrRemove(String, String)
    */
   @Override
-  public void add(String headerName, @Nullable String headerValue) {
-    this.headers.add(headerName, headerValue);
+  public void add(String name, @Nullable String value) {
+    this.headers.add(name, value);
   }
 
   /**
    * Set the given, single header value under the given name.
    *
-   * @param headerName the header name
-   * @param headerValue the header value
+   * @param name the header name
+   * @param value the header value
    * @throws UnsupportedOperationException if adding headers is not supported
    * @see #put(String, List)
    * @see #add(String, String)
    */
   @Override
-  public void set(String headerName, @Nullable String headerValue) {
-    this.headers.set(headerName, headerValue);
+  public void setHeader(String name, String value) {
+    this.headers.setOrRemove(name, value);
+  }
+
+  @Nullable
+  @Override
+  public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
+    return headers.setOrRemove(name, value);
+  }
+
+  @Nullable
+  @Override
+  public List<String> setOrRemove(String name, @Nullable String[] value) {
+    return headers.setOrRemove(name, value);
   }
 
   @Override
-  public void setAll(Map<String, String> values) {
+  public void setAll(Map<String, List<String>> values) {
     this.headers.setAll(values);
   }
 
@@ -263,8 +275,8 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public List<String> get(Object key) {
-    return this.headers.get(key);
+  public List<String> get(Object name) {
+    return this.headers.get(name);
   }
 
   @Override
@@ -273,8 +285,8 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public List<String> remove(Object key) {
-    return this.headers.remove(key);
+  public List<String> remove(Object name) {
+    return this.headers.remove(name);
   }
 
   @Override

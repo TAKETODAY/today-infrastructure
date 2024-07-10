@@ -45,13 +45,13 @@ public interface ApplicationContextInitializer {
    * <p>
    * before using {@code applicationContext} you must test if context is you want.
    * like this:
-   * <pre>
+   * <pre>{@code
    *  if (applicationContext instanceof GenericApplicationContext generic) {
    *
    *  }
-   * </pre>
+   * }</pre>
    *
-   * @param context the application to configure (never {@code null})
+   * @param context the application context to bootstrap
    */
   void initialize(ConfigurableApplicationContext context);
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -24,6 +21,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -34,6 +32,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 
 /**
@@ -96,7 +95,7 @@ public interface EntityResponse<T> extends ServerResponse {
     /**
      * Manipulate this response's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -104,6 +103,16 @@ public interface EntityResponse<T> extends ServerResponse {
      * @return this builder
      */
     Builder<T> headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder<T> headers(@Nullable HttpHeaders headers);
 
     /**
      * Set the HTTP status.
@@ -130,9 +139,19 @@ public interface EntityResponse<T> extends ServerResponse {
     Builder<T> cookie(HttpCookie cookie);
 
     /**
+     * Add a cookie with the given name and value(s).
+     *
+     * @param name the cookie name
+     * @param values the cookie value(s)
+     * @return this builder
+     * @since 5.0
+     */
+    Builder<T> cookie(String name, String... values);
+
+    /**
      * Manipulate this response's cookies with the given consumer. The
      * cookies provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *
@@ -140,6 +159,26 @@ public interface EntityResponse<T> extends ServerResponse {
      * @return this builder
      */
     Builder<T> cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder<T> cookies(@Nullable Collection<HttpCookie> cookies);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    Builder<T> cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
 
     /**
      * Set the set of allowed {@link HttpMethod HTTP methods}, as specified

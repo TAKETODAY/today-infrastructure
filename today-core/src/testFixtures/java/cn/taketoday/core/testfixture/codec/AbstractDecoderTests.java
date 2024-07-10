@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.testfixture.codec;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
@@ -36,6 +35,8 @@ import io.netty5.buffer.Buffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Abstract base class for {@link Decoder} unit tests. Subclasses need to implement
@@ -57,7 +58,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
    * @param decoder the decoder
    */
   protected AbstractDecoderTests(D decoder) {
-    Assert.notNull(decoder, "Encoder is required");
+    Assert.notNull(decoder, "Encoder must not be null");
 
     this.decoder = decoder;
   }
@@ -66,21 +67,21 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
    * Subclasses should implement this method to test {@link Decoder#canDecode}.
    */
   @Test
-  public abstract void canDecode() throws Exception;
+  protected abstract void canDecode() throws Exception;
 
   /**
    * Subclasses should implement this method to test {@link Decoder#decode}, possibly using
    * {@link #testDecodeAll} or other helper methods.
    */
   @Test
-  public abstract void decode() throws Exception;
+  protected abstract void decode() throws Exception;
 
   /**
    * Subclasses should implement this method to test {@link Decoder#decodeToMono}, possibly using
    * {@link #testDecodeToMonoAll}.
    */
   @Test
-  public abstract void decodeToMono() throws Exception;
+  protected abstract void decodeToMono() throws Exception;
 
   // Flux
 
@@ -208,7 +209,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Flux<DataBuffer> flux = Mono.from(input).concatWith(Flux.error(new InputException()));
-    Assertions.assertThatExceptionOfType(InputException.class).isThrownBy(() ->
+    assertThatExceptionOfType(InputException.class).isThrownBy(() ->
             this.decoder.decode(flux, outputType, mimeType, hints)
                     .doOnNext(object -> {
                       if (object instanceof Buffer buffer) {

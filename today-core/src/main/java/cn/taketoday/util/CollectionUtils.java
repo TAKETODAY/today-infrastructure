@@ -151,7 +151,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static boolean isNotEmpty(@Nullable Map<?, ?> map) {
-    return !isEmpty(map);
+    return map != null && !map.isEmpty();
   }
 
   public static boolean isCollection(Class<?> cls) {

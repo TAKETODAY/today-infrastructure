@@ -42,7 +42,7 @@ import cn.taketoday.persistence.support.WhereAnnotationConditionStrategy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/19 19:56
  */
-final class ExampleQuery extends SimpleSelectQueryStatement implements ConditionStatement {
+final class ExampleQuery extends SimpleSelectQueryStatement implements ConditionStatement, DebugDescriptive {
 
   static final List<PropertyConditionStrategy> strategies;
 

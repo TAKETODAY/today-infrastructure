@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.core.codec.EncodingException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
@@ -98,7 +98,7 @@ public class ProtobufHttpMessageWriter extends EncoderHttpMessageWriter<Message>
       return super.write(inputStream, elementType, mediaType, message, hints);
     }
     catch (Exception ex) {
-      return Mono.error(new DecodingException("Could not read Protobuf message: " + ex.getMessage(), ex));
+      return Mono.error(new EncodingException("Could not write Protobuf message: " + ex.getMessage(), ex));
     }
   }
 

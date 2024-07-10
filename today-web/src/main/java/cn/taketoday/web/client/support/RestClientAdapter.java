@@ -54,7 +54,7 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
 
   @Override
   public boolean supportsRequestAttributes() {
-    return false;
+    return true;
   }
 
   @Override
@@ -107,7 +107,8 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
       throw new IllegalStateException("Neither full URL nor URI template");
     }
 
-    bodySpec.headers(headers -> headers.putAll(values.getHeaders()));
+    bodySpec.headers(values.getHeaders())
+            .attributes(values.getAttributes());
 
     if (!values.getCookies().isEmpty()) {
       ArrayList<String> cookies = new ArrayList<>();

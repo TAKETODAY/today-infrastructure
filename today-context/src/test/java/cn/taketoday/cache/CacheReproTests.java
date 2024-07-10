@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -594,9 +594,9 @@ public class CacheReproTests {
       return CompletableFuture.completedFuture(item);
     }
 
-    @CacheEvict(cacheNames = "itemCache", allEntries = true)
-    public CompletableFuture<Void> clear() {
-      return CompletableFuture.completedFuture(null);
+    @CacheEvict(cacheNames = "itemCache", allEntries = true, condition = "#result > 0")
+    public CompletableFuture<Integer> clear() {
+      return CompletableFuture.completedFuture(1);
     }
   }
 
@@ -641,9 +641,9 @@ public class CacheReproTests {
       return Mono.just(item);
     }
 
-    @CacheEvict(cacheNames = "itemCache", allEntries = true)
-    public Mono<Void> clear() {
-      return Mono.empty();
+    @CacheEvict(cacheNames = "itemCache", allEntries = true, condition = "#result > 0")
+    public Mono<Integer> clear() {
+      return Mono.just(1);
     }
   }
 
@@ -690,9 +690,9 @@ public class CacheReproTests {
       return Flux.fromIterable(item);
     }
 
-    @CacheEvict(cacheNames = "itemCache", allEntries = true)
-    public Flux<Void> clear() {
-      return Flux.empty();
+    @CacheEvict(cacheNames = "itemCache", allEntries = true, condition = "#result > 0")
+    public Flux<Integer> clear() {
+      return Flux.just(1);
     }
   }
 

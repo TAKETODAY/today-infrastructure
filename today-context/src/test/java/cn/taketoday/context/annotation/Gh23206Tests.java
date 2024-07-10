@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.annotation.Gh23206Tests.ConditionalConfiguration.NestedConfiguration;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
@@ -35,24 +36,26 @@ public class Gh23206Tests {
 
   @Test
   void componentScanShouldFailWithRegisterBeanCondition() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.register(ConditionalComponentScanConfiguration.class);
-      assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(context::refresh)
-              .withMessageContaining(ConditionalComponentScanConfiguration.class.getName())
-              .havingCause().isInstanceOf(ApplicationContextException.class)
-              .withMessageContaining("Component scan could not be used with conditions in REGISTER_BEAN phase");
-    }
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(ConditionalComponentScanConfiguration.class);
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(context::refresh)
+            .withMessageContaining(ConditionalComponentScanConfiguration.class.getName())
+            .havingCause().isInstanceOf(ApplicationContextException.class)
+            .withMessageStartingWith("Component scan for configuration class [")
+            .withMessageContaining(ConditionalComponentScanConfiguration.class.getName())
+            .withMessageContaining("could not be used with conditions in REGISTER_BEAN phase");
   }
 
   @Test
   void componentScanShouldFailWithRegisterBeanConditionOnClasThatImportedIt() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.register(ConditionalConfiguration.class);
-      assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(context::refresh)
-              .withMessageContaining(ConditionalConfiguration.class.getName())
-              .havingCause().isInstanceOf(ApplicationContextException.class)
-              .withMessageContaining("Component scan could not be used with conditions in REGISTER_BEAN phase");
-    }
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(ConditionalConfiguration.class);
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(context::refresh)
+            .withMessageContaining(ConditionalConfiguration.class.getName())
+            .havingCause().isInstanceOf(ApplicationContextException.class)
+            .withMessageStartingWith("Component scan for configuration class [")
+            .withMessageContaining(NestedConfiguration.class.getName())
+            .withMessageContaining("could not be used with conditions in REGISTER_BEAN phase");
   }
 
   @Configuration(proxyBeanMethods = false)

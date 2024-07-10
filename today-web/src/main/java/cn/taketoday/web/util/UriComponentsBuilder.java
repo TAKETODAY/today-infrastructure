@@ -75,8 +75,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   private static final String SCHEME_PATTERN = "([^:/?#\\\\]+):";
 
-  private static final String HTTP_PATTERN = "(?i)(http|https):";
-
   private static final String USERINFO_PATTERN = "([^/?#\\\\]*)";
 
   private static final String HOST_IPV4_PATTERN = "[^/?#:\\\\]*";
@@ -240,7 +238,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         builder.port(urlRecord.port().toString());
       }
       if (urlRecord.path().isOpaque()) {
-        builder.schemeSpecificPart(urlRecord.path().toString());
+        String ssp = urlRecord.path() + urlRecord.search();
+        builder.schemeSpecificPart(ssp);
       }
       else {
         builder.path(urlRecord.path().toString());

@@ -27,6 +27,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -120,13 +121,19 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  @Nullable
-  protected Validator getValidator() {
-    return this.configurers.getValidator();
-  }
-
-  @Override
   protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
     configurers.configureExceptionHandlers(handlers);
   }
+
+  @Override
+  protected void configureErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+    configurers.addErrorResponseInterceptors(interceptors);
+  }
+
+  @Override
+  @Nullable
+  protected Validator getValidator() {
+    return configurers.getValidator();
+  }
+
 }

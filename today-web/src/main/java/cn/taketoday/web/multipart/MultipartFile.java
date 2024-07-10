@@ -19,13 +19,18 @@ package cn.taketoday.web.multipart;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.NonReadableChannelException;
+import java.nio.channels.NonWritableChannelException;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.FileCopyUtils;
 
 /**
  * A representation of an uploaded file received in a multipart request.
@@ -116,7 +121,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * @since 2.3.3
    */
   @Override
-  void delete() throws IOException;
+  void cleanup() throws IOException;
 
   /**
    * Return a Resource representation of this MultipartFile. This can be used
@@ -155,12 +160,48 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * Transfer the received file to the given destination file.
    * <p>The default implementation simply copies the file input stream.
    *
+   * @throws IllegalArgumentException If the preconditions on the parameters do not hold
+   * @throws NonReadableChannelException If the source channel was not opened for reading
+   * @throws NonWritableChannelException If this channel was not opened for writing
+   * @throws ClosedChannelException If either this channel or the source channel is closed
+   * @throws AsynchronousCloseException If another thread closes either channel
+   * while the transfer is in progress
+   * @throws ClosedByInterruptException If another thread interrupts the current thread while the
+   * transfer is in progress, thereby closing both channels and
+   * setting the current thread's interrupt status
+   * @throws IOException If some other I/ O error occurs
    * @see #getInputStream()
    * @see #transferTo(File)
    * @since 4.0
    */
   default void transferTo(Path dest) throws IOException, IllegalStateException {
-    FileCopyUtils.copy(getInputStream(), Files.newOutputStream(dest));
+    try (var channel = FileChannel.open(dest, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+      transferTo(channel, 0, getSize());
+    }
+  }
+
+  /**
+   * Transfers this file into this channel's file from the given readable byte
+   * channel.
+   *
+   * @param out FileChannel
+   * @param position The position within the file at which the transfer is to begin; must be non-negative
+   * @param count The maximum number of bytes to be transferred; must be non-negative
+   * @return The number of bytes, possibly zero, that were actually transferred
+   * @throws IllegalArgumentException If the preconditions on the parameters do not hold
+   * @throws NonReadableChannelException If the source channel was not opened for reading
+   * @throws NonWritableChannelException If this channel was not opened for writing
+   * @throws ClosedChannelException If either this channel or the source channel is closed
+   * @throws AsynchronousCloseException If another thread closes either channel
+   * while the transfer is in progress
+   * @throws ClosedByInterruptException If another thread interrupts the current thread while the
+   * transfer is in progress, thereby closing both channels and
+   * setting the current thread's interrupt status
+   * @throws IOException If some other I/ O error occurs
+   * @since 5.0
+   */
+  default long transferTo(FileChannel out, long position, long count) throws IOException {
+    return out.transferFrom(readableChannel(), position, count);
   }
 
 }

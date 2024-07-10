@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
@@ -27,11 +24,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.function.Function;
 
+import cn.taketoday.aot.generate.GeneratedFiles.FileHandler;
 import cn.taketoday.aot.generate.GeneratedFiles.Kind;
 import cn.taketoday.core.io.ByteArrayResource;
+import cn.taketoday.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link FileSystemGeneratedFiles}.
@@ -86,7 +86,7 @@ class FileSystemGeneratedFilesTests {
   void createWhenRootsResultsInNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new FileSystemGeneratedFiles(kind -> (kind != Kind.CLASS) ?
-                                                                   this.root.resolve(kind.toString()) : null))
+                    this.root.resolve(kind.toString()) : null))
             .withMessage("'roots' must return a value for all file kinds");
   }
 
@@ -96,6 +96,47 @@ class FileSystemGeneratedFilesTests {
     assertPathMustBeRelative(generatedFiles, "/test");
     assertPathMustBeRelative(generatedFiles, "../test");
     assertPathMustBeRelative(generatedFiles, "test/../../test");
+  }
+
+  @Test
+  void addFileWhenFileAlreadyAddedThrowsException() {
+    FileSystemGeneratedFiles generatedFiles = new FileSystemGeneratedFiles(this.root);
+    generatedFiles.addResourceFile("META-INF/mydir", "test");
+    assertThatIllegalStateException()
+            .isThrownBy(() -> generatedFiles.addResourceFile("META-INF/mydir", "test"))
+            .withMessageContainingAll("META-INF", "mydir", "already exists");
+  }
+
+  @Test
+  void handleFileWhenFileExistsProvidesFileHandler() {
+    FileSystemGeneratedFiles generatedFiles = new FileSystemGeneratedFiles(this.root);
+    generatedFiles.addResourceFile("META-INF/test", "test");
+    generatedFiles.handleFile(Kind.RESOURCE, "META-INF/test", handler -> {
+      assertThat(handler.exists()).isTrue();
+      assertThat(handler.getContent()).isNotNull();
+      assertThat(handler.getContent().getInputStream()).hasContent("test");
+    });
+    assertThat(this.root.resolve("resources/META-INF/test")).content().isEqualTo("test");
+  }
+
+  @Test
+  void handleFileWhenFileExistsFailsToCreate() {
+    FileSystemGeneratedFiles generatedFiles = new FileSystemGeneratedFiles(this.root);
+    generatedFiles.addResourceFile("META-INF/mydir", "test");
+    ThrowingConsumer<FileHandler> consumer = handler ->
+            handler.create(new ByteArrayResource("should fail".getBytes(StandardCharsets.UTF_8)));
+    assertThatIllegalStateException()
+            .isThrownBy(() -> generatedFiles.handleFile(Kind.RESOURCE, "META-INF/mydir", consumer))
+            .withMessageContainingAll("META-INF", "mydir", "already exists");
+  }
+
+  @Test
+  void handleFileWhenFileExistsCanOverrideContent() {
+    FileSystemGeneratedFiles generatedFiles = new FileSystemGeneratedFiles(this.root);
+    generatedFiles.addResourceFile("META-INF/mydir", "test");
+    generatedFiles.handleFile(Kind.RESOURCE, "META-INF/mydir", handler ->
+            handler.override(new ByteArrayResource("overridden".getBytes(StandardCharsets.UTF_8))));
+    assertThat(this.root.resolve("resources/META-INF/mydir")).content().isEqualTo("overridden");
   }
 
   private void assertPathMustBeRelative(FileSystemGeneratedFiles generatedFiles, String path) {

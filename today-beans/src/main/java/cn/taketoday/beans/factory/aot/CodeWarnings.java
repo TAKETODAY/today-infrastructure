@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -24,10 +24,12 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.AnnotationSpec;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Helper class to register warnings that the compiler may trigger on
@@ -73,6 +75,27 @@ class CodeWarnings {
    */
   public CodeWarnings detectDeprecation(Stream<AnnotatedElement> elements) {
     elements.forEach(element -> register(element.getAnnotation(Deprecated.class)));
+    return this;
+  }
+
+  /**
+   * Detect the presence of {@link Deprecated} on the signature of the
+   * specified {@link ResolvableType}.
+   *
+   * @param resolvableType a type signature
+   * @return {@code this} instance
+   */
+  public CodeWarnings detectDeprecation(ResolvableType resolvableType) {
+    if (ResolvableType.NONE.equals(resolvableType)) {
+      return this;
+    }
+    Class<?> type = ClassUtils.getUserClass(resolvableType.toClass());
+    detectDeprecation(type);
+    if (resolvableType.hasGenerics() && !resolvableType.hasUnresolvableGenerics()) {
+      for (ResolvableType generic : resolvableType.getGenerics()) {
+        detectDeprecation(generic);
+      }
+    }
     return this;
   }
 

@@ -18,8 +18,7 @@
 package cn.taketoday.web.server.support;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.lang.Nullable;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
@@ -37,9 +36,10 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  */
 sealed class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SSLNettyChannelInitializer {
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
-
   private final ChannelHandler nettyChannelHandler;
+
+  @Nullable
+  private final ChannelConfigurer channelConfigurer;
 
   /**
    * the maximum length of the aggregated content.
@@ -69,19 +69,26 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
           .setMaxChunkSize(8192)
           .setValidateHeaders(true);
 
-  protected NettyChannelInitializer(ChannelHandler channelHandler) {
+  protected NettyChannelInitializer(ChannelHandler channelHandler, @Nullable ChannelConfigurer channelConfigurer) {
     this.nettyChannelHandler = channelHandler;
+    this.channelConfigurer = channelConfigurer;
   }
 
   @Override
-  protected void initChannel(final Channel ch) {
-
+  protected final void initChannel(final Channel ch) {
+    preInitChannel(channelConfigurer, ch);
     ch.pipeline()
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
             .addLast("NettyChannelHandler", nettyChannelHandler)
             .remove(this);
+  }
+
+  protected void preInitChannel(@Nullable ChannelConfigurer configurer, Channel ch) {
+    if (configurer != null) {
+      configurer.initChannel(ch);
+    }
   }
 
   @Override

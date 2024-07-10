@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4.concurrency;
@@ -33,8 +30,8 @@ import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.InheritedConfigJUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
-import cn.taketoday.test.context.junit4.MethodLevelTransactionalSpringRunnerTests;
-import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
+import cn.taketoday.test.context.junit4.MethodLevelTransactionalInfraRunnerTests;
+import cn.taketoday.test.context.junit4.InfraJUnit47ClassRunnerRuleTests;
 import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
 import cn.taketoday.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
@@ -76,10 +73,10 @@ public class JUnit4ConcurrencyTests {
           // Basics
           JUnit4ClassRunnerAppCtxTests.class,
           InheritedConfigJUnit4ClassRunnerAppCtxTests.class,
-          SpringJUnit47ClassRunnerRuleTests.class,
+          InfraJUnit47ClassRunnerRuleTests.class,
           BaseAppCtxRuleTests.class,
           // Transactional
-          MethodLevelTransactionalSpringRunnerTests.class,
+          MethodLevelTransactionalInfraRunnerTests.class,
           TimedTransactionalRunnerTests.class,
           // Web and Scopes
           BasicAnnotationConfigWacSpringRuleTests.class,

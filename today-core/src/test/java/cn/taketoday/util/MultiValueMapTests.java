@@ -66,9 +66,9 @@ class MultiValueMapTests {
   }
 
   @ParameterizedMultiValueMapTest
-  void set(MultiValueMap<String, String> map) {
-    map.set("key", "value1");
-    map.set("key", "value2");
+  void setOrRemove(MultiValueMap<String, String> map) {
+    map.setOrRemove("key", "value1");
+    map.setOrRemove("key", "value2");
     assertThat(map.get("key")).containsExactly("value2");
   }
 
@@ -120,16 +120,16 @@ class MultiValueMapTests {
   @ParameterizedMultiValueMapTest
   void equalsOnExistingValues(MultiValueMap<String, String> map) {
     map.clear();
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
     assertThat(map).isEqualTo(map);
   }
 
   @ParameterizedMultiValueMapTest
   void equalsOnEmpty(MultiValueMap<String, String> map) {
     map.clear();
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
     MultiValueMap<String, String> map1 = new LinkedMultiValueMap<>();
-    map1.set("key1", "value1");
+    map1.setOrRemove("key1", "value1");
     assertThat(map1).isEqualTo(map);
     assertThat(map).isEqualTo(map1);
     Map<String, List<String>> map2 = Map.of("key1", List.of("value1"));
@@ -151,9 +151,9 @@ class MultiValueMapTests {
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.addAll(exampleMultiValueMap()));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
-              .isThrownBy(() -> unmodifiableMap.set("key", "value"));
+              .isThrownBy(() -> unmodifiableMap.setOrRemove("key", "value"));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
-              .isThrownBy(() -> unmodifiableMap.setAll(exampleHashMap()));
+              .isThrownBy(() -> unmodifiableMap.setAll(Map.of("key", exampleListOfValues())));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.put("key", exampleListOfValues()));
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.dao.annotation;
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -33,6 +31,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.dao.support.ChainedPersistenceExceptionTranslator;
 import cn.taketoday.dao.support.PersistenceExceptionTranslationInterceptor;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.stereotype.Repository;
@@ -78,12 +77,39 @@ public class PersistenceExceptionTranslationInterceptorTests extends Persistence
     interceptor.setAlwaysTranslate(true);
 
     RuntimeException exception = new RuntimeException();
-    MethodInvocation invocation = mock(MethodInvocation.class);
+    MethodInvocation invocation = mock();
     given(invocation.proceed()).willThrow(exception);
 
     assertThatThrownBy(() -> interceptor.invoke(invocation)).isSameAs(exception);
-
     assertThat(callOrder).containsExactly(10, 20, 30);
+  }
+
+  @Test
+  void detectPersistenceExceptionTranslatorsOnShutdown() throws Throwable {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    bf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    bf.registerBeanDefinition("peti", new RootBeanDefinition(PersistenceExceptionTranslationInterceptor.class));
+    bf.registerBeanDefinition("pet", new RootBeanDefinition(ChainedPersistenceExceptionTranslator.class));
+
+    PersistenceExceptionTranslationInterceptor interceptor =
+            bf.getBean("peti", PersistenceExceptionTranslationInterceptor.class);
+    interceptor.setAlwaysTranslate(true);
+
+    RuntimeException exception = new RuntimeException();
+    MethodInvocation invocation = mock();
+    given(invocation.proceed()).willThrow(exception);
+
+    AtomicBoolean correctException = new AtomicBoolean(false);
+    bf.registerDisposableBean("disposable", () -> {
+      try {
+        interceptor.invoke(invocation);
+      }
+      catch (Throwable ex) {
+        correctException.set(ex == exception);
+      }
+    });
+    bf.destroySingletons();
+    assertThat(correctException).isTrue();
   }
 
   private static class CallOrderAwareExceptionTranslator implements PersistenceExceptionTranslator, Ordered {

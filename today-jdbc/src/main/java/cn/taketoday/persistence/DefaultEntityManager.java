@@ -49,6 +49,7 @@ import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.format.SqlStatementLogger;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Descriptive;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
@@ -850,14 +851,14 @@ public class DefaultEntityManager implements EntityManager {
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
       }
 
       return new DefaultEntityIterator<>(con, stmt, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException(handler.getDescription(), statement, ex);
+      throw translateException(getDescription(handler), statement, ex);
     }
   }
 
@@ -915,7 +916,7 @@ public class DefaultEntityManager implements EntityManager {
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
       }
 
       return new Page<>(pageable, count,
@@ -927,7 +928,7 @@ public class DefaultEntityManager implements EntityManager {
         throw dae;
       }
       if (ex instanceof SQLException) {
-        throw translateException(handler.getDescription(), statement, (SQLException) ex);
+        throw translateException(getDescription(handler), statement, (SQLException) ex);
       }
       throw new DataRetrievalFailureException("Unable to retrieve the pageable data ", ex);
     }
@@ -949,7 +950,7 @@ public class DefaultEntityManager implements EntityManager {
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
       }
       resultSet = stmt.executeQuery();
       if (resultSet.next()) {
@@ -959,7 +960,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException(handler.getDescription(), statement, ex);
+      throw translateException(getDescription(handler), statement, ex);
     }
     finally {
       closeResource(null, stmt, resultSet);
@@ -1053,6 +1054,27 @@ public class DefaultEntityManager implements EntityManager {
         }
       }
     }
+  }
+
+  private String getDescription(Object handler) {
+    Descriptive descriptive = null;
+    if (handler instanceof Descriptive) {
+      descriptive = (Descriptive) handler;
+    }
+    if (descriptive == null) {
+      descriptive = NoConditionsQuery.instance;
+    }
+    return descriptive.getDescription();
+  }
+
+  private Object getDebugLogMessage(Object handler) {
+    if (handler instanceof DebugDescriptive descriptive) {
+      return descriptive.getDebugLogMessage();
+    }
+    else if (handler instanceof Descriptive) {
+      return LogMessage.format(((Descriptive) handler).getDescription());
+    }
+    return NoConditionsQuery.instance.getDebugLogMessage();
   }
 
   //

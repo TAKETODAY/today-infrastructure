@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client.support;
@@ -121,17 +121,17 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
       throw new IllegalStateException("Neither full URL nor URI template");
     }
 
-    bodySpec.headers(headers -> headers.putAll(values.getHeaders()));
-    bodySpec.cookies(cookies -> cookies.putAll(values.getCookies()));
-    bodySpec.attributes(attributes -> attributes.putAll(values.getAttributes()));
+    bodySpec.headers(values.getHeaders())
+            .cookies(values.getCookies())
+            .attributes(values.getAttributes());
 
     if (values.getBodyValue() != null) {
       bodySpec.bodyValue(values.getBodyValue());
     }
-    else if (values instanceof ReactiveHttpRequestValues reactiveRequestValues) {
-      Publisher<?> body = reactiveRequestValues.getBodyPublisher();
+    else if (values instanceof ReactiveHttpRequestValues rrv) {
+      Publisher<?> body = rrv.getBodyPublisher();
       if (body != null) {
-        ParameterizedTypeReference<?> elementType = reactiveRequestValues.getBodyPublisherElementType();
+        ParameterizedTypeReference<?> elementType = rrv.getBodyPublisherElementType();
         Assert.notNull(elementType, "Publisher body element type is required");
         bodySpec.body(body, elementType);
       }

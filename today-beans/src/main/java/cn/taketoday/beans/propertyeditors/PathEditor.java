@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,9 +94,9 @@ public class PathEditor extends PropertyEditorSupport {
         // a file prefix (let's try as Infra resource location)
         nioPathCandidate = !text.startsWith(ResourceUtils.FILE_URL_PREFIX);
       }
-      catch (FileSystemNotFoundException ex) {
-        // URI scheme not registered for NIO (let's try URL
-        // protocol handlers via Infra resource mechanism).
+      catch (FileSystemNotFoundException | IllegalArgumentException ex) {
+        // URI scheme not registered for NIO or not meeting Paths requirements:
+        // let's try URL protocol handlers via Infra resource mechanism.
       }
     }
 
@@ -113,8 +113,12 @@ public class PathEditor extends PropertyEditorSupport {
         setValue(resource.getFile().toPath());
       }
       catch (IOException ex) {
-        throw new IllegalArgumentException(
-                "Could not retrieve file for " + resource + ": " + ex.getMessage());
+        String msg = "Could not resolve \"%s\" to 'java.nio.file.Path' for %s: %s".formatted(text, resource, ex.getMessage());
+        if (nioPathCandidate) {
+          msg += " - In case of ambiguity, consider adding the 'file:' prefix for an explicit reference to a file system resource of the same name: \"file:%s\""
+                  .formatted(text);
+        }
+        throw new IllegalArgumentException(msg);
       }
     }
   }

@@ -70,7 +70,7 @@ import cn.taketoday.javapoet.ParameterizedTypeName;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
@@ -161,7 +161,8 @@ class BeanDefinitionMethodGeneratorTests {
 
   @Test
   void generateWithBeanClassAndFactoryMethodNameSetsTargetTypeAndBeanClass() {
-    this.beanFactory.registerBeanDefinition("factory", new RootBeanDefinition(SimpleBeanConfiguration.class));
+    this.beanFactory.registerBeanDefinition("factory",
+            new RootBeanDefinition(SimpleBeanConfiguration.class));
     RootBeanDefinition beanDefinition = new RootBeanDefinition(SimpleBean.class);
     beanDefinition.setFactoryBeanName("factory");
     beanDefinition.setFactoryMethodName("simpleBean");
@@ -378,7 +379,6 @@ class BeanDefinitionMethodGeneratorTests {
   }
 
   @Test
-    // gh-28748
   void generateBeanDefinitionMethodWhenHasInstancePostProcessorAndFactoryMethodGeneratesMethod() {
     this.beanFactory.registerBeanDefinition("testBeanConfiguration",
             new RootBeanDefinition(TestBeanConfiguration.class));
@@ -542,7 +542,6 @@ class BeanDefinitionMethodGeneratorTests {
     });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   void generateBeanDefinitionMethodWhenHasListOfInnerBeansPropertyValueGeneratesMethod() {
     RootBeanDefinition firstInnerBeanDefinition = (RootBeanDefinition) BeanDefinitionBuilder
@@ -691,9 +690,10 @@ class BeanDefinitionMethodGeneratorTests {
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
             this.methodGeneratorFactory, registeredBean, null,
             List.of());
-    assertThatIllegalStateException().isThrownBy(() -> generator.generateBeanDefinitionMethod(
-            this.generationContext, this.beanRegistrationsCode)).withMessage(
-            "Error processing bean with name 'testBean': instance supplier is not supported");
+    assertThatExceptionOfType(AotBeanProcessingException.class)
+            .isThrownBy(() -> generator.generateBeanDefinitionMethod(
+                    this.generationContext, this.beanRegistrationsCode))
+            .withMessage("Error processing bean with name 'testBean': instance supplier is not supported");
   }
 
   @Test
@@ -709,9 +709,10 @@ class BeanDefinitionMethodGeneratorTests {
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
             this.methodGeneratorFactory, registeredBean, null,
             List.of(aotContribution));
-    assertThatIllegalStateException().isThrownBy(() -> generator.generateBeanDefinitionMethod(
-            this.generationContext, this.beanRegistrationsCode)).withMessageStartingWith(
-            "Default code generation is not supported for bean definitions declaring an instance supplier callback");
+    assertThatExceptionOfType(AotBeanProcessingException.class)
+            .isThrownBy(() -> generator.generateBeanDefinitionMethod(
+                    this.generationContext, this.beanRegistrationsCode))
+            .withMessage("Error processing bean with name 'testBean': instance supplier is not supported");
   }
 
   @Test
@@ -728,9 +729,10 @@ class BeanDefinitionMethodGeneratorTests {
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
             this.methodGeneratorFactory, registeredBean, null,
             List.of(aotContribution));
-    assertThatIllegalStateException().isThrownBy(() -> generator.generateBeanDefinitionMethod(
-            this.generationContext, this.beanRegistrationsCode)).withMessage(
-            "Error processing bean with name 'testBean': instance supplier is not supported");
+    assertThatExceptionOfType(AotBeanProcessingException.class)
+            .isThrownBy(() -> generator.generateBeanDefinitionMethod(
+                    this.generationContext, this.beanRegistrationsCode))
+            .withMessage("Error processing bean with name 'testBean': instance supplier is not supported");
   }
 
   @Test
@@ -773,6 +775,19 @@ class BeanDefinitionMethodGeneratorTests {
     @Test
     void generateBeanDefinitionMethodWithDeprecatedTargetClass() {
       RootBeanDefinition beanDefinition = new RootBeanDefinition(DeprecatedBean.class);
+      RegisteredBean registeredBean = registerBean(beanDefinition);
+      BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
+              methodGeneratorFactory, registeredBean, null,
+              Collections.emptyList());
+      MethodReference method = generator.generateBeanDefinitionMethod(
+              generationContext, beanRegistrationsCode);
+      compileAndCheckWarnings(method);
+    }
+
+    @Test
+    void generateBeanDefinitionMethodWithDeprecatedGenericElementInTargetClass() {
+      RootBeanDefinition beanDefinition = new RootBeanDefinition();
+      beanDefinition.setTargetType(ResolvableType.forClassWithGenerics(GenericBean.class, DeprecatedBean.class));
       RegisteredBean registeredBean = registerBean(beanDefinition);
       BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
               methodGeneratorFactory, registeredBean, null,

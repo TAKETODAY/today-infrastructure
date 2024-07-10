@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -182,20 +183,20 @@ final class DefaultRestClient implements RestClient {
         return null;
       }
 
-      for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter genericHttpMessageConverter) {
-          if (genericHttpMessageConverter.canRead(bodyType, null, contentType)) {
+      for (HttpMessageConverter<?> hmc : this.messageConverters) {
+        if (hmc instanceof GenericHttpMessageConverter ghmc) {
+          if (ghmc.canRead(bodyType, null, contentType)) {
             if (logger.isDebugEnabled()) {
               logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
             }
-            return (T) genericHttpMessageConverter.read(bodyType, null, responseWrapper);
+            return (T) ghmc.read(bodyType, null, responseWrapper);
           }
         }
-        if (messageConverter.canRead(bodyClass, contentType)) {
+        if (hmc.canRead(bodyClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
           }
-          return (T) messageConverter.read((Class) bodyClass, responseWrapper);
+          return (T) hmc.read((Class) bodyClass, responseWrapper);
         }
       }
       throw new UnknownContentTypeException(bodyType, contentType,
@@ -251,6 +252,9 @@ final class DefaultRestClient implements RestClient {
     @Nullable
     private Consumer<ClientHttpRequest> httpRequestConsumer;
 
+    @Nullable
+    private Map<String, Object> attributes;
+
     public DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
     }
@@ -277,11 +281,17 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public RequestBodySpec uri(URI uri) {
-      this.uri = uri;
+      if (uri.isAbsolute()) {
+        this.uri = uri;
+      }
+      else {
+        URI baseUri = DefaultRestClient.this.uriBuilderFactory.expand("");
+        this.uri = baseUri.resolve(uri);
+      }
       return this;
     }
 
-    private HttpHeaders getHeaders() {
+    private HttpHeaders httpHeaders() {
       if (this.headers == null) {
         this.headers = HttpHeaders.forWritable();
       }
@@ -290,51 +300,84 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
-      for (String headerValue : headerValues) {
-        getHeaders().add(headerName, headerValue);
-      }
+      httpHeaders().setOrRemove(headerName, headerValues);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(getHeaders());
+      headersConsumer.accept(httpHeaders());
       return this;
     }
 
     @Override
+    public RequestBodySpec headers(@Nullable HttpHeaders headers) {
+      httpHeaders().setAll(headers);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attribute(String name, Object value) {
+      attributes().put(name, value);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attributes(Consumer<Map<String, Object>> attributesConsumer) {
+      attributesConsumer.accept(attributes());
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec attributes(@Nullable Map<String, Object> attributes) {
+      if (CollectionUtils.isNotEmpty(attributes)) {
+        attributes().putAll(attributes);
+      }
+      return this;
+    }
+
+    private Map<String, Object> attributes() {
+      Map<String, Object> attributes = this.attributes;
+      if (attributes == null) {
+        attributes = new LinkedHashMap<>(4);
+        this.attributes = attributes;
+      }
+      return attributes;
+    }
+
+    @Override
     public DefaultRequestBodyUriSpec accept(MediaType... acceptableMediaTypes) {
-      getHeaders().setAccept(Arrays.asList(acceptableMediaTypes));
+      httpHeaders().setAccept(Arrays.asList(acceptableMediaTypes));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec acceptCharset(Charset... acceptableCharsets) {
-      getHeaders().setAcceptCharset(Arrays.asList(acceptableCharsets));
+      httpHeaders().setAcceptCharset(Arrays.asList(acceptableCharsets));
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentType(MediaType contentType) {
-      getHeaders().setContentType(contentType);
+      httpHeaders().setContentType(contentType);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec contentLength(long contentLength) {
-      getHeaders().setContentLength(contentLength);
+      httpHeaders().setContentLength(contentLength);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec ifModifiedSince(ZonedDateTime ifModifiedSince) {
-      getHeaders().setIfModifiedSince(ifModifiedSince);
+      httpHeaders().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public DefaultRequestBodyUriSpec ifNoneMatch(String... ifNoneMatches) {
-      getHeaders().setIfNoneMatch(Arrays.asList(ifNoneMatches));
+      httpHeaders().setIfNoneMatch(Arrays.asList(ifNoneMatches));
       return this;
     }
 
@@ -370,17 +413,17 @@ final class DefaultRestClient implements RestClient {
       MediaType contentType = clientRequest.getHeaders().getContentType();
       Class<?> bodyClass = body.getClass();
 
-      for (HttpMessageConverter messageConverter : DefaultRestClient.this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter genericMessageConverter) {
-          if (genericMessageConverter.canWrite(bodyType, bodyClass, contentType)) {
-            logBody(body, contentType, genericMessageConverter);
-            genericMessageConverter.write(body, bodyType, contentType, clientRequest);
+      for (HttpMessageConverter hmc : DefaultRestClient.this.messageConverters) {
+        if (hmc instanceof GenericHttpMessageConverter ghmc) {
+          if (ghmc.canWrite(bodyType, bodyClass, contentType)) {
+            logBody(body, contentType, ghmc);
+            ghmc.write(body, bodyType, contentType, clientRequest);
             return;
           }
         }
-        if (messageConverter.canWrite(bodyClass, contentType)) {
-          logBody(body, contentType, messageConverter);
-          messageConverter.write(body, contentType, clientRequest);
+        if (hmc.canWrite(bodyClass, contentType)) {
+          logBody(body, contentType, hmc);
+          hmc.write(body, contentType, clientRequest);
           return;
         }
       }
@@ -434,9 +477,11 @@ final class DefaultRestClient implements RestClient {
       URI uri = null;
       try {
         uri = initUri();
-        HttpHeaders headers = initHeaders();
-        ClientHttpRequest clientRequest = createRequest(uri);
-        clientRequest.getHeaders().addAll(headers);
+        var clientRequest = createRequest(uri);
+        HttpHeaders headers = clientRequest.getHeaders();
+        headers.setAll(defaultHeaders);
+        headers.setAll(this.headers);
+        clientRequest.setAttributes(attributes);
         if (this.body != null) {
           this.body.writeTo(clientRequest);
         }
@@ -444,7 +489,7 @@ final class DefaultRestClient implements RestClient {
           this.httpRequestConsumer.accept(clientRequest);
         }
         clientResponse = clientRequest.execute();
-        ConvertibleClientHttpResponse convertibleWrapper = new DefaultConvertibleClientHttpResponse(clientResponse);
+        var convertibleWrapper = new DefaultConvertibleClientHttpResponse(clientResponse);
         return exchangeFunction.exchange(clientRequest, convertibleWrapper);
       }
       catch (IOException ex) {
@@ -458,40 +503,26 @@ final class DefaultRestClient implements RestClient {
     }
 
     private URI initUri() {
-      return (this.uri != null ? this.uri : DefaultRestClient.this.uriBuilderFactory.expand(""));
-    }
-
-    private HttpHeaders initHeaders() {
-      HttpHeaders defaultHeaders = DefaultRestClient.this.defaultHeaders;
-      if (CollectionUtils.isEmpty(this.headers)) {
-        return (defaultHeaders != null ? defaultHeaders : HttpHeaders.forWritable());
-      }
-      else if (CollectionUtils.isEmpty(defaultHeaders)) {
-        return this.headers;
-      }
-      else {
-        HttpHeaders result = HttpHeaders.forWritable();
-        result.putAll(defaultHeaders);
-        result.putAll(this.headers);
-        return result;
-      }
+      return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
     }
 
     private ClientHttpRequest createRequest(URI uri) throws IOException {
       ClientHttpRequestFactory factory;
-      if (DefaultRestClient.this.interceptors != null) {
-        factory = DefaultRestClient.this.interceptingRequestFactory;
+      if (interceptors != null) {
+        factory = interceptingRequestFactory;
         if (factory == null) {
-          factory = new InterceptingClientHttpRequestFactory(DefaultRestClient.this.clientRequestFactory, DefaultRestClient.this.interceptors);
-          DefaultRestClient.this.interceptingRequestFactory = factory;
+          factory = new InterceptingClientHttpRequestFactory(clientRequestFactory, interceptors);
+          interceptingRequestFactory = factory;
         }
       }
       else {
-        factory = DefaultRestClient.this.clientRequestFactory;
+        factory = clientRequestFactory;
       }
       ClientHttpRequest request = factory.createRequest(uri, this.httpMethod);
-      if (DefaultRestClient.this.initializers != null) {
-        DefaultRestClient.this.initializers.forEach(initializer -> initializer.initialize(request));
+      if (initializers != null) {
+        for (ClientHttpRequestInitializer initializer : initializers) {
+          initializer.initialize(request);
+        }
       }
       return request;
     }
@@ -611,6 +642,7 @@ final class DefaultRestClient implements RestClient {
       }
     }
 
+    @Nullable
     private <T> T readBody(Type bodyType, Class<T> bodyClass) {
       return readWithMessageConverters(this.clientResponse, this::applyStatusHandlers, bodyType, bodyClass);
     }

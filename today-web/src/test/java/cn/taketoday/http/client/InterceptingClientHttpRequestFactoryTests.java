@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +12,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
+import cn.taketoday.web.testfixture.http.MockClientHttpRequest;
+import cn.taketoday.web.testfixture.http.MockClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,104 +43,116 @@ public class InterceptingClientHttpRequestFactoryTests {
 
   private RequestFactoryMock requestFactoryMock = new RequestFactoryMock();
 
-  private RequestMock requestMock = new RequestMock();
+  private MockClientHttpRequest requestMock = new MockClientHttpRequest();
 
-  private ResponseMock responseMock = new ResponseMock();
+  private MockClientHttpResponse responseMock = new MockClientHttpResponse();
 
   private InterceptingClientHttpRequestFactory requestFactory;
 
+  @BeforeEach
+  void beforeEach() {
+    this.requestMock.setResponse(this.responseMock);
+  }
+
   @Test
-  public void basic() throws Exception {
+  void basic() throws Exception {
     List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
     interceptors.add(new NoOpInterceptor());
     interceptors.add(new NoOpInterceptor());
     interceptors.add(new NoOpInterceptor());
     requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, interceptors);
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     ClientHttpResponse response = request.execute();
 
     assertThat(((NoOpInterceptor) interceptors.get(0)).invoked).isTrue();
     assertThat(((NoOpInterceptor) interceptors.get(1)).invoked).isTrue();
     assertThat(((NoOpInterceptor) interceptors.get(2)).invoked).isTrue();
-    assertThat(requestMock.executed).isTrue();
+    assertThat(requestMock.isExecuted()).isTrue();
     assertThat(response).isSameAs(responseMock);
   }
 
   @Test
-  public void noExecution() throws Exception {
+  void noExecution() throws Exception {
     List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
-    interceptors.add(new ClientHttpRequestInterceptor() {
-      @Override
-      public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-              throws IOException {
-        return responseMock;
-      }
-    });
+    interceptors.add((request, body, execution) -> responseMock);
 
     interceptors.add(new NoOpInterceptor());
     requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, interceptors);
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     ClientHttpResponse response = request.execute();
 
     assertThat(((NoOpInterceptor) interceptors.get(1)).invoked).isFalse();
-    assertThat(requestMock.executed).isFalse();
+    assertThat(requestMock.isExecuted()).isFalse();
     assertThat(response).isSameAs(responseMock);
   }
 
   @Test
-  public void changeHeaders() throws Exception {
+  void changeHeaders() throws Exception {
     final String headerName = "Foo";
     final String headerValue = "Bar";
     final String otherValue = "Baz";
 
-    ClientHttpRequestInterceptor interceptor = new ClientHttpRequestInterceptor() {
-      @Override
-      public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-              throws IOException {
-        HttpRequestDecorator wrapper = new HttpRequestDecorator(request);
-        wrapper.getHeaders().add(headerName, otherValue);
-        return execution.execute(wrapper, body);
-      }
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
+      HttpRequestDecorator wrapper = new HttpRequestDecorator(request);
+      wrapper.getHeaders().add(headerName, otherValue);
+      return execution.execute(wrapper, body);
     };
 
-    requestMock = new RequestMock() {
+    requestMock = new MockClientHttpRequest() {
       @Override
-      public ClientHttpResponse execute() throws IOException {
+      protected ClientHttpResponse executeInternal() {
         List<String> headerValues = getHeaders().get(headerName);
-        assertThat(headerValues.size()).isEqualTo(2);
-        assertThat(headerValues.get(0)).isEqualTo(headerValue);
-        assertThat(headerValues.get(1)).isEqualTo(otherValue);
-        return super.execute();
+        assertThat(headerValues).containsExactly(headerValue, otherValue);
+        return responseMock;
       }
     };
     requestMock.getHeaders().add(headerName, headerValue);
 
-    requestFactory =
-            new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
+    requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     request.execute();
   }
 
   @Test
-  public void changeURI() throws Exception {
-    final URI changedUri = new URI("https://example.com/2");
+  void changeAttribute() throws Exception {
+    final String attrName = "Foo";
+    final String attrValue = "Bar";
 
-    ClientHttpRequestInterceptor interceptor = new ClientHttpRequestInterceptor() {
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
+      System.out.println("interceptor");
+      request.getAttributes().put(attrName, attrValue);
+      return execution.execute(request, body);
+    };
+
+    requestMock = new MockClientHttpRequest() {
       @Override
-      public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-              throws IOException {
-        return execution.execute(new HttpRequestDecorator(request) {
-          @Override
-          public URI getURI() {
-            return changedUri;
-          }
-
-        }, body);
+      protected ClientHttpResponse executeInternal() {
+        System.out.println("execute");
+        assertThat(getAttributes()).containsEntry(attrName, attrValue);
+        return responseMock;
       }
     };
+
+    requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
+
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
+    request.execute();
+  }
+
+  @Test
+  void changeURI() throws Exception {
+    final URI changedUri = URI.create("https://example.com/2");
+
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new HttpRequestDecorator(request) {
+      @Override
+      public URI getURI() {
+        return changedUri;
+      }
+
+    }, body);
 
     requestFactoryMock = new RequestFactoryMock() {
       @Override
@@ -155,30 +162,23 @@ public class InterceptingClientHttpRequestFactoryTests {
       }
     };
 
-    requestFactory =
-            new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
+    requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     request.execute();
   }
 
   @Test
-  public void changeMethod() throws Exception {
+  void changeMethod() throws Exception {
     final HttpMethod changedMethod = HttpMethod.POST;
 
-    ClientHttpRequestInterceptor interceptor = new ClientHttpRequestInterceptor() {
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new HttpRequestDecorator(request) {
       @Override
-      public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-              throws IOException {
-        return execution.execute(new HttpRequestDecorator(request) {
-          @Override
-          public HttpMethod getMethod() {
-            return changedMethod;
-          }
-
-        }, body);
+      public HttpMethod getMethod() {
+        return changedMethod;
       }
-    };
+
+    }, body);
 
     requestFactoryMock = new RequestFactoryMock() {
       @Override
@@ -188,31 +188,23 @@ public class InterceptingClientHttpRequestFactoryTests {
       }
     };
 
-    requestFactory =
-            new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
+    requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     request.execute();
   }
 
   @Test
-  public void changeBody() throws Exception {
+  void changeBody() throws Exception {
     final byte[] changedBody = "Foo".getBytes();
 
-    ClientHttpRequestInterceptor interceptor = new ClientHttpRequestInterceptor() {
-      @Override
-      public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
-              throws IOException {
-        return execution.execute(request, changedBody);
-      }
-    };
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(request, changedBody);
 
-    requestFactory =
-            new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
+    requestFactory = new InterceptingClientHttpRequestFactory(requestFactoryMock, Collections.singletonList(interceptor));
 
-    ClientHttpRequest request = requestFactory.createRequest(new URI("https://example.com"), HttpMethod.GET);
+    ClientHttpRequest request = requestFactory.createRequest(URI.create("https://example.com"), HttpMethod.GET);
     request.execute();
-    assertThat(Arrays.equals(changedBody, requestMock.body.toByteArray())).isTrue();
+    assertThat(Arrays.equals(changedBody, requestMock.getBodyAsBytes())).isTrue();
   }
 
   private static class NoOpInterceptor implements ClientHttpRequestInterceptor {
@@ -236,99 +228,6 @@ public class InterceptingClientHttpRequestFactoryTests {
       return requestMock;
     }
 
-  }
-
-  private class RequestMock implements ClientHttpRequest {
-
-    private URI uri;
-
-    private HttpMethod method;
-
-    private HttpHeaders headers = HttpHeaders.forWritable();
-
-    private ByteArrayOutputStream body = new ByteArrayOutputStream();
-
-    private boolean executed = false;
-
-    private RequestMock() {
-    }
-
-    @Override
-    public URI getURI() {
-      return uri;
-    }
-
-    public void setURI(URI uri) {
-      this.uri = uri;
-    }
-
-    @Override
-    public HttpMethod getMethod() {
-      return method;
-    }
-
-    @Override
-    public String getMethodValue() {
-      return method.name();
-    }
-
-    public void setMethod(HttpMethod method) {
-      this.method = method;
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-      return headers;
-    }
-
-    @Override
-    public OutputStream getBody() throws IOException {
-      return body;
-    }
-
-    @Override
-    public ClientHttpResponse execute() throws IOException {
-      executed = true;
-      return responseMock;
-    }
-  }
-
-  private static class ResponseMock implements ClientHttpResponse {
-
-    private HttpStatus statusCode = HttpStatus.OK;
-
-    private String statusText = "";
-
-    private HttpHeaders headers = HttpHeaders.forWritable();
-
-    @Override
-    public HttpStatus getStatusCode() throws IOException {
-      return statusCode;
-    }
-
-    @Override
-    public int getRawStatusCode() throws IOException {
-      return statusCode.value();
-    }
-
-    @Override
-    public String getStatusText() throws IOException {
-      return statusText;
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-      return headers;
-    }
-
-    @Override
-    public InputStream getBody() throws IOException {
-      return null;
-    }
-
-    @Override
-    public void close() {
-    }
   }
 
 }

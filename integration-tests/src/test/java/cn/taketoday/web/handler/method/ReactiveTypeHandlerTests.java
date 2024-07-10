@@ -342,6 +342,24 @@ class ReactiveTypeHandlerTests {
   }
 
   @Test
+  void failOnWriteShouldCompleteEmitter() throws Exception {
+
+    Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(String.class));
+
+    ErroringEmitterHandler emitterHandler = new ErroringEmitterHandler();
+    emitter.initialize(emitterHandler);
+
+    sink.tryEmitNext("The quick");
+    sink.tryEmitNext(" brown fox jumps over ");
+    sink.tryEmitNext("the lazy dog");
+    sink.tryEmitComplete();
+
+    assertThat(emitterHandler.getHandlingStatus()).isEqualTo(HandlingStatus.ERROR);
+    assertThat(emitterHandler.getFailure()).isInstanceOf(IOException.class);
+  }
+
+  @Test
   public void writeFluxOfString() throws Exception {
 
     // Default to "text/plain"
@@ -418,12 +436,24 @@ class ReactiveTypeHandlerTests {
 
     private final List<Object> values = new ArrayList<>();
 
+    private HandlingStatus handlingStatus;
+
+    private Throwable failure;
+
     public List<?> getValues() {
       return this.values;
     }
 
     public String getValuesAsText() {
       return this.values.stream().map(Object::toString).collect(Collectors.joining());
+    }
+
+    public HandlingStatus getHandlingStatus() {
+      return this.handlingStatus;
+    }
+
+    public Throwable getFailure() {
+      return this.failure;
     }
 
     @Override
@@ -438,10 +468,13 @@ class ReactiveTypeHandlerTests {
 
     @Override
     public void complete() {
+      this.handlingStatus = HandlingStatus.SUCCESS;
     }
 
     @Override
     public void completeWithError(Throwable failure) {
+      this.handlingStatus = HandlingStatus.ERROR;
+      this.failure = failure;
     }
 
     @Override
@@ -454,6 +487,22 @@ class ReactiveTypeHandlerTests {
 
     @Override
     public void onCompletion(Runnable callback) {
+    }
+  }
+
+  private enum HandlingStatus {
+    SUCCESS, ERROR
+  }
+
+  private static class ErroringEmitterHandler extends EmitterHandler {
+    @Override
+    public void send(Object data, MediaType mediaType) throws IOException {
+      throw new IOException();
+    }
+
+    @Override
+    public void send(Collection<ResponseBodyEmitter.DataWithMediaType> items) throws IOException {
+      throw new IOException();
     }
   }
 

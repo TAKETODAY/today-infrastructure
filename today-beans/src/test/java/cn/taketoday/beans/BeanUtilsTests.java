@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -38,7 +35,6 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +45,8 @@ import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.bytecode.proxy.Enhancer;
+import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceEditor;
@@ -239,12 +237,12 @@ class BeanUtilsTests {
   }
 
   @Test
-    // gh-26531
   void copyPropertiesIgnoresGenericsIfSourceOrTargetHasUnresolvableGenerics() throws Exception {
-    Order original = new Order("test", Arrays.asList("foo", "bar"));
+    Order original = new Order("test", List.of("foo", "bar"));
 
     // Create a Proxy that loses the generic type information for the getLineItems() method.
-    OrderSummary proxy = proxyOrder(original);
+    OrderSummary proxy = (OrderSummary) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class<?>[] { OrderSummary.class }, new OrderInvocationHandler(original));
     assertThat(OrderSummary.class.getDeclaredMethod("getLineItems").toGenericString())
             .contains("java.util.List<java.lang.String>");
     assertThat(proxy.getClass().getDeclaredMethod("getLineItems").toGenericString())
@@ -260,6 +258,23 @@ class BeanUtilsTests {
     BeanUtils.copyProperties(proxy, target);
     assertThat(target.getId()).isEqualTo("test");
     assertThat(target.getLineItems()).containsExactly("foo", "bar");
+  }
+
+  @Test
+  public void copyPropertiesWithGenericCglibClass() {
+    Enhancer enhancer = new Enhancer();
+    enhancer.setSuperclass(User.class);
+    enhancer.setCallback((MethodInterceptor) (obj, method, args, proxy) -> proxy.invokeSuper(obj, args));
+    User user = (User) enhancer.create();
+    user.setId(1);
+    user.setName("proxy");
+    user.setAddress("addr");
+
+    User target = new User();
+    BeanUtils.copyProperties(user, target);
+    assertThat(target.getId()).isEqualTo(user.getId());
+    assertThat(target.getName()).isEqualTo(user.getName());
+    assertThat(target.getAddress()).isEqualTo(user.getAddress());
   }
 
   @Test
@@ -772,11 +787,6 @@ class BeanUtilsTests {
     List<String> getLineItems();
   }
 
-  private OrderSummary proxyOrder(Order order) {
-    return (OrderSummary) Proxy.newProxyInstance(getClass().getClassLoader(),
-            new Class<?>[] { OrderSummary.class }, new OrderInvocationHandler(order));
-  }
-
   private static class OrderInvocationHandler implements InvocationHandler {
 
     private final Order order;
@@ -795,6 +805,46 @@ class BeanUtilsTests {
       catch (InvocationTargetException ex) {
         throw ex.getTargetException();
       }
+    }
+  }
+
+  private static class GenericBaseModel<T> {
+
+    private T id;
+
+    private String name;
+
+    public T getId() {
+      return id;
+    }
+
+    public void setId(T id) {
+      this.id = id;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  private static class User extends GenericBaseModel<Integer> {
+
+    private String address;
+
+    public User() {
+      super();
+    }
+
+    public String getAddress() {
+      return address;
+    }
+
+    public void setAddress(String address) {
+      this.address = address;
     }
   }
 

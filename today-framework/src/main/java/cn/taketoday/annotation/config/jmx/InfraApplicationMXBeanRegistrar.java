@@ -37,10 +37,11 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.framework.context.event.ApplicationReadyEvent;
-import cn.taketoday.web.server.context.WebServerInitializedEvent;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.server.context.WebServerApplicationContext;
 
 /**
  * Register a {@link InfraApplicationMXBean} implementation to the platform
@@ -88,8 +89,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     if (type == null) {
       return false;
     }
-    return ApplicationReadyEvent.class.isAssignableFrom(type)
-            || WebServerInitializedEvent.class.isAssignableFrom(type);
+    return ApplicationReadyEvent.class.isAssignableFrom(type);
   }
 
   @Override
@@ -102,9 +102,6 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     if (event instanceof ApplicationReadyEvent readyEvent) {
       onApplicationReadyEvent(readyEvent);
     }
-    if (event instanceof WebServerInitializedEvent initializedEvent) {
-      onWebServerInitializedEvent(initializedEvent);
-    }
   }
 
   @Override
@@ -113,14 +110,14 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
   }
 
   void onApplicationReadyEvent(ApplicationReadyEvent event) {
-    if (this.applicationContext.equals(event.getApplicationContext())) {
+    var context = event.getApplicationContext();
+    if (this.applicationContext.equals(context)) {
       this.ready = true;
     }
-  }
-
-  void onWebServerInitializedEvent(WebServerInitializedEvent event) {
-    if (this.applicationContext.equals(event.getApplicationContext())) {
-      this.embeddedWebApplication = true;
+    if (ClassUtils.isPresent("cn.taketoday.web.server.context.WebServerApplicationContext", context.getClassLoader())) {
+      if (context instanceof WebServerApplicationContext) {
+        this.embeddedWebApplication = true;
+      }
     }
   }
 

@@ -27,7 +27,7 @@ import cn.taketoday.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/19 19:31
  */
-class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement {
+class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement, DebugDescriptive {
   private final Object id;
 
   FindByIdQuery(Object id) {

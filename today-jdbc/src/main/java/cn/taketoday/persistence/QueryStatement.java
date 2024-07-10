@@ -20,13 +20,17 @@ package cn.taketoday.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import cn.taketoday.lang.Descriptive;
+
 /**
  * Query condition builder
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see DebugDescriptive
+ * @see Descriptive
  * @since 4.0 2024/2/16 14:45
  */
-public interface QueryStatement extends DebugDescriptive {
+public interface QueryStatement {
 
   /**
    * prepare select statement
@@ -42,10 +46,5 @@ public interface QueryStatement extends DebugDescriptive {
    * @param statement JDBC statement
    */
   void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
-
-  @Override
-  default String getDescription() {
-    return "Query entities";
-  }
 
 }

@@ -99,7 +99,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   public static final String ON_REFRESH_VALUE = "onRefresh";
 
-  private static final boolean checkpointOnRefresh =
+  private static boolean checkpointOnRefresh =
           ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
 
   private static final boolean exitOnRefresh =
@@ -119,6 +119,8 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   @Nullable
   private Object cracResource;
 
+  private final Map<Integer, Long> timeoutsForShutdownPhases = new ConcurrentHashMap<>();
+
   public DefaultLifecycleProcessor() {
     if (!NativeDetector.inNativeImage() && ClassUtils.isPresent("org.crac.Core", getClass().getClassLoader())) {
       this.cracResource = new CracDelegate().registerResource();
@@ -130,12 +132,50 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   }
 
   /**
+   * Specify the maximum time allotted for the shutdown of each given phase
+   * (group of {@link SmartLifecycle} beans with the same 'phase' value).
+   * <p>In case of no specific timeout configured, the default timeout per
+   * shutdown phase will apply: 10000 milliseconds (10 seconds) as of 6.2.
+   *
+   * @param timeoutsForShutdownPhases a map of phase values (matching
+   * {@link SmartLifecycle#getPhase()}) and corresponding timeout values
+   * (in milliseconds)
+   * @see SmartLifecycle#getPhase()
+   * @see #setTimeoutPerShutdownPhase
+   * @since 5.0
+   */
+  public void setTimeoutsForShutdownPhases(Map<Integer, Long> timeoutsForShutdownPhases) {
+    this.timeoutsForShutdownPhases.putAll(timeoutsForShutdownPhases);
+  }
+
+  /**
+   * Specify the maximum time allotted for the shutdown of a specific phase
+   * (group of {@link SmartLifecycle} beans with the same 'phase' value).
+   * <p>In case of no specific timeout configured, the default timeout per
+   * shutdown phase will apply: 10000 milliseconds (10 seconds) as of 6.2.
+   *
+   * @param phase the phase value (matching {@link SmartLifecycle#getPhase()})
+   * @param timeout the corresponding timeout value (in milliseconds)
+   * @see SmartLifecycle#getPhase()
+   * @see #setTimeoutPerShutdownPhase
+   * @since 5.0
+   */
+  public void setTimeoutForShutdownPhase(int phase, long timeout) {
+    this.timeoutsForShutdownPhases.put(phase, timeout);
+  }
+
+  /**
    * Specify the maximum time allotted in milliseconds for the shutdown of
    * any phase (group of SmartLifecycle beans with the same 'phase' value).
    * <p>The default value is 30 seconds.
    */
   public void setTimeoutPerShutdownPhase(long timeoutPerShutdownPhase) {
     this.timeoutPerShutdownPhase = timeoutPerShutdownPhase;
+  }
+
+  private long determineTimeout(int phase) {
+    Long timeout = this.timeoutsForShutdownPhases.get(phase);
+    return (timeout != null ? timeout : this.timeoutPerShutdownPhase);
   }
 
   @Override
@@ -189,6 +229,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   @Override
   public void onRefresh() {
     if (checkpointOnRefresh) {
+      checkpointOnRefresh = false;
       new CracDelegate().checkpointRestore();
     }
     if (exitOnRefresh) {
@@ -244,11 +285,11 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       String beanName = entry.getKey();
       Lifecycle bean = entry.getValue();
       if (!autoStartupOnly || isAutoStartupCandidate(beanName, bean)) {
-        int phase = getPhase(bean);
-        LifecycleGroup lifecycleGroup = phases.get(phase);
+        int startupPhase = getPhase(bean);
+        LifecycleGroup lifecycleGroup = phases.get(startupPhase);
         if (lifecycleGroup == null) {
-          lifecycleGroup = new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly);
-          phases.put(phase, lifecycleGroup);
+          lifecycleGroup = new LifecycleGroup(startupPhase, determineTimeout(startupPhase), lifecycleBeans, autoStartupOnly);
+          phases.put(startupPhase, lifecycleGroup);
         }
         lifecycleGroup.add(beanName, bean);
       }
@@ -313,7 +354,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       LifecycleGroup group = phases.get(shutdownPhase);
       if (group == null) {
         group = new LifecycleGroup(shutdownPhase,
-                timeoutPerShutdownPhase, lifecycleBeans, false);
+                determineTimeout(shutdownPhase), lifecycleBeans, false);
         phases.put(shutdownPhase, group);
       }
       group.add(beanName, bean);

@@ -19,6 +19,7 @@ package cn.taketoday.util;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +27,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -78,6 +78,8 @@ public abstract class StringUtils {
   public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
 
   public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
+
+  private static final String DOUBLE_BACKSLASHES = "\\\\";
 
   private static final int DEFAULT_TRUNCATION_THRESHOLD = 100;
 
@@ -572,11 +574,13 @@ public abstract class StringUtils {
   }
 
   /**
-   * Normalize the path by suppressing sequences like "path/.." and inner simple
-   * dots.
-   * <p>
-   * The result is convenient for path comparison. For other uses, notice that
-   * Windows separators ("\") are replaced by simple slashes.
+   * Normalize the path by suppressing sequences like "path/.." and
+   * inner simple dots.
+   * <p>The result is convenient for path comparison. For other uses,
+   * notice that Windows separators ("\" and "\\") are replaced by simple slashes.
+   * <p><strong>NOTE</strong> that {@code cleanPath} should not be depended
+   * upon in a security context. Other mechanisms should be used to prevent
+   * path-traversal issues.
    *
    * @param path the original path
    * @return the normalized path
@@ -585,7 +589,17 @@ public abstract class StringUtils {
     if (isEmpty(path)) {
       return path;
     }
-    String pathToUse = replace(path, WINDOWS_FOLDER_SEPARATOR, FOLDER_SEPARATOR);
+
+    String normalizedPath;
+    // Optimize when there is no backslash
+    if (path.indexOf('\\') != -1) {
+      normalizedPath = replace(path, DOUBLE_BACKSLASHES, FOLDER_SEPARATOR);
+      normalizedPath = replace(normalizedPath, WINDOWS_FOLDER_SEPARATOR, FOLDER_SEPARATOR);
+    }
+    else {
+      normalizedPath = path;
+    }
+    String pathToUse = normalizedPath;
 
     // Shortcut if there is no work to do
     if (pathToUse.indexOf('.') == -1) {
@@ -607,55 +621,53 @@ public abstract class StringUtils {
         pathToUse = pathToUse.substring(prefixIndex + 1);
       }
     }
-    if (matchesFirst(pathToUse, Constant.PATH_SEPARATOR)) {
-      prefix = prefix + FOLDER_SEPARATOR_CHAR;
+    if (pathToUse.startsWith(FOLDER_SEPARATOR)) {
+      prefix = prefix + FOLDER_SEPARATOR;
       pathToUse = pathToUse.substring(1);
     }
 
     String[] pathArray = delimitedListToStringArray(pathToUse, FOLDER_SEPARATOR);
-    LinkedList<String> pathElements = new LinkedList<>();
+    // we never require more elements than pathArray and in the common case the same number
+    ArrayDeque<String> pathElements = new ArrayDeque<>(pathArray.length);
     int tops = 0;
 
     for (int i = pathArray.length - 1; i >= 0; i--) {
       String element = pathArray[i];
-/*          if (CURRENT_PATH.equals(element)) {
-     // Points to current directory - drop it.
-}
-else */
-      if (TOP_PATH.equals(element)) {
+      if (CURRENT_PATH.equals(element)) {
+        // Points to current directory - drop it.
+      }
+      else if (TOP_PATH.equals(element)) {
         // Registering top path found.
         tops++;
       }
-      else if (!CURRENT_PATH.equals(element)) {
+      else {
         if (tops > 0) {
           // Merging path element with element corresponding to top path.
           tops--;
         }
         else {
           // Normal path element found.
-          pathElements.add(0, element);
+          pathElements.addFirst(element);
         }
       }
     }
 
     // All path elements stayed the same - shortcut
     if (pathArray.length == pathElements.size()) {
-      return prefix.concat(pathToUse);
+      return normalizedPath;
     }
-
     // Remaining top paths need to be retained.
     for (int i = 0; i < tops; i++) {
-      pathElements.add(0, TOP_PATH);
+      pathElements.addFirst(TOP_PATH);
     }
     // If nothing else left, at least explicitly point to current path.
-    if (pathElements.size() == 1
-            && Constant.BLANK.equals(pathElements.getLast())
-            && !prefix.endsWith(FOLDER_SEPARATOR)) {
-
-      pathElements.add(0, CURRENT_PATH);
+    if (pathElements.size() == 1 && pathElements.getLast().isEmpty() && !prefix.endsWith(FOLDER_SEPARATOR)) {
+      pathElements.addFirst(CURRENT_PATH);
     }
 
-    return prefix.concat(collectionToDelimitedString(pathElements, FOLDER_SEPARATOR));
+    final String joined = collectionToDelimitedString(pathElements, FOLDER_SEPARATOR);
+    // avoid string concatenation with empty prefix
+    return prefix.isEmpty() ? joined : prefix + joined;
   }
 
   /**

@@ -51,7 +51,7 @@ class HeaderSessionIdResolverTests {
   void getSessionId() {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
     MockRequestContext context = new MockRequestContext();
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
+    context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context))
             .isEqualTo("value");
   }
@@ -61,7 +61,7 @@ class HeaderSessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
     MockRequestContext context = new MockRequestContext();
 
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
+    context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context)).isEqualTo("value");
 
     resolver.setSessionId(context, "new-value");
@@ -73,7 +73,7 @@ class HeaderSessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
     MockRequestContext context = new MockRequestContext();
 
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
+    context.requestHeaders().setOrRemove(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
     assertThat(resolver.getSessionId(context)).isEqualTo("value");
 
     resolver.setSessionId(context, "new-value");

@@ -458,6 +458,57 @@ public class SpellCheckService {
 如果除 Infra bean 外的组件需要处理，则 `BeanFactoryInitializationAotProcessor` 可以检测相关类型并使用 `ReflectiveRuntimeHintsRegistrar` 对其进行处理。
 
 
+[[aot.hints.register-reflection]]
+=== `@RegisterReflection`
+
+[RegisterReflection]
+{today-framework-api}/aot/hint/annotation/RegisterReflection.html[`@RegisterReflection`]
+是 `@Reflective` 的一个特化，它提供了一种声明式的方式来为任意类型注册反射。
+
+在以下示例中，可以通过反射调用 `AccountService` 上的公共构造函数和公共方法：
+
+[source,java]
+----
+@Configuration
+@RegisterReflection(classes = AccountService.class, memberCategories =
+		{ MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS })
+class MyConfiguration {
+}
+
+class AccountService {
+
+}
+----
+
+`@RegisterReflection` 可以应用于任何Spring bean的类级别，但也可以直接应用于方法，以更好地指示实际需要提示的位置。
+
+`@RegisterReflection` 可以用作元注解，以提供更具体的需求。
+{today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`] 就是这样一个组合注解，它注册了序列化任意类型的需求。
+一个典型的用例是使用DTO，容器无法推断，例如在方法体内部使用web客户端。
+
+以下示例为序列化注册了 `Order`。
+
+[source,java]
+----
+@Component
+class OrderService {
+
+	@RegisterReflectionForBinding(Order.class)
+	public void process(Order order) {
+		// ...
+	}
+
+}
+
+record Order() {
+
+}
+----
+
+这为 `Order` 的构造函数、字段、属性和记录组件注册了提示。
+还为属性和记录组件上间接使用的类型注册了提示。
+换句话说，如果 `Order` 暴露了其他类型，也会为这些类型注册提示。
+
 [[aot.hints.register-reflection-for-binding]]
 === `@RegisterReflectionForBinding`
 

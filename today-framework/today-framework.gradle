@@ -26,9 +26,9 @@ dependencies {
 
   optional project(':today-aop')
   optional project(':today-web')
+  optional project(":today-jdbc")
   optional project(':today-instrument')
   optional project(':today-websocket')
-  optional project(':today-orm')
 
   annotationProcessor(project(":infra-build:infra-configuration-processor"))
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
@@ -94,7 +94,6 @@ dependencies {
   testImplementation(project(":today-tx"))
   testImplementation(project(":today-web"))
   testImplementation project(':today-websocket')
-  testImplementation project(':today-orm')
   testImplementation(project(":today-core-test"))
 
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'

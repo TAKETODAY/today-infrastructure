@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
@@ -39,7 +40,7 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
+public abstract class AbstractClientHttpRequest extends AttributeAccessorSupport implements ClientHttpRequest {
 
   /**
    * COMMITTING -> COMMITTED is the period after doCommit is called but before
@@ -138,6 +139,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
     this.commitActions.add(() -> Mono.fromRunnable(() -> {
       applyHeaders();
       applyCookies();
+      applyAttributes();
       this.state.set(State.COMMITTED);
     }));
 
@@ -164,4 +166,12 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
    */
   protected abstract void applyCookies();
 
+  /**
+   * Add attributes from {@link #getAttributes()} to the underlying request.
+   * This method is called once only.
+   *
+   * @since 5.0
+   */
+  protected void applyAttributes() {
+  }
 }

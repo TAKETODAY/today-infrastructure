@@ -1327,7 +1327,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
       }
     }
   }
@@ -1339,7 +1339,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setLastModified(lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
       }
     }
   }
@@ -1831,6 +1831,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
     responseHeaders().setOrRemove(name, value);
   }
 
+  /**
+   * Add a response header with the given name and value.
+   *
+   * @param name the name of the header
+   * @param value the header value If it contains octet string,
+   * it should be encoded according to RFC 2047
+   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
+   * @see HttpHeaders#add(String, String)
+   * @since 4.0
+   */
   public void addHeader(String name, @Nullable String value) {
     responseHeaders().add(name, value);
   }

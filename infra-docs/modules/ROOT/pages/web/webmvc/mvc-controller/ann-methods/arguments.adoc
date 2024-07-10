@@ -12,34 +12,6 @@ and others) and is equivalent to `required=false`.
 |===
 | Controller method argument | Description
 
-| `WebRequest`, `NativeWebRequest`
-| Generic access to request parameters and request and session attributes, without direct
-  use of the Servlet API.
-
-| `jakarta.mockApi.ServletRequest`, `jakarta.mockApi.ServletResponse`
-| Choose any specific request or response type -- for example, `MockRequest`, `HttpMockRequest`,
-  or Infra `MultipartRequest`, `MultipartHttpServletRequest`.
-
-| `jakarta.mockApi.http.HttpSession`
-| Enforces the presence of a session. As a consequence, such an argument is never `null`.
-  Note that session access is not thread-safe. Consider setting the
-  `RequestMappingHandlerAdapter` instance's `synchronizeOnSession` flag to `true` if multiple
-  requests are allowed to concurrently access a session.
-
-| `jakarta.mockApi.http.PushBuilder`
-| Servlet 4.0 push builder API for programmatic HTTP/2 resource pushes.
-  Note that, per the Servlet specification, the injected `PushBuilder` instance can be null if the client
-  does not support that HTTP/2 feature.
-
-| `java.security.Principal`
-| Currently authenticated user -- possibly a specific `Principal` implementation class if known.
-
-  Note that this argument is not resolved eagerly, if it is annotated in order to allow a custom resolver to resolve it
-  before falling back on default resolution via `HttpServletRequest#getUserPrincipal`.
-  For example, the Infra Security `Authentication` implements `Principal` and would be injected as such via
-  `HttpServletRequest#getUserPrincipal`, unless it is also annotated with `@AuthenticationPrincipal` in which case it
-  is resolved by a custom Infra Security resolver through `Authentication#getPrincipal`.
-
 | `HttpMethod`
 | The HTTP method of the request.
 
@@ -113,18 +85,12 @@ and others) and is equivalent to `required=false`.
   `@RequestPart` arguments. You must declare an `Errors`, or `BindingResult` argument
   immediately after the validated method argument.
 
-| `SessionStatus` + class-level `@SessionAttributes`
-| For marking form processing complete, which triggers cleanup of session attributes
-  declared through a class-level `@SessionAttributes` annotation. See
-  xref:web/webmvc/mvc-controller/ann-methods/sessionattributes.adoc[`@SessionAttributes`] for more details.
-
 | `UriComponentsBuilder`
 | For preparing a URL relative to the current request's host, port, scheme, context path, and
   the literal part of the mockApi mapping. See xref:web/webmvc/mvc-uri-building.adoc[URI Links].
 
 | `@SessionAttribute`
-| For access to any session attribute, in contrast to model attributes stored in the session
-  as a result of a class-level `@SessionAttributes` declaration. See
+| For access to any session attribute, See
   xref:web/webmvc/mvc-controller/ann-methods/sessionattribute.adoc[`@SessionAttribute`] for more details.
 
 | `@RequestAttribute`

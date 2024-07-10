@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -359,10 +358,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
         return getBeanNamesForType(requiredType).stream().map(name -> (T) getBean(name));
       }
 
-      @Override
-      public Stream<T> orderedStream() {
-        return stream().sorted(OrderComparator.INSTANCE);
-      }
     };
   }
 
@@ -502,7 +497,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     return (beanType != null
             ? MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
-                    .get(annotationType) : MergedAnnotation.missing());
+            .get(annotationType) : MergedAnnotation.missing());
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -35,22 +32,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class ResponseCookieTests {
 
   @Test
-  public void basic() {
+  void basic() {
 
     assertThat(ResponseCookie.from("id", null).build().toString()).isEqualTo("id=");
     assertThat(ResponseCookie.from("id", "1fWa").build().toString()).isEqualTo("id=1fWa");
 
     ResponseCookie cookie = ResponseCookie.from("id", "1fWa")
-            .domain("abc").path("/path").maxAge(0).httpOnly(true).secure(true).sameSite("None")
+            .domain("abc").path("/path").maxAge(0).httpOnly(true).partitioned(true).secure(true).sameSite("None")
             .build();
 
     assertThat(cookie.toString()).isEqualTo("id=1fWa; Path=/path; Domain=abc; " +
             "Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; " +
-            "Secure; HttpOnly; SameSite=None");
+            "Secure; HttpOnly; Partitioned; SameSite=None");
   }
 
   @Test
-  public void nameChecks() {
+  void nameChecks() {
 
     Arrays.asList("id", "i.d.", "i-d", "+id", "i*d", "i$d", "#id")
             .forEach(name -> ResponseCookie.from(name, "value").build());
@@ -61,7 +58,7 @@ public class ResponseCookieTests {
   }
 
   @Test
-  public void valueChecks() {
+  void valueChecks() {
 
     Arrays.asList("1fWa", "", null, "1f=Wa", "1f-Wa", "1f/Wa", "1.f.W.a.")
             .forEach(value -> ResponseCookie.from("id", value).build());
@@ -72,7 +69,7 @@ public class ResponseCookieTests {
   }
 
   @Test
-  public void domainChecks() {
+  void domainChecks() {
 
     Arrays.asList("abc", "abc.org", "abc-def.org", "abc3.org", ".abc.org")
             .forEach(domain -> ResponseCookie.from("n", "v").domain(domain).build());

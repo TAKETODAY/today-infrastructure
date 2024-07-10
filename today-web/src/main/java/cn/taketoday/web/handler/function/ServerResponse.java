@@ -120,7 +120,7 @@ public interface ServerResponse {
    */
   static ServerResponse from(ErrorResponse response) {
     return status(response.getStatusCode())
-            .headers(headers -> headers.putAll(response.getHeaders()))
+            .headers(response.getHeaders())
             .body(response.getBody());
   }
 
@@ -367,7 +367,7 @@ public interface ServerResponse {
     /**
      * Manipulate this response's headers with the given consumer. The
      * headers provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#setOrRemove(String, String) overwrite} existing header values,
      * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
      * {@link HttpHeaders} methods.
      *
@@ -375,6 +375,16 @@ public interface ServerResponse {
      * @return this builder
      */
     B headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Add the given HttpHeaders.
+     *
+     * @param headers the headers
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    B headers(@Nullable HttpHeaders headers);
 
     /**
      * Add the given cookie to the response.
@@ -385,9 +395,19 @@ public interface ServerResponse {
     B cookie(HttpCookie cookie);
 
     /**
+     * Add a cookie with the given name and value(s).
+     *
+     * @param name the cookie name
+     * @param values the cookie value(s)
+     * @return this builder
+     * @since 5.0
+     */
+    B cookie(String name, String... values);
+
+    /**
      * Manipulate this response's cookies with the given consumer. The
      * cookies provided to the consumer are "live", so that the consumer can be used to
-     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#setOrRemove(Object, Object) overwrite} existing cookies,
      * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
      * {@link MultiValueMap} methods.
      *
@@ -395,6 +415,26 @@ public interface ServerResponse {
      * @return this builder
      */
     B cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    B cookies(@Nullable Collection<HttpCookie> cookies);
+
+    /**
+     * Add a cookies with the given name and values.
+     *
+     * @param cookies the cookies
+     * @return this builder
+     * @see MultiValueMap#setAll(Map)
+     * @since 5.0
+     */
+    B cookies(@Nullable MultiValueMap<String, HttpCookie> cookies);
 
     /**
      * Set the set of allowed {@link HttpMethod HTTP methods}, as specified

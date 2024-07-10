@@ -58,9 +58,9 @@ class LinkedMultiValueMapTests {
   }
 
   @Test
-  void set() {
-    map.set("key", "value1");
-    map.set("key", "value2");
+  void setOrRemove() {
+    map.setOrRemove("key", "value1");
+    map.setOrRemove("key", "value2");
     assertThat(map.get("key")).containsExactly("value2");
   }
 
@@ -118,10 +118,10 @@ class LinkedMultiValueMapTests {
 
   @Test
   void equals() {
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
     assertThat(map).isEqualTo(map);
     MultiValueMap<String, String> o1 = new LinkedMultiValueMap<>();
-    o1.set("key1", "value1");
+    o1.setOrRemove("key1", "value1");
     assertThat(o1).isEqualTo(map);
     assertThat(map).isEqualTo(o1);
     Map<String, List<String>> o2 = new HashMap<>();
@@ -132,10 +132,10 @@ class LinkedMultiValueMapTests {
 
   @Test
   void deepCopy() {
-    map.set("key1", "value1");
+    map.setOrRemove("key1", "value1");
     assertThat(map).isEqualTo(map);
     LinkedMultiValueMap<String, String> o1 = new LinkedMultiValueMap<>();
-    o1.set("key1", "value1");
+    o1.setOrRemove("key1", "value1");
 
     LinkedMultiValueMap<String, String> deepedCopy = o1.deepCopy();
     assertThat(deepedCopy).isEqualTo(o1);

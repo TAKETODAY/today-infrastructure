@@ -17,8 +17,8 @@
 
 package cn.taketoday.web.reactive.function.client;
 
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +41,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
+import cn.taketoday.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 /**
@@ -65,7 +66,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   }
 
   @Nullable
-  private String baseUrl;
+  private URI baseURI;
 
   @Nullable
   private Map<String, ?> defaultUriVariables;
@@ -106,7 +107,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   public DefaultWebClientBuilder(DefaultWebClientBuilder other) {
     Assert.notNull(other, "DefaultWebClientBuilder is required");
 
-    this.baseUrl = other.baseUrl;
+    this.baseURI = other.baseURI;
     this.defaultUriVariables = (other.defaultUriVariables != null ?
             new LinkedHashMap<>(other.defaultUriVariables) : null);
     this.uriBuilderFactory = other.uriBuilderFactory;
@@ -132,32 +133,46 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   }
 
   @Override
-  public WebClient.Builder baseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
+  public WebClient.Builder baseURI(@Nullable String baseURI) {
+    if (baseURI != null) {
+      this.baseURI = URI.create(baseURI);
+    }
     return this;
   }
 
   @Override
-  public WebClient.Builder defaultUriVariables(Map<String, ?> defaultUriVariables) {
+  public WebClient.Builder baseURI(@Nullable URI baseURI) {
+    this.baseURI = baseURI;
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder defaultUriVariables(@Nullable Map<String, ?> defaultUriVariables) {
     this.defaultUriVariables = defaultUriVariables;
     return this;
   }
 
   @Override
-  public WebClient.Builder uriBuilderFactory(UriBuilderFactory uriBuilderFactory) {
+  public WebClient.Builder uriBuilderFactory(@Nullable UriBuilderFactory uriBuilderFactory) {
     this.uriBuilderFactory = uriBuilderFactory;
     return this;
   }
 
   @Override
   public WebClient.Builder defaultHeader(String header, String... values) {
-    initHeaders().put(header, Arrays.asList(values));
+    initHeaders().setOrRemove(header, values);
     return this;
   }
 
   @Override
   public WebClient.Builder defaultHeaders(Consumer<HttpHeaders> headersConsumer) {
     headersConsumer.accept(initHeaders());
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder defaultHeaders(HttpHeaders headers) {
+    initHeaders().setAll(headers);
     return this;
   }
 
@@ -170,13 +185,19 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient.Builder defaultCookie(String cookie, String... values) {
-    initCookies().addAll(cookie, Arrays.asList(values));
+    initCookies().setOrRemove(cookie, values);
     return this;
   }
 
   @Override
   public WebClient.Builder defaultCookies(Consumer<MultiValueMap<String, String>> cookiesConsumer) {
     cookiesConsumer.accept(initCookies());
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder defaultCookies(MultiValueMap<String, String> cookies) {
+    initHeaders().setAll(cookies);
     return this;
   }
 
@@ -291,13 +312,8 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
     HttpHeaders defaultHeaders = copyDefaultHeaders();
     MultiValueMap<String, String> defaultCookies = copyDefaultCookies();
-    return new DefaultWebClient(exchange, initUriBuilderFactory(),
-            defaultHeaders,
-            defaultCookies,
-            this.defaultRequest,
-            this.statusHandlers,
-            new DefaultWebClientBuilder(this)
-    );
+    return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
+            this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this));
   }
 
   private ExchangeFunction filterExchangeFunction(ExchangeFunction exchange) {
@@ -346,8 +362,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
       return this.uriBuilderFactory;
     }
 
-    DefaultUriBuilderFactory factory = (this.baseUrl != null ?
-            new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
+    DefaultUriBuilderFactory factory = baseURI != null
+            ? new DefaultUriBuilderFactory(UriComponentsBuilder.fromUri(baseURI))
+            : new DefaultUriBuilderFactory();
     factory.setDefaultUriVariables(this.defaultUriVariables);
     return factory;
   }
@@ -355,9 +372,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
     if (defaultHeaders != null) {
-      HttpHeaders copy = HttpHeaders.forWritable();
-      doCopyMultiValueMap(defaultHeaders, copy);
-      return copy.asReadOnly();
+      return HttpHeaders.copyOf(defaultHeaders).asReadOnly();
     }
     else {
       return null;
@@ -367,18 +382,10 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private MultiValueMap<String, String> copyDefaultCookies() {
     if (this.defaultCookies != null) {
-      MultiValueMap<String, String> copy = new LinkedMultiValueMap<>(this.defaultCookies.size());
-      doCopyMultiValueMap(defaultCookies, copy);
-      return copy.asReadOnly();
+      return MultiValueMap.copyOf(defaultCookies).asReadOnly();
     }
     else {
       return null;
-    }
-  }
-
-  private void doCopyMultiValueMap(MultiValueMap<String, String> source, MultiValueMap<String, String> copy) {
-    for (var entry : source.entrySet()) {
-      copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
     }
   }
 

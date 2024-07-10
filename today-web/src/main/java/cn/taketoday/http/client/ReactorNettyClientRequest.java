@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -100,18 +100,8 @@ final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest
         return result;
       }
     }
-    catch (RuntimeException ex) { // Exceptions.ReactiveException is package private
-      Throwable cause = ex.getCause();
-
-      if (cause instanceof UncheckedIOException uioEx) {
-        throw uioEx.getCause();
-      }
-      else if (cause instanceof IOException ioEx) {
-        throw ioEx;
-      }
-      else {
-        throw ex;
-      }
+    catch (RuntimeException ex) {
+      throw convertException(ex);
     }
   }
 
@@ -133,6 +123,22 @@ final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest
     else {
       return nettyOutbound;
     }
+  }
+
+  static IOException convertException(RuntimeException ex) {
+    // Exceptions.ReactiveException is package private
+    Throwable cause = ex.getCause();
+
+    if (cause instanceof IOException ioEx) {
+      return ioEx;
+    }
+    if (cause instanceof UncheckedIOException uioEx) {
+      IOException ioEx = uioEx.getCause();
+      if (ioEx != null) {
+        return ioEx;
+      }
+    }
+    return new IOException(ex.getMessage(), (cause != null ? cause : ex));
   }
 
   private static final class ByteBufMapper implements OutputStreamPublisher.ByteMapper<ByteBuf> {
@@ -157,4 +163,5 @@ final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest
       return byteBuf;
     }
   }
+
 }

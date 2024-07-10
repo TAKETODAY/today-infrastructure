@@ -185,7 +185,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer.start();
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
-            .baseUrl("https://localhost:" + this.webServer.getPort())
+            .baseURI("https://localhost:" + this.webServer.getPort())
             .clientConnector(connector)
             .build();
     Mono<String> result = client.post()
@@ -212,7 +212,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer.start();
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
-            .baseUrl("https://localhost:" + this.webServer.getPort())
+            .baseURI("https://localhost:" + this.webServer.getPort())
             .clientConnector(connector)
             .build();
 
@@ -297,7 +297,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     WebClient client = WebClient.builder()
-            .baseUrl("https://localhost:" + this.webServer.getPort())
+            .baseURI("https://localhost:" + this.webServer.getPort())
             .clientConnector(clientConnector)
             .build();
     Mono<String> result = client.post()
@@ -347,7 +347,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     WebClient client = WebClient.builder()
-            .baseUrl("https://localhost:" + this.webServer.getPort())
+            .baseURI("https://localhost:" + this.webServer.getPort())
             .clientConnector(clientConnector)
             .build();
     Mono<String> result = client.post()
@@ -366,7 +366,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected WebClient.Builder getWebClient(HttpClient client, int port) {
     InetSocketAddress address = new InetSocketAddress(port);
     String baseUrl = "http://" + address.getHostString() + ":" + address.getPort();
-    return WebClient.builder().clientConnector(new ReactorClientHttpConnector(client)).baseUrl(baseUrl);
+    return WebClient.builder().clientConnector(new ReactorClientHttpConnector(client)).baseURI(baseUrl);
   }
 
   @Test
@@ -765,7 +765,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
       response.setStatusCode(HttpStatus.OK);
-      response.getHeaders().set(HttpHeaders.CONTENT_TYPE, this.mediaType);
+      response.getHeaders().setOrRemove(HttpHeaders.CONTENT_TYPE, this.mediaType);
       response.getHeaders().setContentLength(this.bytes.readableByteCount());
       return response.writeWith(Mono.just(this.bytes));
     }
