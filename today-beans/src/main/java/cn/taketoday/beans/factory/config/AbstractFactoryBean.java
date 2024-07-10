@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import java.lang.reflect.InvocationHandler;
@@ -56,20 +54,24 @@ import cn.taketoday.util.ClassUtils;
  * @param <T> the bean type
  * @author Juergen Hoeller
  * @author Keith Donald
- * @author TODAY <br>
- * 2020-02-21 10:38
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setSingleton
  * @see #createBeanInstance()
- * @since 2.1.7
+ * @since 2.1.7 2020-02-21 10:38
  */
-public abstract class AbstractFactoryBean<T>
-        implements FactoryBean<T>, BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
+public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
+        BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
   private BeanFactory beanFactory;
+
   private boolean singleton = true;
+
   private boolean initialized = false;
+
   private T singletonInstance;
+
   private T earlySingletonInstance;
+
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**
@@ -210,7 +212,9 @@ public abstract class AbstractFactoryBean<T>
    * @throws Exception in case of shutdown errors
    * @see #createBeanInstance()
    */
-  protected void destroyInstance(T instance) throws Exception { }
+  protected void destroyInstance(T instance) throws Exception {
+
+  }
 
   /**
    * Obtain a bean type converter from the BeanFactory that this bean
