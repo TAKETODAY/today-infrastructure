@@ -32,7 +32,8 @@ ext {
       project(":today-jcache"),
       project(":today-web"),
       project(":today-test"),
-      project(":today-tx")
+      project(":today-tx"),
+      project(":today-core-aot")
   ] as Set
 }
 

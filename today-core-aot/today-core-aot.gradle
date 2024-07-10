@@ -1,15 +1,33 @@
 import cn.taketoday.build.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-plugins {
-  id 'me.champeau.mrjar'
+description = "Core for Infra AOT infrastructure."
+
+def javapoetVersion = "1.13.0"
+
+configurations {
+  graalvm
+  javapoet
 }
 
-description = "Infra Core Technologies"
+tasks.register('javapoetRepackJar', ShadowJar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+}
 
+tasks.register('javapoetSource', ShadowSource) {
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+  outputDirectory.set file("build/shadow-source/javapoet")
+}
 
-multiRelease {
-  targetVersions 17, 21
+tasks.register('javapoetSourceJar', Jar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  archiveClassifier = 'sources'
+  from javapoetSource
 }
 
 configurations {
@@ -20,20 +38,11 @@ configurations {
 }
 
 dependencies {
+  javapoet("com.squareup:javapoet:${javapoetVersion}@jar")
+  api(files(javapoetRepackJar))
+  api(project(":today-core"))
 
-  compileOnly("io.projectreactor.tools:blockhound")
-  optional("org.yaml:snakeyaml")
-  optional("net.sf.jopt-simple:jopt-simple")
-  optional("org.aspectj:aspectjweaver")
-  optional("io.projectreactor:reactor-core")
-  optional("io.reactivex.rxjava3:rxjava")
-  optional("io.smallrye.reactive:mutiny")
-  optional("io.netty:netty-buffer")
-  optional("io.netty:netty5-buffer")
-  optional("org.slf4j:slf4j-api")
-  optional 'org.apache.logging.log4j:log4j-api'
-  optional("jakarta.annotation:jakarta.annotation-api")
-  optional("io.micrometer:context-propagation")
+  compileOnly("org.graalvm.sdk:graal-sdk")
 
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("com.google.code.findbugs:jsr305")
@@ -55,7 +64,9 @@ dependencies {
   testImplementation 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
   testImplementation(project(":today-test"))
   testImplementation("org.awaitility:awaitility")
+  testImplementation(testFixtures(project(":today-core")))
 
+  testFixturesImplementation(testFixtures(project(":today-core")))
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.junit.platform:junit-platform-launcher")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -68,16 +79,22 @@ dependencies {
 
 jar {
   manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
+
+  dependsOn javapoetRepackJar
+  from(zipTree(javapoetRepackJar.archiveFile)) {
+    include "cn/taketoday/javapoet/**"
+  }
+
 }
+
 
 test {
   // Make sure the classes dir is used on the test classpath (required by ResourceTests).
   // When test fixtures are involved, the JAR is used by default.
   classpath = sourceSets.main.output.classesDirs + files(sourceSets.main.output.resourcesDir) + classpath - files(jar.archiveFile)
+}
 
-  // Ensure that BlockHound tests run on JDK 13+. For details, see:
-  // https://github.com/reactor/BlockHound/issues/33
-  jvmArgs += [
-      "-XX:+AllowRedefinitionToAddDeleteMethods"
-  ]
+sourcesJar {
+  dependsOn javapoetSourceJar
+  from javapoetSource
 }

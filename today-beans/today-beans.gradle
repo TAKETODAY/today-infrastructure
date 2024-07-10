@@ -2,6 +2,8 @@ description = "Infra Beans"
 
 dependencies {
   api(project(":today-core"))
+
+  optional(project(":today-core-aot"))
   optional("jakarta.inject:jakarta.inject-api")
   optional("org.yaml:snakeyaml")
   optional("org.apache.groovy:groovy-xml")

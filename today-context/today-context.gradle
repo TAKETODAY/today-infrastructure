@@ -9,6 +9,7 @@ dependencies {
   api(project(":today-beans"))
   api(project(":today-core"))
 
+  optional(project(":today-core-aot"))
   optional(project(":today-instrument"))
   optional("jakarta.annotation:jakarta.annotation-api")
   optional("jakarta.ejb:jakarta.ejb-api")

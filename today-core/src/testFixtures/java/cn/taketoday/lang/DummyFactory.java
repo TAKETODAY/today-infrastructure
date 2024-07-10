@@ -18,23 +18,10 @@
 package cn.taketoday.lang;
 
 /**
- * @author Andy Wilkinson
+ * @author Arjen Poutsma
  */
-class ConstructorArgsDummyFactory implements DummyFactory {
+public interface DummyFactory {
 
-  private final String string;
-
-  public ConstructorArgsDummyFactory(String string) {
-    this(string, 0);
-  }
-
-  private ConstructorArgsDummyFactory(String string, int reasonCode) {
-    this.string = string;
-  }
-
-  @Override
-  public String getString() {
-    return this.string;
-  }
+	String getString();
 
 }

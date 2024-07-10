@@ -2,7 +2,7 @@ description = "Infra Core Test"
 
 dependencies {
   api(project(":today-core"))
-
+  api(project(":today-core-aot"))
   api("org.junit.jupiter:junit-jupiter-api")
   api("org.assertj:assertj-core")
   compileOnly("org.junit.jupiter:junit-jupiter")

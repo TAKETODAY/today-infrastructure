@@ -23,6 +23,7 @@ import org.assertj.core.api.StringAssert;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,9 +70,9 @@ class ValueCodeGeneratorTests {
 
     @Test
     void createWithListOfDelegatesInvokeThemInOrder() {
-      Delegate first = mock(Delegate.class);
-      Delegate second = mock(Delegate.class);
-      Delegate third = mock(Delegate.class);
+      Delegate first = Mockito.mock(Delegate.class);
+      Delegate second = Mockito.mock(Delegate.class);
+      Delegate third = Mockito.mock(Delegate.class);
       ValueCodeGenerator codeGenerator = ValueCodeGenerator
               .with(List.of(first, second, third));
       Object value = "";
@@ -87,8 +88,8 @@ class ValueCodeGeneratorTests {
 
     @Test
     void generateCodeWithMatchingDelegateStops() {
-      Delegate first = mock(Delegate.class);
-      Delegate second = mock(Delegate.class);
+      Delegate first = Mockito.mock(Delegate.class);
+      Delegate second = Mockito.mock(Delegate.class);
       ValueCodeGenerator codeGenerator = ValueCodeGenerator
               .with(List.of(first, second));
       Object value = "";

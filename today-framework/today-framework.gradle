@@ -24,6 +24,7 @@ dependencies {
   api project(':today-beans')
   api project(':today-context')
 
+  optional(project(":today-core-aot"))
   optional project(':today-aop')
   optional project(':today-web')
   optional project(":today-jdbc")

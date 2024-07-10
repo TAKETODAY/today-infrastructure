@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,18 +18,21 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.lang;
+package cn.taketoday.core.testfixture.aot.generator.visibility;
 
-import cn.taketoday.core.annotation.Order;
+import cn.taketoday.core.ResolvableType;
 
-/**
- * @author Arjen Poutsma
- */
-@Order(2)
-public class MyDummyFactory2 implements DummyFactory {
+public class PublicFactoryBean<T> {
 
-	@Override
-	public String getString() {
-		return "Bar";
-	}
+  PublicFactoryBean(Class<T> type) {
+  }
+
+  public static PublicFactoryBean<ProtectedType> protectedTypeFactoryBean() {
+    return new PublicFactoryBean<>(ProtectedType.class);
+  }
+
+  public static ResolvableType resolveToProtectedGenericParameter() {
+    return ResolvableType.forClassWithGenerics(PublicFactoryBean.class, ProtectedType.class);
+  }
+
 }
