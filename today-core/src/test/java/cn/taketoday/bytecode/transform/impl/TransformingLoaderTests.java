@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.transform.impl;
 
 import junit.framework.Test;
@@ -37,7 +35,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @version $Id: TestTransformingLoader.java,v 1.6 2006/03/05 02:43:17
  * herbyderby Exp $
  */
-public class TestTransformingLoader extends CodeGenTestCase {
+public class TransformingLoaderTests extends CodeGenTestCase {
 
   private static final ClassFilter TEST_FILTER = new ClassFilter() {
     public boolean accept(String name) {
@@ -70,7 +68,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
   }
 
   public void testAddStatic() throws Exception {
-    Method m = ReflectionUtils.findMethod(TestTransformingLoader.class, "initStatic", Class.class);
+    Method m = ReflectionUtils.findMethod(TransformingLoaderTests.class, "initStatic", Class.class);
     ;
 //        CglibReflectUtils.findMethod("cn.taketoday.bytecode.transform.impl.TestTransformingLoader.initStatic(Class)");
     ClassTransformer t = new AddStaticInitTransformer(m);
@@ -97,7 +95,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
   }
 
   private static Class loadHelper(final ClassTransformer t, Class target) throws ClassNotFoundException {
-    ClassLoader parent = TestTransformingLoader.class.getClassLoader();
+    ClassLoader parent = TransformingLoaderTests.class.getClassLoader();
     TransformingClassLoader loader = new TransformingClassLoader(
             parent,
             TEST_FILTER,
@@ -112,7 +110,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
     return loader.loadClass(target.getName());
   }
 
-  public TestTransformingLoader(String testName) {
+  public TransformingLoaderTests(String testName) {
     super(testName);
   }
 
@@ -121,7 +119,7 @@ public class TestTransformingLoader extends CodeGenTestCase {
   }
 
   public static Test suite() {
-    return new TestSuite(TestTransformingLoader.class);
+    return new TestSuite(TransformingLoaderTests.class);
   }
 
   public void perform(ClassLoader loader) throws Throwable { }

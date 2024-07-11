@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.transform.impl;
@@ -31,7 +28,7 @@ import cn.taketoday.bytecode.transform.ClassTransformerFactory;
 /**
  * @author baliuka
  */
-public class TestAddClassInit extends AbstractTransformTest {
+public class AddClassInitTests extends AbstractTransformTest {
 
   static Class<?> registred;
 
@@ -49,7 +46,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
   }
 
-  public TestAddClassInit() { }
+  public AddClassInitTests() { }
 
   public void testInitTransform() {
     assertEquals(i, 11);
@@ -61,7 +58,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
   }
 
-  public TestAddClassInit(String s) {
+  public AddClassInitTests(String s) {
     super(s);
   }
 
@@ -71,7 +68,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
       public ClassTransformer newTransformer() {
         try {
-          return new AddStaticInitTransformer(TestAddClassInit.class.getMethod("register", Class.class));
+          return new AddStaticInitTransformer(AddClassInitTests.class.getMethod("register", Class.class));
         }
         catch (Exception e) {
           throw new CodeGenerationException(e);
@@ -86,7 +83,7 @@ public class TestAddClassInit extends AbstractTransformTest {
   }
 
   public static Test suite() throws Exception {
-    return new TestSuite(new TestAddClassInit().transform());
+    return new TestSuite(new AddClassInitTests().transform());
   }
 
 }

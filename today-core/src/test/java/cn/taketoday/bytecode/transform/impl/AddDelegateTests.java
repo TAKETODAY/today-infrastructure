@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.transform.impl;
 
@@ -29,10 +26,10 @@ import cn.taketoday.bytecode.transform.ClassTransformerFactory;
 /**
  * @author baliuka
  */
-public class TestAddDelegate extends AbstractTransformTest {
+public class AddDelegateTests extends AbstractTransformTest {
 
   /** Creates a new instance of TestAddDelegate */
-  public TestAddDelegate(String name) {
+  public AddDelegateTests(String name) {
     super(name);
   }
 
@@ -68,7 +65,7 @@ public class TestAddDelegate extends AbstractTransformTest {
     }
   }
 
-  public TestAddDelegate() {
+  public AddDelegateTests() {
     super(null);
   }
 
@@ -92,7 +89,7 @@ public class TestAddDelegate extends AbstractTransformTest {
 
   public static Test suite() throws Exception {
 
-    return new TestSuite(new TestAddDelegate().transform());
+    return new TestSuite(new AddDelegateTests().transform());
 
   }
 
