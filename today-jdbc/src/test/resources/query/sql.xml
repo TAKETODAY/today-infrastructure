@@ -19,7 +19,7 @@
 <mapper namespace="cn.taketoday.persistence.query.UserMapper">
 
   <sql id="findById">
-    select * from today.user where id = ?
+    select * from t_user where id = ?
   </sql>
 
   <sql id="queryComments">

@@ -17,10 +17,14 @@
 
 package cn.taketoday.persistence.query;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -29,7 +33,14 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.jdbc.Query;
+import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.persistence.query.parsing.XMLParsingException;
+import cn.taketoday.persistence.query.parsing.XNode;
+import cn.taketoday.persistence.query.parsing.XPathParser;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,6 +49,12 @@ import cn.taketoday.lang.Assert;
 public class MapperFactory implements ResourceLoaderAware {
 
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+  private final RepositoryManager repositoryManager;
+
+  public MapperFactory(RepositoryManager repositoryManager) {
+    this.repositoryManager = repositoryManager;
+  }
 
   @Override
   public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -56,6 +73,8 @@ public class MapperFactory implements ResourceLoaderAware {
 
     private DataSource dataSource;
 
+    final Map<String, String> sqlMap = new HashMap<>();
+
     public MapperHandler(Class<?> mapperClass) {
       this.mapperClass = mapperClass;
       var annotation = MergedAnnotations.from(mapperClass).get(MapperLocation.class);
@@ -64,9 +83,21 @@ public class MapperFactory implements ResourceLoaderAware {
         Resource resource = resourceLoader.getResource(stringValue);
         Assert.state(resource.exists(), "Mapper resource not found");
 
+        try (InputStream inputStream = resource.getInputStream()) {
+          XPathParser parser = new XPathParser(inputStream, false);
 
-
-
+          List<XNode> sqlNodes = parser.evalNodes("/mapper/sql");
+          for (XNode sqlNode : sqlNodes) {
+            String id = sqlNode.getStringAttribute("id");
+            if (StringUtils.hasText(id)) {
+              String sqlBody = StringUtils.trimWhitespace(sqlNode.getStringBody());
+              sqlMap.put(id, sqlBody);
+            }
+          }
+        }
+        catch (IOException e) {
+          throw new XMLParsingException("Mapper resource read failed", e);
+        }
 
       }
       else {
@@ -74,10 +105,23 @@ public class MapperFactory implements ResourceLoaderAware {
       }
     }
 
+    @Nullable
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       String name = method.getName();
+      String sql = sqlMap.get(name);
+      if (sql != null) {
+        Class<?> returnType = method.getReturnType();
 
+        try (Query query = repositoryManager.createQuery(sql)) {
+          for (Object arg : args) {
+            query.addParameter(arg);
+          }
+
+          return query.fetchFirst(returnType);
+        }
+
+      }
       return null;
     }
 
