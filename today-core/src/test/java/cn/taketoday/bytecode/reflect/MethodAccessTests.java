@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.reflect;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,7 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestMethodAccess {
+class MethodAccessTests {
+
   public static class Simple { }
 
   public static class ThrowsSomething {
@@ -89,11 +86,6 @@ public class TestMethodAccess {
     assertEquals("cn.taketoday.bytecode.reflect.MemberSwitchBean", fc.getName(), "fc.getName()");
     assertEquals(MemberSwitchBean.class, fc.getDeclaringClass(), "fc.getDeclaringClass()");
     assertEquals(13, fc.getMaxIndex(), "fc.getMaxIndex()");
-
-    Constructor c1 = MemberSwitchBean.class.getConstructor();
-    FastConstructorAccessor fc1 = fc.getConstructor(c1);
-    assertEquals(0, ((MemberSwitchBean) fc1.newInstance()).init, "((MemberSwitchBean)fc1.newInstance()).init");
-    assertEquals("public cn.taketoday.bytecode.reflect.MemberSwitchBean()", fc1.toString(), "fc1.toString()");
 
     Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
     assertEquals(6, fc.getMethod(m1).invoke(bean,

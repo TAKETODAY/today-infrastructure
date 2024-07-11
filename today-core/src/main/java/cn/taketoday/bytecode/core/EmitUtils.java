@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package cn.taketoday.bytecode.core;
 
-import cn.taketoday.bytecode.Label;
-import cn.taketoday.bytecode.Opcodes;
-import cn.taketoday.bytecode.Type;
-import cn.taketoday.bytecode.commons.GeneratorAdapter;
-import cn.taketoday.bytecode.commons.Local;
-import cn.taketoday.bytecode.commons.MethodSignature;
-import cn.taketoday.bytecode.commons.TableSwitchGenerator;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
+package cn.taketoday.bytecode.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -41,36 +28,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import cn.taketoday.bytecode.Label;
+import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
+import cn.taketoday.bytecode.commons.TableSwitchGenerator;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class EmitUtils {
-
-  public static final Type TYPE_BIG_INTEGER = Type.fromInternalName("java/math/BigInteger");
-  public static final Type TYPE_BIG_DECIMAL = Type.fromInternalName("java/math/BigDecimal");
 
   private static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
 
   private static final MethodSignature LENGTH = MethodSignature.from("int length()");
   private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
-  private static final MethodSignature SET_LENGTH = MethodSignature.from("void setLength(int)");
   private static final MethodSignature FOR_NAME = MethodSignature.from("Class forName(String)");
   private static final MethodSignature STRING_CHAR_AT = MethodSignature.from("char charAt(int)");
-  private static final MethodSignature APPEND_INT = MethodSignature.from("StringBuffer append(int)");
-  private static final MethodSignature APPEND_LONG = MethodSignature.from("StringBuffer append(long)");
-  private static final MethodSignature APPEND_CHAR = MethodSignature.from("StringBuffer append(char)");
-  private static final MethodSignature APPEND_FLOAT = MethodSignature.from("StringBuffer append(float)");
-  private static final MethodSignature APPEND_DOUBLE = MethodSignature.from("StringBuffer append(double)");
-  private static final MethodSignature APPEND_STRING = MethodSignature.from("StringBuffer append(String)");
-  private static final MethodSignature APPEND_BOOLEAN = MethodSignature.from("StringBuffer append(boolean)");
-  private static final MethodSignature FLOAT_TO_INT_BITS = MethodSignature.from("int floatToIntBits(float)");
-  private static final MethodSignature DOUBLE_TO_LONG_BITS = MethodSignature.from("long doubleToLongBits(double)");
 
   private static final MethodSignature GET_DECLARED_METHOD = //
           MethodSignature.from("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
 
-  public static final ArrayDelimiters DEFAULT_DELIMITERS = new ArrayDelimiters("{", ", ", "}");
-
   public static void factoryMethod(ClassEmitter ce, MethodSignature sig) {
-
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, sig);
     e.new_instance_this();
     e.dup();
@@ -86,77 +65,6 @@ public abstract class EmitUtils {
     e.super_invoke_constructor();
     e.returnValue();
     e.end_method();
-  }
-
-  /**
-   * Process an array on the stack. Assumes the top item on the stack is an array
-   * of the specified type. For each element in the array, puts the element on the
-   * stack and triggers the callback.
-   *
-   * @param type the type of the array (type.isArray() must be true)
-   * @param callback the callback triggered for each element
-   */
-  public static void processArray(GeneratorAdapter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = type.getComponentType();
-    Local array = e.newLocal();
-    Local loopvar = e.newLocal(Type.INT_TYPE);
-    Label loopbody = e.newLabel();
-    Label checkloop = e.newLabel();
-    e.storeLocal(array);
-    e.push(0);
-    e.storeLocal(loopvar);
-    e.goTo(checkloop);
-    e.mark(loopbody);
-    e.loadLocal(array);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    callback.processElement(componentType);
-    e.iinc(loopvar, 1);
-
-    e.mark(checkloop);
-    e.loadLocal(loopvar);
-    e.loadLocal(array);
-    e.arrayLength();
-    e.ifICmp(GeneratorAdapter.LT, loopbody);
-  }
-
-  /**
-   * Process two arrays on the stack in parallel. Assumes the top two items on the
-   * stack are arrays of the specified class. The arrays must be the same length.
-   * For each pair of elements in the arrays, puts the pair on the stack and
-   * triggers the callback.
-   *
-   * @param type the type of the arrays (type.isArray() must be true)
-   * @param callback the callback triggered for each pair of elements
-   */
-  public static void processArrays(CodeEmitter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = type.getComponentType();
-    Local array1 = e.newLocal();
-    Local array2 = e.newLocal();
-    Local loopvar = e.newLocal(Type.INT_TYPE);
-    Label loopbody = e.newLabel();
-    Label checkloop = e.newLabel();
-    e.storeLocal(array1);
-    e.storeLocal(array2);
-    e.push(0);
-    e.storeLocal(loopvar);
-    e.goTo(checkloop);
-
-    e.mark(loopbody);
-    e.loadLocal(array1);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    e.loadLocal(array2);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    callback.processElement(componentType);
-    e.iinc(loopvar, 1);
-
-    e.mark(checkloop);
-    e.loadLocal(loopvar);
-    e.loadLocal(array1);
-    e.arrayLength();
-    e.ifIcmp(CodeEmitter.LT, loopbody);
   }
 
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
@@ -192,8 +100,8 @@ public abstract class EmitUtils {
     e.mark(end);
   }
 
-  private static void stringSwitchHelper(CodeEmitter e, List strings, ObjectSwitchCallback callback,
-          Label def, Label end, int index) {
+  private static void stringSwitchHelper(CodeEmitter e, List strings,
+          ObjectSwitchCallback callback, Label def, Label end, int index) {
     int len = ((String) strings.get(0)).length();
     Map buckets = CollectionUtils.buckets(strings, (Function) value -> (int) ((String) value).charAt(index));
     e.dup();
@@ -227,8 +135,7 @@ public abstract class EmitUtils {
     return keys;
   }
 
-  private static void stringSwitchHash(
-          CodeEmitter e, String[] strings,
+  private static void stringSwitchHash(CodeEmitter e, String[] strings,
           ObjectSwitchCallback callback, boolean skipEquals) {
 
     Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
@@ -352,301 +259,22 @@ public abstract class EmitUtils {
         loadClass(e, Type.fromClass((Class) obj));
       }
       else if (obj instanceof BigInteger) {
-        e.newInstance(TYPE_BIG_INTEGER);
+        Type typeBigInteger = Type.fromClass(BigInteger.class);
+        e.newInstance(typeBigInteger);
         e.dup();
         e.push(obj.toString());
-        e.invokeConstructor(TYPE_BIG_INTEGER);
+        e.invokeConstructor(typeBigInteger);
       }
       else if (obj instanceof BigDecimal) {
-        e.newInstance(TYPE_BIG_DECIMAL);
+        Type typeBigDecimal = Type.fromClass(BigDecimal.class);
+        e.newInstance(typeBigDecimal);
         e.dup();
         e.push(obj.toString());
-        e.invokeConstructor(TYPE_BIG_DECIMAL);
+        e.invokeConstructor(typeBigDecimal);
       }
       else {
         throw new IllegalArgumentException("unknown type: " + obj.getClass());
       }
-    }
-  }
-
-  /**
-   * @deprecated use {@link #hashCode(GeneratorAdapter, Type, int, CustomizerRegistry)}
-   * instead
-   */
-  @Deprecated
-  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, Customizer customizer) {
-    hashCode(e, type, multiplier, CustomizerRegistry.singleton(customizer));
-  }
-
-  public static void hashCode(GeneratorAdapter e, Type type, int multiplier, CustomizerRegistry registry) {
-    if (type.isArray()) {
-      hashArray(e, type, multiplier, registry);
-    }
-    else {
-      e.swap(Type.INT_TYPE, type);
-      e.push(multiplier);
-      e.math(GeneratorAdapter.MUL, Type.INT_TYPE);
-      e.swap(type, Type.INT_TYPE);
-      if (type.isPrimitive()) {
-        hashPrimitive(e, type);
-      }
-      else {
-        hashObject(e, type, registry);
-      }
-      e.math(GeneratorAdapter.ADD, Type.INT_TYPE);
-    }
-  }
-
-  private static void hashArray(GeneratorAdapter e,
-          Type type,
-          int multiplier,
-          CustomizerRegistry registry) //
-  {
-    Label skip = e.newLabel();
-    Label end = e.newLabel();
-    e.dup();
-    e.ifNull(skip);
-
-    processArray(e, type, (t) -> hashCode(e, t, multiplier, registry));
-
-    e.goTo(end);
-    e.mark(skip);
-    e.pop();
-    e.mark(end);
-  }
-
-  private static void hashObject(GeneratorAdapter e, Type type, CustomizerRegistry registry) {
-    // (f == null) ? 0 : f.hashCode();
-    Label skip = e.newLabel();
-    Label end = e.newLabel();
-    e.dup();
-    e.ifNull(skip);
-    boolean customHashCode = false;
-    for (HashCodeCustomizer customizer : registry.get(HashCodeCustomizer.class)) {
-      if (customizer.customize(e, type)) {
-        customHashCode = true;
-        break;
-      }
-    }
-    if (!customHashCode) {
-      for (Customizer customizer : registry.get(Customizer.class)) {
-        customizer.customize(e, type);
-      }
-      e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.HASH_CODE);
-    }
-    e.goTo(end);
-    e.mark(skip);
-    e.pop();
-    e.push(0);
-    e.mark(end);
-  }
-
-  private static void hashPrimitive(GeneratorAdapter e, Type type) {
-    switch (type.getSort()) {
-      case Type.BOOLEAN -> {
-        // f ? 0 : 1
-        e.push(1);
-        e.math(CodeEmitter.XOR, Type.INT_TYPE);
-      }
-      // Float.floatToIntBits(f)
-      case Type.FLOAT -> e.invokeStatic(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
-      // Double.doubleToLongBits(f), hash_code(Long.TYPE)
-      case Type.DOUBLE -> e.invokeStatic(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
-      // fall through
-      case Type.LONG -> hashLong(e);
-    }
-  }
-
-  private static void hashLong(GeneratorAdapter e) {
-    // (int)(f ^ (f >>> 32))
-    e.dup2();
-    e.push(32);
-    e.math(GeneratorAdapter.USHR, Type.LONG_TYPE);
-    e.math(GeneratorAdapter.XOR, Type.LONG_TYPE);
-    e.cast(Type.LONG_TYPE, Type.INT_TYPE);
-  }
-
-  //     public static void not_equals(CodeEmitter e, Type type, Label notEquals) {
-  //         not_equals(e, type, notEquals, null);
-  //     }
-
-  /**
-   * Branches to the specified label if the top two items on the stack are not
-   * equal. The items must both be of the specified class. Equality is determined
-   * by comparing primitive values directly and by invoking the
-   * <code>equals</code> method for Objects. Arrays are recursively processed in
-   * the same manner.
-   */
-  public static void notEquals(CodeEmitter e,
-          Type type,
-          Label notEquals,
-          CustomizerRegistry registry) {
-    ProcessArrayCallback processArrayCallback = new ProcessArrayCallback() {
-      public void processElement(Type type) {
-        notEqualsHelper(e, type, notEquals, registry, this);
-      }
-    };
-    processArrayCallback.processElement(type);
-  }
-
-  private static void notEqualsHelper(CodeEmitter e,
-          Type type,
-          Label notEquals,
-          CustomizerRegistry registry,
-          ProcessArrayCallback callback)//
-  {
-    if (type.isPrimitive()) {
-      e.ifCmp(type, CodeEmitter.NE, notEquals);
-    }
-    else {
-      Label end = e.newLabel();
-      nullcmp(e, notEquals, end);
-      if (type.isArray()) {
-        Label checkContents = e.newLabel();
-        e.dup2();
-        e.arrayLength();
-        e.swap();
-        e.arrayLength();
-        e.ifIcmp(CodeEmitter.EQ, checkContents);
-        e.pop2();
-        e.goTo(notEquals);
-        e.mark(checkContents);
-        EmitUtils.processArrays(e, type, callback);
-      }
-      else {
-        List<Customizer> customizers = registry.get(Customizer.class);
-        if (!customizers.isEmpty()) {
-          for (Customizer customizer : customizers) {
-            customizer.customize(e, type);
-          }
-          e.swap();
-          for (Customizer customizer : customizers) {
-            customizer.customize(e, type);
-          }
-        }
-        e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.EQUALS);
-        e.ifJump(CodeEmitter.EQ, notEquals);
-      }
-      e.mark(end);
-    }
-  }
-
-  /**
-   * If both objects on the top of the stack are non-null, does nothing. If one is
-   * null, or both are null, both are popped off and execution branches to the
-   * respective label.
-   *
-   * @param oneNull label to branch to if only one of the objects is null
-   * @param bothNull label to branch to if both of the objects are null
-   */
-  private static void nullcmp(CodeEmitter e, Label oneNull, Label bothNull) {
-    e.dup2();
-    Label nonNull = e.newLabel();
-    Label oneNullHelper = e.newLabel();
-    Label end = e.newLabel();
-    e.ifNonNull(nonNull);
-    e.ifNonNull(oneNullHelper);
-    e.pop2();
-    e.goTo(bothNull);
-
-    e.mark(nonNull);
-    e.ifNull(oneNullHelper);
-    e.goTo(end);
-
-    e.mark(oneNullHelper);
-    e.pop2();
-    e.goTo(oneNull);
-
-    e.mark(end);
-  }
-
-  /* public static void to_string(CodeEmitter e, Type type, ArrayDelimiters
-   * delims, CustomizerRegistry registry) {
-   * e.new_instance(Constants.TYPE_STRING_BUFFER); e.dup();
-   * e.invoke_constructor(Constants.TYPE_STRING_BUFFER); e.swap();
-   * append_string(e, type, delims, registry);
-   * e.invoke_virtual(Constants.TYPE_STRING_BUFFER, TO_STRING); } */
-
-  public static void appendString(CodeEmitter e, Type type, ArrayDelimiters delims, CustomizerRegistry registry) {
-    ArrayDelimiters d = delims != null ? delims : DEFAULT_DELIMITERS;
-    ProcessArrayCallback callback = new ProcessArrayCallback() {
-      public void processElement(Type type) {
-        appendStringHelper(e, type, d, registry, this);
-        e.push(d.inside);
-        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
-      }
-    };
-    appendStringHelper(e, type, d, registry, callback);
-  }
-
-  private static void appendStringHelper(
-          CodeEmitter e, Type type, ArrayDelimiters delims,
-          CustomizerRegistry registry, ProcessArrayCallback callback) {
-    Label skip = e.newLabel();
-    Label end = e.newLabel();
-    if (type.isPrimitive()) {
-      switch (type.getSort()) {
-        case Type.INT, Type.SHORT, Type.BYTE -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_INT);
-        case Type.DOUBLE -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_DOUBLE);
-        case Type.FLOAT -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_FLOAT);
-        case Type.LONG -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_LONG);
-        case Type.BOOLEAN -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_BOOLEAN);
-        case Type.CHAR -> e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_CHAR);
-        default -> {
-        }
-      }
-    }
-    else if (type.isArray()) {
-      e.dup();
-      e.ifNull(skip);
-      e.swap();
-      if (delims != null && delims.before != null && !Constant.BLANK.equals(delims.before)) {
-        e.push(delims.before);
-        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
-        e.swap();
-      }
-      EmitUtils.processArray(e, type, callback);
-      shrinkStringBuffer(e, 2);
-      if (delims != null && delims.after != null && !"".equals(delims.after)) {
-        e.push(delims.after);
-        e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
-      }
-    }
-    else {
-      e.dup();
-      e.ifNull(skip);
-      for (Customizer customizer : registry.get(Customizer.class)) {
-        customizer.customize(e, type);
-      }
-      e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
-      e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
-    }
-    e.goTo(end);
-    e.mark(skip);
-    e.pop();
-    e.push("null");
-    e.invokeVirtual(Type.TYPE_STRING_BUFFER, APPEND_STRING);
-    e.mark(end);
-  }
-
-  private static void shrinkStringBuffer(CodeEmitter e, int amt) {
-    e.dup();
-    e.dup();
-    e.invokeVirtual(Type.TYPE_STRING_BUFFER, LENGTH);
-    e.push(amt);
-    e.math(CodeEmitter.SUB, Type.INT_TYPE);
-    e.invokeVirtual(Type.TYPE_STRING_BUFFER, SET_LENGTH);
-  }
-
-  static class ArrayDelimiters {
-    public final String before;
-    public final String inside;
-    public final String after;
-
-    public ArrayDelimiters(String before, String inside, String after) {
-      this.before = before;
-      this.inside = inside;
-      this.after = after;
     }
   }
 

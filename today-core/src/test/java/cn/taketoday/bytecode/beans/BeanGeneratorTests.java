@@ -28,7 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-public class TestBeanGenerator {
+class BeanGeneratorTests {
+
   @Test
   public void testSimple() throws Exception {
     BeanGenerator bg = new BeanGenerator();
