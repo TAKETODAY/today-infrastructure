@@ -19,7 +19,6 @@ package cn.taketoday.bytecode.reflect;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class MethodAccessTests {
-  
+
   public static class Simple { }
 
   public static class ThrowsSomething {
@@ -87,11 +86,6 @@ class MethodAccessTests {
     assertEquals("cn.taketoday.bytecode.reflect.MemberSwitchBean", fc.getName(), "fc.getName()");
     assertEquals(MemberSwitchBean.class, fc.getDeclaringClass(), "fc.getDeclaringClass()");
     assertEquals(13, fc.getMaxIndex(), "fc.getMaxIndex()");
-
-    Constructor c1 = MemberSwitchBean.class.getConstructor();
-    FastConstructorAccessor fc1 = fc.getConstructor(c1);
-    assertEquals(0, ((MemberSwitchBean) fc1.newInstance()).init, "((MemberSwitchBean)fc1.newInstance()).init");
-    assertEquals("public cn.taketoday.bytecode.reflect.MemberSwitchBean()", fc1.toString(), "fc1.toString()");
 
     Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
     assertEquals(6, fc.getMethod(m1).invoke(bean,

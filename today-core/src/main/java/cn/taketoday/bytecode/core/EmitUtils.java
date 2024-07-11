@@ -31,8 +31,6 @@ import java.util.function.Function;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
-import cn.taketoday.bytecode.commons.GeneratorAdapter;
-import cn.taketoday.bytecode.commons.Local;
 import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.util.CollectionUtils;
@@ -67,77 +65,6 @@ public abstract class EmitUtils {
     e.super_invoke_constructor();
     e.returnValue();
     e.end_method();
-  }
-
-  /**
-   * Process an array on the stack. Assumes the top item on the stack is an array
-   * of the specified type. For each element in the array, puts the element on the
-   * stack and triggers the callback.
-   *
-   * @param type the type of the array (type.isArray() must be true)
-   * @param callback the callback triggered for each element
-   */
-  public static void processArray(GeneratorAdapter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = type.getComponentType();
-    Local array = e.newLocal();
-    Local loopvar = e.newLocal(Type.INT_TYPE);
-    Label loopbody = e.newLabel();
-    Label checkloop = e.newLabel();
-    e.storeLocal(array);
-    e.push(0);
-    e.storeLocal(loopvar);
-    e.goTo(checkloop);
-    e.mark(loopbody);
-    e.loadLocal(array);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    callback.processElement(componentType);
-    e.iinc(loopvar, 1);
-
-    e.mark(checkloop);
-    e.loadLocal(loopvar);
-    e.loadLocal(array);
-    e.arrayLength();
-    e.ifICmp(GeneratorAdapter.LT, loopbody);
-  }
-
-  /**
-   * Process two arrays on the stack in parallel. Assumes the top two items on the
-   * stack are arrays of the specified class. The arrays must be the same length.
-   * For each pair of elements in the arrays, puts the pair on the stack and
-   * triggers the callback.
-   *
-   * @param type the type of the arrays (type.isArray() must be true)
-   * @param callback the callback triggered for each pair of elements
-   */
-  public static void processArrays(CodeEmitter e, Type type, ProcessArrayCallback callback) {
-    Type componentType = type.getComponentType();
-    Local array1 = e.newLocal();
-    Local array2 = e.newLocal();
-    Local loopvar = e.newLocal(Type.INT_TYPE);
-    Label loopbody = e.newLabel();
-    Label checkloop = e.newLabel();
-    e.storeLocal(array1);
-    e.storeLocal(array2);
-    e.push(0);
-    e.storeLocal(loopvar);
-    e.goTo(checkloop);
-
-    e.mark(loopbody);
-    e.loadLocal(array1);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    e.loadLocal(array2);
-    e.loadLocal(loopvar);
-    e.arrayLoad(componentType);
-    callback.processElement(componentType);
-    e.iinc(loopvar, 1);
-
-    e.mark(checkloop);
-    e.loadLocal(loopvar);
-    e.loadLocal(array1);
-    e.arrayLength();
-    e.ifIcmp(CodeEmitter.LT, loopbody);
   }
 
   public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
@@ -208,8 +135,7 @@ public abstract class EmitUtils {
     return keys;
   }
 
-  private static void stringSwitchHash(
-          CodeEmitter e, String[] strings,
+  private static void stringSwitchHash(CodeEmitter e, String[] strings,
           ObjectSwitchCallback callback, boolean skipEquals) {
 
     Map<Integer, List<String>> buckets = CollectionUtils.buckets(strings, Object::hashCode);
