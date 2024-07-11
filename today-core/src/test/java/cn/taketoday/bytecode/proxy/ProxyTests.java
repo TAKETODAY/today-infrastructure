@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.proxy;
 
@@ -40,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * <a href="mailto:chris@nokleberg.com">chris@nokleberg.com</a>
  * @version $Id: TestProxy.java,v 1.6 2012/07/27 16:02:49 baliuka Exp $
  */
-public class TestProxy {
+class ProxyTests {
 
   private class SimpleInvocationHandler implements InvocationHandler {
     Object o = null;
@@ -62,7 +59,7 @@ public class TestProxy {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
-    Class proxyClass = Proxy.getProxyClass(TestProxy.class.getClassLoader(), new Class[] { Map.class });
+    Class proxyClass = Proxy.getProxyClass(ProxyTests.class.getClassLoader(), new Class[] { Map.class });
     Map proxyMap = (Map) proxyClass.getConstructor(new Class[] { InvocationHandler.class }).newInstance(new Object[] { handler });
     assertEquals(map.get("test"),
             proxyMap.get("test"), "proxy delegation not correct");
@@ -73,7 +70,7 @@ public class TestProxy {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
-    Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
+    Map proxyMap = (Map) Proxy.newProxyInstance(ProxyTests.class.getClassLoader(), new Class[] { Map.class }, handler);
     assertEquals(map.get("test"), proxyMap.get("test"), "proxy delegation not correct");
   }
 
@@ -82,7 +79,7 @@ public class TestProxy {
     HashMap map = new HashMap();
     map.put("test", "test");
     InvocationHandler handler = new SimpleInvocationHandler(map);
-    Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
+    Map proxyMap = (Map) Proxy.newProxyInstance(ProxyTests.class.getClassLoader(), new Class[] { Map.class }, handler);
     assertTrue(Proxy.isProxyClass(proxyMap.getClass()), "real proxy not accepted");
   }
 
@@ -126,7 +123,7 @@ public class TestProxy {
         throw new Exception("test!");
       }
     };
-    Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
+    Map proxyMap = (Map) Proxy.newProxyInstance(ProxyTests.class.getClassLoader(), new Class[] { Map.class }, handler);
     assertSame(handler, Proxy.getInvocationHandler(proxyMap), "should be the same handler");
   }
 
@@ -139,7 +136,7 @@ public class TestProxy {
         throw new Exception("test!");
       }
     };
-    Map proxyMap = (Map) Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
+    Map proxyMap = (Map) Proxy.newProxyInstance(ProxyTests.class.getClassLoader(), new Class[] { Map.class }, handler);
     try {
       proxyMap.get("test"); // should throw exception
       fail("proxy exception handling not correct, should throw exception");
@@ -164,7 +161,7 @@ public class TestProxy {
         return null;
       }
     };
-    Object proxy = Proxy.newProxyInstance(TestProxy.class.getClassLoader(), new Class[] { Map.class }, handler);
+    Object proxy = Proxy.newProxyInstance(ProxyTests.class.getClassLoader(), new Class[] { Map.class }, handler);
     assertEquals(proxy, k1);
     assertNotEquals(proxy, k2);
   }
