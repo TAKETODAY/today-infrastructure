@@ -17,16 +17,21 @@
 
 package cn.taketoday.persistence.query;
 
-import cn.taketoday.persistence.model.UserModel;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 5.0 2024/5/24 16:10
+ * @since 5.0 2024/7/11 15:55
  */
-@MapperLocation("classpath:query/sql.xml")
-public interface UserMapper {
+@Documented
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NativeQuery {
 
-  @NativeQuery("select * from t_user where id = ?")
-  UserModel findById(long id);
+  String value();
 
 }
