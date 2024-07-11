@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.proxy;
 
 import org.junit.jupiter.api.Disabled;
@@ -48,7 +46,6 @@ import cn.taketoday.bytecode.reflect.MethodAccess;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StreamUtils;
-import lombok.Data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -63,7 +60,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt"> baliuka@mwm.lt</a>
  * @version $Id: TestEnhancer.java,v 1.58 2012/07/27 16:02:49 baliuka Exp $
  */
-public class TestEnhancer {
+class EnhancerTests {
+
   private static final MethodInterceptor TEST_INTERCEPTOR = new TestInterceptor();
 
   private static final Class<?>[] EMPTY_ARG = {};
