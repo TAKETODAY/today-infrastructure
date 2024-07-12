@@ -37,6 +37,7 @@ import cn.taketoday.beans.factory.support.InstantiationStrategy;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.ClassGenerator;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.CodeGenerationException;
@@ -48,7 +49,6 @@ import cn.taketoday.bytecode.proxy.Factory;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
-import cn.taketoday.bytecode.transform.ClassEmitterTransformer;
 import cn.taketoday.bytecode.transform.TransformingClassGenerator;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
@@ -219,16 +219,15 @@ class ConfigurationClassEnhancer {
    * Also exposes the application ClassLoader as thread context ClassLoader for the time of
    * class generation (in order for ASM to pick it up when doing common superclass resolution).
    */
-  private static class BeanFactoryAwareGeneratorStrategy
-          extends ClassLoaderAwareGeneratorStrategy {
+  private static class BeanFactoryAwareGeneratorStrategy extends ClassLoaderAwareGeneratorStrategy {
 
     public BeanFactoryAwareGeneratorStrategy(@Nullable ClassLoader classLoader) {
       super(classLoader);
     }
 
     @Override
-    protected ClassGenerator transform(ClassGenerator cg) throws Exception {
-      ClassEmitterTransformer transformer = new ClassEmitterTransformer() {
+    protected ClassGenerator transform(ClassGenerator cg) {
+      ClassEmitter transformer = new ClassEmitter() {
         @Override
         public void endClass() {
           declare_field(Opcodes.ACC_PUBLIC, BEAN_FACTORY_FIELD, Type.fromClass(BeanFactory.class), null);
