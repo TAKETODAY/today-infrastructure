@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.util;
 
 import java.util.EnumSet;
@@ -27,6 +25,7 @@ import cn.taketoday.bytecode.signature.SignatureVisitor;
  * A {@link SignatureVisitor} that checks that its methods are properly used.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class CheckSignatureAdapter extends SignatureVisitor {
 
@@ -309,7 +308,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   }
 
   private void checkClassName(final String name, final String message) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException(INVALID + message + " (must not be null or empty)");
     }
     for (int i = 0; i < name.length(); ++i) {
@@ -321,7 +320,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
   }
 
   private void checkIdentifier(final String name, final String message) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException(INVALID + message + " (must not be null or empty)");
     }
     for (int i = 0; i < name.length(); ++i) {
