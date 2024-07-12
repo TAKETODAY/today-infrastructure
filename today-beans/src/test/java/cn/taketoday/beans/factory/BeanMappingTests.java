@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -26,14 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.support.BeanMapping;
-import cn.taketoday.bytecode.beans.BeanMap;
 import cn.taketoday.bytecode.proxy.Dispatcher;
 import cn.taketoday.bytecode.proxy.Enhancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,14 +42,7 @@ public class BeanMappingTests {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
     final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
 
-    final BeanMap beanMap = BeanMap.create(testBean);
-
-    beanMap.put("stringProperty", "stringProperty value"); // testBean.setStringProperty("stringProperty value");
-
-    assertThat(beanMap).containsKey("stringProperty");
     assertThat(beanMapping).containsKey("stringProperty");
-
-    assertThat(beanMap).containsEntry("stringProperty", "stringProperty value");
     assertThat(beanMapping).containsEntry("stringProperty", "stringProperty value");
   }
 
@@ -63,15 +51,7 @@ public class BeanMappingTests {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
     final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
 
-    System.out.println(beanMapping);
-
-    final BeanMap beanMap = BeanMap.create(testBean);
-
-    beanMap.put("stringProperty", "stringProperty value"); // testBean.setStringProperty("stringProperty value");
-    System.out.println(beanMap);
-
     beanMapping.get("stringProperty");
-    beanMap.get("stringProperty");
 
     long start = System.currentTimeMillis();
     int times = 1_0000_0000_0;
@@ -80,10 +60,6 @@ public class BeanMappingTests {
     }
     System.out.println("BeanMapping used: " + (System.currentTimeMillis() - start) + "ms");
 
-    start = System.currentTimeMillis();
-    for (int i = 0; i < times; i++) {
-      beanMap.get("stringProperty");
-    }
     System.out.println("BeanMap used: " + (System.currentTimeMillis() - start) + "ms");
 
     start = System.currentTimeMillis();
@@ -215,20 +191,11 @@ public class BeanMappingTests {
   public void testEquals() {
 
     TestBeanFullGetters bean = new TestBeanFullGetters();
-    TestBeanFullGetters bean1 = new TestBeanFullGetters();
     BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
     assertEquals(map.size(), 7);
     HashMap<Object, Object> map2 = new HashMap<>(map);
     map2.remove("class");
 
-    BeanMap map1 = BeanMap.create(bean1);
-
-    assertEquals(map2, map1);
-    assertNotEquals(map, null);
-    assertNotEquals(map1, null);
-    map1.put("foo", "");
-    assertNotEquals(map, map1);
-    assertNotEquals(map, BeanMap.create(new TestBean2()));
   }
 
   // -----------------------------------------------------------
