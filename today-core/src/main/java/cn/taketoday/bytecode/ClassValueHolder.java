@@ -26,7 +26,7 @@ public final class ClassValueHolder extends AnnotationValueHolder {
   private final Type descriptor;
 
   public ClassValueHolder(String descriptor) {
-    this.descriptor = Type.fromDescriptor(descriptor);
+    this.descriptor = Type.forDescriptor(descriptor);
   }
 
   public ClassValueHolder(Type descriptor) {

@@ -128,7 +128,7 @@ public class TypeReference extends SpelNodeImpl {
       }
     }
     else {
-      mv.visitLdcInsn(Type.fromClass(this.type));
+      mv.visitLdcInsn(Type.forClass(this.type));
     }
     cf.pushDescriptor(this.exitTypeDescriptor);
   }

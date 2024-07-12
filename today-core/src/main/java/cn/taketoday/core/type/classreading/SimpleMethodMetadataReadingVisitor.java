@@ -147,7 +147,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         builder.append(this.declaringClassName);
         builder.append('.');
         builder.append(this.methodName);
-        Type[] argumentTypes = Type.getArgumentTypes(this.descriptor);
+        Type[] argumentTypes = Type.forArgumentTypes(this.descriptor);
         builder.append('(');
         for (int i = 0; i < argumentTypes.length; i++) {
           if (i != 0) {

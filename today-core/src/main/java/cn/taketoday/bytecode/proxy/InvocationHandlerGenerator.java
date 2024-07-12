@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.proxy;
 
@@ -39,10 +36,10 @@ final class InvocationHandlerGenerator implements CallbackGenerator {
 
   public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
 
-  private static final Type INVOCATION_HANDLER = Type.fromClass(InvocationHandler.class);
+  private static final Type INVOCATION_HANDLER = Type.forClass(InvocationHandler.class);
 
-  private static final Type UNDECLARED_THROWABLE_EXCEPTION = Type.fromClass(UndeclaredThrowableException.class);
-  private static final Type METHOD = Type.fromInternalName("java/lang/reflect/Method");
+  private static final Type UNDECLARED_THROWABLE_EXCEPTION = Type.forClass(UndeclaredThrowableException.class);
+  private static final Type METHOD = Type.forInternalName("java/lang/reflect/Method");
   private static final MethodSignature INVOKE = MethodSignature.from("Object invoke(Object, java.lang.reflect.Method, Object[])");
 
   @Override

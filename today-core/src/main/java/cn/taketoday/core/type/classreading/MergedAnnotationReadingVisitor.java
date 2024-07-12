@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type.classreading;
@@ -98,7 +95,7 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
   }
 
   public <E extends Enum<E>> void visitEnum(String descriptor, String value, Consumer<E> consumer) {
-    String className = Type.fromDescriptor(descriptor).getClassName();
+    String className = Type.forDescriptor(descriptor).getClassName();
     Class<E> type = ClassUtils.resolveClassName(className, this.classLoader);
     consumer.accept(Enum.valueOf(type, value));
   }
@@ -107,7 +104,7 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
   private <T extends Annotation> AnnotationVisitor visitAnnotation(
           String descriptor, Consumer<MergedAnnotation<T>> consumer) {
 
-    String className = Type.fromDescriptor(descriptor).getClassName();
+    String className = Type.forDescriptor(descriptor).getClassName();
     if (AnnotationFilter.PLAIN.matches(className)) {
       return null;
     }
@@ -123,7 +120,7 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
       return null;
     }
 
-    String typeName = Type.fromDescriptor(descriptor).getClassName();
+    String typeName = Type.forDescriptor(descriptor).getClassName();
     if (AnnotationFilter.PLAIN.matches(typeName)) {
       return null;
     }

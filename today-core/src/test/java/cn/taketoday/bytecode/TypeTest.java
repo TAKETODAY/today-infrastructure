@@ -106,7 +106,7 @@ public class TypeTest implements Opcodes {
                   "()[[Ljava/lang/Object;"
           })
   public void testGetTypeFromDescriptor(final String descriptor) {
-    Type type = Type.fromDescriptor(descriptor);
+    Type type = Type.forDescriptor(descriptor);
 
     assertEquals(descriptor, type.getDescriptor());
     assertEquals(descriptor, type.toString());
@@ -114,7 +114,7 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetTypeFromDescriptor_invalid() {
-    Executable getType = () -> Type.fromDescriptor("-");
+    Executable getType = () -> Type.forDescriptor("-");
 
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, getType);
     assertEquals("Invalid descriptor: -", exception.getMessage());
@@ -123,7 +123,7 @@ public class TypeTest implements Opcodes {
   @ParameterizedTest
   @ValueSource(strings = { "I", "V", "java/lang/Object", "[I", "[LI;", "[[Ljava/lang/Object;" })
   public void testGetObjectType(final String internalName) {
-    Type type = Type.fromInternalName(internalName);
+    Type type = Type.forInternalName(internalName);
 
     assertEquals(internalName, type.getInternalName());
     assertEquals(internalName.charAt(0) == '[' ? Type.ARRAY : Type.OBJECT, type.getSort());
@@ -141,7 +141,7 @@ public class TypeTest implements Opcodes {
                   "()[[Ljava/lang/Object;"
           })
   public void testGetMethodTypeFromDescriptor(final String methodDescriptor) {
-    Type type = Type.fromMethod(methodDescriptor);
+    Type type = Type.forMethod(methodDescriptor);
 
     assertEquals(Type.METHOD, type.getSort());
     assertEquals(methodDescriptor, type.getDescriptor());
@@ -160,9 +160,9 @@ public class TypeTest implements Opcodes {
                   "()[[Ljava/lang/Object;"
           })
   public void testGetArgumentTypesGetReturnTypeAndGetMethodType(final String methodDescriptor) {
-    Type[] argumentTypes = Type.getArgumentTypes(methodDescriptor);
+    Type[] argumentTypes = Type.forArgumentTypes(methodDescriptor);
     Type returnType = Type.forReturnType(methodDescriptor);
-    Type methodType = Type.fromMethod(returnType, argumentTypes);
+    Type methodType = Type.forMethod(returnType, argumentTypes);
 
     assertEquals(Type.METHOD, methodType.getSort());
     assertEquals(methodDescriptor, methodType.getDescriptor());
@@ -172,7 +172,7 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetArgumentTypesInvalidMethodDescriptor() {
-    Executable getArgumentTypes = () -> Type.getArgumentTypes("(Ljava/lang/String");
+    Executable getArgumentTypes = () -> Type.forArgumentTypes("(Ljava/lang/String");
 
     assertTimeoutPreemptively(
             Duration.ofMillis(100), () -> assertThrows(RuntimeException.class, getArgumentTypes));
@@ -186,29 +186,29 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetTypeFromClass() {
-    assertEquals(Type.VOID_TYPE, Type.fromClass(void.class));
-    assertEquals(Type.BOOLEAN_TYPE, Type.fromClass(boolean.class));
-    assertEquals(Type.CHAR_TYPE, Type.fromClass(char.class));
-    assertEquals(Type.BYTE_TYPE, Type.fromClass(byte.class));
-    assertEquals(Type.SHORT_TYPE, Type.fromClass(short.class));
-    assertEquals(Type.INT_TYPE, Type.fromClass(int.class));
-    assertEquals(Type.FLOAT_TYPE, Type.fromClass(float.class));
-    assertEquals(Type.LONG_TYPE, Type.fromClass(long.class));
-    assertEquals(Type.DOUBLE_TYPE, Type.fromClass(double.class));
-    assertEquals("Ljava/lang/Object;", Type.fromClass(Object.class).getDescriptor());
-    assertEquals("[Ljava/lang/Object;", Type.fromClass(Object[].class).getDescriptor());
+    assertEquals(Type.VOID_TYPE, Type.forClass(void.class));
+    assertEquals(Type.BOOLEAN_TYPE, Type.forClass(boolean.class));
+    assertEquals(Type.CHAR_TYPE, Type.forClass(char.class));
+    assertEquals(Type.BYTE_TYPE, Type.forClass(byte.class));
+    assertEquals(Type.SHORT_TYPE, Type.forClass(short.class));
+    assertEquals(Type.INT_TYPE, Type.forClass(int.class));
+    assertEquals(Type.FLOAT_TYPE, Type.forClass(float.class));
+    assertEquals(Type.LONG_TYPE, Type.forClass(long.class));
+    assertEquals(Type.DOUBLE_TYPE, Type.forClass(double.class));
+    assertEquals("Ljava/lang/Object;", Type.forClass(Object.class).getDescriptor());
+    assertEquals("[Ljava/lang/Object;", Type.forClass(Object[].class).getDescriptor());
   }
 
   @Test
   public void testGetTypeFromConstructor() throws NoSuchMethodException, SecurityException {
-    Type type = Type.fromConstructor(ClassReader.class.getConstructor(byte[].class, int.class));
+    Type type = Type.forConstructor(ClassReader.class.getConstructor(byte[].class, int.class));
 
     assertEquals("([BI)V", type.getDescriptor());
   }
 
   @Test
   public void testGetTypeFromMethod() throws NoSuchMethodException, SecurityException {
-    Type type = Type.fromMethod(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+    Type type = Type.forMethod(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
 
     assertEquals("([BB)I", type.getDescriptor());
   }
@@ -216,9 +216,9 @@ public class TypeTest implements Opcodes {
   @Test
   public void testGetArgumentTypesFromMethod() throws NoSuchMethodException, SecurityException {
     Type[] argumentTypes =
-            Type.getArgumentTypes(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
+            Type.forArgumentTypes(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
 
-    assertArrayEquals(new Type[] { Type.fromClass(byte[].class), Type.BYTE_TYPE }, argumentTypes);
+    assertArrayEquals(new Type[] { Type.forClass(byte[].class), Type.BYTE_TYPE }, argumentTypes);
   }
 
   @Test
@@ -233,7 +233,7 @@ public class TypeTest implements Opcodes {
   void testGetArgumentCountFromType() {
     assertEquals(
             14,
-            Type.fromMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+            Type.forMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
                     .getArgumentCount());
   }
 
@@ -248,13 +248,13 @@ public class TypeTest implements Opcodes {
   void testGetArgumentsAndReturnSizeFromType() {
     assertEquals(
             17 << 2,
-            Type.fromMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+            Type.forMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
                     .getArgumentsAndReturnSizes());
-    assertEquals(1 << 2 | 1, Type.fromMethod("()I").getArgumentsAndReturnSizes());
-    assertEquals(1 << 2 | 1, Type.fromMethod("()F").getArgumentsAndReturnSizes());
-    assertEquals(1 << 2 | 2, Type.fromMethod("()J").getArgumentsAndReturnSizes());
-    assertEquals(1 << 2 | 2, Type.fromMethod("()D").getArgumentsAndReturnSizes());
-    assertEquals(1 << 2 | 1, Type.fromMethod("()LD;").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.forMethod("()I").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.forMethod("()F").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.forMethod("()J").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.forMethod("()D").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.forMethod("()LD;").getArgumentsAndReturnSizes());
   }
 
   @Test
@@ -272,22 +272,22 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testGetSort() {
-    assertEquals(Type.ARRAY, Type.fromDescriptor("[LI;").getSort());
-    assertEquals(Type.ARRAY, Type.fromInternalName("[LI;").getSort());
-    assertEquals(Type.OBJECT, Type.fromDescriptor("LI;").getSort());
-    assertEquals(Type.OBJECT, Type.fromInternalName("I").getSort());
+    assertEquals(Type.ARRAY, Type.forDescriptor("[LI;").getSort());
+    assertEquals(Type.ARRAY, Type.forInternalName("[LI;").getSort());
+    assertEquals(Type.OBJECT, Type.forDescriptor("LI;").getSort());
+    assertEquals(Type.OBJECT, Type.forInternalName("I").getSort());
   }
 
   @Test
   public void testGetDimensions() {
-    assertEquals(1, Type.fromDescriptor("[I").getDimensions());
-    assertEquals(3, Type.fromDescriptor("[[[LI;").getDimensions());
+    assertEquals(1, Type.forDescriptor("[I").getDimensions());
+    assertEquals(3, Type.forDescriptor("[[[LI;").getDimensions());
   }
 
   @Test
   public void testGetElementType() {
-    assertEquals(Type.INT_TYPE, Type.fromDescriptor("[I").getElementType());
-    assertEquals(Type.fromInternalName("I"), Type.fromDescriptor("[[[LI;").getElementType());
+    assertEquals(Type.INT_TYPE, Type.forDescriptor("[I").getElementType());
+    assertEquals(Type.forInternalName("I"), Type.forDescriptor("[[[LI;").getElementType());
   }
 
   @Test
@@ -301,30 +301,30 @@ public class TypeTest implements Opcodes {
     assertEquals("float", Type.FLOAT_TYPE.getClassName());
     assertEquals("long", Type.LONG_TYPE.getClassName());
     assertEquals("double", Type.DOUBLE_TYPE.getClassName());
-    assertEquals("I[]", Type.fromInternalName("[LI;").getClassName());
-    assertEquals("java.lang.Object", Type.fromInternalName("java/lang/Object").getClassName());
-    assertEquals("java.lang.Object", Type.fromDescriptor("Ljava/lang/Object;").getClassName());
+    assertEquals("I[]", Type.forInternalName("[LI;").getClassName());
+    assertEquals("java.lang.Object", Type.forInternalName("java/lang/Object").getClassName());
+    assertEquals("java.lang.Object", Type.forDescriptor("Ljava/lang/Object;").getClassName());
   }
 
   @Test
   public void testGetInternalName() {
-    assertEquals("[LI;", Type.fromInternalName("[LI;").getInternalName());
-    assertEquals("java/lang/Object", Type.fromInternalName("java/lang/Object").getInternalName());
-    assertEquals("java/lang/Object", Type.fromDescriptor("Ljava/lang/Object;").getInternalName());
+    assertEquals("[LI;", Type.forInternalName("[LI;").getInternalName());
+    assertEquals("java/lang/Object", Type.forInternalName("java/lang/Object").getInternalName());
+    assertEquals("java/lang/Object", Type.forDescriptor("Ljava/lang/Object;").getInternalName());
   }
 
   @Test
   public void testGetArgumentsAndReturnSize() {
-    Type type = Type.fromDescriptor("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V");
+    Type type = Type.forDescriptor("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V");
 
     assertEquals(17 << 2, type.getArgumentsAndReturnSizes());
   }
 
   @Test
   public void testGetDescriptor() {
-    assertEquals("[LI;", Type.fromInternalName("[LI;").getDescriptor());
-    assertEquals("Ljava/lang/Object;", Type.fromInternalName("java/lang/Object").getDescriptor());
-    assertEquals("Ljava/lang/Object;", Type.fromDescriptor("Ljava/lang/Object;").getDescriptor());
+    assertEquals("[LI;", Type.forInternalName("[LI;").getDescriptor());
+    assertEquals("Ljava/lang/Object;", Type.forInternalName("java/lang/Object").getDescriptor());
+    assertEquals("Ljava/lang/Object;", Type.forDescriptor("Ljava/lang/Object;").getDescriptor());
   }
 
   @Test
@@ -332,10 +332,10 @@ public class TypeTest implements Opcodes {
     assertEquals("(IJ)V", Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE, Type.LONG_TYPE));
     assertEquals(
             "(Ljava/lang/Object;)V",
-            Type.getMethodDescriptor(Type.VOID_TYPE, Type.fromDescriptor("Ljava/lang/Object;")));
+            Type.getMethodDescriptor(Type.VOID_TYPE, Type.forDescriptor("Ljava/lang/Object;")));
     assertEquals(
             "(Ljava/lang/Object;)V",
-            Type.getMethodDescriptor(Type.VOID_TYPE, Type.fromInternalName("java/lang/Object")));
+            Type.getMethodDescriptor(Type.VOID_TYPE, Type.forInternalName("java/lang/Object")));
   }
 
   @Test
@@ -371,11 +371,11 @@ public class TypeTest implements Opcodes {
     assertEquals(FALOAD, Type.FLOAT_TYPE.getOpcode(IALOAD));
     assertEquals(LALOAD, Type.LONG_TYPE.getOpcode(IALOAD));
     assertEquals(DALOAD, Type.DOUBLE_TYPE.getOpcode(IALOAD));
-    assertEquals(AALOAD, Type.fromDescriptor("Ljava/lang/Object;").getOpcode(IALOAD));
-    assertEquals(AALOAD, Type.fromInternalName("java/lang/Object").getOpcode(IALOAD));
-    assertEquals(AASTORE, Type.fromDescriptor("Ljava/lang/Object;").getOpcode(IASTORE));
-    assertEquals(AASTORE, Type.fromInternalName("java/lang/Object").getOpcode(IASTORE));
-    assertEquals(AASTORE, Type.fromDescriptor("[I").getOpcode(IASTORE));
+    assertEquals(AALOAD, Type.forDescriptor("Ljava/lang/Object;").getOpcode(IALOAD));
+    assertEquals(AALOAD, Type.forInternalName("java/lang/Object").getOpcode(IALOAD));
+    assertEquals(AASTORE, Type.forDescriptor("Ljava/lang/Object;").getOpcode(IASTORE));
+    assertEquals(AASTORE, Type.forInternalName("java/lang/Object").getOpcode(IASTORE));
+    assertEquals(AASTORE, Type.forDescriptor("[I").getOpcode(IASTORE));
     assertEquals(RETURN, Type.VOID_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(IRETURN, Type.BOOLEAN_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(IRETURN, Type.BYTE_TYPE.getOpcode(Opcodes.IRETURN));
@@ -385,11 +385,11 @@ public class TypeTest implements Opcodes {
     assertEquals(FRETURN, Type.FLOAT_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(LRETURN, Type.LONG_TYPE.getOpcode(Opcodes.IRETURN));
     assertEquals(DRETURN, Type.DOUBLE_TYPE.getOpcode(Opcodes.IRETURN));
-    assertEquals(ARETURN, Type.fromDescriptor("Ljava/lang/Object;").getOpcode(Opcodes.IRETURN));
-    assertEquals(ARETURN, Type.fromInternalName("java/lang/Object").getOpcode(Opcodes.IRETURN));
-    assertEquals(ARETURN, Type.fromDescriptor("Ljava/lang/Object;").getOpcode(Opcodes.IRETURN));
-    assertEquals(ARETURN, Type.fromInternalName("java/lang/Object").getOpcode(Opcodes.IRETURN));
-    assertEquals(ARETURN, Type.fromDescriptor("[I").getOpcode(Opcodes.IRETURN));
+    assertEquals(ARETURN, Type.forDescriptor("Ljava/lang/Object;").getOpcode(Opcodes.IRETURN));
+    assertEquals(ARETURN, Type.forInternalName("java/lang/Object").getOpcode(Opcodes.IRETURN));
+    assertEquals(ARETURN, Type.forDescriptor("Ljava/lang/Object;").getOpcode(Opcodes.IRETURN));
+    assertEquals(ARETURN, Type.forInternalName("java/lang/Object").getOpcode(Opcodes.IRETURN));
+    assertEquals(ARETURN, Type.forDescriptor("[I").getOpcode(Opcodes.IRETURN));
     assertEquals(IADD, Type.BOOLEAN_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.BYTE_TYPE.getOpcode(IADD));
     assertEquals(IADD, Type.CHAR_TYPE.getOpcode(IADD));
@@ -402,26 +402,26 @@ public class TypeTest implements Opcodes {
     assertThrows(expectedException, () -> Type.VOID_TYPE.getOpcode(IADD));
     assertThrows(expectedException, () -> Type.VOID_TYPE.getOpcode(ILOAD));
     assertThrows(expectedException, () -> Type.VOID_TYPE.getOpcode(IALOAD));
-    assertThrows(expectedException, () -> Type.fromDescriptor("LI;").getOpcode(IADD));
-    assertThrows(expectedException, () -> Type.fromDescriptor("[I").getOpcode(IADD));
-    assertThrows(expectedException, () -> Type.fromInternalName("I").getOpcode(IADD));
-    assertThrows(expectedException, () -> Type.fromMethod("()V").getOpcode(IADD));
-    assertThrows(expectedException, () -> Type.fromMethod("()V").getOpcode(IALOAD));
+    assertThrows(expectedException, () -> Type.forDescriptor("LI;").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.forDescriptor("[I").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.forInternalName("I").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.forMethod("()V").getOpcode(IADD));
+    assertThrows(expectedException, () -> Type.forMethod("()V").getOpcode(IALOAD));
   }
 
   @Test
   public void testEquals() {
     Type nullType = null;
 
-    final boolean equalsNull = Type.fromInternalName("I").equals(nullType);
-    final boolean equalsDifferentTypeSort = Type.fromInternalName("I").equals(Type.INT_TYPE);
+    final boolean equalsNull = Type.forInternalName("I").equals(nullType);
+    final boolean equalsDifferentTypeSort = Type.forInternalName("I").equals(Type.INT_TYPE);
     final boolean equalsDifferentObjectType =
-            Type.fromInternalName("I").equals(Type.fromInternalName("HI"));
+            Type.forInternalName("I").equals(Type.forInternalName("HI"));
     final boolean equalsOtherDifferentObjectType =
-            Type.fromInternalName("I").equals(Type.fromInternalName("J"));
-    final boolean equalsSameType = Type.fromInternalName("I").equals(Type.fromDescriptor("LI;"));
-    final boolean equalsSameObjectType = Type.fromDescriptor("LI;").equals(Type.fromInternalName("I"));
-    final boolean equalsSamePrimitiveType = Type.INT_TYPE.equals(Type.fromDescriptor("I"));
+            Type.forInternalName("I").equals(Type.forInternalName("J"));
+    final boolean equalsSameType = Type.forInternalName("I").equals(Type.forDescriptor("LI;"));
+    final boolean equalsSameObjectType = Type.forDescriptor("LI;").equals(Type.forInternalName("I"));
+    final boolean equalsSamePrimitiveType = Type.INT_TYPE.equals(Type.forDescriptor("I"));
 
     assertFalse(equalsNull);
     assertFalse(equalsDifferentTypeSort);
@@ -434,10 +434,10 @@ public class TypeTest implements Opcodes {
 
   @Test
   public void testHashcode() {
-    assertNotEquals(0, Type.fromDescriptor("Ljava/lang/Object;").hashCode());
+    assertNotEquals(0, Type.forDescriptor("Ljava/lang/Object;").hashCode());
     assertEquals(
-            Type.fromDescriptor("Ljava/lang/Object;").hashCode(),
-            Type.fromInternalName("java/lang/Object").hashCode());
-    assertNotEquals(Type.INT_TYPE.hashCode(), Type.fromInternalName("I").hashCode());
+            Type.forDescriptor("Ljava/lang/Object;").hashCode(),
+            Type.forInternalName("java/lang/Object").hashCode());
+    assertNotEquals(Type.INT_TYPE.hashCode(), Type.forInternalName("I").hashCode());
   }
 }

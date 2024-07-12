@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -278,7 +275,7 @@ public class Analyzer<V extends Value> implements Opcodes {
         List<TryCatchBlockNode> insnHandlers = handlers[insnIndex];
         if (insnHandlers != null) {
           for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
-            Type catchType = Type.fromInternalName(
+            Type catchType = Type.forInternalName(
                     Objects.requireNonNullElse(tryCatchBlock.type, "java/lang/Throwable"));
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
               Frame<V> handler = newFrame(oldFrame);
@@ -473,12 +470,12 @@ public class Analyzer<V extends Value> implements Opcodes {
     boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
     Interpreter<V> interpreter = this.interpreter;
     if (isInstanceMethod) {
-      Type ownerType = Type.fromInternalName(owner);
+      Type ownerType = Type.forInternalName(owner);
       frame.setLocal(
               currentLocal, interpreter.newParameterValue(isInstanceMethod, currentLocal, ownerType));
       currentLocal++;
     }
-    Type[] argumentTypes = Type.getArgumentTypes(method.desc);
+    Type[] argumentTypes = Type.forArgumentTypes(method.desc);
     for (Type argumentType : argumentTypes) {
       frame.setLocal(
               currentLocal,

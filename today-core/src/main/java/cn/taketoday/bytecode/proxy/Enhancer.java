@@ -135,12 +135,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private static final String CALLBACK_FILTER_FIELD = "today$CallbackFilter";
 
   private static final Type OBJECT_TYPE = Type.TYPE_OBJECT;
-  private static final Type FACTORY = Type.fromClass(Factory.class);
-  private static final Type CALLBACK = Type.fromClass(Callback.class);
-  private static final Type CALLBACK_ARRAY = Type.fromClass(Callback[].class);
-  private static final Type THREAD_LOCAL = Type.fromInternalName("java/lang/ThreadLocal");
-  private static final Type ILLEGAL_STATE_EXCEPTION = Type.fromInternalName("java/lang/IllegalStateException");
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.fromInternalName("java/lang/IllegalArgumentException");
+  private static final Type FACTORY = Type.forClass(Factory.class);
+  private static final Type CALLBACK = Type.forClass(Callback.class);
+  private static final Type CALLBACK_ARRAY = Type.forClass(Callback[].class);
+  private static final Type THREAD_LOCAL = Type.forInternalName("java/lang/ThreadLocal");
+  private static final Type ILLEGAL_STATE_EXCEPTION = Type.forInternalName("java/lang/IllegalStateException");
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.forInternalName("java/lang/IllegalArgumentException");
 
   static final MethodSignature NEW_INSTANCE = new MethodSignature(Type.TYPE_OBJECT, "newInstance", CALLBACK_ARRAY);
   static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(Type.VOID_TYPE, SET_THREAD_CALLBACKS_NAME, CALLBACK_ARRAY);
@@ -172,7 +172,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private Class<?>[] argumentTypes;
   private Object[] arguments;
   private boolean useFactory = true;
+
   private Long serialVersionUID;
+
   private boolean interceptDuringConstruction = true;
 
   private record EnhancerKey(
@@ -652,8 +654,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       e.beginClass(Opcodes.JAVA_VERSION, //
               Opcodes.ACC_PUBLIC, //
               getClassName(), //
-              Type.fromClass(superclass), //
-              (useFactory ? Type.add(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
+              Type.forClass(superclass), //
+              (useFactory ? addTypes(Type.getTypes(interfaces), FACTORY) : Type.getTypes(interfaces)), //
               Constant.SOURCE_FILE//
       );
     }
@@ -1095,7 +1097,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       return e.getClassEmitter().getClassType();
     }
     else {
-      return Type.fromClass(currentData.generatedClass);
+      return Type.forClass(currentData.generatedClass);
     }
   }
 
@@ -1410,6 +1412,24 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static String getCallbackField(int index) {
     return "today$Callback_" + index;
+  }
+
+  static Type[] addTypes(Type[] types, Type extra) {
+    return addTypes(types, extra, false);
+  }
+
+  static Type[] addTypes(Type[] types, Type extra, boolean justAdd) {
+    if (ObjectUtils.isEmpty(types)) {
+      return new Type[] { extra };
+    }
+
+    if (!justAdd && ObjectUtils.containsElement(types, extra)) {
+      return types;
+    }
+    final Type[] copy = new Type[types.length + 1];
+    System.arraycopy(types, 0, copy, 0, types.length);
+    copy[types.length] = extra;
+    return copy;
   }
 
   /**

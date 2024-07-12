@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -46,7 +43,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
    * Special type used for the {@literal null} literal. This is an object reference type with
    * descriptor 'Lnull;'.
    */
-  public static final Type NULL_TYPE = Type.fromInternalName("null");
+  public static final Type NULL_TYPE = Type.forInternalName("null");
 
   /**
    * Constructs a new {@link BasicInterpreter}.
@@ -98,25 +95,25 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           return BasicValue.DOUBLE_VALUE;
         }
         else if (value instanceof String) {
-          return newValue(Type.fromInternalName("java/lang/String"));
+          return newValue(Type.forInternalName("java/lang/String"));
         }
         else if (value instanceof Type) {
           int sort = ((Type) value).getSort();
           if (sort == Type.OBJECT || sort == Type.ARRAY) {
-            return newValue(Type.fromInternalName("java/lang/Class"));
+            return newValue(Type.forInternalName("java/lang/Class"));
           }
           else if (sort == Type.METHOD) {
-            return newValue(Type.fromInternalName("java/lang/invoke/MethodType"));
+            return newValue(Type.forInternalName("java/lang/invoke/MethodType"));
           }
           else {
             throw new AnalyzerException(insn, "Illegal LDC value " + value);
           }
         }
         else if (value instanceof Handle) {
-          return newValue(Type.fromInternalName("java/lang/invoke/MethodHandle"));
+          return newValue(Type.forInternalName("java/lang/invoke/MethodHandle"));
         }
         else if (value instanceof ConstantDynamic) {
-          return newValue(Type.fromDescriptor(((ConstantDynamic) value).getDescriptor()));
+          return newValue(Type.forDescriptor(((ConstantDynamic) value).getDescriptor()));
         }
         else {
           throw new AnalyzerException(insn, "Illegal LDC value " + value);
@@ -124,9 +121,9 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
       case JSR:
         return BasicValue.RETURNADDRESS_VALUE;
       case GETSTATIC:
-        return newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
+        return newValue(Type.forDescriptor(((FieldInsnNode) insn).desc));
       case NEW:
-        return newValue(Type.fromInternalName(((TypeInsnNode) insn).desc));
+        return newValue(Type.forInternalName(((TypeInsnNode) insn).desc));
       default:
         throw new AssertionError();
     }
@@ -156,33 +153,33 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
               DRETURN, ARETURN, PUTSTATIC, ATHROW, MONITORENTER, MONITOREXIT, IFNULL, IFNONNULL:
         return null;
       case GETFIELD:
-        return newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
+        return newValue(Type.forDescriptor(((FieldInsnNode) insn).desc));
       case NEWARRAY:
         switch (((IntInsnNode) insn).operand) {
           case T_BOOLEAN:
-            return newValue(Type.fromDescriptor("[Z"));
+            return newValue(Type.forDescriptor("[Z"));
           case T_CHAR:
-            return newValue(Type.fromDescriptor("[C"));
+            return newValue(Type.forDescriptor("[C"));
           case T_BYTE:
-            return newValue(Type.fromDescriptor("[B"));
+            return newValue(Type.forDescriptor("[B"));
           case T_SHORT:
-            return newValue(Type.fromDescriptor("[S"));
+            return newValue(Type.forDescriptor("[S"));
           case T_INT:
-            return newValue(Type.fromDescriptor("[I"));
+            return newValue(Type.forDescriptor("[I"));
           case T_FLOAT:
-            return newValue(Type.fromDescriptor("[F"));
+            return newValue(Type.forDescriptor("[F"));
           case T_DOUBLE:
-            return newValue(Type.fromDescriptor("[D"));
+            return newValue(Type.forDescriptor("[D"));
           case T_LONG:
-            return newValue(Type.fromDescriptor("[J"));
+            return newValue(Type.forDescriptor("[J"));
           default:
             break;
         }
         throw new AnalyzerException(insn, "Invalid array type");
       case ANEWARRAY:
-        return newValue(Type.fromDescriptor("[" + Type.fromInternalName(((TypeInsnNode) insn).desc)));
+        return newValue(Type.forDescriptor("[" + Type.forInternalName(((TypeInsnNode) insn).desc)));
       case CHECKCAST:
-        return newValue(Type.fromInternalName(((TypeInsnNode) insn).desc));
+        return newValue(Type.forInternalName(((TypeInsnNode) insn).desc));
       default:
         throw new AssertionError();
     }
@@ -220,7 +217,7 @@ public class BasicInterpreter extends Interpreter<BasicValue> implements Opcodes
           throws AnalyzerException {
     int opcode = insn.getOpcode();
     if (opcode == MULTIANEWARRAY) {
-      return newValue(Type.fromDescriptor(((MultiANewArrayInsnNode) insn).desc));
+      return newValue(Type.forDescriptor(((MultiANewArrayInsnNode) insn).desc));
     }
     else if (opcode == INVOKEDYNAMIC) {
       return newValue(Type.forReturnType(((InvokeDynamicInsnNode) insn).desc));

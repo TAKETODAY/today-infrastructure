@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.commons;
@@ -45,7 +42,7 @@ public abstract class Remapper {
    * descriptor is returned as is).
    */
   public String mapDesc(final String descriptor) {
-    return mapType(Type.fromDescriptor(descriptor)).getDescriptor();
+    return mapType(Type.forDescriptor(descriptor)).getDescriptor();
   }
 
   /**
@@ -62,12 +59,12 @@ public abstract class Remapper {
     switch (type.getSort()) {
       case Type.ARRAY:
         String remappedDescriptor = "[".repeat(Math.max(0, type.getDimensions())) + mapType(type.getElementType()).getDescriptor();
-        return Type.fromDescriptor(remappedDescriptor);
+        return Type.forDescriptor(remappedDescriptor);
       case Type.OBJECT:
         String remappedInternalName = map(type.getInternalName());
-        return remappedInternalName != null ? Type.fromInternalName(remappedInternalName) : type;
+        return remappedInternalName != null ? Type.forInternalName(remappedInternalName) : type;
       case Type.METHOD:
-        return Type.fromMethod(mapMethodDesc(type.getDescriptor()));
+        return Type.forMethod(mapMethodDesc(type.getDescriptor()));
       default:
         return type;
     }
@@ -83,7 +80,7 @@ public abstract class Remapper {
     if (internalName == null) {
       return null;
     }
-    return mapType(Type.fromInternalName(internalName)).getInternalName();
+    return mapType(Type.forInternalName(internalName)).getInternalName();
   }
 
   /**
@@ -121,7 +118,7 @@ public abstract class Remapper {
     }
 
     StringBuilder stringBuilder = new StringBuilder("(");
-    for (Type argumentType : Type.getArgumentTypes(methodDescriptor)) {
+    for (Type argumentType : Type.forArgumentTypes(methodDescriptor)) {
       stringBuilder.append(mapType(argumentType).getDescriptor());
     }
     Type returnType = Type.forReturnType(methodDescriptor);

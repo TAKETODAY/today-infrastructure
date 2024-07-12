@@ -230,7 +230,7 @@ class ConfigurationClassEnhancer {
       ClassEmitter transformer = new ClassEmitter() {
         @Override
         public void endClass() {
-          declare_field(Opcodes.ACC_PUBLIC, BEAN_FACTORY_FIELD, Type.fromClass(BeanFactory.class), null);
+          declare_field(Opcodes.ACC_PUBLIC, BEAN_FACTORY_FIELD, Type.forClass(BeanFactory.class), null);
           super.endClass();
         }
       };

@@ -80,7 +80,7 @@ public class ClassEmitter extends ClassTransformer {
   public void beginClass(int version, int access, String className,
           @Nullable Type superType, Type[] interfaces, @Nullable String source) {
 
-    Type classType = Type.fromDescriptor('L' + className.replace('.', '/') + ';');
+    Type classType = Type.forDescriptor('L' + className.replace('.', '/') + ';');
     classInfo = new ClassInfo() {
       public Type getType() {
         return classType;
@@ -125,9 +125,9 @@ public class ClassEmitter extends ClassTransformer {
           final String superName, // typeDescriptor
           final String... interfaces) //typeDescriptor
   {
-    Type superType = Type.fromDescriptor(superName);
+    Type superType = Type.forDescriptor(superName);
     final Type[] array = Type.getTypes(interfaces);
-    Type type = Type.fromInternalName(name.replace('.', '/'));
+    Type type = Type.forInternalName(name.replace('.', '/'));
 
     classInfo = new ClassInfo() {
 
@@ -202,7 +202,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public CodeEmitter beginMethod(int access, Method method) {
-    return beginMethod(access, MethodSignature.from(method), Type.getExceptionTypes(method));
+    return beginMethod(access, MethodSignature.from(method), Type.forExceptionTypes(method));
   }
 
   public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
@@ -306,8 +306,8 @@ public class ClassEmitter extends ClassTransformer {
   public void visit(
           int version, int access, String name, String signature, String superName, String[] interfaces) {
     beginClass(version, access, name.replace('/', '.'),
-            Type.fromInternalName(superName),
-            Type.fromInternalNames(interfaces), null); // TODO
+            Type.forInternalName(superName),
+            Type.forInternalNames(interfaces), null); // TODO
   }
 
   @Override
@@ -317,13 +317,13 @@ public class ClassEmitter extends ClassTransformer {
 
   @Override
   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-    declare_field(access, name, Type.fromDescriptor(desc), value);
+    declare_field(access, name, Type.forDescriptor(desc), value);
     return null; // TODO
   }
 
   @Override
   public MethodVisitor visitMethod(
           int access, String name, String desc, String signature, String[] exceptions) {
-    return beginMethod(access, new MethodSignature(name, desc), Type.fromInternalNames(exceptions));
+    return beginMethod(access, new MethodSignature(name, desc), Type.forInternalNames(exceptions));
   }
 }

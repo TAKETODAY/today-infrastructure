@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.proxy;
@@ -48,11 +48,11 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   static final String FIND_PROXY_NAME = "today$FindMethodProxy";
 
-  private static final Type METHOD = Type.fromClass(Method.class);
+  private static final Type METHOD = Type.forClass(Method.class);
 
-  private static final Type REFLECT_UTILS = Type.fromClass(CglibReflectUtils.class);
-  private static final Type METHOD_PROXY = Type.fromClass(MethodProxy.class);
-  private static final Type METHOD_INTERCEPTOR = Type.fromClass(MethodInterceptor.class);
+  private static final Type REFLECT_UTILS = Type.forClass(CglibReflectUtils.class);
+  private static final Type METHOD_PROXY = Type.forClass(MethodProxy.class);
+  private static final Type METHOD_INTERCEPTOR = Type.forClass(MethodInterceptor.class);
 
   private static final MethodSignature GET_DECLARED_METHODS = //
           MethodSignature.from("java.lang.reflect.Method[] getDeclaredMethods()");
@@ -137,7 +137,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static void superHelper(CodeEmitter e, MethodInfo method, Context context) {
     if (Modifier.isAbstract(method.getModifiers())) {
-      e.throwException(Type.fromClass(AbstractMethodError.class), method + " is abstract");
+      e.throwException(Type.forClass(AbstractMethodError.class), method + " is abstract");
     }
     else {
       e.loadThis();

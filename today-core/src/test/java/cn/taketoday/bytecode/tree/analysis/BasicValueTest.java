@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -38,7 +35,7 @@ public class BasicValueTest {
   @Test
   public void testIsReference() {
     assertTrue(BasicValue.REFERENCE_VALUE.isReference());
-    assertTrue(new BasicValue(Type.fromInternalName("[I")).isReference());
+    assertTrue(new BasicValue(Type.forInternalName("[I")).isReference());
     assertFalse(BasicValue.UNINITIALIZED_VALUE.isReference());
     assertFalse(BasicValue.INT_VALUE.isReference());
   }
@@ -68,6 +65,6 @@ public class BasicValueTest {
     assertEquals(".", BasicValue.UNINITIALIZED_VALUE.toString());
     assertEquals("A", BasicValue.RETURNADDRESS_VALUE.toString());
     assertEquals("R", BasicValue.REFERENCE_VALUE.toString());
-    assertEquals("LI;", new BasicValue(Type.fromInternalName("I")).toString());
+    assertEquals("LI;", new BasicValue(Type.forInternalName("I")).toString());
   }
 }

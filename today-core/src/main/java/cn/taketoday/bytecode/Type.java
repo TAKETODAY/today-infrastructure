@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode;
@@ -22,12 +22,12 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * A Java field or method type. This class can be used to make it easier to manipulate type and
@@ -111,7 +111,7 @@ public final class Type {
           new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
   /** The descriptors of the primitive Java types (plus void). */
-  private static final HashMap<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
+  private static final Map<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
 
   static {
     HashMap<String, String> descriptors = new HashMap<>();
@@ -124,35 +124,34 @@ public final class Type {
     descriptors.put("long", "J");
     descriptors.put("short", "S");
     descriptors.put("boolean", "Z");
-    PRIMITIVE_TYPE_DESCRIPTORS = descriptors;
+    PRIMITIVE_TYPE_DESCRIPTORS = Map.copyOf(descriptors);
   }
 
-  public static final Type TYPE_TYPE = Type.fromClass(Type.class);
-  public static final Type TYPE_CONSTANT = Type.fromClass(Constant.class);
-  public static final Type TYPE_OBJECT_ARRAY = Type.fromInternalName("[Ljava/lang/Object;");
-  public static final Type TYPE_CLASS_ARRAY = Type.fromInternalName("[Ljava/lang/Class;");
-  public static final Type TYPE_STRING_ARRAY = Type.fromInternalName("[Ljava/lang/String;");
-  public static final Type TYPE_ERROR = Type.fromInternalName("java/lang/Error");
-  public static final Type TYPE_SYSTEM = Type.fromInternalName("java/lang/System");
-  public static final Type TYPE_LONG = Type.fromInternalName("java/lang/Long");
-  public static final Type TYPE_BYTE = Type.fromInternalName("java/lang/Byte");
-  public static final Type TYPE_CLASS = Type.fromInternalName("java/lang/Class");
-  public static final Type TYPE_FLOAT = Type.fromInternalName("java/lang/Float");
-  public static final Type TYPE_SHORT = Type.fromInternalName("java/lang/Short");
-  public static final Type TYPE_DOUBLE = Type.fromInternalName("java/lang/Double");
-  public static final Type TYPE_STRING = Type.fromInternalName("java/lang/String");
-  public static final Type TYPE_NUMBER = Type.fromInternalName("java/lang/Number");
-  public static final Type TYPE_BOOLEAN = Type.fromInternalName("java/lang/Boolean");
-  public static final Type TYPE_INTEGER = Type.fromInternalName("java/lang/Integer");
-  public static final Type TYPE_CHARACTER = Type.fromInternalName("java/lang/Character");
-  public static final Type TYPE_THROWABLE = Type.fromInternalName("java/lang/Throwable");
-  public static final Type TYPE_CLASS_LOADER = Type.fromInternalName("java/lang/ClassLoader");
-  public static final Type TYPE_STRING_BUFFER = Type.fromInternalName("java/lang/StringBuffer");
-  public static final Type TYPE_RUNTIME_EXCEPTION = Type.fromInternalName("java/lang/RuntimeException");
-  public static final Type TYPE_SIGNATURE = Type.fromClass(MethodSignature.class);
+  public static final Type TYPE_TYPE = Type.forClass(Type.class);
+  public static final Type TYPE_CONSTANT = Type.forClass(Constant.class);
+  public static final Type TYPE_OBJECT_ARRAY = Type.forInternalName("[Ljava/lang/Object;");
+  public static final Type TYPE_CLASS_ARRAY = Type.forInternalName("[Ljava/lang/Class;");
+  public static final Type TYPE_STRING_ARRAY = Type.forInternalName("[Ljava/lang/String;");
+  public static final Type TYPE_ERROR = Type.forInternalName("java/lang/Error");
+  public static final Type TYPE_SYSTEM = Type.forInternalName("java/lang/System");
+  public static final Type TYPE_LONG = Type.forInternalName("java/lang/Long");
+  public static final Type TYPE_BYTE = Type.forInternalName("java/lang/Byte");
+  public static final Type TYPE_CLASS = Type.forInternalName("java/lang/Class");
+  public static final Type TYPE_FLOAT = Type.forInternalName("java/lang/Float");
+  public static final Type TYPE_SHORT = Type.forInternalName("java/lang/Short");
+  public static final Type TYPE_DOUBLE = Type.forInternalName("java/lang/Double");
+  public static final Type TYPE_STRING = Type.forInternalName("java/lang/String");
+  public static final Type TYPE_NUMBER = Type.forInternalName("java/lang/Number");
+  public static final Type TYPE_BOOLEAN = Type.forInternalName("java/lang/Boolean");
+  public static final Type TYPE_INTEGER = Type.forInternalName("java/lang/Integer");
+  public static final Type TYPE_CHARACTER = Type.forInternalName("java/lang/Character");
+  public static final Type TYPE_THROWABLE = Type.forInternalName("java/lang/Throwable");
+  public static final Type TYPE_CLASS_LOADER = Type.forInternalName("java/lang/ClassLoader");
+  public static final Type TYPE_RUNTIME_EXCEPTION = Type.forInternalName("java/lang/RuntimeException");
+  public static final Type TYPE_SIGNATURE = Type.forClass(MethodSignature.class);
 
   /** The type of the java.lang.Object class. */
-  public static final Type TYPE_OBJECT = Type.fromInternalName("java/lang/Object");
+  public static final Type TYPE_OBJECT = Type.forInternalName("java/lang/Object");
   public static final Type[] EMPTY_ARRAY = {};
 
   // -----------------------------------------------------------------------------------------------
@@ -216,7 +215,7 @@ public final class Type {
    * @since 4.0
    */
   public static Type parse(String s) {
-    return fromDescriptor(getDescriptor(s));
+    return forDescriptor(getDescriptor(s));
   }
 
   /**
@@ -233,7 +232,7 @@ public final class Type {
    * @param typeDescriptor a field or method type descriptor.
    * @return the {@link Type} corresponding to the given type descriptor.
    */
-  public static Type fromDescriptor(final String typeDescriptor) {
+  public static Type forDescriptor(final String typeDescriptor) {
     return getTypeInternal(typeDescriptor, 0, typeDescriptor.length());
   }
 
@@ -243,7 +242,7 @@ public final class Type {
    * @param clazz a class.
    * @return the {@link Type} corresponding to the given class.
    */
-  public static Type fromClass(final Class<?> clazz) {
+  public static Type forClass(final Class<?> clazz) {
     if (clazz.isPrimitive()) {
       if (clazz == Integer.TYPE) {
         return INT_TYPE;
@@ -277,7 +276,7 @@ public final class Type {
       }
     }
     else {
-      return fromDescriptor(getDescriptor(clazz));
+      return forDescriptor(getDescriptor(clazz));
     }
   }
 
@@ -287,8 +286,8 @@ public final class Type {
    * @param constructor a {@link Constructor} object.
    * @return the method {@link Type} corresponding to the given constructor.
    */
-  public static Type fromConstructor(final Constructor<?> constructor) {
-    return fromDescriptor(getConstructorDescriptor(constructor));
+  public static Type forConstructor(final Constructor<?> constructor) {
+    return forDescriptor(getConstructorDescriptor(constructor));
   }
 
   /**
@@ -297,8 +296,8 @@ public final class Type {
    * @param method a {@link Method} object.
    * @return the method {@link Type} corresponding to the given method.
    */
-  public static Type fromMethod(final Method method) {
-    return fromDescriptor(getMethodDescriptor(method));
+  public static Type forMethod(final Method method) {
+    return forDescriptor(getMethodDescriptor(method));
   }
 
   /**
@@ -318,7 +317,7 @@ public final class Type {
    * @param internalName an internal name.
    * @return the {@link Type} corresponding to the given internal name.
    */
-  public static Type fromInternalName(final String internalName) {
+  public static Type forInternalName(final String internalName) {
     return new Type(
             internalName.charAt(0) == '[' ? ARRAY : INTERNAL, internalName, 0, internalName.length());
   }
@@ -326,13 +325,13 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] fromInternalNames(String[] names) {
+  public static Type[] forInternalNames(String[] names) {
     if (names == null) {
       return null;
     }
     Type[] types = new Type[names.length];
     for (int i = 0; i < names.length; i++) {
-      types[i] = fromInternalName(names[i]);
+      types[i] = forInternalName(names[i]);
     }
     return types;
   }
@@ -343,14 +342,14 @@ public final class Type {
    * @param internalNames internal name. if null returns null
    * @return the {@link Type}s corresponding to the given internal name.
    */
-  public static Type[] getObjectTypes(final String[] internalNames) {
+  public static Type[] forObjectTypes(final String[] internalNames) {
     if (internalNames == null) {
       return null;
     }
     Type[] ret = new Type[internalNames.length];
     int i = 0;
     for (final String internalName : internalNames) {
-      ret[i++] = fromInternalName(internalName);
+      ret[i++] = forInternalName(internalName);
     }
     return ret;
   }
@@ -362,7 +361,7 @@ public final class Type {
    * @see Executable#getExceptionTypes()
    * @since 4.0
    */
-  public static Type[] getExceptionTypes(Member member) {
+  public static Type[] forExceptionTypes(Member member) {
     if (member instanceof Executable) {
       return Type.getTypes(((Executable) member).getExceptionTypes());
     }
@@ -376,7 +375,7 @@ public final class Type {
    * @param methodDescriptor a method descriptor.
    * @return the {@link Type} corresponding to the given method descriptor.
    */
-  public static Type fromMethod(final String methodDescriptor) {
+  public static Type forMethod(final String methodDescriptor) {
     return new Type(METHOD, methodDescriptor, 0, methodDescriptor.length());
   }
 
@@ -387,18 +386,8 @@ public final class Type {
    * @param argumentTypes the argument types of the method.
    * @return the method {@link Type} corresponding to the given argument and return types.
    */
-  public static Type fromMethod(final Type returnType, final Type... argumentTypes) {
-    return fromDescriptor(getMethodDescriptor(returnType, argumentTypes));
-  }
-
-  /**
-   * Returns the argument types of methods of this type. This method should only be used for method
-   * types.
-   *
-   * @return the argument types of methods of this type.
-   */
-  public Type[] getArgumentTypes() {
-    return getArgumentTypes(getDescriptor());
+  public static Type forMethod(final Type returnType, final Type... argumentTypes) {
+    return forDescriptor(getMethodDescriptor(returnType, argumentTypes));
   }
 
   /**
@@ -409,7 +398,7 @@ public final class Type {
    * @return the {@link Type} values corresponding to the argument types of the given method
    * descriptor.
    */
-  public static Type[] getArgumentTypes(final String methodDescriptor) {
+  public static Type[] forArgumentTypes(final String methodDescriptor) {
     // First step: compute the number of argument types in methodDescriptor.
     int numArgumentTypes = getArgumentCount(methodDescriptor);
 
@@ -441,23 +430,13 @@ public final class Type {
    * @param method a method.
    * @return the {@link Type} values corresponding to the argument types of the given method.
    */
-  public static Type[] getArgumentTypes(final Method method) {
+  public static Type[] forArgumentTypes(final Method method) {
     Class<?>[] classes = method.getParameterTypes();
     Type[] types = new Type[classes.length];
     for (int i = classes.length - 1; i >= 0; --i) {
-      types[i] = fromClass(classes[i]);
+      types[i] = forClass(classes[i]);
     }
     return types;
-  }
-
-  /**
-   * Returns the return type of methods of this type. This method should only be used for method
-   * types.
-   *
-   * @return the return type of methods of this type.
-   */
-  public Type getReturnType() {
-    return forReturnType(getDescriptor());
   }
 
   /**
@@ -478,7 +457,7 @@ public final class Type {
    * @return the {@link Type} corresponding to the return type of the given method.
    */
   public static Type forReturnType(final Method method) {
-    return fromClass(method.getReturnType());
+    return forClass(method.getReturnType());
   }
 
   /**
@@ -536,6 +515,26 @@ public final class Type {
   // -----------------------------------------------------------------------------------------------
   // Methods to get class names, internal names or descriptors.
   // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Returns the return type of methods of this type. This method should only be used for method
+   * types.
+   *
+   * @return the return type of methods of this type.
+   */
+  public Type getReturnType() {
+    return forReturnType(getDescriptor());
+  }
+
+  /**
+   * Returns the argument types of methods of this type. This method should only be used for method
+   * types.
+   *
+   * @return the argument types of methods of this type.
+   */
+  public Type[] getArgumentTypes() {
+    return forArgumentTypes(getDescriptor());
+  }
 
   /**
    * Returns the binary name of the class corresponding to this type. This method must not be used
@@ -819,7 +818,7 @@ public final class Type {
    */
   public Type getComponentType() {
     if (isArray()) {
-      return fromDescriptor(getDescriptor().substring(1));
+      return forDescriptor(getDescriptor().substring(1));
     }
     throw new IllegalArgumentException("Type " + this + " is not an array");
   }
@@ -1120,7 +1119,7 @@ public final class Type {
     int i = 0;
     Type[] ret = new Type[items.length];
     for (final Class<?> item : items) {
-      ret[i++] = fromClass(item);
+      ret[i++] = forClass(item);
     }
     return ret;
   }
@@ -1135,7 +1134,7 @@ public final class Type {
     int i = 0;
     Type[] ret = new Type[items.length];
     for (final String item : items) {
-      ret[i++] = fromDescriptor(item);
+      ret[i++] = forDescriptor(item);
     }
     return ret;
   }
@@ -1255,36 +1254,6 @@ public final class Type {
   @Override
   public String toString() {
     return getDescriptor();
-  }
-
-  // static
-
-  public static Type[] add(Type[] types, Type extra) {
-    return add(types, extra, false);
-  }
-
-  public static Type[] add(Type[] types, Type extra, boolean justAdd) {
-    if (ObjectUtils.isEmpty(types)) {
-      return new Type[] { extra };
-    }
-
-    if (!justAdd && ObjectUtils.containsElement(types, extra)) {
-      return types;
-    }
-    final Type[] copy = new Type[types.length + 1];
-    System.arraycopy(types, 0, copy, 0, types.length);
-    copy[types.length] = extra;
-    return copy;
-  }
-
-  public static Type[] add(Type[] t1, Type... t2) {
-    if (ObjectUtils.isEmpty(t2)) {
-      return t1;
-    }
-    Type[] all = new Type[t1.length + t2.length];
-    System.arraycopy(t1, 0, all, 0, t1.length);
-    System.arraycopy(t2, 0, all, t1.length, t2.length);
-    return all;
   }
 
 }

@@ -417,7 +417,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
 
   private void doVisitMethodInsn(final int opcode, final String name, final String descriptor) {
     if (isConstructor && !superClassConstructorCalled) {
-      for (Type argumentType : Type.getArgumentTypes(descriptor)) {
+      for (Type argumentType : Type.forArgumentTypes(descriptor)) {
         popValue();
         if (argumentType.getSize() == 2) {
           popValue();

@@ -284,7 +284,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
     if (typeDescriptor.length() > 1) {
       typeDescriptor += ";";
     }
-    String className = Type.fromDescriptor(typeDescriptor).getClassName();
+    String className = Type.forDescriptor(typeDescriptor).getClassName();
     return ClassUtils.resolveClassName(className, classLoader);
   }
 
