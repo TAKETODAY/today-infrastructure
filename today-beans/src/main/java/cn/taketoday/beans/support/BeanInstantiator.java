@@ -185,7 +185,7 @@ public abstract class BeanInstantiator {
   /**
    * @param function function
    */
-  public static FunctionInstantiator forFunction(Function<Object[], ?> function) {
+  public static BeanInstantiator forFunction(Function<Object[], ?> function) {
     Assert.notNull(function, "instance function is required");
     return new FunctionInstantiator(function);
   }
@@ -193,7 +193,7 @@ public abstract class BeanInstantiator {
   /**
    * @param supplier bean instance supplier
    */
-  public static SupplierInstantiator forSupplier(Supplier<?> supplier) {
+  public static BeanInstantiator forSupplier(Supplier<?> supplier) {
     Assert.notNull(supplier, "instance supplier is required");
     return new SupplierInstantiator(supplier);
   }

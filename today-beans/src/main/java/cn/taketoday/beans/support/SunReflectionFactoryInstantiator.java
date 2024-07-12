@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -79,18 +78,9 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> Constructor<T> newConstructorForSerialization(
-          Class<T> type, Constructor<?> constructor) {
+  public static <T> Constructor<T> newConstructorForSerialization(Class<T> type, Constructor<?> constructor) {
     Assert.notNull(type, "type is required");
-    try {
-      return (Constructor<T>) newConstructorForSerialization.invoke(
-              reflectionFactory, type, constructor);
-    }
-    catch (Throwable e) {
-      Throwable throwable = ExceptionUtils.unwrapIfNecessary(e);
-      throw new IllegalStateException(
-              "Serialization Constructor for '%s' created failed".formatted(type), throwable);
-    }
+    return (Constructor<T>) ReflectionUtils.invokeMethod(newConstructorForSerialization, reflectionFactory, type, constructor);
   }
 
 }

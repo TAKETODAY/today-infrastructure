@@ -47,7 +47,6 @@ import java.util.function.Predicate;
 
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 
@@ -280,7 +279,7 @@ public abstract class CollectionUtils {
    * Create the most appropriate collection for the given collection type.
    * <p>
    * Delegates to {@link #createCollection(Class, Class, int)} with a {@code null}
-   * element type, and {@link Constant#ZERO}.
+   * element type, and {@code 0}.
    *
    * @param collectionType the desired type of the target collection (never {@code null})
    * @return a new collection instance
@@ -289,7 +288,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <E> Collection<E> createCollection(Class<?> collectionType) {
-    return createCollection(collectionType, null, Constant.ZERO);
+    return createCollection(collectionType, null, 0);
   }
 
   /**
@@ -399,7 +398,7 @@ public abstract class CollectionUtils {
    * alternative, the caller may wish to treat the return value as a raw map or
    * map keyed by {@link Object}.
    * <p>
-   * use default capacity {@link Constant#ZERO}.
+   * use default capacity {@code 0}.
    *
    * @param map the original map object, potentially {@code null}
    * @return a new, empty map instance
@@ -410,7 +409,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <K, V> Map<K, V> createApproximateMap(@Nullable Object map) {
-    return createApproximateMap(map, Constant.ZERO);
+    return createApproximateMap(map, 0);
   }
 
   /**
@@ -455,7 +454,7 @@ public abstract class CollectionUtils {
    * Create the most appropriate map for the given map type.
    * <p>
    * Delegates to {@link #createMap(Class, Class, int)} with a {@code null} key
-   * type, and default capacity {@link Constant#ZERO}.
+   * type, and default capacity {@code 0}.
    *
    * @param mapType the desired type of the target map
    * @return a new map instance
@@ -464,7 +463,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static <K, V> Map<K, V> createMap(@NonNull Class<?> mapType) {
-    return createMap(mapType, null, Constant.ZERO);
+    return createMap(mapType, null, 0);
   }
 
   /**
