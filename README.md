@@ -4,6 +4,7 @@
 
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/79c9339735d74e14b43761097ceb17cc)](https://app.codacy.com/gh/TAKETODAY/today-infrastructure?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-infrastructure&utm_campaign=Badge_Grade)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Deploy](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml)
 [![Coveralls](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml)
