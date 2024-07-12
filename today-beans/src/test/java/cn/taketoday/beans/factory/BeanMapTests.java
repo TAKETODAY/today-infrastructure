@@ -22,11 +22,13 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.support.BeanMapping;
+import cn.taketoday.beans.NotWritablePropertyException;
+import cn.taketoday.beans.support.BeanMap;
 import cn.taketoday.bytecode.proxy.Dispatcher;
 import cn.taketoday.bytecode.proxy.Enhancer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -35,44 +37,105 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author TODAY 2021/5/29 23:08
  */
-public class BeanMappingTests {
+class BeanMapTests {
 
   @Test
   public void testBeanMapping() {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
-    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
+    final BeanMap<BeanMappingTestBean> beanMap = BeanMap.forInstance(testBean);
 
-    beanMapping.put("stringProperty", "stringProperty value");
-    assertThat(beanMapping).containsKey("stringProperty");
-    assertThat(beanMapping).containsEntry("stringProperty", "stringProperty value");
+    beanMap.put("stringProperty", "stringProperty value");
+    assertThat(beanMap).containsKey("stringProperty");
+    assertThat(beanMap).containsEntry("stringProperty", "stringProperty value");
   }
 
-  //  @Test
-  public void benchmark() {
-    final BeanMappingTestBean testBean = new BeanMappingTestBean();
-    final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
+  @Test
+  void testBean() {
+    BeanMappingTestBean testBean = new BeanMappingTestBean();
+    BeanMap<BeanMappingTestBean> beanMap = BeanMap.forInstance(testBean);
 
-    beanMapping.get("stringProperty");
+    assertThat(beanMap).isEqualTo(BeanMap.forInstance(testBean));
 
-    long start = System.currentTimeMillis();
-    int times = 1_0000_0000_0;
-    for (int i = 0; i < times; i++) {
-      beanMapping.get("stringProperty");
-    }
-    System.out.println("BeanMapping used: " + (System.currentTimeMillis() - start) + "ms");
+    HashMap<String, Object> expected = new HashMap<>(beanMap);
+    assertThat(beanMap.equals(expected)).isTrue();
 
-    System.out.println("BeanMap used: " + (System.currentTimeMillis() - start) + "ms");
+    beanMap.put("stringProperty", "stringProperty");
+    assertThat(beanMap).containsKey("stringProperty");
+    assertThat(beanMap.get("stringProperty")).isEqualTo("stringProperty");
 
-    start = System.currentTimeMillis();
-    for (int i = 0; i < times; i++) {
-      testBean.getStringProperty();
-    }
-    System.out.println("native used: " + (System.currentTimeMillis() - start) + "ms");
+    assertThat(beanMap.getTarget()).isEqualTo(testBean).isSameAs(testBean);
+
+    beanMap.setTarget(new BeanMappingTestBean());
+
+    assertThat(beanMap.get("stringProperty")).isNotEqualTo("stringProperty");
+
+    assertThat(beanMap).isNotEqualTo(BeanMap.forInstance(testBean));
+  }
+
+  @Test
+  void newInstance() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThat(beanMap.newInstance()).isSameAs(beanMap.getTarget());
 
   }
 
-  public static class TestBean2 {
-    private String foo;
+  @Test
+  void withInstance() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThat(beanMap).isEqualTo(beanMap);
+    assertThat(beanMap.newInstance()).isSameAs(beanMap.getTarget());
+
+    beanMap.put("stringProperty", "stringProperty value");
+    assertThat(beanMap).containsKey("stringProperty");
+    assertThat(beanMap.get("stringProperty")).isEqualTo("stringProperty value");
+    var actual = beanMap.withInstance(new BeanMappingTestBean());
+
+    assertThat(actual.get("stringProperty")).isNotEqualTo("stringProperty value");
+  }
+
+  @Test
+  void ignoreReadOnly() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThat(beanMap.isIgnoreReadOnly()).isFalse();
+    beanMap.setIgnoreReadOnly(true);
+    Object readOnlyProperty = beanMap.get("readOnlyProperty");
+
+    beanMap.put("readOnlyProperty", "readOnlyProperty value");
+    assertThat(readOnlyProperty).isEqualTo(beanMap.get("readOnlyProperty"));
+
+    beanMap.setIgnoreReadOnly(false);
+
+    assertThatThrownBy(() -> beanMap.put("readOnlyProperty", "readOnlyProperty value"))
+            .isInstanceOf(NotWritablePropertyException.class)
+            .hasMessageEndingWith("that is not-writeable");
+  }
+
+  @Test
+  void keySet() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThat(beanMap.keySet()).contains("stringProperty");
+  }
+
+  @Test
+  void get() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThatThrownBy(() -> beanMap.get(1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("key must be a string");
+  }
+
+  @Test
+  void clear() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThatThrownBy(beanMap::clear)
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void remove() {
+    var beanMap = BeanMap.forClass(BeanMappingTestBean.class);
+    assertThatThrownBy(() -> beanMap.remove("stringProperty"))
+            .isInstanceOf(UnsupportedOperationException.class);
   }
 
   public static class TestBeanMapBean {
@@ -119,7 +182,7 @@ public class BeanMappingTests {
   @Test
   public void testBeanMap() {
     TestBeanMapBean bean = new TestBeanMapBean();
-    BeanMapping<TestBeanMapBean> map = BeanMapping.from(bean);
+    BeanMap<TestBeanMapBean> map = BeanMap.forInstance(bean);
 
     assertEquals(7, map.size());
     assertNull(map.get("foo"));
@@ -139,13 +202,13 @@ public class BeanMappingTests {
   @Test
   public void testEntrySet() {
     TestBeanMapBean bean = new TestBeanMapBean();
-    BeanMapping<TestBeanMapBean> map = BeanMapping.from(bean);
+    BeanMap<TestBeanMapBean> map = BeanMap.forInstance(bean);
     assertEquals(map.entrySet().size(), map.size());
   }
 
   @Test
   public void testNoUnderlyingBean() {
-    BeanMapping<TestBeanMapBean> map = BeanMapping.from(TestBeanMapBean.class);
+    BeanMap<TestBeanMapBean> map = BeanMap.forClass(TestBeanMapBean.class);
 
     TestBeanMapBean bean = new TestBeanMapBean();
     assertNull(bean.getFoo());
@@ -179,7 +242,7 @@ public class BeanMappingTests {
   @Test
   public void testContainsValue() {
     TestBeanFullGetters bean = new TestBeanFullGetters();
-    BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
+    BeanMap<TestBeanFullGetters> map = BeanMap.forInstance(bean);
     assertTrue(map.containsValue(null));
     bean.setFoo("foo");
     bean.setBaz("baz");
@@ -192,11 +255,13 @@ public class BeanMappingTests {
   public void testEquals() {
 
     TestBeanFullGetters bean = new TestBeanFullGetters();
-    BeanMapping<TestBeanFullGetters> map = BeanMapping.from(bean);
+    BeanMap<TestBeanFullGetters> map = BeanMap.forInstance(bean);
     assertEquals(map.size(), 7);
     HashMap<Object, Object> map2 = new HashMap<>(map);
+    assertThat(map2).isEqualTo(map);
     map2.remove("class");
 
+    assertThat(map2).isNotEqualTo(map);
   }
 
   // -----------------------------------------------------------
@@ -205,7 +270,7 @@ public class BeanMappingTests {
     Enhancer e = new Enhancer();
     e.setSuperclass(bean.getClass());
     e.setInterfaces(Map.class);
-    final Map map = BeanMapping.from(bean);
+    final Map map = BeanMap.forInstance(bean);
     e.setCallbackFilter(method -> method.getDeclaringClass().equals(Map.class) ? 1 : 0);
     e.setCallbacks((Dispatcher) () -> bean, (Dispatcher) () -> map);
     return e.create();

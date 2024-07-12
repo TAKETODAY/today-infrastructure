@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.support;
@@ -32,7 +29,6 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
 import cn.taketoday.core.Pair;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.SetterMethod;
 import cn.taketoday.util.ObjectUtils;
@@ -43,13 +39,15 @@ import cn.taketoday.util.ObjectUtils;
  * read-only property will be ignored. Removal of objects is not a supported
  * (the key set is fixed).
  *
- * @author TODAY 20w21/5/28 21:15
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #ignoreReadOnly
- * @since 3.0.2
+ * @since 3.0.2 2021/5/28 21:15
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public final class BeanMapping<T> extends AbstractMap<String, Object> implements Map<String, Object> {
+public final class BeanMap<T> extends AbstractMap<String, Object> implements Map<String, Object> {
+
   private T target;
+
   private final BeanMetadata metadata;
 
   /**
@@ -57,16 +55,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
    */
   private boolean ignoreReadOnly;
 
-  public BeanMapping(T target) {
-    this.target = target;
-    this.metadata = BeanMetadata.from(target);
-  }
-
-  public BeanMapping(BeanMetadata metadata) {
-    this.metadata = metadata;
-  }
-
-  BeanMapping(T target, BeanMetadata metadata) {
+  private BeanMap(T target, BeanMetadata metadata) {
     this.target = target;
     this.metadata = metadata;
   }
@@ -76,18 +65,12 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     Object target = this.target;
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
     for (BeanProperty property : metadata) {
-      if (property.isReadable()) {
-        Object value = property.getValue(target);
-        entrySet.add(Pair.of(property.getName(), value));
-      }
-      else {
-        entrySet.add(Pair.of(property.getName(), null));
-      }
+      Object value = property.getValue(target);
+      entrySet.add(Pair.of(property.getName(), value));
     }
     return entrySet;
   }
 
-  @NonNull
   @Override
   public Set<String> keySet() {
     return Collections.unmodifiableSet(metadata.getBeanProperties().keySet());
@@ -134,7 +117,7 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     else {
       if (!ignoreReadOnly) {
         throw new NotWritablePropertyException(metadata.getType(), beanProperty.getName(),
-                target + " has a property: '" + beanProperty.getName() + "' that is not-writeable");
+                "%s has a property: '%s' that is not-writeable".formatted(target, beanProperty.getName()));
       }
     }
     return beanProperty.getValue(target);
@@ -171,26 +154,10 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   @Override
   public boolean equals(Object o) {
     if (o != this) {
-      if (o instanceof BeanMapping other) {
-        // is BeanMapping
+      if (o instanceof BeanMap other) {
+        // is BeanMap
         return ObjectUtils.nullSafeEquals(target, other.target)
                 && Objects.equals(metadata, other.metadata);
-      }
-
-      if (!(o instanceof Map other)) {
-        return false;
-      }
-
-      int propertySize = metadata.getPropertySize();
-      if (propertySize != other.size()) {
-        return false;
-      }
-      Object target = getTarget();
-      for (BeanProperty property : metadata) {
-        Object value = property.getValue(target);
-        if (!ObjectUtils.nullSafeEquals(value, other.get(property.getName()))) {
-          return false;
-        }
       }
     }
     return true;
@@ -219,14 +186,14 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
   }
 
   /**
-   * Create a new <code>BeanMapping</code> instance using the specified bean. This is
-   * faster than using the {@link #from(Object)} static method.
+   * Create a new <code>BeanMap</code> instance using the specified bean. This is
+   * faster than using the {@link #forInstance(Object)} static method.
    *
    * @param bean the JavaBean underlying the map
-   * @return a new <code>BeanMapping</code> instance
+   * @return a new <code>BeanMap</code> instance
    */
-  public BeanMapping<T> newInstance(T bean) {
-    return new BeanMapping<>(bean, metadata);
+  public BeanMap<T> withInstance(T bean) {
+    return new BeanMap<>(bean, metadata);
   }
 
   @SuppressWarnings("unchecked")
@@ -246,14 +213,14 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
 
   // static
 
-  public static <T> BeanMapping<T> from(T bean) {
-    return new BeanMapping<>(bean, BeanMetadata.from(bean));
+  public static <T> BeanMap<T> forInstance(T bean) {
+    return new BeanMap<>(bean, BeanMetadata.from(bean));
   }
 
   @SuppressWarnings("unchecked")
-  public static <T> BeanMapping<T> from(Class<T> beanClass) {
+  public static <T> BeanMap<T> forClass(Class<T> beanClass) {
     BeanMetadata metadata = BeanMetadata.from(beanClass);
-    return new BeanMapping<>((T) metadata.newInstance(), metadata);
+    return new BeanMap<>((T) metadata.newInstance(), metadata);
   }
 
 }
