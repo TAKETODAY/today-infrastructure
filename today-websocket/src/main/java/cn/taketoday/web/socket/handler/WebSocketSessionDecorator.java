@@ -156,6 +156,11 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
+  public boolean isActive() {
+    return delegate.isActive();
+  }
+
+  @Override
   public void close() throws IOException {
     delegate.close();
   }

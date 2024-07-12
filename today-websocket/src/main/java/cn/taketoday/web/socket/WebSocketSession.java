@@ -172,7 +172,19 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
 
   public abstract boolean isSecure();
 
+  /**
+   * Returns {@code true} if the channel is open and may get active later
+   */
   public abstract boolean isOpen();
+
+  /**
+   * return {@code true} if the channel is active and so connected.
+   *
+   * @since 5.0
+   */
+  public boolean isActive() {
+    return isOpen();
+  }
 
   /**
    * Close the current conversation with a normal status code and no reason phrase.
