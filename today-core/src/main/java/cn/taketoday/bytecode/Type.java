@@ -21,7 +21,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.bytecode.commons.MethodSignature;
@@ -111,21 +110,17 @@ public final class Type {
           new Type(DOUBLE, PRIMITIVE_DESCRIPTORS, DOUBLE, DOUBLE + 1);
 
   /** The descriptors of the primitive Java types (plus void). */
-  private static final Map<String, String> PRIMITIVE_TYPE_DESCRIPTORS;
-
-  static {
-    HashMap<String, String> descriptors = new HashMap<>();
-    descriptors.put("void", "V");
-    descriptors.put("byte", "B");
-    descriptors.put("char", "C");
-    descriptors.put("double", "D");
-    descriptors.put("float", "F");
-    descriptors.put("int", "I");
-    descriptors.put("long", "J");
-    descriptors.put("short", "S");
-    descriptors.put("boolean", "Z");
-    PRIMITIVE_TYPE_DESCRIPTORS = Map.copyOf(descriptors);
-  }
+  private static final Map<String, String> PRIMITIVE_TYPE_DESCRIPTORS = Map.of(
+          "void", "V",
+          "byte", "B",
+          "char", "C",
+          "double", "D",
+          "float", "F",
+          "int", "I",
+          "long", "J",
+          "short", "S",
+          "boolean", "Z"
+  );
 
   public static final Type TYPE_TYPE = Type.forClass(Type.class);
   public static final Type TYPE_CONSTANT = Type.forClass(Constant.class);
