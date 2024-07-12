@@ -100,9 +100,6 @@ import static cn.taketoday.lang.Constant.SUID_FIELD_NAME;
  * <code>Factory</code> interface provides an API to change the callbacks of an
  * existing object, as well as a faster and easier way to create new instances
  * of the same type.
- * <p>
- * For an almost drop-in replacement for <code>java.lang.reflect.Proxy</code>,
- * see the {@link Proxy} class.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
