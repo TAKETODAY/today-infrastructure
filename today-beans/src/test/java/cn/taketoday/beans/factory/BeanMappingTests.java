@@ -42,6 +42,7 @@ public class BeanMappingTests {
     final BeanMappingTestBean testBean = new BeanMappingTestBean();
     final BeanMapping<BeanMappingTestBean> beanMapping = BeanMapping.from(testBean);
 
+    beanMapping.put("stringProperty", "stringProperty value");
     assertThat(beanMapping).containsKey("stringProperty");
     assertThat(beanMapping).containsEntry("stringProperty", "stringProperty value");
   }
