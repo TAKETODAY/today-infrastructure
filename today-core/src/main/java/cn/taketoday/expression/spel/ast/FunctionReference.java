@@ -19,6 +19,7 @@ package cn.taketoday.expression.spel.ast;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.StringJoiner;
@@ -141,8 +142,10 @@ public class FunctionReference extends SpelNodeImpl {
       return new TypedValue(result, new TypeDescriptor(new MethodParameter(method, -1)).narrow(result));
     }
     catch (Exception ex) {
-      throw new SpelEvaluationException(getStartPosition(), ex, SpelMessage.EXCEPTION_DURING_FUNCTION_CALL,
-              this.name, ex.getMessage());
+      Throwable cause = ((ex instanceof InvocationTargetException ite && ite.getCause() != null) ?
+              ite.getCause() : ex);
+      throw new SpelEvaluationException(getStartPosition(), cause, SpelMessage.EXCEPTION_DURING_FUNCTION_CALL,
+              this.name, cause.getMessage());
     }
     finally {
       if (compilable) {
@@ -159,8 +162,8 @@ public class FunctionReference extends SpelNodeImpl {
   /**
    * Execute a function represented as {@link MethodHandle}.
    * <p>Method types that take no arguments (fully bound handles or static methods
-   * with no parameters) can use {@link MethodHandle#invoke()} which is the most
-   * efficient. Otherwise, {@link MethodHandle#invokeWithArguments()} is used.
+   * with no parameters) can use {@link MethodHandle#invoke(Object...)} which is the most
+   * efficient. Otherwise, {@link MethodHandle#invokeWithArguments(Object...)} is used.
    *
    * @param state the expression evaluation state
    * @param methodHandle the method handle to invoke
