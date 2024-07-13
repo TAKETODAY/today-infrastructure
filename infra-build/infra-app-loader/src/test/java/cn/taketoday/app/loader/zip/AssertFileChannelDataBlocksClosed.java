@@ -26,7 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that can be added to tests to assert that {@link FileChannelDataBlock} files
+ * Annotation that can be added to tests to assert that {@link FileDataBlock} files
  * are not left open.
  *
  * @author Phillip Webb

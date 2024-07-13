@@ -17,7 +17,7 @@
 
 package cn.taketoday.app.loader.zip;
 
-import cn.taketoday.app.loader.zip.FileChannelDataBlock.ManagedFileChannel;
+import cn.taketoday.app.loader.zip.FileDataBlock.ManagedFileChannel;
 
 /**
  * Test access to {@link ManagedFileChannel} details.
@@ -29,6 +29,6 @@ public final class FileChannelDataBlockManagedFileChannel {
   private FileChannelDataBlockManagedFileChannel() {
   }
 
-  public static int BUFFER_SIZE = FileChannelDataBlock.ManagedFileChannel.BUFFER_SIZE;
+  public static int BUFFER_SIZE = FileDataBlock.ManagedFileChannel.BUFFER_SIZE;
 
 }
