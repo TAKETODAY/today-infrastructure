@@ -366,33 +366,40 @@ public abstract class ReflectionHelper {
           Object[] arguments, MethodHandle methodHandle, @Nullable Integer varargsPosition) throws EvaluationException {
 
     boolean conversionOccurred = false;
-    final MethodType methodHandleArgumentTypes = methodHandle.type();
+    MethodType methodHandleType = methodHandle.type();
     if (varargsPosition == null) {
       for (int i = 0; i < arguments.length; i++) {
-        Class<?> argumentClass = methodHandleArgumentTypes.parameterType(i);
+        Class<?> argumentClass = methodHandleType.parameterType(i);
         ResolvableType resolvableType = ResolvableType.forClass(argumentClass);
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
+        TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
+        arguments[i] = converter.convertValue(argument, sourceType, targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
     }
     else {
       // Convert everything up to the varargs position
       for (int i = 0; i < varargsPosition; i++) {
-        Class<?> argumentClass = methodHandleArgumentTypes.parameterType(i);
+        Class<?> argumentClass = methodHandleType.parameterType(i);
         ResolvableType resolvableType = ResolvableType.forClass(argumentClass);
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
+        TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
+        arguments[i] = converter.convertValue(argument, sourceType, targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
 
-      final Class<?> varArgClass = methodHandleArgumentTypes.lastParameterType().getComponentType();
-      ResolvableType varArgResolvableType = ResolvableType.forClass(varArgClass);
-      TypeDescriptor varArgContentType = new TypeDescriptor(varArgResolvableType, varArgClass, (Annotation[]) null);
+      Class<?> varargsArrayClass = methodHandleType.lastParameterType();
+      // We use the wrapper type for a primitive varargs array, since we eventually
+      // need an Object array in order to invoke the MethodHandle in
+      // FunctionReference#executeFunctionViaMethodHandle().
+      Class<?> varargsComponentClass = ClassUtils.resolvePrimitiveIfNecessary(varargsArrayClass.componentType());
+      TypeDescriptor varargsArrayType = TypeDescriptor.array(TypeDescriptor.valueOf(varargsComponentClass));
+      TypeDescriptor varargsComponentType = varargsArrayType.getElementDescriptor();
+      Assert.state(varargsComponentType != null, "Component type must not be null for a varargs array");
 
       // If the target is varargs and there is just one more argument, then convert it here.
       if (varargsPosition == arguments.length - 1) {
@@ -400,35 +407,39 @@ public abstract class ReflectionHelper {
         TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
         if (argument == null) {
           // Perform the equivalent of GenericConversionService.convertNullSource() for a single argument.
-          if (varArgContentType.getElementDescriptor().getObjectType() == Optional.class) {
+          if (varargsComponentType.getObjectType() == Optional.class) {
             arguments[varargsPosition] = Optional.empty();
             conversionOccurred = true;
           }
         }
-        // If the argument type is equal to the varargs element type, there is no need to
-        // convert it or wrap it in an array. For example, using StringToArrayConverter to
-        // convert a String containing a comma would result in the String being split and
-        // repackaged in an array when it should be used as-is.
-        else if (!sourceType.equals(varArgContentType.getElementDescriptor())) {
-          arguments[varargsPosition] = converter.convertValue(argument, sourceType, varArgContentType);
+        // If the argument type is assignable to the varargs component type, there is no need to
+        // convert it. For example, using StringToArrayConverter to convert a String containing a
+        // comma would result in the String being split and repackaged in an array when it should
+        // be used as-is. Similarly, if the argument is an array that is assignable to the varargs
+        // array type, there is no need to convert it.
+        else if (!sourceType.isAssignableTo(varargsComponentType) ||
+                (sourceType.isArray() && !sourceType.isAssignableTo(varargsArrayType))) {
+
+          TypeDescriptor targetTypeToUse = (sourceType.isArray() ? varargsArrayType : varargsComponentType);
+          arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetTypeToUse);
         }
         // Possible outcomes of the above if-else block:
         // 1) the input argument was null, and nothing was done.
-        // 2) the input argument was null; the varargs element type is Optional; and the argument was converted to Optional.empty().
-        // 3) the input argument was correct type but not wrapped in an array, and nothing was done.
-        // 4) the input argument was already compatible (i.e., array of valid type), and nothing was done.
-        // 5) the input argument was the wrong type and got converted and wrapped in an array.
+        // 2) the input argument was null; the varargs component type is Optional; and the argument was converted to Optional.empty().
+        // 3) the input argument was the correct type but not wrapped in an array, and nothing was done.
+        // 4) the input argument was already compatible (i.e., an Object array of valid type), and nothing was done.
+        // 5) the input argument was the wrong type and got converted as explained in the comments above.
         if (argument != arguments[varargsPosition] &&
                 !isFirstEntryInArray(argument, arguments[varargsPosition])) {
           conversionOccurred = true; // case 5
         }
       }
-      // Otherwise, convert remaining arguments to the varargs element type.
+      // Otherwise, convert remaining arguments to the varargs component type.
       else {
-        Assert.state(varArgContentType != null, "No element type");
         for (int i = varargsPosition; i < arguments.length; i++) {
           Object argument = arguments[i];
-          arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), varArgContentType);
+          TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
+          arguments[i] = converter.convertValue(argument, sourceType, varargsComponentType);
           conversionOccurred |= (argument != arguments[i]);
         }
       }

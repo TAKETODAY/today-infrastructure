@@ -72,6 +72,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
 /**
  * Reproduction tests cornering various reported SpEL issues.
@@ -1449,6 +1450,22 @@ class SpelReproTests extends AbstractExpressionTests {
     Object value = expression.getValue();
     assertThat(value).isInstanceOf(List.class);
     assertThat(((List<?>) value)).isEmpty();
+  }
+
+  @Test
+  void arraysAsListWithNoArguments() {
+    SpelExpressionParser parser = new SpelExpressionParser();
+    Expression expression = parser.parseExpression("T(java.util.Arrays).asList()");
+    List<?> value = expression.getValue(List.class);
+    assertThat(value).isEmpty();
+  }
+
+  @Test
+  void arraysAsListWithSingleEmptyStringArgument() {
+    SpelExpressionParser parser = new SpelExpressionParser();
+    Expression expression = parser.parseExpression("T(java.util.Arrays).asList('')");
+    List<?> value = expression.getValue(List.class);
+    assertThat(value).asInstanceOf(list(String.class)).containsExactly("");
   }
 
   @Test
