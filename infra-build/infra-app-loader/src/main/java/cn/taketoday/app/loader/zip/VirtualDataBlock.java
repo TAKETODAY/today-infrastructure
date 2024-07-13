@@ -20,7 +20,6 @@ package cn.taketoday.app.loader.zip;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A virtual {@link DataBlock} build from a collection of other {@link DataBlock}
@@ -32,9 +31,13 @@ import java.util.List;
  */
 class VirtualDataBlock implements DataBlock {
 
-  private List<DataBlock> parts;
+  private DataBlock[] parts;
+
+  private long[] offsets;
 
   private long size;
+
+  private volatile int lastReadPart = 0;
 
   /**
    * Create a new {@link VirtualDataBlock} instance. The {@link #setParts(Collection)}
@@ -60,12 +63,16 @@ class VirtualDataBlock implements DataBlock {
    * @throws IOException on I/O error
    */
   protected void setParts(Collection<? extends DataBlock> parts) throws IOException {
-    this.parts = List.copyOf(parts);
+    this.parts = parts.toArray(DataBlock[]::new);
+    this.offsets = new long[parts.size()];
     long size = 0;
+    int i = 0;
     for (DataBlock part : parts) {
+      this.offsets[i++] = size;
       size += part.size();
     }
     this.size = size;
+
   }
 
   @Override
@@ -78,20 +85,30 @@ class VirtualDataBlock implements DataBlock {
     if (pos < 0 || pos >= this.size) {
       return -1;
     }
+    int lastReadPart = this.lastReadPart;
+    int partIndex = 0;
     long offset = 0;
     int result = 0;
-    for (DataBlock part : this.parts) {
+    if (pos >= this.offsets[lastReadPart]) {
+      partIndex = lastReadPart;
+      offset = this.offsets[lastReadPart];
+    }
+    while (partIndex < this.parts.length) {
+      DataBlock part = this.parts[partIndex];
       while (pos >= offset && pos < offset + part.size()) {
         int count = part.read(dst, pos - offset);
         result += Math.max(count, 0);
         if (count <= 0 || !dst.hasRemaining()) {
+          this.lastReadPart = partIndex;
           return result;
         }
         pos += count;
       }
       offset += part.size();
+      partIndex++;
     }
     return result;
+
   }
 
 }
