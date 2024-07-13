@@ -319,6 +319,11 @@ public class MethodValidationAdapter implements MethodValidator {
           value = map.get(key);
           container = map;
         }
+        else if (arg instanceof Iterable<?>) {
+          // No index or key, cannot access the specific value
+          value = arg;
+          container = arg;
+        }
         else if (arg instanceof Optional<?> optional) {
           value = optional.orElse(null);
           container = optional;
@@ -372,7 +377,7 @@ public class MethodValidationAdapter implements MethodValidator {
     String[] codes = messageCodesResolver.resolveMessageCodes(code, objectName, paramName, parameterType);
     Object[] arguments = validatorAdapter.getArgumentsForConstraint(objectName, paramName, descriptor);
 
-    return new DefaultMessageSourceResolvable(codes, arguments, violation.getMessage());
+    return new ViolationMessageSourceResolvable(codes, arguments, violation.getMessage(), violation);
   }
 
   private BindingResult createBindingResult(MethodParameter parameter, @Nullable Object argument) {
@@ -438,9 +443,11 @@ public class MethodValidationAdapter implements MethodValidator {
     }
 
     public ParameterValidationResult build() {
-      return new ParameterValidationResult(
-              this.parameter, this.value, this.resolvableErrors, this.container,
-              this.containerIndex, this.containerKey);
+      return new ParameterValidationResult(this.parameter, this.value, this.resolvableErrors,
+              this.container, this.containerIndex, this.containerKey, (error, sourceType) -> {
+        Assert.isTrue(sourceType.equals(ConstraintViolation.class), "Unexpected source type");
+        return ((ViolationMessageSourceResolvable) error).getViolation();
+      });
     }
 
   }
@@ -489,6 +496,23 @@ public class MethodValidationAdapter implements MethodValidator {
       return new ParameterErrors(
               this.parameter, this.bean, this.errors, this.container,
               this.containerIndex, this.containerKey);
+    }
+  }
+
+  @SuppressWarnings("serial")
+  private static class ViolationMessageSourceResolvable extends DefaultMessageSourceResolvable {
+
+    private final transient ConstraintViolation<Object> violation;
+
+    public ViolationMessageSourceResolvable(
+            String[] codes, Object[] arguments, String defaultMessage, ConstraintViolation<Object> violation) {
+
+      super(codes, arguments, defaultMessage);
+      this.violation = violation;
+    }
+
+    public ConstraintViolation<Object> getViolation() {
+      return this.violation;
     }
   }
 
