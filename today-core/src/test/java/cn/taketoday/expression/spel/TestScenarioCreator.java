@@ -67,6 +67,8 @@ class TestScenarioCreator {
               TestScenarioCreator.class.getDeclaredMethod("varargsFunction", String[].class));
       testContext.registerFunction("varargsFunction2",
               TestScenarioCreator.class.getDeclaredMethod("varargsFunction2", int.class, String[].class));
+      testContext.registerFunction("varargsObjectFunction",
+              TestScenarioCreator.class.getDeclaredMethod("varargsObjectFunction", Object[].class));
     }
     catch (Exception ex) {
       throw new IllegalStateException(ex);
@@ -166,6 +168,10 @@ class TestScenarioCreator {
 
   public static String varargsFunction2(int i, String... strings) {
     return i + "-" + Arrays.toString(strings);
+  }
+
+  public static String varargsObjectFunction(Object... args) {
+    return Arrays.toString(args);
   }
 
   public static String message(String template, String... args) {
