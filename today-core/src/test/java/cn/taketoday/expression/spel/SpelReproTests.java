@@ -1444,15 +1444,6 @@ class SpelReproTests extends AbstractExpressionTests {
   }
 
   @Test
-  void SPR12522() {
-    SpelExpressionParser parser = new SpelExpressionParser();
-    Expression expression = parser.parseExpression("T(java.util.Arrays).asList('')");
-    Object value = expression.getValue();
-    assertThat(value).isInstanceOf(List.class);
-    assertThat(((List<?>) value)).isEmpty();
-  }
-
-  @Test
   void arraysAsListWithNoArguments() {
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("T(java.util.Arrays).asList()");

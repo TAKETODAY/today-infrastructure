@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Phillip Webb
  * @author Sam Brannen
  */
-public class MethodInvocationTests extends AbstractExpressionTests {
+class MethodInvocationTests extends AbstractExpressionTests {
 
   @Test
   void testSimpleAccess01() {
@@ -246,6 +246,7 @@ public class MethodInvocationTests extends AbstractExpressionTests {
     evaluate("aVarargsMethod(1,'a',3.0d)", "[1, a, 3.0]", String.class); // first and last need conversion
     evaluate("aVarargsMethod(new String[]{'a','b','c'})", "[a, b, c]", String.class);
     evaluate("aVarargsMethod(new String[]{})", "[]", String.class);
+    evaluate("aVarargsMethod(new int[]{1, 2, 3})", "[1, 2, 3]", String.class); // needs int[] to String[] conversion
     evaluate("aVarargsMethod(null)", "[null]", String.class);
     evaluate("aVarargsMethod(null,'a')", "[null, a]", String.class);
     evaluate("aVarargsMethod('a',null,'b')", "[a, null, b]", String.class);

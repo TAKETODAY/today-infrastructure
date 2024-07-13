@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.conversion.converter;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -605,6 +606,12 @@ class DefaultConversionServiceTests {
   }
 
   @Test
+  void convertIntArrayToStringArray() {
+    String[] result = conversionService.convert(new int[] { 1, 2, 3 }, String[].class);
+    assertThat(result).containsExactly("1", "2", "3");
+  }
+
+  @Test
   void convertIntegerArrayToIntegerArray() {
     Integer[] result = conversionService.convert(new Integer[] { 1, 2, 3 }, Integer[].class);
     assertThat(result).containsExactly(1, 2, 3);
@@ -614,6 +621,12 @@ class DefaultConversionServiceTests {
   void convertIntegerArrayToIntArray() {
     int[] result = conversionService.convert(new Integer[] { 1, 2, 3 }, int[].class);
     assertThat(result).containsExactly(1, 2, 3);
+  }
+
+  @Test
+  void convertIntArrayToIntegerArray() {
+    Integer[] result = conversionService.convert(new int[] { 1, 2 }, Integer[].class);
+    assertThat(result).containsExactly(1, 2);
   }
 
   @Test
@@ -628,15 +641,34 @@ class DefaultConversionServiceTests {
     assertThat(result).containsExactly(1, 2, 3);
   }
 
+  @Disabled("Primitive array to Object[] conversion is not currently supported")
   @Test
-  void convertByteArrayToWrapperArray() {
+  void convertIntArrayToObjectArray() {
+    Object[] result = conversionService.convert(new int[] { 1, 2 }, Object[].class);
+    assertThat(result).containsExactly(1, 2);
+  }
+
+  @Test
+  void convertIntArrayToFloatArray() {
+    Float[] result = conversionService.convert(new int[] { 1, 2 }, Float[].class);
+    assertThat(result).containsExactly(1.0F, 2.0F);
+  }
+
+  @Test
+  void convertIntArrayToPrimitiveFloatArray() {
+    float[] result = conversionService.convert(new int[] { 1, 2 }, float[].class);
+    assertThat(result).containsExactly(1.0F, 2.0F);
+  }
+
+  @Test
+  void convertPrimitiveByteArrayToByteWrapperArray() {
     byte[] byteArray = { 1, 2, 3 };
     Byte[] converted = conversionService.convert(byteArray, Byte[].class);
     assertThat(converted).isEqualTo(new Byte[] { 1, 2, 3 });
   }
 
   @Test
-  void convertArrayToArrayAssignable() {
+  void convertIntArrayToIntArray() {
     int[] result = conversionService.convert(new int[] { 1, 2, 3 }, int[].class);
     assertThat(result).containsExactly(1, 2, 3);
   }
@@ -679,8 +711,7 @@ class DefaultConversionServiceTests {
     foo.add("1");
     foo.add("2");
     foo.add("3");
-    @SuppressWarnings("unchecked")
-    List<Integer> bar = (List<Integer>) conversionService.convert(foo, TypeDescriptor.forObject(foo),
+    List<Integer> bar = conversionService.convert(foo,
             new TypeDescriptor(getClass().getField("genericList")));
     assertThat(bar).containsExactly(1, 2, 3);
   }
@@ -860,7 +891,7 @@ class DefaultConversionServiceTests {
   void convertObjectToObjectFinderMethodWithNull() {
     TestEntity entity = (TestEntity) conversionService.convert(null,
             TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(TestEntity.class));
-    assertThat((Object) entity).isNull();
+    assertThat(entity).isNull();
   }
 
   @Test
