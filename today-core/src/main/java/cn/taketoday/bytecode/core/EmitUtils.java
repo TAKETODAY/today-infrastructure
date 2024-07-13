@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,19 +44,6 @@ public abstract class EmitUtils {
   private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");
   private static final MethodSignature FOR_NAME = MethodSignature.from("Class forName(String)");
   private static final MethodSignature STRING_CHAR_AT = MethodSignature.from("char charAt(int)");
-
-  private static final MethodSignature GET_DECLARED_METHOD = //
-          MethodSignature.from("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
-
-  public static void factoryMethod(ClassEmitter ce, MethodSignature sig) {
-    CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, sig);
-    e.new_instance_this();
-    e.dup();
-    e.loadArgs();
-    e.invoke_constructor_this(MethodSignature.forConstructor(sig.getArgumentTypes()));
-    e.returnValue();
-    e.end_method();
-  }
 
   public static void nullConstructor(ClassEmitter ce) {
     CodeEmitter e = ce.beginMethod(Opcodes.ACC_PUBLIC, MethodSignature.EMPTY_CONSTRUCTOR);
@@ -278,13 +264,6 @@ public abstract class EmitUtils {
     }
   }
 
-  public static void loadMethod(CodeEmitter e, MethodInfo method) {
-    loadClass(e, method.getClassInfo().getType());
-    e.push(method.getSignature().getName());
-    pushObject(e, method.getSignature().getArgumentTypes());
-    e.invokeVirtual(Type.TYPE_CLASS, GET_DECLARED_METHOD);
-  }
-
   private interface ParameterTyper {
 
     Type[] getParameterTypes(MethodInfo member);
@@ -451,66 +430,6 @@ public abstract class EmitUtils {
   public static void wrapThrowable(Block block, Type wrapper) {
     CodeEmitter e = block.getCodeEmitter();
     e.catchException(block, Type.TYPE_THROWABLE);
-    e.newInstance(wrapper);
-    e.dupX1();
-    e.swap();
-    e.invokeConstructor(wrapper, CSTRUCT_THROWABLE);
-    e.throwException();
-  }
-
-  public static void addProperties(ClassEmitter ce, String[] names, Type[] types) {
-    for (int i = 0; i < names.length; i++) {
-      String fieldName = "$today_prop_" + names[i];
-      ce.declare_field(Opcodes.ACC_PRIVATE, fieldName, types[i], null);
-      EmitUtils.addProperty(ce, names[i], types[i], fieldName);
-    }
-  }
-
-  public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
-    String property = StringUtils.capitalize(name);
-    CodeEmitter e;
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(type, "get" + property, Type.EMPTY_ARRAY));
-    e.loadThis();
-    e.getField(fieldName);
-    e.returnValue();
-    e.end_method();
-
-    e = ce.beginMethod(Opcodes.ACC_PUBLIC, new MethodSignature(Type.VOID_TYPE, "set" + property, type));
-    e.loadThis();
-    e.loadArg(0);
-    e.putField(fieldName);
-    e.returnValue();
-    e.end_method();
-  }
-
-  /* generates: } catch (RuntimeException e) { throw e; } catch (Error e) { throw
-   * e; } catch (<DeclaredException> e) { throw e; } catch (Throwable e) { throw
-   * new <Wrapper>(e); } */
-  public static void wrapUndeclaredThrowable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
-    HashSet<Type> set = new HashSet<>();
-    CollectionUtils.addAll(set, exceptions);
-    if (set.contains(Type.TYPE_THROWABLE)) {
-      return;
-    }
-    boolean needThrow = exceptions != null;
-    if (!set.contains(Type.TYPE_RUNTIME_EXCEPTION)) {
-      e.catchException(handler, Type.TYPE_RUNTIME_EXCEPTION);
-      needThrow = true;
-    }
-    if (!set.contains(Type.TYPE_ERROR)) {
-      e.catchException(handler, Type.TYPE_ERROR);
-      needThrow = true;
-    }
-    if (exceptions != null) {
-      for (Type exception : exceptions) {
-        e.catchException(handler, exception);
-      }
-    }
-    if (needThrow) {
-      e.throwException();
-    }
-    // e -> eo -> oeo -> ooe -> o
-    e.catchException(handler, Type.TYPE_THROWABLE);
     e.newInstance(wrapper);
     e.dupX1();
     e.swap();
