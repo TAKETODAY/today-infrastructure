@@ -24,6 +24,7 @@ import cn.taketoday.bytecode.AnnotationVisitor;
 import cn.taketoday.bytecode.ClassValueHolder;
 import cn.taketoday.bytecode.EnumValueHolder;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents an annotation.
@@ -45,6 +46,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * any {@link AnnotationValueHolder} an {@link AnnotationNode}, or a {@link ArrayList} of values of one
    * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
+  @Nullable
   public ArrayList<Object> values;
 
   /**
@@ -61,7 +63,7 @@ public class AnnotationNode extends AnnotationVisitor {
    *
    * @param values where the visited values must be stored.
    */
-  AnnotationNode(final ArrayList<Object> values) {
+  AnnotationNode(@Nullable ArrayList<Object> values) {
     this.values = values;
   }
 

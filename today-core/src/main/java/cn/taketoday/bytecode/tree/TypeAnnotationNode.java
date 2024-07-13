@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree;
 
 import cn.taketoday.bytecode.TypePath;
 import cn.taketoday.bytecode.TypeReference;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents a type annotation.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class TypeAnnotationNode extends AnnotationNode {
 
@@ -37,6 +36,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    * type within the referenced type. May be {@literal null} if the annotation targets 'typeRef' as
    * a whole.
    */
+  @Nullable
   public TypePath typePath;
 
   /**
@@ -48,7 +48,7 @@ public class TypeAnnotationNode extends AnnotationNode {
    * 'typeRef' as a whole.
    * @param descriptor the class descriptor of the annotation class.
    */
-  public TypeAnnotationNode(final int typeRef, final TypePath typePath, final String descriptor) {
+  public TypeAnnotationNode(final int typeRef, @Nullable final TypePath typePath, final String descriptor) {
     super(descriptor);
     this.typeRef = typeRef;
     this.typePath = typePath;

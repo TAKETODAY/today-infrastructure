@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A visitor to visit a Java class. The methods of this class must be called in the following order:
@@ -28,6 +28,7 @@ package cn.taketoday.bytecode;
  * {@code visitEnd}.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public abstract class ClassVisitor {
 
@@ -35,6 +36,7 @@ public abstract class ClassVisitor {
    * The class visitor to which this visitor must delegate method calls. May be
    * null.
    */
+  @Nullable
   protected ClassVisitor cv;
 
   /**
@@ -50,7 +52,7 @@ public abstract class ClassVisitor {
    * @param classVisitor the class visitor to which this visitor must delegate method
    * calls. May be null.
    */
-  public ClassVisitor(final ClassVisitor classVisitor) {
+  public ClassVisitor(@Nullable ClassVisitor classVisitor) {
     this.cv = classVisitor;
   }
 
@@ -107,7 +109,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit the module values, or {@literal null} if this visitor is not
    * interested in visiting this module.
    */
-  public ModuleVisitor visitModule(final String name, final int access, final String version) {
+  public ModuleVisitor visitModule(final String name, final int access, @Nullable String version) {
     if (cv != null) {
       return cv.visitModule(name, access, version);
     }
@@ -277,12 +279,8 @@ public abstract class ClassVisitor {
    * @return a visitor to visit field annotations and attributes, or {@literal null} if this class
    * visitor is not interested in visiting these annotations and attributes.
    */
-  public FieldVisitor visitField(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final Object value) {
+  public FieldVisitor visitField(final int access, final String name,
+          final String descriptor, final String signature, final Object value) {
     if (cv != null) {
       return cv.visitField(access, name, descriptor, signature, value);
     }
@@ -305,12 +303,8 @@ public abstract class ClassVisitor {
    * @return an object to visit the byte code of the method, or {@literal null} if this class
    * visitor is not interested in visiting the code of this method.
    */
-  public MethodVisitor visitMethod(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final String[] exceptions) {
+  public MethodVisitor visitMethod(final int access, final String name,
+          final String descriptor, final String signature, final String[] exceptions) {
     if (cv != null) {
       return cv.visitMethod(access, name, descriptor, signature, exceptions);
     }

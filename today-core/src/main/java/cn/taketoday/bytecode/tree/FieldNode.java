@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.tree;
 
 import java.util.List;
@@ -28,11 +26,13 @@ import cn.taketoday.bytecode.FieldVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents a field.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class FieldNode extends FieldVisitor {
 
@@ -49,6 +49,7 @@ public class FieldNode extends FieldVisitor {
   public String desc;
 
   /** The field's signature. May be {@literal null}. */
+  @Nullable
   public String signature;
 
   /**
@@ -56,21 +57,27 @@ public class FieldNode extends FieldVisitor {
    * an initial value, must be an {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}
    * or a {@link String}.
    */
+  @Nullable
   public Object value;
 
   /** The runtime visible annotations of this field. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> visibleAnnotations;
 
   /** The runtime invisible annotations of this field. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> invisibleAnnotations;
 
   /** The runtime visible type annotations of this field. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /** The runtime invisible type annotations of this field. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /** The non standard attributes of this field. * May be {@literal null}. */
+  @Nullable
   public List<Attribute> attrs;
 
   /**
@@ -85,12 +92,8 @@ public class FieldNode extends FieldVisitor {
    * field does not have an initial value, must be an {@link Integer}, a {@link Float}, a {@link
    * Long}, a {@link Double} or a {@link String}.
    */
-  public FieldNode(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final Object value) {
+  public FieldNode(final int access, final String name, final String descriptor,
+          @Nullable final String signature, @Nullable final Object value) {
     this.access = access;
     this.name = name;
     this.desc = descriptor;

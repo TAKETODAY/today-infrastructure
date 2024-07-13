@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A non standard class, field, method or Code attribute, as defined in the Java Virtual Machine
@@ -45,6 +47,7 @@ public class Attribute {
    * The next attribute in this attribute list (Attribute instances can be linked via this field to
    * store a list of class, field, method or Code attributes). May be {@literal null}.
    */
+  @Nullable
   Attribute nextAttribute;
 
   /**

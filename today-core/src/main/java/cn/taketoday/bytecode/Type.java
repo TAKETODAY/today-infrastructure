@@ -320,7 +320,7 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static Type[] forInternalNames(String[] names) {
+  public static Type[] forInternalNames(@Nullable String[] names) {
     if (names == null) {
       return null;
     }
@@ -337,7 +337,7 @@ public final class Type {
    * @param internalNames internal name. if null returns null
    * @return the {@link Type}s corresponding to the given internal name.
    */
-  public static Type[] forObjectTypes(final String[] internalNames) {
+  public static Type[] forObjectTypes(@Nullable String[] internalNames) {
     if (internalNames == null) {
       return null;
     }
