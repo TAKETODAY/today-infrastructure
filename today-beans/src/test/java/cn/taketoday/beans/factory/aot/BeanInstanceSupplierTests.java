@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -48,6 +49,7 @@ import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.InstanceSupplier;
+import cn.taketoday.beans.factory.support.InstantiationStrategy;
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
@@ -264,6 +266,33 @@ class BeanInstanceSupplierTests {
       instance = innerSingleArgConstructor.getString();
     }
     assertThat(instance).isEqualTo("1");
+  }
+
+  @Test
+  void getWithNestedInvocationRetainsFactoryMethod() throws Exception {
+    AtomicReference<Method> testMethodReference = new AtomicReference<>();
+    AtomicReference<Method> anotherMethodReference = new AtomicReference<>();
+
+    BeanInstanceSupplier<Object> nestedInstanceSupplier = BeanInstanceSupplier
+            .forFactoryMethod(AnotherTestStringFactory.class, "another")
+            .withGenerator(registeredBean -> {
+              anotherMethodReference.set(InstantiationStrategy.getCurrentlyInvokedFactoryMethod());
+              return "Another";
+            });
+    RegisteredBean nestedRegisteredBean = new Source(String.class, nestedInstanceSupplier).registerBean(this.beanFactory);
+    BeanInstanceSupplier<Object> instanceSupplier = BeanInstanceSupplier
+            .forFactoryMethod(TestStringFactory.class, "test")
+            .withGenerator(registeredBean -> {
+              Object nested = nestedInstanceSupplier.get(nestedRegisteredBean);
+              testMethodReference.set(InstantiationStrategy.getCurrentlyInvokedFactoryMethod());
+              return "custom" + nested;
+            });
+    RegisteredBean registeredBean = new Source(String.class, instanceSupplier).registerBean(this.beanFactory);
+    Object value = instanceSupplier.get(registeredBean);
+
+    assertThat(value).isEqualTo("customAnother");
+    assertThat(testMethodReference.get()).isEqualTo(instanceSupplier.getFactoryMethod());
+    assertThat(anotherMethodReference.get()).isEqualTo(nestedInstanceSupplier.getFactoryMethod());
   }
 
   @Test
@@ -1001,6 +1030,20 @@ class BeanInstanceSupplierTests {
 
   static class MethodOnInterfaceImpl implements MethodOnInterface {
 
+  }
+
+  static class TestStringFactory {
+
+    String test() {
+      return "test";
+    }
+  }
+
+  static class AnotherTestStringFactory {
+
+    String another() {
+      return "another";
+    }
   }
 
 }
