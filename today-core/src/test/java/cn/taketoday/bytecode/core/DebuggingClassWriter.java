@@ -14,70 +14,59 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package cn.taketoday.bytecode.core;
 
-import cn.taketoday.bytecode.ClassVisitor;
-import cn.taketoday.bytecode.ClassWriter;
-import cn.taketoday.lang.TodayStrategies;
+package cn.taketoday.bytecode.core;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import cn.taketoday.bytecode.ClassVisitor;
+import cn.taketoday.bytecode.ClassWriter;
+import cn.taketoday.lang.TodayStrategies;
+
 public class DebuggingClassWriter extends ClassVisitor {
 
   public static final String DEBUG_LOCATION_PROPERTY = "bytecode.debugLocation";
-  private static String debugLocation; //"/Users/today/temp";
+
+  private static final String debugLocation = TodayStrategies.getProperty(DEBUG_LOCATION_PROPERTY);
 
   private String className;
-  private String superName;
 
-  static {
-    debugLocation = TodayStrategies.getProperty(DEBUG_LOCATION_PROPERTY);
-    if (debugLocation != null) {
-      System.err.printf("CGLIB debugging enabled, writing to '%s'%n", debugLocation);
-    }
-  }
+  private String superName;
 
   public DebuggingClassWriter(int flags) {
     super(new ClassWriter(flags));
   }
 
+  public DebuggingClassWriter(ClassWriter classWriter) {
+    super(classWriter);
+  }
+
+  @Override
   public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
     this.className = name;
     this.superName = superName;
     super.visit(version, access, name, signature, superName, interfaces);
   }
 
-  public String getClassName() {
-    return className;
-  }
-
-  public String getSuperName() {
-    return superName;
-  }
-
   public byte[] toByteArray() {
-    byte[] b = ((ClassWriter) DebuggingClassWriter.super.cv).toByteArray();
+    byte[] b = ((ClassWriter) cv).toByteArray();
     if (debugLocation != null) {
-      debug(b);
+      debug(b, debugLocation);
     }
     return b;
   }
 
-  public static void setDebugLocation(final String debugLocation) {
-    DebuggingClassWriter.debugLocation = debugLocation;
-  }
-
-  private void debug(byte[] b) {
+  private void debug(byte[] b, String debugLocation) {
     this.className = className.replace('/', '.');
     this.superName = superName.replace('/', '.');
     String dirs = className.replace('.', File.separatorChar);
     try {
       new File(debugLocation + File.separatorChar + dirs).getParentFile().mkdirs();
 
-      File file = new File(new File(debugLocation), dirs + ".class");
+      File file = new File(debugLocation, dirs + ".class");
       try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
         out.write(b);
       }

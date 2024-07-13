@@ -14,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.core;
 
 import cn.taketoday.bytecode.Type;
 
 /**
- * @author TODAY <br>
- * 2019-09-03 19:33
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-09-03 19:33
  */
 @SuppressWarnings("rawtypes")
 public abstract class ClassInfo {
