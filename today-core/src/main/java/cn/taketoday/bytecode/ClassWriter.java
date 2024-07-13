@@ -936,8 +936,6 @@ public class ClassWriter extends ClassVisitor {
    * @param name the name of the field or method.
    * @param descriptor the descriptor of the field or method.
    * @return the index of a new or already existing method type reference item.
-   * @deprecated this method is superseded by {@link #newHandle(int, String, String, String,
-   * boolean)}.
    */
   public int newHandle(final int tag, final String owner, final String name, final String descriptor) {
     return newHandle(tag, owner, name, descriptor, tag == Opcodes.H_INVOKEINTERFACE);
