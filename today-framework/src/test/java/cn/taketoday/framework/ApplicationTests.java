@@ -108,17 +108,18 @@ import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
+import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.test.classpath.ForkedClassPath;
+import cn.taketoday.test.context.support.TestPropertySourceUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.web.server.context.WebServerApplicationContext;
 import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
-import cn.taketoday.http.server.reactive.HttpHandler;
-import cn.taketoday.mock.env.MockEnvironment;
-import cn.taketoday.test.context.support.TestPropertySourceUtils;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.StringUtils;
 import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
@@ -737,6 +738,53 @@ class ApplicationTests {
     then(listener).should(never()).onApplicationEvent(isA(ApplicationFailedEvent.class));
     assertThat(exitCodeListener.getExitCode()).isEqualTo(11);
     assertThat(output).contains("Application run failed");
+  }
+
+  @Test
+  void failureOnTheJvmLogsApplicationRunFailed(CapturedOutput output) {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    ExitCodeListener exitCodeListener = new ExitCodeListener();
+    application.addListeners(exitCodeListener);
+    @SuppressWarnings("unchecked")
+    ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
+    application.addListeners(listener);
+    ExitStatusException failure = new ExitStatusException();
+    willThrow(failure).given(listener).onApplicationEvent(isA(ApplicationReadyEvent.class));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(application::run);
+    then(listener).should().onApplicationEvent(isA(ApplicationReadyEvent.class));
+    then(listener).should(never()).onApplicationEvent(isA(ApplicationFailedEvent.class));
+    assertThat(exitCodeListener.getExitCode()).isEqualTo(11);
+    // Leading space only happens when logging
+    assertThat(output).contains(" Application run failed").contains("ExitStatusException");
+  }
+
+  @Test
+  @ForkedClassPath
+  void failureInANativeImageWritesFailureToSystemOut(CapturedOutput output) {
+    System.setProperty("org.graalvm.nativeimage.imagecode", "true");
+    try {
+      Application application = new Application(ExampleConfig.class);
+      application.setApplicationType(ApplicationType.NORMAL);
+      ExitCodeListener exitCodeListener = new ExitCodeListener();
+      application.addListeners(exitCodeListener);
+      @SuppressWarnings("unchecked")
+      ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
+      application.addListeners(listener);
+      ExitStatusException failure = new ExitStatusException();
+      willThrow(failure).given(listener).onApplicationEvent(isA(ApplicationReadyEvent.class));
+      assertThatExceptionOfType(RuntimeException.class).isThrownBy(application::run);
+      then(listener).should().onApplicationEvent(isA(ApplicationReadyEvent.class));
+      then(listener).should(never()).onApplicationEvent(isA(ApplicationFailedEvent.class));
+      assertThat(exitCodeListener.getExitCode()).isEqualTo(11);
+      // Leading space only happens when logging
+      assertThat(output).doesNotContain(" Application run failed")
+              .contains("Application run failed")
+              .contains("ExitStatusException");
+    }
+    finally {
+      System.clearProperty("org.graalvm.nativeimage.imagecode");
+    }
   }
 
   @Test
