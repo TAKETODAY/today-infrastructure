@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -41,6 +41,7 @@ import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.BaseProperties.InheritedNested;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.ComplexNestedProperties.ListenerRetry;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.ComplexNestedProperties.Retry;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.ComplexNestedProperties.Simple;
 import cn.taketoday.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -211,7 +212,7 @@ class BindableRuntimeHintsRegistrarTests {
   }
 
   @Test
-  void pregisterHintsWhenHasUnresolvedGeneric() {
+  void registerHintsWhenHasUnresolvedGeneric() {
     RuntimeHints runtimeHints = registerHints(WithGeneric.class);
     assertThat(runtimeHints.reflection().typeHints()).hasSize(2)
             .anySatisfy(javaBeanBinding(WithGeneric.class, "getGeneric"))
@@ -270,8 +271,8 @@ class BindableRuntimeHintsRegistrarTests {
     });
     assertThat(runtimeHints.reflection().getTypeHint(ListenerRetry.class))
             .satisfies(javaBeanBinding(ListenerRetry.class, "isStateless", "setStateless"));
-    assertThat(runtimeHints.reflection().getTypeHint(ComplexNestedProperties.Simple.class))
-            .satisfies(javaBeanBinding(ComplexNestedProperties.Simple.class, "getRetry"));
+    assertThat(runtimeHints.reflection().getTypeHint(Simple.class))
+            .satisfies(javaBeanBinding(Simple.class, "getRetry"));
     assertThat(runtimeHints.reflection().getTypeHint(ComplexNestedProperties.class))
             .satisfies(javaBeanBinding(ComplexNestedProperties.class, "getSimple"));
   }
