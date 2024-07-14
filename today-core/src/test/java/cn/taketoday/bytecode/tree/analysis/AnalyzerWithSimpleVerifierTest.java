@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -148,8 +145,8 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
     Analyzer<BasicValue> analyzer =
             new Analyzer<BasicValue>(
                     new SimpleVerifier(
-                            Type.fromInternalName(classNode.name),
-                            Type.fromInternalName(classNode.superName),
+                            Type.forInternalName(classNode.name),
+                            Type.forInternalName(classNode.superName),
                             (classNode.access & Opcodes.ACC_INTERFACE) != 0));
 
     for (MethodNode methodNode : classNode.methods) {
@@ -190,6 +187,6 @@ public class AnalyzerWithSimpleVerifierTest extends AsmTest {
 
   private static Analyzer<BasicValue> newAnalyzer() {
     return new Analyzer<>(
-            new SimpleVerifier(Type.fromDescriptor("LC;"), Type.fromDescriptor("Ljava/lang/Number;"), false));
+            new SimpleVerifier(Type.forDescriptor("LC;"), Type.forDescriptor("Ljava/lang/Number;"), false));
   }
 }

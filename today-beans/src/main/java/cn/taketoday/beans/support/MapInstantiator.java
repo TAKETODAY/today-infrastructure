@@ -18,7 +18,6 @@
 package cn.taketoday.beans.support;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -28,9 +27,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class MapInstantiator extends BeanInstantiator {
 
-  private int capacity = Constant.ZERO;
-
-  private Class<?> keyType;
+  private final Class<?> keyType;
 
   private final Class<?> mapType;
 
@@ -46,14 +43,7 @@ public class MapInstantiator extends BeanInstantiator {
 
   @Override
   public Object doInstantiate(final Object[] args) {
-    return CollectionUtils.createMap(mapType, keyType, capacity);
+    return CollectionUtils.createMap(mapType, keyType, 0);
   }
 
-  public void setCapacity(int capacity) {
-    this.capacity = capacity;
-  }
-
-  public void setKeyType(Class<?> keyType) {
-    this.keyType = keyType;
-  }
 }

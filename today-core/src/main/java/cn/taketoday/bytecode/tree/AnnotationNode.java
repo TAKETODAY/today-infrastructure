@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.tree;
 
 import java.util.ArrayList;
@@ -26,11 +24,14 @@ import cn.taketoday.bytecode.AnnotationVisitor;
 import cn.taketoday.bytecode.ClassValueHolder;
 import cn.taketoday.bytecode.EnumValueHolder;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents an annotation.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class AnnotationNode extends AnnotationVisitor {
 
@@ -45,6 +46,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * any {@link AnnotationValueHolder} an {@link AnnotationNode}, or a {@link ArrayList} of values of one
    * of the preceding types. The list may be {@literal null} if there is no name value pair.
    */
+  @Nullable
   public ArrayList<Object> values;
 
   /**
@@ -61,7 +63,7 @@ public class AnnotationNode extends AnnotationVisitor {
    *
    * @param values where the visited values must be stored.
    */
-  AnnotationNode(final ArrayList<Object> values) {
+  AnnotationNode(@Nullable ArrayList<Object> values) {
     this.values = values;
   }
 
@@ -186,8 +188,7 @@ public class AnnotationNode extends AnnotationVisitor {
    * @param name the value name.
    * @param value the actual value.
    */
-  static void accept(
-          final AnnotationVisitor visitor, final String name, final Object value) {
+  static void accept(final AnnotationVisitor visitor, final String name, final Object value) {
     if (visitor != null) {
       if (value instanceof String[] typeValue) {
         visitor.visitEnum(name, typeValue[0], typeValue[1]);

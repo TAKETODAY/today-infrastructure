@@ -19,6 +19,7 @@
 # Failure Analyzers
 cn.taketoday.framework.diagnostics.FailureAnalyzer=\
 cn.taketoday.framework.context.config.ConfigDataNotFoundFailureAnalyzer,\
+cn.taketoday.framework.diagnostics.analyzer.AotInitializerNotFoundFailureAnalyzer,\
 cn.taketoday.framework.diagnostics.analyzer.IncompatibleConfigurationFailureAnalyzer,\
 cn.taketoday.framework.diagnostics.analyzer.NotConstructorBoundInjectionFailureAnalyzer,\
 cn.taketoday.framework.diagnostics.analyzer.BeanCurrentlyInCreationFailureAnalyzer,\

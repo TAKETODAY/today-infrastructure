@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -89,7 +86,7 @@ public class BasicVerifier extends BasicInterpreter {
       case FNEG, F2I, F2L, F2D, FRETURN -> expected = BasicValue.FLOAT_VALUE;
       case LNEG, L2I, L2F, L2D, LRETURN -> expected = BasicValue.LONG_VALUE;
       case DNEG, D2I, D2F, D2L, DRETURN -> expected = BasicValue.DOUBLE_VALUE;
-      case GETFIELD -> expected = newValue(Type.fromInternalName(((FieldInsnNode) insn).owner));
+      case GETFIELD -> expected = newValue(Type.forInternalName(((FieldInsnNode) insn).owner));
       case ARRAYLENGTH -> {
         if (!isArrayValue(value)) {
           throw new AnalyzerException(insn, null, "an array reference", value);
@@ -102,7 +99,7 @@ public class BasicVerifier extends BasicInterpreter {
         }
         return super.unaryOperation(insn, value);
       }
-      case PUTSTATIC -> expected = newValue(Type.fromDescriptor(((FieldInsnNode) insn).desc));
+      case PUTSTATIC -> expected = newValue(Type.forDescriptor(((FieldInsnNode) insn).desc));
       default -> throw new AssertionError();
     }
     if (!isSubTypeOf(value, expected)) {
@@ -119,40 +116,40 @@ public class BasicVerifier extends BasicInterpreter {
     BasicValue expected2;
     switch (insn.getOpcode()) {
       case IALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[I"));
+        expected1 = newValue(Type.forDescriptor("[I"));
         expected2 = BasicValue.INT_VALUE;
       }
       case BALOAD -> {
-        if (isSubTypeOf(value1, newValue(Type.fromDescriptor("[Z")))) {
-          expected1 = newValue(Type.fromDescriptor("[Z"));
+        if (isSubTypeOf(value1, newValue(Type.forDescriptor("[Z")))) {
+          expected1 = newValue(Type.forDescriptor("[Z"));
         }
         else {
-          expected1 = newValue(Type.fromDescriptor("[B"));
+          expected1 = newValue(Type.forDescriptor("[B"));
         }
         expected2 = BasicValue.INT_VALUE;
       }
       case CALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[C"));
+        expected1 = newValue(Type.forDescriptor("[C"));
         expected2 = BasicValue.INT_VALUE;
       }
       case SALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[S"));
+        expected1 = newValue(Type.forDescriptor("[S"));
         expected2 = BasicValue.INT_VALUE;
       }
       case LALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[J"));
+        expected1 = newValue(Type.forDescriptor("[J"));
         expected2 = BasicValue.INT_VALUE;
       }
       case FALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[F"));
+        expected1 = newValue(Type.forDescriptor("[F"));
         expected2 = BasicValue.INT_VALUE;
       }
       case DALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[D"));
+        expected1 = newValue(Type.forDescriptor("[D"));
         expected2 = BasicValue.INT_VALUE;
       }
       case AALOAD -> {
-        expected1 = newValue(Type.fromDescriptor("[Ljava/lang/Object;"));
+        expected1 = newValue(Type.forDescriptor("[Ljava/lang/Object;"));
         expected2 = BasicValue.INT_VALUE;
       }
       case IADD, ISUB, IMUL, IDIV, IREM, ISHL, ISHR, IUSHR, IAND, IOR,
@@ -182,8 +179,8 @@ public class BasicVerifier extends BasicInterpreter {
       }
       case PUTFIELD -> {
         FieldInsnNode fieldInsn = (FieldInsnNode) insn;
-        expected1 = newValue(Type.fromInternalName(fieldInsn.owner));
-        expected2 = newValue(Type.fromDescriptor(fieldInsn.desc));
+        expected1 = newValue(Type.forInternalName(fieldInsn.owner));
+        expected2 = newValue(Type.forDescriptor(fieldInsn.desc));
       }
       default -> throw new AssertionError();
     }
@@ -212,36 +209,36 @@ public class BasicVerifier extends BasicInterpreter {
     BasicValue expected3;
     switch (insn.getOpcode()) {
       case IASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[I"));
+        expected1 = newValue(Type.forDescriptor("[I"));
         expected3 = BasicValue.INT_VALUE;
       }
       case BASTORE -> {
-        if (isSubTypeOf(value1, newValue(Type.fromDescriptor("[Z")))) {
-          expected1 = newValue(Type.fromDescriptor("[Z"));
+        if (isSubTypeOf(value1, newValue(Type.forDescriptor("[Z")))) {
+          expected1 = newValue(Type.forDescriptor("[Z"));
         }
         else {
-          expected1 = newValue(Type.fromDescriptor("[B"));
+          expected1 = newValue(Type.forDescriptor("[B"));
         }
         expected3 = BasicValue.INT_VALUE;
       }
       case CASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[C"));
+        expected1 = newValue(Type.forDescriptor("[C"));
         expected3 = BasicValue.INT_VALUE;
       }
       case SASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[S"));
+        expected1 = newValue(Type.forDescriptor("[S"));
         expected3 = BasicValue.INT_VALUE;
       }
       case LASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[J"));
+        expected1 = newValue(Type.forDescriptor("[J"));
         expected3 = BasicValue.LONG_VALUE;
       }
       case FASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[F"));
+        expected1 = newValue(Type.forDescriptor("[F"));
         expected3 = BasicValue.FLOAT_VALUE;
       }
       case DASTORE -> {
-        expected1 = newValue(Type.fromDescriptor("[D"));
+        expected1 = newValue(Type.forDescriptor("[D"));
         expected3 = BasicValue.DOUBLE_VALUE;
       }
       case AASTORE -> {
@@ -278,13 +275,13 @@ public class BasicVerifier extends BasicInterpreter {
       int i = 0;
       int j = 0;
       if (opcode != INVOKESTATIC && opcode != INVOKEDYNAMIC) {
-        Type owner = Type.fromInternalName(((MethodInsnNode) insn).owner);
+        Type owner = Type.forInternalName(((MethodInsnNode) insn).owner);
         if (!isSubTypeOf(values.get(i++), newValue(owner))) {
           throw new AnalyzerException(insn, "Method owner", newValue(owner), values.get(0));
         }
       }
       String methodDescriptor = (opcode == INVOKEDYNAMIC) ? ((InvokeDynamicInsnNode) insn).desc : ((MethodInsnNode) insn).desc;
-      Type[] args = Type.getArgumentTypes(methodDescriptor);
+      Type[] args = Type.forArgumentTypes(methodDescriptor);
       int size = values.size();
       while (i < size) {
         BasicValue expected = newValue(args[j++]);

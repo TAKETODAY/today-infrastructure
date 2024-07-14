@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -52,23 +49,23 @@ public class SimpleVerifierTest {
   })
   public void testMerge_objectTypes(
           final String internalName1, final String internalName2, final String expectedInternalName) {
-    BasicValue value1 = new BasicValue(Type.fromInternalName(internalName1));
-    BasicValue value2 = new BasicValue(Type.fromInternalName(internalName2));
+    BasicValue value1 = new BasicValue(Type.forInternalName(internalName1));
+    BasicValue value2 = new BasicValue(Type.forInternalName(internalName2));
     SimpleVerifier verifier = new SimpleVerifier();
 
     BasicValue merge1 = verifier.merge(value1, value2);
     BasicValue merge2 = verifier.merge(value2, value1);
 
-    BasicValue expectedValue = new BasicValue(Type.fromInternalName(expectedInternalName));
+    BasicValue expectedValue = new BasicValue(Type.forInternalName(expectedInternalName));
     assertEquals(expectedValue, merge1);
     assertEquals(expectedValue, merge2);
   }
 
   @Test
   public void testIsAssignableFrom_subclassWithInterfaces() {
-    Type baseType = Type.fromInternalName("C");
-    Type superType = Type.fromInternalName("D");
-    Type interfaceType = Type.fromInternalName("I");
+    Type baseType = Type.forInternalName("C");
+    Type superType = Type.forInternalName("D");
+    Type interfaceType = Type.forInternalName("I");
     SimpleVerifier simpleVerifier =
             new SimpleVerifier(
                     baseType,
@@ -104,19 +101,19 @@ public class SimpleVerifierTest {
 
   @Test
   public void testIsAssignableFrom_interface() {
-    Type baseType = Type.fromInternalName("C");
-    Type interfaceType = Type.fromInternalName("I");
+    Type baseType = Type.forInternalName("C");
+    Type interfaceType = Type.forInternalName("I");
     SimpleVerifier simpleVerifier =
             new SimpleVerifier(interfaceType, null, true) {
 
               @Override
               protected Type getSuperClass(final Type type) {
-                return Type.fromInternalName("java/lang/Object");
+                return Type.forInternalName("java/lang/Object");
               }
             };
 
     assertTrue(simpleVerifier.isAssignableFrom(interfaceType, baseType));
-    assertTrue(simpleVerifier.isAssignableFrom(interfaceType, Type.fromInternalName("[I")));
+    assertTrue(simpleVerifier.isAssignableFrom(interfaceType, Type.forInternalName("[I")));
     assertFalse(simpleVerifier.isAssignableFrom(interfaceType, Type.INT_TYPE));
   }
 }

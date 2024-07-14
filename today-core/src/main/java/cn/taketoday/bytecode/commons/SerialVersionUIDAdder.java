@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.commons;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +31,7 @@ import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.FieldVisitor;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that adds a serial version unique identifier to a class if missing. A
@@ -139,7 +138,7 @@ public class SerialVersionUIDAdder extends ClassVisitor {
    *
    * @param classVisitor a {@link ClassVisitor} to which this visitor will delegate calls.
    */
-  public SerialVersionUIDAdder(final ClassVisitor classVisitor) {
+  public SerialVersionUIDAdder(@Nullable ClassVisitor classVisitor) {
     super(classVisitor);
   }
 

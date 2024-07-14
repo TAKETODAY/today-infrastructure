@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.util;
 
@@ -607,7 +604,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromDescriptor("I"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.forDescriptor("I"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("Illegal LDC constant value", exception.getMessage());
@@ -618,7 +615,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromInternalName("I"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.forInternalName("I"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("ldc of a constant class requires at least version 1.5", exception.getMessage());
@@ -629,7 +626,7 @@ public class CheckMethodAdapterTest extends AsmTest implements Opcodes {
     checkMethodAdapter.version = Opcodes.V1_1;
     checkMethodAdapter.visitCode();
 
-    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.fromMethod("()V"));
+    Executable visitLdcInsn = () -> checkMethodAdapter.visitLdcInsn(Type.forMethod("()V"));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visitLdcInsn);
     assertEquals("ldc of a method type requires at least version 1.7", exception.getMessage());

@@ -161,9 +161,8 @@ public class ResolveMainClassName extends DefaultTask {
     String classpath = getClasspath().filter(File::isDirectory)
             .getFiles()
             .stream()
-            .map(directory -> getProject().getProjectDir().toPath().relativize(directory.toPath()))
-            .map(Path::toString)
-            .collect(Collectors.joining(","));
+            .map(File::getAbsolutePath)
+            .collect(Collectors.joining(File.pathSeparator));
     return this.outputFile.map(new ClassNameReader(classpath));
   }
 

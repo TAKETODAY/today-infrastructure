@@ -33,10 +33,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 
-import static cn.taketoday.gradle.plugin.InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME;
 import static cn.taketoday.gradle.plugin.InfraApplicationPlugin.INFRA_JAR_TASK_NAME;
 
 /**
@@ -71,7 +69,6 @@ class NativeImagePluginAction implements PluginApplicationAction {
       configureMainNativeBinaryClasspath(project, sourceSets, graalVmExtension);
       configureTestNativeBinaryClasspath(sourceSets, graalVmExtension);
       copyReachabilityMetadataToInfraJar(project);
-      configureInfraBuildImageToProduceANativeImage(project);
       configureJarManifestNativeAttribute(project);
     });
   }
@@ -109,13 +106,6 @@ class NativeImagePluginAction implements PluginApplicationAction {
   private void copyReachabilityMetadataToInfraJar(Project project) {
     project.getTasks().named(INFRA_JAR_TASK_NAME, InfraJar.class)
             .configure(infraJar -> infraJar.from(project.getTasks().named("collectReachabilityMetadata")));
-  }
-
-  private void configureInfraBuildImageToProduceANativeImage(Project project) {
-    project.getTasks().named(INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class).configure(infraBuildImage -> {
-      infraBuildImage.getBuilder().convention("paketobuildpacks/builder-jammy-tiny:latest");
-      infraBuildImage.getEnvironment().put("BP_NATIVE_IMAGE", "true");
-    });
   }
 
   private void configureJarManifestNativeAttribute(Project project) {

@@ -23,8 +23,6 @@ import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.lang.Nullable;
-
 /**
  * {@link DataBlock} that creates a virtual zip. This class allows us to create virtual
  * zip files that can be parsed by regular JDK classes such as the zip {@link FileSystem}.
@@ -82,24 +80,27 @@ class VirtualZipDataBlock extends VirtualDataBlock implements CloseableDataBlock
             .withOffsetToLocalHeader(offsetToLocalHeader);
     int originalExtraFieldLength = Short.toUnsignedInt(originalRecord.extraFieldLength());
     int originalFileCommentLength = Short.toUnsignedInt(originalRecord.fileCommentLength());
-    DataBlock extraFieldAndComment = new DataPart(
-            originalRecordPos + originalRecord.size() - originalExtraFieldLength - originalFileCommentLength,
-            originalExtraFieldLength + originalFileCommentLength);
+    int extraFieldAndCommentSize = originalExtraFieldLength + originalFileCommentLength;
     parts.add(new ByteArrayDataBlock(record.asByteArray()));
     parts.add(name);
-    parts.add(extraFieldAndComment);
+    if (extraFieldAndCommentSize > 0) {
+      parts.add(new DataPart(originalRecordPos + originalRecord.size() - extraFieldAndCommentSize,
+              extraFieldAndCommentSize));
+    }
     return record.size();
   }
 
   private long addToLocal(List<DataBlock> parts, ZipCentralDirectoryFileHeaderRecord centralRecord,
-          ZipLocalFileHeaderRecord originalRecord, @Nullable ZipDataDescriptorRecord dataDescriptorRecord, DataBlock name,
+          ZipLocalFileHeaderRecord originalRecord, ZipDataDescriptorRecord dataDescriptorRecord, DataBlock name,
           DataBlock content) throws IOException {
     ZipLocalFileHeaderRecord record = originalRecord.withFileNameLength((short) (name.size() & 0xFFFF));
     long originalRecordPos = Integer.toUnsignedLong(centralRecord.offsetToLocalHeader());
     int extraFieldLength = Short.toUnsignedInt(originalRecord.extraFieldLength());
     parts.add(new ByteArrayDataBlock(record.asByteArray()));
     parts.add(name);
-    parts.add(new DataPart(originalRecordPos + originalRecord.size() - extraFieldLength, extraFieldLength));
+    if (extraFieldLength > 0) {
+      parts.add(new DataPart(originalRecordPos + originalRecord.size() - extraFieldLength, extraFieldLength));
+    }
     parts.add(content);
     if (dataDescriptorRecord != null) {
       parts.add(new ByteArrayDataBlock(dataDescriptorRecord.asByteArray()));

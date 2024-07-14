@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -20,7 +20,6 @@ package cn.taketoday.context.properties.bind;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,7 +34,6 @@ import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.context.properties.bind.JavaBeanBinder.BeanProperty;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
@@ -89,12 +87,8 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
    * @param hints the hints contributed so far for the deployment unit
    */
   public void registerHints(RuntimeHints hints) {
-    Set<Class<?>> compiledWithoutParameters = new HashSet<>();
     for (Bindable<?> bindable : this.bindables) {
-      new Processor(bindable, compiledWithoutParameters).process(hints.reflection());
-    }
-    if (!compiledWithoutParameters.isEmpty()) {
-      throw new MissingParametersCompilerArgumentException(compiledWithoutParameters);
+      new Processor(bindable).process(hints.reflection());
     }
   }
 
@@ -155,21 +149,17 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
     private final Set<Class<?>> seen;
 
-    private final Set<Class<?>> compiledWithoutParameters;
-
-    Processor(Bindable<?> bindable, Set<Class<?>> compiledWithoutParameters) {
-      this(bindable, false, new HashSet<>(), compiledWithoutParameters);
+    Processor(Bindable<?> bindable) {
+      this(bindable, false, new HashSet<>());
     }
 
-    private Processor(Bindable<?> bindable, boolean nestedType, Set<Class<?>> seen,
-            Set<Class<?>> compiledWithoutParameters) {
+    private Processor(Bindable<?> bindable, boolean nestedType, Set<Class<?>> seen) {
       this.type = bindable.getType().getRawClass();
       this.bindConstructor = (bindable.getBindMethod() != BindMethod.JAVA_BEAN)
-                             ? BindConstructorProvider.DEFAULT.getBindConstructor(bindable.getType().resolve(), nestedType)
-                             : null;
+              ? BindConstructorProvider.DEFAULT.getBindConstructor(bindable.getType().resolve(), nestedType)
+              : null;
       this.bean = JavaBeanBinder.BeanProperties.of(bindable);
       this.seen = seen;
-      this.compiledWithoutParameters = compiledWithoutParameters;
     }
 
     void process(ReflectionHints hints) {
@@ -179,7 +169,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
       this.seen.add(this.type);
       handleConstructor(hints);
       if (this.bindConstructor != null) {
-        handleValueObjectProperties(bindConstructor, hints);
+        handleValueObjectProperties(hints, bindConstructor);
       }
       else if (this.bean != null && !this.bean.getProperties().isEmpty()) {
         handleJavaBeanProperties(bean, hints);
@@ -188,8 +178,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
     private void handleConstructor(ReflectionHints hints) {
       if (this.bindConstructor != null) {
-        verifyParameterNamesAreAvailable(bindConstructor);
-        hints.registerConstructor(bindConstructor, ExecutableMode.INVOKE);
+        hints.registerConstructor(this.bindConstructor, ExecutableMode.INVOKE);
         return;
       }
       Arrays.stream(this.type.getDeclaredConstructors())
@@ -198,22 +187,14 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
               .ifPresent((constructor) -> hints.registerConstructor(constructor, ExecutableMode.INVOKE));
     }
 
-    private void verifyParameterNamesAreAvailable(Constructor<?> bindConstructor) {
-      String[] parameterNames = ParameterNameDiscoverer.findParameterNames(bindConstructor);
-      if (parameterNames == null) {
-        this.compiledWithoutParameters.add(bindConstructor.getDeclaringClass());
-      }
-    }
-
     private boolean hasNoParameters(Constructor<?> candidate) {
       return candidate.getParameterCount() == 0;
     }
 
-    private void handleValueObjectProperties(Constructor<?> bindConstructor, ReflectionHints hints) {
-      int i = 0;
-      for (Parameter parameter : bindConstructor.getParameters()) {
-        String propertyName = parameter.getName();
-        ResolvableType propertyType = ResolvableType.forConstructorParameter(bindConstructor, i++);
+    private void handleValueObjectProperties(ReflectionHints hints, Constructor<?> bindConstructor) {
+      for (int i = 0; i < bindConstructor.getParameterCount(); i++) {
+        String propertyName = bindConstructor.getParameters()[i].getName();
+        ResolvableType propertyType = ResolvableType.forConstructorParameter(bindConstructor, i);
         handleProperty(hints, propertyName, propertyType);
       }
     }
@@ -254,7 +235,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
     }
 
     private void processNested(Class<?> type, ReflectionHints hints) {
-      new Processor(Bindable.of(type), true, this.seen, this.compiledWithoutParameters).process(hints);
+      new Processor(Bindable.of(type), true, this.seen).process(hints);
     }
 
     @Nullable

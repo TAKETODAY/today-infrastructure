@@ -80,10 +80,10 @@ class ConfigDataLocationResolvers {
 
   private List<ConfigDataLocationResolver<?>> reorder(List<ConfigDataLocationResolver<?>> resolvers) {
     var reordered = new ArrayList<ConfigDataLocationResolver<?>>(resolvers.size());
-    StandardConfigDataLocationResolver resourceResolver = null;
+    ConfigDataLocationResolver<?> resourceResolver = null;
     for (ConfigDataLocationResolver<?> resolver : resolvers) {
       if (resolver instanceof StandardConfigDataLocationResolver) {
-        resourceResolver = (StandardConfigDataLocationResolver) resolver;
+        resourceResolver = resolver;
       }
       else {
         reordered.add(resolver);

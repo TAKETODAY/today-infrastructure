@@ -43,6 +43,7 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -228,8 +229,18 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
     if (configDataLocation.isOptional()) {
       return Collections.emptySet();
     }
-    throw new IllegalStateException("File extension is not known to any PropertySourceLoader. "
-            + "If the location is meant to reference a directory, it must end in '/' or File.separator");
+    if (configDataLocation.hasPrefix(PREFIX)
+            || configDataLocation.hasPrefix(ResourceUtils.FILE_URL_PREFIX)
+            || configDataLocation.hasPrefix(ResourceUtils.CLASSPATH_URL_PREFIX)
+            || configDataLocation.toString().indexOf(':') == -1) {
+      throw new IllegalStateException("File extension is not known to any PropertySourceLoader. "
+              + "If the location is meant to reference a directory, it must end in '/' or File.separator");
+    }
+    throw new IllegalStateException(
+            "Incorrect ConfigDataLocationResolver chosen or file extension is not known to any PropertySourceLoader. "
+                    + "If the location is meant to reference a directory, it must end in '/' or File.separator. "
+                    + "The location is being resolved using the StandardConfigDataLocationResolver, "
+                    + "check the location prefix if a different resolver is expected");
   }
 
   @Nullable
@@ -278,8 +289,8 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
   private Set<StandardConfigDataResource> resolveNonPatternEmptyDirectories(StandardConfigDataReference reference) {
     Resource resource = resourceLoader.getResource(reference.directory);
     return (resource instanceof ClassPathResource || !resource.exists())
-           ? Collections.emptySet()
-           : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
+            ? Collections.emptySet()
+            : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
   }
 
   private Set<StandardConfigDataResource> resolvePatternEmptyDirectories(StandardConfigDataReference reference) {

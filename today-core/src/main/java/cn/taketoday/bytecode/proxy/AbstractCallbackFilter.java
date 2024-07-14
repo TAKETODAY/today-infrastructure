@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.proxy;
 
@@ -25,9 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.bytecode.core.CglibReflectUtils;
-import cn.taketoday.lang.Constant;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -83,18 +77,6 @@ public abstract class AbstractCallbackFilter implements CallbackFilter {
       return callbacks.toArray(new Callback[callbacks.size()]);
     }
     throw new IllegalStateException("getCallback returned classes, not callbacks; call getCallbackTypes instead");
-  }
-
-  @SuppressWarnings("rawtypes")
-  public Class<?>[] getCallbackTypes() {
-    final List callbacks = this.callbacks;
-    if (CollectionUtils.isEmpty(callbacks)) {
-      return Constant.EMPTY_CLASSES;
-    }
-    if (callbacks.get(0) instanceof Callback) {
-      return CglibReflectUtils.getClasses(getCallbacks());
-    }
-    return ClassUtils.toClassArray(callbacks);
   }
 
   public int accept(Method method) {

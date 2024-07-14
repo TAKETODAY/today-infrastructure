@@ -2543,7 +2543,7 @@ public class ClassReader {
         currentOffset += 4;
       }
       case 'c' -> { // class_info
-        annotationVisitor.visit(elementName, Type.fromDescriptor(readUTF8(currentOffset, charBuffer)));
+        annotationVisitor.visit(elementName, Type.forDescriptor(readUTF8(currentOffset, charBuffer)));
         currentOffset += 2;
       }
       case '@' -> {// annotation_value
@@ -3248,9 +3248,9 @@ public class ClassReader {
       case Symbol.CONSTANT_FLOAT_TAG -> Float.intBitsToFloat(readInt(cpInfoOffset));
       case Symbol.CONSTANT_LONG_TAG -> readLong(cpInfoOffset);
       case Symbol.CONSTANT_DOUBLE_TAG -> Double.longBitsToDouble(readLong(cpInfoOffset));
-      case Symbol.CONSTANT_CLASS_TAG -> Type.fromInternalName(readUTF8(cpInfoOffset, charBuffer));
+      case Symbol.CONSTANT_CLASS_TAG -> Type.forInternalName(readUTF8(cpInfoOffset, charBuffer));
       case Symbol.CONSTANT_STRING_TAG -> readUTF8(cpInfoOffset, charBuffer);
-      case Symbol.CONSTANT_METHOD_TYPE_TAG -> Type.fromMethod(readUTF8(cpInfoOffset, charBuffer));
+      case Symbol.CONSTANT_METHOD_TYPE_TAG -> Type.forMethod(readUTF8(cpInfoOffset, charBuffer));
       case Symbol.CONSTANT_DYNAMIC_TAG -> readConstantDynamic(constantPoolEntryIndex, charBuffer);
       case Symbol.CONSTANT_METHOD_HANDLE_TAG -> {
         int referenceKind = readByte(cpInfoOffset);

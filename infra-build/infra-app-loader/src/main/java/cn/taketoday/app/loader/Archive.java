@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Set;
@@ -120,11 +121,10 @@ public interface Archive extends AutoCloseable {
   static Archive create(ProtectionDomain protectionDomain) throws Exception {
     CodeSource codeSource = protectionDomain.getCodeSource();
     URI location = (codeSource != null) ? codeSource.getLocation().toURI() : null;
-    String path = (location != null) ? location.getSchemeSpecificPart() : null;
-    if (path == null) {
+    if (location == null) {
       throw new IllegalStateException("Unable to determine code source archive");
     }
-    return create(new File(path));
+    return create(Path.of(location).toFile());
   }
 
   /**

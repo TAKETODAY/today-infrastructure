@@ -17,6 +17,7 @@
 
 package cn.taketoday.expression.spel;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
@@ -46,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Phillip Webb
  * @author Sam Brannen
  */
-public class MethodInvocationTests extends AbstractExpressionTests {
+class MethodInvocationTests extends AbstractExpressionTests {
 
   @Test
   void testSimpleAccess01() {
@@ -245,6 +246,7 @@ public class MethodInvocationTests extends AbstractExpressionTests {
     evaluate("aVarargsMethod(1,'a',3.0d)", "[1, a, 3.0]", String.class); // first and last need conversion
     evaluate("aVarargsMethod(new String[]{'a','b','c'})", "[a, b, c]", String.class);
     evaluate("aVarargsMethod(new String[]{})", "[]", String.class);
+    evaluate("aVarargsMethod(new int[]{1, 2, 3})", "[1, 2, 3]", String.class); // needs int[] to String[] conversion
     evaluate("aVarargsMethod(null)", "[null]", String.class);
     evaluate("aVarargsMethod(null,'a')", "[null, a]", String.class);
     evaluate("aVarargsMethod('a',null,'b')", "[a, null, b]", String.class);
@@ -291,6 +293,75 @@ public class MethodInvocationTests extends AbstractExpressionTests {
     evaluate("aVarargsMethod3('foo', ',bar')", "foo-,bar", String.class);
     evaluate("aVarargsMethod3('foo', 'bar,')", "foo-bar,", String.class);
     evaluate("aVarargsMethod3('foo', 'bar,baz')", "foo-bar,baz", String.class);
+  }
+
+  @Test
+  void testVarargsWithObjectArrayType() {
+    // Calling 'public String formatObjectVarargs(String format, Object... args)' -> String.format(format, args)
+
+    // No var-args and no conversion necessary
+    evaluate("formatObjectVarargs('x')", "x", String.class);
+
+    // No var-args but conversion necessary
+    evaluate("formatObjectVarargs(9)", "9", String.class);
+
+    // No conversion necessary
+    evaluate("formatObjectVarargs('x -> %s', '')", "x -> ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', ' ')", "x ->  ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', 'a')", "x -> a", String.class);
+    evaluate("formatObjectVarargs('x -> %s %s %s', 'a', 'b', 'c')", "x -> a b c", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new Object[]{''})", "x -> ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new String[]{''})", "x -> ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new Object[]{' '})", "x ->  ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new String[]{' '})", "x ->  ", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new Object[]{'a'})", "x -> a", String.class);
+    evaluate("formatObjectVarargs('x -> %s', new String[]{'a'})", "x -> a", String.class);
+    evaluate("formatObjectVarargs('x -> %s %s %s', new Object[]{'a', 'b', 'c'})", "x -> a b c", String.class);
+    evaluate("formatObjectVarargs('x -> %s %s %s', new String[]{'a', 'b', 'c'})", "x -> a b c", String.class);
+
+    // Conversion necessary
+    evaluate("formatObjectVarargs('x -> %s %s', 2, 3)", "x -> 2 3", String.class);
+    evaluate("formatObjectVarargs('x -> %s %s', 'a', 3.0d)", "x -> a 3.0", String.class);
+    evaluate("formatObjectVarargs('x -> %s %s %s', new Integer[]{1, 2, 3})", "x -> 1 2 3", String.class);
+
+    // Individual string contains a comma with multiple varargs arguments
+    evaluate("formatObjectVarargs('foo -> %s %s', ',', 'baz')", "foo -> , baz", String.class);
+    evaluate("formatObjectVarargs('foo -> %s %s', 'bar', ',baz')", "foo -> bar ,baz", String.class);
+    evaluate("formatObjectVarargs('foo -> %s %s', 'bar,', 'baz')", "foo -> bar, baz", String.class);
+
+    // Individual string contains a comma with single varargs argument.
+    evaluate("formatObjectVarargs('foo -> %s', ',')", "foo -> ,", String.class);
+    evaluate("formatObjectVarargs('foo -> %s', ',bar')", "foo -> ,bar", String.class);
+    evaluate("formatObjectVarargs('foo -> %s', 'bar,')", "foo -> bar,", String.class);
+    evaluate("formatObjectVarargs('foo -> %s', 'bar,baz')", "foo -> bar,baz", String.class);
+  }
+
+  @Test
+  void testVarargsWithPrimitiveArrayType() {
+    // Calling 'public String formatPrimitiveVarargs(String format, int... nums)' -> effectively String.format(format, args)
+
+    // No var-args and no conversion necessary
+    evaluate("formatPrimitiveVarargs(9)", "9", String.class);
+
+    // No var-args but conversion necessary
+    evaluate("formatPrimitiveVarargs('7')", "7", String.class);
+
+    // No conversion necessary
+    evaluate("formatPrimitiveVarargs('x -> %s', 9)", "x -> 9", String.class);
+    evaluate("formatPrimitiveVarargs('x -> %s %s %s', 1, 2, 3)", "x -> 1 2 3", String.class);
+    evaluate("formatPrimitiveVarargs('x -> %s', new int[]{1})", "x -> 1", String.class);
+    evaluate("formatPrimitiveVarargs('x -> %s %s %s', new int[]{1, 2, 3})", "x -> 1 2 3", String.class);
+
+    // Conversion necessary
+    evaluate("formatPrimitiveVarargs('x -> %s %s', '2', '3')", "x -> 2 3", String.class);
+    evaluate("formatPrimitiveVarargs('x -> %s %s', '2', 3.0d)", "x -> 2 3", String.class);
+  }
+
+  @Disabled("Primitive array to Object[] conversion is not currently supported")
+  @Test
+  void testVarargsWithPrimitiveArrayToObjectArrayConversion() {
+    evaluate("formatObjectVarargs('x -> %s %s %s', new short[]{1, 2, 3})", "x -> 1 2 3", String.class); // short[] to Object[]
+    evaluate("formatObjectVarargs('x -> %s %s %s', new int[]{1, 2, 3})", "x -> 1 2 3", String.class); // int[] to Object[]
   }
 
   @Test

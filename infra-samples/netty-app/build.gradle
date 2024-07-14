@@ -16,10 +16,3 @@ compileJava {
   options.compilerArgs << '-parameters'
 
 }
-
-infraBuildImage {
-//  pullPolicy = "IF_NOT_PRESENT"
-  applicationDirectory = "/application"
-  network = "host"
-//  createdDate = Instant.now().toString()
-}

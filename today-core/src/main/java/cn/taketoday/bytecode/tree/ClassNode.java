@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.tree;
 
 import java.util.ArrayList;
@@ -32,11 +30,13 @@ import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.RecordComponentVisitor;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents a class.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class ClassNode extends ClassVisitor {
 
@@ -56,6 +56,7 @@ public class ClassNode extends ClassVisitor {
   public String name;
 
   /** The signature of this class. May be {@literal null}. */
+  @Nullable
   public String signature;
 
   /**
@@ -63,6 +64,7 @@ public class ClassNode extends ClassVisitor {
    * For interfaces, the super class is {@link Object}. May be {@literal null}, but only for the
    * {@link Object} class.
    */
+  @Nullable
   public String superName;
 
   /**
@@ -70,62 +72,79 @@ public class ClassNode extends ClassVisitor {
    * Type#getInternalName}).
    * Map be {@literal null}. there is no interfaces.
    */
+  @Nullable
   public String[] interfaces;
 
   /** The name of the source file from which this class was compiled. May be {@literal null}. */
+  @Nullable
   public String sourceFile;
 
   /**
    * The correspondence between source and compiled elements of this class. May be {@literal null}.
    */
+  @Nullable
   public String sourceDebug;
 
   /** The module stored in this class. May be {@literal null}. */
+  @Nullable
   public ModuleNode module;
 
   /** The internal name of the enclosing class of this class. May be {@literal null}. */
+  @Nullable
   public String outerClass;
 
   /**
    * The name of the method that contains this class, or {@literal null} if this class is not
    * enclosed in a method.
    */
+  @Nullable
   public String outerMethod;
 
   /**
    * The descriptor of the method that contains this class, or {@literal null} if this class is not
    * enclosed in a method.
    */
+  @Nullable
   public String outerMethodDesc;
 
   /** The runtime visible annotations of this class. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> visibleAnnotations;
 
   /** The runtime invisible annotations of this class. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> invisibleAnnotations;
 
   /** The runtime visible type annotations of this class. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /** The runtime invisible type annotations of this class. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /** The non standard attributes of this class. May be {@literal null}. */
+  @Nullable
   public List<Attribute> attrs;
 
   /** The inner classes of this class. May be {@literal null} if there is not any inner class */
+  @Nullable
   public List<InnerClassNode> innerClasses;
 
   /** The internal name of the nest host class of this class. May be {@literal null}. */
+  @Nullable
   public String nestHostClass;
 
   /** The internal names of the nest members of this class. May be {@literal null}. */
+  @Nullable
   public List<String> nestMembers;
 
   /** The internal names of the permitted subclasses of this class. May be {@literal null}. */
+  @Nullable
   public List<String> permittedSubclasses;
 
   /** The record components of this class. May be {@literal null}. */
+  @Nullable
   public List<RecordComponentNode> recordComponents;
 
   /** The fields of this class. */
@@ -139,13 +158,8 @@ public class ClassNode extends ClassVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public void visit(
-          final int version,
-          final int access,
-          final String name,
-          final String signature,
-          final String superName,
-          final String[] interfaces) {
+  public void visit(final int version, final int access, final String name,
+          final String signature, final String superName, final String[] interfaces) {
     this.version = version;
     this.access = access;
     this.name = name;

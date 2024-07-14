@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree;
 
@@ -28,12 +28,14 @@ import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
  * A node that represents a method.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class MethodNode extends MethodVisitor {
 
@@ -50,6 +52,7 @@ public class MethodNode extends MethodVisitor {
   public String desc;
 
   /** The method's signature. May be {@literal null}. */
+  @Nullable
   public String signature;
 
   /** The internal names of the method's exception classes (see {@link Type#getInternalName()}). */
@@ -59,18 +62,23 @@ public class MethodNode extends MethodVisitor {
   public List<ParameterNode> parameters;
 
   /** The runtime visible annotations of this method. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> visibleAnnotations;
 
   /** The runtime invisible annotations of this method. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> invisibleAnnotations;
 
   /** The runtime visible type annotations of this method. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /** The runtime invisible type annotations of this method. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /** The non standard attributes of this method. May be {@literal null}. */
+  @Nullable
   public List<Attribute> attrs;
 
   /**
@@ -80,6 +88,7 @@ public class MethodNode extends MethodVisitor {
    * enumeration values), a {@link AnnotationNode}, or a {@link List} of values of one of the
    * preceding types. May be {@literal null}.
    */
+  @Nullable
   public Object annotationDefault;
 
   /**
@@ -96,6 +105,7 @@ public class MethodNode extends MethodVisitor {
    * The runtime visible parameter annotations of this method. These lists are lists of {@link
    * AnnotationNode} objects. May be {@literal null}.
    */
+  @Nullable
   public List<AnnotationNode>[] visibleParameterAnnotations;
 
   /**
@@ -112,6 +122,7 @@ public class MethodNode extends MethodVisitor {
    * The runtime invisible parameter annotations of this method. These lists are lists of {@link
    * AnnotationNode} objects. May be {@literal null}.
    */
+  @Nullable
   public List<AnnotationNode>[] invisibleParameterAnnotations;
 
   /** The instructions of this method. */
@@ -127,12 +138,15 @@ public class MethodNode extends MethodVisitor {
   public int maxLocals;
 
   /** The local variables of this method. May be {@literal null} */
+  @Nullable
   public List<LocalVariableNode> localVariables;
 
   /** The visible local variable annotations of this method. May be {@literal null} */
+  @Nullable
   public List<LocalVariableAnnotationNode> visibleLocalVariableAnnotations;
 
   /** The invisible local variable annotations of this method. May be {@literal null} */
+  @Nullable
   public List<LocalVariableAnnotationNode> invisibleLocalVariableAnnotations;
 
   /** Whether the accept method has been called on this object. */
@@ -156,12 +170,8 @@ public class MethodNode extends MethodVisitor {
    * @param exceptions the internal names of the method's exception classes (see {@link
    * Type#getInternalName()}). May be {@literal null}.
    */
-  public MethodNode(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final String[] exceptions) {
+  public MethodNode(final int access, final String name,
+          final String descriptor, @Nullable final String signature, final String[] exceptions) {
     this.name = name;
     this.access = access;
     this.desc = descriptor;
@@ -174,7 +184,6 @@ public class MethodNode extends MethodVisitor {
     }
     this.instructions = new InsnList();
   }
-
   // -----------------------------------------------------------------------------------------------
   // Implementation of the MethodVisitor abstract class
   // -----------------------------------------------------------------------------------------------

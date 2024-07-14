@@ -17,18 +17,15 @@
 
 package cn.taketoday.gradle.plugin;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.util.GradleVersion;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.gradle.dsl.InfraApplicationExtension;
-import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
 import cn.taketoday.lang.Version;
@@ -64,11 +61,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
    * The name of the default {@link InfraWar} task.
    */
   public static final String INFRA_WAR_TASK_NAME = "infraWar";
-
-  /**
-   * The name of the default {@link InfraBuildImage} task.
-   */
-  public static final String INFRA_BUILD_IMAGE_TASK_NAME = "infraBuildImage";
 
   static final String INFRA_RUN_TASK_NAME = "infraRun";
 
@@ -110,7 +102,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    verifyGradleVersion();
     createExtension(project);
     Configuration infraArchives = createInfraArchivesConfiguration(project);
     registerPluginActions(project, infraArchives);
@@ -124,14 +115,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
               placeholderName -> ObjectUtils.toString(project.findProperty(placeholderName)));
     }
     return BOM_COORDINATES;
-  }
-
-  private void verifyGradleVersion() {
-    GradleVersion currentVersion = GradleVersion.current();
-    if (currentVersion.compareTo(GradleVersion.version("7.4")) < 0) {
-      throw new GradleException("Infra plugin requires Gradle 7.x (7.4 or later). "
-              + "The current version is " + currentVersion);
-    }
   }
 
   private void createExtension(Project project) {

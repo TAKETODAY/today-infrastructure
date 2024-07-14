@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.diagnostics.analyzer;
@@ -47,8 +44,9 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
   void analysisWithNullEnvironment() {
     InvalidConfigurationPropertyValueException failure = new InvalidConfigurationPropertyValueException(
             "test.property", "invalid", "This is not valid.");
-    FailureAnalysis analysis = new InvalidConfigurationPropertyValueFailureAnalyzer(environment).analyze(failure);
-    assertThat(analysis).isNull();
+    FailureAnalysis analysis = new InvalidConfigurationPropertyValueFailureAnalyzer(null).analyze(failure);
+    assertThat(analysis.getDescription())
+            .contains("Invalid value 'invalid' for configuration property 'test.property'.");
   }
 
   @Test
@@ -61,7 +59,8 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
     assertCommonParts(failure, analysis);
     assertThat(analysis.getAction()).contains("Review the value of the property with the provided reason.");
     assertThat(analysis.getDescription()).contains("Validation failed for the following reason")
-            .contains("This is not valid.").doesNotContain("Additionally, this property is also set");
+            .contains("This is not valid.")
+            .doesNotContain("Additionally, this property is also set");
   }
 
   @Test
@@ -100,17 +99,21 @@ class InvalidConfigurationPropertyValueFailureAnalyzerTests {
   void analysisWithUnknownKey() {
     InvalidConfigurationPropertyValueException failure = new InvalidConfigurationPropertyValueException(
             "test.key.not.defined", "invalid", "This is not valid.");
-    assertThat(performAnalysis(failure)).isNull();
+    FailureAnalysis analysis = performAnalysis(failure);
+    assertThat(analysis.getDescription())
+            .contains("Invalid value 'invalid' for configuration property 'test.key.not.defined'.");
   }
 
   private void assertCommonParts(InvalidConfigurationPropertyValueException failure, FailureAnalysis analysis) {
-    assertThat(analysis.getDescription()).contains("test.property").contains("invalid")
+    assertThat(analysis.getDescription()).contains("test.property")
+            .contains("invalid")
             .contains("TestOrigin test.property");
     assertThat(analysis.getCause()).isSameAs(failure);
   }
 
   private FailureAnalysis performAnalysis(InvalidConfigurationPropertyValueException failure) {
-    InvalidConfigurationPropertyValueFailureAnalyzer analyzer = new InvalidConfigurationPropertyValueFailureAnalyzer(environment);
+    InvalidConfigurationPropertyValueFailureAnalyzer analyzer = new InvalidConfigurationPropertyValueFailureAnalyzer(
+            this.environment);
     return analyzer.analyze(failure);
   }
 

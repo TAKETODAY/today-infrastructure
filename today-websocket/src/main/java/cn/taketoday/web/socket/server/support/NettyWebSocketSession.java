@@ -96,6 +96,11 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
+  public boolean isActive() {
+    return channel.isActive();
+  }
+
+  @Override
   public void close(CloseStatus status) throws IOException {
     channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE);

@@ -48,7 +48,6 @@ import java.util.Properties;
 import java.util.Random;
 
 import cn.taketoday.app.loader.tools.LaunchScript;
-import cn.taketoday.buildpack.platform.build.BuildRequest;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.framework.ApplicationAotProcessor;
 import cn.taketoday.lang.VersionExtractor;
@@ -122,7 +121,6 @@ public class GradleBuild {
             new File(pathOfJarContaining(LaunchScript.class)),
             new File(pathOfJarContaining(DependencyManagementPlugin.class)),
             new File(pathOfJarContaining(ArchiveEntry.class)),
-            new File(pathOfJarContaining(BuildRequest.class)),
             new File(pathOfJarContaining(HttpClientConnectionManager.class)),
             new File(pathOfJarContaining(HttpRequest.class)),
             new File(pathOfJarContaining(HttpVersionPolicy.class)),

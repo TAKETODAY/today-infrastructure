@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.commons;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that merges &lt;clinit&gt; methods into a single one. All the existing
@@ -29,6 +28,7 @@ import cn.taketoday.bytecode.Opcodes;
  * methods.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class StaticInitMerger extends ClassVisitor {
 
@@ -51,7 +51,7 @@ public class StaticInitMerger extends ClassVisitor {
    * @param classVisitor the class visitor to which this visitor must delegate method calls. May be
    * null.
    */
-  public StaticInitMerger(final String prefix, final ClassVisitor classVisitor) {
+  public StaticInitMerger(final String prefix, @Nullable ClassVisitor classVisitor) {
     super(classVisitor);
     this.renamedClinitMethodPrefix = prefix;
   }

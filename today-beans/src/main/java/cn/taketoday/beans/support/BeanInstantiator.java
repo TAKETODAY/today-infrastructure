@@ -98,7 +98,7 @@ public abstract class BeanInstantiator {
    * @return BeanInstantiator to construct target T
    * @see BeanInstantiatorGenerator#create()
    */
-  public static BeanInstantiator fromConstructor(Constructor<?> constructor) {
+  public static BeanInstantiator forConstructor(Constructor<?> constructor) {
     return new BeanInstantiatorGenerator(constructor).create();
   }
 
@@ -109,7 +109,7 @@ public abstract class BeanInstantiator {
    * @param obj accessor object
    * @return MethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromMethod(MethodAccessor accessor, Object obj) {
+  public static BeanInstantiator forMethod(MethodAccessor accessor, Object obj) {
     return new MethodAccessorBeanInstantiator(accessor, obj);
   }
 
@@ -120,8 +120,8 @@ public abstract class BeanInstantiator {
    * @param obj accessor object
    * @return MethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromMethod(Method method, Object obj) {
-    return fromMethod(MethodInvoker.forMethod(method), obj);
+  public static BeanInstantiator forMethod(Method method, Object obj) {
+    return forMethod(MethodInvoker.forMethod(method), obj);
   }
 
   /**
@@ -131,7 +131,7 @@ public abstract class BeanInstantiator {
    * @param obj accessor object Supplier
    * @return MethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromMethod(MethodAccessor accessor, Supplier<Object> obj) {
+  public static BeanInstantiator forMethod(MethodAccessor accessor, Supplier<Object> obj) {
     return new MethodAccessorBeanInstantiator(accessor, obj);
   }
 
@@ -141,8 +141,8 @@ public abstract class BeanInstantiator {
    * @param method factory-method
    * @return MethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromMethod(Method method, Supplier<Object> obj) {
-    return fromMethod(MethodInvoker.forMethod(method), obj);
+  public static BeanInstantiator forMethod(Method method, Supplier<Object> obj) {
+    return forMethod(MethodInvoker.forMethod(method), obj);
   }
 
   /**
@@ -151,7 +151,7 @@ public abstract class BeanInstantiator {
    * @param accessor static factory-method accessor
    * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromStaticMethod(MethodAccessor accessor) {
+  public static BeanInstantiator forStaticMethod(MethodAccessor accessor) {
     Assert.notNull(accessor, "MethodAccessor is required");
     return new StaticMethodAccessorBeanInstantiator(accessor);
   }
@@ -162,8 +162,8 @@ public abstract class BeanInstantiator {
    * @param method static factory-method
    * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
-  public static BeanInstantiator fromStaticMethod(Method method) {
-    return fromStaticMethod(MethodInvoker.forMethod(method));
+  public static BeanInstantiator forStaticMethod(Method method) {
+    return forStaticMethod(MethodInvoker.forMethod(method));
   }
 
   /**
@@ -177,15 +177,15 @@ public abstract class BeanInstantiator {
    * @throws ConstructorNotFoundException No suitable constructor
    * @see BeanUtils#obtainConstructor(Class)
    */
-  public static BeanInstantiator fromClass(final Class<?> targetClass) {
+  public static BeanInstantiator forClass(final Class<?> targetClass) {
     Constructor<?> suitableConstructor = BeanUtils.obtainConstructor(targetClass);
-    return fromConstructor(suitableConstructor);
+    return forConstructor(suitableConstructor);
   }
 
   /**
    * @param function function
    */
-  public static FunctionInstantiator fromFunction(Function<Object[], ?> function) {
+  public static BeanInstantiator forFunction(Function<Object[], ?> function) {
     Assert.notNull(function, "instance function is required");
     return new FunctionInstantiator(function);
   }
@@ -193,7 +193,7 @@ public abstract class BeanInstantiator {
   /**
    * @param supplier bean instance supplier
    */
-  public static SupplierInstantiator fromSupplier(Supplier<?> supplier) {
+  public static BeanInstantiator forSupplier(Supplier<?> supplier) {
     Assert.notNull(supplier, "instance supplier is required");
     return new SupplierInstantiator(supplier);
   }
@@ -203,7 +203,7 @@ public abstract class BeanInstantiator {
    *
    * @param target target class
    */
-  public static <T> BeanInstantiator fromConstructor(final Class<T> target) {
+  public static <T> BeanInstantiator forConstructor(final Class<T> target) {
     Assert.notNull(target, "target class is required");
     if (target.isArray()) {
       Class<?> componentType = target.getComponentType();
@@ -218,7 +218,7 @@ public abstract class BeanInstantiator {
 
     try {
       final Constructor<T> constructor = target.getDeclaredConstructor();
-      return fromConstructor(constructor);
+      return forConstructor(constructor);
     }
     catch (NoSuchMethodException e) {
       throw new ReflectionException(

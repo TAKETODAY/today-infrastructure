@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.tree;
 
 import java.util.ArrayList;
@@ -24,11 +22,13 @@ import java.util.List;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.ModuleVisitor;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents a module declaration.
  *
  * @author Remi Forax
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class ModuleNode extends ModuleVisitor {
 
@@ -42,27 +42,35 @@ public class ModuleNode extends ModuleVisitor {
   public int access;
 
   /** The version of this module. May be {@literal null}. */
+  @Nullable
   public String version;
 
   /** The internal name of the main class of this module. May be {@literal null}. */
+  @Nullable
   public String mainClass;
 
   /** The internal name of the packages declared by this module. May be {@literal null}. */
+  @Nullable
   public List<String> packages;
 
   /** The dependencies of this module. May be {@literal null}. */
+  @Nullable
   public List<ModuleRequireNode> requires;
 
   /** The packages exported by this module. May be {@literal null}. */
+  @Nullable
   public List<ModuleExportNode> exports;
 
   /** The packages opened by this module. May be {@literal null}. */
+  @Nullable
   public List<ModuleOpenNode> opens;
 
   /** The internal names of the services used by this module. May be {@literal null}. */
+  @Nullable
   public List<String> uses;
 
   /** The services provided by this module. May be {@literal null}. */
+  @Nullable
   public List<ModuleProvideNode> provides;
 
   /**
@@ -73,7 +81,7 @@ public class ModuleNode extends ModuleVisitor {
    * ACC_MANDATED}.
    * @param version the module version, or {@literal null}.
    */
-  public ModuleNode(final String name, final int access, final String version) {
+  public ModuleNode(final String name, final int access, @Nullable String version) {
     this.name = name;
     this.access = access;
     this.version = version;
@@ -94,15 +102,13 @@ public class ModuleNode extends ModuleVisitor {
    * @param uses The internal names of the services used by this module. May be {@literal null}.
    * @param provides The services provided by this module. May be {@literal null}.
    */
-  public ModuleNode(
-          final String name,
-          final int access,
-          final String version,
-          final List<ModuleRequireNode> requires,
-          final List<ModuleExportNode> exports,
-          final List<ModuleOpenNode> opens,
-          final List<String> uses,
-          final List<ModuleProvideNode> provides) {
+  public ModuleNode(final String name, final int access,
+          @Nullable final String version,
+          @Nullable final List<ModuleRequireNode> requires,
+          @Nullable final List<ModuleExportNode> exports,
+          @Nullable final List<ModuleOpenNode> opens,
+          @Nullable final List<String> uses,
+          @Nullable final List<ModuleProvideNode> provides) {
     this.name = name;
     this.access = access;
     this.version = version;

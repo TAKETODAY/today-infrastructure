@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.MessageSourceResolvable;
@@ -34,6 +35,7 @@ import cn.taketoday.validation.FieldError;
 import cn.taketoday.validation.method.MethodValidationResult;
 import cn.taketoday.validation.method.ParameterErrors;
 import cn.taketoday.validation.method.ParameterValidationResult;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -97,7 +99,7 @@ class MethodValidationAdapterTests {
               default message [must not be blank]"""));
 
       assertValueResult(ex.getValueResults().get(0), 2, 3, List.of("""
-              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              cn.taketoday.validation.beanvalidation.MethodValidationAdapter$ViolationMessageSourceResolvable: \
               codes [Max.myService#addStudent.degrees,Max.degrees,Max.int,Max]; \
               arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
               codes [myService#addStudent.degrees,degrees]; arguments []; default message [degrees],2]; \
@@ -134,7 +136,7 @@ class MethodValidationAdapterTests {
       assertThat(ex.getAllValidationResults()).hasSize(1);
 
       assertValueResult(ex.getValueResults().get(0), -1, 4, List.of("""
-              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              cn.taketoday.validation.beanvalidation.MethodValidationAdapter$ViolationMessageSourceResolvable: \
               codes [Min.myService#getIntValue,Min,Min.int]; \
               arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
               codes [myService#getIntValue]; arguments []; default message [],5]; \
@@ -200,14 +202,29 @@ class MethodValidationAdapterTests {
     Method method = getMethod(target, "addHobbies");
 
     testArgs(target, method, new Object[] { List.of("   ") }, ex -> {
-
       assertThat(ex.getAllValidationResults()).hasSize(1);
-
       assertValueResult(ex.getValueResults().get(0), 0, "   ", List.of("""
-              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              cn.taketoday.validation.beanvalidation.MethodValidationAdapter$ViolationMessageSourceResolvable: \
               codes [NotBlank.myService#addHobbies.hobbies,NotBlank.hobbies,NotBlank.java.util.List,NotBlank]; \
               arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
               codes [myService#addHobbies.hobbies,hobbies]; \
+              arguments []; default message [hobbies]]; default message [must not be blank]"""));
+    });
+  }
+
+  @Test
+    // gh-33150
+  void validateValueSetArgument() {
+    MyService target = new MyService();
+    Method method = getMethod(target, "addUniqueHobbies");
+
+    testArgs(target, method, new Object[] { Set.of("test", "   ") }, ex -> {
+      assertThat(ex.getAllValidationResults()).hasSize(1);
+      assertValueResult(ex.getValueResults().get(0), 0, Set.of("test", "   "), List.of("""
+              cn.taketoday.validation.beanvalidation.MethodValidationAdapter$ViolationMessageSourceResolvable: \
+              codes [NotBlank.myService#addUniqueHobbies.hobbies,NotBlank.hobbies,NotBlank.java.util.Set,NotBlank]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [myService#addUniqueHobbies.hobbies,hobbies]; \
               arguments []; default message [hobbies]]; default message [must not be blank]"""));
     });
   }
@@ -238,9 +255,14 @@ class MethodValidationAdapterTests {
 
     assertThat(result.getMethodParameter().getParameterIndex()).isEqualTo(parameterIndex);
     assertThat(result.getArgument()).isEqualTo(argument);
-    assertThat(result.getResolvableErrors())
+
+    List<MessageSourceResolvable> resolvableErrors = result.getResolvableErrors();
+    assertThat(resolvableErrors)
             .extracting(MessageSourceResolvable::toString)
             .containsExactlyInAnyOrderElementsOf(errors);
+
+    resolvableErrors.forEach(error ->
+            assertThat(result.unwrap(error, ConstraintViolation.class)).isNotNull());
   }
 
   private static Method getMethod(Object target, String methodName) {
@@ -269,6 +291,8 @@ class MethodValidationAdapterTests {
     public void addHobbies(List<@NotBlank String> hobbies) {
     }
 
+    public void addUniqueHobbies(Set<@NotBlank String> hobbies) {
+    }
   }
 
   @SuppressWarnings("unused")

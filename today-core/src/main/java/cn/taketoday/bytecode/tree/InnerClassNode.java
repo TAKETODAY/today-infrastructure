@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents an inner class.
@@ -36,12 +34,14 @@ public class InnerClassNode {
    * The internal name of the class to which the inner class belongs (see {@link
    * Type#getInternalName()}). May be {@literal null}.
    */
+  @Nullable
   public String outerName;
 
   /**
    * The (simple) name of the inner class inside its enclosing class. May be {@literal null} for
    * anonymous inner classes.
    */
+  @Nullable
   public String innerName;
 
   /** The access flags of the inner class as originally declared in the enclosing class. */
@@ -59,8 +59,7 @@ public class InnerClassNode {
    * @param access the access flags of the inner class as originally declared in the enclosing
    * class.
    */
-  public InnerClassNode(
-          final String name, final String outerName, final String innerName, final int access) {
+  public InnerClassNode(final String name, @Nullable final String outerName, @Nullable final String innerName, final int access) {
     this.name = name;
     this.outerName = outerName;
     this.innerName = innerName;

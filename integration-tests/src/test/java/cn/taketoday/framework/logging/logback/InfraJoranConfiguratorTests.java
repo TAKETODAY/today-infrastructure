@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging.logback;
@@ -80,6 +80,14 @@ class InfraJoranConfiguratorTests {
   void profileActive() throws Exception {
     this.environment.setActiveProfiles("production");
     initialize("production-profile.xml");
+    this.logger.trace("Hello");
+    assertThat(this.output).contains("Hello");
+  }
+
+  @Test
+  void profileInIncludeActive() throws Exception {
+    this.environment.setActiveProfiles("production");
+    initialize("profile-in-include.xml");
     this.logger.trace("Hello");
     assertThat(this.output).contains("Hello");
   }
@@ -204,6 +212,13 @@ class InfraJoranConfiguratorTests {
             environment, "my.example-property=false");
     initialize("property-in-if.xml");
     assertThat(this.context.getProperty("MYCHECK")).isNull();
+  }
+
+  @Test
+  void infraPropertyInInclude() throws Exception {
+    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(this.environment, "my.example-property=test");
+    initialize("property-in-include.xml");
+    assertThat(this.context.getProperty("MINE")).isEqualTo("test");
   }
 
   @Test

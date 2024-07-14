@@ -163,7 +163,18 @@ class NestedPathTests {
 
   @Test
   void toUriReturnsUri() throws Exception {
-    assertThat(this.path.toUri()).isEqualTo(new URI("nested:" + this.jarPath.toUri().getPath() + "/!nested.jar"));
+    assertThat(this.path.toUri())
+            .isEqualTo(new URI("nested:" + this.jarPath.toUri().getRawPath() + "/!nested.jar"));
+  }
+
+  @Test
+  void toUriWhenHasSpecialCharsReturnsEncodedUri() throws Exception {
+    this.jarPath = new File(this.temp, "te st.jar").toPath();
+    this.provider = new NestedFileSystemProvider();
+    this.fileSystem = new NestedFileSystem(this.provider, this.jarPath);
+    this.path = new NestedPath(this.fileSystem, "ne sted.jar");
+    assertThat(this.path.toUri())
+            .isEqualTo(new URI("nested:" + this.jarPath.toUri().getRawPath() + "/!ne%20sted.jar"));
   }
 
   @Test

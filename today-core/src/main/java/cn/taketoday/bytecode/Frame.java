@@ -274,7 +274,7 @@ class Frame {
       return CONSTANT_KIND | (Integer) type;
     }
     else if (type instanceof String) {
-      String descriptor = Type.fromInternalName((String) type).getDescriptor();
+      String descriptor = Type.forInternalName((String) type).getDescriptor();
       return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
     }
     else {
@@ -401,7 +401,7 @@ class Frame {
         inputLocals[inputLocalIndex++] = UNINITIALIZED_THIS;
       }
     }
-    for (Type argumentType : Type.getArgumentTypes(descriptor)) {
+    for (Type argumentType : Type.forArgumentTypes(descriptor)) {
       int abstractType =
               getAbstractTypeFromDescriptor(symbolTable, argumentType.getDescriptor(), 0);
       inputLocals[inputLocalIndex++] = abstractType;

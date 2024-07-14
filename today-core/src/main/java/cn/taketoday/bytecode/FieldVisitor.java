@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A visitor to visit a Java field. The methods of this class must be called in the following order:
@@ -28,6 +28,7 @@ package cn.taketoday.bytecode;
  * </p>
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class FieldVisitor {
 
@@ -35,6 +36,7 @@ public class FieldVisitor {
    * The field visitor to which this visitor must delegate method calls. May be
    * null.
    */
+  @Nullable
   protected FieldVisitor fv;
 
   /**
@@ -50,7 +52,7 @@ public class FieldVisitor {
    * @param fieldVisitor the field visitor to which this visitor must delegate method
    * calls. May be null.
    */
-  public FieldVisitor(final FieldVisitor fieldVisitor) {
+  public FieldVisitor(@Nullable FieldVisitor fieldVisitor) {
     this.fv = fieldVisitor;
   }
 
