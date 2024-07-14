@@ -31,7 +31,6 @@ v{gradle-project-version}
 :infra-application-api: {infra-docs}/api/cn/taketoday/framework
 :version-properties-appendix: {infra-reference}/#dependency-versions-properties
 :build-info-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/buildinfo/BuildInfo.html
-:infra-build-image-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/bundling/InfraBuildImage.html
 :infra-jar-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/bundling/InfraJar.html
 :infra-war-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/bundling/InfraWar.html
 :infra-run-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/run/InfraRun.html
@@ -50,8 +49,6 @@ include::getting-started.adoc[leveloffset=+1]
 include::managing-dependencies.adoc[leveloffset=+1]
 
 include::packaging.adoc[leveloffset=+1]
-
-include::packaging-oci-image.adoc[leveloffset=+1]
 
 include::publishing.adoc[leveloffset=+1]
 

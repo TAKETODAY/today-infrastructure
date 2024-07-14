@@ -34,7 +34,6 @@ import org.gradle.api.tasks.bundling.War;
 
 import java.util.concurrent.Callable;
 
-import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
 
 /**
@@ -67,7 +66,6 @@ class WarPluginAction implements PluginApplicationAction {
   public void execute(Project project) {
     classifyWarTask(project);
     TaskProvider<InfraWar> infraWar = configureInfraWarTask(project);
-    configureInfraBuildImageTask(project, infraWar);
     configureArtifactPublication(infraWar);
   }
 
@@ -115,12 +113,6 @@ class WarPluginAction implements PluginApplicationAction {
   private FileCollection providedRuntimeConfiguration(Project project) {
     ConfigurationContainer configurations = project.getConfigurations();
     return configurations.getByName(WarPlugin.PROVIDED_RUNTIME_CONFIGURATION_NAME);
-  }
-
-  private void configureInfraBuildImageTask(Project project, TaskProvider<InfraWar> infraWar) {
-    project.getTasks()
-            .named(InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class)
-            .configure((buildImage) -> buildImage.getArchiveFile().set(infraWar.get().getArchiveFile()));
   }
 
   private void configureArtifactPublication(TaskProvider<InfraWar> infraWar) {

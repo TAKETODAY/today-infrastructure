@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.docs;
 
-import org.gradle.testkit.runner.BuildResult;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -244,109 +243,6 @@ class PackagingDocumentationTests {
               .map(JarEntry::getName)
               .filter((name) -> name.startsWith("APP-INF/lib/spring-boot"))).isEmpty();
     }
-  }
-
-  @TestTemplate
-  void infraBuildImageWithBuilder() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-builder")
-            .build("infraBuildImageBuilder");
-    assertThat(result.getOutput()).contains("builder=mine/java-cnb-builder").contains("runImage=mine/java-cnb-run");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithCustomBuildpackJvmVersion() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-env")
-            .build("infraBuildImageEnvironment");
-    assertThat(result.getOutput()).contains("BP_JVM_VERSION=17");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithCustomProxySettings() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-env-proxy")
-            .build("infraBuildImageEnvironment");
-    assertThat(result.getOutput()).contains("HTTP_PROXY=http://proxy.example.com")
-            .contains("HTTPS_PROXY=https://proxy.example.com");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithCustomRuntimeConfiguration() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-env-runtime")
-            .build("infraBuildImageEnvironment");
-    assertThat(result.getOutput()).contains("BPE_DELIM_JAVA_TOOL_OPTIONS= ")
-            .contains("BPE_APPEND_JAVA_TOOL_OPTIONS=-XX:+HeapDumpOnOutOfMemoryError");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithCustomImageName() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-name")
-            .build("infraBuildImageName");
-    assertThat(result.getOutput()).contains("example.com/library/" + this.gradleBuild.getProjectDir().getName());
-  }
-
-  @TestTemplate
-  void infraBuildImageWithDockerHostMinikube() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-docker-host")
-            .build("infraBuildImageDocker");
-    assertThat(result.getOutput()).contains("host=tcp://192.168.99.100:2376")
-            .contains("tlsVerify=true")
-            .contains("certPath=/home/user/.minikube/certs");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithDockerHostPodman() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-docker-host-podman")
-            .build("infraBuildImageDocker");
-    assertThat(result.getOutput()).contains("host=unix:///run/user/1000/podman/podman.sock")
-            .contains("bindHostToBuilder=true");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithDockerUserAuth() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-docker-auth-user")
-            .build("infraBuildImageDocker");
-    assertThat(result.getOutput()).contains("username=user")
-            .contains("password=secret")
-            .contains("url=https://docker.example.com/v1/")
-            .contains("email=user@example.com");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithDockerTokenAuth() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-docker-auth-token")
-            .build("infraBuildImageDocker");
-    assertThat(result.getOutput()).contains("token=9cbaf023786cd7...");
-  }
-
-  @TestTemplate
-  void infraBuildImagePublish() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-publish")
-            .build("infraBuildImagePublish");
-    assertThat(result.getOutput()).contains("true");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithBuildpacks() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-buildpacks")
-            .build("infraBuildImageBuildpacks");
-    assertThat(result.getOutput()).contains("file:///path/to/example-buildpack.tgz")
-            .contains("urn:cnb:builder:paketo-buildpacks/java");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithCaches() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-caches")
-            .build("infraBuildImageCaches");
-    assertThat(result.getOutput()).containsPattern("buildCache=cache-gradle-[\\d]+.build")
-            .containsPattern("launchCache=cache-gradle-[\\d]+.launch");
-  }
-
-  @TestTemplate
-  void infraBuildImageWithBindCaches() {
-    BuildResult result = this.gradleBuild.script("src/docs/gradle/packaging/infra-build-image-bind-caches")
-            .build("infraBuildImageCaches");
-    assertThat(result.getOutput()).containsPattern("buildWorkspace=/tmp/cache-gradle-[\\d]+.work")
-            .containsPattern("buildCache=/tmp/cache-gradle-[\\d]+.build")
-            .containsPattern("launchCache=/tmp/cache-gradle-[\\d]+.launch");
   }
 
   protected void jarFile(File file) throws IOException {

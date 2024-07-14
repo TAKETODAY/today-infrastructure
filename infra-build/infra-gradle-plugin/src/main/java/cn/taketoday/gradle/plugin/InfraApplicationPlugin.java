@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.gradle.dsl.InfraApplicationExtension;
-import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
 import cn.taketoday.lang.Version;
@@ -62,11 +61,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
    * The name of the default {@link InfraWar} task.
    */
   public static final String INFRA_WAR_TASK_NAME = "infraWar";
-
-  /**
-   * The name of the default {@link InfraBuildImage} task.
-   */
-  public static final String INFRA_BUILD_IMAGE_TASK_NAME = "infraBuildImage";
 
   static final String INFRA_RUN_TASK_NAME = "infraRun";
 
