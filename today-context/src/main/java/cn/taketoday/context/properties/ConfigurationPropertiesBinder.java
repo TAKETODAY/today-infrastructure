@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -87,9 +84,6 @@ class ConfigurationPropertiesBinder {
   private final boolean jsr303Present;
 
   @Nullable
-  private volatile Validator jsr303Validator;
-
-  @Nullable
   private volatile Binder binder;
 
   ConfigurationPropertiesBinder(ApplicationContext context) {
@@ -144,8 +138,8 @@ class ConfigurationPropertiesBinder {
   private IgnoreTopLevelConverterNotFoundBindHandler getHandler() {
     BoundConfigurationProperties bound = BoundConfigurationProperties.get(applicationContext);
     return bound != null
-           ? new IgnoreTopLevelConverterNotFoundBindHandler(new BoundPropertiesTrackingBindHandler(bound::add))
-           : new IgnoreTopLevelConverterNotFoundBindHandler();
+            ? new IgnoreTopLevelConverterNotFoundBindHandler(new BoundPropertiesTrackingBindHandler(bound::add))
+            : new IgnoreTopLevelConverterNotFoundBindHandler();
   }
 
   private ArrayList<Validator> getValidators(Bindable<?> target) {
@@ -154,7 +148,7 @@ class ConfigurationPropertiesBinder {
       validators.add(configurationPropertiesValidator);
     }
     if (jsr303Present && target.getAnnotation(Validated.class) != null) {
-      validators.add(getJsr303Validator());
+      validators.add(getJsr303Validator(target.getType().resolve()));
     }
     Validator selfValidator = getSelfValidator(target);
     if (selfValidator != null) {
@@ -176,13 +170,8 @@ class ConfigurationPropertiesBinder {
     return null;
   }
 
-  private Validator getJsr303Validator() {
-    Validator jsr303Validator = this.jsr303Validator;
-    if (jsr303Validator == null) {
-      jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
-      this.jsr303Validator = jsr303Validator;
-    }
-    return jsr303Validator;
+  private Validator getJsr303Validator(Class<?> type) {
+    return new ConfigurationPropertiesJsr303Validator(this.applicationContext, type);
   }
 
   private Collection<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
@@ -250,7 +239,7 @@ class ConfigurationPropertiesBinder {
     @Override
     public <T> Bindable<T> onStart(ConfigurationPropertyName name, Bindable<T> target, BindContext context) {
       return isConfigurationProperties(target.getType().resolve())
-             ? target.withBindRestrictions(BindRestriction.NO_DIRECT_PROPERTY) : target;
+              ? target.withBindRestrictions(BindRestriction.NO_DIRECT_PROPERTY) : target;
     }
 
     private boolean isConfigurationProperties(@Nullable Class<?> target) {
