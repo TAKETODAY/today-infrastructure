@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ansi;
 
+import java.io.Console;
+import java.lang.reflect.Method;
 import java.util.Locale;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Generates ANSI encoded output, automatically attempting to detect if the terminal
  * supports ANSI.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AnsiOutput {
@@ -37,8 +39,10 @@ public abstract class AnsiOutput {
 
   private static Enabled enabled = Enabled.DETECT;
 
+  @Nullable
   private static Boolean consoleAvailable;
 
+  @Nullable
   private static Boolean ansiCapable;
 
   private static final String OPERATING_SYSTEM_NAME = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
@@ -161,10 +165,20 @@ public abstract class AnsiOutput {
       if (Boolean.FALSE.equals(consoleAvailable)) {
         return false;
       }
-      if ((consoleAvailable == null) && (System.console() == null)) {
-        return false;
+      if (consoleAvailable == null) {
+        Console console = System.console();
+        if (console == null) {
+          return false;
+        }
+        Method isTerminalMethod = ReflectionUtils.getMethodIfAvailable(Console.class, "isTerminal");
+        if (isTerminalMethod != null) {
+          Boolean isTerminal = (Boolean) isTerminalMethod.invoke(console);
+          if (Boolean.FALSE.equals(isTerminal)) {
+            return false;
+          }
+        }
       }
-      return !OPERATING_SYSTEM_NAME.contains("win");
+      return !(OPERATING_SYSTEM_NAME.contains("win"));
     }
     catch (Throwable ex) {
       return false;
