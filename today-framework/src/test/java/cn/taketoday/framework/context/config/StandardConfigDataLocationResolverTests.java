@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -95,6 +95,15 @@ class StandardConfigDataLocationResolverTests {
     assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
             .withMessageStartingWith("Unable to load config data from")
             .satisfies((ex) -> assertThat(ex.getCause()).hasMessageStartingWith("File extension is not known"));
+  }
+
+  @Test
+  void resolveWhenLocationHasUnknownPrefixAndNoMatchingLoaderThrowsException() {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("typo:src/test/resources/configdata/properties/application.unknown");
+    assertThatIllegalStateException().isThrownBy(() -> this.resolver.resolve(this.context, location))
+            .withMessageStartingWith("Unable to load config data from")
+            .satisfies((ex) -> assertThat(ex.getCause()).hasMessageStartingWith(
+                    "Incorrect ConfigDataLocationResolver chosen or file extension is not known to any PropertySourceLoader"));
   }
 
   @Test
