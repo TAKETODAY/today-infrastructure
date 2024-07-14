@@ -17,11 +17,9 @@
 
 package cn.taketoday.gradle.plugin;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.util.GradleVersion;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,7 +108,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    verifyGradleVersion();
     createExtension(project);
     Configuration infraArchives = createInfraArchivesConfiguration(project);
     registerPluginActions(project, infraArchives);
@@ -124,14 +121,6 @@ public class InfraApplicationPlugin implements Plugin<Project> {
               placeholderName -> ObjectUtils.toString(project.findProperty(placeholderName)));
     }
     return BOM_COORDINATES;
-  }
-
-  private void verifyGradleVersion() {
-    GradleVersion currentVersion = GradleVersion.current();
-    if (currentVersion.compareTo(GradleVersion.version("7.4")) < 0) {
-      throw new GradleException("Infra plugin requires Gradle 7.x (7.4 or later). "
-              + "The current version is " + currentVersion);
-    }
   }
 
   private void createExtension(Project project) {
