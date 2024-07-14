@@ -43,6 +43,7 @@ import ch.qos.logback.core.joran.spi.RuleStore;
 import ch.qos.logback.core.joran.util.PropertySetter;
 import ch.qos.logback.core.joran.util.beans.BeanDescription;
 import ch.qos.logback.core.model.ComponentModel;
+import ch.qos.logback.core.model.IncludeModel;
 import ch.qos.logback.core.model.Model;
 import ch.qos.logback.core.model.ModelUtil;
 import ch.qos.logback.core.model.processor.DefaultProcessor;
@@ -331,11 +332,21 @@ class InfraJoranConfigurator extends JoranConfigurator {
         try (ObjectInputStream input = new ObjectInputStream(modelInput)) {
           Model model = (Model) input.readObject();
           ModelUtil.resetForReuse(model);
+          markIncludesAsHandled(model);
           return model;
         }
       }
       catch (Exception ex) {
-        throw new IllegalStateException("Failed to load model from '" + ModelWriter.MODEL_RESOURCE_LOCATION + "'", ex);
+        throw new RuntimeException("Failed to load model from '%s'".formatted(ModelWriter.MODEL_RESOURCE_LOCATION), ex);
+      }
+    }
+
+    private void markIncludesAsHandled(Model model) {
+      if (model instanceof IncludeModel) {
+        model.markAsHandled();
+      }
+      for (Model submodel : model.getSubModels()) {
+        markIncludesAsHandled(submodel);
       }
     }
 
