@@ -55,7 +55,9 @@ import cn.taketoday.app.loader.net.util.UrlDecoder;
  */
 public record NestedLocation(Path path, String nestedEntryName) {
 
-  private static final Map<String, NestedLocation> cache = new ConcurrentHashMap<>();
+  private static final Map<String, NestedLocation> locationCache = new ConcurrentHashMap<>();
+
+  private static final Map<String, Path> pathCache = new ConcurrentHashMap<>();
 
   public NestedLocation(Path path, String nestedEntryName) {
     if (path == null) {
@@ -93,35 +95,44 @@ public record NestedLocation(Path path, String nestedEntryName) {
     return parse(uri.getSchemeSpecificPart());
   }
 
-  static NestedLocation parse(String path) {
-    if (path == null || path.isEmpty()) {
-      throw new IllegalArgumentException("'path' must not be empty");
+  static NestedLocation parse(String location) {
+    if (location == null || location.isEmpty()) {
+      throw new IllegalArgumentException("'location' must not be empty");
     }
-    int index = path.lastIndexOf("/!");
-    return cache.computeIfAbsent(path, (l) -> create(index, l));
+    return locationCache.computeIfAbsent(location, (key) -> create(location));
   }
 
-  private static NestedLocation create(int index, String location) {
+  private static NestedLocation create(String location) {
+    int index = location.lastIndexOf("/!");
     String locationPath = (index != -1) ? location.substring(0, index) : location;
-    if (isWindows() && !isUncPath(location)) {
-      while (locationPath.startsWith("/")) {
-        locationPath = locationPath.substring(1);
-      }
-    }
     String nestedEntryName = (index != -1) ? location.substring(index + 2) : null;
-    return new NestedLocation((!locationPath.isEmpty()) ? Path.of(locationPath) : null, nestedEntryName);
+    return new NestedLocation((!locationPath.isEmpty()) ? asPath(locationPath) : null, nestedEntryName);
+  }
+
+  private static Path asPath(String locationPath) {
+    return pathCache.computeIfAbsent(locationPath,
+            (key) -> Path.of((!isWindows()) ? locationPath : fixWindowsLocationPath(locationPath)));
   }
 
   private static boolean isWindows() {
     return File.separatorChar == '\\';
   }
 
-  private static boolean isUncPath(String input) {
-    return !input.contains(":");
+  private static String fixWindowsLocationPath(String locationPath) {
+    // Same logic as Java's internal WindowsUriSupport class
+    if (locationPath.length() > 2 && locationPath.charAt(2) == ':') {
+      return locationPath.substring(1);
+    }
+    // Deal with Jetty's org.eclipse.jetty.util.URIUtil#correctURI(URI)
+    if (locationPath.startsWith("///") && locationPath.charAt(4) == ':') {
+      return locationPath.substring(3);
+    }
+    return locationPath;
   }
 
   static void clearCache() {
-    cache.clear();
+    locationCache.clear();
+    pathCache.clear();
   }
 
 }
