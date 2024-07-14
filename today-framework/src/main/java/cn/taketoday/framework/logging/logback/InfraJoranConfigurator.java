@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging.logback;
@@ -94,11 +94,11 @@ class InfraJoranConfigurator extends JoranConfigurator {
   @Override
   protected void addModelHandlerAssociations(DefaultProcessor processor) {
     processor.addHandler(InfraPropertyModel.class,
-        (handlerContext, handlerMic) ->
-            new InfraPropertyModelHandler(context, startupContext.getEnvironment()));
+            (handlerContext, handlerMic) ->
+                    new InfraPropertyModelHandler(context, startupContext.getEnvironment()));
     processor.addHandler(InfraProfileModel.class,
-        (handlerContext, handlerMic) ->
-            new InfraProfileModelHandler(context, startupContext.getEnvironment()));
+            (handlerContext, handlerMic) ->
+                    new InfraProfileModelHandler(context, startupContext.getEnvironment()));
     super.addModelHandlerAssociations(processor);
   }
 
@@ -108,6 +108,16 @@ class InfraJoranConfigurator extends JoranConfigurator {
     ruleStore.addRule(new ElementSelector("configuration/infra-property"), InfraPropertyAction::new);
     ruleStore.addRule(new ElementSelector("*/infra-profile"), InfraProfileAction::new);
     ruleStore.addTransparentPathPart("infra-profile");
+  }
+
+  @Override
+  public void buildModelInterpretationContext() {
+    super.buildModelInterpretationContext();
+    this.modelInterpretationContext.setConfiguratorSupplier(() -> {
+      InfraJoranConfigurator configurator = new InfraJoranConfigurator(this.startupContext);
+      configurator.setContext(this.context);
+      return configurator;
+    });
   }
 
   boolean configureUsingAotGeneratedArtifacts() {
@@ -125,7 +135,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     super.processModel(model);
     if (!NativeDetector.inNativeImage() && isAotProcessingInProgress()) {
       getContext().putObject(BeanFactoryInitializationAotContribution.class.getName(),
-          new LogbackConfigurationAotContribution(model, getModelInterpretationContext(), getContext()));
+              new LogbackConfigurationAotContribution(model, getModelInterpretationContext(), getContext()));
     }
   }
 
@@ -140,14 +150,14 @@ class InfraJoranConfigurator extends JoranConfigurator {
     private final PatternRules patternRules;
 
     private LogbackConfigurationAotContribution(Model model,
-        ModelInterpretationContext interpretationContext, Context context) {
+            ModelInterpretationContext interpretationContext, Context context) {
       this.modelWriter = new ModelWriter(model, interpretationContext);
       this.patternRules = new PatternRules(context);
     }
 
     @Override
     public void applyTo(GenerationContext generationContext,
-        BeanFactoryInitializationCode beanFactoryInitializationCode) {
+            BeanFactoryInitializationCode beanFactoryInitializationCode) {
       this.modelWriter.writeTo(generationContext);
       this.patternRules.save(generationContext);
     }
@@ -181,9 +191,9 @@ class InfraJoranConfigurator extends JoranConfigurator {
       SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
       serializationTypes(this.model).forEach(serializationHints::registerType);
       reflectionTypes(this.model).forEach((type) -> generationContext.getRuntimeHints()
-          .reflection()
-          .registerType(TypeReference.of(type), MemberCategory.INTROSPECT_PUBLIC_METHODS,
-              MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
+              .reflection()
+              .registerType(TypeReference.of(type), MemberCategory.INTROSPECT_PUBLIC_METHODS,
+                      MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
     }
 
     @SuppressWarnings("unchecked")
@@ -240,7 +250,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
       String tag = model.getTag();
       if (tag != null) {
         className = this.modelInterpretationContext.getDefaultNestedComponentRegistry()
-            .findDefaultComponentTypeByTag(tag);
+                .findDefaultComponentTypeByTag(tag);
         if (className != null) {
           return loadImportType(className);
         }
@@ -259,10 +269,10 @@ class InfraJoranConfigurator extends JoranConfigurator {
       if (parent != null) {
         try {
           PropertySetter propertySetter = new PropertySetter(
-              this.modelInterpretationContext.getBeanDescriptionCache(), parent);
+                  this.modelInterpretationContext.getBeanDescriptionCache(), parent);
           return propertySetter.getClassNameViaImplicitRules(tag,
-              AggregationType.AS_COMPLEX_PROPERTY,
-              this.modelInterpretationContext.getDefaultNestedComponentRegistry());
+                  AggregationType.AS_COMPLEX_PROPERTY,
+                  this.modelInterpretationContext.getDefaultNestedComponentRegistry());
         }
         catch (Exception ex) {
           return null;
@@ -274,7 +284,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     private Class<?> loadComponentType(String componentType) {
       try {
         return ClassUtils.forName(this.modelInterpretationContext.subst(componentType),
-            getClass().getClassLoader());
+                getClass().getClassLoader());
       }
       catch (Throwable ex) {
         throw new IllegalStateException("Failed to load component type '" + componentType + "'", ex);
@@ -293,7 +303,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
 
     private void processComponent(Class<?> componentType, Set<String> reflectionTypes) {
       BeanDescription beanDescription = this.modelInterpretationContext.getBeanDescriptionCache()
-          .getBeanDescription(componentType);
+              .getBeanDescription(componentType);
       reflectionTypes.addAll(parameterTypesNames(beanDescription.getPropertyNameToAdder().values()));
       reflectionTypes.addAll(parameterTypesNames(beanDescription.getPropertyNameToSetter().values()));
       reflectionTypes.add(componentType.getCanonicalName());
@@ -301,14 +311,14 @@ class InfraJoranConfigurator extends JoranConfigurator {
 
     private Collection<String> parameterTypesNames(Collection<Method> methods) {
       return methods.stream()
-          .filter((method) -> !method.getDeclaringClass().equals(ContextAware.class)
-              && !method.getDeclaringClass().equals(ContextAwareBase.class))
-          .map(Method::getParameterTypes)
-          .flatMap(Stream::of)
-          .filter((type) -> !type.isPrimitive() && !type.equals(String.class))
-          .map((type) -> type.isArray() ? type.getComponentType() : type)
-          .map(Class::getName)
-          .toList();
+              .filter((method) -> !method.getDeclaringClass().equals(ContextAware.class)
+                      && !method.getDeclaringClass().equals(ContextAwareBase.class))
+              .map(Method::getParameterTypes)
+              .flatMap(Stream::of)
+              .filter((type) -> !type.isPrimitive() && !type.equals(String.class))
+              .map((type) -> type.isArray() ? type.getComponentType() : type)
+              .map(Class::getName)
+              .toList();
     }
 
   }
@@ -317,7 +327,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
 
     private Model read() {
       try (InputStream modelInput = getClass().getClassLoader()
-          .getResourceAsStream(ModelWriter.MODEL_RESOURCE_LOCATION)) {
+              .getResourceAsStream(ModelWriter.MODEL_RESOURCE_LOCATION)) {
         try (ObjectInputStream input = new ObjectInputStream(modelInput)) {
           Model model = (Model) input.readObject();
           ModelUtil.resetForReuse(model);
@@ -362,7 +372,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     @SuppressWarnings("unchecked")
     private Map<String, String> getRegistryMap() {
       Map<String, String> patternRuleRegistry = (Map<String, String>) this.context
-          .getObject(CoreConstants.PATTERN_RULE_REGISTRY);
+              .getObject(CoreConstants.PATTERN_RULE_REGISTRY);
       if (patternRuleRegistry == null) {
         patternRuleRegistry = new HashMap<>();
         this.context.putObject(CoreConstants.PATTERN_RULE_REGISTRY, patternRuleRegistry);
@@ -376,8 +386,8 @@ class InfraJoranConfigurator extends JoranConfigurator {
       generationContext.getRuntimeHints().resources().registerPattern(RESOURCE_LOCATION);
       for (String ruleClassName : registryMap.values()) {
         generationContext.getRuntimeHints()
-            .reflection()
-            .registerType(TypeReference.of(ruleClassName), MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+                .reflection()
+                .registerType(TypeReference.of(ruleClassName), MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
       }
     }
 
