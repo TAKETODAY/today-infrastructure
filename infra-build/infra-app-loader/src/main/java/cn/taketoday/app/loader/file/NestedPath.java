@@ -141,9 +141,9 @@ final class NestedPath implements Path {
   @Override
   public URI toUri() {
     try {
-      String uri = "nested:" + this.fileSystem.getJarPath().toUri().getPath();
+      String uri = "nested:" + this.fileSystem.getJarPath().toUri().getRawPath();
       if (this.nestedEntryName != null) {
-        uri += "/!" + this.nestedEntryName;
+        uri += "/!" + UriPathEncoder.encode(this.nestedEntryName);
       }
       return new URI(uri);
     }
