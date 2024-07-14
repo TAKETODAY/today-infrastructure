@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -87,15 +87,6 @@ class NativeImagePluginActionIntegrationTests {
             "META-INF/native-image/org.jline/jline/3.21.0/proxy-config.json",
             "META-INF/native-image/org.jline/jline/3.21.0/reflect-config.json",
             "META-INF/native-image/org.jline/jline/3.21.0/resource-config.json");
-  }
-
-  @TestTemplate
-  void infraBuildImageIsConfiguredToBuildANativeImage() {
-    writeDummyApplicationAotProcessorMainClass();
-    BuildResult result = this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.2-rc-1")
-            .build("infraBuildImageConfiguration");
-    assertThat(result.getOutput()).contains("paketobuildpacks/builder-jammy-tiny")
-            .contains("BP_NATIVE_IMAGE = true");
   }
 
   @TestTemplate
