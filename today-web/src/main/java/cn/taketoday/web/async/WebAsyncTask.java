@@ -39,18 +39,25 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
 
   private final Callable<V> callable;
 
+  @Nullable
   private Long timeout;
 
+  @Nullable
   private AsyncTaskExecutor executor;
 
+  @Nullable
   private String executorName;
 
+  @Nullable
   private BeanFactory beanFactory;
 
+  @Nullable
   private Callable<V> timeoutCallback;
 
+  @Nullable
   private Callable<V> errorCallback;
 
+  @Nullable
   private Runnable completionCallback;
 
   /**
@@ -179,7 +186,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
     this.completionCallback = callback;
   }
 
-  CallableProcessingInterceptor getInterceptor() {
+  CallableProcessingInterceptor createInterceptor() {
     return new CallableProcessingInterceptor() {
       @Override
       public <T> Object handleTimeout(RequestContext request, Callable<T> task) throws Exception {
