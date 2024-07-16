@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.socket.client.support;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.server.support.NettyWebSocketSession;
 import io.netty.channel.Channel;
@@ -34,9 +33,8 @@ final class NettyClientWebSocketSession extends NettyWebSocketSession {
   @Nullable
   private final String acceptedProtocol;
 
-  NettyClientWebSocketSession(HttpHeaders handshakeHeaders,
-          boolean secure, Channel channel, WebSocketClientHandshaker handshaker) {
-    super(handshakeHeaders, secure, channel);
+  NettyClientWebSocketSession(boolean secure, Channel channel, WebSocketClientHandshaker handshaker) {
+    super(secure, channel);
     this.acceptedProtocol = handshaker.actualSubprotocol();
   }
 

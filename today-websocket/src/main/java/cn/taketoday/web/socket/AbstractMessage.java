@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -24,7 +24,9 @@ import cn.taketoday.lang.Assert;
  * @since 3.0
  */
 public abstract class AbstractMessage<T> implements Message<T> {
+
   private final T payload;
+
   private final boolean last;
 
   /**
@@ -63,8 +65,8 @@ public abstract class AbstractMessage<T> implements Message<T> {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " payload=[" + toStringPayload() +
-            "], byteCount=" + getPayloadLength() + ", last=" + isLast() + "]";
+    return "%s payload=[%s], byteCount=%d, last=%s]"
+            .formatted(getClass().getSimpleName(), toStringPayload(), getPayloadLength(), isLast());
   }
 
   protected String toStringPayload() {

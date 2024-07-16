@@ -65,16 +65,13 @@ public class TestWebSocketSession extends WebSocketSession {
   private HttpHeaders headers;
 
   public TestWebSocketSession() {
-    super(HttpHeaders.forWritable());
   }
 
   public TestWebSocketSession(String id) {
-    super(HttpHeaders.forWritable());
     this.id = id;
   }
 
   public TestWebSocketSession(boolean open) {
-    super(HttpHeaders.forWritable());
     this.open = open;
   }
 
@@ -93,11 +90,6 @@ public class TestWebSocketSession extends WebSocketSession {
 
   public void setUri(URI uri) {
     this.uri = uri;
-  }
-
-  @Override
-  public HttpHeaders getHandshakeHeaders() {
-    return this.headers;
   }
 
   public HttpHeaders getHeaders() {

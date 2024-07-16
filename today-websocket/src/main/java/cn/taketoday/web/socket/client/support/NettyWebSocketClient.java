@@ -159,7 +159,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     // If you change it to V00, ping is not supported and remember to change
     // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
     WebSocketClientHandshaker handshaker = createHandshaker(uri, subProtocols, extensions, createHeaders(headers));
-    MessageHandler handler = new MessageHandler(uri, headers, webSocketHandler, handshaker, future);
+    MessageHandler handler = new MessageHandler(uri, webSocketHandler, handshaker, future);
 
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group(new NioEventLoopGroup())
@@ -192,9 +192,9 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
             StringUtils.collectionToCommaDelimitedString(subProtocols), true, customHeaders);
   }
 
-  protected WebSocketSession createSession(HttpHeaders headers, Channel channel, boolean secure,
+  protected WebSocketSession createSession(Channel channel, boolean secure,
           @Nullable Decorator<WebSocketSession> sessionDecorator, WebSocketClientHandshaker handshaker) {
-    WebSocketSession session = new NettyClientWebSocketSession(headers, secure, channel, handshaker);
+    WebSocketSession session = new NettyClientWebSocketSession(secure, channel, handshaker);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -220,8 +220,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private final URI uri;
 
-    private final HttpHeaders headers;
-
     private final WebSocketHandler handler;
 
     private final WebSocketClientHandshaker handshaker;
@@ -230,10 +228,9 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private WebSocketSession session;
 
-    MessageHandler(URI uri, HttpHeaders headers, WebSocketHandler handler,
+    MessageHandler(URI uri, WebSocketHandler handler,
             WebSocketClientHandshaker handshaker, SettableFuture<WebSocketSession> future) {
       this.uri = uri;
-      this.headers = headers;
       this.handler = handler;
       this.future = future;
       this.handshaker = handshaker;
@@ -266,7 +263,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
           Channel channel = ctx.channel();
           try {
             handshaker.finishHandshake(channel, response);
-            session = createSession(headers, channel, "wss".equals(uri.getScheme()), sessionDecorator, handshaker);
+            session = createSession(channel, "wss".equals(uri.getScheme()), sessionDecorator, handshaker);
             handler.onOpen(session);
             future.setSuccess(session);
           }

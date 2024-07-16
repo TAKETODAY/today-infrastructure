@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -39,6 +38,8 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
+ * Netty websocket session
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/5/24 21:03
  */
@@ -48,8 +49,7 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final Channel channel;
 
-  protected NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, Channel channel) {
-    super(handshakeHeaders);
+  protected NettyWebSocketSession(boolean secure, Channel channel) {
     this.secure = secure;
     this.channel = channel;
   }
@@ -124,9 +124,8 @@ public class NettyWebSocketSession extends WebSocketSession {
       return true;
     if (!(o instanceof final NettyWebSocketSession that))
       return false;
-    if (!super.equals(o))
-      return false;
-    return secure == that.secure && Objects.equals(channel, that.channel);
+    return secure == that.secure
+            && Objects.equals(channel, that.channel) && super.equals(o);
   }
 
   @Override
@@ -136,10 +135,7 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   @Override
   public String toString() {
-    return "NettyWebSocketSession{" +
-            "channel=" + channel +
-            ", secure=" + secure +
-            ", attributes=" + attributes +
-            '}';
+    return "NettyWebSocketSession{channel=%s, secure=%s, attributes=%s}".formatted(channel, secure, attributes);
   }
+
 }

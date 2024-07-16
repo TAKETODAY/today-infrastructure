@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.handler;
@@ -23,14 +23,18 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.handler.ConcurrentWebSocketSessionDecorator.OverflowStrategy;
+import cn.taketoday.web.socket.server.support.NettyWebSocketSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -39,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class ConcurrentWebSocketSessionDecoratorTests {
 
   @Test
-  public void send() throws IOException {
+  void send() throws IOException {
 
     TestWebSocketSession session = new TestWebSocketSession();
     session.setOpen(true);
@@ -59,7 +63,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   @Test
-  public void sendAfterBlockedSend() throws IOException, InterruptedException {
+  void sendAfterBlockedSend() throws IOException, InterruptedException {
 
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setOpen(true);
@@ -83,7 +87,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   @Test
-  public void sendTimeLimitExceeded() throws InterruptedException {
+  void sendTimeLimitExceeded() throws InterruptedException {
 
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setId("123");
@@ -105,8 +109,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   @Test
-  public void sendBufferSizeExceeded() throws IOException, InterruptedException {
-
+  void sendBufferSizeExceeded() throws IOException, InterruptedException {
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setId("123");
     session.setOpen(true);
@@ -129,15 +132,14 @@ class ConcurrentWebSocketSessionDecoratorTests {
             .satisfies(ex -> assertThat(ex.getStatus()).isEqualTo(CloseStatus.SESSION_NOT_RELIABLE));
   }
 
-  @Test // SPR-17140
-  public void overflowStrategyDrop() throws IOException, InterruptedException {
+  @Test
+  void overflowStrategyDrop() throws IOException, InterruptedException {
 
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setId("123");
     session.setOpen(true);
 
-    ConcurrentWebSocketSessionDecorator decorator =
-            new ConcurrentWebSocketSessionDecorator(session, 10 * 1000, 1024, OverflowStrategy.DROP);
+    var decorator = new ConcurrentWebSocketSessionDecorator(session, 10 * 1000, 1024, OverflowStrategy.DROP);
 
     sendBlockingMessage(decorator);
 
@@ -153,7 +155,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   @Test
-  public void closeStatusNormal() throws Exception {
+  void closeStatusNormal() throws Exception {
 
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setOpen(true);
@@ -167,7 +169,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   @Test
-  public void closeStatusChangesToSessionNotReliable() throws Exception {
+  void closeStatusChangesToSessionNotReliable() throws Exception {
 
     BlockingWebSocketSession session = new BlockingWebSocketSession();
     session.setId("123");
@@ -200,6 +202,47 @@ class ConcurrentWebSocketSessionDecoratorTests {
     assertThat(session.getCloseStatus())
             .as("CloseStatus should have changed to SESSION_NOT_RELIABLE")
             .isEqualTo(CloseStatus.SESSION_NOT_RELIABLE);
+  }
+
+  @Test
+  void preSendCallback() throws IOException, InterruptedException {
+    BlockingWebSocketSession session = new BlockingWebSocketSession();
+    session.setOpen(true);
+    session.setId("123");
+
+    var decorator = new ConcurrentWebSocketSessionDecorator(session, 10 * 1000, 1024);
+
+    AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+    decorator.setMessageCallback(message -> atomicBoolean.set(true));
+
+    sendBlockingMessage(decorator);
+
+    decorator.sendMessage(new BinaryMessage("slow message".getBytes()));
+    assertThat(atomicBoolean).isTrue();
+  }
+
+  @Test
+  void getRawSession() {
+    BlockingWebSocketSession session = new BlockingWebSocketSession();
+    session.setOpen(true);
+    var decorator = new ConcurrentWebSocketSessionDecorator(session, 10 * 1000, 1024);
+    WebSocketSession rawSession = decorator.getRawSession();
+
+    assertThat(rawSession).isSameAs(session);
+  }
+
+  @Test
+  void unwrapRequired() {
+    BlockingWebSocketSession session = new BlockingWebSocketSession();
+    session.setOpen(true);
+    var decorator = new ConcurrentWebSocketSessionDecorator(session, 10 * 1000, 1024);
+
+    assertThat(WebSocketSessionDecorator.unwrapRequired(decorator, BlockingWebSocketSession.class)).isSameAs(session);
+
+    assertThatThrownBy(() ->
+            WebSocketSessionDecorator.unwrapRequired(decorator, NettyWebSocketSession.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageStartingWith("WebSocketSession not a required type: ");
   }
 
   private void sendBlockingMessage(ConcurrentWebSocketSessionDecorator session) throws InterruptedException {

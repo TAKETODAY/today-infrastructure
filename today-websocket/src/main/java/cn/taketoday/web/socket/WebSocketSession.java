@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AlternativeJdkIdGenerator;
 
@@ -38,14 +37,7 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
 
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
-  private final String id;
-
-  private final HttpHeaders handshakeHeaders;
-
-  public WebSocketSession(@Nullable HttpHeaders handshakeHeaders) {
-    this.handshakeHeaders = handshakeHeaders;
-    this.id = handshakeHeaders == null ? null : idGenerator.generateId().toString();
-  }
+  private final String id = idGenerator.generateId().toString();
 
   /**
    * Session Id
@@ -170,6 +162,9 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
 
   public abstract void sendPong(PongMessage message) throws IOException;
 
+  /**
+   * is WSS ?
+   */
   public abstract boolean isSecure();
 
   /**
@@ -229,15 +224,6 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   @Nullable
   public InetSocketAddress getRemoteAddress() {
     return null;
-  }
-
-  /**
-   * Return the headers used in the handshake request (never {@code null}).
-   *
-   * @since 4.0
-   */
-  public HttpHeaders getHandshakeHeaders() {
-    return handshakeHeaders;
   }
 
   /**
