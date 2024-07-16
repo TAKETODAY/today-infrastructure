@@ -92,7 +92,7 @@ public final class MockMvc {
    * @see cn.taketoday.test.web.mock.setup.MockMvcBuilders
    */
   MockMvc(TestMockDispatcher mock, Filter... filters) {
-    Assert.notNull(mock, "DispatcherServlet is required");
+    Assert.notNull(mock, "DispatcherHandler is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
 

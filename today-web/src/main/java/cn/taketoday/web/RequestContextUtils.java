@@ -194,7 +194,7 @@ public class RequestContextUtils {
 
   /**
    * Retrieve the current locale from the given request, using the
-   * LocaleResolver bound to the request by the DispatcherServlet
+   * LocaleResolver bound to the request by the DispatcherHandler
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
    * Mock {@link cn.taketoday.mock.api.MockRequest#getLocale()} method,

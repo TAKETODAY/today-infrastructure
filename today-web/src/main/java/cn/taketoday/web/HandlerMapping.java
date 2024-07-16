@@ -86,7 +86,7 @@ public interface HandlerMapping {
    * For example, a HandlerAdapter could be written to allow another framework's
    * handler objects to be used.
    * <p>Returns {@code null} if no match was found. This is not an error.
-   * The DispatcherServlet will query all registered HandlerMapping beans to find
+   * The DispatcherHandler will query all registered HandlerMapping beans to find
    * a match, and only decide there is an error if none can find a handler.
    *
    * @param request Current request context
@@ -113,8 +113,8 @@ public interface HandlerMapping {
         // We keep HandlerRegistries in sorted order.
         AnnotationAwareOrderComparator.sort(registries);
         return registries.size() == 1
-               ? registries.get(0)
-               : new HandlerRegistries(registries);
+                ? registries.get(0)
+                : new HandlerRegistries(registries);
       }
     }
     else {

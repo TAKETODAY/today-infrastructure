@@ -43,7 +43,7 @@ import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
- * A subclass of {@code DispatcherServlet} that saves the result in an
+ * A subclass of {@code DispatcherHandler} that saves the result in an
  * {@link MvcResult}. The {@code MvcResult} instance is expected to be available
  * as the request attribute {@link DefaultMvcResult#MVC_RESULT_ATTRIBUTE}.
  *

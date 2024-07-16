@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.groovy;
@@ -73,7 +70,7 @@ import groovy.text.markup.TemplateResolver;
  * for the purpose of configuring Groovy's Markup templates. It is not meant to be
  * referenced by application components directly. It implements GroovyMarkupConfig
  * to be found by GroovyMarkupView without depending on a bean name. Each
- * DispatcherServlet can define its own GroovyMarkupConfigurer if desired.
+ * DispatcherHandler can define its own GroovyMarkupConfigurer if desired.
  *
  * <p>Note that resource caching is enabled by default in {@link MarkupTemplateEngine}.
  * Use the {@link #setCacheTemplates(boolean)} to configure that as necessary.
@@ -184,8 +181,8 @@ public class GroovyMarkupConfigurer extends TemplateConfiguration
     ClassLoader classLoader = context.getClassLoader();
     Assert.state(classLoader != null, "No ClassLoader");
     return !urls.isEmpty()
-           ? new URLClassLoader(urls.toArray(new URL[0]), classLoader)
-           : classLoader;
+            ? new URLClassLoader(urls.toArray(new URL[0]), classLoader)
+            : classLoader;
   }
 
   /**

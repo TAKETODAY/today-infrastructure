@@ -121,7 +121,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Whether to detect handler methods in beans in ancestor ApplicationContexts.
    * <p>Default is "false": Only beans in the current ApplicationContext are
    * considered, i.e. only in the context that this HandlerMapping itself
-   * is defined in (typically the current DispatcherServlet's context).
+   * is defined in (typically the current DispatcherHandler's context).
    * <p>Switch this flag on to detect handler beans in ancestor contexts
    * (typically the root WebApplicationContext) as well.
    *
