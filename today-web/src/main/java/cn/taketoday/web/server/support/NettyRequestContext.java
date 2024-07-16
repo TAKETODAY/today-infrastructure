@@ -767,6 +767,11 @@ public class NettyRequestContext extends RequestContext {
       }
     }
 
+    @Override
+    public void flush() {
+      NettyRequestContext.this.flush();
+    }
+
   }
 
   final class NettyHttpOutputMessage implements ServerHttpResponse {
