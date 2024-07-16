@@ -50,7 +50,7 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AsyncHandler;
-import cn.taketoday.web.handler.HandlerWrapper;
+import cn.taketoday.web.HandlerWrapper;
 
 /**
  * Encapsulates information about a handler method consisting of a
