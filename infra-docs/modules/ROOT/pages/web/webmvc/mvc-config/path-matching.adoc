@@ -1,11 +1,10 @@
 [[mvc-config-path-matching]]
-= Path Matching
+= 路径匹配
 
-You can customize options related to path matching and treatment of the URL.
-For details on the individual options, see the
-{today-framework-api}/web/mockApi/config/annotation/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc.
+可以定制与路径匹配和URL处理相关的选项。
+有关各个选项的详细信息，请参阅 {today-framework-api}/web/config/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc。
 
-The following example shows how to customize path matching:
+以下示例展示了如何定制路径匹配：
 
 [source,java]
 ----

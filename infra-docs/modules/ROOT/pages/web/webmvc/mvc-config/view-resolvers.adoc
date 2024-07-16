@@ -1,10 +1,9 @@
 [[mvc-config-view-resolvers]]
-= View Resolvers
+= 视图解析器
 
-The MVC configuration simplifies the registration of view resolvers.
+MVC 配置简化了视图解析器的注册。
 
-The following example configures content negotiation view resolution by using JSP and Jackson as a
-default `View` for JSON rendering:
+以下示例通过使用 JSP 和 Jackson 配置内容协商视图解析，将默认的 `View` 设置为 JSON 渲染：
 
 [source,java]
 ----
@@ -14,13 +13,11 @@ public class WebConfiguration implements WebMvcConfigurer {
   @Override
   public void configureViewResolvers(ViewResolverRegistry registry) {
     registry.enableContentNegotiation(new MappingJackson2JsonView());
-    registry.jsp();
   }
 }
 ----
 
-Note, however, that FreeMarker, Groovy Markup, and script templates also require
-configuration of the underlying view technology. The following example works with FreeMarker:
+不过，请注意，FreeMarker、Groovy Markup 和脚本模板也需要配置底层的视图技术。以下示例适用于 FreeMarker：
 
 [source,java]
 ----

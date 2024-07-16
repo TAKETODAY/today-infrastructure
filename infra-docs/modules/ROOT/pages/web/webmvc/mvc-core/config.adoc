@@ -1,19 +1,11 @@
 [[mvc-config]]
-= Web MVC Config
+= Web MVC 配置
 :page-section-summary-toc: 1
 
-Applications can declare the infrastructure beans listed in xref:web/webmvc/mvc-core/special-bean-types.adoc[Special Bean Types]
-that are required to process requests. The `MockDispatcher` checks the
-`WebApplicationContext` for each special bean. If there are no matching bean types,
-it falls back on the default types listed in
-{today-framework-code}/today-web/src/main/resources/cn/taketoday/web/mockApi/DispatcherServlet.properties[`DispatcherServlet.properties`].
+应用程序可以声明在 xref:web/webmvc/mvc-core/special-bean-types.adoc[特殊 Bean 类型]
+中列出的处理请求所需的基础设施 Bean。`DispatcherHandler` 检查 `WebApplicationContext` 中的每个特殊 Bean。
 
-In most cases, the xref:web/webmvc/mvc-config.adoc[MVC Config] is the best starting point. It declares the required
-beans in either Java or XML and provides a higher-level configuration callback API to
-customize it.
+在大多数情况下，xref:web/webmvc/mvc-config.adoc[MVC 配置] 是最佳起点。它以 Java 的方式声明所需的 Bean，
+并提供了一个更高级别的配置回调 API 来自定义它。
 
-NOTE: Infra App relies on the MVC Java configuration to configure Web MVC and
-provides many extra convenient options.
-
-
-
+NOTE: Infra App 依赖于 MVC Java 配置来配置 Web MVC，并提供了许多额外的便捷选项。

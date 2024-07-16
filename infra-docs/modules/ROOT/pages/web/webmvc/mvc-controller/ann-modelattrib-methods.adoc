@@ -1,48 +1,33 @@
 [[mvc-ann-modelattrib-methods]]
 = Model
 
-You can use the `@ModelAttribute` annotation:
+您可以使用 `@ModelAttribute` 注解：
 
-* On a xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[method argument] in `@RequestMapping` methods
-to create or access an `Object` from the model and to bind it to the request through a
-`WebDataBinder`.
-* As a method-level annotation in `@Controller` or `@ControllerAdvice` classes that help
-to initialize the model prior to any `@RequestMapping` method invocation.
-* On a `@RequestMapping` method to mark its return value is a model attribute.
+* 在 `@RequestMapping` 方法中的 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[方法参数] 上，
+用于创建或访问模型中的 `Object` 并通过 `WebDataBinder` 将其绑定到请求。
+* 作为 `@Controller` 或 `@ControllerAdvice` 类中的方法级注解，帮助在任何 `@RequestMapping` 方法调用之前初始化模型。
+* 在 `@RequestMapping` 方法上，标记其返回值是模型属性。
 
-This section discusses `@ModelAttribute` methods -- the second item in the preceding list.
-A controller can have any number of `@ModelAttribute` methods. All such methods are
-invoked before `@RequestMapping` methods in the same controller. A `@ModelAttribute`
-method can also be shared across controllers through `@ControllerAdvice`. See the section on
-xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] for more details.
+本节讨论 `@ModelAttribute` 方法——上述列表中的第二项。控制器可以有任意数量的 `@ModelAttribute` 方法。
+所有这些方法在同一个控制器中的 `@RequestMapping` 方法之前被调用。`@ModelAttribute` 方法也可以通过 `@ControllerAdvice`
+在控制器之间共享。更多详细信息请参阅 xref:web/webmvc/mvc-controller/ann-advice.adoc[控制器建议] 部分。
 
-`@ModelAttribute` methods have flexible method signatures. They support many of the same
-arguments as `@RequestMapping` methods, except for `@ModelAttribute` itself or anything
-related to the request body.
+`@ModelAttribute` 方法具有灵活的方法签名。它们支持许多与 `@RequestMapping` 方法相同的参数，除了 `@ModelAttribute` 本身或与请求体相关的任何内容。
 
-The following example shows a `@ModelAttribute` method:
+以下示例展示了一个 `@ModelAttribute` 方法：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ModelAttribute
 public void populateModel(@RequestParam String number, Model model) {
   model.addAttribute(accountRepository.findAccount(number));
-  // add more ...
+  // 添加更多 ...
 }
 ----
 
-======
 
-The following example adds only one attribute:
+以下示例仅添加一个属性：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ModelAttribute
@@ -51,24 +36,15 @@ public Account addAccount(@RequestParam String number) {
 }
 ----
 
-======
 
+注意：当没有明确指定名称时，将根据 `Object` 类型选择默认名称，如
+{today-framework-api}/core/Conventions.html[`Conventions`] 的 javadoc 中所解释的。
+您可以通过使用重载的 `addAttribute` 方法或通过 `@ModelAttribute` 上的 `name` 属性（对于返回值）始终分配显式名称。
 
-NOTE: When a name is not explicitly specified, a default name is chosen based on the `Object`
-type, as explained in the javadoc for {today-framework-api}/core/Conventions.html[`Conventions`].
-You can always assign an explicit name by using the overloaded `addAttribute` method or
-through the `name` attribute on `@ModelAttribute` (for a return value).
+您也可以在 `@RequestMapping` 方法上使用 `@ModelAttribute` 作为方法级注解，在这种情况下，`@RequestMapping`
+方法的返回值被解释为模型属性。这通常不是必需的，因为它是 HTML 控制器中的默认行为，除非返回值是 `String`，否则将被解释为视图名称。
+`@ModelAttribute` 还可以自定义模型属性名称，如下例所示：
 
-You can also use `@ModelAttribute` as a method-level annotation on `@RequestMapping` methods,
-in which case the return value of the `@RequestMapping` method is interpreted as a model
-attribute. This is typically not required, as it is the default behavior in HTML controllers,
-unless the return value is a `String` that would otherwise be interpreted as a view name.
-`@ModelAttribute` can also customize the model attribute name, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/accounts/{id}")
@@ -78,7 +54,6 @@ public Account handle() {
   return account;
 }
 ----
-======
 
 
 

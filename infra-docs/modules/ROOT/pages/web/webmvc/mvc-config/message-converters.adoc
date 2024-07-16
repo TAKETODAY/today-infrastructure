@@ -1,20 +1,15 @@
 [[mvc-config-message-converters]]
-= Message Converters
+= 消息转换器
 
-You can set the `HttpMessageConverter` instances to use in Java configuration,
-replacing the ones used by default, by overriding
-{today-framework-api}/web/mockApi/config/annotation/WebMvcConfigurer.html#configureMessageConverters-java.util.List-[`configureMessageConverters()`].
-You can also customize the list of configured message converters at the end by overriding
-{today-framework-api}/web/mockApi/config/annotation/WebMvcConfigurer.html#extendMessageConverters-java.util.List-[`extendMessageConverters()`].
+您可以通过重写 {today-framework-api}/web/config/WebMvcConfigurer.html#configureMessageConverters-java.util.List-[`configureMessageConverters()`]，
+在Java配置中设置要使用的 `HttpMessageConverter` 实例，替换默认使用的实例。您也可以通过重写
+{today-framework-api}/web/config/WebMvcConfigurer.html#extendMessageConverters-java.util.List-[`extendMessageConverters()`]，
+在最后定制配置的消息转换器列表。
 
-TIP: In a Infra App application, the `WebMvcAutoConfiguration` adds any
-`HttpMessageConverter` beans it detects, in addition to default converters. Hence, in a
-Boot application, prefer to use the {today-framework-reference}/web.html#web.mockApi.mvc.message-converters[HttpMessageConverters]
-mechanism. Or alternatively, use `extendMessageConverters` to modify message converters
-at the end.
+TIP: 在 Infra App 应用程序中，`WebMvcAutoConfiguration` 除了默认转换器外，还会添加它检测到的任何
+`HttpMessageConverter` Bean。或者，也可以使用 `extendMessageConverters` 在最后修改消息转换器。
 
-The following example adds XML and Jackson JSON converters with a customized `ObjectMapper`
-instead of the default ones:
+以下示例添加了 XML 和 Jackson JSON 转换器，并使用自定义的 `ObjectMapper` 替换默认的转换器：
 
 [source,java]
 ----
@@ -33,31 +28,28 @@ public class WebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-In the preceding example,
+在前面的示例中，
 {today-framework-api}/http/converter/json/Jackson2ObjectMapperBuilder.html[`Jackson2ObjectMapperBuilder`]
-is used to create a common configuration for both `MappingJackson2HttpMessageConverter` and
-`MappingJackson2XmlHttpMessageConverter` with indentation enabled, a customized date format,
-and the registration of
-{jackson-github-org}/jackson-module-parameter-names[`jackson-module-parameter-names`],
-Which adds support for accessing parameter names (a feature added in Java 8).
+用于为 `MappingJackson2HttpMessageConverter` 和 `MappingJackson2XmlHttpMessageConverter` 创建一个通用配置，启用缩进，自定义日期格式，并注册
+{jackson-github-org}/jackson-module-parameter-names[`jackson-module-parameter-names`]，
+这增加了对访问参数名称的支持（Java 8 中新增的功能）。
 
-This builder customizes Jackson's default properties as follows:
+此构建器按以下方式自定义 Jackson 的默认属性：
 
-* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/DeserializationFeature.html#FAIL_ON_UNKNOWN_PROPERTIES[`DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`] is disabled.
-* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/MapperFeature.html#DEFAULT_VIEW_INCLUSION[`MapperFeature.DEFAULT_VIEW_INCLUSION`] is disabled.
+* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/DeserializationFeature.html#FAIL_ON_UNKNOWN_PROPERTIES[`DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`] 被禁用。
+* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/MapperFeature.html#DEFAULT_VIEW_INCLUSION[`MapperFeature.DEFAULT_VIEW_INCLUSION`] 被禁用。
 
-It also automatically registers the following well-known modules if they are detected on the classpath:
+它还自动注册以下知名模块（如果它们在类路径上被检测到）：
 
-* {jackson-github-org}/jackson-datatype-joda[jackson-datatype-joda]: Support for Joda-Time types.
-* {jackson-github-org}/jackson-datatype-jsr310[jackson-datatype-jsr310]: Support for Java 8 Date and Time API types.
-* {jackson-github-org}/jackson-datatype-jdk8[jackson-datatype-jdk8]: Support for other Java 8 types, such as `Optional`.
-* {jackson-github-org}/jackson-module-kotlin[jackson-module-kotlin]: Support for Kotlin classes and data classes.
+* {jackson-github-org}/jackson-datatype-joda[jackson-datatype-joda]: 支持 Joda-Time 类型。
+* {jackson-github-org}/jackson-datatype-jsr310[jackson-datatype-jsr310]: 支持 Java 8 日期和时间 API 类型。
+* {jackson-github-org}/jackson-datatype-jdk8[jackson-datatype-jdk8]: 支持其他 Java 8 类型，如 `Optional`。
 
-NOTE: Enabling indentation with Jackson XML support requires
+注意：启用 Jackson XML 支持的缩进需要除了
 https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.codehaus.woodstox%22%20AND%20a%3A%22woodstox-core-asl%22[`woodstox-core-asl`]
-dependency in addition to https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jackson-dataformat-xml%22[`jackson-dataformat-xml`] one.
+依赖项外，还需要 https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jackson-dataformat-xml%22[`jackson-dataformat-xml`] 依赖项。
 
-Other interesting Jackson modules are available:
+其他有趣的 Jackson 模块包括：
 
-* https://github.com/zalando/jackson-datatype-money[jackson-datatype-money]: Support for `javax.money` types (unofficial module).
-* {jackson-github-org}/jackson-datatype-hibernate[jackson-datatype-hibernate]: Support for Hibernate-specific types and properties (including lazy-loading aspects).
+* https://github.com/zalando/jackson-datatype-money[jackson-datatype-money]: 支持 `javax.money` 类型（非官方模块）。
+* {jackson-github-org}/jackson-datatype-hibernate[jackson-datatype-hibernate]: 支持 Hibernate 特定类型和属性（包括延迟加载方面）。

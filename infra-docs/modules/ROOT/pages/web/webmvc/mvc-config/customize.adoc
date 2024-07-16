@@ -1,22 +1,14 @@
 [[mvc-config-customize]]
-= MVC Config API
+= MVC 配置 API
 
-In Java configuration, you can implement the `WebMvcConfigurer` interface, as the
-following example shows:
+在 Java 配置中，您可以实现 `WebMvcConfigurer` 接口，如下例所示：
 
 [source,java]
 ----
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
-  // Implement configuration methods...
+  // 实现配置方法...
 }
 ----
-
-In XML, you can check attributes and sub-elements of `<mvc:annotation-driven/>`. You can
-view the https://schema.spring.io/mvc/spring-mvc.xsd[Web MVC XML schema] or use
-the code completion feature of your IDE to discover what attributes and
-sub-elements are available.
-
-
 
