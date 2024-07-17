@@ -399,10 +399,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void flush() {
-    if (writer != null) {
-      writer.flush();
-    }
-
     writeHeaders();
 
     FileRegion fileToSend;
