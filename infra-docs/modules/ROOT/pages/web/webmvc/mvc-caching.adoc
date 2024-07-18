@@ -1,11 +1,11 @@
 [[mvc-caching]]
 = HTTP 缓存
 
-HTTP 缓存可以显著提高 Web 应用程序的性能。HTTP 缓存围绕 `Cache-Control` 响应头部，
-随后是条件请求头部（例如 `Last-Modified` 和 `ETag`）。`Cache-Control` 建议私有
-（例如，浏览器）和公共（例如，代理）缓存如何缓存和重用响应。`ETag` 头部用于进行条件请求，
+HTTP 缓存可以显著提高 Web 应用程序的性能。HTTP 缓存围绕 `Cache-Control` 响应头，
+随后是条件请求头（例如 `Last-Modified` 和 `ETag`）。`Cache-Control` 建议私有
+（例如，浏览器）和公共（例如，代理）缓存如何缓存和重用响应。`ETag` 头用于进行条件请求，
 如果内容未更改，可能会产生 304 (NOT_MODIFIED) 响应，而无需正文。`ETag` 可以被视为
-`Last-Modified` 头部的更高级的继承者。
+`Last-Modified` 头的更高级的继承者。
 
 本节描述了在 Web MVC 中可用的与 HTTP 缓存相关的选项。
 
@@ -14,14 +14,14 @@ HTTP 缓存可以显著提高 Web 应用程序的性能。HTTP 缓存围绕 `Cac
 == `CacheControl`
 
 {today-framework-api}/http/CacheControl.html[`CacheControl`] 提供了对配置与 `Cache-Control`
-头部相关的设置的支持，并在多个地方被接受为参数：
+头相关的设置的支持，并在多个地方被接受为参数：
 
 * {today-framework-api}/web/handler/mvc/WebContentInterceptor.html[`WebContentInterceptor`]
 * {today-framework-api}/web/WebContentGenerator.html[`WebContentGenerator`]
 * xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器]
 * xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[静态资源]
 
-虽然 {rfc-site}/rfc7234#section-5.2.2[RFC 7234] 描述了 `Cache-Control` 响应头部的所有可能指令，
+虽然 {rfc-site}/rfc7234#section-5.2.2[RFC 7234] 描述了 `Cache-Control` 响应头的所有可能指令，
 `CacheControl` 类型采用了面向用例的方法，专注于常见的场景：
 
 
@@ -41,7 +41,7 @@ CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS).noTransform().cac
 
 `WebContentGenerator` 还接受一个更简单的 `cachePeriod` 属性（以秒为单位），其工作方式如下：
 
-* `-1` 值不生成 `Cache-Control` 响应头部。
+* `-1` 值不生成 `Cache-Control` 响应头。
 * `0` 值通过使用 `'Cache-Control: no-store'` 指令防止缓存。
 * `n > 0` 值通过使用 `'Cache-Control: max-age=n'` 指令将给定响应缓存 `n` 秒。
 
@@ -50,8 +50,8 @@ CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS).noTransform().cac
 == HTTP 处理器
 
 HTTP 处理器可以添加对 HTTP 缓存的显式支持。我们建议这样做，因为资源的 `lastModified`
-或 `ETag` 值需要在与条件请求头部进行比较之前计算出来。控制器可以向 `ResponseEntity`
-添加 `ETag` 头部和 `Cache-Control` 设置，如下例所示：
+或 `ETag` 值需要在与条件请求头进行比较之前计算出来。控制器可以向 `ResponseEntity`
+添加 `ETag` 头和 `Cache-Control` 设置，如下例所示：
 
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -88,10 +88,10 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 }
 ----
 
-前面的示例在与条件请求头部的比较表明内容未更改时，发送一个带有空正文的 304 (NOT_MODIFIED) 响应。
-否则，将 `ETag` 和 `Cache-Control` 头部添加到响应中。
+前面的示例在与条件请求头的比较表明内容未更改时，发送一个带有空正文的 304 (NOT_MODIFIED) 响应。
+否则，将 `ETag` 和 `Cache-Control` 头添加到响应中。
 
-您也可以在控制器中对条件请求头部进行检查，如下例所示：
+您也可以在控制器中对条件请求头进行检查，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -119,6 +119,6 @@ public String myHandleMethod(RequestContext request, Model model) {
 [[mvc-caching-static-resources]]
 == 静态资源
 
-为了获得最佳性能，您应该使用 `Cache-Control` 和条件响应头部提供静态资源。请参阅有关配置
+为了获得最佳性能，您应该使用 `Cache-Control` 和条件响应头提供静态资源。请参阅有关配置
 xref:web/webmvc/mvc-config/static-resources.adoc[静态资源] 的部分。
 

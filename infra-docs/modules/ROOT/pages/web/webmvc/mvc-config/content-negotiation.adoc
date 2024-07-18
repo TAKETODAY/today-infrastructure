@@ -3,11 +3,9 @@
 
 可以配置 Web MVC 如何从请求中确定请求的媒体类型（例如，`Accept` 请求头、URL 路径扩展名、查询参数等）。
 
-默认情况下，仅检查 `Accept` 头部。
+默认情况下，仅检查 `Accept` 头。
 
-如果您必须使用基于 URL 的内容类型解析，请考虑使用查询参数策略而不是路径扩展。有关更多详细信息，
-请参阅 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-suffix-pattern-match[后缀匹配]
-和 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-rfd[后缀匹配和 RFD]。
+如果您必须使用基于 URL 的内容类型解析，请考虑使用查询参数策略而不是路径扩展。
 
 您可以根据以下示例自定义请求内容类型解析：
 

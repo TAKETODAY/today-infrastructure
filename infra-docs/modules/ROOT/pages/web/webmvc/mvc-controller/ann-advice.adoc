@@ -1,52 +1,37 @@
 [[mvc-ann-controller-advice]]
 = Controller Advice
 
-`@ExceptionHandler`, `@InitBinder`, and `@ModelAttribute` methods apply only to the
-`@Controller` class, or class hierarchy, in which they are declared. If, instead, they
-are declared in an `@ControllerAdvice` or `@RestControllerAdvice` class, then they apply
-to any controller. Moreover, as of 5.3, `@ExceptionHandler` methods in `@ControllerAdvice`
-can be used to handle exceptions from any `@Controller` or any other handler.
+`@ExceptionHandler`、`@InitBinder` 和 `@ModelAttribute` 方法仅适用于在其中声明的
+`@Controller` 类或类层次结构。相反，如果它们在 `@ControllerAdvice` 或 `@RestControllerAdvice`
+类中声明，则它们适用于任何控制器。`@ControllerAdvice` 中的 `@ExceptionHandler` 方法可用于处理任何 `@Controller` 或任何其他处理器的异常。
 
-`@ControllerAdvice` is meta-annotated with `@Component` and therefore can be registered as
-a Infra bean through xref:core/beans/java/instantiating-container.adoc#beans-java-instantiating-container-scan[component scanning]
-. `@RestControllerAdvice` is meta-annotated with `@ControllerAdvice`
-and `@ResponseBody`, and that means `@ExceptionHandler` methods will have their return
-value rendered via response body message conversion, rather than via HTML views.
+`@ControllerAdvice` 被 `@Component` 元注释，因此可以通过
+xref:core/beans/java/instantiating-container.adoc#beans-java-instantiating-container-scan[组件扫描]
+注册为 Infra bean。`@RestControllerAdvice` 被 `@ControllerAdvice` 和 `@ResponseBody` 元注释，
+这意味着 `@ExceptionHandler` 方法的返回值将通过响应体消息转换进行渲染，而不是通过 HTML 视图。
 
-On startup, `RequestMappingHandlerMapping` and `ExceptionHandlerExceptionResolver` detect
-controller advice beans and apply them at runtime. Global `@ExceptionHandler` methods,
-from an `@ControllerAdvice`, are applied _after_ local ones, from the `@Controller`.
-By contrast, global `@ModelAttribute` and `@InitBinder` methods are applied _before_ local ones.
+在启动时，`RequestMappingHandlerMapping` 和 `ExceptionHandlerExceptionResolver` 检测控制器建议
+bean 并在运行时应用它们。来自 `@ControllerAdvice` 的全局 `@ExceptionHandler` 方法在来自 `@Controller`
+的局部方法之后应用。相比之下，全局的 `@ModelAttribute` 和 `@InitBinder` 方法在局部方法之前应用。
 
-The `@ControllerAdvice` annotation has attributes that let you narrow the set of controllers
-and handlers that they apply to. For example:
+`@ControllerAdvice` 注解具有属性，允许你缩小它们适用的控制器和处理器集。例如：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// Target all Controllers annotated with @RestController
-	@ControllerAdvice(annotations = RestController.class)
-	public class ExampleAdvice1 {}
+// 针对所有带有 @RestController 注解的控制器
+@ControllerAdvice(annotations = RestController.class)
+public class ExampleAdvice1 {}
 
-	// Target all Controllers within specific packages
-	@ControllerAdvice("org.example.controllers")
-	public class ExampleAdvice2 {}
+// 针对特定包中的所有控制器
+@ControllerAdvice("org.example.controllers")
+public class ExampleAdvice2 {}
 
-	// Target all Controllers assignable to specific classes
-	@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})
-	public class ExampleAdvice3 {}
+// 针对可分配给特定类的任何控制器
+@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})
+public class ExampleAdvice3 {}
 ----
 
-======
 
-The selectors in the preceding example are evaluated at runtime and may negatively impact
-performance if used extensively. See the
-{today-framework-api}/web/bind/annotation/ControllerAdvice.html[`@ControllerAdvice`]
-javadoc for more details.
-
-
-
+前述示例中的选择器在运行时评估，如果广泛使用可能会对性能产生负面影响。有关更多详细信息，请参见
+{today-framework-api}/web/bind/annotation/ControllerAdvice.html[`@ControllerAdvice`] javadoc。
 

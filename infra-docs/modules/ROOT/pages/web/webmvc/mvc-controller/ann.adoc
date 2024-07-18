@@ -1,14 +1,11 @@
 [[mvc-ann-controller]]
-= Declaration
+= 声明
 
-You can define controller beans by using a standard Infra bean definition in the
-Servlet's `WebApplicationContext`. The `@Controller` stereotype allows for auto-detection,
-aligned with Infra general support for detecting `@Component` classes in the classpath
-and auto-registering bean definitions for them. It also acts as a stereotype for the
-annotated class, indicating its role as a web component.
+你可以通过在应用的 `ApplicationContext` 中使用标准的 bean 定义来定义控制器 bean。
+`@Controller` 允许自动检测，与框架通用支持在类路径中检测 `@Component` 类并自动注册 bean
+定义一致。它还作为被注释类的刻板印象，指示其作为 Web 组件的角色。
 
-To enable auto-detection of such `@Controller` beans, you can add component scanning to
-your Java configuration, as the following example shows:
+要启用这些 `@Controller` bean 的自动检测，你可以将组件扫描添加到你的 Java 配置中，如下例所示：
 
 [source,java]
 ----
@@ -20,30 +17,22 @@ public class WebConfiguration {
 }
 ----
 
-`@RestController` is a xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[composed annotation] that is
-itself meta-annotated with `@Controller` and `@ResponseBody` to indicate a controller whose
-every method inherits the type-level `@ResponseBody` annotation and, therefore, writes
-directly to the response body versus view resolution and rendering with an HTML template.
-
+`@RestController` 是一个 xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[组合注解]，
+它本身被 `@Controller` 和 `@ResponseBody` 元注释，以指示一个控制器，其每个方法都继承了类型级别的 `@ResponseBody` 注解，
+因此直接写入响应体，而不是通过视图解析和渲染 HTML 模板。
 
 [[mvc-ann-requestmapping-proxying]]
-== AOP Proxies
+== AOP 代理
 
-In some cases, you may need to decorate a controller with an AOP proxy at runtime.
-One example is if you choose to have `@Transactional` annotations directly on the
-controller. When this is the case, for controllers specifically, we recommend
-using class-based proxying. This is automatically the case with such annotations
-directly on the controller.
+在某些情况下，你可能需要在运行时用 AOP 代理装饰控制器。一个例子是如果你选择直接在控制器上使用 `@Transactional` 注解。
+当这种情况发生时，对于控制器，我们建议使用基于类的代理。这在控制器上直接使用这些注解时会自动发生。
 
-If the controller implements an interface, and needs AOP proxying, you may need to
-explicitly configure class-based proxying. For example, with `@EnableTransactionManagement`
-you can change to `@EnableTransactionManagement(proxyTargetClass = true)`, and with
-`<tx:annotation-driven/>` you can change to `<tx:annotation-driven proxy-target-class="true"/>`.
+如果控制器实现了一个接口，并且需要 AOP 代理，你可能需要显式配置基于类的代理。例如，使用 `@EnableTransactionManagement`
+你可以更改为 `@EnableTransactionManagement(proxyTargetClass = true)`。
 
-NOTE: Keep in mind that as of 6.0, with interface proxying, Web MVC no longer detects
-controllers based solely on a type-level `@RequestMapping` annotation on the interface.
-Please, enable class based proxying, or otherwise the interface must also have an
-`@Controller` annotation.
+
+NOTE: 请注意，从 5.0 开始，使用接口代理时，Web MVC 不再仅基于接口上的类型级别 `@RequestMapping` 注解来检测控制器。
+请启用基于类的代理，或者接口也必须具有 `@Controller` 注解。
 
 
 

@@ -1,8 +1,7 @@
 [[mvc-ann-modelattrib-method-args]]
 = `@ModelAttribute`
 
-The `@ModelAttribute` method parameter annotation binds request parameters onto a model
-object. For example:
+`@ModelAttribute` 注解使用在方法参数上，会将请求参数绑定到模型对象上。例如：
 
 [tabs]
 ======
@@ -10,31 +9,27 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/owners/{ownerId}/pets/{petId}/edit")
+@POST("/owners/{ownerId}/pets/{petId}/edit")
 public String processSubmit(@ModelAttribute Pet pet) { // <1>
-  // method logic...
+  // 业务逻辑。。。
 }
 ----
-<1> Bind to an instance of `Pet`.
+<1> 绑定到 `Pet` 类的一个对象。
 
 ======
 
-The `Pet` instance may be:
+`Pet` 对象可能是：
 
-* Accessed from the model where it could have been added by a
-  xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute method].
-* Obtained through a `Converter` if the model attribute name matches the name of a
-  request value such as a path variable or a request parameter (example follows).
-* Instantiated through a default constructor.
-* Instantiated through a "`primary constructor`" with arguments that match to Servlet
-  request parameters. Argument names are determined through runtime-retained parameter
-  names in the bytecode.
+* 从模型中访问，它可能已经被一个 xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute 方法] 添加。
+* 如果模型字段名称与请求值的名称（如路径变量或请求参数）匹配，可以通过 `Converter` 获取（示例如下）。
+* 通过默认构造函数实例化。
+* 通过与请求参数匹配的参数的“`主构造函数`”实例化。参数名称是通过字节码中的运行时保留参数名称确定的。
 
-As mentioned above, a  `Converter<String, T>` may be used to obtain the model object if
-the model attribute name matches to the name of a request value such as a path variable or a
-request parameter, _and_ there is a compatible `Converter<String, T>`. In the below example,
-the model attribute name `account` matches URI path variable `account`, and there is a
-registered `Converter<String, Account>` that perhaps retrieves it from a persistence store:
+如上所述，如果模型字段名称与请求值的名称（如路径变量或请求参数）匹配，并且存在兼容的
+`Converter<String, T>`，则可以使用 `Converter<String, T>` 获取模型对象。在以下示例中，
+模型属性名称 `account` 与 URI 路径变量 `account` 匹配，并且有一个注册的 `Converter<String, Account>`，
+它可能从持久化存储中检索它：
+
 
 [tabs]
 ======
@@ -42,25 +37,20 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PutMapping("/accounts/{account}")
-public String save(@ModelAttribute("account") Account account) { // <1>
+@PUT("/accounts/{account}")
+public String create(@ModelAttribute("account") Account account) { // <1>
   // ...
 }
 ----
 
 ======
 
-By default, both constructor and property
-xref:core/validation/beans-beans.adoc#beans-binding[data binding] are applied. However,
-model object design requires careful consideration, and for security reasons it is
-recommended either to use an object tailored specifically for web binding, or to apply
-constructor binding only. If property binding must still be used, then _allowedFields_
-patterns should be set to limit which properties can be set. For further details on this
-and example configuration, see
-xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[model design].
+默认情况下，同时应用构造函数和属性的 xref:core/validation/beans-beans.adoc#beans-binding[数据绑定]。
+然而，模型对象设计需要仔细考虑，出于安全原因，建议使用专门针对 Web 绑定的对象，或者仅应用构造函数绑定。
+如果必须使用属性绑定，则应设置 _allowedFields_ 模式以限制可以设置哪些属性。有关此问题的更多详细信息和示例配置，
+请参阅 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[模型设计]。
 
-When using constructor binding, you can customize request parameter names through an
-`@BindParam` annotation. For example:
+使用构造函数绑定时，您可以通过 `@BindParam` 注解自定义请求参数名称。例如：
 
 [tabs]
 ======
@@ -70,7 +60,7 @@ Java::
 ----
 class Account {
 
-    private final String firstName;
+  private final String firstName;
 
   public Account(@BindParam("first-name") String firstName) {
     this.firstName = firstName;
@@ -79,13 +69,11 @@ class Account {
 ----
 ======
 
-NOTE: The `@BindParam` may also be placed on the fields that correspond to constructor
-parameters. While `@BindParam` is supported out of the box, you can also use a
-different annotation by setting a `DataBinder.NameResolver` on `DataBinder`
+NOTE: `@BindParam` 也可以放置在对应构造函数参数的字段上。虽然 `@BindParam` 已经开箱即用，
+但您也可以通过在 `DataBinder` 上设置 `DataBinder.NameResolver` 来使用不同的注解。
 
-In some cases, you may want access to a model attribute without data binding. For such
-cases, you can inject the `Model` into the controller and access it directly or,
-alternatively, set `@ModelAttribute(binding=false)`, as the following example shows:
+在某些情况下，您可能希望在没有数据绑定的情况下访问模型属性。对于这些情况，您可以将 `Model`
+注入到控制器中并直接访问它，或者，另外，可以设置 `@ModelAttribute(binding=false)`，如下例所示：
 
 [tabs]
 ======
@@ -103,18 +91,18 @@ public Account findAccount(@PathVariable String accountId) {
   return accountRepository.findOne(accountId);
 }
 
-@PostMapping("update")
+@POST("update")
 public String update(AccountForm form, BindingResult result,
     @ModelAttribute(binding=false) Account account) { // <1>
   // ...
 }
 ----
-<1> Setting `@ModelAttribute(binding=false)`.
+<1> 设置 `@ModelAttribute(binding=false)`.
 ======
 
-If data binding results in errors, by default a `MethodArgumentNotValidException` is raised,
-but you can also add a `BindingResult` argument immediately next to the `@ModelAttribute`
-in order to handle such errors in the controller method. For example:
+如果数据绑定错误，默认情况下会抛出一个 `MethodArgumentNotValidException`，
+但您也可以在控制器方法中将 `BindingResult` 参数紧接在 `@ModelAttribute` 之后添加，以便处理这些错误。例如：
+
 
 [tabs]
 ======
@@ -122,7 +110,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/owners/{ownerId}/pets/{petId}/edit")
+@POST("/owners/{ownerId}/pets/{petId}/edit")
 public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result) { // <1>
   if (result.hasErrors()) {
     return "petForm";
@@ -130,14 +118,13 @@ public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result
   // ...
 }
 ----
-<1> Adding a `BindingResult` next to the `@ModelAttribute`.
+<1> 添加一个 `BindingResult` 参数紧接着 `@ModelAttribute`.
 
 ======
 
-You can automatically apply validation after data binding by adding the
-`jakarta.validation.Valid` annotation or Infra `@Validated` annotation.
-See xref:core/validation/beanvalidation.adoc[Bean Validation] and
-xref:web/webmvc/mvc-config/validation.adoc[Infra validation]. For example:
+您可以通过添加 `jakarta.validation.Valid` 注解或框架的 `@Validated` 注解，在数据绑定之后自动应用验证。
+请参阅 xref:core/validation/beanvalidation.adoc[Bean 验证]
+和 xref:web/webmvc/mvc-config/validation.adoc[Infra 验证]。例如：
 
 [tabs]
 ======
@@ -145,7 +132,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/owners/{ownerId}/pets/{petId}/edit")
+@POST("/owners/{ownerId}/pets/{petId}/edit")
 public String processSubmit(@Valid @ModelAttribute("pet") Pet pet, BindingResult result) { // <1>
   if (result.hasErrors()) {
     return "petForm";
@@ -153,21 +140,18 @@ public String processSubmit(@Valid @ModelAttribute("pet") Pet pet, BindingResult
   // ...
 }
 ----
-<1> Validate the `Pet` instance.
+<1> 验证 `Pet` 对象.
 ======
 
-If there is no `BindingResult` parameter after the `@ModelAttribute`, then
-`MethodArgumentNotValueException` is raised with the validation errors. However, if method
-validation applies because other parameters have `@jakarta.validation.Constraint` annotations,
-then `HandlerMethodValidationException` is raised instead. For more details, see the section
-xref:web/webmvc/mvc-controller/ann-validation.adoc[Validation].
+如果没有在 `@ModelAttribute` 之后添加 `BindingResult` 参数，则会抛出带有验证错误的
+`MethodArgumentNotValidException`。
+更多详细信息，请参阅 xref:web/webmvc/mvc-controller/ann-validation.adoc[验证] 部分。
 
-TIP: Using `@ModelAttribute` is optional. By default, any parameter that is not a simple
-value type as determined by
+TIP: 使用 `@ModelAttribute` 是可选的。默认情况下，任何不是由
 {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty]
-_AND_ that is not resolved by any other argument resolver is treated as an implicit `@ModelAttribute`.
+确定的简单值类型的参数，并且没有被任何其他参数解析器解析的参数，都被视为隐式的 `@ModelAttribute`。
 
-WARNING: When compiling to a native image with GraalVM, the implicit `@ModelAttribute`
-support described above does not allow proper ahead-of-time inference of related data
-binding reflection hints. As a consequence, it is recommended to explicitly annotate
-method parameters with `@ModelAttribute` for use in a GraalVM native image.
+WARNING: 当使用 GraalVM 编译为原生镜像时，上述描述的隐式 `@ModelAttribute`
+支持不允许正确提前推断相关数据绑定反射提示。因此，建议在 GraalVM 原生镜像中使用时，
+显式地用 `@ModelAttribute` 注解方法参数。
+

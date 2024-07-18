@@ -98,7 +98,7 @@ REST服务的一个常见需求是在错误响应的正文中包含详细信息�
 | (默认) | `+{0}+` 全局错误列表，`+{1}+` 字段错误列表。每个错误的消息代码和参数也通过 `MessageSource` 解析。
 
 | `MissingRequestHeaderException`
-| (默认) | `+{0}+` 头部名称
+| (默认) | `+{0}+` 头名称
 
 | `MissingRequestParameterException`
 | (默认) | `+{0}+` 请求参数名称

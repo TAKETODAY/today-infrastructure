@@ -5,7 +5,7 @@
 
 在下一个示例中，对于以 `/resources` 开头的请求，相对路径用于查找并提供相对于 Web 应用程序根目录下的
 `/public` 或类路径下的 `/static` 的静态资源。资源被提供具有一年未来的到期时间，以确保最大限度地利用浏览器缓存并减少浏览器发出的
-HTTP 请求。`Last-Modified` 信息从 `Resource#lastModified` 推断出来，以便通过 `Last-Modified` 头部支持 HTTP 条件请求。
+HTTP 请求。`Last-Modified` 信息从 `Resource#lastModified` 推断出来，以便通过 `Last-Modified` 头支持 HTTP 条件请求。
 
 以下列表展示了如何进行：
 

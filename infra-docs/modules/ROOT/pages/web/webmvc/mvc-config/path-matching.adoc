@@ -16,10 +16,5 @@ public class WebConfiguration implements WebMvcConfigurer {
     configurer.addPathPrefix("/api", HandlerTypePredicate.forAnnotation(RestController.class));
   }
 
-  private PathPatternParser patternParser() {
-    PathPatternParser pathPatternParser = new PathPatternParser();
-    // ...
-    return pathPatternParser;
-  }
 }
 ----

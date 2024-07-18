@@ -1,188 +1,127 @@
 [[uricomponents]]
 = UriComponents
-[.small]#Web MVC and Infra WebFlux#
 
-`UriComponentsBuilder` helps to build URI's from URI templates with variables, as the following example shows:
+`UriComponentsBuilder` 有助于从带有变量的 URI 模板构建 URI，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	UriComponents uriComponents = UriComponentsBuilder
-			.fromUriString("https://example.com/hotels/{hotel}") // <1>
-			.queryParam("q", "{q}") // <2>
-			.encode() // <3>
-			.build(); // <4>
+UriComponents uriComponents = UriComponentsBuilder
+    .fromUriString("https://example.com/hotels/{hotel}") // <1>
+    .queryParam("q", "{q}") // <2>
+    .encode() // <3>
+    .build(); // <4>
 
-	URI uri = uriComponents.expand("Westin", "123").toUri(); // <5>
+URI uri = uriComponents.expand("Westin", "123").toUri(); // <5>
 ----
-<1> Static factory method with a URI template.
-<2> Add or replace URI components.
-<3> Request to have the URI template and URI variables encoded.
-<4> Build a `UriComponents`.
-<5> Expand variables and obtain the `URI`.
+<1> 带 URI 模板的静态工厂方法。
+<2> 添加或替换 URI 组件。
+<3> 请求对 URI 模板和 URI 变量进行编码。
+<4> 构建 `UriComponents`。
+<5> 展开变量并获取 `URI`。
 
-======
+前面的示例可以合并为一个链，并使用 `buildAndExpand` 进行简化，如下例所示：
 
-The preceding example can be consolidated into one chain and shortened with `buildAndExpand`,
-as the following example shows:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-	URI uri = UriComponentsBuilder
-			.fromUriString("https://example.com/hotels/{hotel}")
-			.queryParam("q", "{q}")
-			.encode()
-			.buildAndExpand("Westin", "123")
-			.toUri();
-----
-
-======
-
-You can shorten it further by going directly to a URI (which implies encoding),
-as the following example shows:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-	URI uri = UriComponentsBuilder
-			.fromUriString("https://example.com/hotels/{hotel}")
-			.queryParam("q", "{q}")
-			.build("Westin", "123");
-----
-
-======
-
-You can shorten it further still with a full URI template, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder
-    .fromUriString("https://example.com/hotels/{hotel}?q={q}")
+    .fromUriString("https://example.com/hotels/{hotel}")
+    .queryParam("q", "{q}")
+    .encode()
+    .buildAndExpand("Westin", "123")
+    .toUri();
+----
+
+您可以进一步简化，直接生成 URI（这意味着进行编码），如下例所示：
+
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+URI uri = UriComponentsBuilder
+    .fromUriString("https://example.com/hotels/{hotel}")
+    .queryParam("q", "{q}")
     .build("Westin", "123");
 ----
 
-======
+您还可以使用完整的 URI 模板进一步简化，如下例所示：
 
-
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+URI uri = UriComponentsBuilder
+  .fromUriString("https://example.com/hotels/{hotel}?q={q}")
+  .build("Westin", "123");
+----
 
 [[uribuilder]]
 == UriBuilder
-[.small]#Web MVC and Infra WebFlux#
 
-<<web-uricomponents, `UriComponentsBuilder`>> implements `UriBuilder`. You can create a
-`UriBuilder`, in turn, with a `UriBuilderFactory`. Together, `UriBuilderFactory` and
-`UriBuilder` provide a pluggable mechanism to build URIs from URI templates, based on
-shared configuration, such as a base URL, encoding preferences, and other details.
+<<web-uricomponents, `UriComponentsBuilder`>> 实现了 `UriBuilder`。您可以创建一个 `UriBuilder`，
+进而使用 `UriBuilderFactory`。`UriBuilderFactory` 和 `UriBuilder` 一起提供了一个可插拔的机制，
+用于根据共享配置（如基础 URL、编码偏好和其他详细信息）从 URI 模板构建 URI。
 
-You can configure `RestTemplate` and `WebClient` with a `UriBuilderFactory`
-to customize the preparation of URIs. `DefaultUriBuilderFactory` is a default
-implementation of `UriBuilderFactory` that uses `UriComponentsBuilder` internally and
-exposes shared configuration options.
+您可以配置 `RestTemplate` 和 `WebClient` 使用 `UriBuilderFactory` 来自定义 URI 的准备。
+`DefaultUriBuilderFactory` 是 `UriBuilderFactory` 的默认实现，它在内部使用 `UriComponentsBuilder` 并公开共享配置选项。
 
-The following example shows how to configure a `RestTemplate`:
+以下示例展示了如何配置 `RestTemplate`：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	// import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
+// import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
 
-	String baseUrl = "https://example.org";
-	DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
-	factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
+String baseUrl = "https://example.org";
+DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
+factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
 
-	RestTemplate restTemplate = new RestTemplate();
-	restTemplate.setUriTemplateHandler(factory);
+RestTemplate restTemplate = new RestTemplate();
+restTemplate.setUriTemplateHandler(factory);
 ----
 
-======
+下面的例子配置了一个 `WebClient`:
 
-The following example configures a `WebClient`:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-  // import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
+// import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
 
-  String baseUrl = "https://example.org";
-  DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
-  factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
+String baseUrl = "https://example.org";
+DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
+factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
 
-  WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
+WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
 ----
 
-======
+此外，您也可以直接使用 `DefaultUriBuilderFactory`。它类似于使用 `UriComponentsBuilder`，
+但不是静态工厂方法，而是一个实际的实例，它持有配置和偏好，如下例所示：
 
-In addition, you can also use `DefaultUriBuilderFactory` directly. It is similar to using
-`UriComponentsBuilder` but, instead of static factory methods, it is an actual instance
-that holds configuration and preferences, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	String baseUrl = "https://example.com";
-	DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(baseUrl);
+String baseUrl = "https://example.com";
+DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(baseUrl);
 
-	URI uri = uriBuilderFactory.uriString("/hotels/{hotel}")
-			.queryParam("q", "{q}")
-			.build("Westin", "123");
+URI uri = uriBuilderFactory.uriString("/hotels/{hotel}")
+    .queryParam("q", "{q}")
+    .build("Westin", "123");
 ----
-
-======
 
 
 [[uri-encoding]]
 == URI Encoding
-[.small]#Web MVC and Infra WebFlux#
 
-`UriComponentsBuilder` exposes encoding options at two levels:
+
+`UriComponentsBuilder` 在两个级别上公开编码选项：
 
 * {today-framework-api}/web/util/UriComponentsBuilder.html#encode--[UriComponentsBuilder#encode()]:
-Pre-encodes the URI template first and then strictly encodes URI variables when expanded.
+首先对 URI 模板进行预编码，然后在展开 URI 变量时严格编码。
 * {today-framework-api}/web/util/UriComponents.html#encode--[UriComponents#encode()]:
-Encodes URI components _after_ URI variables are expanded.
+在展开 URI 变量后对 URI 组件进行编码。
 
-Both options replace non-ASCII and illegal characters with escaped octets. However, the first option
-also replaces characters with reserved meaning that appear in URI variables.
+两个选项都使用转义八位字节替换非 ASCII 和非法字符。然而，第一个选项还替换了 URI 变量中出现的具有保留含义的字符。
 
-TIP: Consider ";", which is legal in a path but has reserved meaning. The first option replaces
-";" with "%3B" in URI variables but not in the URI template. By contrast, the second option never
-replaces ";", since it is a legal character in a path.
+TIP: 考虑 ";"，它在路径中是合法的，但具有保留含义。第一个选项将 URI 变量中的 ";" 替换为 "%3B"，但不替换
+URI 模板中的 ";"。相比之下，第二个选项从不替换 ";"，因为它在路径中是合法字符。
 
-For most cases, the first option is likely to give the expected result, because it treats URI
-variables as opaque data to be fully encoded, while the second option is useful if URI
-variables do intentionally contain reserved characters. The second option is also useful
-when not expanding URI variables at all since that will also encode anything that
-incidentally looks like a URI variable.
+对于大多数情况，第一个选项可能会给出预期的结果，因为它将 URI 变量视为需要完全编码的不透明数据，而第二个选项在 URI
+变量确实包含保留字符时很有用。如果根本不展开 URI 变量，第二个选项也很有用，因为那也会编码任何看起来像 URI 变量的内容。
 
-The following example uses the first option:
+以下示例使用了第一个选项：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
@@ -193,76 +132,48 @@ URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
 
 // Result is "/hotel%20list/New%20York?q=foo%2Bbar"
 ----
-======
 
-You can shorten the preceding example by going directly to the URI (which implies encoding),
-as the following example shows:
+您可以进一步简化前面的示例，直接生成 URI（这意味着进行编码），如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
-    .queryParam("q", "{q}")
-    .build("New York", "foo+bar");
+  .queryParam("q", "{q}")
+  .build("New York", "foo+bar");
 ----
 
-======
 
-You can shorten it further still with a full URI template, as the following example shows:
+您还可以使用完整的 URI 模板进一步简化，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}")
-    .build("New York", "foo+bar");
+  .build("New York", "foo+bar");
 ----
-======
 
-The `WebClient` and the `RestTemplate` expand and encode URI templates internally through
-the `UriBuilderFactory` strategy. Both can be configured with a custom strategy,
-as the following example shows:
+`WebClient` 和 `RestTemplate` 通过 `UriBuilderFactory` 策略在内部扩展和编码 URI 模板。
+两者都可以配置自定义策略，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	String baseUrl = "https://example.com";
-	DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl)
-	factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
+String baseUrl = "https://example.com";
+DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl)
+factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
 
-	// Customize the RestTemplate..
-	RestTemplate restTemplate = new RestTemplate();
-	restTemplate.setUriTemplateHandler(factory);
+// Customize the RestTemplate..
+RestTemplate restTemplate = new RestTemplate();
+restTemplate.setUriTemplateHandler(factory);
 
-	// Customize the WebClient..
-	WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
+// Customize the WebClient..
+WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
 ----
 
-======
 
-The `DefaultUriBuilderFactory` implementation uses `UriComponentsBuilder` internally to
-expand and encode URI templates. As a factory, it provides a single place to configure
-the approach to encoding, based on one of the below encoding modes:
+`DefaultUriBuilderFactory` 的实现内部使用 `UriComponentsBuilder` 来展开和编码 URI 模板。
+作为一个工厂，它提供了一个地方来配置编码方法，基于以下编码模式之一：
 
-* `TEMPLATE_AND_VALUES`: Uses `UriComponentsBuilder#encode()`, corresponding to
-the first option in the earlier list, to pre-encode the URI template and strictly encode URI variables when
-expanded.
-* `VALUES_ONLY`: Does not encode the URI template and, instead, applies strict encoding
-to URI variables through `UriUtils#encodeUriVariables` prior to expanding them into the
-template.
-* `URI_COMPONENT`: Uses `UriComponents#encode()`, corresponding to the second option in the earlier list, to
-encode URI component value _after_ URI variables are expanded.
-* `NONE`: No encoding is applied.
 
-The `RestTemplate` is set to `EncodingMode.URI_COMPONENT` for historic
-reasons and for backwards compatibility. The `WebClient` relies on the default value
-in `DefaultUriBuilderFactory`, which was changed from `EncodingMode.URI_COMPONENT` in
-5.0.x to `EncodingMode.TEMPLATE_AND_VALUES` in 5.1.
+* `TEMPLATE_AND_VALUES`：使用 `UriComponentsBuilder#encode()`，对应于前面列表中的第一个选项，预先编码 URI 模板，并在展开时严格编码 URI 变量。
+* `VALUES_ONLY`：不编码 URI 模板，而是通过 `UriUtils#encodeUriVariables` 在将它们展开到模板之前，对 URI 变量应用严格编码。
+* `URI_COMPONENT`：使用 `UriComponents#encode()`，对应于前面列表中的第二个选项，在 URI 变量展开后对 URI 组件值进行编码。
+* `NONE`：不应用编码。

@@ -1,32 +1,21 @@
 [[mvc-ann-typeconversion]]
-= Type Conversion
+= 类型转换
 
-Some annotated controller method arguments that represent `String`-based request input (such as
-`@RequestParam`, `@RequestHeader`, `@PathVariable`, `@MatrixVariable`, and `@CookieValue`)
-can require type conversion if the argument is declared as something other than `String`.
+一些表示基于 `String` 的请求输入的注解控制器方法参数（例如 `@RequestParam`、`@RequestHeader`、`@PathVariable`、
+`@MatrixVariable` 和 `@CookieValue`）如果声明为除 `String` 之外的其他类型，则可能需要类型转换。
 
-For such cases, type conversion is automatically applied based on the configured converters.
-By default, simple types (`int`, `long`, `Date`, and others) are supported. You can customize
-type conversion through a `WebDataBinder` (see xref:web/webmvc/mvc-controller/ann-initbinder.adoc[`DataBinder`]) or by registering
-`Formatters` with the `FormattingConversionService`.
-See xref:core/validation/format.adoc[Infra Field Formatting].
+对于这些情况，将根据配置的转换器自动应用类型转换。默认情况下，支持简单类型（如 `int`、`long`、`Date` 等）。
+您可以通过 `WebDataBinder`（见 xref:web/webmvc/mvc-controller/ann-initbinder.adoc[`DataBinder`]）或通过向
+`FormattingConversionService` 注册 `Formatters` 来自定义类型转换。见 xref:core/validation/format.adoc[Infra 字段格式化]。
 
-A practical issue in type conversion is the treatment of an empty String source value.
-Such a value is treated as missing if it becomes `null` as a result of type conversion.
-This can be the case for `Long`, `UUID`, and other target types. If you want to allow `null`
-to be injected, either use the `required` flag on the argument annotation, or declare the
-argument as `@Nullable`.
+类型转换中的一个实际问题是空字符串源值的处理。如果类型转换后结果为 `null`，则这样的值被视为缺失。这可能适用于
+`Long`、`UUID` 及其他目标类型。如果您希望允许注入 `null`，则要么在参数注解上使用 `required` 标志，要么将参数声明为 `@Nullable`。
 
 [NOTE]
 ====
-As of 5.3, non-null arguments will be enforced even after type conversion. If your handler
-method intends to accept a null value as well, either declare your argument as `@Nullable`
-or mark it as `required=false` in the corresponding `@RequestParam`, etc. annotation. This is
-a best practice and the recommended solution for regressions encountered in a 5.3 upgrade.
+即使在类型转换后，也将强制非空参数。如果您的处理方法也打算接受空值，则要么将参数声明为 `@Nullable`，
+要么在相应的 `@RequestParam` 等注解中将其标记为 `required=false`。这是最佳实践。
 
-Alternatively, you may specifically handle e.g. the resulting `MissingPathVariableException`
-in the case of a required `@PathVariable`. A null value after conversion will be treated like
-an empty original value, so the corresponding `Missing...Exception` variants will be thrown.
+或者，您可能特别处理例如必需的 `@PathVariable` 导致的 `MissingPathVariableException`。转换后的结果为 `null`
+将被视为原始空值，因此将抛出相应的 `Missing...Exception` 变体。
 ====
-
-

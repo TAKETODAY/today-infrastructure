@@ -1,54 +1,50 @@
 [[mvc-ann-requestmapping]]
-= Mapping Requests
+= 请求映射
 
-This section discusses request mapping for annotated controllers.
-
+本节讨论了注解控制器的请求映射。
 
 [[mvc-ann-requestmapping-annotation]]
 == `@RequestMapping`
 
-You can use the `@RequestMapping` annotation to map requests to controllers methods. It has
-various attributes to match by URL, HTTP method, request parameters, headers, and media
-types. You can use it at the class level to express shared mappings or at the method level
-to narrow down to a specific endpoint mapping.
+可以使用 `@RequestMapping` 元注解将请求映射到控制器方法。它有各种属性来匹配 URL、HTTP 方法、请求参数、请求头和媒体类型。
+您可以在类级别使用它来表达共享映射，或者在方法级别使用它来缩小到特定的端点映射。
 
-There are also HTTP method specific shortcut variants of `@RequestMapping`:
+还有特定于 HTTP 方法的变体 `@RequestMapping`：
 
+* `@GET`
+* `@POST`
+* `@PUT`
+* `@DELETE`
+* `@PATCH`
 * `@GetMapping`
 * `@PostMapping`
 * `@PutMapping`
 * `@DeleteMapping`
 * `@PatchMapping`
 
-The shortcuts are xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-composed[Custom Annotations] that are provided because,
-arguably, most controller methods should be mapped to a specific HTTP method versus
-using `@RequestMapping`, which, by default, matches to all HTTP methods.
-A `@RequestMapping` is still needed at the class level to express shared mappings.
 
-NOTE: `@RequestMapping` cannot be used in conjunction with other `@RequestMapping`
-annotations that are declared on the same element (class, interface, or method). If
-multiple `@RequestMapping` annotations are detected on the same element, a warning will
-be logged, and only the first mapping will be used. This also applies to composed
-`@RequestMapping` annotations such as `@GetMapping`, `@PostMapping`, etc.
+这些快捷方式是 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-composed[自定义注解]，
+之所以提供它们，是因为可以说，大多数控制器方法应该映射到特定的 HTTP 方法，而不是使用默认情况下匹配所有 HTTP
+方法的 `@RequestMapping`。在类级别仍然需要 `@RequestMapping` 来表达共享映射。
 
-The following example has type and method level mappings:
+NOTE: `@RequestMapping` 不能与在同一元素（类、接口或方法）上声明的其他 `@RequestMapping`
+注解一起使用。如果在同一个元素上检测到多个 `@RequestMapping` 注解，将记录一条警告，并且只使用第一个映射。
+这也适用于诸如 `@GET`、`@POST` 等组合的 `@RequestMapping` 注解。
 
-[tabs]
-======
-Java::
-+
+以下示例具有类型和方法级别的映射：
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @RestController
 @RequestMapping("/persons")
 class PersonController {
 
-  @GetMapping("/{id}")
+  @GET("/{id}")
   public Person getPerson(@PathVariable Long id) {
     // ...
   }
 
-  @PostMapping
+  @POST
   @ResponseStatus(HttpStatus.CREATED)
   public void add(@RequestBody Person person) {
     // ...
@@ -56,99 +52,71 @@ class PersonController {
 }
 ----
 
-======
-
-
 
 [[mvc-ann-requestmapping-uri-templates]]
-== URI patterns
+== URI 匹配
 
-`@RequestMapping` methods can be mapped using URL patterns. There are two alternatives:
+`@RequestMapping` 方法可以使用 URL patterns 进行映射。有两种选择：
 
-* `PathPattern` -- a pre-parsed pattern matched against the URL path also pre-parsed as
-`PathContainer`. Designed for web use, this solution deals effectively with encoding and
-path parameters, and matches efficiently.
-* `AntPathMatcher` -- match String patterns against a String path. This is the original
-solution also used in Infra configuration to select resources on the classpath, on the
-filesystem, and other locations. It is less efficient and the String path input is a
-challenge for dealing effectively with encoding and other issues with URLs.
+* `PathPattern` -- 一个预先解析的模式，与预先解析为 `PathContainer` 的 URL 路径匹配。
+这种解决方案专为 Web 使用而设计，有效处理编码和路径参数，并有效匹配。
+* `AntPathMatcher` -- 将字符串模式与字符串路径匹配。这是原始解决方案，也用框架
+配置中选择类路径、文件系统和其他位置的资源。它效率较低，且字符串路径输入在有效处理编码和其他 URL 问题方面是一个挑战。
 
-`PathPattern` is the recommended solution for web applications and it is the only choice in
-Infra WebFlux. It was enabled for use in Web MVC from version 5.3 and is enabled by
-default from version 6.0. See xref:web/webmvc/mvc-config/path-matching.adoc[MVC config] for
-customizations of path matching options.
+`PathPattern` 是 Web 应用程序的推荐解决方案。从版本 5.0 开始在 Web MVC 是唯一的选择。
+请参阅 xref:web/webmvc/mvc-config/path-matching.adoc[MVC 配置] 了解路径匹配选项的自定义。
 
-`PathPattern` supports the same pattern syntax as `AntPathMatcher`. In addition, it also
-supports the capturing pattern, e.g. `+{*spring}+`, for matching 0 or more path segments
-at the end of a path. `PathPattern` also restricts the use of `+**+` for matching multiple
-path segments such that it's only allowed at the end of a pattern. This eliminates many
-cases of ambiguity when choosing the best matching pattern for a given request.
-For full pattern syntax please refer to
-{today-framework-api}/web/util/pattern/PathPattern.html[PathPattern] and
-{today-framework-api}/util/AntPathMatcher.html[AntPathMatcher].
+`PathPattern` 支持与 `AntPathMatcher` 相同的模式语法。此外，它还支持捕获模式，例如 `+{*today}+`，
+用于匹配路径末尾的 0 个或多个路径段。`PathPattern` 还限制了 `+**+` 的使用，仅允许在模式的末尾匹配多个路径段。
+这消除了在选择给定请求的最佳匹配模式时的许多歧义情况。有关完整模式语法，
+请参阅 {today-framework-api}/web/util/pattern/PathPattern.html[PathPattern]
+和 {today-framework-api}/util/AntPathMatcher.html[AntPathMatcher]。
 
-Some example patterns:
+一些示例 pattern：
 
-* `+"/resources/ima?e.png"+` - match one character in a path segment
-* `+"/resources/*.png"+` - match zero or more characters in a path segment
-* `+"/resources/**"+` - match multiple path segments
-* `+"/projects/{project}/versions"+` - match a path segment and capture it as a variable
-* `+"/projects/{project:[a-z]+}/versions"+` - match and capture a variable with a regex
+* `+"/resources/ima?e.png"+` -- 在路径段中匹配一个字符
+* `+"/resources/*.png"+` -- 在路径段中匹配零个或多个字符
+* `+"/resources/**"+` -- 匹配多个路径段
+* `+"/projects/{project}/versions"+` -- 匹配一个路径段并将其捕获为变量
+* `+"/projects/{project:[a-z]+}/versions"+` -- 匹配并捕获具有正则表达式的变量
 
-Captured URI variables can be accessed with `@PathVariable`. For example:
+捕获的 URI 变量可以使用 `@PathVariable` 访问。例如：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/owners/{ownerId}/pets/{petId}")
+@GET("/owners/{ownerId}/pets/{petId}")
 public Pet findPet(@PathVariable Long ownerId, @PathVariable Long petId) {
   // ...
 }
 ----
-======
 
+你可以在类或者方法上声明 URI 变量，例如：
 
-You can declare URI variables at the class and method levels, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Controller
 @RequestMapping("/owners/{ownerId}")
 public class OwnerController {
 
-  @GetMapping("/pets/{petId}")
+  @GET("/pets/{petId}")
   public Pet findPet(@PathVariable Long ownerId, @PathVariable Long petId) {
     // ...
   }
+
 }
 ----
 
-======
+URI 变量会自动转换为适当的类型，或者抛出 `TypeMismatchException`。
+简单类型（如 `int`、`long`、`Date` 等）默认受到支持，您可以注册对任何其他数据类型的支持。
+请参阅 xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[类型转换]
+和 xref:web/webmvc/mvc-controller/ann-initbinder.adoc[`DataBinder`]。
 
-URI variables are automatically converted to the appropriate type, or `TypeMismatchException`
-is raised. Simple types (`int`, `long`, `Date`, and so on) are supported by default and you can
-register support for any other data type.
-See xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[Type Conversion] and xref:web/webmvc/mvc-controller/ann-initbinder.adoc[`DataBinder`].
+您可以显式命名 URI 变量（例如，`@PathVariable("customId")`），但如果名称相同，并且您的代码使用了
+`-parameters` 编译器标志进行编译，则可以省略此细节。
 
-You can explicitly name URI variables (for example, `@PathVariable("customId")`), but you can
-leave that detail out if the names are the same and your code is compiled with the `-parameters`
-compiler flag.
+语法 `{varName:regex}` 声明了一个具有正则表达式的 URI 变量，该正则表达式的语法为 `{varName:regex}`。
+例如，给定URL `/today-web-4.0.jar`，以下方法提取了名称、版本和文件扩展名：
 
-The syntax `{varName:regex}` declares a URI variable with a regular expression that has
-syntax of `{varName:regex}`. For example, given URL `"/today-web-4.0.jar"`, the following method
-extracts the name, version, and file extension:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/{name:[a-z-]+}-{version:\\d\\.\\d\\.\\d}{ext:\\.[a-z]+}")
@@ -156,259 +124,145 @@ public void handle(@PathVariable String name, @PathVariable String version, @Pat
   // ...
 }
 ----
-======
 
-URI path patterns can also have embedded `${...}` placeholders that are resolved on startup
-by using `PropertySourcesPlaceholderConfigurer` against local, system, environment, and
-other property sources. You can use this, for example, to parameterize a base URL based on
-some external configuration.
-
+URI 路径 patterns 也可以包含嵌入式 `${...}` 占位符，这些占位符在启动时通过使用
+`PropertySourcesPlaceholderConfigurer` 与本地、系统、环境和其他 PropertySource 结合解析。
+例如，您可以使用此功能，基于某些外部配置，参数化一个 baseURL。
 
 
 [[mvc-ann-requestmapping-pattern-comparison]]
-== Pattern Comparison
+== Pattern 比较
 
-When multiple patterns match a URL, the best match must be selected. This is done with
-one of the following depending on whether use of parsed `PathPattern` is enabled for use or not:
+当多个 Pattern 匹配一个 URL 时，必须选择最佳匹配。这可以通过以下方式之一完成，具体的 `PathPattern` 的使用：
+{today-framework-api}/web/util/pattern/PathPattern.html#SPECIFICITY_COMPARATOR[`PathPattern.SPECIFICITY_COMPARATOR`]
 
-* {today-framework-api}/web/util/pattern/PathPattern.html#SPECIFICITY_COMPARATOR[`PathPattern.SPECIFICITY_COMPARATOR`]
-* {today-framework-api}/util/AntPathMatcher.html#getPatternComparator-java.lang.String-[`AntPathMatcher.getPatternComparator(String path)`]
+这有助于将更最佳的 Pattern 排在前面。如果一个 Pattern 具有更少的 URI 变量（每个计数为1）、
+单个通配符（每个计数为1）和双通配符（计数为2），则该 Pattern 更靠前。在得分相等的情况下，选择更长的 Pattern。
+在得分和长度相同的情况下，选择 URI 变量多于通配符的模式。
 
-Both help to sort patterns with more specific ones on top. A pattern is more specific if
-it has a lower count of URI variables (counted as 1), single wildcards (counted as 1),
-and double wildcards (counted as 2). Given an equal score, the longer pattern is chosen.
-Given the same score and length, the pattern with more URI variables than wildcards is
-chosen.
+默认映射 Pattern (`/{asterisk}{asterisk}`) 被排除在评分之外，并且始终排序在最后。
+此外，前缀 Pattern（例如 `/public/{asterisk}{asterisk}`）被认为比其他没有双通配符的 Pattern 更不具体。
 
-The default mapping pattern (`/{asterisk}{asterisk}`) is excluded from scoring and always
-sorted last. Also, prefix patterns (such as `/public/{asterisk}{asterisk}`) are considered less
-specific than other pattern that do not have double wildcards.
-
-For the full details, follow the above links to the pattern Comparators.
-
-
-[[mvc-ann-requestmapping-suffix-pattern-match]]
-== Suffix Match
-
-Starting in 5.3, by default Web MVC no longer performs `.{asterisk}` suffix pattern
-matching where a controller mapped to `/person` is also implicitly mapped to
-`/person.{asterisk}`. As a consequence path extensions are no longer used to interpret
-the requested content type for the response -- for example, `/person.pdf`, `/person.xml`,
-and so on.
-
-Using file extensions in this way was necessary when browsers used to send `Accept` headers
-that were hard to interpret consistently. At present, that is no longer a necessity and
-using the `Accept` header should be the preferred choice.
-
-Over time, the use of file name extensions has proven problematic in a variety of ways.
-It can cause ambiguity when overlain with the use of URI variables, path parameters, and
-URI encoding. Reasoning about URL-based authorization
-and security (see next section for more details) also becomes more difficult.
-
-To completely disable the use of path extensions in versions prior to 5.3, set the following:
-
-* `useSuffixPatternMatching(false)`, see xref:web/webmvc/mvc-config/path-matching.adoc[PathMatchConfigurer]
-* `favorPathExtension(false)`, see xref:web/webmvc/mvc-config/content-negotiation.adoc[ContentNegotiationConfigurer]
-
-Having a way to request content types other than through the `"Accept"` header can still
-be useful, e.g. when typing a URL in a browser. A safe alternative to path extensions is
-to use the query parameter strategy. If you must use file extensions, consider restricting
-them to a list of explicitly registered extensions through the `mediaTypes` property of
-xref:web/webmvc/mvc-config/content-negotiation.adoc[ContentNegotiationConfigurer].
-
-
-[[mvc-ann-requestmapping-rfd]]
-== Suffix Match and RFD
-
-A reflected file download (RFD) attack is similar to XSS in that it relies on request input
-(for example, a query parameter and a URI variable) being reflected in the response. However, instead of
-inserting JavaScript into HTML, an RFD attack relies on the browser switching to perform a
-download and treating the response as an executable script when double-clicked later.
-
-In Web MVC, `@ResponseBody` and `ResponseEntity` methods are at risk, because
-they can render different content types, which clients can request through URL path extensions.
-Disabling suffix pattern matching and using path extensions for content negotiation
-lower the risk but are not sufficient to prevent RFD attacks.
-
-To prevent RFD attacks, prior to rendering the response body, Web MVC adds a
-`Content-Disposition:inline;filename=f.txt` header to suggest a fixed and safe download
-file. This is done only if the URL path contains a file extension that is neither
-allowed as safe nor explicitly registered for content negotiation. However, it can
-potentially have side effects when URLs are typed directly into a browser.
-
-Many common path extensions are allowed as safe by default. Applications with custom
-`HttpMessageConverter` implementations can explicitly register file extensions for content
-negotiation to avoid having a `Content-Disposition` header added for those extensions.
-See xref:web/webmvc/mvc-config/content-negotiation.adoc[Content Types].
-
-See {today-tech-site-cve}/cve-2015-5211[CVE-2015-5211] for additional
-recommendations related to RFD.
+有关完整详细信息，请参见上述链接中的模式比较器。
 
 
 [[mvc-ann-requestmapping-consumes]]
-== Consumable Media Types
+== 可处理的媒体类型
 
-You can narrow the request mapping based on the `Content-Type` of the request,
-as the following example shows:
+您可以根据请求的 `Content-Type` 来缩小请求映射的范围，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping(path = "/pets", consumes = "application/json") // <1>
+@POST(path = "/pets", consumes = "application/json") // <1>
 public void addPet(@RequestBody Pet pet) {
   // ...
 }
 ----
-<1> Using a `consumes` attribute to narrow the mapping by the content type.
-======
+<1> 使用 `consumes` 属性通过内容类型来缩小映射范围。
 
-The `consumes` attribute also supports negation expressions -- for example, `!text/plain` means any
-content type other than `text/plain`.
+`consumes` 属性还支持否定表达式--例如，`!text/plain` 表示除了 `text/plain` 之外的任何内容类型。
 
-You can declare a shared `consumes` attribute at the class level. Unlike most other
-request-mapping attributes, however, when used at the class level, a method-level `consumes` attribute
-overrides rather than extends the class-level declaration.
+您可以在类级别声明共享的 `consumes` 属性。然而，与大多数其他请求映射属性不同，当在类级别使用时，
+方法级别的 `consumes` 属性会覆盖而不是扩展类级别的声明。
 
-TIP: `MediaType` provides constants for commonly used media types, such as
-`APPLICATION_JSON_VALUE` and `APPLICATION_XML_VALUE`.
+TIP: `MediaType` 提供了常用媒体类型的常量，如 `APPLICATION_JSON_VALUE` 和 `APPLICATION_XML_VALUE`。
 
 
 [[mvc-ann-requestmapping-produces]]
-== Producible Media Types
+== 返回的媒体类型
 
-You can narrow the request mapping based on the `Accept` request header and the list of
-content types that a controller method produces, as the following example shows:
+您可以根据 `Accept` 请求头和控制器方法产生的内容类型列表来缩小请求映射的范围，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping(path = "/pets/{petId}", produces = "application/json") // <1>
+@GET(path = "/pets/{petId}", produces = "application/json") // <1>
 @ResponseBody
 public Pet getPet(@PathVariable String petId) {
   // ...
 }
 ----
-<1> Using a `produces` attribute to narrow the mapping by the content type.
+<1> 使用 `produces` 属性通过内容类型来缩小映射范围。
 
-======
+媒体类型可以指定字符集。支持否定表达式——例如，`!text/plain` 表示除了 "text/plain" 之外的任何内容类型。
 
-The media type can specify a character set. Negated expressions are supported -- for example,
-`!text/plain` means any content type other than "text/plain".
+您可以在类级别声明共享的 `produces` 属性。然而，与大多数其他请求映射属性不同，当在类级别使用时，
+方法级别的 `produces` 属性会覆盖而不是扩展类级别的声明。
 
-You can declare a shared `produces` attribute at the class level. Unlike most other
-request-mapping attributes, however, when used at the class level, a method-level `produces` attribute
-overrides rather than extends the class-level declaration.
-
-TIP: `MediaType` provides constants for commonly used media types, such as
-`APPLICATION_JSON_VALUE` and `APPLICATION_XML_VALUE`.
+TIP: `MediaType` 提供了常用媒体类型的常量，如 `APPLICATION_JSON_VALUE` 和 `APPLICATION_XML_VALUE`。
 
 
 [[mvc-ann-requestmapping-params-and-headers]]
-== Parameters, headers
+== 请求参数和请求头
 
-You can narrow request mappings based on request parameter conditions. You can test for the
-presence of a request parameter (`myParam`), for the absence of one (`!myParam`), or for a
-specific value (`myParam=myValue`). The following example shows how to test for a specific value:
+您可以根据请求参数条件来缩小请求映射的范围。您可以测试请求参数的存在（`myParam`）、
+不存在（`!myParam`）或特定值（`myParam=myValue`）。以下示例展示了如何测试特定值：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping(path = "/pets/{petId}", params = "myParam=myValue") // <1>
+@GET(path = "/pets/{petId}", params = "myParam=myValue") // <1>
 public void findPet(@PathVariable String petId) {
   // ...
 }
 ----
-<1> Testing whether `myParam` equals `myValue`.
-======
+<1> 检查 `myParam` 是否等于 `myValue`。
 
-You can also use the same with request header conditions, as the following example shows:
+您也可以使用相同的方法来测试请求头条件，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping(path = "/pets/{petId}", headers = "myHeader=myValue") // <1>
+@GET(path = "/pets/{petId}", headers = "myHeader=myValue") // <1>
 public void findPet(@PathVariable String petId) {
   // ...
 }
 ----
-<1> Testing whether `myHeader` equals `myValue`.
-======
+<1> 检查 `myHeader` 是否等于 `myValue`.
 
-TIP: You can match `Content-Type` and `Accept` with the headers condition, but it is better to use
-xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-consumes[consumes] and xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-produces[produces]
-instead.
+TIP: 您可以使用头条件匹配 `Content-Type` 和 `Accept`，但最好使用 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-consumes[consumes]
+和 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-produces[produces] 代替。
 
 
 [[mvc-ann-requestmapping-head-options]]
 == HTTP HEAD, OPTIONS
 
-`@GetMapping` (and `@RequestMapping(method=HttpMethod.GET)`) support HTTP HEAD
-transparently for request mapping. Controller methods do not need to change.
-A response wrapper, applied in `jakarta.mockApi.http.HttpServlet`, ensures a `Content-Length`
-header is set to the number of bytes written (without actually writing to the response).
+`@GET`（以及 `@RequestMapping(method=HttpMethod.GET)`）支持 HTTP HEAD 的请求映射。
+控制器方法无需更改。在响应包装器确保将 `Content-Length` 头部设置为写入的字节数（而实际上不写入响应）。
 
-By default, HTTP OPTIONS is handled by setting the `Allow` response header to the list of HTTP
-methods listed in all `@RequestMapping` methods that have matching URL patterns.
+默认情况下，HTTP OPTIONS 通过将 `Allow` 响应头部设置为所有具有匹配 URL 模式的 `@RequestMapping`
+方法中列出的 HTTP 方法列表来处理。
 
-For a `@RequestMapping` without HTTP method declarations, the `Allow` header is set to
-`GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS`. Controller methods should always declare the
-supported HTTP methods (for example, by using the HTTP method specific variants:
-`@GetMapping`, `@PostMapping`, and others).
+对于没有 HTTP 方法声明的 `@RequestMapping`，`Allow` 头部被设置为 `GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS`。
+控制器方法应始终声明支持的 HTTP 方法（例如，通过使用特定于 HTTP 方法的变体：`@GET`、`@POST` 等）。
 
-You can explicitly map the `@RequestMapping` method to HTTP HEAD and HTTP OPTIONS, but that
-is not necessary in the common case.
+您可以显式地将 `@RequestMapping` 方法映射到 HTTP HEAD 和 HTTP OPTIONS，但在常见情况下这不是必需的。
+
 
 
 [[mvc-ann-requestmapping-composed]]
-== Custom Annotations
-[.small]#xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-head-options[See equivalent in the Reactive stack]#
+== 自定义注解
 
-Web MVC supports the use of xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[composed annotations]
-for request mapping. Those are annotations that are themselves meta-annotated with
-`@RequestMapping` and composed to redeclare a subset (or all) of the `@RequestMapping`
-attributes with a narrower, more specific purpose.
+Web MVC 支持使用 xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[组合注解]
+进行请求映射。这些注解本身使用 `@RequestMapping` 进行元注解，并组合起来重新声明 `@RequestMapping`
+的子集（或全部）属性，以实现更狭窄、更具体的目的。
 
-`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, and `@PatchMapping` are
-examples of composed annotations. They are provided because, arguably, most
-controller methods should be mapped to a specific HTTP method versus using `@RequestMapping`,
-which, by default, matches to all HTTP methods. If you need an example of how to implement
-a composed annotation, look at how those are declared.
+`@GET`、`@POST`、`@PUT`、`@DELETE` 和 `@PatchMapping` 是组合注解的示例。
+之所以提供这些注解，是因为可以说，大多数控制器方法应该映射到特定的 HTTP 方法，而不是使用默认匹配所有 HTTP 方法的
+`@RequestMapping`。如果您需要一个如何实现组合注解的示例，请查看这些注解是如何声明的。
 
-NOTE: `@RequestMapping` cannot be used in conjunction with other `@RequestMapping`
-annotations that are declared on the same element (class, interface, or method). If
-multiple `@RequestMapping` annotations are detected on the same element, a warning will
-be logged, and only the first mapping will be used. This also applies to composed
-`@RequestMapping` annotations such as `@GetMapping`, `@PostMapping`, etc.
+注意：`@RequestMapping` 不能与在同一元素（类、接口或方法）上声明的其他 `@RequestMapping` 注解一起使用。
+如果在同一个元素上检测到多个 `@RequestMapping` 注解，将记录一条警告，并且只使用第一个映射。
+这也适用于如 `@GET`、`@POST` 等组合的 `@RequestMapping` 注解。
 
-Web MVC also supports custom request-mapping attributes with custom request-matching
-logic. This is a more advanced option that requires subclassing
-`RequestMappingHandlerMapping` and overriding the `getCustomMethodCondition` method, where
-you can check the custom attribute and return your own `RequestCondition`.
+Web MVC 还支持使用自定义请求映射属性和自定义请求匹配逻辑。这是一个更高级的选项，需要通过扩展
+`RequestMappingHandlerMapping` 并覆盖 `getCustomCondition` 方法来实现，
+在那里您可以检查自定义属性并返回您自己的 `RequestCondition`。
 
 
 [[mvc-ann-requestmapping-registration]]
-== Explicit Registrations
+== 显式注册
 
-You can programmatically register handler methods, which you can use for dynamic
-registrations or for advanced cases, such as different instances of the same handler
-under different URLs. The following example registers a handler method:
+可以以编程方式注册处理器方法，这可以用于动态注册或高级用例，例如在不同 URL 下使用相同的处理器的不同实例。
+以下示例展示了如何注册一个处理器方法：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -427,36 +281,23 @@ public class MyConfig {
   }
 }
 ----
-<1> Inject the target handler and the handler mapping for controllers.
-<2> Prepare the request mapping meta data.
-<3> Get the handler method.
-<4> Add the registration.
-
-======
-
+<1> 注入目标处理器和控制器的处理器映射。
+<2> 准备请求映射元数据。
+<3> 获取处理器方法。
+<4> 添加注册。
 
 
 [[mvc-ann-httpexchange-annotation]]
 == `@HttpExchange`
 
-While the main purpose of `@HttpExchange` is to abstract HTTP client code with a
-generated proxy, the
-xref:integration/rest-clients.adoc#rest-http-interface[HTTP Interface] on which
-such annotations are placed is a contract neutral to client vs server use.
-In addition to simplifying client code, there are also cases where an HTTP Interface
-may be a convenient way for servers to expose their API for client access. This leads
-to increased coupling between client and server and is often not a good choice,
-especially for public API's, but may be exactly the goal for an internal API.
-It is an approach commonly used in Infra Cloud, and it is why `@HttpExchange` is
-supported as an alternative to `@RequestMapping` for server side handling in
-controller classes.
+虽然 `@HttpExchange` 的主要目的是通过生成的代理抽象 HTTP 客户端代码，但这样的注解所放置的
+xref:integration/rest-clients.adoc#rest-http-interface[HTTP 接口] 是一个与客户端与服务器使用无关的契约。
+除了简化客户端代码外，还有一些情况下，HTTP 接口可能是服务器方便地暴露其 API 供客户端访问的方式。
+这导致客户端和服务器之间的耦合增加，通常不是一个好的选择，特别是对于公共 API，但可能正是内部 API 的目标。
+这种方法也是为什么 `@HttpExchange` 被支持作为 `@RequestMapping` 的替代品，用于控制器类中的服务器端处理。
 
-For example:
+例如：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @HttpExchange("/persons")
@@ -482,15 +323,16 @@ class PersonController implements PersonService {
   }
 }
 ----
-======
 
-`@HttpExchange` and `@RequestMapping` have differences.
-`@RequestMapping` can map to any number of requests by path patterns, HTTP methods,
-and more, while `@HttpExchange` declares a single endpoint with a concrete HTTP method,
-path, and content types.
+`@HttpExchange` 和 `@RequestMapping` 在功能上有所区别：
+- `@RequestMapping` 可以通过路径模式、HTTP 方法等映射到任意数量的请求。
+- `@HttpExchange` 声明了一个具有具体 HTTP 方法、路径和内容类型的单一端点。
 
-For method parameters and returns values, generally, `@HttpExchange` supports a
-subset of the method parameters that `@RequestMapping` does. Notably, it excludes any
-server-side specific parameter types. For details, see the list for
-xref:integration/rest-clients.adoc#rest-http-interface-method-parameters[@HttpExchange] and
-xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[@RequestMapping].
+对于方法参数和返回值：
+- 通常，`@HttpExchange` 支持 `@RequestMapping` 支持的方法参数的一个子集。
+- 特别地，它不包括任何特定于服务器端的参数类型。
+
+有关详细信息，请参阅：
+- xref:integration/rest-clients.adoc#rest-http-interface-method-parameters[@HttpExchange] 方法参数的列表。
+- xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[@RequestMapping] 方法参数的列表。
+
