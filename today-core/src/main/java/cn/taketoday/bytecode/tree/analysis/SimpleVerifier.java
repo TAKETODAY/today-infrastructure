@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -123,7 +120,7 @@ public class SimpleVerifier extends BasicVerifier {
           descriptor.append('[');
         }
         descriptor.append(value.getType().getDescriptor());
-        value = new BasicValue(Type.fromDescriptor(descriptor.toString()));
+        value = new BasicValue(Type.forDescriptor(descriptor.toString()));
       }
       else {
         value = new BasicValue(type);
@@ -143,7 +140,7 @@ public class SimpleVerifier extends BasicVerifier {
     Type arrayType = objectArrayValue.getType();
     if (arrayType != null) {
       if (arrayType.getSort() == Type.ARRAY) {
-        return newValue(Type.fromDescriptor(arrayType.getDescriptor().substring(1)));
+        return newValue(Type.forDescriptor(arrayType.getDescriptor().substring(1)));
       }
       else if (arrayType.equals(NULL_TYPE)) {
         return objectArrayValue;
@@ -223,7 +220,7 @@ public class SimpleVerifier extends BasicVerifier {
         }
         while (true) {
           if (type1 == null || isInterface(type1)) {
-            return newArrayValue(Type.fromInternalName("java/lang/Object"), numDimensions);
+            return newArrayValue(Type.forInternalName("java/lang/Object"), numDimensions);
           }
           type1 = getSuperClass(type1);
           if (isAssignableFrom(type1, type2)) {
@@ -246,7 +243,7 @@ public class SimpleVerifier extends BasicVerifier {
         descriptor.append('[');
       }
       descriptor.append(type.getDescriptor());
-      return newValue(Type.fromDescriptor(descriptor.toString()));
+      return newValue(Type.forDescriptor(descriptor.toString()));
     }
   }
 
@@ -278,7 +275,7 @@ public class SimpleVerifier extends BasicVerifier {
       return currentSuperClass;
     }
     Class<?> superClass = getClass(type).getSuperclass();
-    return superClass == null ? null : Type.fromClass(superClass);
+    return superClass == null ? null : Type.forClass(superClass);
   }
 
   /**

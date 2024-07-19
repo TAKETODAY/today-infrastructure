@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.util;
@@ -188,7 +185,7 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
         List<TryCatchBlockNode> insnHandlers = getHandlers(insnIndex);
         if (insnHandlers != null) {
           for (TryCatchBlockNode tryCatchBlock : insnHandlers) {
-            Type catchType = Type.fromInternalName(Objects.requireNonNullElse(tryCatchBlock.type, "java/lang/Throwable"));
+            Type catchType = Type.forInternalName(Objects.requireNonNullElse(tryCatchBlock.type, "java/lang/Throwable"));
             Frame<V> handler = newFrame(oldFrame);
             handler.clearStack();
             handler.push(interpreter.newExceptionValue(tryCatchBlock, handler, catchType));
@@ -342,10 +339,10 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
       return interpreter.newOperation(new InsnNode(Opcodes.ACONST_NULL));
     }
     else if (type == Opcodes.UNINITIALIZED_THIS) {
-      return interpreter.newValue(Type.fromInternalName(owner));
+      return interpreter.newValue(Type.forInternalName(owner));
     }
     else if (type instanceof String) {
-      return interpreter.newValue(Type.fromInternalName((String) type));
+      return interpreter.newValue(Type.forInternalName((String) type));
     }
     else if (type instanceof LabelNode) {
       AbstractInsnNode referencedNode = (LabelNode) type;
@@ -355,7 +352,7 @@ class CheckFrameAnalyzer<V extends Value> extends Analyzer<V> {
       if (referencedNode == null || referencedNode.getOpcode() != Opcodes.NEW) {
         throw new AnalyzerException(frameNode, "LabelNode does not designate a NEW instruction");
       }
-      return interpreter.newValue(Type.fromInternalName(((TypeInsnNode) referencedNode).desc));
+      return interpreter.newValue(Type.forInternalName(((TypeInsnNode) referencedNode).desc));
     }
     throw new AnalyzerException(frameNode, "Illegal stack map frame value " + type);
   }

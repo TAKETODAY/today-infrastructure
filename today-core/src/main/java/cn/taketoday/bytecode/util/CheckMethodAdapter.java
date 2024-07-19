@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.util;
 
 import java.io.PrintWriter;
@@ -59,6 +57,7 @@ import cn.taketoday.bytecode.tree.analysis.BasicVerifier;
  * any other constructor is used.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class CheckMethodAdapter extends MethodVisitor {
 
@@ -394,8 +393,8 @@ public class CheckMethodAdapter extends MethodVisitor {
         }
         Analyzer<BasicValue> analyzer =
                 checkFrames
-                ? new CheckFrameAnalyzer<>(new BasicVerifier())
-                : new Analyzer<>(new BasicVerifier());
+                        ? new CheckFrameAnalyzer<>(new BasicVerifier())
+                        : new Analyzer<>(new BasicVerifier());
         try {
           if (checkMaxStackAndLocals) {
             analyzer.analyze("dummy", this);
@@ -1164,12 +1163,8 @@ public class CheckMethodAdapter extends MethodVisitor {
    * to {@code name.length()} if name is not {@literal null}.
    * @param message the message to use in case of error.
    */
-  static void checkIdentifier(
-          final int version,
-          final String name,
-          final int startPos,
-          final int endPos,
-          final String message) {
+  static void checkIdentifier(final int version, final String name,
+          final int startPos, final int endPos, final String message) {
     if (name == null || (endPos == -1 ? name.length() <= startPos : endPos <= startPos)) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
@@ -1185,8 +1180,8 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
     for (int i = startPos; i < max; i = name.offsetByCodePoints(i, 1)) {
       if (i == startPos
-          ? !Character.isJavaIdentifierStart(name.codePointAt(i))
-          : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
+              ? !Character.isJavaIdentifierStart(name.codePointAt(i))
+              : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
         throw new IllegalArgumentException(
                 INVALID + message + " (must be a valid Java identifier): " + name);
       }
@@ -1201,7 +1196,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param message the message to use in case of error.
    */
   static void checkMethodIdentifier(final int version, final String name, final String message) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
     if ((version & 0xFFFF) >= Opcodes.V1_5) {
@@ -1215,8 +1210,8 @@ public class CheckMethodAdapter extends MethodVisitor {
     }
     for (int i = 0; i < name.length(); i = name.offsetByCodePoints(i, 1)) {
       if (i == 0
-          ? !Character.isJavaIdentifierStart(name.codePointAt(i))
-          : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
+              ? !Character.isJavaIdentifierStart(name.codePointAt(i))
+              : !Character.isJavaIdentifierPart(name.codePointAt(i))) {
         throw new IllegalArgumentException(
                 INVALID + message + " (must be a '<init>', '<clinit>' or a valid Java identifier): " + name);
       }
@@ -1231,7 +1226,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param message the message to use in case of error.
    */
   static void checkInternalName(final int version, final String name, final String message) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException(INVALID + message + MUST_NOT_BE_NULL_OR_EMPTY);
     }
     if (name.charAt(0) == '[') {
@@ -1249,8 +1244,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param name the string to be checked.
    * @param message the message to use in case of error.
    */
-  private static void checkInternalClassName(
-          final int version, final String name, final String message) {
+  private static void checkInternalClassName(final int version, final String name, final String message) {
     try {
       int startIndex = 0;
       int slashIndex;
@@ -1289,8 +1283,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param canBeVoid whether {@code V} can be considered valid.
    * @return the index of the last character of the type descriptor, plus one.
    */
-  private static int checkDescriptor(
-          final int version, final String descriptor, final int startPos, final boolean canBeVoid) {
+  private static int checkDescriptor(final int version, final String descriptor, final int startPos, final boolean canBeVoid) {
     if (descriptor == null || startPos >= descriptor.length()) {
       throw new IllegalArgumentException("Invalid type descriptor (must not be null or empty)");
     }
@@ -1346,7 +1339,7 @@ public class CheckMethodAdapter extends MethodVisitor {
    * @param descriptor the string to be checked.
    */
   static void checkMethodDescriptor(final int version, final String descriptor) {
-    if (descriptor == null || descriptor.length() == 0) {
+    if (descriptor == null || descriptor.isEmpty()) {
       throw new IllegalArgumentException("Invalid method descriptor (must not be null or empty)");
     }
     if (descriptor.charAt(0) != '(' || descriptor.length() < 3) {
@@ -1392,10 +1385,7 @@ public class CheckMethodAdapter extends MethodVisitor {
 
     private final ClassWriter owner;
 
-    MethodWriterWrapper(
-            final int version,
-            final ClassWriter owner,
-            final MethodVisitor methodWriter) {
+    MethodWriterWrapper(final int version, final ClassWriter owner, final MethodVisitor methodWriter) {
       super(methodWriter);
       this.version = version;
       this.owner = owner;

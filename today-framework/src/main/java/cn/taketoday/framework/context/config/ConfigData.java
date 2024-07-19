@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -40,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigDataLocationResolver
  * @see ConfigDataLoader
  * @since 4.0
@@ -244,8 +242,7 @@ public final class ConfigData {
     }
 
     private Options copy(Consumer<EnumSet<Option>> processor) {
-      EnumSet<Option> options = EnumSet.noneOf(Option.class);
-      options.addAll(this.options);
+      EnumSet<Option> options = EnumSet.copyOf(this.options);
       processor.accept(options);
       return new Options(options);
     }

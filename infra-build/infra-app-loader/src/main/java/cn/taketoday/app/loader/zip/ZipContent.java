@@ -76,7 +76,7 @@ public final class ZipContent implements Closeable {
 
   private final Kind kind;
 
-  private final FileChannelDataBlock data;
+  private final FileDataBlock data;
 
   private final long centralDirectoryPos;
 
@@ -98,7 +98,7 @@ public final class ZipContent implements Closeable {
 
   private SoftReference<Map<Class<?>, Object>> info;
 
-  private ZipContent(Source source, Kind kind, FileChannelDataBlock data, long centralDirectoryPos, long commentPos,
+  private ZipContent(Source source, Kind kind, FileDataBlock data, long centralDirectoryPos, long commentPos,
           long commentLength, int[] lookupIndexes, int[] nameHashLookups, int[] relativeCentralDirectoryOffsetLookups,
           NameOffsetLookups nameOffsetLookups, boolean hasJarSignatureFile) {
     this.source = source;
@@ -465,7 +465,7 @@ public final class ZipContent implements Closeable {
 
     private final Source source;
 
-    private final FileChannelDataBlock data;
+    private final FileDataBlock data;
 
     private final long centralDirectoryPos;
 
@@ -479,7 +479,7 @@ public final class ZipContent implements Closeable {
 
     private int cursor;
 
-    private Loader(Source source, Entry directoryEntry, FileChannelDataBlock data, long centralDirectoryPos,
+    private Loader(Source source, Entry directoryEntry, FileDataBlock data, long centralDirectoryPos,
             int maxSize) {
       this.source = source;
       this.data = data;
@@ -577,7 +577,7 @@ public final class ZipContent implements Closeable {
 
     private static ZipContent loadNonNested(Source source) throws IOException {
       debug.log("Loading non-nested zip '%s'", source.path());
-      return openAndLoad(source, Kind.ZIP, new FileChannelDataBlock(source.path()));
+      return openAndLoad(source, Kind.ZIP, new FileDataBlock(source.path()));
     }
 
     private static ZipContent loadNestedZip(Source source, Entry entry) throws IOException {
@@ -589,7 +589,7 @@ public final class ZipContent implements Closeable {
       return openAndLoad(source, Kind.NESTED_ZIP, entry.getContent());
     }
 
-    private static ZipContent openAndLoad(Source source, Kind kind, FileChannelDataBlock data) throws IOException {
+    private static ZipContent openAndLoad(Source source, Kind kind, FileDataBlock data) throws IOException {
       try {
         data.open();
         return loadContent(source, kind, data);
@@ -600,7 +600,7 @@ public final class ZipContent implements Closeable {
       }
     }
 
-    private static ZipContent loadContent(Source source, Kind kind, FileChannelDataBlock data) throws IOException {
+    private static ZipContent loadContent(Source source, Kind kind, FileDataBlock data) throws IOException {
       ZipEndOfCentralDirectoryRecord.Located locatedEocd = ZipEndOfCentralDirectoryRecord.load(data);
       ZipEndOfCentralDirectoryRecord eocd = locatedEocd.endOfCentralDirectoryRecord();
       long eocdPos = locatedEocd.pos();
@@ -651,7 +651,7 @@ public final class ZipContent implements Closeable {
      * @return the offset within the data where the archive begins
      * @throws IOException on I/O error
      */
-    private static long getStartOfZipContent(FileChannelDataBlock data, ZipEndOfCentralDirectoryRecord eocd,
+    private static long getStartOfZipContent(FileDataBlock data, ZipEndOfCentralDirectoryRecord eocd,
             @Nullable Zip64EndOfCentralDirectoryRecord zip64Eocd) throws IOException {
       long specifiedOffsetToStartOfCentralDirectory = (zip64Eocd != null)
               ? zip64Eocd.offsetToStartOfCentralDirectory() : eocd.offsetToStartOfCentralDirectory();
@@ -716,7 +716,7 @@ public final class ZipContent implements Closeable {
 
     private volatile String name;
 
-    private volatile FileChannelDataBlock content;
+    private volatile FileDataBlock content;
 
     /**
      * Create a new {@link Entry} instance.
@@ -814,13 +814,13 @@ public final class ZipContent implements Closeable {
      * @throws IOException on I/O error
      */
     public CloseableDataBlock openContent() throws IOException {
-      FileChannelDataBlock content = getContent();
+      FileDataBlock content = getContent();
       content.open();
       return content;
     }
 
-    private FileChannelDataBlock getContent() throws IOException {
-      FileChannelDataBlock content = this.content;
+    private FileDataBlock getContent() throws IOException {
+      FileDataBlock content = this.content;
       if (content == null) {
         int pos = this.centralRecord.offsetToLocalHeader();
         checkNotZip64Extended(pos);

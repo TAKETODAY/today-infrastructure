@@ -1,7 +1,7 @@
 [[mvc-config-enable]]
-= Enable MVC Configuration
+= 启用 MVC 配置
 
-You can use the `@EnableWebMvc` annotation to enable MVC configuration with programmatic configuration, or `<mvc:annotation-driven>` with XML configuration, as the following example shows:
+您可以使用 `@EnableWebMvc` 注解以编程方式启用 MVC 配置，如下例所示：
 
 [source,java]
 ----
@@ -11,11 +11,7 @@ public class WebConfiguration {
 }
 ----
 
-NOTE: When using Infra App, you may want to use `@Configuration` classes of type `WebMvcConfigurer` but without `@EnableWebMvc` to keep Infra App MVC customizations. See more details in xref:web/webmvc/mvc-config/customize.adoc[the MVC Config API section] and in {today-framework-reference}/web.html#web.mockApi.mvc.auto-configuration[the dedicated Infra App documentation].
+注意：当使用 Infra App 时，您可能希望使用类型为 `WebMvcConfigurer` 的 `@Configuration` 类，
+但不带 `@EnableWebMvc`，以保留 Infra App MVC 自定义设置。更多详细信息请参阅 xref:web/webmvc/mvc-config/customize.adoc[MVC 配置 API 部分]。
 
-The preceding example registers a number of Web MVC
-xref:web/webmvc/mvc-core/special-bean-types.adoc[infrastructure beans] and adapts to dependencies
-available on the classpath (for example, payload converters for JSON, XML, and others).
-
-
-
+前面的示例注册了一些 Web MVC xref:web/webmvc/mvc-core/special-bean-types.adoc[Bean]，并适应了类路径上可用的依赖项（例如，JSON、XML 等的负载转换器）。

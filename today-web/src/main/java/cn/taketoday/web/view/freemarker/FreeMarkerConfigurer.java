@@ -47,7 +47,7 @@ import freemarker.template.TemplateException;
  * using Framework's FreeMarkerView for web MVC. It exists purely to configure FreeMarker.
  * It is not meant to be referenced by application components but just internally
  * by FreeMarkerView. Implements FreeMarkerConfig to be found by FreeMarkerView without
- * depending on the bean name of the configurer. Each DispatcherServlet can define its
+ * depending on the bean name of the configurer. Each DispatcherHandler can define its
  * own FreeMarkerConfigurer if desired.
  *
  * <p>Note that you can also refer to a preconfigured FreeMarker Configuration

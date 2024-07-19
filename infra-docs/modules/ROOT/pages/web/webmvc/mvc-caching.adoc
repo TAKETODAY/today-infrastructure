@@ -1,38 +1,30 @@
 [[mvc-caching]]
-= HTTP Caching
+= HTTP 缓存
 
-HTTP caching can significantly improve the performance of a web application. HTTP caching
-revolves around the `Cache-Control` response header and, subsequently, conditional request
-headers (such as `Last-Modified` and `ETag`). `Cache-Control` advises private (for example, browser)
-and public (for example, proxy) caches on how to cache and re-use responses. An `ETag` header is used
-to make a conditional request that may result in a 304 (NOT_MODIFIED) without a body,
-if the content has not changed. `ETag` can be seen as a more sophisticated successor to
-the `Last-Modified` header.
+HTTP 缓存可以显著提高 Web 应用程序的性能。HTTP 缓存围绕 `Cache-Control` 响应头，
+随后是条件请求头（例如 `Last-Modified` 和 `ETag`）。`Cache-Control` 建议私有
+（例如，浏览器）和公共（例如，代理）缓存如何缓存和重用响应。`ETag` 头用于进行条件请求，
+如果内容未更改，可能会产生 304 (NOT_MODIFIED) 响应，而无需正文。`ETag` 可以被视为
+`Last-Modified` 头的更高级的继承者。
 
-This section describes the HTTP caching-related options that are available in Infra Web MVC.
-
+本节描述了在 Web MVC 中可用的与 HTTP 缓存相关的选项。
 
 
 [[mvc-caching-cachecontrol]]
 == `CacheControl`
 
-{today-framework-api}/http/CacheControl.html[`CacheControl`] provides support for
-configuring settings related to the `Cache-Control` header and is accepted as an argument
-in a number of places:
+{today-framework-api}/http/CacheControl.html[`CacheControl`] 提供了对配置与 `Cache-Control`
+头相关的设置的支持，并在多个地方被接受为参数：
 
-* {today-framework-api}/web/mockApi/mvc/WebContentInterceptor.html[`WebContentInterceptor`]
-* {today-framework-api}/web/mockApi/support/WebContentGenerator.html[`WebContentGenerator`]
-* xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[Controllers]
-* xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[Static Resources]
+* {today-framework-api}/web/handler/mvc/WebContentInterceptor.html[`WebContentInterceptor`]
+* {today-framework-api}/web/WebContentGenerator.html[`WebContentGenerator`]
+* xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器]
+* xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[静态资源]
 
-While {rfc-site}/rfc7234#section-5.2.2[RFC 7234] describes all possible
-directives for the `Cache-Control` response header, the `CacheControl` type takes a
-use case-oriented approach that focuses on the common scenarios:
+虽然 {rfc-site}/rfc7234#section-5.2.2[RFC 7234] 描述了 `Cache-Control` 响应头的所有可能指令，
+`CacheControl` 类型采用了面向用例的方法，专注于常见的场景：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // Cache for an hour - "Cache-Control: max-age=3600"
@@ -46,31 +38,22 @@ CacheControl ccNoStore = CacheControl.noStore();
 // "Cache-Control: max-age=864000, public, no-transform"
 CacheControl ccCustom = CacheControl.maxAge(10, TimeUnit.DAYS).noTransform().cachePublic();
 ----
-======
 
-`WebContentGenerator` also accepts a simpler `cachePeriod` property (defined in seconds) that
-works as follows:
+`WebContentGenerator` 还接受一个更简单的 `cachePeriod` 属性（以秒为单位），其工作方式如下：
 
-* A `-1` value does not generate a `Cache-Control` response header.
-* A `0` value prevents caching by using the `'Cache-Control: no-store'` directive.
-* An `n > 0` value caches the given response for `n` seconds by using the
-`'Cache-Control: max-age=n'` directive.
-
+* `-1` 值不生成 `Cache-Control` 响应头。
+* `0` 值通过使用 `'Cache-Control: no-store'` 指令防止缓存。
+* `n > 0` 值通过使用 `'Cache-Control: max-age=n'` 指令将给定响应缓存 `n` 秒。
 
 
 [[mvc-caching-etag-lastmodified]]
-== Controllers
+== HTTP 处理器
 
-Controllers can add explicit support for HTTP caching. We recommended doing so, since the
-`lastModified` or `ETag` value for a resource needs to be calculated before it can be compared
-against conditional request headers. A controller can add an `ETag` header and `Cache-Control`
-settings to a `ResponseEntity`, as the following example shows:
+HTTP 处理器可以添加对 HTTP 缓存的显式支持。我们建议这样做，因为资源的 `lastModified`
+或 `ETag` 值需要在与条件请求头进行比较之前计算出来。控制器可以向 `ResponseEntity`
+添加 `ETag` 头和 `Cache-Control` 设置，如下例所示：
 
---
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @GetMapping("/book/{id}")
@@ -80,31 +63,40 @@ public ResponseEntity<Book> showBook(@PathVariable Long id) {
   String version = book.getVersion();
 
   return ResponseEntity
-      .ok()
-      .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
-      .eTag(version) // lastModified is also available
-      .body(book);
+          .ok()
+          .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
+          .eTag(version) // lastModified is also available
+          .body(book);
+}
+
+// 或者其他方式的处理器
+public class MyHttpRequestHandler implements HttpRequestHandler {
+
+  @Nullable
+  @Override
+  public ResponseEntity<Book> handleRequest(RequestContext request) throws Throwable {
+    Book book = findBook(id);
+    String version = book.getVersion();
+
+    return ResponseEntity
+            .ok()
+            .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
+            .eTag(version) // lastModified is also available
+            .body(book);
+  }
+
 }
 ----
-======
---
 
-The preceding example sends a 304 (NOT_MODIFIED) response with an empty body if the comparison
-to the conditional request headers indicates that the content has not changed. Otherwise, the
-`ETag` and `Cache-Control` headers are added to the response.
+前面的示例在与条件请求头的比较表明内容未更改时，发送一个带有空正文的 304 (NOT_MODIFIED) 响应。
+否则，将 `ETag` 和 `Cache-Control` 头添加到响应中。
 
-You can also make the check against conditional request headers in the controller,
-as the following example shows:
+您也可以在控制器中对条件请求头进行检查，如下例所示：
 
---
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @RequestMapping
-public String myHandleMethod(WebRequest request, Model model) {
+public String myHandleMethod(RequestContext request, Model model) {
 
   long eTag = ... // <1>
 
@@ -116,32 +108,17 @@ public String myHandleMethod(WebRequest request, Model model) {
   return "myViewName";
 }
 ----
-<1> Application-specific calculation.
-<2> The response has been set to 304 (NOT_MODIFIED) -- no further processing.
-<3> Continue with the request processing.
-
-======
---
+<1> 特定于应用程序的计算。
+<2> 响应已被设置为 304 (NOT_MODIFIED) -- 不再进行进一步处理。
+<3> 继续处理请求。
 
 
-There are three variants for checking conditional requests against `eTag` values, `lastModified`
-values, or both. For conditional `GET` and `HEAD` requests, you can set the response to
-304 (NOT_MODIFIED). For conditional `POST`, `PUT`, and `DELETE`, you can instead set the response
-to 412 (PRECONDITION_FAILED), to prevent concurrent modification.
-
-
+有三种变体用于检查条件请求与 `eTag` 值、`lastModified` 值或两者的对比。对于条件 `GET` 和 `HEAD` 请求，
+您可以将响应设置为 304 (NOT_MODIFIED)。对于条件 `POST`、`PUT` 和 `DELETE`，您可以将响应设置为 412 (PRECONDITION_FAILED)，以防止并发修改。
 
 [[mvc-caching-static-resources]]
-== Static Resources
+== 静态资源
 
-You should serve static resources with a `Cache-Control` and conditional response headers
-for optimal performance. See the section on configuring xref:web/webmvc/mvc-config/static-resources.adoc[Static Resources].
-
-
-
-[[mvc-httpcaching-shallowetag]]
-== `ETag` Filter
-
-You can use the `ShallowEtagHeaderFilter` to add "`shallow`" `eTag` values that are computed from the
-response content and, thus, save bandwidth but not CPU time. See xref:web/webmvc/filters.adoc#filters-shallow-etag[Shallow ETag].
+为了获得最佳性能，您应该使用 `Cache-Control` 和条件响应头提供静态资源。请参阅有关配置
+xref:web/webmvc/mvc-config/static-resources.adoc[静态资源] 的部分。
 

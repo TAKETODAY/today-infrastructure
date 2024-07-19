@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Used as a central holder for the current Locale in Framework,
  * wherever necessary: for example, in MessageSourceAccessor.
- * DispatcherServlet automatically exposes its current Locale here.
+ * DispatcherHandler automatically exposes its current Locale here.
  * Other applications can expose theirs too, to make classes like
  * MessageSourceAccessor automatically use that Locale.
  *

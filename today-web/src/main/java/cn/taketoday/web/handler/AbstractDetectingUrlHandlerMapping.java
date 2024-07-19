@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -42,7 +42,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
    * Set whether to detect handler beans in ancestor ApplicationContexts.
    * <p>Default is "false": Only handler beans in the current ApplicationContext
    * will be detected, i.e. only in the context that this HandlerMapping itself
-   * is defined in (typically the current DispatcherServlet's context).
+   * is defined in (typically the current DispatcherHandler's context).
    * <p>Switch this flag on to detect handler beans in ancestor contexts
    * (typically the root WebApplicationContext) as well.
    */
@@ -72,8 +72,8 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
   protected void detectHandlers() throws BeansException {
     ApplicationContext applicationContext = obtainApplicationContext();
     var beanNames = detectHandlersInAncestorContexts
-                    ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)
-                    : applicationContext.getBeanNamesForType(Object.class);
+            ? BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class)
+            : applicationContext.getBeanNamesForType(Object.class);
 
     // Take any bean name that we can determine URLs for.
     for (String beanName : beanNames) {

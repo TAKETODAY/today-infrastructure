@@ -64,6 +64,7 @@ import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.ApplicationTemp;
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -601,10 +602,9 @@ public class Application {
       if (aotInitializers.isEmpty()) {
         Assert.state(mainApplicationClass != null, "No mainApplicationClass");
         String initializerClassName = mainApplicationClass.getName() + "__ApplicationContextInitializer";
-        Assert.state(ClassUtils.isPresent(initializerClassName, getClassLoader()),
-                "You are starting the application with AOT mode enabled but AOT processing hasn't happened. "
-                        + "Please build your application with enabled AOT processing first, "
-                        + "or remove the system property 'infra.aot.enabled' to run the application in regular mode");
+        if (!ClassUtils.isPresent(initializerClassName, getClassLoader())) {
+          throw new AotInitializerNotFoundException(this.mainApplicationClass, initializerClassName);
+        }
         aotInitializers.add(AotApplicationContextInitializer.forInitializerClasses(initializerClassName));
       }
       initializers.removeAll(aotInitializers);
@@ -1295,7 +1295,16 @@ public class Application {
       // Continue with normal handling of the original failure
     }
     if (logger.isErrorEnabled()) {
-      logger.error("Application run failed", failure);
+      if (NativeDetector.inNativeImage()) {
+        // Depending on how early the failure was, logging may not work in a
+        // native image so we output the stack trace directly to System.out
+        // instead.
+        System.out.println("Application run failed");
+        failure.printStackTrace(System.out);
+      }
+      else {
+        logger.error("Application run failed", failure);
+      }
       registerLoggedException(failure);
     }
   }

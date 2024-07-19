@@ -1,10 +1,9 @@
 [[mvc-config-conversion]]
-= Type Conversion
+= 类型转换
 
-By default, formatters for various number and date types are installed, along with support
-for customization via `@NumberFormat` and `@DateTimeFormat` on fields.
+默认情况下，框架配置了各种数字和日期类型的格式化器，并支持通过字段上的 `@NumberFormat` 和 `@DateTimeFormat` 进行自定义。
 
-To register custom formatters and converters, use the following:
+要注册自定义格式化器和转换器，请使用以下方法：
 
 [source,java]
 ----
@@ -18,10 +17,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-By default Web MVC considers the request Locale when parsing and formatting date
-values. This works for forms where dates are represented as Strings with "input" form
-fields. For "date" and "time" form fields, however, browsers use a fixed format defined
-in the HTML spec. For such cases date and time formatting can be customized as follows:
+默认情况下，Web MVC 在解析和格式化日期值时会考虑请求的 Locale。这对于日期以字符串形式表示的“输入”表单字段是有效的。
+然而，对于“日期”和“时间”表单字段，浏览器使用 HTML 规范中定义的固定格式。对于这些情况，日期和时间格式化可以按照以下方式自定义：
 
 [source,java]
 ----
@@ -37,9 +34,7 @@ public class DateTimeWebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-NOTE: See xref:core/validation/format.adoc#format-FormatterRegistrar-SPI[the `FormatterRegistrar` SPI]
-and the `FormattingConversionServiceFactoryBean` for more information on when to use
-FormatterRegistrar implementations.
-
-
+注意：有关何时使用 FormatterRegistrar 实现的更多信息，请参见
+xref:core/validation/format.adoc#format-FormatterRegistrar-SPI[`FormatterRegistrar` SPI]
+和 `FormattingConversionServiceFactoryBean`。
 

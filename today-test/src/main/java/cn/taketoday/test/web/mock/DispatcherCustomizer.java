@@ -34,8 +34,8 @@ public interface DispatcherCustomizer {
    * Customize the supplied {@link MockDispatcher} <em>before</em> it is
    * initialized.
    *
-   * @param dispatcherServlet the dispatcher servlet to customize
+   * @param dispatcher the dispatcher servlet to customize
    */
-  void customize(MockDispatcher dispatcherServlet);
+  void customize(MockDispatcher dispatcher);
 
 }

@@ -59,6 +59,7 @@ import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
@@ -92,8 +93,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  */
 public class NettyRequestContext extends RequestContext {
 
-  private final FullHttpRequest request;
-
+  // UNSAFE fields
   public final NettyRequestConfig config;
 
   public final ChannelHandlerContext channelContext;
@@ -102,6 +102,9 @@ public class NettyRequestContext extends RequestContext {
    * response headers
    */
   public final HttpHeaders nettyResponseHeaders;
+  // UNSAFE fields END
+
+  private final FullHttpRequest request;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
@@ -378,15 +381,15 @@ public class NettyRequestContext extends RequestContext {
       }
       if (responseBody == null) {
         // fallback
-        responseBody = createResponseBody(channelContext, config);
+        responseBody = createResponseBody(channelContext.channel(), config);
       }
       this.responseBody = responseBody;
     }
     return responseBody;
   }
 
-  protected ByteBuf createResponseBody(ChannelHandlerContext channelContext, NettyRequestConfig config) {
-    return channelContext.alloc().ioBuffer(config.responseBodyInitialCapacity);
+  protected ByteBuf createResponseBody(Channel channel, NettyRequestConfig config) {
+    return channel.alloc().ioBuffer(config.responseBodyInitialCapacity);
   }
 
   @Override
@@ -396,10 +399,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public void flush() {
-    if (writer != null) {
-      writer.flush();
-    }
-
     writeHeaders();
 
     FileRegion fileToSend;
@@ -762,6 +761,11 @@ public class NettyRequestContext extends RequestContext {
       if (len != 0) {
         responseBody().writeBytes(b, off, len);
       }
+    }
+
+    @Override
+    public void flush() {
+      NettyRequestContext.this.flush();
     }
 
   }

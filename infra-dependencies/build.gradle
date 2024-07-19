@@ -654,7 +654,7 @@ dependencies {
     api("org.testng:testng:7.8.0")
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.55")
-    api("org.webjars:webjars-locator-lite:0.0.4")
+    api("org.webjars:webjars-locator-lite:1.0.0")
     api("org.yaml:snakeyaml:2.0")
     api("org.projectlombok:lombok:1.18.30")
     api("org.htmlunit:htmlunit:3.1.0")

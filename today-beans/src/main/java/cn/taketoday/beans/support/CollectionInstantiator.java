@@ -18,7 +18,6 @@
 package cn.taketoday.beans.support;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -28,9 +27,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class CollectionInstantiator extends BeanInstantiator {
 
-  private int capacity = Constant.ZERO;
-
-  private Class<?> elementType;
+  private final Class<?> elementType;
 
   private final Class<?> collectionType;
 
@@ -46,14 +43,7 @@ public class CollectionInstantiator extends BeanInstantiator {
 
   @Override
   public Object doInstantiate(final Object[] args) {
-    return CollectionUtils.createCollection(collectionType, elementType, capacity);
+    return CollectionUtils.createCollection(collectionType, elementType, 0);
   }
 
-  public void setCapacity(int capacity) {
-    this.capacity = capacity;
-  }
-
-  public void setElementType(Class<?> elementType) {
-    this.elementType = elementType;
-  }
 }

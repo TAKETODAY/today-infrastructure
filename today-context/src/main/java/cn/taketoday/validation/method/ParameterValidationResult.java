@@ -19,6 +19,7 @@ package cn.taketoday.validation.method;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.core.MethodParameter;
@@ -58,11 +59,14 @@ public class ParameterValidationResult {
   @Nullable
   private final Object containerKey;
 
+  private final BiFunction<MessageSourceResolvable, Class<?>, Object> sourceLookup;
+
   /**
    * Create a {@code ParameterValidationResult}.
    */
   public ParameterValidationResult(MethodParameter param, @Nullable Object arg, Collection<? extends MessageSourceResolvable> errors,
-          @Nullable Object container, @Nullable Integer index, @Nullable Object key) {
+          @Nullable Object container, @Nullable Integer index, @Nullable Object key,
+          BiFunction<MessageSourceResolvable, Class<?>, Object> sourceLookup) {
 
     Assert.notNull(param, "MethodParameter is required");
     Assert.notEmpty(errors, "`resolvableErrors` must not be empty");
@@ -72,6 +76,7 @@ public class ParameterValidationResult {
     this.container = container;
     this.containerIndex = index;
     this.containerKey = key;
+    this.sourceLookup = sourceLookup;
   }
 
   /**
@@ -143,6 +148,19 @@ public class ParameterValidationResult {
   @Nullable
   public Object getContainerKey() {
     return this.containerKey;
+  }
+
+  /**
+   * Unwrap the source behind the given error. For Jakarta Bean validation the
+   * source is a {@link jakarta.validation.ConstraintViolation}.
+   *
+   * @param sourceType the expected source type
+   * @return the source object of the given type
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T unwrap(MessageSourceResolvable error, Class<T> sourceType) {
+    return (T) this.sourceLookup.apply(error, sourceType);
   }
 
   @Override

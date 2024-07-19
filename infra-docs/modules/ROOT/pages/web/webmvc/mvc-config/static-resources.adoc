@@ -1,17 +1,13 @@
 [[mvc-config-static-resources]]
-= Static Resources
+= 静态资源
 
-This option provides a convenient way to serve static resources from a list of
-{today-framework-api}/core/io/Resource.html[`Resource`]-based locations.
+此选项提供了一种方便的方式，可以从基于 {today-framework-api}/core/io/Resource.html[`Resource`] 的位置列表中提供静态资源。
 
-In the next example, given a request that starts with `/resources`, the relative path is
-used to find and serve static resources relative to `/public` under the web application
-root or on the classpath under `/static`. The resources are served with a one-year future
-expiration to ensure maximum use of the browser cache and a reduction in HTTP requests
-made by the browser. The `Last-Modified` information is deduced from `Resource#lastModified`
-so that HTTP conditional requests are supported with `"Last-Modified"` headers.
+在下一个示例中，对于以 `/resources` 开头的请求，相对路径用于查找并提供相对于 Web 应用程序根目录下的
+`/public` 或类路径下的 `/static` 的静态资源。资源被提供具有一年未来的到期时间，以确保最大限度地利用浏览器缓存并减少浏览器发出的
+HTTP 请求。`Last-Modified` 信息从 `Resource#lastModified` 推断出来，以便通过 `Last-Modified` 头支持 HTTP 条件请求。
 
-The following listing shows how to do so:
+以下列表展示了如何进行：
 
 [source,java]
 ----
@@ -27,20 +23,17 @@ public class WebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-See also
-xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[HTTP caching support for static resources].
+另见 xref:web/webmvc/mvc-caching.adoc#mvc-caching-static-resources[静态资源的 HTTP 缓存支持]。
 
-The resource handler also supports a chain of
-{today-framework-api}/web/mockApi/resource/ResourceResolver.html[`ResourceResolver`] implementations and
-{today-framework-api}/web/mockApi/resource/ResourceTransformer.html[`ResourceTransformer`] implementations,
-which you can use to create a toolchain for working with optimized resources.
+资源处理器还支持一系列
+{today-framework-api}/web/resource/ResourceResolver.html[`ResourceResolver`] 实现和
+{today-framework-api}/web/resource/ResourceTransformer.html[`ResourceTransformer`] 实现，
+您可以使用它们来创建一个工具链，用于处理优化的资源。
 
-You can use the `VersionResourceResolver` for versioned resource URLs based on an MD5 hash
-computed from the content, a fixed application version, or other. A
-`ContentVersionStrategy` (MD5 hash) is a good choice -- with some notable exceptions, such as
-JavaScript resources used with a module loader.
+您可以使用 `VersionResourceResolver` 来获取基于内容的 MD5 哈希、固定应用程序版本或其他的版本化资源 URL。
+`ContentVersionStrategy`（MD5 哈希）是一个不错的选择 -- 除了一些显著的例外，例如与模块加载器一起使用的 JavaScript 资源。
 
-The following example shows how to use `VersionResourceResolver`:
+以下示例展示了如何使用 `VersionResourceResolver`：
 
 [source,java]
 ----
@@ -57,31 +50,22 @@ public class VersionedConfiguration implements WebMvcConfigurer {
 }
 ----
 
-You can then use `ResourceUrlProvider` to rewrite URLs and apply the full chain of resolvers and
-transformers -- for example, to insert versions. The MVC configuration provides a `ResourceUrlProvider`
-bean so that it can be injected into others. You can also make the rewrite transparent with the
-`ResourceUrlEncodingFilter` for Thymeleaf, JSPs, FreeMarker, and others with URL tags that
-rely on `HttpServletResponse#encodeURL`.
+然后，您可以使用 `ResourceUrlProvider` 来重写 URL 并应用解析器和转换器的完整链 -- 例如，
+插入版本。MVC 配置提供了一个 `ResourceUrlProvider` Bean，以便可以注入到其他组件中。
+您也可以使用 `ResourceUrlEncodingFilter` 使重写对 Thymeleaf、JSPs、FreeMarker 等使用
+URL 标签并依赖于 `HttpServletResponse#encodeURL` 的组件透明。
 
-Note that, when using both `EncodedResourceResolver` (for example, for serving gzipped or
-brotli-encoded resources) and `VersionResourceResolver`, you must register them in this order.
-That ensures content-based versions are always computed reliably, based on the unencoded file.
+注意，当同时使用 `EncodedResourceResolver`（例如，用于提供 gzipped 或 brotli-encoded 资源）
+和 `VersionResourceResolver` 时，必须按此顺序注册它们。这确保基于内容的版本始终可靠地计算，基于未编码的文件。
 
-For https://www.webjars.org/documentation[WebJars], versioned URLs like
-`/webjars/jquery/1.2.0/jquery.min.js` are the recommended and most efficient way to use them.
-The related resource location is configured out of the box with Infra App (or can be configured
-manually via `ResourceHandlerRegistry`) and does not require to add the
-`org.webjars:webjars-locator-core` dependency.
+对于 WebJars，推荐且最有效的使用方式是使用版本化的 URL，如 `/webjars/jquery/1.2.0/jquery.min.js`。
+相关的资源位置在 Infra App 中已经配置好了（或者可以通过 `ResourceHandlerRegistry` 手动配置），
+并且不需要添加 `org.webjars:webjars-locator-core` 依赖项。
 
-Version-less URLs like `/webjars/jquery/jquery.min.js` are supported through the
-`WebJarsResourceResolver` which is automatically registered when the
-`org.webjars:webjars-locator-core` library is present on the classpath, at the cost of a
-classpath scanning that could slow down application startup. The resolver can re-write URLs to
-include the version of the jar and can also match against incoming URLs without versions
--- for example, from `/webjars/jquery/jquery.min.js` to `/webjars/jquery/1.2.0/jquery.min.js`.
+通过 `WebJarsResourceResolver` 支持无版本 URL，如 `/webjars/jquery/jquery.min.js`，
+该解析器在类路径上存在 `org.webjars:webjars-locator-core` 库时会自动注册，但代价是可能会减慢应用程序启动的类路径扫描。
+解析器可以重写 URL 以包含 jar 的版本，并且也可以匹配没有版本的传入 URL -- 例如，从 `/webjars/jquery/jquery.min.js`
+到 `/webjars/jquery/1.2.0/jquery.min.js`。
 
-TIP: The Java configuration based on `ResourceHandlerRegistry` provides further options
-for fine-grained control, e.g. last-modified behavior and optimized resource resolution.
-
-
-
+TIP: 基于 `ResourceHandlerRegistry` 的 Java 配置提供了进一步的细粒度控制选项，
+例如最后修改行为和优化的资源解析。

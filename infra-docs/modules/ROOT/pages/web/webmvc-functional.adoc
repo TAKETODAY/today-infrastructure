@@ -62,13 +62,13 @@ public class PersonHandler {
 [[webmvc-fn-handler-functions]]
 == HandlerFunction
 
-`ServerRequest` 和 `ServerResponse` 是不可变接口，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式，包括头部、主体、方法和状态码。
+`ServerRequest` 和 `ServerResponse` 是不可变接口，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式，包括头、主体、方法和状态码。
 
 
 [[webmvc-fn-request]]
 === ServerRequest
 
-`ServerRequest` 提供了访问 HTTP 方法、URI、头部和查询参数的方式，而对主体的访问则通过 `body` 方法提供。
+`ServerRequest` 提供了访问 HTTP 方法、URI、头和查询参数的方式，而对主体的访问则通过 `body` 方法提供。
 
 以下示例将请求主体提取为 `String`：
 
@@ -103,7 +103,7 @@ Person person = ...
 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(person);
 ----
 
-以下示例演示了如何构建一个带有 `Location` 头部且没有主体的 201 (CREATED) 响应：
+以下示例演示了如何构建一个带有 `Location` 头且没有主体的 201 (CREATED) 响应：
 
 
 [source,java,role="primary"]
@@ -121,7 +121,7 @@ Mono<Person> person = webClient.get().retrieve().bodyToMono(Person.class);
 ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(person);
 ----
 
-如果不仅主体，而且状态或头部也是基于异步类型的，您可以使用 `ServerResponse` 上的静态 `async` 方法，
+如果不仅主体，而且状态或头也是基于异步类型的，您可以使用 `ServerResponse` 上的静态 `async` 方法，
 它接受 `CompletableFuture<ServerResponse>`、`Publisher<ServerResponse>`，或者任何其他由 `ReactiveAdapterRegistry` 支持的异步类型。例如：
 
 

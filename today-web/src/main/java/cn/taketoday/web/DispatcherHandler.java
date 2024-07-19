@@ -40,7 +40,6 @@ import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.HandlerAdapterAware;
 import cn.taketoday.web.handler.HandlerNotFoundException;
-import cn.taketoday.web.handler.HandlerWrapper;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.handler.SimpleNotFoundHandler;

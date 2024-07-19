@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util.pattern;
@@ -30,6 +27,7 @@ import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
  * one character but at the end of a path it can match zero characters.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class WildcardPathElement extends PathElement {
@@ -69,7 +67,7 @@ class WildcardPathElement extends PathElement {
         }
         else {
           return (matchingContext.isMatchOptionalTrailingSeparator()  // if optional slash is on...
-                  && segmentData != null && segmentData.length() > 0  // and there is at least one character to match the *...
+                  && segmentData != null && !segmentData.isEmpty()  // and there is at least one character to match the *...
                   && (pathIndex + 1) == matchingContext.pathLength  // and the next path element is the end of the candidate...
                   && matchingContext.isSeparator(pathIndex));  // and the final element is a separator
         }
@@ -77,7 +75,7 @@ class WildcardPathElement extends PathElement {
     }
     else {
       // Within a path (e.g. /aa/*/bb) there must be at least one character to match the wildcard
-      if (segmentData == null || segmentData.length() == 0) {
+      if (segmentData == null || segmentData.isEmpty()) {
         return false;
       }
       return (this.next != null && this.next.matches(pathIndex, matchingContext));

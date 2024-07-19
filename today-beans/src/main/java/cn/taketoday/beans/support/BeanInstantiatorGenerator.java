@@ -92,7 +92,7 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
     CodeEmitter codeEmitter = EmitUtils.beginMethod(
             classEmitter, newInstanceInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 
-    Type type = Type.fromClass(targetClass);
+    Type type = Type.forClass(targetClass);
     codeEmitter.newInstance(type);
     codeEmitter.dup();
 

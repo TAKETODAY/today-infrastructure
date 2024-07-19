@@ -30,6 +30,7 @@ import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
  * Simple object instantiation strategy for use in a BeanFactory.
@@ -57,12 +58,29 @@ public class InstantiationStrategy {
   }
 
   /**
-   * Set the factory method currently being invoked or {@code null} to reset.
+   * Invoke the given {@code instanceSupplier} with the factory method exposed
+   * as being invoked.
    *
-   * @param method the factory method currently being invoked or {@code null}
+   * @param method the factory method to expose
+   * @param instanceSupplier the instance supplier
+   * @param <T> the type of the instance
+   * @return the result of the instance supplier
+   * @since 5.0
    */
-  public static void setCurrentlyInvokedFactoryMethod(@Nullable Method method) {
-    currentlyInvokedFactoryMethod.set(method);
+  public static <T> T instantiateWithFactoryMethod(Method method, ThrowingSupplier<T> instanceSupplier) {
+    Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
+    try {
+      currentlyInvokedFactoryMethod.set(method);
+      return instanceSupplier.get();
+    }
+    finally {
+      if (priorInvokedFactoryMethod != null) {
+        currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
+      }
+      else {
+        currentlyInvokedFactoryMethod.remove();
+      }
+    }
   }
 
   /**
@@ -166,52 +184,40 @@ public class InstantiationStrategy {
    */
   public Object instantiate(RootBeanDefinition merged, @Nullable String beanName, BeanFactory owner,
           @Nullable Object factoryBean, final Method factoryMethod, Object... args) throws BeansException {
-
-    try {
-      ReflectionUtils.makeAccessible(factoryMethod);
-
-      Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
+    return instantiateWithFactoryMethod(factoryMethod, () -> {
       try {
-        currentlyInvokedFactoryMethod.set(factoryMethod);
+        ReflectionUtils.makeAccessible(factoryMethod);
         Object result = factoryMethod.invoke(factoryBean, args);
         if (result == null) {
           result = NullValue.INSTANCE;
         }
         return result;
       }
-      finally {
-        if (priorInvokedFactoryMethod != null) {
-          currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
+      catch (IllegalArgumentException ex) {
+        if (factoryBean != null && !factoryMethod.getDeclaringClass().isAssignableFrom(factoryBean.getClass())) {
+          throw new BeanInstantiationException(factoryMethod,
+                  "Illegal factory instance for factory method '" + factoryMethod.getName() + "'; " +
+                          "instance: " + factoryBean.getClass().getName(), ex);
         }
-        else {
-          currentlyInvokedFactoryMethod.remove();
-        }
-      }
-    }
-    catch (IllegalArgumentException ex) {
-      if (factoryBean != null && !factoryMethod.getDeclaringClass().isAssignableFrom(factoryBean.getClass())) {
         throw new BeanInstantiationException(factoryMethod,
-                "Illegal factory instance for factory method '" + factoryMethod.getName() + "'; " +
-                        "instance: " + factoryBean.getClass().getName(), ex);
+                "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
+                        "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
       }
-      throw new BeanInstantiationException(factoryMethod,
-              "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
-                      "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
-    }
-    catch (IllegalAccessException ex) {
-      throw new BeanInstantiationException(factoryMethod,
-              "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
-    }
-    catch (InvocationTargetException ex) {
-      String msg = "Factory method '" + factoryMethod.getName() +
-              "' threw exception with message: " + ex.getTargetException().getMessage();
-      if (merged.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
-              ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(merged.getFactoryBeanName())) {
-        msg = "Circular reference involving containing bean '" + merged.getFactoryBeanName() + "' - consider " +
-                "declaring the factory method as static for independence from its containing instance. " + msg;
+      catch (IllegalAccessException ex) {
+        throw new BeanInstantiationException(factoryMethod,
+                "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
       }
-      throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
-    }
+      catch (InvocationTargetException ex) {
+        String msg = "Factory method '" + factoryMethod.getName() +
+                "' threw exception with message: " + ex.getTargetException().getMessage();
+        if (merged.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
+                ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(merged.getFactoryBeanName())) {
+          msg = "Circular reference involving containing bean '" + merged.getFactoryBeanName() + "' - consider " +
+                  "declaring the factory method as static for independence from its containing instance. " + msg;
+        }
+        throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
+      }
+    });
   }
 
   /**

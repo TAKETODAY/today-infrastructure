@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,7 +203,7 @@ public class Inventor {
   }
 
   public String aVarargsMethod2(int i, String... strings) {
-    return String.valueOf(i) + "-" + Arrays.toString(strings);
+    return i + "-" + Arrays.toString(strings);
   }
 
   @SuppressWarnings("unchecked")
@@ -216,6 +216,18 @@ public class Inventor {
       return str1;
     }
     return str1 + "-" + String.join("-", strings);
+  }
+
+  public String formatObjectVarargs(String format, Object... args) {
+    return String.format(format, args);
+  }
+
+  public String formatPrimitiveVarargs(String format, int... nums) {
+    Object[] args = new Object[nums.length];
+    for (int i = 0; i < nums.length; i++) {
+      args[i] = nums[i];
+    }
+    return String.format(format, args);
   }
 
   public Inventor(String... strings) {

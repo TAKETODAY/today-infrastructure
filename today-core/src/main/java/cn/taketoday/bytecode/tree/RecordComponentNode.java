@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.tree;
 
 import java.util.List;
@@ -27,11 +25,13 @@ import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.RecordComponentVisitor;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A node that represents a record component.
  *
  * @author Remi Forax
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class RecordComponentNode extends RecordComponentVisitor {
 
@@ -42,21 +42,27 @@ public class RecordComponentNode extends RecordComponentVisitor {
   public String descriptor;
 
   /** The record component signature. May be {@literal null}. */
+  @Nullable
   public String signature;
 
   /** The runtime visible annotations of this record component. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> visibleAnnotations;
 
   /** The runtime invisible annotations of this record component. May be {@literal null}. */
+  @Nullable
   public List<AnnotationNode> invisibleAnnotations;
 
   /** The runtime visible type annotations of this record component. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> visibleTypeAnnotations;
 
   /** The runtime invisible type annotations of this record component. May be {@literal null}. */
+  @Nullable
   public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
   /** The non standard attributes of this record component. * May be {@literal null}. */
+  @Nullable
   public List<Attribute> attrs;
 
   /**
@@ -66,7 +72,7 @@ public class RecordComponentNode extends RecordComponentVisitor {
    * @param descriptor the record component descriptor (see {@link Type}).
    * @param signature the record component signature.
    */
-  public RecordComponentNode(final String name, final String descriptor, final String signature) {
+  public RecordComponentNode(final String name, final String descriptor, @Nullable final String signature) {
     this.name = name;
     this.descriptor = descriptor;
     this.signature = signature;

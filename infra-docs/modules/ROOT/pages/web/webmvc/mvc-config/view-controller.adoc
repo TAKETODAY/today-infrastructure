@@ -1,11 +1,10 @@
 [[mvc-config-view-controller]]
-= View Controllers
+= 视图控制器
 
-This is a shortcut for defining a `ParameterizableViewController` that immediately
-forwards to a view when invoked. You can use it in static cases when there is no Java controller
-logic to run before the view generates the response.
+这是一个定义 `ParameterizableViewController` 的快捷方式，当被调用时，它会立即转发到一个视图。
+当没有 Java 控制器逻辑需要在生成响应之前运行时，您可以在静态情况下使用它。
 
-The following example forwards a request for `/` to a view called `home`:
+以下示例将对 `/` 的请求转发到名为 `home` 的视图：
 
 [source,java]
 ----
@@ -19,12 +18,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-If an `@RequestMapping` method is mapped to a URL for any HTTP method then a view
-controller cannot be used to handle the same URL. This is because a match by URL to an
-annotated controller is considered a strong enough indication of endpoint ownership so
-that a 405 (METHOD_NOT_ALLOWED), a 415 (UNSUPPORTED_MEDIA_TYPE), or similar response can
-be sent to the client to help with debugging. For this reason it is recommended to avoid
-splitting URL handling across an annotated controller and a view controller.
-
-
+如果一个 `@RequestMapping` 方法被映射到任何 HTTP 方法的 URL，那么视图控制器不能用于处理相同的 URL。
+这是因为通过 URL 匹配到注解控制器被认为是足够强的端点所有权指示，以至于可以向客户端发送 405 (METHOD_NOT_ALLOWED)、
+415 (UNSUPPORTED_MEDIA_TYPE) 或类似的响应以帮助调试。因此，建议避免将 URL 处理分散在注解控制器和视图控制器之间。
 

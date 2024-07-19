@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.util;
@@ -1014,15 +1011,15 @@ public class CheckClassAdapter extends ClassVisitor {
             new CheckClassAdapter(classNode, false) { },
             ClassReader.SKIP_DEBUG);
 
-    Type syperType = classNode.superName == null ? null : Type.fromInternalName(classNode.superName);
+    Type syperType = classNode.superName == null ? null : Type.forInternalName(classNode.superName);
     List<MethodNode> methods = classNode.methods;
     for (MethodNode method : methods) {
       SimpleVerifier verifier =
               new SimpleVerifier(
-                      Type.fromInternalName(classNode.name),
+                      Type.forInternalName(classNode.name),
                       syperType,
                       (classNode.access & Opcodes.ACC_INTERFACE) != 0,
-                      Type.getObjectTypes(classNode.interfaces));
+                      Type.forObjectTypes(classNode.interfaces));
       Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
       if (loader != null) {
         verifier.setClassLoader(loader);

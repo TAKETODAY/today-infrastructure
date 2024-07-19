@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -105,7 +105,7 @@ import java.lang.annotation.Target;
  * <b>Note: {@code @EnableAspectJAutoProxy} applies to its local application context only,
  * allowing for selective proxying of beans at different levels.</b> Please redeclare
  * {@code @EnableAspectJAutoProxy} in each individual context, e.g. the common root web
- * application context and any separate {@code DispatcherServlet} application contexts,
+ * application context and any separate {@code DispatcherHandler} application contexts,
  * if you need to apply its behavior at multiple levels.
  *
  * <p>This feature requires the presence of {@code aspectjweaver} on the classpath.

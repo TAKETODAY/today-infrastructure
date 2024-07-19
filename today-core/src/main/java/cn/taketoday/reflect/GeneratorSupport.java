@@ -46,7 +46,7 @@ import static cn.taketoday.bytecode.Opcodes.INVOKESTATIC;
  * @since 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T extends Accessor> {
-  static final Type GENERATOR_SUPPORT_TYPE = Type.fromClass(GeneratorSupport.class);
+  static final Type GENERATOR_SUPPORT_TYPE = Type.forClass(GeneratorSupport.class);
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
@@ -199,7 +199,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
       codeEmitter.aaload(i);
 
       Class<?> parameterClass = parameterTypes[i];
-      Type parameterType = Type.fromClass(parameterClass);
+      Type parameterType = Type.forClass(parameterClass);
       if (parameterClass.isPrimitive()) {
         Type boxedType = parameterType.getBoxedType(); // java.lang.Long ...
         codeEmitter.checkCast(boxedType);

@@ -322,8 +322,8 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
       ClassEmitter classEmitter = beginClass(v);
-      Type owner = Type.fromClass(targetClass);
-      Type type = Type.fromClass(field.getType());
+      Type owner = Type.forClass(targetClass);
+      Type type = Type.forClass(field.getType());
       String fieldName = field.getName();
 
       // get method

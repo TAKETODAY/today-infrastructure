@@ -32,12 +32,6 @@ import cn.taketoday.mock.api.fileupload.util.Streams;
  * Default implementation of {@link FileItemStream}.
  */
 public class FileItemStreamImpl implements FileItemStream {
-  /**
-   * The File Item iterator implementation.
-   *
-   * @see FileItemIteratorImpl
-   */
-  private final FileItemIteratorImpl fileItemIteratorImpl;
 
   /**
    * The file items content type.
@@ -85,12 +79,11 @@ public class FileItemStreamImpl implements FileItemStream {
   public FileItemStreamImpl(final FileItemIteratorImpl pFileItemIterator, final String pName, final String pFieldName,
           final String pContentType, final boolean pFormField,
           final long pContentLength) throws FileUploadException, IOException {
-    fileItemIteratorImpl = pFileItemIterator;
     name = pName;
     fieldName = pFieldName;
     contentType = pContentType;
     formField = pFormField;
-    final long fileSizeMax = fileItemIteratorImpl.getFileSizeMax();
+    final long fileSizeMax = pFileItemIterator.getFileSizeMax();
     if (fileSizeMax != -1 && pContentLength != -1
             && pContentLength > fileSizeMax) {
       final FileSizeLimitExceededException e =
@@ -102,7 +95,7 @@ public class FileItemStreamImpl implements FileItemStream {
       throw new FileUploadIOException(e);
     }
     // OK to construct stream now
-    final ItemInputStream itemStream = fileItemIteratorImpl.getMultiPartStream().newInputStream();
+    final ItemInputStream itemStream = pFileItemIterator.getMultiPartStream().newInputStream();
     InputStream istream = itemStream;
     if (fileSizeMax != -1) {
       istream = new LimitedInputStream(istream, fileSizeMax) {

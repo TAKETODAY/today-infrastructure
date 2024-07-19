@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.core;
@@ -42,12 +39,17 @@ import cn.taketoday.lang.Nullable;
 public class ClassEmitter extends ClassTransformer {
 
   private ClassInfo classInfo;
+
   private Map<String, FieldInfo> fieldInfo;
 
   private static int hookCounter;
+
   private MethodVisitor rawStaticInit;
+
   private CodeEmitter staticInit;
+
   private CodeEmitter staticHook;
+
   private MethodSignature staticHookSig;
 
   public ClassEmitter(ClassVisitor cv) {
@@ -55,7 +57,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public ClassEmitter() {
-    //		super(Constant.ASM_API);
+
   }
 
   public void setTarget(ClassVisitor cv) {
@@ -75,40 +77,10 @@ public class ClassEmitter extends ClassTransformer {
     return classInfo;
   }
 
-  public void beginClass(final int access,
-          final String className,
-          final Class<?> superType, final Class<?>... interfaces) {
-    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), Constant.SOURCE_FILE);
-  }
+  public void beginClass(int version, int access, String className,
+          @Nullable Type superType, Type[] interfaces, @Nullable String source) {
 
-  public void beginClass(final int access,
-          final String className,
-          final Class<?> superType,
-          final String source, final Class<?>... interfaces) {
-
-    beginClass(Opcodes.JAVA_VERSION, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
-  }
-
-  public void beginClass(final int version,
-          final int access,
-          final String className,
-          final Class<?> superType,
-          final String source, final Class<?>... interfaces) {
-
-    beginClass(version, access, className, Type.fromClass(superType), Type.getTypes(interfaces), source);
-  }
-
-  public void beginClass(final int version,
-          final int access,
-          final String className,
-          final Type superType,
-          final String source, final Type... interfaces) {
-
-    beginClass(version, access, className, superType, interfaces, source);
-  }
-
-  public void beginClass(int version, int access, String className, @Nullable Type superType, Type[] interfaces, @Nullable String source) {
-    Type classType = Type.fromDescriptor('L' + className.replace('.', '/') + ';');
+    Type classType = Type.forDescriptor('L' + className.replace('.', '/') + ';');
     classInfo = new ClassInfo() {
       public Type getType() {
         return classType;
@@ -153,9 +125,9 @@ public class ClassEmitter extends ClassTransformer {
           final String superName, // typeDescriptor
           final String... interfaces) //typeDescriptor
   {
-    Type superType = Type.fromDescriptor(superName);
+    Type superType = Type.forDescriptor(superName);
     final Type[] array = Type.getTypes(interfaces);
-    Type type = Type.fromInternalName(name.replace('.', '/'));
+    Type type = Type.forInternalName(name.replace('.', '/'));
 
     classInfo = new ClassInfo() {
 
@@ -230,7 +202,7 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public CodeEmitter beginMethod(int access, Method method) {
-    return beginMethod(access, MethodSignature.from(method), Type.getExceptionTypes(method));
+    return beginMethod(access, MethodSignature.from(method), Type.forExceptionTypes(method));
   }
 
   public CodeEmitter beginMethod(int access, MethodSignature sig, Type... exceptions) {
@@ -328,31 +300,14 @@ public class ClassEmitter extends ClassTransformer {
       this.value = value;
     }
 
-    public boolean equals(Object o) {
-      if (!(o instanceof final FieldInfo other)) {
-        return false;
-      }
-      if (access != other.access || !name.equals(other.name) || !type.equals(other.type)) {
-        return false;
-      }
-      final Object value = this.value;
-      if ((value == null) ^ (other.value == null)) {
-        return false;
-      }
-      return value == null || value.equals(other.value);
-    }
-
-    public int hashCode() {
-      return access ^ name.hashCode() ^ type.hashCode() ^ ((value == null) ? 0 : value.hashCode());
-    }
   }
 
   @Override
   public void visit(
           int version, int access, String name, String signature, String superName, String[] interfaces) {
     beginClass(version, access, name.replace('/', '.'),
-            Type.fromInternalName(superName),
-            Type.fromInternalNames(interfaces), null); // TODO
+            Type.forInternalName(superName),
+            Type.forInternalNames(interfaces), null); // TODO
   }
 
   @Override
@@ -362,13 +317,13 @@ public class ClassEmitter extends ClassTransformer {
 
   @Override
   public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-    declare_field(access, name, Type.fromDescriptor(desc), value);
+    declare_field(access, name, Type.forDescriptor(desc), value);
     return null; // TODO
   }
 
   @Override
   public MethodVisitor visitMethod(
           int access, String name, String desc, String signature, String[] exceptions) {
-    return beginMethod(access, new MethodSignature(name, desc), Type.fromInternalNames(exceptions));
+    return beginMethod(access, new MethodSignature(name, desc), Type.forInternalNames(exceptions));
   }
 }

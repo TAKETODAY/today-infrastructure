@@ -778,17 +778,6 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   }
 
   /**
-   * Coroutines-supporting extension of the callback interface.
-   */
-  protected interface CoroutinesInvocationCallback extends InvocationCallback {
-
-    Object getTarget();
-
-    Object[] getArguments();
-
-  }
-
-  /**
    * Internal holder class for a Throwable in a callback transaction model.
    */
   private static class ThrowableHolder {

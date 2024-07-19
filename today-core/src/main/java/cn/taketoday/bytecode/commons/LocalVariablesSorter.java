@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.commons;
 
@@ -70,7 +67,7 @@ public class LocalVariablesSorter extends MethodVisitor {
    */
   public LocalVariablesSorter(
           final int access, final String descriptor, final MethodVisitor methodVisitor) {
-    this(access, Type.getArgumentTypes(descriptor), methodVisitor);
+    this(access, Type.forArgumentTypes(descriptor), methodVisitor);
   }
 
   public LocalVariablesSorter(
@@ -138,7 +135,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           final int[] index,
           final String descriptor,
           final boolean visible) {
-    Type type = Type.fromDescriptor(descriptor);
+    Type type = Type.forDescriptor(descriptor);
     int[] remappedIndex = new int[index.length];
     for (int i = 0; i < remappedIndex.length; ++i) {
       remappedIndex[i] = remap(index[i], type);
@@ -184,7 +181,7 @@ public class LocalVariablesSorter extends MethodVisitor {
           varType = Type.DOUBLE_TYPE;
         }
         else if (localType instanceof String) {
-          varType = Type.fromInternalName((String) localType);
+          varType = Type.forInternalName((String) localType);
         }
         else {
           varType = Type.TYPE_OBJECT;

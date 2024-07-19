@@ -206,7 +206,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
   /**
    * A method to obtain the {@code WebApplicationContext} to be passed to the
-   * {@code DispatcherServlet}. Invoked from {@link #build()} before the
+   * {@code DispatcherHandler}. Invoked from {@link #build()} before the
    * {@link MockMvc} instance is created.
    */
   protected abstract ApplicationContext initWebAppContext();

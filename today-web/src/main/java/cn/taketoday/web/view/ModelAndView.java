@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -79,7 +76,7 @@ public class ModelAndView {
    * Can also be used in conjunction with {@code addObject}.
    *
    * @param viewName name of the View to render, to be resolved
-   * by the DispatcherServlet's ViewResolver
+   * by the DispatcherHandler's ViewResolver
    * @see #addObject
    */
   public ModelAndView(String viewName) {
@@ -101,7 +98,7 @@ public class ModelAndView {
    * Create a new ModelAndView given a view name and a model.
    *
    * @param viewName name of the View to render, to be resolved
-   * by the DispatcherServlet's ViewResolver
+   * by the DispatcherHandler's ViewResolver
    * @param model a Map of model names (Strings) to model objects
    * (Objects). Model entries may not be {@code null}, but the
    * model Map may be {@code null} if there is no model data.
@@ -135,7 +132,7 @@ public class ModelAndView {
    * Create a new ModelAndView given a view name and HTTP status.
    *
    * @param viewName name of the View to render, to be resolved
-   * by the DispatcherServlet's ViewResolver
+   * by the DispatcherHandler's ViewResolver
    * @param status an HTTP status code to use for the response
    * (to be set just prior to View rendering)
    */
@@ -148,7 +145,7 @@ public class ModelAndView {
    * Create a new ModelAndView given a view name, model, and HTTP status.
    *
    * @param viewName name of the View to render, to be resolved
-   * by the DispatcherServlet's ViewResolver
+   * by the DispatcherHandler's ViewResolver
    * @param model a Map of model names (Strings) to model objects
    * (Objects). Model entries may not be {@code null}, but the
    * model Map may be {@code null} if there is no model data.
@@ -167,7 +164,7 @@ public class ModelAndView {
    * Convenient constructor to take a single model object.
    *
    * @param viewName name of the View to render, to be resolved
-   * by the DispatcherServlet's ViewResolver
+   * by the DispatcherHandler's ViewResolver
    * @param modelName name of the single entry in the model
    * @param modelObject the single model object
    */
@@ -190,7 +187,7 @@ public class ModelAndView {
 
   /**
    * Set a view name for this ModelAndView, to be resolved by the
-   * DispatcherServlet via a ViewResolver. Will override any
+   * DispatcherHandler via a ViewResolver. Will override any
    * pre-existing view name or View.
    */
   public void setViewName(@Nullable String viewName) {
@@ -198,7 +195,7 @@ public class ModelAndView {
   }
 
   /**
-   * Return the view name to be resolved by the DispatcherServlet
+   * Return the view name to be resolved by the DispatcherHandler
    * via a ViewResolver, or {@code null} if we are using a View object.
    */
   @Nullable
@@ -216,7 +213,7 @@ public class ModelAndView {
 
   /**
    * Return the View object, or {@code null} if we are using a view name
-   * to be resolved by the DispatcherServlet via a ViewResolver.
+   * to be resolved by the DispatcherHandler via a ViewResolver.
    */
   @Nullable
   public View getView() {
@@ -234,7 +231,7 @@ public class ModelAndView {
   /**
    * Return whether we use a view reference, i.e. {@code true}
    * if the view has been specified via a name to be resolved by the
-   * DispatcherServlet via a ViewResolver.
+   * DispatcherHandler via a ViewResolver.
    */
   public boolean isReference() {
     return view instanceof String;

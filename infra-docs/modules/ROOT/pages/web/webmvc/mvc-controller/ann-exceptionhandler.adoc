@@ -1,13 +1,9 @@
 [[mvc-ann-exceptionhandler]]
-= Exceptions
+= 异常处理
 
-`@Controller` and xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice] classes can have
-`@ExceptionHandler` methods to handle exceptions from controller methods, as the following example shows:
+`@Controller` 和 xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice]
+类可以有 `@ExceptionHandler` 方法来处理控制器方法中的异常，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Controller
@@ -22,25 +18,14 @@ public class SimpleController {
 }
 ----
 
-======
+异常可能与传播的顶级异常匹配（例如直接抛出的 `IOException`），或者与包装异常内的嵌套原因匹配
+（例如包装在 `IllegalStateException` 内的 `IOException`）。这可以在任意原因级别上匹配，而之前只考虑了直接原因。
 
-The exception may match against a top-level exception being propagated (e.g. a direct
-`IOException` being thrown) or against a nested cause within a wrapper exception (e.g.
-an `IOException` wrapped inside an `IllegalStateException`). As of 5.3, this can match
-at arbitrary cause levels, whereas previously only an immediate cause was considered.
+对于匹配异常类型，最好将目标异常作为方法参数声明，如前例所示。当多个异常方法匹配时，通常更倾向于根异常匹配而不是原因异常匹配。
+更具体地说，使用 `ExceptionDepthComparator` 根据它们从抛出异常类型开始的深度对异常进行排序。
 
-For matching exception types, preferably declare the target exception as a method argument,
-as the preceding example shows. When multiple exception methods match, a root exception match is
-generally preferred to a cause exception match. More specifically, the `ExceptionDepthComparator`
-is used to sort exceptions based on their depth from the thrown exception type.
+另外，注解声明可以缩小匹配的异常类型，如下例所示：
 
-Alternatively, the annotation declaration may narrow the exception types to match,
-as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExceptionHandler({FileSystemException.class, RemoteException.class})
@@ -49,15 +34,8 @@ public ResponseEntity<String> handle(IOException ex) {
 }
 ----
 
-======
+你甚至可以使用具有非常通用参数签名的特定异常类型的列表，如下例所示：
 
-You can even use a list of specific exception types with a very generic argument signature,
-as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @ExceptionHandler({FileSystemException.class, RemoteException.class})
@@ -66,174 +44,126 @@ public ResponseEntity<String> handle(Exception ex) {
 }
 ----
 
-======
+这种方式允许你将多个特定的异常类型映射到同一个处理方法。在这个方法中，你可以编写通用的逻辑来处理这些异常，
+或者根据异常的具体类型进一步区分处理。这种方法特别有用，当你需要对一组相关的异常进行统一处理时。
+通过这种方式，你可以简化异常处理逻辑，并提高代码的可维护性。
+
 
 [NOTE]
 ====
-The distinction between root and cause exception matching can be surprising.
+根异常和原因异常匹配之间的区别可能会令人惊讶。
 
-In the `IOException` variant shown earlier, the method is typically called with
-the actual `FileSystemException` or `RemoteException` instance as the argument,
-since both of them extend from `IOException`. However, if any such matching
-exception is propagated within a wrapper exception which is itself an `IOException`,
-the passed-in exception instance is that wrapper exception.
+在前面显示的 `IOException` 变体中，该方法通常使用实际的 `FileSystemException` 或 `RemoteException`
+实例作为参数调用，因为它们都是从 `IOException` 扩展而来的。然而，如果任何这样的匹配异常在本身是 `IOException`
+的包装异常中传播，则传入的异常实例是那个包装异常。
 
-The behavior is even simpler in the `handle(Exception)` variant. This is
-always invoked with the wrapper exception in a wrapping scenario, with the
-actually matching exception to be found through `ex.getCause()` in that case.
-The passed-in exception is the actual `FileSystemException` or
-`RemoteException` instance only when these are thrown as top-level exceptions.
+在 `handle(Exception)` 变体中，行为甚至更简单。在包装场景中，它总是使用包装异常调用，这种情况下，
+实际匹配的异常需要通过 `ex.getCause()` 找到。传入的异常是实际的 `FileSystemException` 或 `RemoteException`
+实例，仅当这些异常被作为顶级异常抛出时。
 ====
 
-We generally recommend that you be as specific as possible in the argument signature,
-reducing the potential for mismatches between root and cause exception types.
-Consider breaking a multi-matching method into individual `@ExceptionHandler`
-methods, each matching a single specific exception type through its signature.
+我们通常建议你在参数签名中尽可能具体，减少根异常和原因异常类型之间的潜在不匹配。考虑将一个多匹配方法拆分为单独的
+`@ExceptionHandler` 方法，每个方法通过其签名匹配单个特定异常类型。
 
-In a multi-`@ControllerAdvice` arrangement, we recommend declaring your primary root exception
-mappings on a `@ControllerAdvice` prioritized with a corresponding order. While a root
-exception match is preferred to a cause, this is defined among the methods of a given
-controller or `@ControllerAdvice` class. This means a cause match on a higher-priority
-`@ControllerAdvice` bean is preferred to any match (for example, root) on a lower-priority
-`@ControllerAdvice` bean.
+在多 `@ControllerAdvice` 安排中，我们建议在优先级相应的顺序上声明你主要的根异常映射。虽然根异常匹配比原因更受青睐，
+但这是在给定控制器或 `@ControllerAdvice` 类的方法中定义的。这意味着在更高优先级的 `@ControllerAdvice` bean
+上的原因匹配比在较低优先级的 `@ControllerAdvice` bean 上的任何匹配（例如，根）更受青睐。
 
-Last but not least, an `@ExceptionHandler` method implementation can choose to back
-out of dealing with a given exception instance by rethrowing it in its original form.
-This is useful in scenarios where you are interested only in root-level matches or in
-matches within a specific context that cannot be statically determined. A rethrown
-exception is propagated through the remaining resolution chain, as though
-the given `@ExceptionHandler` method would not have matched in the first place.
+最后但同样重要的是，`@ExceptionHandler` 方法的实现可以选择通过以其原始形式重新抛出它来处理给定的异常实例。
+这在你对根级别匹配或在无法静态确定的特定上下文中的匹配感兴趣的情况下很有用。重新抛出的异常通过剩余的解析链传播，
+就好像给定的 `@ExceptionHandler` 方法最初没有匹配一样。
 
-Support for `@ExceptionHandler` methods in Web MVC is built on the `MockDispatcher`
-level, xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionResolver] mechanism.
+Web MVC 中对 `@ExceptionHandler` 方法的支持建立在 `DispatcherHandler` 级别，
+xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionHandler] 机制上。
 
 
 [[mvc-ann-exceptionhandler-args]]
-== Method Arguments
+== 方法参数
 
-`@ExceptionHandler` methods support the following arguments:
+`@ExceptionHandler` 方法支持以下的参数：
 
 [cols="1,2", options="header"]
 |===
-| Method argument | Description
+| 方法参数 | 描述
 
 | Exception type
 | For access to the raised exception.
 
 | `HandlerMethod`
-| For access to the controller method that raised the exception.
+| 访问引发异常的控制器方法.
 
-| `WebRequest`, `NativeWebRequest`
-| Generic access to request parameters and request and session attributes without direct
-  use of the Servlet API.
-
-| `jakarta.mockApi.ServletRequest`, `jakarta.mockApi.ServletResponse`
-| Choose any specific request or response type (for example, `MockRequest` or
-  `HttpMockRequest` or Infra `MultipartRequest` or `MultipartHttpServletRequest`).
-
-| `jakarta.mockApi.http.HttpSession`
-| Enforces the presence of a session. As a consequence, such an argument is never `null`. +
-  Note that session access is not thread-safe. Consider setting the
-  `RequestMappingHandlerAdapter` instance's `synchronizeOnSession` flag to `true` if multiple
-  requests are allowed to access a session concurrently.
-
-| `java.security.Principal`
-| Currently authenticated user -- possibly a specific `Principal` implementation class if known.
+| `RequestContext`
+| 当前请求上下文
 
 | `HttpMethod`
-| The HTTP method of the request.
-
-| `java.util.Locale`
-| The current request locale, determined by the most specific `LocaleResolver` available -- in
-  effect, the configured `LocaleResolver` or `LocaleContextResolver`.
+| 当前请求的请求方法
 
 | `java.util.TimeZone`, `java.time.ZoneId`
 | The time zone associated with the current request, as determined by a `LocaleContextResolver`.
 
 | `java.io.OutputStream`, `java.io.Writer`
-| For access to the raw response body, as exposed by the Servlet API.
+| 原始响应流
 
 | `java.util.Map`, `cn.taketoday.ui.Model`, `cn.taketoday.ui.ModelMap`
-| For access to the model for an error response. Always empty.
+| 用于访问错误响应的模型。始终为空。
 
 | `RedirectModel`
-| Specify attributes to use in case of a redirect -- (that is to be appended to the query
-  string) and flash attributes to be stored temporarily until the request after the redirect.
-  See xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[Redirect Attributes] and xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash Attributes].
-
+| 指定在重定向情况下使用的属性 -- （即附加到查询字符串中）以及存储在重定向请求后临时使用的 Flash 属性。
+参见 xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[重定向属性]
+和 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash 属性]。
 
 | `@RequestAttribute`
-| For access to request attributes. See xref:web/webmvc/mvc-controller/ann-methods/requestattrib.adoc[`@RequestAttribute`] for more details.
+| 请求 attributes. See xref:web/webmvc/mvc-controller/ann-methods/requestattrib.adoc[`@RequestAttribute`] for more details.
 
 |===
 
-
 [[mvc-ann-exceptionhandler-return-values]]
-== Return Values
+== 返回值
 
-`@ExceptionHandler` methods support the following return values:
+`@ExceptionHandler` 方法支持以下返回值：
 
 [cols="1,2", options="header"]
 |===
-| Return value | Description
+| 返回值 | 描述
 
 | `@ResponseBody`
-| The return value is converted through `HttpMessageConverter` instances and written to the
-  response. See xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`].
+| 返回值通过 `HttpMessageConverter` 实例转换，并写入响应。参见 xref:web/webmvc/mvc-controller/ann-methods/responsebody.adoc[`@ResponseBody`]。
 
 | `HttpEntity<B>`, `ResponseEntity<B>`
-| The return value specifies that the full response (including the HTTP headers and the body)
-  be converted through `HttpMessageConverter` instances and written to the response.
-  See xref:web/webmvc/mvc-controller/ann-methods/responseentity.adoc[ResponseEntity].
+| 返回值指定整个响应（包括 HTTP 头和正文）通过 `HttpMessageConverter` 实例转换，并写入响应。
+参见 xref:web/webmvc/mvc-controller/ann-methods/responseentity.adoc[ResponseEntity]。
 
 | `ErrorResponse`
-| To render an RFC 7807 error response with details in the body,
-see xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses]
+| 要呈现具有正文详细信息的 RFC 7807 错误响应，参见 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]。
 
 | `ProblemDetail`
-| To render an RFC 7807 error response with details in the body,
-see xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses]
+| 要呈现具有正文详细信息的 RFC 7807 错误响应，参见 xref:web/webmvc/mvc-ann-rest-exceptions.adoc[错误响应]。
 
 | `String`
-| A view name to be resolved with `ViewResolver` implementations and used together with the
-  implicit model -- determined through command objects and `@ModelAttribute` methods.
-  The handler method can also programmatically enrich the model by declaring a `Model`
-  argument (described earlier).
+| 一个视图名称，将通过 `ViewResolver` 实现解析，并与隐式模型一起使用 -- 通过命令对象和 `@ModelAttribute` 方法确定。
+处理器方法也可以通过声明 `Model` 参数（前面描述过）以编程方式丰富模型。
 
 | `View`
-| A `View` instance to use for rendering together with the implicit model -- determined
-  through command objects and `@ModelAttribute` methods. The handler method may also
-  programmatically enrich the model by declaring a `Model` argument (descried earlier).
+| 一个 `View` 实例，用于渲染并与隐式模型一起使用 -- 通过命令对象和 `@ModelAttribute` 方法确定。处理器方法也可以通过声明 `Model` 参数（前面描述过）以编程方式丰富模型。
 
 | `java.util.Map`, `cn.taketoday.ui.Model`
-| Attributes to be added to the implicit model with the view name implicitly determined
-  through a `RequestToViewNameTranslator`.
+| 要添加到隐式模型中的属性，视图名称通过 `RequestToViewNameTranslator` 隐式确定。
 
 | `@ModelAttribute`
-| An attribute to be added to the model with the view name implicitly determined through
-  a `RequestToViewNameTranslator`.
+| 要添加到模型中的属性，视图名称通过 `RequestToViewNameTranslator` 隐式确定。
 
-  Note that `@ModelAttribute` is optional. See "`Any other return value`" at the end of
-  this table.
+  注意 `@ModelAttribute` 是可选的。参见此表末尾的“任何其他返回值”。
 
-| `ModelAndView` object
-| The view and model attributes to use and, optionally, a response status.
+| `ModelAndView` 对象
+| 要使用的视图和模型属性，以及可选的响应状态。
 
 | `void`
-| A method with a `void` return type (or `null` return value) is considered to have fully
-  handled the response if it also has a `MockResponse` an `OutputStream` argument, or
-  a `@ResponseStatus` annotation. The same is also true if the controller has made a positive
-  `ETag` or `lastModified` timestamp check (see xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[Controllers] for details).
+| 如果方法具有 `void` 返回类型（或 `null` 返回值），并且它还具有 `MockResponse` 或 `OutputStream` 参数，
+或者具有 `@ResponseStatus` 注解，则认为它已经完全处理了响应。如果控制器进行了积极的 `ETag` 或 `lastModified` 时间戳检查
+（参见 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器] 了解详细信息），也是如此。
+  如果没有上述任何情况，`void` 返回类型也可以表示 REST 控制器的“没有响应体”或 HTML 控制器的默认视图名称选择。
 
-  If none of the above is true, a `void` return type can also indicate "`no response body`" for
-  REST controllers or default view name selection for HTML controllers.
-
-| Any other return value
-| If a return value is not matched to any of the above and is not a simple type (as determined by
-  {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty]),
-  by default, it is treated as a model attribute to be added to the model. If it is a simple type,
-  it remains unresolved.
+| 任何其他返回值
+| 如果返回值不匹配上述任何一种，并且不是简单类型（由 {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty] 确定），
+则默认情况下，它被视为要添加到模型的模型属性。如果它是一个简单类型，则保持未解析状态。
 |===
-
-
-

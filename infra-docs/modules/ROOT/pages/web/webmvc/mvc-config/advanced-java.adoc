@@ -1,14 +1,12 @@
 [[mvc-config-advanced-java]]
-= Advanced Java Config
+= Java 配置
 
-`@EnableWebMvc` imports `DelegatingWebMvcConfiguration`, which:
+`@EnableWebMvc` 导入了 `DelegatingWebMvcConfiguration`，它：
 
-* Provides default Infra configuration for Web MVC applications
-* Detects and delegates to `WebMvcConfigurer` implementations to customize that configuration.
+* 为 Web MVC 应用程序提供默认的配置
+* 检测并委托给 `WebMvcConfigurer` 实现以自定义该配置。
 
-For advanced mode, you can remove `@EnableWebMvc` and extend directly from
-`DelegatingWebMvcConfiguration` instead of implementing `WebMvcConfigurer`,
-as the following example shows:
+对于高级模式，您可以移除 `@EnableWebMvc` 并直接扩展 `DelegatingWebMvcConfiguration` 而不是实现 `WebMvcConfigurer`，如下例所示：
 
 [source,java]
 ----
@@ -23,9 +21,4 @@ public class WebConfiguration extends DelegatingWebMvcConfiguration {
 }
 ----
 
-You can keep existing methods in `WebConfig`, but you can now also override bean declarations
-from the base class, and you can still have any number of other `WebMvcConfigurer` implementations on
-the classpath.
-
-
-
+可以保留 `WebConfig` 中的现有方法，但您现在也可以覆盖基类中的 Bean 声明，并且您仍然可以在类路径上拥有任意数量的其他 `WebMvcConfigurer` 实现。

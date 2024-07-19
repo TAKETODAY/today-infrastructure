@@ -118,7 +118,7 @@ public class AnalyzerAdapter extends MethodVisitor {
         locals.add(owner);
       }
     }
-    for (Type argumentType : Type.getArgumentTypes(descriptor)) {
+    for (Type argumentType : Type.forArgumentTypes(descriptor)) {
       switch (argumentType.getSort()) {
         case Type.BOOLEAN, Type.CHAR, Type.BYTE, Type.SHORT, Type.INT -> locals.add(Opcodes.INTEGER);
         case Type.FLOAT -> locals.add(Opcodes.FLOAT);
@@ -483,7 +483,7 @@ public class AnalyzerAdapter extends MethodVisitor {
     char firstDescriptorChar = descriptor.charAt(0);
     if (firstDescriptorChar == '(') {
       int numSlots = 0;
-      Type[] types = Type.getArgumentTypes(descriptor);
+      Type[] types = Type.forArgumentTypes(descriptor);
       for (Type type : types) {
         numSlots += type.getSize();
       }
@@ -853,11 +853,11 @@ public class AnalyzerAdapter extends MethodVisitor {
         break;
       case Opcodes.ANEWARRAY:
         pop();
-        pushDescriptor("[" + Type.fromInternalName(stringArg));
+        pushDescriptor("[" + Type.forInternalName(stringArg));
         break;
       case Opcodes.CHECKCAST:
         pop();
-        pushDescriptor(Type.fromInternalName(stringArg).getDescriptor());
+        pushDescriptor(Type.forInternalName(stringArg).getDescriptor());
         break;
       case Opcodes.MULTIANEWARRAY:
         pop(intArg);

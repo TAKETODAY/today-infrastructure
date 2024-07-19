@@ -93,7 +93,7 @@ public sealed class BeanProperty extends Property implements Member, AnnotatedEl
       if (BeanUtils.isSimpleValueType(type)) {
         throw new BeanInstantiationException(type, "Cannot be instantiated a simple type");
       }
-      constructor = BeanInstantiator.fromConstructor(type);
+      constructor = BeanInstantiator.forConstructor(type);
       this.instantiator = constructor;
     }
     return constructor.instantiate(args);

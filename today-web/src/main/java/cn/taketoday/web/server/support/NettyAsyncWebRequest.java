@@ -25,6 +25,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.async.AsyncWebRequest;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.ScheduledFuture;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,6 +41,9 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private volatile boolean asyncStarted;
 
+  @Nullable
+  private ScheduledFuture<?> timeoutFuture;
+
   NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
     this.channelContext = request.channelContext;
@@ -47,8 +51,8 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   @Override
   public void startAsync() {
-    if (timeout != null) {
-      channelContext.executor().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
+    if (timeout != null && timeout > 0) {
+      timeoutFuture = channelContext.executor().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
     }
 
     this.asyncStarted = true;
@@ -71,6 +75,9 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   public void dispatch(@Nullable Object concurrentResult) {
     this.asyncStarted = false;
     if (asyncCompleted.compareAndSet(false, true)) {
+      if (timeoutFuture != null) {
+        timeoutFuture.cancel(true);
+      }
       channelContext.executor().execute(() -> {
         try {
           request.dispatchConcurrentResult(concurrentResult);

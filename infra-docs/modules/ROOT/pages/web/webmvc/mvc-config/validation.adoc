@@ -1,13 +1,11 @@
 [[mvc-config-validation]]
-= Validation
+= 验证
 
-By default, if xref:core/validation/beanvalidation.adoc#validation-beanvalidation-overview[Bean Validation] is present
-on the classpath (for example, Hibernate Validator), the `LocalValidatorFactoryBean` is
-registered as a global xref:core/validation/validator.adoc[Validator] for use with `@Valid` and
-`@Validated` on controller method arguments.
+默认情况下，如果类路径上存在 xref:core/validation/beanvalidation.adoc#validation-beanvalidation-overview[Bean 验证]
+（例如 Hibernate Validator），则 `LocalValidatorFactoryBean` 被注册为全局 xref:core/validation/validator.adoc[Validator]，
+用于与控制器方法参数上的 `@Valid` 和 `@Validated` 一起使用。
 
-You can customize the global `Validator` instance, as the
-following example shows:
+您可以像以下示例所示自定义全局 `Validator` 实例：
 
 [source,java]
 ----
@@ -23,12 +21,10 @@ public class WebConfiguration implements WebMvcConfigurer {
 }
 ----
 
-Note that you can also register `Validator` implementations locally, as the following
-example shows:
+请注意，您也可以像以下示例所示本地注册 `Validator` 实现：
 
 [source,java]
 ----
-
 public class FooValidator implements Validator {
 
   @Override
@@ -51,8 +47,5 @@ public class MyController {
 }
 ----
 
-TIP: If you need to have a `LocalValidatorFactoryBean` injected somewhere, create a bean and
-mark it with `@Primary` in order to avoid conflict with the one declared in the MVC configuration.
-
-
+TIP: 如果您需要在某个地方注入 `LocalValidatorFactoryBean`，请创建一个 Bean 并用 `@Primary` 标记它，以避免与 MVC 配置中声明的 Bean 发生冲突。
 

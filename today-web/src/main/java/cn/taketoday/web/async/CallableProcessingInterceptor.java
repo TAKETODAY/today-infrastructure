@@ -42,6 +42,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface CallableProcessingInterceptor {

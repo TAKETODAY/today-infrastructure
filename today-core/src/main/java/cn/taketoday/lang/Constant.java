@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,6 @@ public interface Constant extends Serializable {
   String HTTPS = "https";
 
   String QUOTATION_MARKS = "\"";
-
-  int ZERO = 0; // @since 3.0
 
   int[] EMPTY_INT_ARRAY = {};
 

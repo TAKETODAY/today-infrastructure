@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.util;
 
@@ -29,6 +26,7 @@ import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.ModuleVisitor;
 import cn.taketoday.bytecode.RecordComponentVisitor;
 import cn.taketoday.bytecode.TypePath;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that prints the classes it visits with a {@link Printer}. This class
@@ -73,6 +71,7 @@ import cn.taketoday.bytecode.TypePath;
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public final class TraceClassVisitor extends ClassVisitor {
 
@@ -98,7 +97,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    * @param classVisitor the class visitor to which to delegate calls. May be {@literal null}.
    * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
-  public TraceClassVisitor(final ClassVisitor classVisitor, final PrintWriter printWriter) {
+  public TraceClassVisitor(@Nullable ClassVisitor classVisitor, final PrintWriter printWriter) {
     this(classVisitor, new Textifier(), printWriter);
   }
 
@@ -109,8 +108,7 @@ public final class TraceClassVisitor extends ClassVisitor {
    * @param printer the printer to convert the visited class into text.
    * @param printWriter the print writer to be used to print the class. May be {@literal null}.
    */
-  public TraceClassVisitor(
-          final ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
+  public TraceClassVisitor(@Nullable ClassVisitor classVisitor, final Printer printer, final PrintWriter printWriter) {
     super(classVisitor);
     this.printWriter = printWriter;
     this.p = printer;

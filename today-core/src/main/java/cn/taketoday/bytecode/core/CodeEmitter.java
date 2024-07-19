@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.core;
 
 import java.lang.reflect.Modifier;
@@ -35,6 +33,7 @@ import cn.taketoday.bytecode.commons.MethodSignature;
 public class CodeEmitter extends GeneratorAdapter {
 
   private final ClassEmitter ce;
+
   private final SimpleMethodInfo methodInfo;
 
   CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, MethodSignature sig, Type[] exceptionTypes) {
@@ -93,22 +92,6 @@ public class CodeEmitter extends GeneratorAdapter {
     fieldInsn(opcode, ce.getClassType(), name, info.type);
   }
 
-  public void super_getfield(String name, Type type) {
-    fieldInsn(Opcodes.GETFIELD, ce.getSuperType(), name, type);
-  }
-
-  public void super_putfield(String name, Type type) {
-    fieldInsn(Opcodes.PUTFIELD, ce.getSuperType(), name, type);
-  }
-
-  public void super_getstatic(String name, Type type) {
-    fieldInsn(Opcodes.GETSTATIC, ce.getSuperType(), name, type);
-  }
-
-  public void super_putstatic(String name, Type type) {
-    fieldInsn(Opcodes.PUTSTATIC, ce.getSuperType(), name, type);
-  }
-
   public void super_invoke() {
     super_invoke(methodInfo.getSignature());
   }
@@ -119,10 +102,6 @@ public class CodeEmitter extends GeneratorAdapter {
 
   public void super_invoke_constructor() {
     invokeConstructor(ce.getSuperType());
-  }
-
-  public void invoke_constructor_this() {
-    invokeConstructor(ce.getClassType());
   }
 
   public void invokeStatic(Type owner, MethodSignature sig, boolean isInterface) {
@@ -152,18 +131,6 @@ public class CodeEmitter extends GeneratorAdapter {
   public void checkcast_this() {
     checkCast(ce.getClassType());
   }
-
-  public void instance_of_this() {
-    instanceOf(ce.getClassType());
-  }
-
-//  /**
-//   * Toggles the integer on the top of the stack from 1 to 0 or vice versa
-//   */
-//  public void not() {
-//    push(1);
-//    math(XOR, Type.INT_TYPE);
-//  }
 
   /**
    * Pushes a zero onto the stack if the argument is a primitive class, or a null

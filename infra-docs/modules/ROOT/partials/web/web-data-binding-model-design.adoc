@@ -1,91 +1,82 @@
-xref:core/validation/beans-beans.adoc#beans-binding[Data binding] for web requests involves
-binding request parameters to a model object. By default, request parameters can be bound
-to any public property of the model object, which means malicious clients can provide
-extra values for properties that exist in the model object graph, but are not expected to
-be set. This is why model object design requires careful consideration.
 
-TIP: The model object, and its nested object graph is also sometimes referred to as a
-_command object_, _form-backing object_, or _POJO_ (Plain Old Java Object).
+WEB 请求的 xref:core/validation/beans-beans.adoc#beans-binding[数据绑定] 涉及将请求参数绑定到模型对象。
+默认情况下，请求参数可以绑定到模型对象的任何公共属性，这意味着恶意客户端可以为模型对象图中存在的属性提供额外的值，
+但这些属性并不期望被设置。这就是为什么模型对象设计需要仔细考虑。
 
-A good practice is to use a _dedicated model object_ rather than exposing your domain
-model such as JPA or Hibernate entities for web data binding. For example, on a form to
-change an email address, create a `ChangeEmailForm` model object that declares only
-the properties required for the input:
+
+TIP: 模型对象及其嵌套对象图有时也被称为 _命令对象_、_表单支持对象_ 或 _POJO_（Plain Old Java Object，普通旧Java对象）。
+
+一个好做法是使用 _专用模型对象_，而不是将您的领域模型（如 JPA 或 Hibernate 实体）暴露给web数据绑定。
+例如，在更改电子邮件地址的表单中，创建一个只声明输入所需属性的 `ChangeEmailForm` 模型对象：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	public class ChangeEmailForm {
+public class ChangeEmailForm {
 
-		private String oldEmailAddress;
-		private String newEmailAddress;
+  private String oldEmailAddress;
+  private String newEmailAddress;
 
-		public void setOldEmailAddress(String oldEmailAddress) {
-			this.oldEmailAddress = oldEmailAddress;
-		}
+  public void setOldEmailAddress(String oldEmailAddress) {
+    this.oldEmailAddress = oldEmailAddress;
+  }
 
-		public String getOldEmailAddress() {
-			return this.oldEmailAddress;
-		}
+  public String getOldEmailAddress() {
+    return this.oldEmailAddress;
+  }
 
-		public void setNewEmailAddress(String newEmailAddress) {
-			this.newEmailAddress = newEmailAddress;
-		}
+  public void setNewEmailAddress(String newEmailAddress) {
+    this.newEmailAddress = newEmailAddress;
+  }
 
-		public String getNewEmailAddress() {
-			return this.newEmailAddress;
-		}
+  public String getNewEmailAddress() {
+    return this.newEmailAddress;
+  }
 
-	}
+}
 ----
 
-Another good practice is to apply
-xref:core/validation/beans-beans.adoc#beans-constructor-binding[constructor binding],
-which uses only the request parameters it needs for constructor arguments, and any other
-input is ignored. This is in contrast to property binding which by default binds every
-request parameter for which there is a matching property.
+另一个好做法是应用 xref:core/validation/beans-beans.adoc#beans-constructor-binding[构造函数绑定]，
+它只使用请求参数中它需要的构造函数参数，其他任何输入都被忽略。这与属性绑定形成对比，属性绑定默认情况下会绑定每个有匹配属性的请求参数。
 
-If neither a dedicated model object nor constructor binding is sufficient, and you must
-use property binding, we strongy recommend registering `allowedFields` patterns (case
-sensitive) on `WebDataBinder` in order to prevent unexpected properties from being set.
-For example:
+如果既没有专用模型对象也没有构造函数绑定足够，并且您必须使用属性绑定，我们强烈推荐在 `WebDataBinder`
+上注册 `allowedFields` 模式（区分大小写），以防止意外设置属性。
+
+例如：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	@Controller
-	public class ChangeEmailController {
+@Controller
+public class ChangeEmailController {
 
-		@InitBinder
-		void initBinder(WebDataBinder binder) {
-			binder.setAllowedFields("oldEmailAddress", "newEmailAddress");
-		}
+  @InitBinder
+  void initBinder(WebDataBinder binder) {
+    binder.setAllowedFields("oldEmailAddress", "newEmailAddress");
+  }
 
-		// @RequestMapping methods, etc.
+  // @RequestMapping methods, etc.
 
-	}
+}
 ----
 
-You can also register `disallowedFields`  patterns (case insensitive). However,
-"allowed" configuration is preferred over "disallowed" as it is more explicit and less
-prone to mistakes.
+您也可以注册 `disallowedFields` 模式（不区分大小写）。然而，"允许" 配置比 "不允许" 配置更受青睐，因为它更明确，也更不容易出错。
 
-By default, constructor and property binding are both used. If you want to use
-constructor binding only, you can set the `declarativeBinding` flag on `WebDataBinder`
-through an `@InitBinder` method either locally within a controller or globally through an
-`@ControllerAdvice`. Turning this flag on ensures that only constructor binding is used
-and that property binding is not used unless `allowedFields` patterns are configured.
-For example:
+默认情况下，构造函数绑定和属性绑定都被使用。如果您只想使用构造函数绑定，您可以通过 `@InitBinder`
+方法在 `WebDataBinder` 上设置 `declarativeBinding` 标志，这可以局部地在控制器内进行，也可以通过
+`@ControllerAdvice` 全局进行。打开此标志确保只使用构造函数绑定，并且除非配置了 `allowedFields` 模式，否则不使用属性绑定。
+
+例如：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	@Controller
-	public class MyController {
+@Controller
+public class MyController {
 
-		@InitBinder
-		void initBinder(WebDataBinder binder) {
-			binder.setDeclarativeBinding(true);
-		}
+  @InitBinder
+  void initBinder(WebDataBinder binder) {
+    binder.setDeclarativeBinding(true);
+  }
 
-		// @RequestMapping methods, etc.
+  // @RequestMapping methods, etc.
 
-	}
+}
 ----

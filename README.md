@@ -5,10 +5,10 @@
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
-[![Snapshots Deployment Status](https://github.com/TAKETODAY/today-infrastructure/workflows/Deploy/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions)
-[![Coverage Status](https://github.com/TAKETODAY/today-infrastructure/workflows/Coveralls/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions)
-[![Multi Env Status](https://github.com/TAKETODAY/today-infrastructure/workflows/CI/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-infrastructure&amp;utm_campaign=Badge_Grade)
+[![Deploy](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml)
+[![Coveralls](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml)
+[![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/multi-env.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/multi-env.yaml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://app.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 
 **You ask me what the elegant code looks like? Then I have to show it!**

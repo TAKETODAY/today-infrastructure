@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -53,7 +52,6 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   protected final WebSocketSession delegate;
 
   public WebSocketSessionDecorator(WebSocketSession delegate) {
-    super(null);
     this.delegate = delegate;
   }
 
@@ -156,6 +154,11 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
+  public boolean isActive() {
+    return delegate.isActive();
+  }
+
+  @Override
   public void close() throws IOException {
     delegate.close();
   }
@@ -175,11 +178,6 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   @Nullable
   public InetSocketAddress getRemoteAddress() {
     return delegate.getRemoteAddress();
-  }
-
-  @Override
-  public HttpHeaders getHandshakeHeaders() {
-    return delegate.getHandshakeHeaders();
   }
 
   @Override
@@ -262,7 +260,7 @@ public class WebSocketSessionDecorator extends WebSocketSession {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [delegate=" + this.delegate + "]";
+    return "%s [delegate=%s]".formatted(getClass().getSimpleName(), this.delegate);
   }
 
 }

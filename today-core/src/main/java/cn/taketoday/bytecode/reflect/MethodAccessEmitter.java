@@ -58,14 +58,14 @@ final class MethodAccessEmitter extends ClassEmitter {
   static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
   static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
 
-  private static final Type FAST_CLASS = Type.fromClass(MethodAccess.class);
+  private static final Type FAST_CLASS = Type.forClass(MethodAccess.class);
   private static final Type INVOCATION_TARGET_EXCEPTION =
-          Type.fromInternalName("java/lang/reflect/InvocationTargetException");
+          Type.forInternalName("java/lang/reflect/InvocationTargetException");
 
   public MethodAccessEmitter(ClassVisitor v, String className, Class type) {
     super(v);
 
-    Type base = Type.fromClass(type);
+    Type base = Type.forClass(type);
     beginClass(Opcodes.JAVA_VERSION, Opcodes.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
 
     // constructor
@@ -203,7 +203,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     block.end();
     EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
     e.mark(illegalArg);
-    e.throwException(Type.fromClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
+    e.throwException(Type.forClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
   }
 
   private static final class GetIndexCallback implements ObjectSwitchCallback {

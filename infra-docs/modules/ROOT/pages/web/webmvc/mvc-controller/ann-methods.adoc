@@ -1,8 +1,7 @@
 [[mvc-ann-methods]]
-= Handler Methods
+= 注解处理器
 :page-section-summary-toc: 1
 
-`@RequestMapping` handler methods have a flexible signature and can choose from a range of
-supported controller method arguments and return values.
+`@RequestMapping` 处理器方法具有灵活的签名，并可以从支持的控制器方法参数和返回值中进行选择。
 
 

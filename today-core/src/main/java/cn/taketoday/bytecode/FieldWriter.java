@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,9 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link FieldVisitor} that generates a corresponding 'field_info' structure, as defined in the
@@ -67,18 +69,21 @@ final class FieldWriter extends FieldVisitor {
    * The last runtime invisible annotation of this field. The previous ones can be accessed with the
    * {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
+  @Nullable
   private AnnotationWriter lastRuntimeInvisibleAnnotation;
 
   /**
    * The last runtime visible type annotation of this field. The previous ones can be accessed with
    * the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
+  @Nullable
   private AnnotationWriter lastRuntimeVisibleTypeAnnotation;
 
   /**
    * The last runtime invisible type annotation of this field. The previous ones can be accessed
    * with the {@link AnnotationWriter#previousAnnotation} field. May be {@literal null}.
    */
+  @Nullable
   private AnnotationWriter lastRuntimeInvisibleTypeAnnotation;
 
   /**
@@ -90,6 +95,7 @@ final class FieldWriter extends FieldVisitor {
    * #putFieldInfo} method writes the attributes in the order defined by this list, i.e. in the
    * reverse order specified by the user.
    */
+  @Nullable
   private Attribute firstAttribute;
 
   // -----------------------------------------------------------------------------------------------
@@ -106,13 +112,8 @@ final class FieldWriter extends FieldVisitor {
    * @param signature the field's signature. May be {@literal null}.
    * @param constantValue the field's constant value. May be {@literal null}.
    */
-  FieldWriter(
-          final SymbolTable symbolTable,
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final Object constantValue) {
+  FieldWriter(final SymbolTable symbolTable, final int access, final String name,
+          final String descriptor, final String signature, final Object constantValue) {
     this.symbolTable = symbolTable;
     this.accessFlags = access;
     this.nameIndex = symbolTable.addConstantUtf8(name);

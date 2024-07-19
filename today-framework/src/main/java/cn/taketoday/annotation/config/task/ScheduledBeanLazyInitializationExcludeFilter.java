@@ -18,7 +18,6 @@
 package cn.taketoday.annotation.config.task;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +44,7 @@ import cn.taketoday.util.ClassUtils;
  */
 class ScheduledBeanLazyInitializationExcludeFilter implements LazyInitializationExcludeFilter {
 
-  private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
+  private final Set<Class<?>> nonAnnotatedClasses = ConcurrentHashMap.newKeySet(64);
 
   ScheduledBeanLazyInitializationExcludeFilter() {
     // Ignore AOP infrastructure such as scoped proxies.

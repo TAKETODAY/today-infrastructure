@@ -330,7 +330,7 @@ public final class WebAsyncManager {
     }
 
     var interceptors = new ArrayList<CallableProcessingInterceptor>();
-    interceptors.add(webAsyncTask.getInterceptor());
+    interceptors.add(webAsyncTask.createInterceptor());
     if (callableInterceptors != null) {
       interceptors.addAll(callableInterceptors.values());
     }

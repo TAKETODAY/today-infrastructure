@@ -44,7 +44,7 @@ public final class MockMvcBuilders {
   /**
    * Build a {@link MockMvc} instance using the given, fully initialized
    * (i.e., <em>refreshed</em>) {@link WebApplicationContext}.
-   * <p>The {@link MockDispatcher DispatcherServlet}
+   * <p>The {@link MockDispatcher DispatcherHandler}
    * will use the context to discover Web MVC infrastructure and application
    * controllers in it. The context must have been configured with a
    * {@link MockContext MockContext}.

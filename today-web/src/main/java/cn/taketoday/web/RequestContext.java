@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -1725,6 +1726,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * method has already been called for this response object
    * @see #getOutputStream
    * @see #reset
+   * @see #getOutputStream()
+   * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    */
   @Override
   public PrintWriter getWriter() throws IOException {
@@ -1740,7 +1743,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * template method for get writer
    */
   protected PrintWriter doGetWriter() throws IOException {
-    return new PrintWriter(getOutputStream());
+    return new PrintWriter(getOutputStream(), true);
   }
 
   /**
@@ -1931,10 +1934,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public void flush() throws IOException {
     writeHeaders();
 
-    if (writer != null) {
-      writer.flush();
-    }
-    else if (outputStream != null) {
+    if (outputStream != null) {
       outputStream.flush();
     }
   }

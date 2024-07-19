@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.tree.analysis;
 
@@ -60,7 +57,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
         Object value = ((LdcInsnNode) insn).cst;
         size = value instanceof Long || value instanceof Double ? 2 : 1;
       }
-      case GETSTATIC -> size = Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
+      case GETSTATIC -> size = Type.forDescriptor(((FieldInsnNode) insn).desc).getSize();
       default -> size = 1;
     }
     return new SourceValue(size, insn);
@@ -75,7 +72,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
   public SourceValue unaryOperation(final AbstractInsnNode insn, final SourceValue value) {
     int size = switch (insn.getOpcode()) {
       case LNEG, DNEG, I2L, I2D, L2D, F2L, F2D, D2L -> 2;
-      case GETFIELD -> Type.fromDescriptor(((FieldInsnNode) insn).desc).getSize();
+      case GETFIELD -> Type.forDescriptor(((FieldInsnNode) insn).desc).getSize();
       default -> 1;
     };
     return new SourceValue(size, insn);

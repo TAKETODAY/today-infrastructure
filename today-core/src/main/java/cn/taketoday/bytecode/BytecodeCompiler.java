@@ -271,13 +271,14 @@ public abstract class BytecodeCompiler {
   }
 
   private static CodeGenerationException newException(String className, Throwable ex) {
-    return new CodeGenerationException("Class: '" + className + "' define failed", ex);
+    return new CodeGenerationException("Class: '%s' define failed".formatted(className), ex);
   }
 
   /**
    * A ChildClassLoader will load the generated compiled classes.
    */
   private static class ChildClassLoader extends URLClassLoader {
+
     private static final URL[] NO_URLS = new URL[0];
 
     private final AtomicInteger classesDefinedCount = new AtomicInteger(0);

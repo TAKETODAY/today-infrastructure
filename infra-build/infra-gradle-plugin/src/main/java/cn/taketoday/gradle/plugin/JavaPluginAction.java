@@ -48,7 +48,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.gradle.dsl.InfraApplicationExtension;
-import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.run.InfraRun;
 import cn.taketoday.lang.Nullable;
@@ -88,7 +87,6 @@ final class JavaPluginAction implements PluginApplicationAction {
     configureTestAndDevelopmentOnlyConfiguration(project);
     TaskProvider<ResolveMainClassName> resolveMainClassName = configureResolveMainClassNameTask(project);
     TaskProvider<InfraJar> infraJar = configureInfraJarTask(project, resolveMainClassName);
-    configureInfraBuildImageTask(project, infraJar);
     configureArtifactPublication(infraJar);
     configureInfraRunTask(project, resolveMainClassName);
     TaskProvider<ResolveMainClassName> resolveMainTestClassName = configureResolveMainTestClassNameTask(project);
@@ -179,14 +177,6 @@ final class JavaPluginAction implements PluginApplicationAction {
               resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolver.readMainClassName()));
       infraJar.getTargetJavaVersion().set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
       infraJar.resolvedArtifacts(runtimeClasspath.getIncoming().getArtifacts().getResolvedArtifacts());
-    });
-  }
-
-  private void configureInfraBuildImageTask(Project project, TaskProvider<InfraJar> infraJar) {
-    project.getTasks().register(InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class, (buildImage) -> {
-      buildImage.setDescription("Builds an OCI image of the application using the output of the infraJar task");
-      buildImage.setGroup(BasePlugin.BUILD_GROUP);
-      buildImage.getArchiveFile().set(infraJar.get().getArchiveFile());
     });
   }
 

@@ -97,6 +97,9 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
         return orderByClause;
       }
     }
+    if (orderByClause == null) {
+      orderByClause = ConditionStatement.super.getOrderByClause(metadata);
+    }
     return orderByClause;
   }
 

@@ -59,7 +59,7 @@ class VirtualZipDataBlockTests {
 
   @Test
   void createContainsValidZipContent() throws IOException {
-    FileChannelDataBlock data = new FileChannelDataBlock(this.file.toPath());
+    FileDataBlock data = new FileDataBlock(this.file.toPath());
     data.open();
     List<ZipCentralDirectoryFileHeaderRecord> centralRecords = new ArrayList<>();
     List<Long> centralRecordPositions = new ArrayList<>();
