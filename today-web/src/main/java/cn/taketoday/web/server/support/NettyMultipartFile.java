@@ -104,8 +104,8 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
       return fileUpload.getByteBuf().readBytes(out, position, Math.toIntExact(count));
     }
 
-    try (var channel = FileChannel.open(fileUpload.getFile().toPath())) {
-      return channel.transferTo(position, count, out);
+    try (var src = FileChannel.open(fileUpload.getFile().toPath())) {
+      return out.transferFrom(src, position, count);
     }
   }
 
