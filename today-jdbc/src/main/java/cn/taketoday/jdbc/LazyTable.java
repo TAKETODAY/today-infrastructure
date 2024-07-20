@@ -24,38 +24,33 @@ import java.util.List;
  */
 public final class LazyTable implements AutoCloseable {
 
-  private String name;
+  private final String tableName;
 
-  private ResultSetIterable<Row> rows;
+  private final ResultSetIterable<Row> rows;
 
-  private List<Column> columns;
+  private final List<Column> columns;
 
-  public String getName() {
-    return name;
+  LazyTable(String tableName, ResultSetIterable<Row> rows, List<Column> columns) {
+    this.tableName = tableName;
+    this.rows = rows;
+    this.columns = columns;
   }
 
-  void setName(String name) {
-    this.name = name;
+  public String getName() {
+    return tableName;
   }
 
   public Iterable<Row> rows() {
     return rows;
   }
 
-  void setRows(ResultSetIterable<Row> rows) {
-    this.rows = rows;
-  }
-
   public List<Column> columns() {
     return columns;
-  }
-
-  void setColumns(List<Column> columns) {
-    this.columns = columns;
   }
 
   @Override
   public void close() {
     this.rows.close();
   }
+
 }
