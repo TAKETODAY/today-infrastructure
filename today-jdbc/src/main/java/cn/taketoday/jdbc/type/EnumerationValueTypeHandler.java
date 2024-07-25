@@ -66,7 +66,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   @Nullable
   static <T> BeanProperty getAnnotatedProperty(Class<T> type) {
     BeanProperty annotatedProperty = null;
-    BeanMetadata metadata = BeanMetadata.from(type);
+    BeanMetadata metadata = BeanMetadata.forClass(type);
     for (BeanProperty beanProperty : metadata) {
       if (MergedAnnotations.from(beanProperty.getAnnotations()).isPresent(EnumerationValue.class)) {
         Assert.state(annotatedProperty == null, "@EnumerationValue must annotated on one property");

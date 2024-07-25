@@ -174,7 +174,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
   public BeanMetadata getMetadata() {
     BeanMetadata beanMetadata = this.beanMetadata;
     if (beanMetadata == null) {
-      beanMetadata = BeanMetadata.from(getWrappedClass());
+      beanMetadata = BeanMetadata.forClass(getWrappedClass());
       this.beanMetadata = beanMetadata;
     }
     return beanMetadata;

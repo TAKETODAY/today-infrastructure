@@ -36,12 +36,12 @@ final class PropertyPath {
   public final BeanProperty beanProperty;
 
   public PropertyPath(Class<?> objectType, String propertyPath) {
-    BeanMetadata metadata = BeanMetadata.from(objectType);
+    BeanMetadata metadata = BeanMetadata.forClass(objectType);
     int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
     String name = propertyPath.substring(0, pos);
     this.beanProperty = metadata.obtainBeanProperty(name);
 
-    BeanMetadata nextMetadata = BeanMetadata.from(beanProperty.getType());
+    BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
     this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);
   }
 
@@ -52,7 +52,7 @@ final class PropertyPath {
       String propertyName = propertyPath.substring(0, pos);
       this.beanProperty = metadata.getBeanProperty(propertyName);
       if (beanProperty != null) {
-        BeanMetadata nextMetadata = BeanMetadata.from(beanProperty.getType());
+        BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
         this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);
       }
       else {

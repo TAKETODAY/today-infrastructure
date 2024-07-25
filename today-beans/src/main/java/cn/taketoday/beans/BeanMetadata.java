@@ -49,11 +49,13 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private final Class<?> beanClass;
 
+  @Nullable
   private BeanInstantiator instantiator;
 
   /**
    * @since 4.0
    */
+  @Nullable
   private BeanPropertiesHolder propertyHolder;
 
   public BeanMetadata(Class<?> beanClass) {
@@ -280,7 +282,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
-  public static BeanMetadata from(Class<?> beanClass) {
+  public static BeanMetadata forClass(Class<?> beanClass) {
     return metadataMappings.get(beanClass);
   }
 
@@ -291,8 +293,8 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return {@link BeanMetadata}
    * @see ClassUtils#isSimpleType(Class)
    */
-  public static BeanMetadata from(Object object) {
-    return from(object.getClass());
+  public static BeanMetadata forInstance(Object object) {
+    return forClass(object.getClass());
   }
 
   /**

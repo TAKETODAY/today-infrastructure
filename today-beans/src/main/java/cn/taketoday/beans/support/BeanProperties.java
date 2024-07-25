@@ -66,7 +66,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.forInstance(destination);
     copy(source, destinationMetadata, destination, converter, null);
   }
 
@@ -98,7 +98,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.forInstance(destination);
     copy(source, destinationMetadata, destination, converter, ignoreProperties);
   }
 
@@ -132,7 +132,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination class is required");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.forClass(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
     copy(source, destinationMetadata, destinationInstance, converter, null);
     return (T) destinationInstance;
@@ -162,7 +162,7 @@ public class BeanProperties {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination class is required");
 
-    BeanMetadata destinationMetadata = BeanMetadata.from(destination);
+    BeanMetadata destinationMetadata = BeanMetadata.forClass(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
     copy(source, destinationMetadata, destinationInstance, converter, ignoreProperties);
     return (T) destinationInstance;
@@ -191,7 +191,7 @@ public class BeanProperties {
         }
       }
       else {
-        BeanMetadata sourceMetadata = BeanMetadata.from(source);
+        BeanMetadata sourceMetadata = BeanMetadata.forInstance(source);
         for (BeanProperty property : sourceMetadata) {
           if (property.isReadable()) {
             String propertyName = property.getName();
@@ -216,7 +216,7 @@ public class BeanProperties {
         }
       }
       else {
-        BeanMetadata sourceMetadata = BeanMetadata.from(source);
+        BeanMetadata sourceMetadata = BeanMetadata.forInstance(source);
         for (BeanProperty property : sourceMetadata) {
           if (property.isReadable()) {
             String propertyName = property.getName();

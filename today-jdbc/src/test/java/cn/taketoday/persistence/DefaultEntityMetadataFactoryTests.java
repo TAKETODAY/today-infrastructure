@@ -100,7 +100,7 @@ class DefaultEntityMetadataFactoryTests {
 
     EntityMetadata entityMetadata = factory.createEntityMetadata(OverrideId.class);
     assertThat(entityMetadata.idProperty).isNotNull();
-    BeanProperty id = BeanMetadata.from(OverrideId.class).obtainBeanProperty("id");
+    BeanProperty id = BeanMetadata.forClass(OverrideId.class).obtainBeanProperty("id");
     assertThat(entityMetadata.idProperty.property)
             .isEqualTo(id);
   }
