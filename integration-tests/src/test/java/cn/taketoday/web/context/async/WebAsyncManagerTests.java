@@ -68,7 +68,7 @@ class WebAsyncManagerTests {
     this.asyncManager = request.getAsyncManager();
     this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
     this.asyncWebRequest = mock(AsyncWebRequest.class);
-    this.asyncManager.setAsyncRequest(this.asyncWebRequest);
+    this.request.setAsyncRequest(this.asyncWebRequest);
 
     BeanWrapper.forDirectFieldAccess(request)
             .setPropertyValue("asyncWebRequest", asyncWebRequest);
@@ -86,12 +86,6 @@ class WebAsyncManagerTests {
     given(this.asyncWebRequest.isAsyncStarted()).willReturn(true);
     request.getAsyncWebRequest();
     assertThat(this.request.isConcurrentHandlingStarted()).isTrue();
-  }
-
-  @Test
-  public void setAsyncRequestAfterAsyncStarted() {
-    this.asyncWebRequest.startAsync();
-    assertThatIllegalArgumentException().isThrownBy(() -> this.asyncManager.setAsyncRequest(null));
   }
 
   @Test

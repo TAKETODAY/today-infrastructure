@@ -74,7 +74,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.webRequest = new MockRequestContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
-    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
+    webRequest.setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }
 
@@ -150,7 +150,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseBodyEmitterWithTimeoutValue() throws Exception {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
+    webRequest.setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onTimeout(Mockito.mock(Runnable.class));
@@ -170,7 +170,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   public void responseBodyEmitterWithErrorValue() throws Exception {
 
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
+    webRequest.setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onError(Mockito.mock(Consumer.class));

@@ -300,7 +300,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
     }
   }
 
-  final DeferredResultProcessingInterceptor getInterceptor() {
+  final DeferredResultProcessingInterceptor createInterceptor() {
     return new DeferredResultProcessingInterceptor() {
       @Override
       public <S> boolean handleTimeout(RequestContext request, DeferredResult<S> deferredResult) {

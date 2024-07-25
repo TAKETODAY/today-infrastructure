@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
@@ -41,13 +42,14 @@ class CallableInterceptorChain {
 
   private int preProcessIndex = -1;
 
+  @Nullable
   private volatile Future<?> taskFuture;
 
   public CallableInterceptorChain(ArrayList<CallableProcessingInterceptor> interceptors) {
     this.interceptors = interceptors;
   }
 
-  public void setTaskFuture(Future<?> taskFuture) {
+  public void setTaskFuture(@Nullable Future<?> taskFuture) {
     this.taskFuture = taskFuture;
   }
 

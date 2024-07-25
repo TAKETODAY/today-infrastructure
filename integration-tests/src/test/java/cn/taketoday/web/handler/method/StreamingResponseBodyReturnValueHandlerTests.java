@@ -31,12 +31,11 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +46,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private StreamingResponseBodyReturnValueHandler handler;
 
-  private RequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private HttpMockRequestImpl request;
 
@@ -62,7 +61,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
     this.webRequest = new MockRequestContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
-    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
+    webRequest.setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }
 
