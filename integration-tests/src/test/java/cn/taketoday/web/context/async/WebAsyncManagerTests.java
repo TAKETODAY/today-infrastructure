@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
@@ -69,9 +68,6 @@ class WebAsyncManagerTests {
     this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
     this.asyncWebRequest = mock(AsyncWebRequest.class);
     this.request.setAsyncRequest(this.asyncWebRequest);
-
-    BeanWrapper.forDirectFieldAccess(request)
-            .setPropertyValue("asyncWebRequest", asyncWebRequest);
 
     reset(this.asyncWebRequest);
   }
