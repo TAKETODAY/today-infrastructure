@@ -1692,7 +1692,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     publishEvent(new ContextRefreshedEvent(this));
 
     applyState(State.STARTED);
-    Duration duration = Duration.between(getStartupAt(), Instant.now());
+    Duration duration = Duration.between(getStartupDate(), Instant.now());
     logger.info("Application context startup in {} ms", duration.toMillis());
   }
 
