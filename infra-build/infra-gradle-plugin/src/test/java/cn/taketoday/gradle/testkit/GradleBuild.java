@@ -247,7 +247,6 @@ public class GradleBuild {
     List<String> allArguments = new ArrayList<>();
     allArguments.add("-PinfraVersion=" + getInfraVersion());
     allArguments.add("-PskipAutoApplyPlugins");
-    allArguments.add("-PskipAOTDependency");
     allArguments.add("-Pinfra.dependencies=cn.taketoday:infra-dependencies:" + getInfraVersion());
     allArguments.add("--stacktrace");
     allArguments.addAll(Arrays.asList(arguments));

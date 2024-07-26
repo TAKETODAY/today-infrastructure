@@ -127,9 +127,6 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             Set.of(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME,
                     InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME));
     project.getDependencies().add(aotClasspath.getName(), project.files(mainSourceSet.getOutput()));
-    if (!project.hasProperty("skipAOTDependency")) {
-      addAOTDependency(project, aotClasspath);
-    }
     Configuration compileClasspath = project.getConfigurations()
             .getByName(aotSourceSet.getCompileClasspathConfigurationName());
     compileClasspath.extendsFrom(aotClasspath);
@@ -237,19 +234,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(dependenciesCoordinates(project)));
     DependencySet dependencies = configuration.getDependencies();
     dependencies.add(infraDependencies);
-    dependencies.add(dependencyHandler.create("cn.taketoday:today-core-aot"));
     dependencies.add(dependencyHandler.create("org.junit.platform:junit-platform-launcher"));
-  }
-
-  /**
-   * @since 5.0
-   */
-  private void addAOTDependency(Project project, Configuration configuration) {
-    DependencyHandler dependencyHandler = project.getDependencies();
-    Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(dependenciesCoordinates(project)));
-    DependencySet dependencies = configuration.getDependencies();
-    dependencies.add(infraDependencies);
-    dependencies.add(dependencyHandler.create("cn.taketoday:today-core-aot"));
   }
 
 }
