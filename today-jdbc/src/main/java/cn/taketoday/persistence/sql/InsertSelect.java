@@ -23,7 +23,7 @@ import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 import cn.taketoday.util.CollectionUtils;
 
 /**

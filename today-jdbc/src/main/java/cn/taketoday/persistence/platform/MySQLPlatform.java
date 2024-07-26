@@ -15,12 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.persistence.dialect;
+package cn.taketoday.persistence.platform;
 
 /**
- * @author TODAY 2021/10/10 13:13
+ * @author TODAY 2021/10/10 13:12
  * @since 4.0
  */
-public class PostgreSQLPlatform extends Platform {
+public class MySQLPlatform extends Platform {
 
 }

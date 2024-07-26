@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Map;
 
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 import cn.taketoday.persistence.model.UserModel;
 import cn.taketoday.persistence.sql.Restriction;
 

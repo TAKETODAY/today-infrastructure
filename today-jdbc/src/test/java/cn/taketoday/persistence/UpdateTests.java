@@ -19,7 +19,7 @@ package cn.taketoday.persistence;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 import cn.taketoday.persistence.sql.Update;
 
 import static org.assertj.core.api.Assertions.assertThat;

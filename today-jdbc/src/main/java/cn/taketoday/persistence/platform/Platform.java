@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.persistence.dialect;
+package cn.taketoday.persistence.platform;
 
 import java.util.regex.Pattern;
 
