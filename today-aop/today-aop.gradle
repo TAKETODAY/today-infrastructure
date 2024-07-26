@@ -20,6 +20,8 @@ description = "AOP infrastructure"
 dependencies {
   api(project(":today-beans"))
   api(project(":today-core"))
+
+  optional(project(":today-core-aot"))
   optional("org.aspectj:aspectjweaver")
   optional("org.apache.commons:commons-pool2")
   optional 'com.jamonapi:jamon:2.82'

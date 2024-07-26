@@ -28,6 +28,7 @@ dependencies {
 
   optional(project(":today-aop"))
   optional(project(":today-oxm"))
+  optional(project(":today-core-aot"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')
 

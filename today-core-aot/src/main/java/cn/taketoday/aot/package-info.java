@@ -15,26 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.lang;
-
 /**
- * @author Andy Wilkinson
+ * Core package for Infra AOT infrastructure.
  */
-class ConstructorArgsDummyFactory implements DummyFactory {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.aot;
 
-  private final String string;
-
-  public ConstructorArgsDummyFactory(String string) {
-    this(string, 0);
-  }
-
-  private ConstructorArgsDummyFactory(String string, int reasonCode) {
-    this.string = string;
-  }
-
-  @Override
-  public String getString() {
-    return this.string;
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

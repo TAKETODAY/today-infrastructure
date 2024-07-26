@@ -17,24 +17,16 @@
 
 package cn.taketoday.lang;
 
+import cn.taketoday.core.annotation.Order;
+
 /**
- * @author Andy Wilkinson
+ * @author Arjen Poutsma
  */
-class ConstructorArgsDummyFactory implements DummyFactory {
+@Order(2)
+public class MyDummyFactory2 implements DummyFactory {
 
-  private final String string;
-
-  public ConstructorArgsDummyFactory(String string) {
-    this(string, 0);
-  }
-
-  private ConstructorArgsDummyFactory(String string, int reasonCode) {
-    this.string = string;
-  }
-
-  @Override
-  public String getString() {
-    return this.string;
-  }
-
+	@Override
+	public String getString() {
+		return "Bar";
+	}
 }

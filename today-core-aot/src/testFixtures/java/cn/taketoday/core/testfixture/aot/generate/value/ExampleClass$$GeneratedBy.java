@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.lang;
+package cn.taketoday.core.testfixture.aot.generate.value;
 
 /**
- * @author Andy Wilkinson
+ * Fake CGLIB generated class.
+ *
+ * @author Phillip Webb
  */
-class ConstructorArgsDummyFactory implements DummyFactory {
-
-  private final String string;
-
-  public ConstructorArgsDummyFactory(String string) {
-    this(string, 0);
-  }
-
-  private ConstructorArgsDummyFactory(String string, int reasonCode) {
-    this.string = string;
-  }
-
-  @Override
-  public String getString() {
-    return this.string;
-  }
+public class ExampleClass$$GeneratedBy extends ExampleClass {
 
 }
