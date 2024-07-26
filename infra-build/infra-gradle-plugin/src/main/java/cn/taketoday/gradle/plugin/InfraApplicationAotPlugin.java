@@ -127,7 +127,9 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             Set.of(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME,
                     InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME));
     project.getDependencies().add(aotClasspath.getName(), project.files(mainSourceSet.getOutput()));
-    addAOTDependency(project, aotClasspath);
+    if (!project.hasProperty("skipAOTDependency")) {
+      addAOTDependency(project, aotClasspath);
+    }
     Configuration compileClasspath = project.getConfigurations()
             .getByName(aotSourceSet.getCompileClasspathConfigurationName());
     compileClasspath.extendsFrom(aotClasspath);

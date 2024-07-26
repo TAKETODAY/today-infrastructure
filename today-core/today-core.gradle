@@ -1,6 +1,3 @@
-import cn.taketoday.build.shadow.ShadowSource
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
   id 'me.champeau.mrjar'
 }
@@ -15,8 +12,6 @@ multiRelease {
 configurations {
   java21Api.extendsFrom(api)
   java21Implementation.extendsFrom(implementation)
-  graalvm
-  javapoet
 }
 
 dependencies {
