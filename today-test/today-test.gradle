@@ -19,6 +19,8 @@ description = "Testing infrastructure"
 
 dependencies {
   api(project(":today-core"))
+
+  optional(project(":today-core-aot"))
   optional(project(":today-aop"))
   optional(project(":today-beans"))
   optional(project(":today-context"))
