@@ -77,7 +77,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void handleReturnValue(RequestContext context,
-          Object handler, @Nullable Object returnValue) throws Exception {
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
       BindingContext bindingContext = context.getBinding();
       if (bindingContext != null) {

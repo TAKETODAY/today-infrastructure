@@ -56,9 +56,9 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
       return;
     }
 
-    DeferredResult<?> result;
+    DeferredResult<Object> result;
     if (returnValue instanceof DeferredResult) {
-      result = (DeferredResult<?>) returnValue;
+      result = (DeferredResult<Object>) returnValue;
     }
     else if (returnValue instanceof Future<?>) {
       result = adaptListenableFuture((Future<Object>) returnValue);
@@ -66,13 +66,16 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     else if (returnValue instanceof CompletionStage) {
       result = adaptCompletionStage((CompletionStage<?>) returnValue);
     }
+    else if (HandlerMethod.isHandler(handler)) {
+      result = new DeferredResult<>();
+      result.setResult(returnValue);
+    }
     else {
       // Should not happen...
       throw new IllegalStateException("Unexpected return value type: " + returnValue);
     }
 
-    context.getAsyncManager()
-            .startDeferredResultProcessing(result, handler);
+    context.getAsyncManager().startDeferredResultProcessing(result, handler);
   }
 
   private DeferredResult<Object> adaptListenableFuture(Future<Object> future) {

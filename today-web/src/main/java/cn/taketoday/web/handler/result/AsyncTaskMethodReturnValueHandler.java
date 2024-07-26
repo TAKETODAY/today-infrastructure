@@ -23,6 +23,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
+import static cn.taketoday.web.handler.result.CallableMethodReturnValueHandler.startCallableProcessing;
+
 /**
  * for WebAsyncTask
  *
@@ -54,8 +56,10 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);
       }
-      context.getAsyncManager()
-              .startCallableProcessing(task, handler);
+      context.getAsyncManager().startCallableProcessing(task, handler);
+    }
+    else if (HandlerMethod.isHandler(handler)) {
+      startCallableProcessing(context, handler, returnValue);
     }
   }
 

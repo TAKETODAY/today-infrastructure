@@ -28,6 +28,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
+import static cn.taketoday.web.handler.result.CallableMethodReturnValueHandler.startCallableProcessing;
+
 /**
  * Supports return values of type
  * {@link StreamingResponseBody} and also {@code ResponseEntity<StreamingResponseBody>}.
@@ -76,16 +78,18 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
     }
 
     if (returnValue instanceof StreamingResponseBody streamingBody) {
-      var callable = new StreamingResponseBodyTask(context.getOutputStream(), streamingBody);
-      context.getAsyncManager()
-              .startCallableProcessing(callable, handler);
+      var callable = new StreamingBodyTask(context.getOutputStream(), streamingBody);
+      context.getAsyncManager().startCallableProcessing(callable, handler);
+    }
+    else if (HandlerMethod.isHandler(handler)) {
+      startCallableProcessing(context, handler, returnValue);
     }
     else {
       throw new IllegalArgumentException("StreamingResponseBody expected");
     }
   }
 
-  private record StreamingResponseBodyTask(
+  private record StreamingBodyTask(
           OutputStream outputStream, StreamingResponseBody streamingBody) implements Callable<Void> {
 
     @Override
