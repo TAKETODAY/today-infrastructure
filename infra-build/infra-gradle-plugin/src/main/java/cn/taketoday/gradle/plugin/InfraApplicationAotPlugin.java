@@ -235,6 +235,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     Dependency infraDependencies = dependencyHandler.create(dependencyHandler.platform(dependenciesCoordinates(project)));
     DependencySet dependencies = configuration.getDependencies();
     dependencies.add(infraDependencies);
+    dependencies.add(dependencyHandler.create("cn.taketoday:today-core-aot"));
     dependencies.add(dependencyHandler.create("org.junit.platform:junit-platform-launcher"));
   }
 
