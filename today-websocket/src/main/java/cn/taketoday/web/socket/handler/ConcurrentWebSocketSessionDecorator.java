@@ -18,6 +18,7 @@
 package cn.taketoday.web.socket.handler;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,8 +27,12 @@ import java.util.function.Consumer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
+import cn.taketoday.web.socket.PingMessage;
+import cn.taketoday.web.socket.PongMessage;
+import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -139,6 +144,26 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
   }
 
   @Override
+  public void sendText(CharSequence text) throws IOException {
+    sendMessage(new TextMessage(text, true));
+  }
+
+  @Override
+  public void sendBinary(ByteBuffer data) throws IOException {
+    sendMessage(new BinaryMessage(data));
+  }
+
+  @Override
+  public void sendPing() throws IOException {
+    sendMessage(new PingMessage());
+  }
+
+  @Override
+  public void sendPong() throws IOException {
+    sendMessage(new PongMessage());
+  }
+
+  @Override
   public void sendMessage(Message<?> message) throws IOException {
     if (shouldNotSend()) {
       return;
@@ -232,6 +257,11 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
   private void limitExceeded(String reason) {
     this.limitExceeded = true;
     throw new SessionLimitExceededException(reason, CloseStatus.SESSION_NOT_RELIABLE);
+  }
+
+  @Override
+  public void close() throws IOException {
+    close(CloseStatus.NORMAL);
   }
 
   @Override

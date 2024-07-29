@@ -20,18 +20,14 @@ package cn.taketoday.web.socket.handler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.PingMessage;
-import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketSession;
 
@@ -164,36 +160,6 @@ public class TestWebSocketSession extends WebSocketSession {
   @Override
   public void sendMessage(Message<?> message) throws IOException {
     this.messages.add(message);
-  }
-
-  @Override
-  public void sendText(String text) throws IOException {
-
-  }
-
-  @Override
-  public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
-
-  }
-
-  @Override
-  public void sendBinary(BinaryMessage data) throws IOException {
-
-  }
-
-  @Override
-  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-
-  }
-
-  @Override
-  public void sendPing(PingMessage message) throws IOException {
-
-  }
-
-  @Override
-  public void sendPong(PongMessage message) throws IOException {
-
   }
 
   @Override
