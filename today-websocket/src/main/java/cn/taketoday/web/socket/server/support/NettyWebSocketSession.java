@@ -25,8 +25,10 @@ import java.util.Objects;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
+import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
+import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -36,6 +38,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.CharsetUtil;
 
 /**
  * Netty websocket session
@@ -55,34 +58,47 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void sendText(String text) {
-    channel.writeAndFlush(new TextWebSocketFrame(text));
+  public void sendMessage(Message<?> message) throws IOException {
+    if (message instanceof TextMessage) {
+      sendText((String) message.getPayload());
+    }
+    else if (message instanceof BinaryMessage bm) {
+      sendBinary(bm.getPayload());
+    }
+    else if (message instanceof PingMessage pm) {
+      channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
+    }
+    else if (message instanceof PongMessage pm) {
+      channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
+    }
+    else {
+      throw new IllegalStateException("Unexpected WebSocket message type: " + message);
+    }
   }
 
   @Override
-  public void sendPartialText(String partialMessage, boolean isLast) {
-    channel.writeAndFlush(new TextWebSocketFrame(isLast, 0, partialMessage));
+  public void sendText(CharSequence text) {
+    if (text.isEmpty()) {
+      channel.writeAndFlush(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
+    }
+    else {
+      channel.writeAndFlush(new TextWebSocketFrame(Unpooled.copiedBuffer(text, CharsetUtil.UTF_8)));
+    }
   }
 
   @Override
-  public void sendBinary(BinaryMessage data) {
-    final ByteBuffer payload = data.getPayload();
+  public void sendBinary(ByteBuffer payload) {
     channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
   }
 
   @Override
-  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) {
-    channel.writeAndFlush(new BinaryWebSocketFrame(isLast, 0, Unpooled.wrappedBuffer(partialByte)));
+  public void sendPing() {
+    channel.writeAndFlush(new PingWebSocketFrame());
   }
 
   @Override
-  public void sendPing(PingMessage message) {
-    channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
-  }
-
-  @Override
-  public void sendPong(PongMessage message) {
-    channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
+  public void sendPong() {
+    channel.writeAndFlush(new PongWebSocketFrame());
   }
 
   @Override

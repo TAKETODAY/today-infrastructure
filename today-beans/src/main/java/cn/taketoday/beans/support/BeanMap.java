@@ -214,12 +214,12 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
   // static
 
   public static <T> BeanMap<T> forInstance(T bean) {
-    return new BeanMap<>(bean, BeanMetadata.from(bean));
+    return new BeanMap<>(bean, BeanMetadata.forInstance(bean));
   }
 
   @SuppressWarnings("unchecked")
   public static <T> BeanMap<T> forClass(Class<T> beanClass) {
-    BeanMetadata metadata = BeanMetadata.from(beanClass);
+    BeanMetadata metadata = BeanMetadata.forClass(beanClass);
     return new BeanMap<>((T) metadata.newInstance(), metadata);
   }
 

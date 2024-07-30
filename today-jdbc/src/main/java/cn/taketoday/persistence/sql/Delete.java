@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * An SQL {@code DELETE} statement

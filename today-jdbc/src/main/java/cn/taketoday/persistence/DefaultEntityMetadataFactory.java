@@ -115,7 +115,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       throw new IllegalEntityException("Cannot determine table name for entity: " + entityClass);
     }
 
-    BeanMetadata metadata = BeanMetadata.from(entityClass);
+    BeanMetadata metadata = BeanMetadata.forClass(entityClass);
     ArrayList<String> columnNames = new ArrayList<>();
     ArrayList<BeanProperty> beanProperties = new ArrayList<>();
     ArrayList<EntityProperty> entityProperties = new ArrayList<>();

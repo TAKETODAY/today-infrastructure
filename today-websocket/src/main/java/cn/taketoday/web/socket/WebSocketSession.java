@@ -47,120 +47,44 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   }
 
   /**
-   * Send a message in parts, blocking until all of the message has
-   * been transmitted. The runtime reads the message in order.
-   * Non-final parts of the message are sent with isLast set to false.
-   * The final part must be sent with isLast set to true.
-   *
-   * @param message Message
-   * @throws IOException if there is a problem delivering the message.
-   * @see Message#isLast()
-   */
-  public void sendMessage(Message<?> message) throws IOException {
-    if (message instanceof TextMessage) {
-      sendText((String) message.getPayload());
-    }
-    else if (message instanceof BinaryMessage) {
-      sendBinary((BinaryMessage) message);
-    }
-    else if (message instanceof PingMessage) {
-      sendPing((PingMessage) message);
-    }
-    else if (message instanceof PongMessage) {
-      sendPong((PongMessage) message);
-    }
-    else {
-      throw new IllegalStateException("Unexpected WebSocketMessage type: " + message);
-    }
-  }
-
-  /**
-   * Send a message in parts, blocking until all of the message has
-   * been transmitted. The runtime reads the message in order.
-   * Non-final parts of the message are sent with isLast set to false.
-   * The final part must be sent with isLast set to true.
-   *
-   * @param message Message
-   * @throws IOException if there is a problem delivering the message.
-   * @see Message#isLast()
-   */
-  public void sendPartialMessage(Message<?> message) throws IOException {
-    if (message instanceof TextMessage) {
-      sendPartialText((TextMessage) message);
-    }
-    else if (message instanceof BinaryMessage) {
-      sendPartialBinary((BinaryMessage) message);
-    }
-    else if (message instanceof PingMessage) {
-      sendPing((PingMessage) message);
-    }
-    else if (message instanceof PongMessage) {
-      sendPong((PongMessage) message);
-    }
-    else {
-      throw new IllegalStateException("Unexpected WebSocketMessage type: " + message);
-    }
-  }
-
-  /**
    * Send a text message, blocking until all of the message has been transmitted.
    *
    * @param text the message to be sent.
    * @throws IOException if there is a problem delivering the message.
    */
-  public abstract void sendText(String text) throws IOException;
-
-  /**
-   * Send a text message in parts, blocking until all of the message has been transmitted. The runtime
-   * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
-   * must be sent with isLast set to true.
-   *
-   * @param partialMessage the parts of the message being sent.
-   * @throws IOException if there is a problem delivering the message fragment.
-   */
-  public void sendPartialText(TextMessage partialMessage) throws IOException {
-    sendPartialText(partialMessage.getPayload(), partialMessage.isLast());
+  public void sendText(CharSequence text) throws IOException {
+    sendMessage(new TextMessage(text, true));
   }
-
-  /**
-   * Send a text message in parts, blocking until all of the message has been transmitted. The runtime
-   * reads the message in order. Non-final parts of the message are sent with isLast set to false. The final part
-   * must be sent with isLast set to true.
-   *
-   * @param partialMessage the parts of the message being sent.
-   * @param isLast Whether the partial message being sent is the last part of the message.
-   * @throws IOException if there is a problem delivering the message fragment.
-   */
-  public abstract void sendPartialText(String partialMessage, boolean isLast)
-          throws IOException;
 
   /**
    * Send a binary message, returning when all of the message has been transmitted.
    *
-   * @param data the message to be sent.
+   * @param buffer the message to be sent.
    * @throws IOException if there is a problem delivering the message.
    */
-  public abstract void sendBinary(BinaryMessage data) throws IOException;
+  public void sendBinary(ByteBuffer buffer) throws IOException {
+    sendMessage(new BinaryMessage(buffer));
+  }
 
-  public void sendPartialBinary(BinaryMessage data) throws IOException {
-    sendPartialBinary(data.getPayload(), data.isLast());
+  public void sendPing() throws IOException {
+    sendMessage(new PingMessage());
+  }
+
+  public void sendPong() throws IOException {
+    sendMessage(new PongMessage());
   }
 
   /**
-   * Send a binary message in parts, blocking until all of the message has been transmitted. The runtime
-   * reads the message in order. Non-final parts are sent with isLast set to false. The final piece
-   * must be sent with isLast set to true.
+   * Send a message in parts, blocking until all of the message has
+   * been transmitted. The runtime reads the message in order.
+   * Non-final parts of the message are sent with isLast set to false.
+   * The final part must be sent with isLast set to true.
    *
-   * @param partialByte the part of the message being sent.
-   * @param isLast Whether the partial message being sent is the last part of the message.
-   * @throws IOException if there is a problem delivering the partial message.
+   * @param message Message
+   * @throws IOException if there is a problem delivering the message.
+   * @see Message#isLast()
    */
-  public abstract void sendPartialBinary(ByteBuffer partialByte, boolean isLast)
-          throws IOException;
-
-  public abstract void sendPing(PingMessage message) throws IOException;
-
-  public abstract void sendPong(PongMessage message) throws IOException;
+  public abstract void sendMessage(Message<?> message) throws IOException;
 
   /**
    * is WSS ?

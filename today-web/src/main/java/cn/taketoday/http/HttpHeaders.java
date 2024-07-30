@@ -1902,6 +1902,21 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
+   * Set the given header value
+   *
+   * @param name the header name
+   * @param value the header value
+   * @throws UnsupportedOperationException if adding headers is not supported
+   * @see ReadOnlyHttpHeaders
+   * @since 5.0
+   */
+  public void set(String name, String value) {
+    Assert.notNull(name, "name is required");
+    Assert.notNull(value, "value is required");
+    setHeader(name, value);
+  }
+
+  /**
    * Return the first header value for the given header name, if any.
    *
    * @param name the header name
@@ -1918,6 +1933,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param value the header value
    * @throws UnsupportedOperationException if adding headers is not supported
    * @see #setOrRemove(String, String)
+   * @see ReadOnlyHttpHeaders
    */
   @Override
   public abstract void add(String name, @Nullable String value);
@@ -1928,6 +1944,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param name the header name
    * @param value the header value
    * @throws UnsupportedOperationException if adding headers is not supported
+   * @see ReadOnlyHttpHeaders
    */
   protected abstract void setHeader(String name, String value);
 

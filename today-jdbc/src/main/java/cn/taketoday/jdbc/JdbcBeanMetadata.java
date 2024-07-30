@@ -20,19 +20,15 @@ package cn.taketoday.jdbc;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.persistence.Column;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.persistence.Column;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
 import cn.taketoday.util.StringUtils;
@@ -42,27 +38,26 @@ import cn.taketoday.util.StringUtils;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public class JdbcBeanMetadata implements Iterable<BeanProperty> {
+public class JdbcBeanMetadata {
+
   private static final Cache caseSensitiveFalse = new Cache();
+
   private static final Cache caseSensitiveTrue = new Cache();
 
-  public final boolean caseSensitive;
-  public final boolean throwOnMappingFailure;
-  public final boolean autoDeriveColumnNames;
+  private final boolean caseSensitive;
 
-  public final BeanMetadata beanMetadata;
+  private final boolean autoDeriveColumnNames;
+
+  final boolean throwOnMappingFailure;
+
+  private final BeanMetadata beanMetadata;
+
+  @Nullable
   private HashMap<String, BeanProperty> beanProperties;
-
-  public JdbcBeanMetadata(Class<?> clazz) {
-    this.beanMetadata = BeanMetadata.from(clazz);
-    this.caseSensitive = false;
-    this.throwOnMappingFailure = false;
-    this.autoDeriveColumnNames = false;
-  }
 
   public JdbcBeanMetadata(Class<?> clazz, boolean caseSensitive, boolean autoDeriveColumnNames, boolean throwOnMappingError) {
     this.caseSensitive = caseSensitive;
-    this.beanMetadata = BeanMetadata.from(clazz);
+    this.beanMetadata = BeanMetadata.forClass(clazz);
     this.throwOnMappingFailure = throwOnMappingError;
     this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
@@ -108,24 +103,13 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
 
   //
 
-  public Class<?> getObjectType() { return beanMetadata.getType(); }
+  public Class<?> getObjectType() {
+    return beanMetadata.getType();
+  }
 
-  public BeanInstantiator getInstantiator() { return beanMetadata.getInstantiator(); }
-
-  public Object newInstance() { return beanMetadata.newInstance(); }
-
-  public void setProperty(Object root, String propertyName, Object value) { beanMetadata.setProperty(root, propertyName, value); }
-
-  public Object getProperty(Object root, String propertyName) { return beanMetadata.getProperty(root, propertyName); }
-
-  @Override
-  public Iterator<BeanProperty> iterator() { return beanMetadata.iterator(); }
-
-  @Override
-  public void forEach(Consumer<? super BeanProperty> action) { beanMetadata.forEach(action); }
-
-  @Override
-  public Spliterator<BeanProperty> spliterator() { return beanMetadata.spliterator(); }
+  public Object newInstance() {
+    return beanMetadata.newInstance();
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -177,10 +161,10 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     }
 
     @Override
-    protected HashMap<String, BeanProperty> createValue(Class<?> key, JdbcBeanMetadata beanMetadata) {
-      boolean caseSensitive = beanMetadata.caseSensitive;
+    protected HashMap<String, BeanProperty> createValue(Class<?> key, JdbcBeanMetadata params) {
+      boolean caseSensitive = params.caseSensitive;
       HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
-      for (BeanProperty property : beanMetadata) {
+      for (BeanProperty property : params.beanMetadata) {
         String propertyName_ = getPropertyName(property);
         if (caseSensitive) {
           beanPropertyMap.put(propertyName_, property);

@@ -54,7 +54,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 import cn.taketoday.persistence.sql.Insert;
 import cn.taketoday.persistence.sql.OrderByClause;
 import cn.taketoday.persistence.sql.Restriction;

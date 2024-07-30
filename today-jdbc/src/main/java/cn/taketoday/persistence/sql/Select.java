@@ -19,7 +19,7 @@ package cn.taketoday.persistence.sql;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * A simple SQL <tt>SELECT</tt> statement

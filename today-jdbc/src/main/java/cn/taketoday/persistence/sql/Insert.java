@@ -23,7 +23,7 @@ import java.util.Iterator;
 import cn.taketoday.core.Pair;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * An SQL <tt>INSERT</tt> statement

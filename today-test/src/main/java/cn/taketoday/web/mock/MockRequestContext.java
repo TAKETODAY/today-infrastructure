@@ -515,6 +515,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     }
   }
 
+  public void setAsyncRequest(@Nullable AsyncWebRequest asyncWebRequest) {
+    this.asyncRequest = asyncWebRequest;
+  }
+
   public void setRequestURI(String requestURI) {
     this.requestURI = requestURI;
   }

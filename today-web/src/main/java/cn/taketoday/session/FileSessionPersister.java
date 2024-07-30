@@ -68,7 +68,7 @@ public class FileSessionPersister implements SessionPersister {
    * Creates FileSessionPersister with given SessionRepository
    *
    * @param repository used to create session
-   * @see #load(String)
+   * @see #findById(String)
    */
   public FileSessionPersister(SessionRepository repository) {
     Assert.notNull(repository, "SessionRepository is required");
@@ -166,7 +166,7 @@ public class FileSessionPersister implements SessionPersister {
    */
   @Nullable
   @Override
-  public WebSession load(String id) throws ClassNotFoundException, IOException {
+  public WebSession findById(String id) throws ClassNotFoundException, IOException {
     // Open an input stream to the specified pathname, if any
     File file = sessionFile(id);
     if (!file.exists()) {
@@ -201,7 +201,7 @@ public class FileSessionPersister implements SessionPersister {
    * @throws IOException if an input/output error occurs
    */
   @Override
-  public void save(WebSession session) throws IOException {
+  public void persist(WebSession session) throws IOException {
     // Open an output stream to the specified pathname, if any
     File file = sessionFile(session.getId());
 

@@ -26,7 +26,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.Order;
 import cn.taketoday.persistence.Pageable;
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 import cn.taketoday.util.CollectionUtils;
 
 /**

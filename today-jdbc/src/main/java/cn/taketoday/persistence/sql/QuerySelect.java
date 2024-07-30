@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import cn.taketoday.persistence.StatementSequence;
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * A translated HQL query

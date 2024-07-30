@@ -1,13 +1,9 @@
-import cn.taketoday.build.shadow.ShadowSource
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
   id 'me.champeau.mrjar'
 }
 
 description = "Infra Core Technologies"
 
-def javapoetVersion = "1.13.0"
 
 multiRelease {
   targetVersions 17, 21
@@ -16,36 +12,11 @@ multiRelease {
 configurations {
   java21Api.extendsFrom(api)
   java21Implementation.extendsFrom(implementation)
-  graalvm
-  javapoet
-}
-
-tasks.register('javapoetRepackJar', ShadowJar) {
-  archiveBaseName = 'today-javapoet-repack'
-  archiveVersion = javapoetVersion
-  configurations = [project.configurations.javapoet]
-  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
-}
-
-tasks.register('javapoetSource', ShadowSource) {
-  configurations = [project.configurations.javapoet]
-  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
-  outputDirectory.set file("build/shadow-source/javapoet")
-}
-
-tasks.register('javapoetSourceJar', Jar) {
-  archiveBaseName = 'today-javapoet-repack'
-  archiveVersion = javapoetVersion
-  archiveClassifier = 'sources'
-  from javapoetSource
 }
 
 dependencies {
-  javapoet("com.squareup:javapoet:${javapoetVersion}@jar")
-  api(files(javapoetRepackJar))
 
   compileOnly("io.projectreactor.tools:blockhound")
-  compileOnly("org.graalvm.sdk:graal-sdk")
   optional("org.yaml:snakeyaml")
   optional("net.sf.jopt-simple:jopt-simple")
   optional("org.aspectj:aspectjweaver")
@@ -92,12 +63,6 @@ dependencies {
 
 jar {
   manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
-
-  dependsOn javapoetRepackJar
-  from(zipTree(javapoetRepackJar.archiveFile)) {
-    include "cn/taketoday/javapoet/**"
-  }
-
 }
 
 test {
@@ -110,9 +75,4 @@ test {
   jvmArgs += [
       "-XX:+AllowRedefinitionToAddDeleteMethods"
   ]
-}
-
-sourcesJar {
-  dependsOn javapoetSourceJar
-  from javapoetSource
 }

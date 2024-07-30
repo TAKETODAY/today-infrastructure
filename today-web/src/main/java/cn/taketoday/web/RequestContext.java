@@ -177,7 +177,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 4.0 */
   @Nullable
-  protected AsyncWebRequest asyncWebRequest;
+  protected AsyncWebRequest asyncRequest;
 
   @Nullable
   protected WebAsyncManager webAsyncManager;
@@ -820,16 +820,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean isConcurrentHandlingStarted() {
-    return asyncWebRequest != null && asyncWebRequest.isAsyncStarted();
+    return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
   public AsyncWebRequest getAsyncWebRequest() {
-    var asyncWebRequest = this.asyncWebRequest;
-    if (asyncWebRequest == null) {
-      asyncWebRequest = createAsyncWebRequest();
-      this.asyncWebRequest = asyncWebRequest;
+    var asyncRequest = this.asyncRequest;
+    if (asyncRequest == null) {
+      asyncRequest = createAsyncWebRequest();
+      this.asyncRequest = asyncRequest;
     }
-    return asyncWebRequest;
+    return asyncRequest;
   }
 
   protected abstract AsyncWebRequest createAsyncWebRequest();

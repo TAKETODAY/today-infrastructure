@@ -17,6 +17,8 @@
 
 package cn.taketoday.context;
 
+import java.time.Instant;
+
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
@@ -104,7 +106,7 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
    *
    * @return startup timestamp
    */
-  long getStartupDate();
+  Instant getStartupDate();
 
   /**
    * Get context's state

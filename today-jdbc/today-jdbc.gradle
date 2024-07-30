@@ -22,6 +22,8 @@ dependencies {
   api(project(":today-beans"))
   api(project(":today-core"))
   api(project(":today-tx"))
+
+  optional(project(":today-core-aot"))
   optional(project(":today-context"))  // for JndiDataSourceLookup
   optional("org.hsqldb:hsqldb")
   optional("com.h2database:h2")

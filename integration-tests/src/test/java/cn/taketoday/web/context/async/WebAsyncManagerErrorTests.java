@@ -23,8 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
-import cn.taketoday.mock.web.MockAsyncContext;
+import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
@@ -34,7 +35,6 @@ import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
-import cn.taketoday.mock.api.AsyncEvent;
 
 import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,7 +73,7 @@ public class WebAsyncManagerErrorTests {
     this.asyncWebRequest = (StandardMockAsyncWebRequest) request.getAsyncWebRequest();
     this.asyncManager = request.getAsyncManager();
     this.asyncManager.setTaskExecutor(executor);
-    this.asyncManager.setAsyncRequest(this.asyncWebRequest);
+    this.request.setAsyncRequest(this.asyncWebRequest);
 
   }
 

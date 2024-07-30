@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,6 @@ import cn.taketoday.transaction.NestedTransactionNotSupportedException;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
-import cn.taketoday.transaction.TransactionExecutionListener;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSuspensionNotSupportedException;
 import cn.taketoday.transaction.UnexpectedRollbackException;
@@ -86,7 +84,7 @@ import cn.taketoday.transaction.UnexpectedRollbackException;
  * @since 4.0
  */
 public abstract class AbstractPlatformTransactionManager
-        implements PlatformTransactionManager, ConfigurableTransactionManager, Serializable {
+        extends AbstractTransactionManager implements PlatformTransactionManager, ConfigurableTransactionManager, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -142,9 +140,6 @@ public abstract class AbstractPlatformTransactionManager
   private boolean failEarlyOnGlobalRollbackOnly = false;
 
   private boolean rollbackOnCommitFailure = false;
-
-  private final CompositeTransactionExecutionListener executionListeners
-          = new CompositeTransactionExecutionListener();
 
   /**
    * Set the transaction synchronization by the name of the corresponding constant
@@ -347,16 +342,6 @@ public abstract class AbstractPlatformTransactionManager
     return this.rollbackOnCommitFailure;
   }
 
-  @Override
-  public final void setTransactionExecutionListeners(Collection<TransactionExecutionListener> listeners) {
-    this.executionListeners.listeners = listeners;
-  }
-
-  @Override
-  public final Collection<TransactionExecutionListener> getTransactionExecutionListeners() {
-    return executionListeners.listeners;
-  }
-
   //---------------------------------------------------------------------
   // Implementation of PlatformTransactionManager
   //---------------------------------------------------------------------
@@ -398,8 +383,8 @@ public abstract class AbstractPlatformTransactionManager
                 "No existing transaction found for transaction marked with propagation 'mandatory'");
       }
       case TransactionDefinition.PROPAGATION_REQUIRED,
-              TransactionDefinition.PROPAGATION_NESTED,
-              TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
+           TransactionDefinition.PROPAGATION_NESTED,
+           TransactionDefinition.PROPAGATION_REQUIRES_NEW -> {
         SuspendedResourcesHolder suspendedResources = suspend(null);
         boolean debugEnabled = logger.isDebugEnabled();
 

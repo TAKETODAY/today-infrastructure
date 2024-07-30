@@ -17,7 +17,7 @@
 
 package cn.taketoday.web;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,7 +42,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -417,9 +416,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
         ApplicationContext.State state = context.getState();
         if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
           context.close();
-          var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
           logInfo("Your application destroyed at: [%s] on startup date: [%s]"
-                  .formatted(dateFormat.format(System.currentTimeMillis()), dateFormat.format(context.getStartupDate())));
+                  .formatted(Instant.now(), context.getStartupDate()));
         }
       }
     }

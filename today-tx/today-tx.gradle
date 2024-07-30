@@ -24,6 +24,7 @@ dependencies {
 
   optional(project(":today-aop"))
   optional(project(":today-context"))  // for JCA, @EnableTransactionManagement
+  optional(project(":today-core-aot"))
   optional("jakarta.ejb:jakarta.ejb-api")
   optional("jakarta.interceptor:jakarta.interceptor-api")
   optional("jakarta.resource:jakarta.resource-api")

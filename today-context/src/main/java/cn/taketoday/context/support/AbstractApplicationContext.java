@@ -19,7 +19,8 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -91,7 +92,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -184,7 +184,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
-  private long startupDate;
+  private Instant startupDate = Instant.now();
 
   @Nullable
   private ConfigurableEnvironment environment;
@@ -590,13 +590,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    * Prepare to load context
    */
   protected void prepareRefresh() {
-    this.startupDate = System.currentTimeMillis();
+    this.startupDate = Instant.now();
     this.closed.set(false);
     this.active.set(true);
     applyState(State.STARTING);
     ApplicationContextHolder.register(this); // @since 4.0
 
-    logger.info("Starting application context at '{}'", formatStartupDate());
+    logger.info("Starting application context at '{}'", startupDate);
 
     ConfigurableEnvironment environment = getEnvironment();
 
@@ -838,8 +838,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   protected void doClose() {
     // Check whether an actual close attempt is necessary...
     if (active.get() && closed.compareAndSet(false, true)) {
-      logger.info("Closing: [{}] at [{}]", this,
-              new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
+      logger.info("Closing: [{}] at [{}]", this, Instant.now());
 
       try {
         // Publish shutdown event.
@@ -1043,7 +1042,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public long getStartupDate() {
+  public Instant getStartupDate() {
     return startupDate;
   }
 
@@ -1693,7 +1692,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     publishEvent(new ContextRefreshedEvent(this));
 
     applyState(State.STARTED);
-    logger.info("Application context startup in {} ms", System.currentTimeMillis() - getStartupDate());
+    Duration duration = Duration.between(getStartupDate(), Instant.now());
+    logger.info("Application context startup in {} ms", duration.toMillis());
   }
 
   //---------------------------------------------------------------------
@@ -1748,11 +1748,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   @Override
   public String toString() {
     return "%s: state: [%s], on startup date: %s, parent: %s".formatted(
-            getDisplayName(), state, formatStartupDate(), parent != null ? parent.getDisplayName() : "none");
-  }
-
-  public String formatStartupDate() {
-    return new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate);
+            getDisplayName(), state, startupDate, parent != null ? parent.getDisplayName() : "none");
   }
 
 }

@@ -74,8 +74,6 @@ public interface Constant extends Serializable {
   /** The path separator character: {@code '/'}. */
   char PATH_SEPARATOR = '/';
 
-  String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-
   String DEFAULT_ENCODING = "UTF-8";
 
   /**

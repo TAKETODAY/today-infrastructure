@@ -46,11 +46,11 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerWrapper;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AsyncHandler;
-import cn.taketoday.web.HandlerWrapper;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -519,6 +519,13 @@ public class HandlerMethod implements AsyncHandler {
   }
 
   // HandlerMethod
+
+  /**
+   * @since 5.0
+   */
+  public static boolean isHandler(@Nullable Object handler) {
+    return unwrap(handler) != null;
+  }
 
   @Nullable
   public static HandlerMethod unwrap(@Nullable Object handler) {

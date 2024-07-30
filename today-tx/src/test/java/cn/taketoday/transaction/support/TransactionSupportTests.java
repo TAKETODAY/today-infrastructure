@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -131,6 +132,7 @@ class TransactionSupportTests {
     TransactionStatus status = tm.getTransaction(null);
     tm.rollback(status);
 
+    assertThat(tm.getTransactionExecutionListeners()).contains(tl);
     assertThat(tm.begin).as("triggered begin").isTrue();
     assertThat(tm.commit).as("no commit").isFalse();
     assertThat(tm.rollback).as("triggered rollback").isTrue();
@@ -319,6 +321,41 @@ class TransactionSupportTests {
     assertThat(template2).isNotEqualTo(template1);
     assertThat(template3).isNotEqualTo(template1);
     assertThat(template3).isEqualTo(template2);
+  }
+
+  @Test
+  void setTransactionExecutionListeners() {
+    TestTransactionManager tm1 = new TestTransactionManager(false, true);
+
+    tm1.setTransactionExecutionListeners(null);
+    assertThat(tm1.getTransactionExecutionListeners()).isEmpty();
+
+    tm1.setTransactionExecutionListeners(List.of());
+    assertThat(tm1.getTransactionExecutionListeners()).isEmpty();
+
+    TestTransactionExecutionListener tl = new TestTransactionExecutionListener();
+
+    tm1.setTransactionExecutionListeners(List.of(tl));
+    assertThat(tm1.getTransactionExecutionListeners()).contains(tl);
+
+    tm1.setTransactionExecutionListeners(List.of());
+    assertThat(tm1.getTransactionExecutionListeners()).isEmpty();
+  }
+
+  @Test
+  void addListener() {
+    TestTransactionManager tm = new TestTransactionManager(false, true);
+
+    TestTransactionExecutionListener tl = new TestTransactionExecutionListener();
+    TestTransactionExecutionListener t2 = new TestTransactionExecutionListener();
+
+    tm.addListener(tl);
+    assertThat(tm.getTransactionExecutionListeners()).contains(tl);
+
+    tm.addListener(t2);
+
+    assertThat(tm.getTransactionExecutionListeners()).contains(t2);
+    assertThat(tm.getTransactionExecutionListeners()).contains(tl);
   }
 
   @Nested

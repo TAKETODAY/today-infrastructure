@@ -17,7 +17,7 @@
 
 package cn.taketoday.persistence;
 
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

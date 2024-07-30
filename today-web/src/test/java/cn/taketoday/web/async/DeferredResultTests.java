@@ -19,8 +19,6 @@ package cn.taketoday.web.async;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.async.DeferredResultHandler;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -93,7 +91,7 @@ class DeferredResultTests {
     DeferredResult<String> result = new DeferredResult<>();
     result.onCompletion(() -> sb.append("completion event"));
 
-    result.getInterceptor().afterCompletion(null, null);
+    result.createInterceptor().afterCompletion(null, null);
 
     assertThat(result.isSetOrExpired()).isTrue();
     assertThat(sb.toString()).isEqualTo("completion event");
@@ -109,7 +107,7 @@ class DeferredResultTests {
     result.setResultHandler(handler);
     result.onTimeout(() -> sb.append("timeout event"));
 
-    result.getInterceptor().handleTimeout(null, null);
+    result.createInterceptor().handleTimeout(null, null);
 
     assertThat(sb.toString()).isEqualTo("timeout event");
     assertThat(result.setResult("hello")).as("Should not be able to set result a second time").isFalse();
@@ -127,7 +125,7 @@ class DeferredResultTests {
     Exception e = new Exception();
     result.onError(t -> sb.append("error event"));
 
-    result.getInterceptor().handleError(null, null, e);
+    result.createInterceptor().handleError(null, null, e);
 
     assertThat(sb.toString()).isEqualTo("error event");
     assertThat(result.setResult("hello")).as("Should not be able to set result a second time").isFalse();

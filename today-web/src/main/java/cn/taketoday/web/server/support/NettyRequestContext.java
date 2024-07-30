@@ -84,6 +84,7 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * Netty Request context
@@ -420,7 +421,10 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void postRequestCompleted(@Nullable Throwable notHandled) {
-    request.release();
+    ReferenceCountUtil.safeRelease(request);
+    if (requestDecoder != null) {
+      requestDecoder.destroy();
+    }
     if (notHandled != null) {
       return;
     }
@@ -466,10 +470,6 @@ public class NettyRequestContext extends RequestContext {
               .addListener(ChannelFutureListener.CLOSE);
     }
 
-    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
-    if (requestDecoder != null) {
-      requestDecoder.destroy();
-    }
   }
 
   /**

@@ -17,7 +17,7 @@
 
 package cn.taketoday.persistence.sql;
 
-import cn.taketoday.persistence.dialect.Platform;
+import cn.taketoday.persistence.platform.Platform;
 
 /**
  * An alias generator for SQL identifiers

@@ -395,7 +395,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
     else {
       // fast access from cache
-      metadata = BeanMetadata.from(bean);
+      metadata = BeanMetadata.forInstance(bean);
     }
 
     BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean, metadata);

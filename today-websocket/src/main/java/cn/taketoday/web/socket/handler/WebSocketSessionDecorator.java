@@ -27,12 +27,8 @@ import java.util.function.Function;
 
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.PingMessage;
-import cn.taketoday.web.socket.PongMessage;
-import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
@@ -99,48 +95,28 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
-  public void sendPartialMessage(Message<?> message) throws IOException {
-    delegate.sendPartialMessage(message);
-  }
-
-  @Override
-  public void sendText(String text) throws IOException {
+  public void sendText(CharSequence text) throws IOException {
     delegate.sendText(text);
   }
 
   @Override
-  public void sendPartialText(TextMessage partialMessage) throws IOException {
-    delegate.sendPartialText(partialMessage);
-  }
-
-  @Override
-  public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
-    delegate.sendPartialText(partialMessage, isLast);
-  }
-
-  @Override
-  public void sendBinary(BinaryMessage data) throws IOException {
+  public void sendBinary(ByteBuffer data) throws IOException {
     delegate.sendBinary(data);
   }
 
   @Override
-  public void sendPartialBinary(BinaryMessage data) throws IOException {
-    delegate.sendPartialBinary(data);
+  public void sendMessage(Message<?> message) throws IOException {
+    delegate.sendMessage(message);
   }
 
   @Override
-  public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-    delegate.sendPartialBinary(partialByte, isLast);
+  public void sendPing() throws IOException {
+    delegate.sendPing();
   }
 
   @Override
-  public void sendPing(PingMessage message) throws IOException {
-    delegate.sendPing(message);
-  }
-
-  @Override
-  public void sendPong(PongMessage message) throws IOException {
-    delegate.sendPong(message);
+  public void sendPong() throws IOException {
+    delegate.sendPong();
   }
 
   @Override
