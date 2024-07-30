@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -42,8 +41,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
+
+import static cn.taketoday.util.LogFormatUtils.formatValue;
+import static cn.taketoday.util.LogFormatUtils.traceDebug;
 
 /**
  * Memory based {@link SessionRepository}
@@ -454,7 +455,7 @@ public class InMemorySessionRepository implements SessionRepository {
           try {
             Object object = saveValues.get(i);
             stream.writeObject(object);
-            LogFormatUtils.traceDebug(log, traceOn -> LogFormatUtils.formatValue("  storing attribute '%s' with value '%s'"
+            traceDebug(log, traceOn -> formatValue("  storing attribute '%s' with value '%s'"
                     .formatted(name, object), !traceOn));
           }
           catch (NotSerializableException e) {
@@ -483,9 +484,6 @@ public class InMemorySessionRepository implements SessionRepository {
       int size = stream.readInt();
       if (size > 0) {
         // Deserialize the attribute count and attribute values
-        if (attributes == null) {
-          attributes = new HashMap<>();
-        }
         for (int i = 0; i < size; i++) {
           String name = (String) stream.readObject();
           final Object value;
@@ -505,9 +503,9 @@ public class InMemorySessionRepository implements SessionRepository {
             }
             throw wae;
           }
-          attributes.put(name, value);
-          LogFormatUtils.traceDebug(log, traceOn -> LogFormatUtils.formatValue("  loading attribute '%s' with value '%s'"
-                  .formatted(name, value), !traceOn));
+          setAttribute(name, value);
+          traceDebug(log, traceOn -> formatValue(
+                  "  loading attribute '%s' with value '%s'".formatted(name, value), !traceOn));
         }
       }
 

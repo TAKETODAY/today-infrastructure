@@ -67,7 +67,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
         session = delegate.retrieveSession(sessionId);
         if (session == null) {
           try {
-            session = sessionPersister.load(sessionId);
+            session = sessionPersister.findById(sessionId);
           }
           catch (ClassNotFoundException | IOException e) {
             log.error("Unable to get session from SessionPersister: {}", sessionPersister, e);
@@ -115,15 +115,16 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   }
 
   /**
-   * Application shutdown
+   * Persist all session to underlying {@link SessionPersister}
+   *
+   * @since 5.0
    */
-  @Override
-  public void destroy() {
+  public void persistSessions() {
     for (String identifier : delegate.getIdentifiers()) {
       WebSession session = delegate.retrieveSession(identifier);
       if (session != null) {
         try {
-          sessionPersister.save(session);
+          sessionPersister.persist(session);
         }
         catch (IOException e) {
           log.error("Unable to persist session: '{}' from SessionPersister: {}",
@@ -131,6 +132,14 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
         }
       }
     }
+  }
+
+  /**
+   * Application shutdown
+   */
+  @Override
+  public void destroy() {
+    persistSessions();
   }
 
   private static void removePersister(String sessionId, SessionPersister sessionPersister) {
