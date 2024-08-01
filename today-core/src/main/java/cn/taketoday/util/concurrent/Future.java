@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -736,6 +737,59 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduledService) {
+    Assert.notNull(duration, "Duration is required");
+    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
+    return Futures.timeout(this, duration.toNanos(), TimeUnit.NANOSECONDS, scheduledService);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param timeout when to time out the future
+   * @param unit the time unit of the time parameter
+   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduledService) {
+    Assert.notNull(unit, "TimeUnit is required");
+    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
+    return Futures.timeout(this, timeout, unit, scheduledService);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduledService, FutureListener<SettableFuture<V>> timeoutListener) {
+    Assert.notNull(duration, "Duration is required");
+    Assert.notNull(timeoutListener, "timeoutListener is required");
+    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
+    return Futures.timeout(this, duration.toNanos(), TimeUnit.NANOSECONDS, scheduledService, timeoutListener);
+  }
+
+  /**
    * Waits for the future to complete, then calls the given result handler
    * with the outcome.
    * <p>
@@ -841,7 +895,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static void notifyListener(Future future, FutureListener l) {
+  static void notifyListener(Future future, FutureListener l) {
     try {
       l.operationComplete(future);
     }
@@ -907,6 +961,19 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new CompleteFuture<>(executor, result, null);
+  }
+
+  /**
+   * Create a new {@code null} async result which exposes the given value
+   * from {@link Future#get()}.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the Future once it is complete.
+   * @see Future#get()
+   * @since 5.0
+   */
+  public static <V> Future<V> forExecutor(@Nullable Executor executor) {
+    return new CompleteFuture<>(executor, null, null);
   }
 
   /**

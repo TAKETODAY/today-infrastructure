@@ -22,6 +22,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -29,6 +30,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +42,7 @@ import cn.taketoday.logging.LoggerFactory;
 import lombok.SneakyThrows;
 
 import static cn.taketoday.util.concurrent.Future.failed;
+import static cn.taketoday.util.concurrent.Future.forExecutor;
 import static cn.taketoday.util.concurrent.Future.forSettable;
 import static cn.taketoday.util.concurrent.Future.ok;
 import static cn.taketoday.util.concurrent.Future.whenAllComplete;
@@ -1154,6 +1158,57 @@ class FutureTests {
             .onCancelled(() -> flag.set(true));
     settable.cancel();
     assertThat(flag).isTrue();
+  }
+
+  @Test
+  void timeout() throws InterruptedException {
+    AtomicBoolean flag = new AtomicBoolean(false);
+
+    ScheduledExecutorService scheduledService = Executors.newScheduledThreadPool(1);
+    forExecutor(directExecutor())
+            .timeout(Duration.ofSeconds(1), scheduledService)
+            .onSuccess(v -> flag.set(true));
+
+    assertThat(flag).isTrue();
+
+    var timeout = forSettable(directExecutor()).timeout(Duration.ofSeconds(1), scheduledService,
+            f -> f.cancel(true));
+
+    assertThat(timeout.await()).isDone();
+    assertThat(timeout).isCancelled();
+
+    assertThat(forSettable(directExecutor()).timeout(Duration.ofMillis(500), scheduledService))
+            .failsWithin(Duration.ofMillis(1000))
+            .withThrowableOfType(ExecutionException.class)
+            .withMessageEndingWith("Timeout, after 0 seconds");
+
+    assertThat(Future.run(() -> { }).timeout(Duration.ofSeconds(1), scheduledService))
+            .succeedsWithin(Duration.ofMillis(500))
+            .isNull();
+
+    assertThat(Future.run(() -> {
+      throw new IllegalStateException("failed");
+    }).timeout(Duration.ofSeconds(1), scheduledService))
+            .failsWithin(Duration.ofMillis(500))
+            .withThrowableThat()
+            .withCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("failed");
+
+    //
+
+    forExecutor(directExecutor())
+            .timeout(Duration.ofSeconds(1), scheduledService, future -> future.trySuccess(1))
+            .onSuccess(v -> flag.set(false));
+
+    assertThat(flag).isFalse();
+
+    forExecutor(directExecutor())
+            .timeout(100, TimeUnit.MILLISECONDS, scheduledService)
+            .onSuccess(v -> flag.set(true));
+
+    assertThat(flag).isTrue();
+
+    scheduledService.shutdown();
   }
 
   static Executor directExecutor() {

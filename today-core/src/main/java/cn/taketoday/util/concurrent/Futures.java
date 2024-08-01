@@ -19,6 +19,10 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
 import cn.taketoday.lang.Assert;
@@ -267,6 +271,70 @@ final class Futures {
       recipient.onCompleted(propagateCancel, future);
     }
     return recipient;
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param timeout when to time out the future
+   * @param unit the time unit of the time parameter
+   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public static <V> Future<V> timeout(Future<V> delegate, long timeout, TimeUnit unit, ScheduledExecutorService scheduledService) {
+    return timeout(delegate, timeout, unit, scheduledService, future -> future.tryFailure(
+            new TimeoutException("Timeout, after %s seconds".formatted(unit.toSeconds(timeout)))));
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param timeout when to time out the future
+   * @param unit the time unit of the time parameter
+   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public static <V> Future<V> timeout(Future<V> delegate, long timeout,
+          TimeUnit unit, ScheduledExecutorService scheduledService, FutureListener<SettableFuture<V>> timeoutListener) {
+    if (delegate.isDone()) {
+      return delegate;
+    }
+
+    SettableFuture<V> settable = Future.forSettable(delegate.executor);
+    ScheduledFuture<?> timeoutFuture = scheduledService.schedule(() -> {
+      if (!delegate.isDone()) {
+        // timeout
+        Future.notifyListener(settable, timeoutListener);
+        delegate.cancel(true);
+      }
+    }, timeout, unit);
+
+    delegate.onCompleted(completed -> {
+      timeoutFuture.cancel(true);
+      if (!settable.isDone()) {
+        if (completed.isSuccess()) {
+          settable.trySuccess(completed.getNow());
+        }
+        else {
+          propagateUncommonCompletion(completed, settable);
+        }
+      }
+    });
+
+    if (!delegate.isSuccess()) {
+      // Propagate cancellation if future is either incomplete or failed.
+      // Failed means it could be cancelled, so that needs to be propagated.
+      settable.onCompleted(propagateCancel, delegate);
+    }
+    return settable;
   }
 
   /**
