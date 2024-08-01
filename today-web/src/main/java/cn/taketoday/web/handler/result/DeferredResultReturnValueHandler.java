@@ -81,6 +81,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
   private DeferredResult<Object> adaptListenableFuture(Future<Object> future) {
     DeferredResult<Object> result = new DeferredResult<>();
     future.onCompleted(result);
+    result.onTimeout(future::cancel);
     return result;
   }
 

@@ -295,7 +295,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
     if (future.isSuccess()) {
       setResult(future.getNow());
     }
-    else {
+    else if (!future.isCancelled()) {
       setErrorResult(future.getCause());
     }
   }
