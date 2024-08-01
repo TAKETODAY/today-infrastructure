@@ -17,6 +17,7 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -260,6 +261,23 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public Future<V> onFailure(FailureCallback failureCallback) {
     return onCompleted(FutureListener.forFailure(failureCallback));
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with cancelled callbacks.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
+   *
+   * @param callback the cancelled callback
+   * @return this future object.
+   * @since 5.0
+   */
+  public Future<V> onCancelled(Runnable callback) {
+    return onCompleted(future -> {
+      if (future.isCancelled()) {
+        callback.run();
+      }
+    });
   }
 
   /**
