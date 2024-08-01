@@ -22,6 +22,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -29,7 +30,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.Pair;
@@ -38,6 +42,7 @@ import cn.taketoday.logging.LoggerFactory;
 import lombok.SneakyThrows;
 
 import static cn.taketoday.util.concurrent.Future.failed;
+import static cn.taketoday.util.concurrent.Future.forExecutor;
 import static cn.taketoday.util.concurrent.Future.forSettable;
 import static cn.taketoday.util.concurrent.Future.ok;
 import static cn.taketoday.util.concurrent.Future.whenAllComplete;
@@ -45,9 +50,6 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -400,8 +402,8 @@ class FutureTests {
     SettableFuture<Boolean> futureBoolean = Future.forSettable();
 
     Callable<String> combiner = () -> {
-      assertTrue(futureInteger.isDone());
-      assertTrue(futureBoolean.isDone());
+      assertThat(futureInteger.isDone()).isTrue();
+      assertThat(futureBoolean.isDone()).isTrue();
       return createCombinedResult(futureInteger.obtain(), futureBoolean.obtain());
     };
 
@@ -655,8 +657,8 @@ class FutureTests {
     final SettableFuture<Boolean> futureBoolean = Future.forSettable();
     final String[] result = new String[1];
     Runnable combiner = () -> {
-      assertTrue(futureInteger.isDone());
-      assertTrue(futureBoolean.isDone());
+      assertThat(futureInteger.isDone()).isTrue();
+      assertThat(futureBoolean.isDone()).isTrue();
       result[0] = createCombinedResult(futureInteger.obtain(), futureBoolean.obtain());
     };
 
@@ -668,7 +670,7 @@ class FutureTests {
     Boolean booleanPartial = true;
     futureBoolean.setSuccess(booleanPartial);
     futureResult.get();
-    assertEquals(createCombinedResult(integerPartial, booleanPartial), result[0]);
+    assertThat(createCombinedResult(integerPartial, booleanPartial)).isEqualTo(result[0]);
   }
 
   @Test
@@ -678,8 +680,8 @@ class FutureTests {
     final SettableFuture<Integer> futureInteger = Future.forSettable();
     final SettableFuture<Boolean> futureBoolean = Future.forSettable();
     Runnable combiner = () -> {
-      assertTrue(futureInteger.isDone());
-      assertTrue(futureBoolean.isDone());
+      assertThat(futureInteger.isDone()).isTrue();
+      assertThat(futureBoolean.isDone()).isTrue();
       throw thrown;
     };
 
@@ -695,7 +697,7 @@ class FutureTests {
       Assertions.fail();
     }
     catch (ExecutionException expected) {
-      assertSame(thrown, expected.getCause());
+      assertThat(thrown).isSameAs(expected.getCause());
     }
   }
 
@@ -796,7 +798,7 @@ class FutureTests {
       Assertions.fail();
     }
     catch (ExecutionException expected) {
-      assertSame(partialResultException, expected.getCause());
+      assertThat(partialResultException).isSameAs(expected.getCause());
     }
   }
 
@@ -1145,6 +1147,68 @@ class FutureTests {
     assertThat(counter.get()).isEqualTo(3);
     assertThat(Future.run(counter::incrementAndGet, 2, directExecutor()).get()).isEqualTo(2);
     assertThat(counter.get()).isEqualTo(4);
+  }
+
+  @Test
+  void onCancelled() {
+    Future.ok().onCancelled(Assertions::fail);
+
+    AtomicBoolean flag = new AtomicBoolean(false);
+    var settable = forSettable(directExecutor())
+            .onCancelled(() -> flag.set(true));
+    settable.cancel();
+    assertThat(flag).isTrue();
+  }
+
+  @Test
+  void timeout() throws InterruptedException {
+    AtomicBoolean flag = new AtomicBoolean(false);
+
+    ScheduledExecutorService scheduledService = Executors.newScheduledThreadPool(1);
+    forExecutor(directExecutor())
+            .timeout(Duration.ofSeconds(1), scheduledService)
+            .onSuccess(v -> flag.set(true));
+
+    assertThat(flag).isTrue();
+
+    var timeout = forSettable(directExecutor()).timeout(Duration.ofSeconds(1), scheduledService,
+            f -> f.cancel(true));
+
+    assertThat(timeout.await()).isDone();
+    assertThat(timeout).isCancelled();
+
+    assertThat(forSettable(directExecutor()).timeout(Duration.ofMillis(500), scheduledService))
+            .failsWithin(Duration.ofMillis(1000))
+            .withThrowableOfType(ExecutionException.class)
+            .withMessageEndingWith("Timeout, after 0 seconds");
+
+    assertThat(Future.run(() -> { }).timeout(Duration.ofSeconds(1), scheduledService))
+            .succeedsWithin(Duration.ofMillis(500))
+            .isNull();
+
+    assertThat(Future.run(() -> {
+      throw new IllegalStateException("failed");
+    }).timeout(Duration.ofSeconds(1), scheduledService))
+            .failsWithin(Duration.ofMillis(500))
+            .withThrowableThat()
+            .withCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("failed");
+
+    //
+
+    forExecutor(directExecutor())
+            .timeout(Duration.ofSeconds(1), scheduledService, future -> future.trySuccess(1))
+            .onSuccess(v -> flag.set(false));
+
+    assertThat(flag).isFalse();
+
+    forExecutor(directExecutor())
+            .timeout(100, TimeUnit.MILLISECONDS, scheduledService)
+            .onSuccess(v -> flag.set(true));
+
+    assertThat(flag).isTrue();
+
+    scheduledService.shutdown();
   }
 
   static Executor directExecutor() {
