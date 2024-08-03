@@ -23,10 +23,10 @@ import java.util.EventListener;
  * Listens to the result of a {@link Future}.
  * The result of the asynchronous operation is notified once this listener
  * is added by calling {@link Future#onCompleted(FutureContextListener, Object)}.
- * <pre>
- * Future f = Future.forSettable(..);
- * f.addListener((future, context) -> { .. }, context);
- * </pre>
+ * <pre>{@code
+ * Future f = Future.forSettable();
+ * f.onCompleted((future, context) -> { .. }, context);
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FutureListener
