@@ -32,6 +32,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.core.Triple;
@@ -1214,7 +1215,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Creates a {@link FutureCombiner} that processes the completed futures whether or not they're
+   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
    * successful.
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
@@ -1224,13 +1225,25 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Creates a {@link FutureCombiner} that processes the completed futures whether or not they're
+   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
    * successful.
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
    */
   public static FutureCombiner whenAllComplete(Collection<Future<?>> futures) {
     return new FutureCombiner(false, futures);
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
+   * successful.
+   *
+   * <p>Any failures from the input futures will not be propagated to the returned future.
+   *
+   * @since 5.0
+   */
+  public static FutureCombiner whenAllComplete(Stream<Future<?>> futures) {
+    return new FutureCombiner(false, futures.toList());
   }
 
   /**
@@ -1249,6 +1262,17 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static FutureCombiner whenAllSucceed(Collection<Future<?>> futures) {
     return new FutureCombiner(true, futures);
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} requiring that all passed in futures are successful.
+   *
+   * <p>If any input fails, the returned future fails immediately.
+   *
+   * @since 5.0
+   */
+  public static FutureCombiner whenAllSucceed(Stream<Future<?>> futures) {
+    return whenAllSucceed(futures.toList());
   }
 
 }

@@ -35,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.core.Triple;
@@ -46,6 +47,7 @@ import static cn.taketoday.util.concurrent.Future.forExecutor;
 import static cn.taketoday.util.concurrent.Future.forSettable;
 import static cn.taketoday.util.concurrent.Future.ok;
 import static cn.taketoday.util.concurrent.Future.whenAllComplete;
+import static cn.taketoday.util.concurrent.Future.whenAllSucceed;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -774,7 +776,7 @@ class FutureTests {
   }
 
   @Test
-  void whenAllSucceed() throws Exception {
+  void whenAllSucceed_() throws Exception {
     class PartialResultException extends Exception { }
 
     final SettableFuture<Integer> futureInteger = Future.forSettable();
@@ -786,7 +788,7 @@ class FutureTests {
       }
     };
 
-    Future<String> futureResult = Future.whenAllSucceed(futureInteger, futureBoolean)
+    Future<String> futureResult = whenAllSucceed(futureInteger, futureBoolean)
             .call(combiner, directExecutor());
 
     PartialResultException partialResultException = new PartialResultException();
@@ -807,7 +809,7 @@ class FutureTests {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
 
-    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+    Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
 
     assertThat(combine).isNotDone();
@@ -835,7 +837,7 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_combineEmpty() throws Exception {
-    Future<Void> combine = Future.whenAllSucceed(List.of())
+    Future<Void> combine = whenAllSucceed(List.of())
             .combine();
 
     assertThat(combine).isDone();
@@ -846,7 +848,7 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_callEmpty() throws Exception {
-    Future<Void> combine = Future.whenAllSucceed()
+    Future<Void> combine = whenAllSucceed()
             .call(() -> null, null);
 
     assertThat(combine.awaitUninterruptibly()).isDone();
@@ -860,7 +862,7 @@ class FutureTests {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
 
-    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+    Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
 
     assertThat(combine).isNotDone();
@@ -892,7 +894,7 @@ class FutureTests {
     SettableFuture<Long> future2 = Future.forSettable();
 
     AtomicInteger counter = new AtomicInteger(0);
-    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+    Future<Void> combine = whenAllSucceed(future1, future2)
             .run(counter::incrementAndGet);
 
     assertThat(combine).isNotDone();
@@ -924,7 +926,7 @@ class FutureTests {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
 
-    Future<Long> combine = Future.whenAllSucceed(future1, future2)
+    Future<Long> combine = whenAllSucceed(future1, future2)
             .call(() -> future1.obtain() + future2.obtain());
 
     assertThat(combine).isNotDone();
@@ -958,7 +960,7 @@ class FutureTests {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
 
-    Future<Long> combine = Future.whenAllSucceed(future1, future2)
+    Future<Long> combine = whenAllSucceed(future1, future2)
             .call(() -> future1.obtain() + future2.obtain(), null);
 
     assertThat(combine).isInstanceOf(ListenableFutureTask.class);
@@ -979,7 +981,7 @@ class FutureTests {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
 
-    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+    Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
 
     assertThat(combine).isInstanceOf(SettableFuture.class);
@@ -1209,6 +1211,34 @@ class FutureTests {
     assertThat(flag).isTrue();
 
     scheduledService.shutdown();
+  }
+
+  @Test
+  void whenAllCompleteStream() throws InterruptedException {
+    Future<Void> future = whenAllComplete(Stream.of(ok(), failed(new RuntimeException("msg"))))
+            .combine()
+            .onSuccess(v -> fail("ok"));
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+
+    future.await();
+    assertThat(future.isSuccess()).isTrue();
+
+    assertThat(whenAllComplete(Stream.of(1, 2, 3).map(Future::ok))
+            .combine()
+            .onFailure(e -> fail())).succeedsWithin(Duration.ofSeconds(1));
+  }
+
+  @Test
+  void whenAllSucceedStream() {
+    Future<Void> future = whenAllSucceed(Stream.of(ok(), failed(new RuntimeException("msg"))))
+            .combine()
+            .onSuccess(v -> fail());
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isTrue();
+
+    assertThat(whenAllSucceed(Stream.of(1, 2, 3).map(Future::ok)).combine()).succeedsWithin(Duration.ofSeconds(1));
   }
 
   static Executor directExecutor() {
