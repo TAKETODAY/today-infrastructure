@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.retry.annotation;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @Test
+  @RepeatedTest(value = 5, failureThreshold = 2)
   public void exponential() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialService service = context.getBean(ExponentialService.class);
@@ -66,7 +67,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @Test
+  @RepeatedTest(value = 5, failureThreshold = 2)
   public void randomExponential() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialRandomService service = context.getBean(ExponentialRandomService.class);
@@ -80,7 +81,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @Test
+  @RepeatedTest(value = 5, failureThreshold = 2)
   public void randomExponentialExpression() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialRandomExpressionService service = context.getBean(ExponentialRandomExpressionService.class);
