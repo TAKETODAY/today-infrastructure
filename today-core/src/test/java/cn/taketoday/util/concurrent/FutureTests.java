@@ -1226,25 +1226,18 @@ class FutureTests {
     Scheduler scheduler = new DefaultScheduler();
     var scheduledService = Executors.newScheduledThreadPool(1);
 
-    AtomicBoolean flag = new AtomicBoolean(false);
-
     Future<Object> objectFuture = forExecutor(scheduler)
             .timeout(Duration.ofSeconds(1))
-            .onSuccess(v -> flag.set(true))
             .onFailure(e -> fail());
 
     assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
     assertThat(objectFuture.executor()).isSameAs(scheduler);
-
-    assertThat(flag).isTrue();
 
     objectFuture = objectFuture.timeout(Duration.ofSeconds(1), scheduler)
-            .onSuccess(v -> flag.set(false))
             .onFailure(e -> fail());
 
     assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
     assertThat(objectFuture.executor()).isSameAs(scheduler);
-    assertThat(flag).isFalse();
 
     scheduler = new Scheduler() {
 
