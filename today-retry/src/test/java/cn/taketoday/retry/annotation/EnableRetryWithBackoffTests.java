@@ -57,7 +57,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @RepeatedTest(value = 5, failureThreshold = 2)
+  @RepeatedTest(value = 5, failureThreshold = 5)
   public void exponential() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialService service = context.getBean(ExponentialService.class);
@@ -67,7 +67,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @RepeatedTest(value = 5, failureThreshold = 2)
+  @RepeatedTest(value = 5, failureThreshold = 5)
   public void randomExponential() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialRandomService service = context.getBean(ExponentialRandomService.class);
@@ -81,7 +81,7 @@ public class EnableRetryWithBackoffTests {
     context.close();
   }
 
-  @RepeatedTest(value = 5, failureThreshold = 2)
+  @RepeatedTest(value = 5, failureThreshold = 5)
   public void randomExponentialExpression() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExponentialRandomExpressionService service = context.getBean(ExponentialRandomExpressionService.class);
