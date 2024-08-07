@@ -548,6 +548,23 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped to {@code null} result.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param <R> The result type of the mapper function, and of the returned future.
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public <R> Future<R> mapNull() {
+    return map(v -> null);
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
    * with the result of this {@link Future} flat-mapped through the
    * given mapper function.
    * <p>

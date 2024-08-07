@@ -401,6 +401,12 @@ class FutureTests {
   }
 
   @Test
+  void map_null() {
+    assertThat(ok(1).mapNull()).succeedsWithin(1, TimeUnit.SECONDS)
+            .isNull();
+  }
+
+  @Test
   void mapCombiner() throws ExecutionException, InterruptedException {
     SettableFuture<Integer> futureInteger = Future.forSettable();
     SettableFuture<Boolean> futureBoolean = Future.forSettable();
