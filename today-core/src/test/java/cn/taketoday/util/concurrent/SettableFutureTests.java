@@ -410,7 +410,7 @@ class SettableFutureTests {
      * Creates a new instance.
      */
     InterruptibleSettableFuture() {
-      super(defaultExecutor);
+      super(defaultScheduler);
     }
 
     @Override

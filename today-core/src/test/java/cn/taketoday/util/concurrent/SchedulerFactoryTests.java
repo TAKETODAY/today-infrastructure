@@ -19,8 +19,11 @@ package cn.taketoday.util.concurrent;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.NonNull;
 
@@ -30,29 +33,36 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/23 14:04
  */
-class DefaultExecutorFactoryTests {
+class SchedulerFactoryTests {
 
   @Test
   void lookup() {
-    assertThat(DefaultExecutorFactory.lookup()).isInstanceOf(MyExecutor.class);
-    assertThat(Future.defaultExecutor).isInstanceOf(MyExecutor.class);
+    assertThat(Scheduler.lookup()).isInstanceOf(MyExecutor.class);
+    assertThat(Future.defaultScheduler).isInstanceOf(MyExecutor.class);
   }
 
-  static class ExecutorFactory implements DefaultExecutorFactory {
+  static class ExecutorFactory implements SchedulerFactory {
 
     @Override
-    public Executor createExecutor() {
+    public Scheduler create() {
       return new MyExecutor();
     }
 
   }
 
-  static class MyExecutor implements Executor {
+  static class MyExecutor implements Scheduler {
     final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+
+    final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
     @Override
     public void execute(@NonNull Runnable command) {
       forkJoinPool.execute(command);
+    }
+
+    @Override
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+      return scheduledThreadPool.schedule(command, delay, unit);
     }
   }
 

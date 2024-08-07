@@ -32,7 +32,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -1001,7 +1003,7 @@ class FutureTests {
   void awaitOk() throws Exception {
     SettableFuture<Void> settable = Future.forSettable();
     assertThat(settable).isNotDone();
-    Future.defaultExecutor.execute(new Runnable() {
+    Future.defaultScheduler.execute(new Runnable() {
       @SneakyThrows
       @Override
       public void run() {
@@ -1209,6 +1211,58 @@ class FutureTests {
             .onSuccess(v -> flag.set(true));
 
     assertThat(flag).isTrue();
+
+    scheduledService.shutdown();
+  }
+
+  @Test
+  void timeoutWithScheduler() {
+    Scheduler scheduler = new DefaultScheduler();
+    var scheduledService = Executors.newScheduledThreadPool(1);
+
+    AtomicBoolean flag = new AtomicBoolean(false);
+
+    Future<Object> objectFuture = forExecutor(scheduler)
+            .timeout(Duration.ofSeconds(1))
+            .onSuccess(v -> flag.set(true))
+            .onFailure(e -> fail());
+
+    assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
+    assertThat(objectFuture.executor()).isSameAs(scheduler);
+
+    assertThat(flag).isTrue();
+
+    objectFuture = objectFuture.timeout(Duration.ofSeconds(1), scheduler)
+            .onSuccess(v -> flag.set(false))
+            .onFailure(e -> fail());
+
+    assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
+    assertThat(objectFuture.executor()).isSameAs(scheduler);
+    assertThat(flag).isFalse();
+
+    scheduler = new Scheduler() {
+
+      @Override
+      public void execute(Runnable command) {
+        directExecutor().execute(command);
+      }
+
+      @Override
+      public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        return scheduledService.schedule(command, 0, unit);
+      }
+    };
+
+    objectFuture = Future.forSettable()
+            .timeout(1, TimeUnit.SECONDS, scheduler);
+
+    assertThat(objectFuture).failsWithin(1, TimeUnit.SECONDS)
+            .withThrowableThat()
+            .havingRootCause()
+            .isInstanceOf(TimeoutException.class)
+            .withMessageEndingWith("Timeout, after 1 seconds");
+
+    assertThat(objectFuture.executor()).isSameAs(scheduler);
 
     scheduledService.shutdown();
   }

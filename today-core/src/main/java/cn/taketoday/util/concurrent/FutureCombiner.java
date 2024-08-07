@@ -121,7 +121,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * FutureCombiner}).
    */
   public <C> Future<C> call(Callable<C> combiner) {
-    return call(combiner, Future.defaultExecutor);
+    return call(combiner, Future.defaultScheduler);
   }
 
   /**
@@ -203,7 +203,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * @return a future whose result is Void
    */
   public Future<Void> combine() {
-    return combine(Future.defaultExecutor);
+    return combine(Future.defaultScheduler);
   }
 
   /**
@@ -268,7 +268,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
 
   private static void safeExecute(@Nullable Executor executor, Runnable task) {
     if (executor == null) {
-      executor = Future.defaultExecutor;
+      executor = Future.defaultScheduler;
     }
     executor.execute(task);
   }

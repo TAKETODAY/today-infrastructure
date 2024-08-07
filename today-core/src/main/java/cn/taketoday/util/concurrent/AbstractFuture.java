@@ -165,7 +165,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
     if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
-      throw new TimeoutException("Timeout");
+      throw new TimeoutException("Timeout, after %s seconds".formatted(unit.toSeconds(timeout)));
     }
     return report(s);
   }

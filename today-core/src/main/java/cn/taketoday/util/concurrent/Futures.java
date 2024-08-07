@@ -19,7 +19,6 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +53,7 @@ final class Futures {
   /**
    * @since 5.0
    */
-  static final CompleteFuture okFuture = new CompleteFuture(Future.defaultExecutor, null, null);
+  static final CompleteFuture okFuture = new CompleteFuture(Future.defaultScheduler, null, null);
 
   private static final FutureContextListener propagateCancel = new FutureContextListener<Future<Object>, Future<Object>>() {
 
@@ -280,13 +279,13 @@ final class Futures {
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
-   * @param scheduledService The executor service to enforce the timeout.
+   * @param scheduler The executor service to enforce the timeout.
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
    */
-  public static <V> Future<V> timeout(Future<V> delegate, long timeout, TimeUnit unit, ScheduledExecutorService scheduledService) {
-    return timeout(delegate, timeout, unit, scheduledService, future -> future.tryFailure(
+  public static <V> Future<V> timeout(Future<V> delegate, long timeout, TimeUnit unit, Scheduler scheduler) {
+    return timeout(delegate, timeout, unit, scheduler, future -> future.tryFailure(
             new TimeoutException("Timeout, after %s seconds".formatted(unit.toSeconds(timeout)))));
   }
 
@@ -297,19 +296,19 @@ final class Futures {
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
-   * @param scheduledService The executor service to enforce the timeout.
+   * @param scheduler The executor service to enforce the timeout.
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
    */
   public static <V> Future<V> timeout(Future<V> delegate, long timeout,
-          TimeUnit unit, ScheduledExecutorService scheduledService, FutureListener<SettableFuture<V>> timeoutListener) {
+          TimeUnit unit, Scheduler scheduler, FutureListener<SettableFuture<V>> timeoutListener) {
     if (delegate.isDone()) {
       return delegate;
     }
 
-    SettableFuture<V> settable = Future.forSettable(delegate.executor);
-    ScheduledFuture<?> timeoutFuture = scheduledService.schedule(() -> {
+    SettableFuture<V> settable = Future.forSettable(scheduler);
+    ScheduledFuture<?> timeoutFuture = scheduler.schedule(() -> {
       if (!delegate.isDone()) {
         // timeout
         Future.notifyListener(settable, timeoutListener);

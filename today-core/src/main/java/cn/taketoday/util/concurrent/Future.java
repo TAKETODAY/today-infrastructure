@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
@@ -42,6 +43,8 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingFunction;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
  * The result of an asynchronous operation.
@@ -167,7 +170,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
-  public static final Executor defaultExecutor = DefaultExecutorFactory.lookup();
+  public static final Scheduler defaultScheduler = Scheduler.lookup();
 
   /**
    * One or more listeners.
@@ -178,7 +181,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   protected final Executor executor;
 
   protected Future(@Nullable Executor executor) {
-    this.executor = executor == null ? defaultExecutor : executor;
+    this.executor = executor == null ? defaultScheduler : executor;
   }
 
   /**
@@ -742,16 +745,49 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * TimeoutException}) if the specified duration expires.
    * <p>This future is interrupted and cancelled if it times out.
    *
+   * <p> use {@link #defaultScheduler} for timeout checking
+   *
    * @param duration timeout duration
-   * @param scheduledService The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @see Scheduler
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration) {
+    return timeout(duration, scheduler());
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @param scheduled The executor service to enforce the timeout.
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduledService) {
+  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled) {
+    Scheduler scheduler = createScheduler(scheduled);
+    return timeout(duration, scheduler);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @return a timeout future
+   * @see TimeoutException
+   * @see Scheduler
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration, Scheduler scheduler) {
     Assert.notNull(duration, "Duration is required");
-    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
-    return Futures.timeout(this, duration.toNanos(), TimeUnit.NANOSECONDS, scheduledService);
+    Assert.notNull(scheduler, "Scheduler is required");
+    return Futures.timeout(this, duration.toNanos(), NANOSECONDS, scheduler);
   }
 
   /**
@@ -761,15 +797,46 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
-   * @param scheduledService The executor service to enforce the timeout.
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduledService) {
+  public Future<V> timeout(long timeout, TimeUnit unit) {
+    return timeout(timeout, unit, scheduler());
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param timeout when to time out the future
+   * @param unit the time unit of the time parameter
+   * @param scheduled The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduled) {
+    Scheduler scheduler = createScheduler(scheduled);
+    return timeout(timeout, unit, scheduler);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param timeout when to time out the future
+   * @param unit the time unit of the time parameter
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(long timeout, TimeUnit unit, Scheduler scheduler) {
     Assert.notNull(unit, "TimeUnit is required");
-    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
-    return Futures.timeout(this, timeout, unit, scheduledService);
+    Assert.notNull(scheduler, "Scheduler is required");
+    return Futures.timeout(this, timeout, unit, scheduler);
   }
 
   /**
@@ -778,16 +845,46 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * <p>This future is interrupted and cancelled if it times out.
    *
    * @param duration timeout duration
-   * @param scheduledService The executor service to enforce the timeout.
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduledService, FutureListener<SettableFuture<V>> timeoutListener) {
+  public Future<V> timeout(Duration duration, FutureListener<SettableFuture<V>> timeoutListener) {
+    return timeout(duration, scheduler(), timeoutListener);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @param scheduled The executor service to enforce the timeout.
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<SettableFuture<V>> timeoutListener) {
+    Scheduler scheduler = createScheduler(scheduled);
+    return timeout(duration, scheduler, timeoutListener);
+  }
+
+  /**
+   * Returns a future that delegates to this future but will finish early (via a {@link
+   * TimeoutException}) if the specified duration expires.
+   * <p>This future is interrupted and cancelled if it times out.
+   *
+   * @param duration timeout duration
+   * @param scheduler for timeout checking
+   * @return a timeout future
+   * @see TimeoutException
+   * @since 5.0
+   */
+  public Future<V> timeout(Duration duration, Scheduler scheduler, FutureListener<SettableFuture<V>> timeoutListener) {
     Assert.notNull(duration, "Duration is required");
+    Assert.notNull(scheduler, "Scheduler is required");
     Assert.notNull(timeoutListener, "timeoutListener is required");
-    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
-    return Futures.timeout(this, duration.toNanos(), TimeUnit.NANOSECONDS, scheduledService, timeoutListener);
+    return Futures.timeout(this, duration.toNanos(), NANOSECONDS, scheduler, timeoutListener);
   }
 
   /**
@@ -916,6 +1013,43 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     }
   }
 
+  /**
+   * @since 5.0
+   */
+  private Scheduler createScheduler(ScheduledExecutorService scheduledService) {
+    Assert.notNull(scheduledService, "ScheduledExecutorService is required");
+    return new Scheduler() {
+
+      @Override
+      public void execute(Runnable command) {
+        executor.execute(command);
+      }
+
+      @Override
+      public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        return scheduledService.schedule(command, delay, unit);
+      }
+    };
+  }
+
+  /**
+   * @since 5.0
+   */
+  private Scheduler scheduler() {
+    return executor instanceof Scheduler ? (Scheduler) executor : new Scheduler() {
+
+      @Override
+      public void execute(Runnable command) {
+        executor.execute(command);
+      }
+
+      @Override
+      public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        return defaultScheduler.schedule(command, delay, unit);
+      }
+    };
+  }
+
   final class NotifyTask implements Runnable {
 
     @Override
@@ -948,7 +1082,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see Future#get()
    */
   public static <V> Future<V> ok(@Nullable V result) {
-    return new CompleteFuture<>(defaultExecutor, result, null);
+    return new CompleteFuture<>(defaultScheduler, result, null);
   }
 
   /**
@@ -990,7 +1124,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see ExecutionException
    */
   public static <V> Future<V> failed(Throwable cause) {
-    return failed(cause, defaultExecutor);
+    return failed(cause, defaultScheduler);
   }
 
   /**
@@ -1016,7 +1150,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Adapts {@code CompletionStage} to a new SettableFuture instance.
    */
   public static <V> Future<V> forAdaption(CompletionStage<V> stage) {
-    return forAdaption(stage, defaultExecutor);
+    return forAdaption(stage, defaultScheduler);
   }
 
   /**
@@ -1042,7 +1176,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Creates a new SettableFuture instance.
    */
   public static <V> SettableFuture<V> forSettable() {
-    return new SettableFuture<>(defaultExecutor);
+    return new SettableFuture<>(defaultScheduler);
   }
 
   /**
@@ -1064,7 +1198,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   public static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
-    return new ListenableFutureTask<>(defaultExecutor, task);
+    return new ListenableFutureTask<>(defaultScheduler, task);
   }
 
   /**
@@ -1089,7 +1223,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   public static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
-    return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, null));
+    return new ListenableFutureTask<>(defaultScheduler, Executors.callable(task, null));
   }
 
   /**
@@ -1113,7 +1247,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
-    return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, result));
+    return new ListenableFutureTask<>(defaultScheduler, Executors.callable(task, result));
   }
 
   /**
@@ -1130,7 +1264,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Starts an asynchronous computation, backed by the {@link #defaultExecutor}.
+   * Starts an asynchronous computation, backed by the {@link #defaultScheduler}.
    *
    * @param task A computation task.
    * @param <V> Type of the computation result.
@@ -1140,7 +1274,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * accepted for execution
    */
   public static <V> ListenableFutureTask<V> run(Callable<V> task) {
-    return run(task, defaultExecutor);
+    return run(task, defaultScheduler);
   }
 
   /**
@@ -1160,7 +1294,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Runs an asynchronous computation, backed by the {@link #defaultExecutor}.
+   * Runs an asynchronous computation, backed by the {@link #defaultScheduler}.
    *
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
@@ -1169,7 +1303,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * accepted for execution
    */
   public static ListenableFutureTask<Void> run(Runnable task) {
-    return run(task, defaultExecutor);
+    return run(task, defaultScheduler);
   }
 
   /**
@@ -1187,7 +1321,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Runs an asynchronous computation, backed by the {@link #defaultExecutor}.
+   * Runs an asynchronous computation, backed by the {@link #defaultScheduler}.
    *
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
@@ -1196,7 +1330,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * accepted for execution
    */
   public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result) {
-    return run(task, result, defaultExecutor);
+    return run(task, result, defaultScheduler);
   }
 
   /**

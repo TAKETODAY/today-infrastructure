@@ -128,7 +128,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGetWithTimeout() {
-    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultExecutor);
+    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultScheduler);
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -140,7 +140,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsReturnedAsCause() {
-    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultExecutor);
+    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultScheduler);
     assertTrue(future.cancel(false));
     assertThat(future.getCause()).isInstanceOf(CancellationException.class);
   }

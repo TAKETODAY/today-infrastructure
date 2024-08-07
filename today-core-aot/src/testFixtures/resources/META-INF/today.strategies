@@ -26,5 +26,5 @@ cn.taketoday.lang.MyDummyFactory1
 cn.taketoday.lang.DummyPackagePrivateFactory=\
 cn.taketoday.lang.DummyPackagePrivateFactory
 
-cn.taketoday.util.concurrent.DefaultExecutorFactory=\
-cn.taketoday.util.concurrent.DefaultExecutorFactoryTests.ExecutorFactory
+cn.taketoday.util.concurrent.SchedulerFactory=\
+cn.taketoday.util.concurrent.SchedulerFactoryTests.ExecutorFactory

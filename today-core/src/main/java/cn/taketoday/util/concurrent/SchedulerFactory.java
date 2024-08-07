@@ -17,33 +17,17 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
-
-import cn.taketoday.lang.TodayStrategies;
-
 /**
- * for {@link Future#defaultExecutor}
+ * for {@link Future#defaultScheduler}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 13:24
  */
-public interface DefaultExecutorFactory {
+public interface SchedulerFactory {
 
   /**
-   * create Executor
+   * create Scheduler
    */
-  Executor createExecutor();
-
-  /**
-   * create default Executor
-   */
-  static Executor lookup() {
-    var factory = TodayStrategies.findFirst(DefaultExecutorFactory.class, null);
-    if (factory == null) {
-      return ForkJoinPool.commonPool();
-    }
-    return factory.createExecutor();
-  }
+  Scheduler create();
 
 }
