@@ -300,7 +300,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with failed callbacks.
-   * <p>
    *
    * @param failedCallback failed callback
    * @return this future object
