@@ -62,11 +62,18 @@ public interface Scheduler extends Executor {
 
   /**
    * lookup Scheduler
+   *
+   * @see TodayStrategies
+   * @see SchedulerFactory
    */
   static Scheduler lookup() {
     var factory = TodayStrategies.findFirst(SchedulerFactory.class, null);
     if (factory == null) {
-      return new DefaultScheduler();
+      Scheduler scheduler = TodayStrategies.findFirst(Scheduler.class, null);
+      if (scheduler == null) {
+        return new DefaultScheduler();
+      }
+      return scheduler;
     }
     return factory.create();
   }

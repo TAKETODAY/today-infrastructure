@@ -17,10 +17,13 @@
 
 package cn.taketoday.util.concurrent;
 
+import cn.taketoday.lang.TodayStrategies;
+
 /**
  * for {@link Future#defaultScheduler}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see TodayStrategies
  * @since 4.0 2024/2/28 13:24
  */
 public interface SchedulerFactory {
