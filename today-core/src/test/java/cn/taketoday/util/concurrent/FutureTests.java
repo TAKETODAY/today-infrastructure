@@ -1168,6 +1168,59 @@ class FutureTests {
             .onCancelled(() -> flag.set(true));
     settable.cancel();
     assertThat(flag).isTrue();
+
+    assertThatThrownBy(() -> Future.ok().onCancelled(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("cancelledCallback is required");
+  }
+
+  @Test
+  void onFailed() {
+    Future.ok().onFailed(Assertions::fail);
+
+    AtomicBoolean flag = new AtomicBoolean(false);
+    var settable = forSettable(directExecutor())
+            .onFailed(e -> flag.set(true));
+
+    settable.cancel();
+    assertThat(settable.getCause()).isInstanceOf(CancellationException.class);
+
+    assertThat(flag).isTrue();
+
+    SettableFuture<Object> settable1 = forSettable(directExecutor());
+    settable1.onFailed(e -> flag.set(false));
+
+    RuntimeException exception = new RuntimeException();
+    settable1.tryFailure(exception);
+
+    assertThat(flag).isFalse();
+    assertThat(settable1.getCause()).isSameAs(exception);
+  }
+
+  @Test
+  void onFinally() {
+    AtomicBoolean flag = new AtomicBoolean(false);
+
+    Future.forExecutor(directExecutor())
+            .onFailed(Assertions::fail)
+            .onFinally(() -> flag.set(true));
+
+    assertThat(flag).isTrue();
+
+    // cancel
+    forSettable(directExecutor())
+            .onFinally(() -> flag.set(false))
+            .onSuccess(v -> Assertions.fail())
+            .cancel();
+    assertThat(flag).isFalse();
+
+    // failed
+
+    Future.failed(new RuntimeException(), directExecutor())
+            .onSuccess(v -> Assertions.fail())
+            .onFinally(() -> flag.set(true));
+
+    assertThat(flag).isTrue();
   }
 
   @Test

@@ -35,19 +35,4 @@ public interface FailureCallback {
    */
   void onFailure(Throwable ex) throws Throwable;
 
-  /**
-   * on failure callback
-   *
-   * @param future target future
-   * @param failureCallback failure callback
-   * @param <V> value type
-   * @throws NullPointerException failureCallback is null
-   */
-  static <V> void onFailure(Future<V> future, FailureCallback failureCallback) throws Throwable {
-    Throwable cause = future.getCause();
-    if (cause != null) {
-      failureCallback.onFailure(cause);
-    }
-  }
-
 }

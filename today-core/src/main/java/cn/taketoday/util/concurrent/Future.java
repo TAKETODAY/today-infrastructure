@@ -65,18 +65,23 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *                                      +---------------------------+
  *                                      | Completed successfully    |
  *                                      +---------------------------+
+ *                                      |    isFailed() = false     |
+ *                                      |    getCause() = null      |
  *                                 +---->      isDone() = true      |
  * +--------------------------+    |    |   isSuccess() = true      |
  * |        Uncompleted       |    |    +===========================+
  * +--------------------------+    |    | Completed with failure    |
  * |      isDone() = false    |    |    +---------------------------+
  * |   isSuccess() = false    |----+---->      isDone() = true      |
+ * |    isFailed() = false    |    |    |    isFailed() = true      |
  * | isCancelled() = false    |    |    |    getCause() = non-null  |
- * |    getCause() = throws   |    |    +===========================+
+ * |    getCause() = null     |    |    +===========================+
  * |      getNow() = null     |    |    | Completed by cancellation |
- * |    isFailed() = false    |    |    +---------------------------+
+ * |                          |    |    +---------------------------+
  * +--------------------------+    +---->      isDone() = true      |
+ *                                      |    isFailed() = true      |
  *                                      | isCancelled() = true      |
+ *                                      |    getCause() = non-null  |
  *                                      +---------------------------+
  * </pre>
  * <p>
@@ -137,8 +142,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * and {@code io.netty.util.concurrent.Future}
  *
  * @param <V> the result type returned by this Future's {@code get} method
- * @author Sebastien Deleuze
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class Future<V> implements java.util.concurrent.Future<V> {
@@ -193,7 +197,10 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   /**
    * Returns {@code true} if and only if the operation was completed and failed.
    *
+   * <p>Returns {@code true} this future maybe {@link #isCancelled() cancelled}
+   *
    * @see #getCause()
+   * @see #isCancelled()
    */
   public abstract boolean isFailed();
 
@@ -201,8 +208,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Return {@code true} if this operation has been {@linkplain #cancel() cancelled}.
    * And {@link #getCause()} will returns {@link CancellationException}
    *
+   * <p>Cancelled future is a {@link #isFailed() failed} future
+   *
    * @return {@code true} if this operation has been cancelled, otherwise {@code false}.
    * @see CancellationException
+   * @see #isFailed()
    */
   @Override
   public abstract boolean isCancelled();
@@ -222,6 +232,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   /**
    * Returns the cause of the failed operation if the operation failed.
    *
+   * <p> Returns a {@link CancellationException} if this future is cancelled
+   *
    * @return the cause of the failure. {@code null} if succeeded or
    * this future is not completed yet.
    * @see #isFailed()
@@ -233,12 +245,17 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
+   *
+   * <p> Adapts {@link AbstractFuture#trySuccess(Object)},
+   * {@link SettableFuture#setFailure(Throwable)} and
+   * {@link AbstractFuture#tryFailure(Throwable)} operations
    *
    * @param successCallback the success callback
    * @param failureCallback the failure callback
    * @return this future object.
+   * @see AbstractFuture#trySuccess(Object)
+   * @see SettableFuture#setFailure(Throwable)
+   * @see AbstractFuture#tryFailure(Throwable)
    */
   public Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
     return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
@@ -246,8 +263,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with success callbacks.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param successCallback the success callback
    * @return this future object.
@@ -258,8 +273,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with failure callbacks.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param failureCallback the failure callback
    * @return this future object.
@@ -270,14 +283,14 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with cancelled callbacks.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param callback the cancelled callback
    * @return this future object.
+   * @see #isCancelled()
    * @since 5.0
    */
   public Future<V> onCancelled(Runnable callback) {
+    Assert.notNull(callback, "cancelledCallback is required");
     return onCompleted(future -> {
       if (future.isCancelled()) {
         callback.run();
@@ -286,11 +299,38 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Java 8 lambda-friendly alternative with failed callbacks.
+   * <p>
+   *
+   * @param failedCallback failed callback
+   * @return this future object
+   * @see #isFailed()
+   * @since 5.0
+   */
+  public Future<V> onFailed(FailureCallback failedCallback) {
+    return onCompleted(FutureListener.forFailed(failedCallback));
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with onCompleted callbacks.
+   *
+   * <p>This method like try-finally
+   *
+   * @param callback the onCompleted callback
+   * @return this future object.
+   * @see #isCancelled()
+   * @see #isDone()
+   * @since 5.0
+   */
+  public Future<V> onFinally(Runnable callback) {
+    Assert.notNull(callback, "finallyCallback is required");
+    return onCompleted(future -> callback.run());
+  }
+
+  /**
    * Adds the specified listener to this future. The specified listener
    * is notified when this future is {@link #isDone() done}. If this
    * future is already completed, the specified listener is notified immediately.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param listener The listener to be called when this future completes.
    * The listener will be passed the given context, and this future.
@@ -308,8 +348,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * The specified listener is notified when this future is
    * {@linkplain #isDone() done}. If this future is already
    * completed, the specified listener is notified immediately.
-   * <p>
-   * The order in which listeners are called depends on the {@link #executor}
    *
    * @return this future object.
    */

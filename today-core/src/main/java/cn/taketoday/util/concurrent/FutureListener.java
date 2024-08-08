@@ -54,9 +54,16 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
    *
+   * <p> Adapts {@link AbstractFuture#trySuccess(Object)},
+   * {@link SettableFuture#setFailure(Throwable)} and
+   * {@link AbstractFuture#tryFailure(Throwable)} operations
+   *
    * @param onSuccess success callback
    * @param onFailure failure callback
-   * @param <F> ListenableFuture sub-type
+   * @param <F> Future subtype
+   * @see AbstractFuture#trySuccess(Object)
+   * @see SettableFuture#setFailure(Throwable)
+   * @see AbstractFuture#tryFailure(Throwable)
    */
   static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
     Assert.notNull(onSuccess, "successCallback is required");
@@ -65,19 +72,60 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
         onSuccess.onSuccess(future.getNow());
       }
       else if (onFailure != null) {
-        FailureCallback.onFailure(future, onFailure);
+        onFailure(future, onFailure);
       }
     };
   }
 
   /**
-   * Java 8 lambda-friendly alternative with failure callbacks.
+   * Creates non-cancelled {@link Future#isFailed() failed} FutureListener
+   *
+   * <p>Java 8 lambda-friendly alternative with failure callbacks.
    *
    * @param failureCallback the failure callback
+   * @see SettableFuture#setFailure(Throwable)
+   * @see AbstractFuture#tryFailure(Throwable)
    */
   static <V, F extends Future<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
     Assert.notNull(failureCallback, "failureCallback is required");
-    return future -> FailureCallback.onFailure(future, failureCallback);
+    return future -> onFailure(future, failureCallback);
+  }
+
+  /**
+   * Creates {@link Future#isFailed() failed} FutureListener
+   *
+   * <p>Future maybe cancelled
+   *
+   * @param failedCallback the failed callback
+   * @see Future#isFailed()
+   * @see Future#isCancelled()
+   * @since 5.0
+   */
+  static <V, F extends Future<V>> FutureListener<F> forFailed(FailureCallback failedCallback) {
+    Assert.notNull(failedCallback, "failedCallback is required");
+    return future -> {
+      Throwable cause = future.getCause();
+      if (cause != null) {
+        failedCallback.onFailure(cause);
+      }
+    };
+  }
+
+  /**
+   * on failure callback
+   * <p> non-cancelled {@link Future#isFailed() failed} Future
+   *
+   * @param future target future
+   * @param failureCallback failure callback
+   * @param <V> value type
+   * @throws NullPointerException failureCallback is null
+   * @since 5.0
+   */
+  private static <V> void onFailure(Future<V> future, FailureCallback failureCallback) throws Throwable {
+    Throwable cause = future.getCause();
+    if (cause != null) {
+      failureCallback.onFailure(cause);
+    }
   }
 
 }
