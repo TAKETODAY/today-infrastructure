@@ -32,7 +32,7 @@ import cn.taketoday.scheduling.annotation.Async;
  * <p>This aspect routes methods marked with the {@link Async} annotation as well as methods
  * in classes marked with the same. Any method expected to be routed asynchronously must
  * return either {@code void}, {@link Future}, or a subtype of {@link Future} (in particular,
- * Framework's {@link cn.taketoday.util.concurrent.ListenableFuture}). This aspect,
+ * Infra {@link cn.taketoday.util.concurrent.Future}). This aspect,
  * therefore, will produce a compile-time error for methods that violate this constraint
  * on the return type. If, however, a class marked with {@code @Async} contains a method
  * that violates this constraint, it produces only a warning.
