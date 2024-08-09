@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,18 +49,17 @@ import cn.taketoday.stereotype.Component;
  * @since 4.0
  */
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
+@ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
 @DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 public class TaskSchedulingAutoConfiguration {
 
   @Component
-  @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
   public static LazyInitializationExcludeFilter scheduledBeanLazyInitializationExcludeFilter() {
     return new ScheduledBeanLazyInitializationExcludeFilter();
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
   @ConditionalOnMissingBean({ TaskScheduler.class, ScheduledExecutorService.class })
   static class TaskSchedulerConfiguration {
 
@@ -76,37 +75,38 @@ public class TaskSchedulingAutoConfiguration {
       return threadPoolTaskSchedulerBuilder.build();
     }
 
-    @Component
-    @ConditionalOnMissingBean
-    static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
-            List<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
-      TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
-      ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
-      builder = builder.poolSize(properties.getPool().getSize());
-      builder = builder.awaitTermination(shutdown.isAwaitTermination());
-      builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
-      builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-      builder = builder.customizers(threadPoolTaskSchedulerCustomizers);
-      return builder;
-    }
+  }
 
-    @Component
-    @ConditionalOnMissingBean
-    static SimpleAsyncTaskSchedulerBuilder simpleAsyncTaskSchedulerBuilder(Environment environment,
-            TaskSchedulingProperties properties, List<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
-      SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
-      builder = builder.customizers(taskSchedulerCustomizers);
-      builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-      builder = builder.concurrencyLimit(properties.getSimple().getConcurrencyLimit());
+  @Component
+  @ConditionalOnMissingBean
+  public static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
+          List<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
+    TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
+    ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
+    builder = builder.poolSize(properties.getPool().getSize());
+    builder = builder.awaitTermination(shutdown.isAwaitTermination());
+    builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
+    builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
+    builder = builder.customizers(threadPoolTaskSchedulerCustomizers);
+    return builder;
+  }
 
-      var shutdown = properties.getShutdown();
-      if (shutdown.isAwaitTermination()) {
-        builder = builder.taskTerminationTimeout(shutdown.getAwaitTerminationPeriod());
-      }
-      if (Threading.VIRTUAL.isActive(environment)) {
-        builder = builder.virtualThreads(true);
-      }
-      return builder;
+  @Component
+  @ConditionalOnMissingBean
+  public static SimpleAsyncTaskSchedulerBuilder simpleAsyncTaskSchedulerBuilder(Environment environment,
+          TaskSchedulingProperties properties, List<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+    SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
+    builder = builder.customizers(taskSchedulerCustomizers);
+    builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
+    builder = builder.concurrencyLimit(properties.getSimple().getConcurrencyLimit());
+
+    var shutdown = properties.getShutdown();
+    if (shutdown.isAwaitTermination()) {
+      builder = builder.taskTerminationTimeout(shutdown.getAwaitTerminationPeriod());
     }
+    if (Threading.VIRTUAL.isActive(environment)) {
+      builder = builder.virtualThreads(true);
+    }
+    return builder;
   }
 }
