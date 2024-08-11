@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
+import cn.taketoday.expression.spel.support.StandardTypeLocator;
 
 import static cn.taketoday.expression.spel.SpelMessage.FUNCTION_MUST_BE_STATIC;
 import static cn.taketoday.expression.spel.SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION;
@@ -210,6 +211,33 @@ class VariableAndFunctionTests extends AbstractExpressionTests {
     evaluate("#message('x -> %s %s %s', new short[]{1, 2, 3})", "x -> 1 2 3", String.class);  // short[] to Object[]
     evaluate("#message('x -> %s %s %s', new int[]{1, 2, 3})", "x -> 1 2 3", String.class); // int[] to Object[]
     evaluate("#formatObjectVarargs('x -> %s %s %s', new int[]{1, 2, 3})", "x -> 1 2 3", String.class); // int[] to Object[]
+  }
+
+  @Test
+  void functionFromMethodWithListConvertedToVarargsArray() {
+    ((StandardTypeLocator) context.getTypeLocator()).registerImport("java.util");
+    String expected = "[a, b, c]";
+
+    evaluate("#varargsFunction(T(List).of('a', 'b', 'c'))", expected, String.class);
+    evaluate("#varargsFunction({'a', 'b', 'c'})", expected, String.class);
+
+    // Calling 'public String formatObjectVarargs(String format, Object... args)' -> String.format(format, args)
+    evaluate("#varargsObjectFunction(T(List).of('a', 'b', 'c'))", expected, String.class);
+    evaluate("#varargsObjectFunction({'a', 'b', 'c'})", expected, String.class);
+  }
+
+  @Test
+  void functionFromMethodHandleWithListConvertedToVarargsArray() {
+    ((StandardTypeLocator) context.getTypeLocator()).registerImport("java.util");
+    String expected = "x -> a b c";
+
+    // Calling 'public static String message(String template, String... args)' -> template.formatted((Object[]) args)
+    evaluate("#message('x -> %s %s %s', T(List).of('a', 'b', 'c'))", expected, String.class);
+    evaluate("#message('x -> %s %s %s', {'a', 'b', 'c'})", expected, String.class);
+
+    // Calling 'public static String formatObjectVarargs(String format, Object... args)' -> String.format(format, args)
+    evaluate("#formatObjectVarargs('x -> %s %s %s', T(List).of('a', 'b', 'c'))", expected, String.class);
+    evaluate("#formatObjectVarargs('x -> %s %s %s', {'a', 'b', 'c'})", expected, String.class);
   }
 
   @Test

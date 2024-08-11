@@ -164,7 +164,6 @@ public class TableMetaDataContext {
    *
    * @param quoteIdentifiers whether identifiers should be quoted
    * @see java.sql.DatabaseMetaData#getIdentifierQuoteString()
-   * @since 6.1
    */
   public void setQuoteIdentifiers(boolean quoteIdentifiers) {
     this.quoteIdentifiers = quoteIdentifiers;
@@ -174,7 +173,6 @@ public class TableMetaDataContext {
    * Are we quoting identifiers?
    *
    * @see #setQuoteIdentifiers(boolean)
-   * @since 6.1
    */
   public boolean isQuoteIdentifiers() {
     return this.quoteIdentifiers;
@@ -307,7 +305,7 @@ public class TableMetaDataContext {
     }
 
     String identifierQuoteString = (isQuoteIdentifiers() ?
-                                    obtainMetaDataProvider().getIdentifierQuoteString() : null);
+            obtainMetaDataProvider().getIdentifierQuoteString() : null);
     QuoteHandler quoteHandler = new QuoteHandler(identifierQuoteString);
 
     StringBuilder insertStatement = new StringBuilder();
