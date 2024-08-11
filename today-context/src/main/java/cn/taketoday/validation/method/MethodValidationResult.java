@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.method;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.MessageSourceResolvable;
@@ -63,55 +64,64 @@ public interface MethodValidationResult {
    * Whether the result contains any validation errors.
    */
   default boolean hasErrors() {
-    return !getAllValidationResults().isEmpty();
+    return !getParameterValidationResults().isEmpty();
   }
 
   /**
    * Return a single list with all errors from all validation results.
    *
-   * @see #getAllValidationResults()
+   * @see #getParameterValidationResults()
    * @see ParameterValidationResult#getResolvableErrors()
    */
   default List<? extends MessageSourceResolvable> getAllErrors() {
-    return getAllValidationResults().stream()
+    return getParameterValidationResults().stream()
             .flatMap(result -> result.getResolvableErrors().stream())
             .toList();
   }
 
   /**
-   * Return all validation results. This includes both method parameters with
-   * errors directly on them, and Object method parameters with nested errors
-   * on their fields and properties.
+   * Return all validation results per method parameter, including both
+   * {@link #getValueResults()} and {@link #getBeanResults()}.
+   * <p>Use {@link #getCrossParameterValidationResults()} for access to errors
+   * from cross-parameter validation.
    *
    * @see #getValueResults()
    * @see #getBeanResults()
+   * @since 5.0
    */
-  List<ParameterValidationResult> getAllValidationResults();
+  List<ParameterValidationResult> getParameterValidationResults();
 
   /**
-   * Return the subset of {@link #getAllValidationResults() allValidationResults}
+   * Return the subset of {@link #getParameterValidationResults() allValidationResults}
    * that includes method parameters with validation errors directly on method
    * argument values. This excludes {@link #getBeanResults() beanResults} with
    * nested errors on their fields and properties.
    */
   default List<ParameterValidationResult> getValueResults() {
-    return getAllValidationResults().stream()
+    return getParameterValidationResults().stream()
             .filter(result -> !(result instanceof ParameterErrors))
             .toList();
   }
 
   /**
-   * Return the subset of {@link #getAllValidationResults() allValidationResults}
+   * Return the subset of {@link #getParameterValidationResults() allValidationResults}
    * that includes Object method parameters with nested errors on their fields
    * and properties. This excludes {@link #getValueResults() valueResults} with
    * validation errors directly on method arguments.
    */
   default List<ParameterErrors> getBeanResults() {
-    return getAllValidationResults().stream()
-            .filter(result -> result instanceof ParameterErrors)
+    return getParameterValidationResults().stream()
+            .filter(ParameterErrors.class::isInstance)
             .map(result -> (ParameterErrors) result)
             .toList();
   }
+
+  /**
+   * Return errors from cross-parameter validation.
+   *
+   * @since 5.0
+   */
+  List<MessageSourceResolvable> getCrossParameterValidationResults();
 
   /**
    * Factory method to create a {@link MethodValidationResult} instance.
@@ -122,7 +132,23 @@ public interface MethodValidationResult {
    * @return the created instance
    */
   static MethodValidationResult create(Object target, Method method, List<ParameterValidationResult> results) {
-    return new DefaultMethodValidationResult(target, method, results);
+    return create(target, method, results, Collections.emptyList());
+  }
+
+  /**
+   * Factory method to create a {@link MethodValidationResult} instance.
+   *
+   * @param target the target Object
+   * @param method the target method
+   * @param results method validation results, expected to be non-empty
+   * @param crossParameterErrors cross-parameter validation errors
+   * @return the created instance
+   * @since 5.0
+   */
+  static MethodValidationResult create(Object target, Method method,
+          List<ParameterValidationResult> results, List<MessageSourceResolvable> crossParameterErrors) {
+
+    return new DefaultMethodValidationResult(target, method, results, crossParameterErrors);
   }
 
   /**

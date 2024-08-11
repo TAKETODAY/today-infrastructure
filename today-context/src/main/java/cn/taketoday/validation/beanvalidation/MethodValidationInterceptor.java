@@ -21,23 +21,39 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.SmartFactoryBean;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.OrderedSupport;
+import cn.taketoday.core.ReactiveAdapter;
+import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
+import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.validation.BeanPropertyBindingResult;
+import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.validation.method.MethodValidationException;
+import cn.taketoday.validation.method.MethodValidationResult;
+import cn.taketoday.validation.method.ParameterErrors;
+import cn.taketoday.validation.method.ParameterValidationResult;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.executable.ExecutableValidator;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * An AOP Alliance {@link MethodInterceptor} implementation that delegates to a
@@ -153,6 +169,11 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     Object[] arguments = invocation.getArguments();
     Class<?>[] groups = determineValidationGroups(invocation);
 
+    if (ReactiveStreams.reactorPresent) {
+      arguments = ReactorValidationHelper.insertAsyncValidation(
+              delegate.getValidatorAdapter(), this.adaptViolations, target, method, arguments);
+    }
+
     Set<ConstraintViolation<Object>> violations;
 
     if (this.adaptViolations) {
@@ -224,6 +245,75 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
   protected Class<?>[] determineValidationGroups(MethodInvocation invocation) {
     Object target = getTarget(invocation);
     return delegate.determineValidationGroups(target, invocation.getMethod());
+  }
+
+  /**
+   * Helper class to decorate reactive arguments with async validation.
+   */
+  private static final class ReactorValidationHelper {
+
+    private static final ReactiveAdapterRegistry reactiveAdapterRegistry =
+            ReactiveAdapterRegistry.getSharedInstance();
+
+    static Object[] insertAsyncValidation(InfraValidatorAdapter validatorAdapter,
+            boolean adaptViolations, Object target, Method method, Object[] arguments) {
+
+      for (int i = 0; i < method.getParameterCount(); i++) {
+        if (arguments[i] == null) {
+          continue;
+        }
+        Class<?> parameterType = method.getParameterTypes()[i];
+        ReactiveAdapter reactiveAdapter = reactiveAdapterRegistry.getAdapter(parameterType);
+        if (reactiveAdapter == null || reactiveAdapter.isNoValue()) {
+          continue;
+        }
+        Class<?>[] groups = determineValidationGroups(method.getParameters()[i]);
+        if (groups == null) {
+          continue;
+        }
+        MethodParameter param = new MethodParameter(method, i);
+        arguments[i] = (reactiveAdapter.isMultiValue() ?
+                Flux.from(reactiveAdapter.toPublisher(arguments[i])).doOnNext(value ->
+                        validate(validatorAdapter, adaptViolations, target, method, param, value, groups)) :
+                Mono.from(reactiveAdapter.toPublisher(arguments[i])).doOnNext(value ->
+                        validate(validatorAdapter, adaptViolations, target, method, param, value, groups)));
+      }
+      return arguments;
+    }
+
+    @Nullable
+    private static Class<?>[] determineValidationGroups(Parameter parameter) {
+      Validated validated = AnnotationUtils.findAnnotation(parameter, Validated.class);
+      if (validated != null) {
+        return validated.value();
+      }
+      Valid valid = AnnotationUtils.findAnnotation(parameter, Valid.class);
+      if (valid != null) {
+        return new Class<?>[0];
+      }
+      return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void validate(InfraValidatorAdapter validatorAdapter, boolean adaptViolations,
+            Object target, Method method, MethodParameter parameter, Object argument, Class<?>[] groups) {
+
+      if (adaptViolations) {
+        Errors errors = new BeanPropertyBindingResult(argument, argument.getClass().getSimpleName());
+        validatorAdapter.validate(argument, errors);
+        if (errors.hasErrors()) {
+          ParameterErrors paramErrors = new ParameterErrors(parameter, argument, errors, null, null, null);
+          List<ParameterValidationResult> results = Collections.singletonList(paramErrors);
+          throw new MethodValidationException(MethodValidationResult.create(target, method, results));
+        }
+      }
+      else {
+        Set<ConstraintViolation<T>> violations = validatorAdapter.validate((T) argument, groups);
+        if (!violations.isEmpty()) {
+          throw new ConstraintViolationException(violations);
+        }
+      }
+    }
   }
 
 }

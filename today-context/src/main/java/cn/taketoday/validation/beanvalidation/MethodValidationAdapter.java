@@ -19,6 +19,7 @@ package cn.taketoday.validation.beanvalidation;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -182,6 +183,15 @@ public class MethodValidationAdapter implements MethodValidator {
   }
 
   /**
+   * Return the {@link InfraValidatorAdapter} configured for use.
+   *
+   * @since 5.0
+   */
+  public InfraValidatorAdapter getValidatorAdapter() {
+    return validatorAdapter;
+  }
+
+  /**
    * {@inheritDoc}.
    * <p>Default are the validation groups as specified in the {@link Validated}
    * annotation on the method, or on the containing target class of the method,
@@ -274,11 +284,12 @@ public class MethodValidationAdapter implements MethodValidator {
 
     Map<Path.Node, ParamValidationResultBuilder> paramViolations = new LinkedHashMap<>();
     Map<Path.Node, ParamErrorsBuilder> nestedViolations = new LinkedHashMap<>();
+    List<MessageSourceResolvable> crossParamErrors = null;
 
     for (ConstraintViolation<Object> violation : violations) {
-      Iterator<Path.Node> itr = violation.getPropertyPath().iterator();
-      while (itr.hasNext()) {
-        Path.Node node = itr.next();
+      Iterator<Path.Node> nodes = violation.getPropertyPath().iterator();
+      while (nodes.hasNext()) {
+        Path.Node node = nodes.next();
 
         MethodParameter parameter;
         if (node.getKind().equals(ElementKind.PARAMETER)) {
@@ -288,19 +299,24 @@ public class MethodValidationAdapter implements MethodValidator {
         else if (node.getKind().equals(ElementKind.RETURN_VALUE)) {
           parameter = parameterFunction.apply(-1);
         }
+        else if (node.getKind().equals(ElementKind.CROSS_PARAMETER)) {
+          crossParamErrors = (crossParamErrors != null ? crossParamErrors : new ArrayList<>());
+          crossParamErrors.add(createCrossParamError(target, method, violation));
+          break;
+        }
         else {
           continue;
         }
 
         Object arg = argumentFunction.apply(parameter.getParameterIndex());
 
-        // If the arg is a container, we need to element, but the only way to extract it
+        // If the arg is a container, we need the element, but the only way to extract it
         // is to check for and use a container index or key on the next node:
         // https://github.com/jakartaee/validation/issues/194
 
         Path.Node parameterNode = node;
-        if (itr.hasNext()) {
-          node = itr.next();
+        if (nodes.hasNext()) {
+          node = nodes.next();
         }
 
         Object value;
@@ -329,7 +345,6 @@ public class MethodValidationAdapter implements MethodValidator {
           container = optional;
         }
         else {
-          Assert.state(!node.isInIterable(), "No way to unwrap Iterable without index");
           value = arg;
           container = null;
         }
@@ -351,12 +366,13 @@ public class MethodValidationAdapter implements MethodValidator {
       }
     }
 
-    ArrayList<ParameterValidationResult> resultList = new ArrayList<>();
+    List<ParameterValidationResult> resultList = new ArrayList<>();
     paramViolations.forEach((param, builder) -> resultList.add(builder.build()));
     nestedViolations.forEach((key, builder) -> resultList.add(builder.build()));
     resultList.sort(resultComparator);
 
-    return MethodValidationResult.create(target, method, resultList);
+    return MethodValidationResult.create(target, method, resultList,
+            (crossParamErrors != null ? crossParamErrors : Collections.emptyList()));
   }
 
   private MethodParameter initMethodParameter(Method method, int index) {
@@ -385,6 +401,18 @@ public class MethodValidationAdapter implements MethodValidator {
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(argument, objectName);
     result.setMessageCodesResolver(this.messageCodesResolver);
     return result;
+  }
+
+  private MessageSourceResolvable createCrossParamError(
+          Object target, Method method, ConstraintViolation<Object> violation) {
+    String objectName = Conventions.getVariableName(target) + "#" + method.getName();
+
+    ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
+    String code = descriptor.getAnnotation().annotationType().getSimpleName();
+    String[] codes = this.messageCodesResolver.resolveMessageCodes(code, objectName);
+    Object[] arguments = this.validatorAdapter.getArgumentsForConstraint(objectName, "", descriptor);
+
+    return new ViolationMessageSourceResolvable(codes, arguments, violation.getMessage(), violation);
   }
 
   /**

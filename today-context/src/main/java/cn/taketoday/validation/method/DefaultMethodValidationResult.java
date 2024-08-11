@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.method;
@@ -20,6 +20,7 @@ package cn.taketoday.validation.method;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -35,18 +36,24 @@ final class DefaultMethodValidationResult implements MethodValidationResult {
 
   private final Method method;
 
-  private final List<ParameterValidationResult> allValidationResults;
+  private final List<ParameterValidationResult> parameterValidationResults;
+
+  private final List<MessageSourceResolvable> crossParamResults;
 
   private final boolean forReturnValue;
 
-  DefaultMethodValidationResult(Object target, Method method, List<ParameterValidationResult> results) {
-    Assert.notEmpty(results, "'results' is required and must not be empty");
+  DefaultMethodValidationResult(Object target, Method method,
+          List<ParameterValidationResult> results, List<MessageSourceResolvable> crossParamResults) {
+
+    Assert.isTrue(!results.isEmpty() || !crossParamResults.isEmpty(), "Expected validation results");
     Assert.notNull(target, "'target' is required");
     Assert.notNull(method, "Method is required");
+
     this.target = target;
     this.method = method;
-    this.allValidationResults = results;
-    this.forReturnValue = (results.get(0).getMethodParameter().getParameterIndex() == -1);
+    this.parameterValidationResults = results;
+    this.crossParamResults = crossParamResults;
+    this.forReturnValue = (!results.isEmpty() && results.get(0).getMethodParameter().getParameterIndex() == -1);
   }
 
   @Override
@@ -65,8 +72,13 @@ final class DefaultMethodValidationResult implements MethodValidationResult {
   }
 
   @Override
-  public List<ParameterValidationResult> getAllValidationResults() {
-    return this.allValidationResults;
+  public List<ParameterValidationResult> getParameterValidationResults() {
+    return this.parameterValidationResults;
+  }
+
+  @Override
+  public List<MessageSourceResolvable> getCrossParameterValidationResults() {
+    return this.crossParamResults;
   }
 
   @Override

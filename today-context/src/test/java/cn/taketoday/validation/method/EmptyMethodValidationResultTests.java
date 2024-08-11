@@ -39,7 +39,7 @@ class EmptyMethodValidationResultTests {
     assertThatThrownBy(() -> new EmptyMethodValidationResult()
             .isForReturnValue()).isInstanceOf(UnsupportedOperationException.class);
 
-    assertThat(new EmptyMethodValidationResult().getAllValidationResults()).isEmpty();
+    assertThat(new EmptyMethodValidationResult().getParameterValidationResults()).isEmpty();
     assertThat(new EmptyMethodValidationResult().toString()).isEqualTo("0 validation errors");
   }
 

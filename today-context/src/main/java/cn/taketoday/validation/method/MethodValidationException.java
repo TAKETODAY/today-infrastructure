@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.method;
@@ -20,12 +20,14 @@ package cn.taketoday.validation.method;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.lang.Assert;
 
 /**
  * Exception that is a {@link MethodValidationResult}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MethodValidator
  * @since 4.0
  */
@@ -55,8 +57,13 @@ public class MethodValidationException extends RuntimeException implements Metho
   }
 
   @Override
-  public List<ParameterValidationResult> getAllValidationResults() {
-    return this.validationResult.getAllValidationResults();
+  public List<ParameterValidationResult> getParameterValidationResults() {
+    return this.validationResult.getParameterValidationResults();
+  }
+
+  @Override
+  public List<MessageSourceResolvable> getCrossParameterValidationResults() {
+    return this.validationResult.getCrossParameterValidationResults();
   }
 
 }
