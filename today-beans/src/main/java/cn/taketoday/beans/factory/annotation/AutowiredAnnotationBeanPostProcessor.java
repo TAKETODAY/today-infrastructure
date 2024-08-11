@@ -61,6 +61,7 @@ import cn.taketoday.beans.factory.aot.AutowiredMethodArgumentsResolver;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCode;
+import cn.taketoday.beans.factory.aot.CodeWarnings;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
@@ -961,8 +962,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         method.addParameter(RegisteredBean.class, REGISTERED_BEAN_PARAMETER);
         method.addParameter(this.target, INSTANCE_PARAMETER);
         method.returns(this.target);
-        method.addCode(generateMethodCode(generatedClass.getName(),
-                generationContext.getRuntimeHints()));
+        CodeWarnings codeWarnings = new CodeWarnings();
+        codeWarnings.detectDeprecation(this.target);
+        method.addCode(generateMethodCode(codeWarnings,
+                generatedClass.getName(), generationContext.getRuntimeHints()));
+        codeWarnings.suppress(method);
       });
       beanRegistrationCode.addInstancePostProcessor(generateMethod.toMethodReference());
 
@@ -971,53 +975,61 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       }
     }
 
-    private CodeBlock generateMethodCode(ClassName targetClassName, RuntimeHints hints) {
+    private CodeBlock generateMethodCode(CodeWarnings codeWarnings, ClassName targetClassName, RuntimeHints hints) {
       CodeBlock.Builder code = CodeBlock.builder();
       for (AutowiredElement autowiredElement : this.autowiredElements) {
         code.addStatement(generateMethodStatementForElement(
-                targetClassName, autowiredElement, hints));
+                codeWarnings, targetClassName, autowiredElement, hints));
       }
       code.addStatement("return $L", INSTANCE_PARAMETER);
       return code.build();
     }
 
-    private CodeBlock generateMethodStatementForElement(ClassName targetClassName,
-            AutowiredElement autowiredElement, RuntimeHints hints) {
+    private CodeBlock generateMethodStatementForElement(CodeWarnings codeWarnings,
+            ClassName targetClassName, AutowiredElement autowiredElement, RuntimeHints hints) {
 
       Member member = autowiredElement.getMember();
       boolean required = autowiredElement.required;
       if (member instanceof Field field) {
-        return generateMethodStatementForField(targetClassName, field, required, hints);
+        return generateMethodStatementForField(
+                codeWarnings, targetClassName, field, required, hints);
       }
       if (member instanceof Method method) {
-        return generateMethodStatementForMethod(targetClassName, method, required, hints);
+        return generateMethodStatementForMethod(
+                codeWarnings, targetClassName, method, required, hints);
       }
       throw new IllegalStateException(
               "Unsupported member type " + member.getClass().getName());
     }
 
-    private CodeBlock generateMethodStatementForField(ClassName targetClassName,
-            Field field, boolean required, RuntimeHints hints) {
+    private CodeBlock generateMethodStatementForField(CodeWarnings codeWarnings,
+            ClassName targetClassName, Field field, boolean required, RuntimeHints hints) {
 
       hints.reflection().registerField(field);
-      CodeBlock resolver = CodeBlock.of("$T.$L($S)", AutowiredFieldValueResolver.class, (!required) ? "forField" : "forRequiredField", field.getName());
+      CodeBlock resolver = CodeBlock.of("$T.$L($S)",
+              AutowiredFieldValueResolver.class,
+              (!required ? "forField" : "forRequiredField"), field.getName());
       AccessControl accessControl = AccessControl.forMember(field);
       if (!accessControl.isAccessibleFrom(targetClassName)) {
         return CodeBlock.of("$L.resolveAndSet($L, $L)", resolver,
                 REGISTERED_BEAN_PARAMETER, INSTANCE_PARAMETER);
       }
-      return CodeBlock.of("$L.$L = $L.resolve($L)", INSTANCE_PARAMETER,
-              field.getName(), resolver, REGISTERED_BEAN_PARAMETER);
+      else {
+        codeWarnings.detectDeprecation(field);
+        return CodeBlock.of("$L.$L = $L.resolve($L)", INSTANCE_PARAMETER,
+                field.getName(), resolver, REGISTERED_BEAN_PARAMETER);
+      }
     }
 
-    private CodeBlock generateMethodStatementForMethod(ClassName targetClassName,
-            Method method, boolean required, RuntimeHints hints) {
+    private CodeBlock generateMethodStatementForMethod(CodeWarnings codeWarnings,
+            ClassName targetClassName, Method method, boolean required, RuntimeHints hints) {
 
       CodeBlock.Builder code = CodeBlock.builder();
       code.add("$T.$L", AutowiredMethodArgumentsResolver.class,
-              (!required) ? "forMethod" : "forRequiredMethod");
+              (!required ? "forMethod" : "forRequiredMethod"));
       code.add("($S", method.getName());
       if (method.getParameterCount() > 0) {
+        codeWarnings.detectDeprecation(method.getParameterTypes());
         code.add(", $L", generateParameterTypesCode(method.getParameterTypes()));
       }
       code.add(")");
@@ -1027,10 +1039,12 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         code.add(".resolveAndInvoke($L, $L)", REGISTERED_BEAN_PARAMETER, INSTANCE_PARAMETER);
       }
       else {
+        codeWarnings.detectDeprecation(method);
         hints.reflection().registerMethod(method, ExecutableMode.INTROSPECT);
-        CodeBlock arguments = new AutowiredArgumentsCodeGenerator(this.target, method)
-                .generateCode(method.getParameterTypes());
-        CodeBlock injectionCode = CodeBlock.of("args -> $L.$L($L)", INSTANCE_PARAMETER, method.getName(), arguments);
+        CodeBlock arguments = new AutowiredArgumentsCodeGenerator(this.target,
+                method).generateCode(method.getParameterTypes());
+        CodeBlock injectionCode = CodeBlock.of("args -> $L.$L($L)",
+                INSTANCE_PARAMETER, method.getName(), arguments);
         code.add(".resolve($L, $L)", REGISTERED_BEAN_PARAMETER, injectionCode);
       }
       return code.build();
