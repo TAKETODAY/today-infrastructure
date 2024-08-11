@@ -72,36 +72,35 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
   @SuppressWarnings("unchecked")
   @Override
   public boolean resolve(@Nullable Object argument, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
-    NamedValueInfo info = getNamedValueInfo(parameter);
+    NamedValueInfo info = getNamedValueInfo(parameter, requestValues);
+
     if (info == null) {
       return false;
     }
 
     if (Map.class.isAssignableFrom(parameter.getParameterType())) {
       Assert.isInstanceOf(Map.class, argument);
-      parameter = parameter.nested(1);
       if (argument != null) {
+        parameter = parameter.nested(1);
         for (var entry : ((Map<String, ?>) argument).entrySet()) {
-          addSingleOrMultipleValues(
-                  entry.getKey(), entry.getValue(), false, null, info.label, info.multiValued,
-                  parameter, requestValues);
+          addSingleOrMultipleValues(entry.getKey(), entry.getValue(), false,
+                  null, info.label, info.multiValued, parameter, requestValues);
         }
       }
     }
     else {
-      addSingleOrMultipleValues(
-              info.name, argument, info.required, info.defaultValue, info.label, info.multiValued,
-              parameter, requestValues);
+      addSingleOrMultipleValues(info.name, argument, info.required, info.defaultValue,
+              info.label, info.multiValued, parameter, requestValues);
     }
 
     return true;
   }
 
   @Nullable
-  private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
+  private NamedValueInfo getNamedValueInfo(MethodParameter parameter, HttpRequestValues.Builder requestValues) {
     NamedValueInfo info = this.namedValueInfoCache.get(parameter);
     if (info == null) {
-      info = createNamedValueInfo(parameter);
+      info = createNamedValueInfo(parameter, requestValues);
       if (info == null) {
         return null;
       }
@@ -117,6 +116,19 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
    */
   @Nullable
   protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
+
+  /**
+   * Variant of {@link #createNamedValueInfo(MethodParameter)} that also provides
+   * access to the static values set from {@code @HttpExchange} attributes.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  protected NamedValueInfo createNamedValueInfo(
+          MethodParameter parameter, HttpRequestValues.Metadata metadata) {
+
+    return createNamedValueInfo(parameter);
+  }
 
   private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
     String name = info.name;
