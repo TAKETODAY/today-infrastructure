@@ -17,7 +17,6 @@
 
 package cn.taketoday.core.conversion.converter;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
@@ -641,7 +640,6 @@ class DefaultConversionServiceTests {
     assertThat(result).containsExactly(1, 2, 3);
   }
 
-  @Disabled("Primitive array to Object[] conversion is not currently supported")
   @Test
   void convertIntArrayToObjectArray() {
     Object[] result = conversionService.convert(new int[] { 1, 2 }, Object[].class);
