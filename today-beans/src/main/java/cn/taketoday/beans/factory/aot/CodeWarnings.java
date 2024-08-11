@@ -21,13 +21,16 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.StringJoiner;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.AnnotationSpec;
+import cn.taketoday.javapoet.AnnotationSpec.Builder;
 import cn.taketoday.javapoet.CodeBlock;
+import cn.taketoday.javapoet.FieldSpec;
 import cn.taketoday.javapoet.MethodSpec;
+import cn.taketoday.javapoet.TypeSpec;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -40,9 +43,9 @@ import cn.taketoday.util.ClassUtils;
  * @see SuppressWarnings
  * @since 4.0
  */
-class CodeWarnings {
+public class CodeWarnings {
 
-  private final LinkedHashSet<String> warnings = new LinkedHashSet<>();
+  private final Set<String> warnings = new LinkedHashSet<>();
 
   /**
    * Register a warning to be included for this block. Does nothing if
@@ -62,7 +65,7 @@ class CodeWarnings {
    */
   public CodeWarnings detectDeprecation(AnnotatedElement... elements) {
     for (AnnotatedElement element : elements) {
-      register(element.getAnnotation(Deprecated.class));
+      registerDeprecationIfNecessary(element);
     }
     return this;
   }
@@ -105,10 +108,33 @@ class CodeWarnings {
    * @param method the method to update
    */
   public void suppress(MethodSpec.Builder method) {
-    if (this.warnings.isEmpty()) {
-      return;
+    suppress(annotationBuilder -> method.addAnnotation(annotationBuilder.build()));
+  }
+
+  /**
+   * Include {@link SuppressWarnings} on the specified type if necessary.
+   *
+   * @param type the type to update
+   */
+  public void suppress(TypeSpec.Builder type) {
+    suppress(annotationBuilder -> type.addAnnotation(annotationBuilder.build()));
+  }
+
+  /**
+   * Consume the builder for {@link SuppressWarnings} if necessary. If this
+   * instance has no warnings registered, the consumer is not invoked.
+   *
+   * @param annotationSpec a consumer of the {@link Builder}
+   * @see MethodSpec.Builder#addAnnotation(AnnotationSpec)
+   * @see TypeSpec.Builder#addAnnotation(AnnotationSpec)
+   * @see FieldSpec.Builder#addAnnotation(AnnotationSpec)
+   */
+  protected void suppress(Consumer<Builder> annotationSpec) {
+    if (!this.warnings.isEmpty()) {
+      Builder annotation = AnnotationSpec.builder(SuppressWarnings.class)
+              .addMember("value", generateValueCode());
+      annotationSpec.accept(annotation);
     }
-    method.addAnnotation(buildAnnotationSpec());
   }
 
   /**
@@ -118,6 +144,16 @@ class CodeWarnings {
    */
   protected Set<String> getWarnings() {
     return Collections.unmodifiableSet(this.warnings);
+  }
+
+  private void registerDeprecationIfNecessary(@Nullable AnnotatedElement element) {
+    if (element == null) {
+      return;
+    }
+    register(element.getAnnotation(Deprecated.class));
+    if (element instanceof Class<?> type) {
+      registerDeprecationIfNecessary(type.getEnclosingClass());
+    }
   }
 
   private void register(@Nullable Deprecated annotation) {
@@ -131,11 +167,6 @@ class CodeWarnings {
     }
   }
 
-  private AnnotationSpec buildAnnotationSpec() {
-    return AnnotationSpec.builder(SuppressWarnings.class)
-            .addMember("value", generateValueCode()).build();
-  }
-
   private CodeBlock generateValueCode() {
     if (this.warnings.size() == 1) {
       return CodeBlock.of("$S", this.warnings.iterator().next());
@@ -147,9 +178,7 @@ class CodeWarnings {
 
   @Override
   public String toString() {
-    return new StringJoiner(", ", CodeWarnings.class.getSimpleName(), "")
-            .add(this.warnings.toString())
-            .toString();
+    return CodeWarnings.class.getSimpleName() + this.warnings;
   }
 
 }
