@@ -111,26 +111,17 @@ class BeanDefinitionPropertiesCodeGenerator {
 
   CodeBlock generateCode(RootBeanDefinition beanDefinition) {
     CodeBlock.Builder code = CodeBlock.builder();
-    addStatementForValue(code, beanDefinition, BeanDefinition::isPrimary,
-            "$L.setPrimary($L)");
-    addStatementForValue(code, beanDefinition, BeanDefinition::getScope,
-            this::hasScope, "$L.setScope($S)");
-    addStatementForValue(code, beanDefinition, BeanDefinition::getDependsOn,
-            this::hasDependsOn, "$L.setDependsOn($L)", this::toStringVarArgs);
-    addStatementForValue(code, beanDefinition, BeanDefinition::isAutowireCandidate,
-            "$L.setAutowireCandidate($L)");
-    addStatementForValue(code, beanDefinition, BeanDefinition::getRole,
-            this::hasRole, "$L.setRole($L)", this::toRole);
-    addStatementForValue(code, beanDefinition, AbstractBeanDefinition::getLazyInit,
-            "$L.setLazyInit($L)");
-    addStatementForValue(code, beanDefinition, AbstractBeanDefinition::isSynthetic,
-            "$L.setSynthetic($L)");
-    addStatementForValue(code, beanDefinition, BeanDefinition::isEnableDependencyInjection,
-            "$L.setEnableDependencyInjection($L)");
-    addInitDestroyMethods(code, beanDefinition, beanDefinition.getInitMethodNames(),
-            "$L.setInitMethodNames($L)");
-    addInitDestroyMethods(code, beanDefinition, beanDefinition.getDestroyMethodNames(),
-            "$L.setDestroyMethodNames($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::isPrimary, "$L.setPrimary($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::isFallback, "$L.setFallback($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::getScope, this::hasScope, "$L.setScope($S)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::getDependsOn, this::hasDependsOn, "$L.setDependsOn($L)", this::toStringVarArgs);
+    addStatementForValue(code, beanDefinition, BeanDefinition::isAutowireCandidate, "$L.setAutowireCandidate($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::getRole, this::hasRole, "$L.setRole($L)", this::toRole);
+    addStatementForValue(code, beanDefinition, AbstractBeanDefinition::getLazyInit, "$L.setLazyInit($L)");
+    addStatementForValue(code, beanDefinition, AbstractBeanDefinition::isSynthetic, "$L.setSynthetic($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::isEnableDependencyInjection, "$L.setEnableDependencyInjection($L)");
+    addInitDestroyMethods(code, beanDefinition, beanDefinition.getInitMethodNames(), "$L.setInitMethodNames($L)");
+    addInitDestroyMethods(code, beanDefinition, beanDefinition.getDestroyMethodNames(), "$L.setDestroyMethodNames($L)");
     addConstructorArgumentValues(code, beanDefinition);
     addPropertyValues(code, beanDefinition);
     addAttributes(code, beanDefinition);
@@ -165,8 +156,8 @@ class BeanDefinitionPropertiesCodeGenerator {
           methodDeclaringClass = ClassUtils.forName(className, beanUserClass.getClassLoader());
         }
         catch (Throwable ex) {
-          throw new IllegalStateException("Failed to load Class [" + className +
-                  "] from ClassLoader [" + beanUserClass.getClassLoader() + "]", ex);
+          throw new IllegalStateException("Failed to load Class [%s] from ClassLoader [%s]"
+                  .formatted(className, beanUserClass.getClassLoader()), ex);
         }
       }
     }
