@@ -5,7 +5,7 @@ apply plugin: "signing"
 apply plugin: 'java-library'
 
 // Currently commented out due to ZipException: archive is not a ZIP archive
-// apply plugin: 'com.github.johnrengelman.shadow'
+// apply plugin: 'io.github.goooler.shadow'
 apply from: "$rootDir/gradle/publications.gradle"
 
 jar {
