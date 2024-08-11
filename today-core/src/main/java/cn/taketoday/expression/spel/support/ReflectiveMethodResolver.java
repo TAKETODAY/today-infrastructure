@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.BridgeMethodResolver;
@@ -39,6 +40,7 @@ import cn.taketoday.expression.MethodResolver;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
+import cn.taketoday.expression.spel.support.ReflectionHelper.ArgumentsMatchKind;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -59,10 +61,10 @@ public class ReflectiveMethodResolver implements MethodResolver {
   private final boolean useDistance;
 
   @Nullable
-  private HashMap<Class<?>, MethodFilter> filters;
+  private Map<Class<?>, MethodFilter> filters;
 
   public ReflectiveMethodResolver() {
-    this.useDistance = true;
+    this(true);
   }
 
   /**
@@ -100,12 +102,15 @@ public class ReflectiveMethodResolver implements MethodResolver {
   }
 
   /**
-   * Locate a method on a type. There are three kinds of match that might occur:
+   * Locate a method on the type.
+   * <p>There are three kinds of matches that might occur:
    * <ol>
-   * <li>an exact match where the types of the arguments match the types of the constructor
-   * <li>an in-exact match where the types we are looking for are subtypes of those defined on the constructor
-   * <li>a match where we are able to convert the arguments into those expected by the constructor,
-   * according to the registered type converter
+   * <li>An exact match where the types of the arguments match the types of the
+   * method.</li>
+   * <li>An inexact match where the types we are looking for are subtypes of
+   * those defined on the method.</li>
+   * <li>A match where we are able to convert the arguments into those expected
+   * by the method, according to the registered type converter.</li>
    * </ol>
    */
   @Override
@@ -115,26 +120,19 @@ public class ReflectiveMethodResolver implements MethodResolver {
 
     try {
       TypeConverter typeConverter = context.getTypeConverter();
-      Class<?> type = targetObject instanceof Class ? (Class<?>) targetObject : targetObject.getClass();
-
-      Set<Method> methodSet = getMethods(type, targetObject);
-      ArrayList<Method> methods = new ArrayList<>(3);
-      for (Method method : methodSet) {
-        if (method.getName().equals(name)) {
-          methods.add(method);
-        }
-      }
+      Class<?> type = (targetObject instanceof Class<?> clazz ? clazz : targetObject.getClass());
+      ArrayList<Method> methods = new ArrayList<>(getMethods(type, targetObject));
+      methods.removeIf(method -> !method.getName().equals(name));
 
       // If a filter is registered for this type, call it
       MethodFilter filter = (this.filters != null ? this.filters.get(type) : null);
       if (filter != null) {
         List<Method> filtered = filter.filter(methods);
-        methods = filtered instanceof ArrayList ? (ArrayList<Method>) filtered : new ArrayList<>(filtered);
+        methods = (filtered instanceof ArrayList<Method> arrayList ? arrayList : new ArrayList<>(filtered));
       }
 
       // Sort methods into a sensible order
-      int size = methods.size();
-      if (size > 1) {
+      if (methods.size() > 1) {
         methods.sort((m1, m2) -> {
           int m1pl = m1.getParameterCount();
           int m2pl = m2.getParameterCount();
@@ -155,11 +153,8 @@ public class ReflectiveMethodResolver implements MethodResolver {
       }
 
       // Resolve any bridge methods
-      for (int i = 0; i < size; i++) {
-        Method bridgeMethod = methods.get(i);
-        if (bridgeMethod.isBridge()) {
-          methods.set(i, BridgeMethodResolver.findBridgedMethod(bridgeMethod));
-        }
+      for (int i = 0; i < methods.size(); i++) {
+        methods.set(i, BridgeMethodResolver.findBridgedMethod(methods.get(i)));
       }
 
       // Remove duplicate methods (possible due to resolved bridge methods)
@@ -172,24 +167,24 @@ public class ReflectiveMethodResolver implements MethodResolver {
 
       for (Method method : methodsToIterate) {
         int paramCount = method.getParameterCount();
-        ArrayList<TypeDescriptor> paramDescriptors = new ArrayList<>(paramCount);
+        List<TypeDescriptor> paramDescriptors = new ArrayList<>(paramCount);
         for (int i = 0; i < paramCount; i++) {
           paramDescriptors.add(new TypeDescriptor(new MethodParameter(method, i)));
         }
-        ReflectionHelper.ArgumentsMatchInfo matchInfo = null;
+        ArgumentsMatchKind matchKind = null;
         if (method.isVarArgs() && argumentTypes.size() >= (paramCount - 1)) {
           // *sigh* complicated
-          matchInfo = ReflectionHelper.compareArgumentsVarargs(paramDescriptors, argumentTypes, typeConverter);
+          matchKind = ReflectionHelper.compareArgumentsVarargs(paramDescriptors, argumentTypes, typeConverter);
         }
         else if (paramCount == argumentTypes.size()) {
           // Name and parameter number match, check the arguments
-          matchInfo = ReflectionHelper.compareArguments(paramDescriptors, argumentTypes, typeConverter);
+          matchKind = ReflectionHelper.compareArguments(paramDescriptors, argumentTypes, typeConverter);
         }
-        if (matchInfo != null) {
-          if (matchInfo.isExactMatch()) {
+        if (matchKind != null) {
+          if (matchKind.isExactMatch()) {
             return new ReflectiveMethodExecutor(method, type);
           }
-          else if (matchInfo.isCloseMatch()) {
+          else if (matchKind.isCloseMatch()) {
             if (this.useDistance) {
               int matchDistance = ReflectionHelper.getTypeDifferenceWeight(paramDescriptors, argumentTypes);
               if (closeMatch == null || matchDistance < closeMatchDistance) {
@@ -205,7 +200,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
               }
             }
           }
-          else if (matchInfo.isMatchRequiringConversion()) {
+          else if (matchKind.isMatchRequiringConversion()) {
             if (matchRequiringConversion != null) {
               multipleOptions = true;
             }
@@ -254,20 +249,17 @@ public class ReflectiveMethodResolver implements MethodResolver {
           }
         }
       }
-
       // Ensure methods defined in java.lang.Object are exposed for JDK proxies.
       for (Method method : getMethods(Object.class)) {
         if (isCandidateForInvocation(method, type)) {
           result.add(method);
         }
       }
-
       return result;
     }
     else {
       LinkedHashSet<Method> result = new LinkedHashSet<>();
-      Method[] methods = getMethods(type);
-      for (Method method : methods) {
+      for (Method method : getMethods(type)) {
         if (isCandidateForInvocation(method, type)) {
           result.add(method);
         }
@@ -292,7 +284,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
    * Determine whether the given {@code Method} is a candidate for method resolution
    * on an instance of the given target class.
    * <p>The default implementation considers any method as a candidate, even for
-   * static methods sand non-user-declared methods on the {@link Object} base class.
+   * static methods and non-user-declared methods on the {@link Object} base class.
    *
    * @param method the Method to evaluate
    * @param targetClass the concrete target class that is being introspected
