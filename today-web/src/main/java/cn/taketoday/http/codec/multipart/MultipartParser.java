@@ -544,6 +544,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
         }
         else /* if (len == 0) */ {
           // buffer starts with complete delimiter, flush out the previous buffers
+          DataBufferUtils.release(boundaryBuffer);
           flush();
         }
 

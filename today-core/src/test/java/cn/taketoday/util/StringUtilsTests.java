@@ -896,4 +896,41 @@ class StringUtilsTests {
     assertThat(StringUtils.truncate(text, 10)).isEqualTo(truncated);
   }
 
+  @Test
+  void trimArrayElements() {
+    assertThat(StringUtils.trimArrayElements(null)).isNull();
+    assertThat(StringUtils.trimArrayElements(new String[] {})).isEmpty();
+    assertThat(StringUtils.trimArrayElements(new String[] { "", " ", "  ", "   " })).containsExactly("", "", "", "");
+    assertThat(StringUtils.trimArrayElements(new String[] { "\n", "\t ", "\n\t" })).containsExactly("", "", "");
+    assertThat(StringUtils.trimArrayElements(new String[] { "a", "b", "c" })).containsExactly("a", "b", "c");
+    assertThat(StringUtils.trimArrayElements(new String[] { "  a  ", "  b b ", "  cc  " })).containsExactly("a", "b b", "cc");
+    assertThat(StringUtils.trimArrayElements(new String[] { "  a  ", "b", "  c  " })).containsExactly("a", "b", "c");
+    assertThat(StringUtils.trimArrayElements(new String[] { null, "  a  ", null })).containsExactly(null, "a", null);
+  }
+
+  @Test
+  void delimitedListToStringArrayWithCharacterToDelete() {
+    String[] sa = StringUtils.delimitedListToStringArray("a,b,c", ",", "a");
+    assertThat(sa).containsExactly("", "b", "c");
+  }
+
+  @Test
+  void delimitedListToStringArrayWithCharacterToDeleteEqualsToDelimiter() {
+    String[] sa = StringUtils.delimitedListToStringArray("a,b,c", ",", ",");
+    assertThat(sa).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  void delimitedListToStringArray() {
+    assertThat(StringUtils.delimitedListToStringArray(null, ",", null)).isEmpty();
+    assertThat(StringUtils.delimitedListToStringArray("a,b,c", null, null)).containsExactly("a,b,c");
+    assertThat(StringUtils.delimitedListToStringArray("abc", "", null)).containsExactly("a", "b", "c");
+    assertThat(StringUtils.delimitedListToStringArray("a,b,c", ",", null)).containsExactly("a", "b", "c");
+    assertThat(StringUtils.delimitedListToStringArray("a,b,c", ",", "a")).containsExactly("", "b", "c");
+    assertThat(StringUtils.delimitedListToStringArray("a,b,c,", ",", null)).containsExactly("a", "b", "c", "");
+    assertThat(StringUtils.delimitedListToStringArray(",a,b,c", ",", null)).containsExactly("", "a", "b", "c");
+    assertThat(StringUtils.delimitedListToStringArray("abc", ",", null)).containsExactly("abc");
+    assertThat(StringUtils.delimitedListToStringArray("a,b,c", ",", ",")).containsExactly("a", "b", "c");
+    assertThat(StringUtils.delimitedListToStringArray("a,,b,,c", ",,", null)).containsExactly("a", "b", "c");
+  }
 }
