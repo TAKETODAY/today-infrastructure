@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.build.hint;
@@ -27,7 +27,9 @@ import org.gradle.api.attributes.LibraryElements;
 import org.gradle.api.attributes.Usage;
 import org.gradle.api.attributes.java.TargetJvmVersion;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.jvm.JvmTestSuite;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.testing.base.TestingExtension;
 
 import java.util.Collections;
 
@@ -49,6 +51,8 @@ public class RuntimeHintsAgentPlugin implements Plugin<Project> {
   public void apply(Project project) {
 
     project.getPlugins().withType(JavaPlugin.class, javaPlugin -> {
+      TestingExtension testing = project.getExtensions().getByType(TestingExtension.class);
+      JvmTestSuite jvmTestSuite = (JvmTestSuite) testing.getSuites().getByName("test");
       RuntimeHintsAgentExtension agentExtension = createRuntimeHintsAgentExtension(project);
       Test agentTest = project.getTasks().create(RUNTIMEHINTS_TEST_TASK, Test.class, test -> {
         test.useJUnitPlatform(options -> {
@@ -57,6 +61,8 @@ public class RuntimeHintsAgentPlugin implements Plugin<Project> {
         test.include("**/*Tests.class", "**/*Test.class");
         test.systemProperty("java.awt.headless", "true");
         test.systemProperty("org.graalvm.nativeimage.imagecode", "runtime");
+        test.setTestClassesDirs(jvmTestSuite.getSources().getOutput().getClassesDirs());
+        test.setClasspath(jvmTestSuite.getSources().getRuntimeClasspath());
         test.getJvmArgumentProviders().add(createRuntimeHintsAgentArgumentProvider(project, agentExtension));
       });
       project.getTasks().getByName("check", task -> task.dependsOn(agentTest));
