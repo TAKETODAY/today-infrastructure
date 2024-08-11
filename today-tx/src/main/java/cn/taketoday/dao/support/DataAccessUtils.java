@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.dao.support;
@@ -170,7 +170,11 @@ public abstract class DataAccessUtils {
     if (results.size() > 1) {
       throw new IncorrectResultSizeDataAccessException(1, results.size());
     }
-    return results.iterator().next();
+    T result = results.iterator().next();
+    if (result == null) {
+      throw new TypeMismatchDataAccessException("Result value is null but no null value expected");
+    }
+    return result;
   }
 
   /**
@@ -240,7 +244,11 @@ public abstract class DataAccessUtils {
     if (!CollectionUtils.hasUniqueObject(results)) {
       throw new IncorrectResultSizeDataAccessException(1, results.size());
     }
-    return results.iterator().next();
+    T result = results.iterator().next();
+    if (result == null) {
+      throw new TypeMismatchDataAccessException("Result value is null but no null value expected");
+    }
+    return result;
   }
 
   /**
