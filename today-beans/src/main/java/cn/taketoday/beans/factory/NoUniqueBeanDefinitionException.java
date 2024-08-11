@@ -60,9 +60,8 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    * @param beanNamesFound the names of all matching beans (as a Collection)
    */
   public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound) {
-    super(type, buildMessage(beanNamesFound));
-    this.numberOfBeansFound = beanNamesFound.size();
-    this.beanNamesFound = new ArrayList<>(beanNamesFound);
+    this(type, beanNamesFound, "expected single matching bean but found %d: %s"
+            .formatted(beanNamesFound.size(), StringUtils.collectionToCommaDelimitedString(beanNamesFound)));
   }
 
   /**
@@ -95,6 +94,20 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    */
   public NoUniqueBeanDefinitionException(ResolvableType type, String... beanNamesFound) {
     this(type, Arrays.asList(beanNamesFound));
+  }
+
+  /**
+   * Create a new {@code NoUniqueBeanDefinitionException}.
+   *
+   * @param type required type of the non-unique bean
+   * @param beanNamesFound the names of all matching beans (as a Collection)
+   * @param message detailed message describing the problem
+   * @since 5.0
+   */
+  public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound, String message) {
+    super(type, message);
+    this.numberOfBeansFound = beanNamesFound.size();
+    this.beanNamesFound = new ArrayList<>(beanNamesFound);
   }
 
   /**
