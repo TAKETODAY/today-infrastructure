@@ -283,7 +283,7 @@ public class CorsConfiguration {
       }
     }
     if (start < rawValue.length()) {
-      valueConsumer.accept(rawValue.substring(start));
+      valueConsumer.accept(rawValue.substring(start).trim());
     }
   }
 
