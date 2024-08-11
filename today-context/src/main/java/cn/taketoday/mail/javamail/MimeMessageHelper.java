@@ -943,7 +943,7 @@ public class MimeMessageHelper {
    * @throws MessagingException in case of errors
    * @see #addInline(String, java.io.File)
    * @see #addInline(String, cn.taketoday.core.io.Resource)
-   * @since 6.2
+   * @since 5.0
    */
   public void addInline(String contentId, @Nullable String inlineFilename, DataSource dataSource)
           throws MessagingException {
@@ -1070,7 +1070,7 @@ public class MimeMessageHelper {
    * @see #getFileTypeMap
    * @see #addInline(String, cn.taketoday.core.io.Resource)
    * @see #addInline(String, String, jakarta.activation.DataSource)
-   * @since 6.2
+   * @since 5.0
    */
   public void addInline(String contentId, String inlineFilename, InputStreamSource inputStreamSource)
           throws MessagingException {

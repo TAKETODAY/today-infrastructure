@@ -53,6 +53,10 @@ public class OpInc extends Operator {
 
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
+    if (!state.getEvaluationContext().isAssignmentEnabled()) {
+      throw new SpelEvaluationException(getStartPosition(), SpelMessage.OPERAND_NOT_INCREMENTABLE, toStringAST());
+    }
+
     SpelNodeImpl operand = getLeftOperand();
     ValueRef valueRef = operand.getValueRef(state);
 

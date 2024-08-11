@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -23,6 +20,8 @@ package cn.taketoday.expression.spel.ast;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
+import cn.taketoday.expression.spel.SpelEvaluationException;
+import cn.taketoday.expression.spel.SpelMessage;
 
 /**
  * Represents assignment. An alternative to calling {@code setValue}
@@ -42,6 +41,9 @@ public class Assign extends SpelNodeImpl {
 
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
+    if (!state.getEvaluationContext().isAssignmentEnabled()) {
+      throw new SpelEvaluationException(getStartPosition(), SpelMessage.NOT_ASSIGNABLE, toStringAST());
+    }
     return this.children[0].setValueInternal(state, () -> this.children[1].getValueInternal(state));
   }
 
