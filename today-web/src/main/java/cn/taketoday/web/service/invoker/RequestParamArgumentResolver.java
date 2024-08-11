@@ -19,6 +19,8 @@ package cn.taketoday.web.service.invoker;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestParam;
 
@@ -56,19 +58,78 @@ import cn.taketoday.web.annotation.RequestParam;
  */
 public class RequestParamArgumentResolver extends AbstractNamedValueArgumentResolver {
 
+  private boolean favorSingleValue;
+
   public RequestParamArgumentResolver(ConversionService conversionService) {
     super(conversionService);
   }
 
-  @Override
-  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
-    RequestParam annot = parameter.getParameterAnnotation(RequestParam.class);
-    return (annot == null ? null :
-            new NamedValueInfo(annot.name(), annot.required(), annot.defaultValue(), "request parameter", true));
+  /**
+   * Whether to format multiple values (e.g. collection, array) as a single
+   * String value through the configured {@link ConversionService} unless the
+   * content type is form data, or it is a multipart request.
+   * <p>By default, this is {@code false} in which case formatting is not applied,
+   * and a separate parameter with the same name is created for each value.
+   *
+   * @since 5.0
+   */
+  public void setFavorSingleValue(boolean favorSingleValue) {
+    this.favorSingleValue = favorSingleValue;
+  }
+
+  /**
+   * Return the setting for {@link #setFavorSingleValue favorSingleValue}.
+   *
+   * @since 5.0
+   */
+  public boolean isFavorSingleValue() {
+    return this.favorSingleValue;
   }
 
   @Override
-  protected void addRequestValue(String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
+  @Nullable
+  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter, HttpRequestValues.Metadata metadata) {
+    RequestParam annot = parameter.getParameterAnnotation(RequestParam.class);
+    if (annot == null) {
+      return null;
+    }
+    return new NamedValueInfo(annot.name(), annot.required(), annot.defaultValue(),
+            "request parameter", supportsMultipleValues(parameter, metadata));
+  }
+
+  @Override
+  protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+    // Shouldn't be called since we override createNamedValueInfo with HttpRequestValues.Metadata
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Determine whether the resolver should send multi-value request parameters
+   * as individual values. If not, they are formatted to a single String value.
+   * The default implementation uses {@link #isFavorSingleValue()} to decide
+   * unless the content type is form data, or it is a multipart request.
+   *
+   * @since 5.0
+   */
+  protected boolean supportsMultipleValues(MethodParameter parameter, HttpRequestValues.Metadata metadata) {
+    return (!isFavorSingleValue() || isFormOrMultipartContent(metadata));
+  }
+
+  /**
+   * Whether the content type is form data, or it is a multipart request.
+   *
+   * @since 5.0
+   */
+  protected boolean isFormOrMultipartContent(HttpRequestValues.Metadata metadata) {
+    MediaType mediaType = metadata.getContentType();
+    return (mediaType != null && (mediaType.getType().equals("multipart") ||
+            mediaType.isCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED)));
+  }
+
+  @Override
+  protected void addRequestValue(
+          String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
+
     requestValues.addRequestParameter(name, (String) value);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -20,10 +20,15 @@ package cn.taketoday.web.service.invoker;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.service.annotation.GetExchange;
 import cn.taketoday.web.service.annotation.PostExchange;
+import cn.taketoday.web.util.UriComponents;
+import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +53,8 @@ class RequestParamArgumentResolverTests {
   @Test
   @SuppressWarnings("unchecked")
   void requestParam() {
-    this.service.postForm("value 1", "value 2");
+    Service service = HttpServiceProxyFactory.forAdapter(this.client).build().createClient(Service.class);
+    service.postForm("value 1", "value 2");
 
     Object body = this.client.getRequestValues().getBodyValue();
     assertThat(body).isInstanceOf(MultiValueMap.class);
@@ -57,11 +63,30 @@ class RequestParamArgumentResolverTests {
             .containsEntry("param2", List.of("value 2"));
   }
 
+  @Test
+  void requestParamWithDisabledFormattingCollectionValue() {
+    RequestParamArgumentResolver resolver = new RequestParamArgumentResolver(new DefaultConversionService());
+    resolver.setFavorSingleValue(true);
+
+    Service service = HttpServiceProxyFactory.forAdapter(this.client)
+            .customArgumentResolver(resolver).build().createClient(Service.class);
+    
+    service.getWithParams("value 1", List.of("1", "2", "3"));
+
+    HttpRequestValues values = this.client.getRequestValues();
+    String uriTemplate = values.getUriTemplate();
+    Map<String, String> uriVariables = values.getUriVariables();
+    UriComponents uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVariables).encode();
+    assertThat(uri.getQuery()).isEqualTo("param1=value%201&param2=1,2,3");
+  }
+
   private interface Service {
 
     @PostExchange(contentType = "application/x-www-form-urlencoded")
     void postForm(@RequestParam String param1, @RequestParam String param2);
 
+    @GetExchange
+    void getWithParams(@RequestParam String param1, @RequestParam List<String> param2);
   }
 
 }
