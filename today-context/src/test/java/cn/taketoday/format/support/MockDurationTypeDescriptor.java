@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.format.support;
@@ -23,11 +20,12 @@ package cn.taketoday.format.support;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Map;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.format.annotation.DurationFormat;
-import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.format.annotation.DurationFormat.Style;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.lang.Nullable;
 
@@ -42,11 +40,8 @@ import static org.mockito.Mockito.mock;
  */
 public final class MockDurationTypeDescriptor {
 
-  private MockDurationTypeDescriptor() {
-  }
-
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static TypeDescriptor get(@Nullable ChronoUnit unit, @Nullable DurationStyle style) {
+  public static TypeDescriptor get(@Nullable ChronoUnit unit, @Nullable Style style) {
     TypeDescriptor descriptor = mock(TypeDescriptor.class);
     if (unit != null) {
       DurationUnit unitAnnotation = AnnotationUtils.synthesizeAnnotation(Collections.singletonMap("value", unit),
@@ -54,8 +49,9 @@ public final class MockDurationTypeDescriptor {
       given(descriptor.getAnnotation(DurationUnit.class)).willReturn(unitAnnotation);
     }
     if (style != null) {
-      DurationFormat formatAnnotation = AnnotationUtils
-              .synthesizeAnnotation(Collections.singletonMap("value", style), DurationFormat.class, null);
+      DurationFormat formatAnnotation = AnnotationUtils.synthesizeAnnotation(
+              Map.of("style", style, "unit", DurationFormat.Unit.fromChronoUnit(unit)), DurationFormat.class, null);
+
       given(descriptor.getAnnotation(DurationFormat.class)).willReturn(formatAnnotation);
     }
     given(descriptor.getType()).willReturn((Class) Duration.class);

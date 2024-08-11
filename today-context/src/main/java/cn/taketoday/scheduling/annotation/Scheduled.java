@@ -114,10 +114,10 @@ public @interface Scheduled {
 
   /**
    * A time zone for which the cron expression will be resolved. By default, this
-   * attribute is the empty String (i.e. the server's local time zone will be used).
+   * attribute is the empty String (i.e. the scheduler's time zone will be used).
    *
    * @return a zone id accepted by {@link java.util.TimeZone#getTimeZone(String)},
-   * or an empty String to indicate the server's default time zone
+   * or an empty String to indicate the scheduler's default time zone
    * @see cn.taketoday.scheduling.support.CronTrigger#CronTrigger(String, java.util.TimeZone)
    * @see java.util.TimeZone
    */
@@ -139,16 +139,23 @@ public @interface Scheduled {
   /**
    * Execute the annotated method with a fixed period between the end of the
    * last invocation and the start of the next.
-   * <p>The time unit is milliseconds by default but can be overridden via
-   * {@link #timeUnit}.
-   * <p>This attribute variant supports Infra-style "${...}" placeholders
-   * as well as SpEL expressions.
+   * <p>The duration String can be in several formats:
+   * <ul>
+   *     <li>a plain integer &mdash; which is interpreted to represent a duration in
+   *     milliseconds by default unless overridden via {@link #timeUnit()} (prefer
+   *     using {@link #fixedDelay()} in that case)</li>
+   *     <li>any of the known {@link cn.taketoday.format.annotation.DurationFormat.Style
+   *     DurationFormat.Style}: the {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 ISO8601}
+   *     style or the {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE SIMPLE} style
+   *     &mdash; using the {@link #timeUnit()} as fallback if the string doesn't contain an explicit unit</li>
+   * </ul>
    * <p><b>NOTE: With virtual threads, fixed rates and cron triggers are recommended
    * over fixed delays.</b> Fixed-delay tasks operate on a single scheduler thread
    * with {@link cn.taketoday.scheduling.concurrent.SimpleAsyncTaskScheduler}.
    *
-   * @return the delay as a String value &mdash; for example, a placeholder
-   * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @return the delay as a String value &mdash; for example a placeholder,
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 java.time.Duration} compliant value
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE simple format} compliant value
    * @see #fixedDelay()
    */
   String fixedDelayString() default "";
@@ -164,13 +171,21 @@ public @interface Scheduled {
 
   /**
    * Execute the annotated method with a fixed period between invocations.
-   * <p>The time unit is milliseconds by default but can be overridden via
-   * {@link #timeUnit}.
-   * <p>This attribute variant supports Infra-style "${...}" placeholders
-   * as well as SpEL expressions.
+   * <p>The duration String can be in several formats:
+   * <ul>
+   *     <li>a plain integer &mdash; which is interpreted to represent a duration in
+   *     milliseconds by default unless overridden via {@link #timeUnit()} (prefer
+   *     using {@link #fixedDelay()} in that case)</li>
+   *     <li>any of the known {@link cn.taketoday.format.annotation.DurationFormat.Style
+   *     DurationFormat.Style}: the {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 ISO8601}
+   *     style or the {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE SIMPLE} style
+   *     &mdash; using the {@link #timeUnit()} as fallback if the string doesn't contain an explicit unit</li>
+   *     <li>one of the above, with Infra-style "${...}" placeholders as well as SpEL expressions</li>
+   * </ul>
    *
-   * @return the period as a String value &mdash; for example, a placeholder
-   * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @return the period as a String value &mdash; for example a placeholder,
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 java.time.Duration} compliant value
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE simple format} compliant value
    * @see #fixedRate()
    */
   String fixedRateString() default "";
@@ -188,13 +203,21 @@ public @interface Scheduled {
   /**
    * Number of units of time to delay before the first execution of a
    * {@link #fixedRate} or {@link #fixedDelay} task.
-   * <p>The time unit is milliseconds by default but can be overridden via
-   * {@link #timeUnit}.
-   * <p>This attribute variant supports Infra-style "${...}" placeholders
-   * as well as SpEL expressions.
+   * <p>The duration String can be in several formats:
+   * <ul>
+   *     <li>a plain integer &mdash; which is interpreted to represent a duration in
+   *     milliseconds by default unless overridden via {@link #timeUnit()} (prefer
+   *     using {@link #fixedDelay()} in that case)</li>
+   *     <li>any of the known {@link cn.taketoday.format.annotation.DurationFormat.Style
+   *     DurationFormat.Style}: the {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 ISO8601}
+   *     style or the {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE SIMPLE} style
+   *     &mdash; using the {@link #timeUnit()} as fallback if the string doesn't contain an explicit unit</li>
+   *     <li>one of the above, with Infra-style "${...}" placeholders as well as SpEL expressions</li>
+   * </ul>
    *
-   * @return the initial delay as a String value &mdash; for example, a placeholder
-   * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @return the initial delay as a String value &mdash; for example a placeholder,
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#ISO8601 java.time.Duration} compliant value
+   * or a {@link cn.taketoday.format.annotation.DurationFormat.Style#SIMPLE simple format} compliant value
    * @see #initialDelay()
    */
   String initialDelayString() default "";

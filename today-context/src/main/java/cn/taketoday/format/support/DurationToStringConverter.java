@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.format.support;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Set;
 
@@ -29,8 +25,10 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.format.annotation.DurationFormat;
-import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.format.annotation.DurationFormat.Style;
+import cn.taketoday.format.annotation.DurationFormat.Unit;
 import cn.taketoday.format.annotation.DurationUnit;
+import cn.taketoday.format.datetime.standard.DurationFormatterUtils;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -52,27 +50,22 @@ final class DurationToStringConverter implements GenericConverter {
   @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-    if (source == null) {
-      return null;
+    if (source instanceof Duration) {
+      Unit unit = null;
+      Style style = Style.ISO8601;
+      DurationFormat durationFormat = sourceType.getAnnotation(DurationFormat.class);
+      if (durationFormat != null) {
+        style = durationFormat.style();
+        unit = durationFormat.defaultUnit();
+      }
+
+      DurationUnit durationUnit = sourceType.getAnnotation(DurationUnit.class);
+      if (durationUnit != null) {
+        unit = Unit.fromChronoUnit(durationUnit.value());
+      }
+      return DurationFormatterUtils.print((Duration) source, style, unit);
     }
-    return convert((Duration) source, getDurationStyle(sourceType), getDurationUnit(sourceType));
-  }
-
-  @Nullable
-  private ChronoUnit getDurationUnit(TypeDescriptor sourceType) {
-    DurationUnit annotation = sourceType.getAnnotation(DurationUnit.class);
-    return (annotation != null) ? annotation.value() : null;
-  }
-
-  @Nullable
-  private DurationStyle getDurationStyle(TypeDescriptor sourceType) {
-    DurationFormat annotation = sourceType.getAnnotation(DurationFormat.class);
-    return (annotation != null) ? annotation.value() : null;
-  }
-
-  private String convert(Duration source, @Nullable DurationStyle style, @Nullable ChronoUnit unit) {
-    style = (style != null) ? style : DurationStyle.ISO8601;
-    return style.print(source, unit);
+    return null;
   }
 
 }

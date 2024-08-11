@@ -60,6 +60,8 @@ import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.format.annotation.DurationFormat;
+import cn.taketoday.format.datetime.standard.DurationFormatterUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -543,18 +545,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   }
 
   private static Duration toDuration(String value, TimeUnit timeUnit) {
-    if (isDurationString(value)) {
-      return Duration.parse(value);
-    }
-    return toDuration(Long.parseLong(value), timeUnit);
-  }
-
-  private static boolean isDurationString(String value) {
-    return (value.length() > 1 && (isP(value.charAt(0)) || isP(value.charAt(1))));
-  }
-
-  private static boolean isP(char ch) {
-    return (ch == 'P' || ch == 'p');
+    DurationFormat.Unit unit = DurationFormat.Unit.fromChronoUnit(timeUnit.toChronoUnit());
+    return DurationFormatterUtils.detectAndParse(value, unit); // interpreting as long as fallback already
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.format.support;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.format.annotation.DurationFormat;
 import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,7 +131,7 @@ class StringToDurationConverterTests {
   @ConversionServiceTest
   void convertWhenStyleMismatchShouldThrowException(ConversionService conversionService) {
     assertThatExceptionOfType(ConversionFailedException.class)
-            .isThrownBy(() -> convert(conversionService, "10s", null, DurationStyle.ISO8601));
+            .isThrownBy(() -> convert(conversionService, "10s", null, DurationFormat.Style.ISO8601));
   }
 
   @ConversionServiceTest
@@ -144,9 +144,8 @@ class StringToDurationConverterTests {
     return conversionService.convert(source, Duration.class);
   }
 
-  private Duration convert(
-          ConversionService conversionService,
-          @Nullable String source, @Nullable ChronoUnit unit, @Nullable DurationStyle style) {
+  private Duration convert(ConversionService conversionService,
+          @Nullable String source, @Nullable ChronoUnit unit, @Nullable DurationFormat.Style style) {
     return (Duration) conversionService.convert(source, TypeDescriptor.forObject(source),
             MockDurationTypeDescriptor.get(unit, style));
   }

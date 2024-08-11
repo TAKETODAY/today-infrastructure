@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.format.support;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Set;
 
@@ -29,7 +25,7 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.format.annotation.DurationFormat;
-import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.format.annotation.DurationFormat.Unit;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
@@ -56,19 +52,31 @@ final class DurationToNumberConverter implements GenericConverter {
     if (source == null) {
       return null;
     }
-    return convert((Duration) source, getDurationUnit(sourceType), targetType.getObjectType());
+    Unit unit = getUnit(sourceType);
+    if (unit == null) {
+      unit = Unit.MILLIS;
+    }
+    return convert((Duration) source, unit, targetType.getObjectType());
   }
 
   @Nullable
-  private ChronoUnit getDurationUnit(TypeDescriptor sourceType) {
+  static Unit getUnit(TypeDescriptor sourceType) {
     DurationUnit annotation = sourceType.getAnnotation(DurationUnit.class);
-    return (annotation != null) ? annotation.value() : null;
+    if (annotation != null) {
+      return Unit.fromChronoUnit(annotation.value());
+    }
+
+    DurationFormat durationFormat = sourceType.getAnnotation(DurationFormat.class);
+    if (durationFormat != null) {
+      return durationFormat.defaultUnit();
+    }
+    return null;
   }
 
-  private Object convert(Duration source, @Nullable ChronoUnit unit, Class<?> type) {
+  private Object convert(Duration source, Unit unit, Class<?> type) {
     try {
       return type.getConstructor(String.class)
-              .newInstance(String.valueOf(DurationStyle.Unit.fromChronoUnit(unit).longValue(source)));
+              .newInstance(String.valueOf(unit.longValue(source)));
     }
     catch (Exception ex) {
       ReflectionUtils.rethrowRuntimeException(ex);
