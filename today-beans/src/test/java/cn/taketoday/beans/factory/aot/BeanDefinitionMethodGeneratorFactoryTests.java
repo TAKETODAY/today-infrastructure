@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -24,8 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.test.io.support.MockTodayStrategies;
 import cn.taketoday.lang.Nullable;
@@ -33,6 +30,7 @@ import cn.taketoday.lang.Nullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.InstanceOfAssertFactories.LIST;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -59,6 +57,40 @@ class BeanDefinitionMethodGeneratorFactoryTests {
     loader.addInstance(BeanRegistrationExcludeFilter.class, filter);
     assertThatNoException().isThrownBy(() -> new BeanDefinitionMethodGeneratorFactory(
             AotServices.factories(loader)));
+  }
+
+  @Test
+  void getBeanDefinitionMethodGeneratorWhenExcludedByBeanDefinitionAttributeReturnsNull() {
+    MockTodayStrategies todayStrategies = new MockTodayStrategies();
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RegisteredBean registeredBean = registerTestBean(beanFactory);
+    registeredBean.getMergedBeanDefinition().setAttribute(
+            BeanRegistrationAotProcessor.IGNORE_REGISTRATION_ATTRIBUTE, true);
+    BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
+            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+    assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNull();
+  }
+
+  @Test
+  void getBeanDefinitionMethodGeneratorWhenBeanDefinitionAttributeSetToFalseDoesNotFilterBean() {
+    MockTodayStrategies todayStrategies = new MockTodayStrategies();
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RegisteredBean registeredBean = registerTestBean(beanFactory);
+    registeredBean.getMergedBeanDefinition().setAttribute(
+            BeanRegistrationAotProcessor.IGNORE_REGISTRATION_ATTRIBUTE, false);
+    BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
+            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+    assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNotNull();
+  }
+
+  @Test
+  void getBeanDefinitionMethodGeneratorWhenBeanDefinitionAttributeIsNotSetDoesNotFilterBean() {
+    MockTodayStrategies todayStrategies = new MockTodayStrategies();
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RegisteredBean registeredBean = registerTestBean(beanFactory);
+    BeanDefinitionMethodGeneratorFactory methodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(
+            AotServices.factoriesAndBeans(todayStrategies, beanFactory));
+    assertThat(methodGeneratorFactory.getBeanDefinitionMethodGenerator(registeredBean)).isNotNull();
   }
 
   @Test
@@ -127,7 +159,7 @@ class BeanDefinitionMethodGeneratorFactoryTests {
             AotServices.factoriesAndBeans(todayStrategies, beanFactory));
     BeanDefinitionMethodGenerator methodGenerator = methodGeneratorFactory
             .getBeanDefinitionMethodGenerator(registeredBean);
-    assertThat(methodGenerator).extracting("aotContributions").asList()
+    assertThat(methodGenerator).extracting("aotContributions").asInstanceOf(LIST)
             .containsExactly(beanContribution, loaderContribution);
   }
 

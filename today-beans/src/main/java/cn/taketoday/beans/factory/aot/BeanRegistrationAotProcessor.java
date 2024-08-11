@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -47,11 +44,22 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see BeanRegistrationAotContribution
  * @since 4.0
  */
 @FunctionalInterface
 public interface BeanRegistrationAotProcessor {
+
+  /**
+   * The name of an attribute that can be
+   * {@link cn.taketoday.core.AttributeAccessor#setAttribute set} on a
+   * {@link cn.taketoday.beans.factory.config.BeanDefinition} to signal
+   * that its registration should not be processed.
+   *
+   * @since 5.0
+   */
+  String IGNORE_REGISTRATION_ATTRIBUTE = "aotProcessingIgnoreRegistration";
 
   /**
    * Process the given {@link RegisteredBean} instance ahead-of-time and
