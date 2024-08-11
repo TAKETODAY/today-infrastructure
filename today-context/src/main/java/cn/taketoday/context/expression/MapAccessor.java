@@ -20,7 +20,6 @@ package cn.taketoday.context.expression;
 import java.util.Map;
 
 import cn.taketoday.bytecode.MethodVisitor;
-import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.AccessException;
 import cn.taketoday.expression.EvaluationContext;
@@ -39,6 +38,28 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class MapAccessor implements CompilablePropertyAccessor {
+
+  private final boolean allowWrite;
+
+  /**
+   * Create a new map accessor for reading as well as writing.
+   *
+   * @see #MapAccessor(boolean)
+   */
+  public MapAccessor() {
+    this(true);
+  }
+
+  /**
+   * Create a new map accessor for reading and possibly also writing.
+   *
+   * @param allowWrite whether to allow write operations on a target instance
+   * @see #canWrite
+   * @since 5.0
+   */
+  public MapAccessor(boolean allowWrite) {
+    this.allowWrite = allowWrite;
+  }
 
   @Override
   public Class<?>[] getSpecificTargetClasses() {
@@ -63,7 +84,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
 
   @Override
   public boolean canWrite(EvaluationContext context, @Nullable Object target, String name) throws AccessException {
-    return true;
+    return (this.allowWrite && target instanceof Map);
   }
 
   @Override
@@ -71,7 +92,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
   public void write(EvaluationContext context, @Nullable Object target, String name, @Nullable Object newValue)
           throws AccessException {
 
-    Assert.state(target instanceof Map, "Target must be a Map");
+    Assert.state(target instanceof Map, "Target must be of type Map");
     Map<Object, Object> map = (Map<Object, Object>) target;
     map.put(name, newValue);
   }
@@ -96,7 +117,7 @@ public class MapAccessor implements CompilablePropertyAccessor {
       CodeFlow.insertCheckCast(mv, "Ljava/util/Map");
     }
     mv.visitLdcInsn(propertyName);
-    mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
   }
 
   /**

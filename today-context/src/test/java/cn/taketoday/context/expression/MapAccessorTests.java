@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.expression;
@@ -23,6 +20,7 @@ package cn.taketoday.context.expression;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.expression.Expression;
@@ -39,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MapAccessorTests {
 
   @Test
-  public void mapAccessorCompilable() {
+  void compilationSupport() {
     Map<String, Object> testMap = getSimpleTestMap();
     StandardEvaluationContext sec = new StandardEvaluationContext();
     sec.addPropertyAccessor(new MapAccessor());
@@ -83,26 +81,58 @@ class MapAccessorTests {
     assertThat(ex.getValue(sec, testMap)).isEqualTo("bar2");
   }
 
+  @Test
+  void canWrite() throws Exception {
+    StandardEvaluationContext context = new StandardEvaluationContext();
+    Map<String, Object> testMap = getSimpleTestMap();
+
+    MapAccessor mapAccessor = new MapAccessor();
+    assertThat(mapAccessor.canWrite(context, new Object(), "foo")).isFalse();
+    assertThat(mapAccessor.canWrite(context, testMap, "foo")).isTrue();
+    // Cannot actually write to an immutable Map, but MapAccessor cannot easily check for that.
+    assertThat(mapAccessor.canWrite(context, Map.of(), "x")).isTrue();
+
+    mapAccessor = new MapAccessor(false);
+    assertThat(mapAccessor.canWrite(context, new Object(), "foo")).isFalse();
+    assertThat(mapAccessor.canWrite(context, testMap, "foo")).isFalse();
+  }
+
+  @Test
+  void isWritable() {
+    Map<String, Object> testMap = getSimpleTestMap();
+    StandardEvaluationContext sec = new StandardEvaluationContext();
+    SpelExpressionParser sep = new SpelExpressionParser();
+    Expression ex = sep.parseExpression("foo");
+
+    assertThat(ex.isWritable(sec, testMap)).isFalse();
+
+    sec.setPropertyAccessors(List.of(new MapAccessor(true)));
+    assertThat(ex.isWritable(sec, testMap)).isTrue();
+
+    sec.setPropertyAccessors(List.of(new MapAccessor(false)));
+    assertThat(ex.isWritable(sec, testMap)).isFalse();
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static class MapGetter {
-    Map<String, Object> map = new HashMap<>();
+    Map map = new HashMap<>();
 
     public MapGetter() {
-      map.put("foo", "bar");
+      this.map.put("foo", "bar");
     }
 
-    @SuppressWarnings("rawtypes")
     public Map getMap() {
-      return map;
+      return this.map;
     }
   }
 
-  public Map<String, Object> getSimpleTestMap() {
+  private static Map<String, Object> getSimpleTestMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("foo", "bar");
     return map;
   }
 
-  public Map<String, Map<String, Object>> getNestedTestMap() {
+  private static Map<String, Map<String, Object>> getNestedTestMap() {
     Map<String, Object> map = new HashMap<>();
     map.put("foo", "bar");
     Map<String, Map<String, Object>> map2 = new HashMap<>();
