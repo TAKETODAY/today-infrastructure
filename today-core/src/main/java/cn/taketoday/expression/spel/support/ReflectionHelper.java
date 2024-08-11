@@ -326,11 +326,18 @@ public abstract class ReflectionHelper {
           }
         }
         // If the argument type is assignable to the varargs component type, there is no need to
-        // convert it or wrap it in an array. For example, using StringToArrayConverter to
-        // convert a String containing a comma would result in the String being split and
-        // repackaged in an array when it should be used as-is.
-        else if (!sourceType.isAssignableTo(componentTypeDesc)) {
-          arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetType);
+        // convert it or wrap it in an array. For example, using StringToArrayConverter to convert
+        // a String containing a comma would result in the String being split and repackaged in an
+        // array when it should be used as-is. Similarly, if the argument is an array that is
+        // assignable to the varargs array type, there is no need to convert it. However, if the
+        // argument is a java.util.List, we let the TypeConverter convert the list to an array.
+        else if (!sourceType.isAssignableTo(componentTypeDesc)
+                || (sourceType.isArray() && !sourceType.isAssignableTo(targetType))
+                || (argument instanceof List)) {
+
+          TypeDescriptor targetTypeToUse =
+                  (sourceType.isArray() || argument instanceof List ? targetType : componentTypeDesc);
+          arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetTypeToUse);
         }
         // Possible outcomes of the above if-else block:
         // 1) the input argument was null, and nothing was done.
