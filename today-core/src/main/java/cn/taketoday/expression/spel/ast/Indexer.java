@@ -114,8 +114,6 @@ public class Indexer extends SpelNodeImpl {
   /**
    * Create an {@code Indexer} with the given null-safe flag, start position,
    * end position, and index expression.
-   *
-   * @since 6.2
    */
   public Indexer(boolean nullSafe, int startPos, int endPos, SpelNodeImpl indexExpression) {
     super(startPos, endPos, indexExpression);
@@ -124,8 +122,6 @@ public class Indexer extends SpelNodeImpl {
 
   /**
    * Does this node represent a null-safe index operation?
-   *
-   * @since 6.2
    */
   @Override
   public final boolean isNullSafe() {

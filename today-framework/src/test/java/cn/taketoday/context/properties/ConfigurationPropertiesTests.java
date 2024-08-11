@@ -77,7 +77,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.annotation.DataSizeUnit;
 import cn.taketoday.format.annotation.DurationFormat;
-import cn.taketoday.format.annotation.DurationStyle;
+import cn.taketoday.format.annotation.DurationFormat.Style;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.format.annotation.PeriodFormat;
 import cn.taketoday.format.annotation.PeriodStyle;
@@ -2417,7 +2417,7 @@ class ConfigurationPropertiesTests {
     private final Period period;
 
     ConstructorParameterWithFormatProperties(
-            @DefaultValue("2d") @DurationFormat(DurationStyle.SIMPLE) Duration duration,
+            @DefaultValue("2d") @DurationFormat(style = Style.SIMPLE) Duration duration,
             @DefaultValue("3y") @PeriodFormat(PeriodStyle.SIMPLE) Period period) {
       this.duration = duration;
       this.period = period;

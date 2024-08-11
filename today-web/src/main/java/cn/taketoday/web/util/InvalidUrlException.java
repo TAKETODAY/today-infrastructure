@@ -24,7 +24,7 @@ import java.io.Serial;
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 6.2
+ * @since 5.0
  */
 public class InvalidUrlException extends IllegalArgumentException {
 

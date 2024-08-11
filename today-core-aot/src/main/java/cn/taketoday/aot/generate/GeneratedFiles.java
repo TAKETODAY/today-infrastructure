@@ -250,8 +250,6 @@ public interface GeneratedFiles {
   /**
    * Provide access to a particular file and offer convenient methods to retrieve,
    * save, or override its content.
-   *
-   * @since 6.2
    */
   abstract class FileHandler {
 

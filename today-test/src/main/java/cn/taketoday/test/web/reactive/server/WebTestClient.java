@@ -912,7 +912,6 @@ public interface WebTestClient {
      * to inspect a specific subset of the body.
      *
      * @param expression the JsonPath expression
-     * @since 6.2
      */
     JsonPathAssertions jsonPath(String expression);
 

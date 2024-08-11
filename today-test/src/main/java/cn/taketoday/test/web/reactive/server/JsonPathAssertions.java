@@ -94,8 +94,6 @@ public class JsonPathAssertions {
 
   /**
    * Applies {@link JsonPathExpectationsHelper#hasJsonPath}.
-   *
-   * @since 5.0.3
    */
   public WebTestClient.BodyContentSpec hasJsonPath() {
     this.pathHelper.hasJsonPath(this.content);
@@ -104,8 +102,6 @@ public class JsonPathAssertions {
 
   /**
    * Applies {@link JsonPathExpectationsHelper#doesNotHaveJsonPath}.
-   *
-   * @since 5.0.3
    */
   public WebTestClient.BodyContentSpec doesNotHaveJsonPath() {
     this.pathHelper.doesNotHaveJsonPath(this.content);
@@ -146,8 +142,6 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher)}.
-   *
-   * @since 5.1
    */
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher) {
     this.pathHelper.assertValue(this.content, matcher);
@@ -156,8 +150,6 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, Class)}.
-   *
-   * @since 6.2
    */
   public <T> WebTestClient.BodyContentSpec value(Class<T> targetType, Matcher<? super T> matcher) {
     this.pathHelper.assertValue(this.content, matcher, targetType);
@@ -166,11 +158,7 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, Class)}.
-   *
-   * @since 5.1
-   * @deprecated in favor of {@link #value(Class, Matcher)}
    */
-  @Deprecated(since = "6.2", forRemoval = true)
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher, Class<T> targetType) {
     this.pathHelper.assertValue(this.content, matcher, targetType);
     return this.bodySpec;
@@ -178,8 +166,6 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, ParameterizedTypeReference)}.
-   *
-   * @since 6.2
    */
   public <T> WebTestClient.BodyContentSpec value(ParameterizedTypeReference<T> targetType, Matcher<? super T> matcher) {
     this.pathHelper.assertValue(this.content, matcher, targetType);
@@ -188,8 +174,6 @@ public class JsonPathAssertions {
 
   /**
    * Consume the result of the JSONPath evaluation.
-   *
-   * @since 5.1
    */
   @SuppressWarnings("unchecked")
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer) {
@@ -209,10 +193,7 @@ public class JsonPathAssertions {
 
   /**
    * Consume the result of the JSONPath evaluation and provide a target class.
-   *
-   * @deprecated in favor of {@link #value(Class, Consumer)}
    */
-  @Deprecated(since = "6.2", forRemoval = true)
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer, Class<T> targetType) {
     return value(targetType, consumer);
   }
