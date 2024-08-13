@@ -21,9 +21,11 @@ import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -42,6 +44,8 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.service.annotation.HttpExchange;
@@ -144,6 +148,7 @@ final class HttpServiceMethod {
   private record HttpRequestValuesInitializer(
           @Nullable HttpMethod httpMethod, @Nullable String url,
           @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes,
+          @Nullable MultiValueMap<String, String> otherHeaders,
           Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
     public HttpRequestValues.Builder initializeRequestValuesBuilder() {
@@ -160,6 +165,16 @@ final class HttpServiceMethod {
       if (this.acceptMediaTypes != null) {
         requestValues.setAccept(this.acceptMediaTypes);
       }
+      if (this.otherHeaders != null) {
+        this.otherHeaders.forEach((name, values) -> {
+          if (values.size() == 1) {
+            requestValues.addHeader(name, values.get(0));
+          }
+          else {
+            requestValues.addHeader(name, values.toArray(new String[0]));
+          }
+        });
+      }
       return requestValues;
     }
 
@@ -170,18 +185,21 @@ final class HttpServiceMethod {
             @Nullable StringValueResolver embeddedValueResolver,
             Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
-      HttpExchange annot1 = AnnotatedElementUtils.findMergedAnnotation(containingClass, HttpExchange.class);
-      HttpExchange annot2 = AnnotatedElementUtils.findMergedAnnotation(method, HttpExchange.class);
+      HttpExchange typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(containingClass, HttpExchange.class);
+      HttpExchange methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, HttpExchange.class);
 
-      Assert.notNull(annot2, "Expected HttpRequest annotation");
+      Assert.notNull(methodAnnotation, "Expected HttpRequest annotation");
 
-      HttpMethod httpMethod = initHttpMethod(annot1, annot2);
-      String url = initUrl(annot1, annot2, embeddedValueResolver);
-      MediaType contentType = initContentType(annot1, annot2);
-      List<MediaType> acceptableMediaTypes = initAccept(annot1, annot2);
+      HttpMethod httpMethod = initHttpMethod(typeAnnotation, methodAnnotation);
+      String url = initUrl(typeAnnotation, methodAnnotation, embeddedValueResolver);
+      MediaType contentType = initContentType(typeAnnotation, methodAnnotation);
+      List<MediaType> acceptableMediaTypes = initAccept(typeAnnotation, methodAnnotation);
+
+      MultiValueMap<String, String> headers = initHeaders(typeAnnotation, methodAnnotation,
+              embeddedValueResolver);
 
       return new HttpRequestValuesInitializer(
-              httpMethod, url, contentType, acceptableMediaTypes, requestValuesSupplier);
+              httpMethod, url, contentType, acceptableMediaTypes, headers, requestValuesSupplier);
     }
 
     @Nullable
@@ -259,6 +277,50 @@ final class HttpServiceMethod {
       }
 
       return null;
+    }
+
+    @Nullable
+    private static MultiValueMap<String, String> initHeaders(@Nullable HttpExchange typeAnnotation, HttpExchange methodAnnotation,
+            @Nullable StringValueResolver embeddedValueResolver) {
+      MultiValueMap<String, String> methodLevelHeaders = parseHeaders(methodAnnotation.headers(),
+              embeddedValueResolver);
+      if (!ObjectUtils.isEmpty(methodLevelHeaders)) {
+        return methodLevelHeaders;
+      }
+
+      MultiValueMap<String, String> typeLevelHeaders = (typeAnnotation != null ?
+              parseHeaders(typeAnnotation.headers(), embeddedValueResolver) : null);
+      if (!ObjectUtils.isEmpty(typeLevelHeaders)) {
+        return typeLevelHeaders;
+      }
+
+      return null;
+    }
+
+    private static MultiValueMap<String, String> parseHeaders(String[] headersArray,
+            @Nullable StringValueResolver embeddedValueResolver) {
+      MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+      for (String h : headersArray) {
+        String[] headerPair = StringUtils.split(h, "=");
+        if (headerPair != null) {
+          String headerName = headerPair[0].trim();
+          List<String> headerValues = new ArrayList<>();
+          Set<String> parsedValues = StringUtils.commaDelimitedListToSet(headerPair[1]);
+          for (String headerValue : parsedValues) {
+            if (embeddedValueResolver != null) {
+              headerValue = embeddedValueResolver.resolveStringValue(headerValue);
+            }
+            if (headerValue != null) {
+              headerValue = headerValue.trim();
+              headerValues.add(headerValue);
+            }
+          }
+          if (!headerValues.isEmpty()) {
+            headers.addAll(headerName, headerValues);
+          }
+        }
+      }
+      return headers;
     }
 
   }

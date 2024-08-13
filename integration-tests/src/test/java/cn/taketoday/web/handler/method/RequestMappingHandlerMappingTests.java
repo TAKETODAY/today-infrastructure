@@ -33,8 +33,8 @@ import java.util.stream.Stream;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.annotation.DeleteMapping;
@@ -46,9 +46,9 @@ import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.handler.condition.ConsumesRequestCondition;
-import cn.taketoday.web.service.annotation.HttpExchange;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
+import cn.taketoday.web.service.annotation.HttpExchange;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
@@ -244,6 +244,28 @@ class RequestMappingHandlerMappingTests {
             .containsOnly(MediaType.valueOf("text/plain;charset=UTF-8"));
   }
 
+  @SuppressWarnings("DataFlowIssue")
+  @Test
+  void httpExchangeWithCustomHeaders() throws Exception {
+    RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockContextImpl()));
+    mapping.afterPropertiesSet();
+
+    RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
+            HttpExchangeController.class.getMethod("customHeadersExchange"),
+            HttpExchangeController.class);
+
+    assertThat(mappingInfo.getPathPatternsCondition().getPatterns())
+            .extracting(PathPattern::toString)
+            .containsOnly("/exchange/headers");
+
+    assertThat(mappingInfo.getMethodsCondition().getMethods()).containsOnly(HttpMethod.GET);
+    assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
+
+    assertThat(mappingInfo.getHeadersCondition().getExpressions().stream().map(Object::toString))
+            .containsExactly("h1=hv1", "!h2");
+  }
+
   private RequestMappingInfo assertComposedAnnotationMapping(HttpMethod requestMethod) throws Exception {
 
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
@@ -310,7 +332,7 @@ class RequestMappingHandlerMappingTests {
   }
 
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
-               consumes = MediaType.APPLICATION_JSON_VALUE)
+          consumes = MediaType.APPLICATION_JSON_VALUE)
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
   @interface PostJson {
@@ -337,8 +359,14 @@ class RequestMappingHandlerMappingTests {
     public void defaultValuesExchange() { }
 
     @HttpExchange(value = "/custom", accept = "text/plain;charset=UTF-8",
-                  method = "POST", contentType = "application/json")
+            method = "POST", contentType = "application/json")
     public void customValuesExchange() { }
+
+    @HttpExchange(method = "GET", url = "/headers",
+            headers = { "h1=hv1", "!h2", "Accept=application/ignored" })
+    public String customHeadersExchange() {
+      return "info";
+    }
   }
 
   private static class Foo {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.annotation;
@@ -167,5 +167,18 @@ public @interface HttpExchange {
    * <p>By default, this is empty.
    */
   String[] accept() default {};
+
+  /**
+   * The additional headers to use, as an array of {@code name=value} pairs.
+   * <p>Multiple comma-separated values are accepted, and placeholders are
+   * supported in these values. However, Accept and Content-Type headers are
+   * ignored: see {@link #accept()} and {@link #contentType()}.
+   * <p>Supported at the type level as well as at the method level, in which
+   * case the method-level values override type-level values.
+   * <p>By default, this is empty.
+   *
+   * @since 5.0
+   */
+  String[] headers() default {};
 
 }
