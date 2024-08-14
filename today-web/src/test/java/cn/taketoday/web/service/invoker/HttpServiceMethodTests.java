@@ -221,7 +221,6 @@ class HttpServiceMethodTests {
   }
 
   @Test
-    // gh-32049
   void multipleAnnotationsAtClassLevel() {
     Class<?> serviceInterface = MultipleClassLevelAnnotationsService.class;
 
@@ -235,7 +234,6 @@ class HttpServiceMethodTests {
   }
 
   @Test
-    // gh-32049
   void multipleAnnotationsAtMethodLevel() throws NoSuchMethodException {
     Class<?> serviceInterface = MultipleMethodLevelAnnotationsService.class;
     Method method = serviceInterface.getMethod("post");
@@ -244,9 +242,7 @@ class HttpServiceMethodTests {
             .isThrownBy(() -> this.proxyFactory.createClient(serviceInterface))
             .withMessageContainingAll(
                     "Multiple @HttpExchange annotations found on method " + method,
-                    PostExchange.class.getSimpleName(),
-                    PutExchange.class.getSimpleName()
-            );
+                    PostExchange.class.getSimpleName(), PutExchange.class.getSimpleName());
   }
 
   protected void verifyReactorClientInvocation(String methodName, @Nullable ParameterizedTypeReference<?> expectedBodyType) {

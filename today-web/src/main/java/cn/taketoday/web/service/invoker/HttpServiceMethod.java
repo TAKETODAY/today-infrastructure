@@ -19,6 +19,7 @@ package cn.taketoday.web.service.invoker;
 
 import org.reactivestreams.Publisher;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -35,7 +36,11 @@ import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotationPredicates;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.RepeatableContainers;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -182,11 +187,21 @@ final class HttpServiceMethod {
      * Introspect the method and create the request factory for it.
      */
     public static HttpRequestValuesInitializer create(Method method, Class<?> containingClass,
-            @Nullable StringValueResolver embeddedValueResolver,
-            Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
+            @Nullable StringValueResolver embeddedValueResolver, Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
-      HttpExchange typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(containingClass, HttpExchange.class);
-      HttpExchange methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, HttpExchange.class);
+      List<AnnotationDescriptor> methodHttpExchanges = getAnnotationDescriptors(method);
+      Assert.state(!methodHttpExchanges.isEmpty(), () -> "Expected @HttpExchange annotation on method " + method);
+      Assert.state(methodHttpExchanges.size() == 1,
+              () -> "Multiple @HttpExchange annotations found on method %s, but only one is allowed: %s"
+                      .formatted(method, methodHttpExchanges));
+
+      List<AnnotationDescriptor> typeHttpExchanges = getAnnotationDescriptors(containingClass);
+      Assert.state(typeHttpExchanges.size() <= 1,
+              () -> "Multiple @HttpExchange annotations found on %s, but only one is allowed: %s"
+                      .formatted(containingClass, typeHttpExchanges));
+
+      HttpExchange methodAnnotation = methodHttpExchanges.get(0).httpExchange;
+      HttpExchange typeAnnotation = !typeHttpExchanges.isEmpty() ? typeHttpExchanges.get(0).httpExchange : null;
 
       Assert.notNull(methodAnnotation, "Expected HttpRequest annotation");
 
@@ -321,6 +336,42 @@ final class HttpServiceMethod {
         }
       }
       return headers;
+    }
+
+    private static List<AnnotationDescriptor> getAnnotationDescriptors(AnnotatedElement element) {
+      return MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
+              .stream(HttpExchange.class)
+              .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
+              .map(AnnotationDescriptor::new)
+              .distinct()
+              .toList();
+    }
+
+    private static class AnnotationDescriptor {
+
+      private final HttpExchange httpExchange;
+
+      private final MergedAnnotation<?> root;
+
+      AnnotationDescriptor(MergedAnnotation<HttpExchange> mergedAnnotation) {
+        this.httpExchange = mergedAnnotation.synthesize();
+        this.root = mergedAnnotation.getRoot();
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        return (obj instanceof AnnotationDescriptor that && this.httpExchange.equals(that.httpExchange));
+      }
+
+      @Override
+      public int hashCode() {
+        return this.httpExchange.hashCode();
+      }
+
+      @Override
+      public String toString() {
+        return this.root.synthesize().toString();
+      }
     }
 
   }
