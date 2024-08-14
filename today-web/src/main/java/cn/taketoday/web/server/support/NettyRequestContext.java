@@ -421,7 +421,10 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void postRequestCompleted(@Nullable Throwable notHandled) {
-    ReferenceCountUtil.safeRelease(request);
+    int cnt = request.refCnt();
+    if (cnt != 0) {
+      ReferenceCountUtil.safeRelease(request);
+    }
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }

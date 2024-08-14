@@ -423,7 +423,6 @@ public class DispatcherHandler extends InfraHandler {
     // prepare context throwable
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
-    // Check registered HandlerExceptionHandlers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
       // not found a suitable handler to handle this exception,
