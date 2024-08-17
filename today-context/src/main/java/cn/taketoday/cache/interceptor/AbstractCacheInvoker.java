@@ -17,6 +17,10 @@
 
 package cn.taketoday.cache.interceptor;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+
 import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.function.SingletonSupplier;
@@ -79,15 +83,88 @@ public abstract class AbstractCacheInvoker {
   }
 
   /**
+   * Execute {@link Cache#get(Object, Callable)} on the specified
+   * {@link Cache} and invoke the error handler if an exception occurs.
+   * Invokes the {@code valueLoader} if the handler does not throw any
+   * exception, which simulates a cache read-through in case of error.
+   *
+   * @see Cache#get(Object, Callable)
+   * @since 5.0
+   */
+  @Nullable
+  protected <T> T doGet(Cache cache, Object key, Callable<T> valueLoader) {
+    try {
+      return cache.get(key, valueLoader);
+    }
+    catch (Cache.ValueRetrievalException ex) {
+      throw ex;
+    }
+    catch (RuntimeException ex) {
+      getErrorHandler().handleCacheGetError(ex, cache, key);
+      try {
+        return valueLoader.call();
+      }
+      catch (Exception ex2) {
+        throw new RuntimeException(ex2);
+      }
+    }
+  }
+
+  /**
+   * Execute {@link Cache#retrieve(Object)} on the specified {@link Cache}
+   * and invoke the error handler if an exception occurs.
+   * Returns {@code null} if the handler does not throw any exception, which
+   * simulates a cache miss in case of error.
+   *
+   * @see Cache#retrieve(Object)
+   * @since 5.0
+   */
+  @Nullable
+  protected CompletableFuture<?> doRetrieve(Cache cache, Object key) {
+    try {
+      return cache.retrieve(key);
+    }
+    catch (Cache.ValueRetrievalException ex) {
+      throw ex;
+    }
+    catch (RuntimeException ex) {
+      getErrorHandler().handleCacheGetError(ex, cache, key);
+      return null;
+    }
+  }
+
+  /**
+   * Execute {@link Cache#retrieve(Object, Supplier)} on the specified
+   * {@link Cache} and invoke the error handler if an exception occurs.
+   * Invokes the {@code valueLoader} if the handler does not throw any
+   * exception, which simulates a cache read-through in case of error.
+   *
+   * @see Cache#retrieve(Object, Supplier)
+   * @since 5.0
+   */
+  protected <T> CompletableFuture<T> doRetrieve(Cache cache, Object key, Supplier<CompletableFuture<T>> valueLoader) {
+    try {
+      return cache.retrieve(key, valueLoader);
+    }
+    catch (Cache.ValueRetrievalException ex) {
+      throw ex;
+    }
+    catch (RuntimeException ex) {
+      getErrorHandler().handleCacheGetError(ex, cache, key);
+      return valueLoader.get();
+    }
+  }
+
+  /**
    * Execute {@link Cache#put(Object, Object)} on the specified {@link Cache}
    * and invoke the error handler if an exception occurs.
    */
-  protected void doPut(Cache cache, Object key, @Nullable Object result) {
+  protected void doPut(Cache cache, Object key, @Nullable Object value) {
     try {
-      cache.put(key, result);
+      cache.put(key, value);
     }
     catch (RuntimeException ex) {
-      getErrorHandler().handleCachePutError(ex, cache, key, result);
+      getErrorHandler().handleCachePutError(ex, cache, key, value);
     }
   }
 

@@ -442,7 +442,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
       Cache cache = context.getCaches().iterator().next();
       if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
-        return cache.retrieve(key, () -> (CompletableFuture<?>) invokeOperation(invoker));
+        return doRetrieve(cache, key, () -> (CompletableFuture<?>) invokeOperation(invoker));
       }
       if (this.reactiveCachingHandler != null) {
         Object returnValue = this.reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
@@ -451,7 +451,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         }
       }
       try {
-        return wrapCacheValue(method, cache.get(key, () -> unwrapReturnValue(invokeOperation(invoker))));
+        return wrapCacheValue(method, doGet(cache, key, () -> unwrapReturnValue(invokeOperation(invoker))));
       }
       catch (Cache.ValueRetrievalException ex) {
         // Directly propagate ThrowableWrapper from the invoker,
@@ -502,7 +502,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     for (Cache cache : context.getCaches()) {
       if (CompletableFuture.class.isAssignableFrom(context.getMethod().getReturnType())) {
-        CompletableFuture<?> result = cache.retrieve(key);
+        CompletableFuture<?> result = doRetrieve(cache, key);
         if (result != null) {
           return result.exceptionally(ex -> {
             getErrorHandler().handleCacheGetError((RuntimeException) ex, cache, key);
@@ -1106,7 +1106,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
       ReactiveAdapter adapter = registry.getAdapter(context.getMethod().getReturnType());
       if (adapter != null) {
-        CompletableFuture<?> cachedFuture = cache.retrieve(key);
+        CompletableFuture<?> cachedFuture = doRetrieve(cache, key);
         if (cachedFuture == null) {
           return null;
         }
