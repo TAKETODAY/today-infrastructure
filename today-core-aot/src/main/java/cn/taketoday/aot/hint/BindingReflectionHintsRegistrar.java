@@ -100,8 +100,9 @@ public class BindingReflectionHintsRegistrar {
             if (methodName.startsWith("set") && method.getParameterCount() == 1) {
               registerPropertyHints(hints, seen, method, 0);
             }
-            else if ((methodName.startsWith("get") && method.getParameterCount() == 0 && method.getReturnType() != Void.TYPE)
-                    || (methodName.startsWith("is") && method.getParameterCount() == 0 && method.getReturnType() == boolean.class)) {
+            else if ((methodName.startsWith("get") && method.getParameterCount() == 0 && method.getReturnType() != void.class)
+                    || (methodName.startsWith("is") && method.getParameterCount() == 0
+                    && ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType()) == Boolean.class)) {
               registerPropertyHints(hints, seen, method, -1);
             }
           }
