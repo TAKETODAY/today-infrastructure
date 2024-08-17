@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ListFactoryBean;
 import cn.taketoday.beans.factory.parsing.BeanDefinitionParsingException;
+import cn.taketoday.beans.factory.support.BeanDefinitionOverrideException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -224,37 +225,43 @@ public class ConfigurationClassProcessingTests {
     assertThat(foo.getSpouse()).isNull();
   }
 
-//  @Test
-//  public void configurationWithAdaptivePrototypes() {
-//    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-//    ctx.register(ConfigWithPrototypeBean.class, AdaptiveInjectionPoints.class);
-//    ctx.refresh();
-//
-//    AdaptiveInjectionPoints adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
-//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-//
-//    adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
-//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-//    ctx.close();
-//  }
+  @Test
+  void configurationWithMethodNameMismatch() {
+    assertThatExceptionOfType(BeanDefinitionOverrideException.class)
+            .isThrownBy(() -> initBeanFactory(ConfigWithMethodNameMismatch.class));
+  }
 
-//  @Test
-//  public void configurationWithAdaptiveResourcePrototypes() {
-//    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-//    ctx.register(ConfigWithPrototypeBean.class, AdaptiveResourceInjectionPoints.class);
-//    ctx.refresh();
-//
-//    AdaptiveResourceInjectionPoints adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
-//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-//
-//    adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
-//    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
-//    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
-//    ctx.close();
-//  }
+  @Test
+  public void configurationWithAdaptivePrototypes() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ConfigWithPrototypeBean.class, AdaptiveInjectionPoints.class);
+    ctx.refresh();
+
+    AdaptiveInjectionPoints adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
+    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+
+    adaptive = ctx.getBean(AdaptiveInjectionPoints.class);
+    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+    ctx.close();
+  }
+
+  @Test
+  public void configurationWithAdaptiveResourcePrototypes() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ConfigWithPrototypeBean.class, AdaptiveResourceInjectionPoints.class);
+    ctx.refresh();
+
+    AdaptiveResourceInjectionPoints adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
+    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+
+    adaptive = ctx.getBean(AdaptiveResourceInjectionPoints.class);
+    assertThat(adaptive.adaptiveInjectionPoint1.getName()).isEqualTo("adaptiveInjectionPoint1");
+    assertThat(adaptive.adaptiveInjectionPoint2.getName()).isEqualTo("setAdaptiveInjectionPoint2");
+    ctx.close();
+  }
 
   @Test
   public void configurationWithPostProcessor() {
@@ -351,6 +358,8 @@ public class ConfigurationClassProcessingTests {
       String configBeanName = configClass.getName();
       beanFactory.registerBeanDefinition(configBeanName, new RootBeanDefinition(configClass));
     }
+    beanFactory.setAllowBeanDefinitionOverriding(false);
+
     ConfigurationClassPostProcessor ccpp = new ConfigurationClassPostProcessor(
             new BootstrapContext(beanFactory, ac));
     ccpp.postProcessBeanDefinitionRegistry(beanFactory);
@@ -700,6 +709,20 @@ public class ConfigurationClassProcessingTests {
           return new PrototypeTwo();
 
       }
+    }
+  }
+
+  @Configuration
+  static class ConfigWithMethodNameMismatch {
+
+    @Bean(name = "foo")
+    public TestBean foo() {
+      return new SpousyTestBean("foo");
+    }
+
+    @Bean(name = "foo")
+    public TestBean fooX() {
+      return new SpousyTestBean("fooX");
     }
   }
 
