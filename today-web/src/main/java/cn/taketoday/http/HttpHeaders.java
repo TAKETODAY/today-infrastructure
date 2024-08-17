@@ -43,8 +43,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
@@ -509,15 +507,6 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public static final String QUOTED_PRINTABLE = "quoted-printable";
   public static final String INLINE_FILE_NAME = "inline;filename=\"";
   public static final String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
-
-  /**
-   * Pattern matching ETag multiple field values in headers such as "If-Match",
-   * "If-None-Match".
-   *
-   * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.3">Section 2.3 of
-   * RFC 7232</a>
-   */
-  public static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
 
   public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
 
@@ -1787,31 +1776,27 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    *
    * @param name the header name
    * @return the combined result
+   * @throws IllegalArgumentException if parsing fails
    */
   @Unmodifiable
   public List<String> getETagValuesAsList(String name) {
     List<String> values = get(name);
-    if (values != null) {
-      ArrayList<String> result = new ArrayList<>();
-      for (String value : values) {
-        if (value != null) {
-          Matcher matcher = ETAG_HEADER_VALUE_PATTERN.matcher(value);
-          while (matcher.find()) {
-            if ("*".equals(matcher.group())) {
-              result.add(matcher.group());
-            }
-            else {
-              result.add(matcher.group(1));
-            }
-          }
-          if (result.isEmpty()) {
-            throw new IllegalArgumentException("Could not parse header '%s' with value '%s'".formatted(name, value));
-          }
+    if (values == null) {
+      return Collections.emptyList();
+    }
+    ArrayList<String> result = new ArrayList<>();
+    for (String value : values) {
+      if (value != null) {
+        List<ETag> tags = ETag.parse(value);
+        if (tags.isEmpty()) {
+          throw new IllegalArgumentException("Could not parse header '%s' with value '%s'".formatted(name, value));
+        }
+        for (ETag tag : tags) {
+          result.add(tag.formattedTag());
         }
       }
-      return result;
     }
-    return Collections.emptyList();
+    return result;
   }
 
   /**

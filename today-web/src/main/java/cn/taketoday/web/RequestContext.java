@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
@@ -48,6 +47,7 @@ import cn.taketoday.core.Conventions;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.http.DefaultHttpHeaders;
+import cn.taketoday.http.ETag;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
@@ -1226,25 +1226,23 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return true;
   }
 
-  private boolean matchRequestedETags(List<String> requestedETags, @Nullable String eTag, boolean weakCompare) {
-    eTag = padEtagIfNecessary(eTag);
-    for (String requestedETag : requestedETags) {
-      // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
-      Matcher eTagMatcher = HttpHeaders.ETAG_HEADER_VALUE_PATTERN.matcher(requestedETag);
-      while (eTagMatcher.find()) {
+  private boolean matchRequestedETags(List<String> requestedETags, @Nullable String etag, boolean weakCompare) {
+    etag = padEtagIfNecessary(etag);
+    for (String requestedEtag : requestedETags) {      // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
+      for (ETag requestedETag : ETag.parse(requestedEtag)) {
         // only consider "lost updates" checks for unsafe HTTP methods
-        if ("*".equals(eTagMatcher.group())
-                && StringUtils.isNotEmpty(eTag)
+        if (requestedETag.isWildcard()
+                && StringUtils.isNotEmpty(etag)
                 && !SAFE_METHODS.contains(getMethodValue())) {
           return false;
         }
         if (weakCompare) {
-          if (eTagWeakMatch(eTag, eTagMatcher.group(1))) {
+          if (eTagWeakMatch(etag, requestedETag.formattedTag())) {
             return false;
           }
         }
         else {
-          if (eTagStrongMatch(eTag, eTagMatcher.group(1))) {
+          if (eTagStrongMatch(etag, requestedETag.formattedTag())) {
             return false;
           }
         }
