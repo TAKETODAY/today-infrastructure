@@ -211,6 +211,12 @@ public class HttpHeadersTests {
   }
 
   @Test
+  void illegalWeakETagWithoutLeadingQuote() {
+    String etag = "W/v2.6\"";
+    assertThatIllegalArgumentException().isThrownBy(() -> headers.setETag(etag));
+  }
+
+  @Test
   void ifMatch() {
     String ifMatch = "\"v2.6\"";
     headers.setIfMatch(ifMatch);

@@ -1187,8 +1187,8 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   public void setETag(@Nullable String etag) {
     if (etag != null) {
-      Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/"), "Invalid ETag: does not start with W/ or \"");
-      Assert.isTrue(etag.endsWith("\""), "Invalid ETag: does not end with \"");
+      Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/\""), "ETag does not start with W/\" or \"");
+      Assert.isTrue(etag.endsWith("\""), "ETag does not end with \"");
       setOrRemove(ETAG, etag);
     }
     else {
