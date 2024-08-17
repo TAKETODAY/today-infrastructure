@@ -32,7 +32,9 @@ import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -46,7 +48,6 @@ class SimpleEvaluationContextTests {
   private final SpelExpressionParser parser = new SpelExpressionParser();
 
   private final Model model = new Model();
-
 
   @Test
   void forReadWriteDataBinding() {
@@ -205,6 +206,51 @@ class SimpleEvaluationContextTests {
     assertIncrementAndDecrementWritesForIndexedStructures(context);
   }
 
+  @Test
+  void forPropertyAccessorsWithAssignmentDisabled() {
+    SimpleEvaluationContext context = SimpleEvaluationContext
+            .forPropertyAccessors(new CompilableMapAccessor(false), DataBindingPropertyAccessor.forReadOnlyAccess())
+            .withIndexAccessors(colorsIndexAccessor)
+            .withAssignmentDisabled()
+            .build();
+
+    assertCommonReadOnlyModeBehavior(context);
+
+    // WRITE -- via assignment operator
+
+    // Variable
+    assertAssignmentDisabled(context, "#myVar = 'rejected'");
+
+    // Property
+    assertAssignmentDisabled(context, "name = 'rejected'");
+    assertAssignmentDisabled(context, "map.yellow = 'rejected'");
+    assertIncrementDisabled(context, "count++");
+    assertIncrementDisabled(context, "++count");
+    assertDecrementDisabled(context, "count--");
+    assertDecrementDisabled(context, "--count");
+
+    // Array Index
+    assertAssignmentDisabled(context, "array[0] = 'rejected'");
+    assertIncrementDisabled(context, "numbers[0]++");
+    assertIncrementDisabled(context, "++numbers[0]");
+    assertDecrementDisabled(context, "numbers[0]--");
+    assertDecrementDisabled(context, "--numbers[0]");
+
+    // List Index
+    assertAssignmentDisabled(context, "list[0] = 'rejected'");
+
+    // Map Index -- key as String
+    assertAssignmentDisabled(context, "map['red'] = 'rejected'");
+
+    // Map Index -- key as pseudo property name
+    assertAssignmentDisabled(context, "map[yellow] = 'rejected'");
+
+    // String Index
+    assertAssignmentDisabled(context, "name[0] = 'rejected'");
+
+    // Object Index
+    assertAssignmentDisabled(context, "['name'] = 'rejected'");
+  }
 
   private void assertReadWriteMode(SimpleEvaluationContext context) {
     // Variables can always be set programmatically within an EvaluationContext.
@@ -460,13 +506,12 @@ class SimpleEvaluationContextTests {
             .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(spelMessage));
   }
 
-
   static class Model {
 
     private String name = "replace me";
     private int count = 0;
-    private final String[] array = {"replace me"};
-    private final int[] numbers = {99};
+    private final String[] array = { "replace me" };
+    private final int[] numbers = { 99 };
     private final List<String> list = new ArrayList<>();
     private final Map<String, String> map = new HashMap<>();
     private final Colors colors = new Colors();

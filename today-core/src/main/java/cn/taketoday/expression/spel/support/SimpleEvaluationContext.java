@@ -65,8 +65,9 @@ import cn.taketoday.lang.Nullable;
  * read-only access to properties via {@link DataBindingPropertyAccessor}. Similarly,
  * {@link SimpleEvaluationContext#forReadWriteDataBinding()} enables read and write access
  * to properties. Alternatively, configure custom accessors via
- * {@link SimpleEvaluationContext#forPropertyAccessors} and potentially activate method
- * resolution and/or a type converter through the builder.
+ * {@link SimpleEvaluationContext#forPropertyAccessors}, potentially
+ * {@linkplain Builder#withAssignmentDisabled() disable assignment}, and optionally
+ * activate method resolution and/or a type converter through the builder.
  *
  * <p>Note that {@code SimpleEvaluationContext} is typically not configured
  * with a default root object. Instead it is meant to be created once and
@@ -272,10 +273,8 @@ public final class SimpleEvaluationContext implements EvaluationContext {
    * ({@code ++}), and decrement ({@code --}) operators are disabled.
    *
    * @return {@code true} if assignment is enabled; {@code false} otherwise
-   * @see #forPropertyAccessors(PropertyAccessor...)
    * @see #forReadOnlyDataBinding()
-   * @see #forReadWriteDataBinding()
-   * @since 5.0
+   * @see Builder#withAssignmentDisabled()
    */
   @Override
   public boolean isAssignmentEnabled() {
@@ -284,16 +283,19 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
   /**
    * Create a {@code SimpleEvaluationContext} for the specified {@link PropertyAccessor}
-   * delegates: typically a custom {@code PropertyAccessor} specific to a use case
-   * (e.g. attribute resolution in a custom data structure), potentially combined with
-   * a {@link DataBindingPropertyAccessor} if property dereferences are needed as well.
-   * <p>Assignment is enabled within expressions evaluated by the context created via
-   * this factory method.
+   * delegates: typically a custom {@code PropertyAccessor} specific to a use case &mdash;
+   * for example, for attribute resolution in a custom data structure &mdash; potentially
+   * combined with a {@link DataBindingPropertyAccessor} if property dereferences are
+   * needed as well.
+   * <p>By default, assignment is enabled within expressions evaluated by the context
+   * created via this factory method; however, assignment can be disabled via
+   * {@link Builder#withAssignmentDisabled()}.
    *
    * @param accessors the accessor delegates to use
    * @see DataBindingPropertyAccessor#forReadOnlyAccess()
    * @see DataBindingPropertyAccessor#forReadWriteAccess()
    * @see #isAssignmentEnabled()
+   * @see Builder#withAssignmentDisabled()
    */
   public static Builder forPropertyAccessors(PropertyAccessor... accessors) {
     for (PropertyAccessor accessor : accessors) {
@@ -302,7 +304,7 @@ public final class SimpleEvaluationContext implements EvaluationContext {
                 "ReflectivePropertyAccessor. Consider using DataBindingPropertyAccessor or a custom subclass.");
       }
     }
-    return new Builder(true, accessors);
+    return new Builder(accessors);
   }
 
   /**
@@ -314,23 +316,27 @@ public final class SimpleEvaluationContext implements EvaluationContext {
    * @see DataBindingPropertyAccessor#forReadOnlyAccess()
    * @see #forPropertyAccessors
    * @see #isAssignmentEnabled()
+   * @see Builder#withAssignmentDisabled()
    */
   public static Builder forReadOnlyDataBinding() {
-    return new Builder(false, DataBindingPropertyAccessor.forReadOnlyAccess());
+    return new Builder(DataBindingPropertyAccessor.forReadOnlyAccess()).withAssignmentDisabled();
   }
 
   /**
    * Create a {@code SimpleEvaluationContext} for read-write access to
    * public properties via {@link DataBindingPropertyAccessor}.
-   * <p>Assignment is enabled within expressions evaluated by the context created via
-   * this factory method.
+   * <p>By default, assignment is enabled within expressions evaluated by the context
+   * created via this factory method. Assignment can be disabled via
+   * {@link Builder#withAssignmentDisabled()}; however, it is preferable to use
+   * {@link #forReadOnlyDataBinding()} if you desire read-only access.
    *
    * @see DataBindingPropertyAccessor#forReadWriteAccess()
    * @see #forPropertyAccessors
    * @see #isAssignmentEnabled()
+   * @see Builder#withAssignmentDisabled()
    */
   public static Builder forReadWriteDataBinding() {
-    return new Builder(true, DataBindingPropertyAccessor.forReadWriteAccess());
+    return new Builder(DataBindingPropertyAccessor.forReadWriteAccess());
   }
 
   /**
@@ -350,11 +356,21 @@ public final class SimpleEvaluationContext implements EvaluationContext {
     @Nullable
     private TypedValue rootObject;
 
-    private final boolean assignmentEnabled;
+    private boolean assignmentEnabled = true;
 
-    private Builder(boolean assignmentEnabled, PropertyAccessor... accessors) {
-      this.assignmentEnabled = assignmentEnabled;
+    private Builder(PropertyAccessor... accessors) {
       this.propertyAccessors = Arrays.asList(accessors);
+    }
+
+    /**
+     * Disable assignment within expressions evaluated by this evaluation context.
+     *
+     * @see SimpleEvaluationContext#isAssignmentEnabled()
+     * @since 5.0
+     */
+    public Builder withAssignmentDisabled() {
+      this.assignmentEnabled = false;
+      return this;
     }
 
     /**
