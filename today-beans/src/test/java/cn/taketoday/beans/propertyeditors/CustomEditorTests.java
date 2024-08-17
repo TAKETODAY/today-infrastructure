@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.propertyeditors;
@@ -24,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -71,7 +67,7 @@ import static org.assertj.core.api.Assertions.within;
 class CustomEditorTests {
 
   @Test
-  void testComplexObject() {
+  void complexObject() {
     TestBean tb = new TestBean();
     String newName = "Rod";
     String tbString = "Kerry_34";
@@ -89,7 +85,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testComplexObjectWithOldValueAccess() {
+  void complexObjectWithOldValueAccess() {
     TestBean tb = new TestBean();
     String newName = "Rod";
     String tbString = "Kerry_34";
@@ -113,7 +109,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomEditorForSingleProperty() {
+  void customEditorForSingleProperty() {
     TestBean tb = new TestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(String.class, "name", new PropertyEditorSupport() {
@@ -131,7 +127,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomEditorForAllStringProperties() {
+  void customEditorForAllStringProperties() {
     TestBean tb = new TestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(String.class, new PropertyEditorSupport() {
@@ -149,7 +145,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomEditorForSingleNestedProperty() {
+  void customEditorForSingleNestedProperty() {
     TestBean tb = new TestBean();
     tb.setSpouse(new TestBean());
     BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -168,7 +164,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomEditorForAllNestedStringProperties() {
+  void customEditorForAllNestedStringProperties() {
     TestBean tb = new TestBean();
     tb.setSpouse(new TestBean());
     BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -187,7 +183,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testDefaultBooleanEditorForPrimitiveType() {
+  void defaultBooleanEditorForPrimitiveType() {
     BooleanTestBean tb = new BooleanTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
 
@@ -197,43 +193,38 @@ class CustomEditorTests {
 
     bw.setPropertyValue("bool1", "false");
     assertThat(Boolean.FALSE.equals(bw.getPropertyValue("bool1"))).as("Correct bool1 value").isTrue();
-    boolean condition4 = !tb.isBool1();
-    assertThat(condition4).as("Correct bool1 value").isTrue();
+    assertThat(tb.isBool1()).as("Correct bool1 value").isFalse();
 
     bw.setPropertyValue("bool1", "  true  ");
     assertThat(tb.isBool1()).as("Correct bool1 value").isTrue();
 
     bw.setPropertyValue("bool1", "  false  ");
-    boolean condition3 = !tb.isBool1();
-    assertThat(condition3).as("Correct bool1 value").isTrue();
+    assertThat(tb.isBool1()).as("Correct bool1 value").isFalse();
 
     bw.setPropertyValue("bool1", "on");
     assertThat(tb.isBool1()).as("Correct bool1 value").isTrue();
 
     bw.setPropertyValue("bool1", "off");
-    boolean condition2 = !tb.isBool1();
-    assertThat(condition2).as("Correct bool1 value").isTrue();
+    assertThat(tb.isBool1()).as("Correct bool1 value").isFalse();
 
     bw.setPropertyValue("bool1", "yes");
     assertThat(tb.isBool1()).as("Correct bool1 value").isTrue();
 
     bw.setPropertyValue("bool1", "no");
-    boolean condition1 = !tb.isBool1();
-    assertThat(condition1).as("Correct bool1 value").isTrue();
+    assertThat(tb.isBool1()).as("Correct bool1 value").isFalse();
 
     bw.setPropertyValue("bool1", "1");
     assertThat(tb.isBool1()).as("Correct bool1 value").isTrue();
 
     bw.setPropertyValue("bool1", "0");
-    boolean condition = !tb.isBool1();
-    assertThat(condition).as("Correct bool1 value").isTrue();
+    assertThat(tb.isBool1()).as("Correct bool1 value").isFalse();
 
     assertThatExceptionOfType(BeansException.class).isThrownBy(() ->
             bw.setPropertyValue("bool1", "argh"));
   }
 
   @Test
-  void testDefaultBooleanEditorForWrapperType() {
+  void defaultBooleanEditorForWrapperType() {
     BooleanTestBean tb = new BooleanTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
 
@@ -243,36 +234,32 @@ class CustomEditorTests {
 
     bw.setPropertyValue("bool2", "false");
     assertThat(Boolean.FALSE.equals(bw.getPropertyValue("bool2"))).as("Correct bool2 value").isTrue();
-    boolean condition3 = !tb.getBool2();
-    assertThat(condition3).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "on");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "off");
-    boolean condition2 = !tb.getBool2();
-    assertThat(condition2).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "yes");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "no");
-    boolean condition1 = !tb.getBool2();
-    assertThat(condition1).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "1");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "0");
-    boolean condition = !tb.getBool2();
-    assertThat(condition).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "");
     assertThat(tb.getBool2()).as("Correct bool2 value").isNull();
   }
 
   @Test
-  void testCustomBooleanEditorWithAllowEmpty() {
+  void customBooleanEditorWithAllowEmpty() {
     BooleanTestBean tb = new BooleanTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(Boolean.class, new CustomBooleanEditor(true));
@@ -283,29 +270,25 @@ class CustomEditorTests {
 
     bw.setPropertyValue("bool2", "false");
     assertThat(Boolean.FALSE.equals(bw.getPropertyValue("bool2"))).as("Correct bool2 value").isTrue();
-    boolean condition3 = !tb.getBool2();
-    assertThat(condition3).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "on");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "off");
-    boolean condition2 = !tb.getBool2();
-    assertThat(condition2).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "yes");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "no");
-    boolean condition1 = !tb.getBool2();
-    assertThat(condition1).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "1");
     assertThat(tb.getBool2().booleanValue()).as("Correct bool2 value").isTrue();
 
     bw.setPropertyValue("bool2", "0");
-    boolean condition = !tb.getBool2();
-    assertThat(condition).as("Correct bool2 value").isTrue();
+    assertThat(tb.getBool2()).as("Correct bool2 value").isFalse();
 
     bw.setPropertyValue("bool2", "");
     assertThat(bw.getPropertyValue("bool2")).as("Correct bool2 value").isNull();
@@ -313,7 +296,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomBooleanEditorWithSpecialTrueAndFalseStrings() throws Exception {
+  void customBooleanEditorWithSpecialTrueAndFalseStrings() {
     String trueString = "pechorin";
     String falseString = "nash";
 
@@ -337,7 +320,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testDefaultNumberEditor() {
+  void defaultNumberEditor() {
     NumberTestBean tb = new NumberTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
 
@@ -354,34 +337,34 @@ class CustomEditorTests {
     bw.setPropertyValue("double2", "6.1");
     bw.setPropertyValue("bigDecimal", "4.5");
 
-    assertThat(Short.valueOf("1").equals(bw.getPropertyValue("short1"))).as("Correct short1 value").isTrue();
-    assertThat(tb.getShort1() == 1).as("Correct short1 value").isTrue();
-    assertThat(Short.valueOf("2").equals(bw.getPropertyValue("short2"))).as("Correct short2 value").isTrue();
-    assertThat(Short.valueOf("2").equals(tb.getShort2())).as("Correct short2 value").isTrue();
-    assertThat(Integer.valueOf("7").equals(bw.getPropertyValue("int1"))).as("Correct int1 value").isTrue();
-    assertThat(tb.getInt1() == 7).as("Correct int1 value").isTrue();
-    assertThat(Integer.valueOf("8").equals(bw.getPropertyValue("int2"))).as("Correct int2 value").isTrue();
-    assertThat(Integer.valueOf("8").equals(tb.getInt2())).as("Correct int2 value").isTrue();
-    assertThat(Long.valueOf("5").equals(bw.getPropertyValue("long1"))).as("Correct long1 value").isTrue();
-    assertThat(tb.getLong1() == 5).as("Correct long1 value").isTrue();
-    assertThat(Long.valueOf("6").equals(bw.getPropertyValue("long2"))).as("Correct long2 value").isTrue();
-    assertThat(Long.valueOf("6").equals(tb.getLong2())).as("Correct long2 value").isTrue();
-    assertThat(new BigInteger("3").equals(bw.getPropertyValue("bigInteger"))).as("Correct bigInteger value").isTrue();
-    assertThat(new BigInteger("3").equals(tb.getBigInteger())).as("Correct bigInteger value").isTrue();
-    assertThat(Float.valueOf("7.1").equals(bw.getPropertyValue("float1"))).as("Correct float1 value").isTrue();
-    assertThat(Float.valueOf("7.1").equals(tb.getFloat1())).as("Correct float1 value").isTrue();
-    assertThat(Float.valueOf("8.1").equals(bw.getPropertyValue("float2"))).as("Correct float2 value").isTrue();
-    assertThat(Float.valueOf("8.1").equals(tb.getFloat2())).as("Correct float2 value").isTrue();
-    assertThat(Double.valueOf("5.1").equals(bw.getPropertyValue("double1"))).as("Correct double1 value").isTrue();
-    assertThat(tb.getDouble1() == 5.1).as("Correct double1 value").isTrue();
-    assertThat(Double.valueOf("6.1").equals(bw.getPropertyValue("double2"))).as("Correct double2 value").isTrue();
-    assertThat(Double.valueOf("6.1").equals(tb.getDouble2())).as("Correct double2 value").isTrue();
-    assertThat(new BigDecimal("4.5").equals(bw.getPropertyValue("bigDecimal"))).as("Correct bigDecimal value").isTrue();
-    assertThat(new BigDecimal("4.5").equals(tb.getBigDecimal())).as("Correct bigDecimal value").isTrue();
+    assertThat(Short.valueOf("1")).as("Correct short1 value").isEqualTo(bw.getPropertyValue("short1"));
+    assertThat(tb.getShort1()).as("Correct short1 value").isOne();
+    assertThat(Short.valueOf("2")).as("Correct short2 value").isEqualTo(bw.getPropertyValue("short2"));
+    assertThat(Short.valueOf("2")).as("Correct short2 value").isEqualTo(tb.getShort2());
+    assertThat(Integer.valueOf("7")).as("Correct int1 value").isEqualTo(bw.getPropertyValue("int1"));
+    assertThat(tb.getInt1()).as("Correct int1 value").isEqualTo(7);
+    assertThat(Integer.valueOf("8")).as("Correct int2 value").isEqualTo(bw.getPropertyValue("int2"));
+    assertThat(Integer.valueOf("8")).as("Correct int2 value").isEqualTo(tb.getInt2());
+    assertThat(Long.valueOf("5")).as("Correct long1 value").isEqualTo(bw.getPropertyValue("long1"));
+    assertThat(tb.getLong1()).as("Correct long1 value").isEqualTo(5);
+    assertThat(Long.valueOf("6")).as("Correct long2 value").isEqualTo(bw.getPropertyValue("long2"));
+    assertThat(Long.valueOf("6")).as("Correct long2 value").isEqualTo(tb.getLong2());
+    assertThat(new BigInteger("3")).as("Correct bigInteger value").isEqualTo(bw.getPropertyValue("bigInteger"));
+    assertThat(new BigInteger("3")).as("Correct bigInteger value").isEqualTo(tb.getBigInteger());
+    assertThat(Float.valueOf("7.1")).as("Correct float1 value").isEqualTo(bw.getPropertyValue("float1"));
+    assertThat(Float.valueOf("7.1")).as("Correct float1 value").isEqualTo(tb.getFloat1());
+    assertThat(Float.valueOf("8.1")).as("Correct float2 value").isEqualTo(bw.getPropertyValue("float2"));
+    assertThat(Float.valueOf("8.1")).as("Correct float2 value").isEqualTo(tb.getFloat2());
+    assertThat(Double.valueOf("5.1")).as("Correct double1 value").isEqualTo(bw.getPropertyValue("double1"));
+    assertThat(tb.getDouble1()).as("Correct double1 value").isEqualTo(5.1);
+    assertThat(Double.valueOf("6.1")).as("Correct double2 value").isEqualTo(bw.getPropertyValue("double2"));
+    assertThat(Double.valueOf("6.1")).as("Correct double2 value").isEqualTo(tb.getDouble2());
+    assertThat(new BigDecimal("4.5")).as("Correct bigDecimal value").isEqualTo(bw.getPropertyValue("bigDecimal"));
+    assertThat(new BigDecimal("4.5")).as("Correct bigDecimal value").isEqualTo(tb.getBigDecimal());
   }
 
   @Test
-  void testCustomNumberEditorWithoutAllowEmpty() {
+  void customNumberEditorWithoutAllowEmpty() {
     NumberFormat nf = NumberFormat.getNumberInstance(Locale.GERMAN);
     NumberTestBean tb = new NumberTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -412,33 +395,33 @@ class CustomEditorTests {
     bw.setPropertyValue("bigDecimal", "4,5");
 
     assertThat(bw.getPropertyValue("short1")).as("Correct short1 value").isEqualTo(Short.valueOf("1"));
-    assertThat(tb.getShort1() == 1).as("Correct short1 value").isTrue();
+    assertThat(tb.getShort1()).as("Correct short1 value").isOne();
     assertThat(bw.getPropertyValue("short2")).as("Correct short2 value").isEqualTo(Short.valueOf("2"));
     assertThat(tb.getShort2()).as("Correct short2 value").isEqualTo(Short.valueOf("2"));
     assertThat(bw.getPropertyValue("int1")).as("Correct int1 value").isEqualTo(Integer.valueOf("7"));
-    assertThat(tb.getInt1() == 7).as("Correct int1 value").isTrue();
+    assertThat(tb.getInt1()).as("Correct int1 value").isEqualTo(7);
     assertThat(bw.getPropertyValue("int2")).as("Correct int2 value").isEqualTo(Integer.valueOf("8"));
     assertThat(tb.getInt2()).as("Correct int2 value").isEqualTo(Integer.valueOf("8"));
     assertThat(bw.getPropertyValue("long1")).as("Correct long1 value").isEqualTo(Long.valueOf("5"));
-    assertThat(tb.getLong1() == 5).as("Correct long1 value").isTrue();
+    assertThat(tb.getLong1()).as("Correct long1 value").isEqualTo(5);
     assertThat(bw.getPropertyValue("long2")).as("Correct long2 value").isEqualTo(Long.valueOf("6"));
     assertThat(tb.getLong2()).as("Correct long2 value").isEqualTo(Long.valueOf("6"));
-    assertThat(new BigInteger("3").equals(bw.getPropertyValue("bigInteger"))).as("Correct bigInteger value").isTrue();
-    assertThat(new BigInteger("3").equals(tb.getBigInteger())).as("Correct bigInteger value").isTrue();
+    assertThat(new BigInteger("3")).as("Correct bigInteger value").isEqualTo(bw.getPropertyValue("bigInteger"));
+    assertThat(new BigInteger("3")).as("Correct bigInteger value").isEqualTo(tb.getBigInteger());
     assertThat(bw.getPropertyValue("float1")).as("Correct float1 value").isEqualTo(Float.valueOf("7.1"));
     assertThat(Float.valueOf(tb.getFloat1())).as("Correct float1 value").isEqualTo(Float.valueOf("7.1"));
     assertThat(bw.getPropertyValue("float2")).as("Correct float2 value").isEqualTo(Float.valueOf("8.1"));
     assertThat(tb.getFloat2()).as("Correct float2 value").isEqualTo(Float.valueOf("8.1"));
     assertThat(bw.getPropertyValue("double1")).as("Correct double1 value").isEqualTo(Double.valueOf("5.1"));
-    assertThat(tb.getDouble1() == 5.1).as("Correct double1 value").isTrue();
+    assertThat(tb.getDouble1()).as("Correct double1 value").isEqualTo(5.1);
     assertThat(bw.getPropertyValue("double2")).as("Correct double2 value").isEqualTo(Double.valueOf("6.1"));
     assertThat(tb.getDouble2()).as("Correct double2 value").isEqualTo(Double.valueOf("6.1"));
-    assertThat(new BigDecimal("4.5").equals(bw.getPropertyValue("bigDecimal"))).as("Correct bigDecimal value").isTrue();
-    assertThat(new BigDecimal("4.5").equals(tb.getBigDecimal())).as("Correct bigDecimal value").isTrue();
+    assertThat(new BigDecimal("4.5")).as("Correct bigDecimal value").isEqualTo(bw.getPropertyValue("bigDecimal"));
+    assertThat(new BigDecimal("4.5")).as("Correct bigDecimal value").isEqualTo(tb.getBigDecimal());
   }
 
   @Test
-  void testCustomNumberEditorWithAllowEmpty() {
+  void customNumberEditorWithAllowEmpty() {
     NumberFormat nf = NumberFormat.getNumberInstance(Locale.GERMAN);
     NumberTestBean tb = new NumberTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -448,13 +431,13 @@ class CustomEditorTests {
     bw.setPropertyValue("long1", "5");
     bw.setPropertyValue("long2", "6");
     assertThat(Long.valueOf("5").equals(bw.getPropertyValue("long1"))).as("Correct long1 value").isTrue();
-    assertThat(tb.getLong1() == 5).as("Correct long1 value").isTrue();
+    assertThat(tb.getLong1()).as("Correct long1 value").isEqualTo(5);
     assertThat(Long.valueOf("6").equals(bw.getPropertyValue("long2"))).as("Correct long2 value").isTrue();
     assertThat(Long.valueOf("6").equals(tb.getLong2())).as("Correct long2 value").isTrue();
 
     bw.setPropertyValue("long2", "");
-    assertThat(bw.getPropertyValue("long2") == null).as("Correct long2 value").isTrue();
-    assertThat(tb.getLong2() == null).as("Correct long2 value").isTrue();
+    assertThat(bw.getPropertyValue("long2")).as("Correct long2 value").isNull();
+    assertThat(tb.getLong2()).as("Correct long2 value").isNull();
     assertThatExceptionOfType(BeansException.class).isThrownBy(() ->
             bw.setPropertyValue("long1", ""));
     assertThat(bw.getPropertyValue("long1")).isEqualTo(5L);
@@ -462,7 +445,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomNumberEditorWithFrenchBigDecimal() throws Exception {
+  void customNumberEditorWithFrenchBigDecimal() {
     NumberFormat nf = NumberFormat.getNumberInstance(Locale.FRENCH);
     NumberTestBean tb = new NumberTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
@@ -479,14 +462,14 @@ class CustomEditorTests {
   }
 
   @Test
-  void testParseShortGreaterThanMaxValueWithoutNumberFormat() {
+  void parseShortGreaterThanMaxValueWithoutNumberFormat() {
     CustomNumberEditor editor = new CustomNumberEditor(Short.class, true);
     assertThatExceptionOfType(NumberFormatException.class).as("greater than Short.MAX_VALUE + 1").isThrownBy(() ->
             editor.setAsText(String.valueOf(Short.MAX_VALUE + 1)));
   }
 
   @Test
-  void testByteArrayPropertyEditor() {
+  void byteArrayPropertyEditor() {
     PrimitiveArrayBean bean = new PrimitiveArrayBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.setPropertyValue("byteArray", "myvalue");
@@ -494,7 +477,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharArrayPropertyEditor() {
+  void charArrayPropertyEditor() {
     PrimitiveArrayBean bean = new PrimitiveArrayBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.setPropertyValue("charArray", "myvalue");
@@ -502,11 +485,11 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharacterEditor() {
+  void characterEditor() {
     CharBean cb = new CharBean();
     BeanWrapper bw = new BeanWrapperImpl(cb);
 
-    bw.setPropertyValue("myChar", Character.valueOf('c'));
+    bw.setPropertyValue("myChar", 'c');
     assertThat(cb.getMyChar()).isEqualTo('c');
 
     bw.setPropertyValue("myChar", "c");
@@ -524,7 +507,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharacterEditorWithAllowEmpty() {
+  void characterEditorWithAllowEmpty() {
     CharBean cb = new CharBean();
     BeanWrapper bw = new BeanWrapperImpl(cb);
     bw.registerCustomEditor(Character.class, new CharacterEditor(true));
@@ -546,14 +529,14 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharacterEditorSetAsTextWithStringLongerThanOneCharacter() throws Exception {
+  void characterEditorSetAsTextWithStringLongerThanOneCharacter() {
     PropertyEditor charEditor = new CharacterEditor(false);
     assertThatIllegalArgumentException().isThrownBy(() ->
             charEditor.setAsText("ColdWaterCanyon"));
   }
 
   @Test
-  void testCharacterEditorGetAsTextReturnsEmptyStringIfValueIsNull() throws Exception {
+  void characterEditorGetAsTextReturnsEmptyStringIfValueIsNull() {
     PropertyEditor charEditor = new CharacterEditor(false);
     assertThat(charEditor.getAsText()).isEmpty();
     charEditor = new CharacterEditor(true);
@@ -566,14 +549,14 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharacterEditorSetAsTextWithNullNotAllowingEmptyAsNull() throws Exception {
+  void characterEditorSetAsTextWithNullNotAllowingEmptyAsNull() {
     PropertyEditor charEditor = new CharacterEditor(false);
     assertThatIllegalArgumentException().isThrownBy(() ->
             charEditor.setAsText(null));
   }
 
   @Test
-  void testClassEditor() {
+  void classEditor() {
     PropertyEditor classEditor = new ClassEditor();
     classEditor.setAsText(TestBean.class.getName());
     assertThat(classEditor.getValue()).isEqualTo(TestBean.class);
@@ -588,14 +571,14 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassEditorWithNonExistentClass() throws Exception {
+  void classEditorWithNonExistentClass() {
     PropertyEditor classEditor = new ClassEditor();
     assertThatIllegalArgumentException().isThrownBy(() ->
             classEditor.setAsText("hairdresser.on.Fire"));
   }
 
   @Test
-  void testClassEditorWithArray() {
+  void classEditorWithArray() {
     PropertyEditor classEditor = new ClassEditor();
     classEditor.setAsText("cn.taketoday.beans.testfixture.beans.TestBean[]");
     assertThat(classEditor.getValue()).isEqualTo(TestBean[].class);
@@ -606,7 +589,7 @@ class CustomEditorTests {
    * SPR_2165 - ClassEditor is inconsistent with multidimensional arrays
    */
   @Test
-  void testGetAsTextWithTwoDimensionalArray() throws Exception {
+  void getAsTextWithTwoDimensionalArray() {
     String[][] chessboard = new String[8][8];
     ClassEditor editor = new ClassEditor();
     editor.setValue(chessboard.getClass());
@@ -617,7 +600,7 @@ class CustomEditorTests {
    * SPR_2165 - ClassEditor is inconsistent with multidimensional arrays
    */
   @Test
-  void testGetAsTextWithRidiculousMultiDimensionalArray() throws Exception {
+  void getAsTextWithRidiculousMultiDimensionalArray() {
     String[][][][][] ridiculousChessboard = new String[8][4][0][1][3];
     ClassEditor editor = new ClassEditor();
     editor.setValue(ridiculousChessboard.getClass());
@@ -625,7 +608,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testFileEditor() {
+  void fileEditor() {
     PropertyEditor fileEditor = new FileEditor();
     fileEditor.setAsText("file:myfile.txt");
     assertThat(fileEditor.getValue()).isEqualTo(new File("myfile.txt"));
@@ -633,8 +616,8 @@ class CustomEditorTests {
   }
 
   @Test
-  void testFileEditorWithRelativePath() {
-    FileEditor fileEditor = new FileEditor();
+  void fileEditorWithRelativePath() {
+    PropertyEditor fileEditor = new FileEditor();
     try {
       fileEditor.setAsText("myfile.txt");
     }
@@ -645,7 +628,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testFileEditorWithAbsolutePath() {
+  void fileEditorWithAbsolutePath() {
     PropertyEditor fileEditor = new FileEditor();
     // testing on Windows
     if (new File("C:/myfile.txt").isAbsolute()) {
@@ -660,18 +643,22 @@ class CustomEditorTests {
   }
 
   @Test
-  void testLocaleEditor() {
+  void localeEditor() {
     PropertyEditor localeEditor = new LocaleEditor();
     localeEditor.setAsText("en_CA");
     assertThat(localeEditor.getValue()).isEqualTo(Locale.CANADA);
     assertThat(localeEditor.getAsText()).isEqualTo("en_CA");
 
     localeEditor = new LocaleEditor();
+    localeEditor.setAsText("zh-Hans");
+    assertThat(localeEditor.getValue()).isEqualTo(Locale.forLanguageTag("zh-Hans"));
+
+    localeEditor = new LocaleEditor();
     assertThat(localeEditor.getAsText()).isEmpty();
   }
 
   @Test
-  void testPatternEditor() {
+  void patternEditor() {
     final String REGEX = "a.*";
 
     PropertyEditor patternEditor = new PatternEditor();
@@ -688,7 +675,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomBooleanEditor() {
+  void customBooleanEditor() {
     CustomBooleanEditor editor = new CustomBooleanEditor(false);
 
     editor.setAsText("true");
@@ -708,7 +695,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomBooleanEditorWithEmptyAsNull() {
+  void customBooleanEditorWithEmptyAsNull() {
     CustomBooleanEditor editor = new CustomBooleanEditor(true);
 
     editor.setAsText("true");
@@ -725,7 +712,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomDateEditor() {
+  void customDateEditor() {
     CustomDateEditor editor = new CustomDateEditor(new SimpleDateFormat("MM/dd/yyyy"), false);
     editor.setValue(null);
     assertThat(editor.getValue()).isNull();
@@ -733,7 +720,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomDateEditorWithEmptyAsNull() {
+  void customDateEditorWithEmptyAsNull() {
     CustomDateEditor editor = new CustomDateEditor(new SimpleDateFormat("MM/dd/yyyy"), true);
     editor.setValue(null);
     assertThat(editor.getValue()).isNull();
@@ -741,7 +728,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomDateEditorWithExactDateLength() {
+  void customDateEditorWithExactDateLength() {
     int maxLength = 10;
     String validDate = "01/01/2005";
     String invalidDate = "01/01/05";
@@ -757,7 +744,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomNumberEditor() {
+  void customNumberEditor() {
     CustomNumberEditor editor = new CustomNumberEditor(Integer.class, false);
     editor.setAsText("5");
     assertThat(editor.getValue()).isEqualTo(5);
@@ -768,14 +755,14 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCustomNumberEditorWithHex() {
+  void customNumberEditorWithHex() {
     CustomNumberEditor editor = new CustomNumberEditor(Integer.class, false);
     editor.setAsText("0x" + Integer.toHexString(64));
     assertThat(editor.getValue()).isEqualTo(64);
   }
 
   @Test
-  void testCustomNumberEditorWithEmptyAsNull() {
+  void customNumberEditorWithEmptyAsNull() {
     CustomNumberEditor editor = new CustomNumberEditor(Integer.class, true);
     editor.setAsText("5");
     assertThat(editor.getValue()).isEqualTo(5);
@@ -789,12 +776,12 @@ class CustomEditorTests {
   }
 
   @Test
-  void testStringTrimmerEditor() {
+  void stringTrimmerEditor() {
     StringTrimmerEditor editor = new StringTrimmerEditor(false);
     editor.setAsText("test");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText("test ");
+    editor.setAsText(" test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("");
@@ -807,12 +794,12 @@ class CustomEditorTests {
   }
 
   @Test
-  void testStringTrimmerEditorWithEmptyAsNull() {
+  void stringTrimmerEditorWithEmptyAsNull() {
     StringTrimmerEditor editor = new StringTrimmerEditor(true);
     editor.setAsText("test");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText("test ");
+    editor.setAsText(" test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("  ");
@@ -823,12 +810,12 @@ class CustomEditorTests {
   }
 
   @Test
-  void testStringTrimmerEditorWithCharsToDelete() {
+  void stringTrimmerEditorWithCharsToDelete() {
     StringTrimmerEditor editor = new StringTrimmerEditor("\r\n\f", false);
     editor.setAsText("te\ns\ft");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText("test ");
+    editor.setAsText(" test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText("");
@@ -839,12 +826,12 @@ class CustomEditorTests {
   }
 
   @Test
-  void testStringTrimmerEditorWithCharsToDeleteAndEmptyAsNull() {
+  void stringTrimmerEditorWithCharsToDeleteAndEmptyAsNull() {
     StringTrimmerEditor editor = new StringTrimmerEditor("\r\n\f", true);
     editor.setAsText("te\ns\ft");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
-    editor.setAsText("test ");
+    editor.setAsText(" test ");
     assertThat(editor.getValue()).isEqualTo("test");
     assertThat(editor.getAsText()).isEqualTo("test");
     editor.setAsText(" \n\f ");
@@ -855,7 +842,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithCustomEditorForType() {
+  void indexedPropertiesWithCustomEditorForType() {
     IndexedTestBean bean = new IndexedTestBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(String.class, new PropertyEditorSupport() {
@@ -908,7 +895,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithCustomEditorForProperty() {
+  void indexedPropertiesWithCustomEditorForProperty() {
     IndexedTestBean bean = new IndexedTestBean(false);
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(String.class, "array.name", new PropertyEditorSupport() {
@@ -975,7 +962,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithIndividualCustomEditorForProperty() {
+  void indexedPropertiesWithIndividualCustomEditorForProperty() {
     IndexedTestBean bean = new IndexedTestBean(false);
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(String.class, "array[0].name", new PropertyEditorSupport() {
@@ -1060,7 +1047,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testNestedIndexedPropertiesWithCustomEditorForProperty() {
+  void nestedIndexedPropertiesWithCustomEditorForProperty() {
     IndexedTestBean bean = new IndexedTestBean();
     TestBean tb0 = bean.getArray()[0];
     TestBean tb1 = bean.getArray()[1];
@@ -1144,7 +1131,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testNestedIndexedPropertiesWithIndexedCustomEditorForProperty() {
+  void nestedIndexedPropertiesWithIndexedCustomEditorForProperty() {
     IndexedTestBean bean = new IndexedTestBean();
     TestBean tb0 = bean.getArray()[0];
     TestBean tb1 = bean.getArray()[1];
@@ -1195,7 +1182,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithDirectAccessAndPropertyEditors() {
+  void indexedPropertiesWithDirectAccessAndPropertyEditors() {
     IndexedTestBean bean = new IndexedTestBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(TestBean.class, "array", new PropertyEditorSupport() {
@@ -1249,7 +1236,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithDirectAccessAndSpecificPropertyEditors() {
+  void indexedPropertiesWithDirectAccessAndSpecificPropertyEditors() {
     IndexedTestBean bean = new IndexedTestBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(TestBean.class, "array[0]", new PropertyEditorSupport() {
@@ -1336,7 +1323,8 @@ class CustomEditorTests {
   }
 
   @Test
-  void testIndexedPropertiesWithListPropertyEditor() {
+  @SuppressWarnings("unchecked")
+  void indexedPropertiesWithListPropertyEditor() {
     IndexedTestBean bean = new IndexedTestBean();
     BeanWrapper bw = new BeanWrapperImpl(bean);
     bw.registerCustomEditor(List.class, "list", new PropertyEditorSupport() {
@@ -1350,28 +1338,29 @@ class CustomEditorTests {
     bw.setPropertyValue("list", "1");
     assertThat(((TestBean) bean.getList().get(0)).getName()).isEqualTo("list1");
     bw.setPropertyValue("list[0]", "test");
-    assertThat(bean.getList().get(0)).isEqualTo("test");
+    assertThat(bean.getList()).singleElement().isEqualTo("test");
   }
 
   @Test
-  void testConversionToOldCollections() throws PropertyVetoException {
+  void conversionToOldCollections() {
     OldCollectionsBean tb = new OldCollectionsBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(Vector.class, new CustomCollectionEditor(Vector.class));
     bw.registerCustomEditor(Hashtable.class, new CustomMapEditor(Hashtable.class));
 
     bw.setPropertyValue("vector", new String[] { "a", "b" });
-    assertThat(tb.getVector().size()).isEqualTo(2);
-    assertThat(tb.getVector().get(0)).isEqualTo("a");
-    assertThat(tb.getVector().get(1)).isEqualTo("b");
+    assertThat(tb.getVector()).hasSize(2);
+    assertThat(tb.getVector()).element(0).isEqualTo("a");
+    assertThat(tb.getVector()).element(1).isEqualTo("b");
 
     bw.setPropertyValue("hashtable", Collections.singletonMap("foo", "bar"));
-    assertThat(tb.getHashtable().size()).isEqualTo(1);
+    assertThat(tb.getHashtable()).hasSize(1);
     assertThat(tb.getHashtable().get("foo")).isEqualTo("bar");
   }
 
   @Test
-  void testUninitializedArrayPropertyWithCustomEditor() {
+  @SuppressWarnings("unchecked")
+  void uninitializedArrayPropertyWithCustomEditor() {
     IndexedTestBean bean = new IndexedTestBean(false);
     BeanWrapper bw = new BeanWrapperImpl(bean);
     PropertyEditor pe = new CustomNumberEditor(Integer.class, true);
@@ -1379,7 +1368,7 @@ class CustomEditorTests {
     TestBean tb = new TestBean();
     bw.setPropertyValue("list", new ArrayList<>());
     bw.setPropertyValue("list[0]", tb);
-    assertThat(bean.getList().get(0)).isEqualTo(tb);
+    assertThat(bean.getList()).element(0).isEqualTo(tb);
     assertThat(bw.findCustomEditor(int.class, "list.age")).isEqualTo(pe);
     assertThat(bw.findCustomEditor(null, "list.age")).isEqualTo(pe);
     assertThat(bw.findCustomEditor(int.class, "list[0].age")).isEqualTo(pe);
@@ -1387,7 +1376,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testArrayToArrayConversion() throws PropertyVetoException {
+  void arrayToArrayConversion() {
     IndexedTestBean tb = new IndexedTestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(TestBean.class, new PropertyEditorSupport() {
@@ -1397,13 +1386,13 @@ class CustomEditorTests {
       }
     });
     bw.setPropertyValue("array", new String[] { "a", "b" });
-    assertThat(tb.getArray().length).isEqualTo(2);
+    assertThat(tb.getArray()).hasSize(2);
     assertThat(tb.getArray()[0].getName()).isEqualTo("a");
     assertThat(tb.getArray()[1].getName()).isEqualTo("b");
   }
 
   @Test
-  void testArrayToStringConversion() throws PropertyVetoException {
+  void arrayToStringConversion() {
     TestBean tb = new TestBean();
     BeanWrapper bw = new BeanWrapperImpl(tb);
     bw.registerCustomEditor(String.class, new PropertyEditorSupport() {
@@ -1417,7 +1406,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassArrayEditorSunnyDay() throws Exception {
+  void classArrayEditorSunnyDay() {
     ClassArrayEditor classArrayEditor = new ClassArrayEditor();
     classArrayEditor.setAsText("java.lang.String,java.util.HashMap");
     Class<?>[] classes = (Class<?>[]) classArrayEditor.getValue();
@@ -1430,7 +1419,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassArrayEditorSunnyDayWithArrayTypes() throws Exception {
+  void classArrayEditorSunnyDayWithArrayTypes() {
     ClassArrayEditor classArrayEditor = new ClassArrayEditor();
     classArrayEditor.setAsText("java.lang.String[],java.util.Map[],int[],float[][][]");
     Class<?>[] classes = (Class<?>[]) classArrayEditor.getValue();
@@ -1445,7 +1434,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassArrayEditorSetAsTextWithNull() throws Exception {
+  void classArrayEditorSetAsTextWithNull() {
     ClassArrayEditor editor = new ClassArrayEditor();
     editor.setAsText(null);
     assertThat(editor.getValue()).isNull();
@@ -1453,7 +1442,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassArrayEditorSetAsTextWithEmptyString() throws Exception {
+  void classArrayEditorSetAsTextWithEmptyString() {
     ClassArrayEditor editor = new ClassArrayEditor();
     editor.setAsText("");
     assertThat(editor.getValue()).isNull();
@@ -1461,7 +1450,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testClassArrayEditorSetAsTextWithWhitespaceString() throws Exception {
+  void classArrayEditorSetAsTextWithWhitespaceString() {
     ClassArrayEditor editor = new ClassArrayEditor();
     editor.setAsText("\n");
     assertThat(editor.getValue()).isNull();
@@ -1469,7 +1458,7 @@ class CustomEditorTests {
   }
 
   @Test
-  void testCharsetEditor() throws Exception {
+  void charsetEditor() {
     CharsetEditor editor = new CharsetEditor();
     String name = "UTF-8";
     editor.setAsText(name);
