@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -76,6 +73,16 @@ class JavaBeanBinderTests {
     assertThat(bean.getLongValue()).isEqualTo(34);
     assertThat(bean.getStringValue()).isEqualTo("foo");
     assertThat(bean.getEnumValue()).isEqualTo(ExampleEnum.FOO_BAR);
+  }
+
+  @Test
+  void bindRenamedPropertyToClassBean() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("renamed.public", "alpha");
+    this.sources.add(source);
+    ExampleRenamedPropertyBean bean = this.binder.bind("renamed", Bindable.of(ExampleRenamedPropertyBean.class))
+            .get();
+    assertThat(bean.getExampleProperty()).isEqualTo("alpha");
   }
 
   @Test
@@ -460,7 +467,6 @@ class JavaBeanBinderTests {
 
   @Test
   void bindWhenValueIsConvertedWithPropertyEditorShouldBind() {
-    // gh-12166
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.value", "java.lang.RuntimeException");
     this.sources.add(source);
@@ -492,7 +498,6 @@ class JavaBeanBinderTests {
 
   @Test
   void bindToClassShouldCacheWithGenerics() {
-    // gh-16821
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.integers[a].value", "1");
     source.put("foo.booleans[b].value", "true");
@@ -504,7 +509,6 @@ class JavaBeanBinderTests {
 
   @Test
   void bindToClassWithOverloadedSetterShouldUseSetterThatMatchesField() {
-    // gh-16206
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.property", "some string");
     this.sources.add(source);
@@ -515,7 +519,6 @@ class JavaBeanBinderTests {
 
   @Test
   void beanPropertiesPreferMatchingType() {
-    // gh-16206
     ResolvableType type = ResolvableType.forClass(PropertyWithOverloadedSetter.class);
     Bean<PropertyWithOverloadedSetter> bean = new Bean<>(type, type.resolve()) {
 
@@ -651,6 +654,21 @@ class JavaBeanBinderTests {
 
     void setEnumValue(ExampleEnum enumValue) {
       this.enumValue = enumValue;
+    }
+
+  }
+
+  static class ExampleRenamedPropertyBean {
+
+    @Name("public")
+    private String exampleProperty;
+
+    String getExampleProperty() {
+      return this.exampleProperty;
+    }
+
+    void setExampleProperty(String exampleProperty) {
+      this.exampleProperty = exampleProperty;
     }
 
   }

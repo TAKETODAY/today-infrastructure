@@ -94,9 +94,8 @@ class JavaBeanBinder implements DataObjectBinder {
     return bound;
   }
 
-  private <T> boolean bind(BeanSupplier<T> beanSupplier,
-          DataObjectPropertyBinder propertyBinder, BeanProperty property) {
-    String propertyName = property.name;
+  private <T> boolean bind(BeanSupplier<T> beanSupplier, DataObjectPropertyBinder propertyBinder, BeanProperty property) {
+    String propertyName = determinePropertyName(property);
     ResolvableType type = property.getType();
     Supplier<Object> value = property.getValue(beanSupplier);
     Annotation[] annotations = property.getAnnotations();
@@ -112,6 +111,16 @@ class JavaBeanBinder implements DataObjectBinder {
       throw new IllegalStateException("No setter found for property: " + property.name);
     }
     return true;
+  }
+
+  private String determinePropertyName(BeanProperty property) {
+    Annotation[] annotations = property.getAnnotations();
+    return Arrays.stream((annotations != null) ? annotations : new Annotation[0])
+            .filter(annotation -> annotation.annotationType() == Name.class)
+            .findFirst()
+            .map(Name.class::cast)
+            .map(Name::value)
+            .orElse(property.name);
   }
 
   /**

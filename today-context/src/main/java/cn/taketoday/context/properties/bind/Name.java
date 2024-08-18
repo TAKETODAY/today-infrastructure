@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -27,15 +24,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that can be used to specify the name when binding to an immutable property.
- * This annotation may be required when binding to names that clash with reserved language
+ * Annotation that can be used to specify the name when binding to a property. This
+ * annotation may be required when binding to names that clash with reserved language
  * keywords.
+ * <p>
+ * When naming a JavaBean-based property, annotate the field. When naming a
+ * constructor-bound property, annotate the constructor parameter or record component.
  *
  * @author Phillip Webb
+ * @author Lasse Wulff
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Documented
 public @interface Name {
 
