@@ -344,7 +344,6 @@ class DataSourceBuilderTests {
   }
 
   @Test
-    // gh-26644
   void buildWhenDerivedFromExistingDatabaseWithTypeChange() {
     HikariDataSource dataSource = new HikariDataSource();
     dataSource.setUsername("test");
@@ -358,7 +357,6 @@ class DataSourceBuilderTests {
   }
 
   @Test
-    // gh-27295
   void buildWhenDerivedFromCustomType() {
     CustomDataSource dataSource = new CustomDataSource();
     dataSource.setUsername("test");
@@ -374,7 +372,6 @@ class DataSourceBuilderTests {
   }
 
   @Test
-    // gh-27295
   void buildWhenDerivedFromCustomTypeWithTypeChange() {
     CustomDataSource dataSource = new CustomDataSource();
     dataSource.setUsername("test");
@@ -388,7 +385,22 @@ class DataSourceBuilderTests {
   }
 
   @Test
-    // gh-31920
+  void buildWhenDerivedFromCustomTypeDeriveDriverClassNameFromOverridenUrl() {
+    NoDriverClassNameDataSource dataSource = new NoDriverClassNameDataSource();
+    dataSource.setUsername("test");
+    dataSource.setPassword("secret");
+    dataSource.setUrl("jdbc:mysql://localhost:5432/mysql");
+    DataSourceBuilder<?> builder = DataSourceBuilder.derivedFrom(dataSource)
+            .type(SimpleDriverDataSource.class)
+            .url("jdbc:mariadb://localhost:5432/mariadb");
+    SimpleDriverDataSource testSource = (SimpleDriverDataSource) builder.build();
+    assertThat(testSource.getUsername()).isEqualTo("test");
+    assertThat(testSource.getUrl()).isEqualTo("jdbc:mariadb://localhost:5432/mariadb");
+    assertThat(testSource.getPassword()).isEqualTo("secret");
+    assertThat(testSource.getDriver()).isInstanceOf(org.mariadb.jdbc.Driver.class);
+  }
+
+  @Test
   void buildWhenC3P0TypeSpecifiedReturnsExpectedDataSource() {
     this.dataSource = DataSourceBuilder.create().url("jdbc:postgresql://localhost:5432/postgres")
             .type(ComboPooledDataSource.class).username("test").password("secret")
@@ -509,6 +521,20 @@ class DataSourceBuilderTests {
 
     void setPassword(String password) {
       this.password = password;
+    }
+
+  }
+
+  static class NoDriverClassNameDataSource extends LimitedCustomDataSource {
+
+    private String url;
+
+    String getUrl() {
+      return this.url;
+    }
+
+    void setUrl(String url) {
+      this.url = url;
     }
 
   }

@@ -91,6 +91,7 @@ import oracle.ucp.jdbc.PoolDataSourceImpl;
  * @since 4.0 2022/2/23 17:22
  */
 public final class DataSourceBuilder<T extends DataSource> {
+
   @Nullable
   private final ClassLoader classLoader;
 
@@ -199,8 +200,8 @@ public final class DataSourceBuilder<T extends DataSource> {
     }
     if (!applied.contains(DataSourceProperty.DRIVER_CLASS_NAME)
             && properties.canSet(DataSourceProperty.DRIVER_CLASS_NAME)
-            && this.values.containsKey(DataSourceProperty.URL)) {
-      String url = this.values.get(DataSourceProperty.URL);
+            && applied.contains(DataSourceProperty.URL)) {
+      String url = properties.get(dataSource, DataSourceProperty.URL);
       DatabaseDriver driver = DatabaseDriver.fromJdbcUrl(url);
       properties.set(dataSource, DataSourceProperty.DRIVER_CLASS_NAME, driver.getDriverClassName());
     }
