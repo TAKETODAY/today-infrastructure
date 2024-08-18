@@ -27,6 +27,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,7 +151,7 @@ class ValueObjectBinder implements DataObjectBinder {
   private <T> T getNewDefaultValueInstanceIfPossible(Context context, ResolvableType type) {
     Class<T> resolved = (Class<T>) type.resolve();
     if (!(resolved == null || isEmptyDefaultValueAllowed(resolved))) {
-      throw new IllegalStateException("Parameter of type " + type + " must have a non-empty default value.");
+      throw new IllegalStateException("Parameter of type %s must have a non-empty default value.".formatted(type));
     }
     if (resolved != null) {
       if (Optional.class == resolved) {
@@ -158,6 +159,10 @@ class ValueObjectBinder implements DataObjectBinder {
       }
       if (Collection.class.isAssignableFrom(resolved)) {
         return (T) CollectionUtils.createCollection(resolved, 0);
+      }
+      if (EnumMap.class.isAssignableFrom(resolved)) {
+        Class<?> keyType = type.asMap().resolveGeneric(0);
+        return (T) CollectionUtils.createMap(resolved, keyType, 0);
       }
       if (Map.class.isAssignableFrom(resolved)) {
         return (T) CollectionUtils.createMap(resolved, 0);

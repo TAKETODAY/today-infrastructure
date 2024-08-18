@@ -18,6 +18,7 @@
 package cn.taketoday.context.properties.bind;
 
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -70,7 +71,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
       }
     }
 
-    Map<Object, Object> map = CollectionUtils.createMap(target.getValue() != null ? Map.class : target.getType().resolve(Object.class), 0);
+    Map<Object, Object> map = createMap(target);
     for (ConfigurationPropertySource source : context.getSources()) {
       if (!ConfigurationPropertyName.EMPTY.equals(name)) {
         source = source.filter(name::isAncestorOf);
@@ -78,6 +79,15 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
       new EntryBinder(name, resolvedTarget, elementBinder).bindEntries(source, map);
     }
     return map.isEmpty() ? null : map;
+  }
+
+  private Map<Object, Object> createMap(Bindable<?> target) {
+    Class<?> mapType = (target.getValue() != null) ? Map.class : target.getType().resolve(Object.class);
+    if (EnumMap.class.isAssignableFrom(mapType)) {
+      Class<?> keyType = target.getType().asMap().resolveGeneric(0);
+      return CollectionUtils.createMap(mapType, keyType, 0);
+    }
+    return CollectionUtils.createMap(mapType, 0);
   }
 
   private boolean hasDescendants(ConfigurationPropertyName name) {
