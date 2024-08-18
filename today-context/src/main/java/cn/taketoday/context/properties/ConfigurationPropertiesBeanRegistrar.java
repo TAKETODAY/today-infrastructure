@@ -18,7 +18,6 @@
 package cn.taketoday.context.properties;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -27,7 +26,6 @@ import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -70,21 +68,10 @@ final class ConfigurationPropertiesBeanRegistrar {
   }
 
   private boolean containsBeanDefinition(String name) {
-    return containsBeanDefinition(this.beanFactory, name);
+    return beanFactory.containsBeanDefinition(name);
   }
 
-  private boolean containsBeanDefinition(@Nullable BeanFactory beanFactory, String name) {
-    if (beanFactory != null && beanFactory.containsBeanDefinition(name)) {
-      return true;
-    }
-    if (beanFactory instanceof HierarchicalBeanFactory hierarchicalBeanFactory) {
-      return containsBeanDefinition(hierarchicalBeanFactory.getParentBeanFactory(), name);
-    }
-    return false;
-  }
-
-  private void registerBeanDefinition(String beanName,
-          Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
+  private void registerBeanDefinition(String beanName, Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
     if (!annotation.isPresent()) {
       throw new IllegalStateException("No %s annotation found on '%s'.".formatted(ConfigurationProperties.class.getSimpleName(), type.getName()));
     }
