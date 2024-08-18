@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -24,7 +21,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
@@ -34,6 +30,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
+ * An application process ID.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 11:15
  */
@@ -46,25 +44,44 @@ public class ApplicationPid {
   };
 
   @Nullable
-  private final String pid;
+  private final Long pid;
 
   public ApplicationPid() {
-    this.pid = getPid();
+    this.pid = currentProcessPid();
   }
 
-  protected ApplicationPid(String pid) {
+  protected ApplicationPid(@Nullable Long pid) {
     this.pid = pid;
   }
 
   @Nullable
-  private String getPid() {
+  private Long currentProcessPid() {
     try {
-      String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-      return jvmName.split("@")[0];
+      return ProcessHandle.current().pid();
     }
     catch (Throwable ex) {
       return null;
     }
+  }
+
+  /**
+   * Return if the application PID is available.
+   *
+   * @return {@code true} if the PID is available
+   * @since 3.4.0
+   */
+  public boolean isAvailable() {
+    return this.pid != null;
+  }
+
+  /**
+   * Return the application PID as a {@link Long}.
+   *
+   * @return the application PID or {@code null}
+   */
+  @Nullable
+  public Long toLong() {
+    return this.pid;
   }
 
   @Override
@@ -72,8 +89,8 @@ public class ApplicationPid {
     if (obj == this) {
       return true;
     }
-    if (obj instanceof ApplicationPid) {
-      return ObjectUtils.nullSafeEquals(this.pid, ((ApplicationPid) obj).pid);
+    if (obj instanceof ApplicationPid other) {
+      return ObjectUtils.nullSafeEquals(this.pid, other.pid);
     }
     return false;
   }
@@ -85,7 +102,7 @@ public class ApplicationPid {
 
   @Override
   public String toString() {
-    return (this.pid != null) ? this.pid : "???";
+    return (this.pid != null) ? String.valueOf(this.pid) : "???";
   }
 
   /**
@@ -102,7 +119,7 @@ public class ApplicationPid {
       assertCanOverwrite(file);
     }
     try (FileWriter writer = new FileWriter(file)) {
-      writer.append(this.pid);
+      writer.append(String.valueOf(this.pid));
     }
   }
 

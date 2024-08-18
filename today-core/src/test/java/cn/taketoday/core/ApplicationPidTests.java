@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -40,12 +37,12 @@ class ApplicationPidTests {
 
   @Test
   void toStringWithPid() {
-    assertThat(new ApplicationPid("123").toString()).isEqualTo("123");
+    assertThat(new ApplicationPid(123L)).hasToString("123");
   }
 
   @Test
   void toStringWithoutPid() {
-    assertThat(new ApplicationPid(null).toString()).isEqualTo("???");
+    assertThat(new ApplicationPid(null)).hasToString("???");
   }
 
   @Test
@@ -57,7 +54,7 @@ class ApplicationPidTests {
 
   @Test
   void writePid() throws Exception {
-    ApplicationPid pid = new ApplicationPid("123");
+    ApplicationPid pid = new ApplicationPid(123L);
     File file = new File(this.tempDir, "pid");
     pid.write(file);
     assertThat(contentOf(file)).isEqualTo("123");
@@ -66,11 +63,35 @@ class ApplicationPidTests {
   @Test
   void writeNewPid() throws Exception {
     // gh-10784
-    ApplicationPid pid = new ApplicationPid("123");
+    ApplicationPid pid = new ApplicationPid(123L);
     File file = new File(this.tempDir, "pid");
     file.delete();
     pid.write(file);
     assertThat(contentOf(file)).isEqualTo("123");
+  }
+
+  @Test
+  void toLong() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThat(pid.toLong()).isEqualTo(123L);
+  }
+
+  @Test
+  void toLongWhenNotAvailable() {
+    ApplicationPid pid = new ApplicationPid(null);
+    assertThat(pid.toLong()).isNull();
+  }
+
+  @Test
+  void isAvailableWhenAvailable() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThat(pid.isAvailable()).isTrue();
+  }
+
+  @Test
+  void isAvailableWhenNotAvailable() {
+    ApplicationPid pid = new ApplicationPid(null);
+    assertThat(pid.isAvailable()).isFalse();
   }
 
   @Test
