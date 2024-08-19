@@ -53,7 +53,7 @@ final class NestedPath implements Path {
 
   NestedPath(NestedFileSystem fileSystem, String nestedEntryName) {
     if (fileSystem == null) {
-      throw new IllegalArgumentException("'filesSystem' must not be null");
+      throw new IllegalArgumentException("'filesSystem' is required");
     }
     this.fileSystem = fileSystem;
     this.nestedEntryName = (nestedEntryName != null && !nestedEntryName.isBlank()) ? nestedEntryName : null;

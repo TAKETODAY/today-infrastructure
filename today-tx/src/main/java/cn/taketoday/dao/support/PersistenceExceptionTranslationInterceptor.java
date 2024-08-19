@@ -71,7 +71,7 @@ public class PersistenceExceptionTranslationInterceptor
    * @param pet the PersistenceExceptionTranslator to use
    */
   public PersistenceExceptionTranslationInterceptor(PersistenceExceptionTranslator pet) {
-    Assert.notNull(pet, "PersistenceExceptionTranslator must not be null");
+    Assert.notNull(pet, "PersistenceExceptionTranslator is required");
     this.persistenceExceptionTranslator = pet;
   }
 

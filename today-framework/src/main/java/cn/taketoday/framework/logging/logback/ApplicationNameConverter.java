@@ -32,7 +32,7 @@ import cn.taketoday.framework.logging.LoggingSystemProperty;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ApplicationNameConverter extends ClassicConverter {
 
   private static final String ENVIRONMENT_VARIABLE_NAME = LoggingSystemProperty.APPLICATION_NAME

@@ -122,7 +122,7 @@ public abstract class ResourceElementResolver {
   @Nullable
   @SuppressWarnings("unchecked")
   public <T> T resolve(RegisteredBean registeredBean) {
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
     return (T) (isLazyLookup(registeredBean) ? buildLazyResourceProxy(registeredBean) :
             resolveValue(registeredBean));
   }
@@ -219,8 +219,8 @@ public abstract class ResourceElementResolver {
 
     @Override
     public void resolveAndSet(RegisteredBean registeredBean, Object instance) {
-      Assert.notNull(registeredBean, "'registeredBean' must not be null");
-      Assert.notNull(instance, "'instance' must not be null");
+      Assert.notNull(registeredBean, "'registeredBean' is required");
+      Assert.notNull(instance, "'instance' is required");
       Field field = getField(registeredBean);
       Object resolved = resolve(registeredBean);
       ReflectionUtils.makeAccessible(field);
@@ -265,8 +265,8 @@ public abstract class ResourceElementResolver {
 
     @Override
     public void resolveAndSet(RegisteredBean registeredBean, Object instance) {
-      Assert.notNull(registeredBean, "'registeredBean' must not be null");
-      Assert.notNull(instance, "'instance' must not be null");
+      Assert.notNull(registeredBean, "'registeredBean' is required");
+      Assert.notNull(instance, "'instance' is required");
       Method method = getMethod(registeredBean);
       Object resolved = resolve(registeredBean);
       ReflectionUtils.makeAccessible(method);

@@ -85,7 +85,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * @param httpClient the client to base on
    */
   public ReactorNettyClientRequestFactory(HttpClient httpClient) {
-    Assert.notNull(httpClient, "HttpClient must not be null");
+    Assert.notNull(httpClient, "HttpClient is required");
     this.httpClient = httpClient;
     this.resourceFactory = null;
     this.mapper = null;
@@ -143,7 +143,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * @see ChannelOption#CONNECT_TIMEOUT_MILLIS
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    Assert.notNull(connectTimeout, "ConnectTimeout is required");
     setConnectTimeout((int) connectTimeout.toMillis());
   }
 
@@ -161,7 +161,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * <p>Default is 10 seconds.
    */
   public void setReadTimeout(Duration readTimeout) {
-    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    Assert.notNull(readTimeout, "ReadTimeout is required");
     Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
     this.readTimeout = readTimeout;
   }
@@ -180,7 +180,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * <p>Default is 5 seconds.
    */
   public void setExchangeTimeout(Duration exchangeTimeout) {
-    Assert.notNull(exchangeTimeout, "ExchangeTimeout must not be null");
+    Assert.notNull(exchangeTimeout, "ExchangeTimeout is required");
     Assert.isTrue(!exchangeTimeout.isNegative(), "Timeout must be a non-negative value");
     this.exchangeTimeout = exchangeTimeout;
   }

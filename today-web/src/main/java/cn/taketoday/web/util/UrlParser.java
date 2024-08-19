@@ -126,7 +126,7 @@ final class UrlParser {
           @Nullable Charset encoding, @Nullable Consumer<String> validationErrorHandler)
           throws InvalidUrlException {
 
-    Assert.notNull(input, "Input must not be null");
+    Assert.notNull(input, "Input is required");
 
     UrlParser parser = new UrlParser(input, base, encoding, validationErrorHandler);
     return parser.basicUrlParser(null, null);

@@ -61,7 +61,7 @@ public record NestedLocation(Path path, String nestedEntryName) {
 
   public NestedLocation(Path path, String nestedEntryName) {
     if (path == null) {
-      throw new IllegalArgumentException("'path' must not be null");
+      throw new IllegalArgumentException("'path' is required");
     }
     this.path = path;
     this.nestedEntryName = (nestedEntryName != null && !nestedEntryName.isEmpty()) ? nestedEntryName : null;
@@ -76,7 +76,7 @@ public record NestedLocation(Path path, String nestedEntryName) {
    */
   public static NestedLocation fromUrl(URL url) {
     if (url == null || !"nested".equalsIgnoreCase(url.getProtocol())) {
-      throw new IllegalArgumentException("'url' must not be null and must use 'nested' protocol");
+      throw new IllegalArgumentException("'url' is required and must use 'nested' protocol");
     }
     return parse(UrlDecoder.decode(url.toString().substring(7)));
   }
@@ -90,7 +90,7 @@ public record NestedLocation(Path path, String nestedEntryName) {
    */
   public static NestedLocation fromUri(URI uri) {
     if (uri == null || !"nested".equalsIgnoreCase(uri.getScheme())) {
-      throw new IllegalArgumentException("'uri' must not be null and must use 'nested' scheme");
+      throw new IllegalArgumentException("'uri' is required and must use 'nested' scheme");
     }
     return parse(uri.getSchemeSpecificPart());
   }

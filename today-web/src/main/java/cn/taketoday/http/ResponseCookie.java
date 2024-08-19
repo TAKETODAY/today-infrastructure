@@ -60,7 +60,7 @@ public final class ResponseCookie extends HttpCookie {
           @Nullable String path, boolean secure, boolean httpOnly, boolean partitioned, @Nullable String sameSite) {
 
     super(name, value);
-    Assert.notNull(maxAge, "Max age must not be null");
+    Assert.notNull(maxAge, "Max age is required");
 
     this.maxAge = maxAge;
     this.domain = domain;
