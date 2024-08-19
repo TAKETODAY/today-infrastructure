@@ -34,7 +34,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * {@link Conditional @Conditional} that checks whether the Spring resource handling chain
+ * {@link Conditional @Conditional} that checks whether the Infra resource handling chain
  * is enabled. Matches if {@link WebProperties.Resources.Chain#getEnabled()} is
  * {@code true} or if one of {@code "org.webjars:webjars-locator-core"},
  * {@code "org.webjars:webjars-locator-lite"} is on the classpath.

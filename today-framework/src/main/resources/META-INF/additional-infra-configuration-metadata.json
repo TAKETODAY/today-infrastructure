@@ -144,6 +144,36 @@
       "defaultValue": true
     },
     {
+      "name": "logging.structured.ecs.service.environment",
+      "type": "java.lang.String",
+      "description": "Structured ECS service environment."
+    },
+    {
+      "name": "logging.structured.ecs.service.name",
+      "type": "java.lang.String",
+      "description": "Structured ECS service name (defaults to 'app.name')."
+    },
+    {
+      "name": "logging.structured.ecs.service.node-name",
+      "type": "java.lang.String",
+      "description": "Structured ECS service node name."
+    },
+    {
+      "name": "logging.structured.ecs.service.version",
+      "type": "java.lang.String",
+      "description": "Structured ECS service version."
+    },
+    {
+      "name": "logging.structured.format.console",
+      "type": "java.lang.String",
+      "description": "Structured logging format for output to the console. Must be either a format id or a fully qualified class name."
+    },
+    {
+      "name": "logging.structured.format.file",
+      "type": "java.lang.String",
+      "description": "Structured logging format for output to a file. Must be either a format id or a fully qualified class name."
+    },
+    {
       "name": "logging.threshold.console",
       "type": "java.lang.String",
       "description": "Log level threshold for console output.",

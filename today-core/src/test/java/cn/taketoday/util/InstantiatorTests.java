@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +61,6 @@ class InstantiatorTests {
   void instantiateWhenAdditionalConstructorPicksMostSuitable() {
     WithAdditionalConstructor instance = createInstance(WithAdditionalConstructor.class);
     assertThat(instance).isInstanceOf(WithAdditionalConstructor.class);
-
   }
 
   @Test
@@ -90,7 +87,8 @@ class InstantiatorTests {
   @Test
   void instantiateTypesCreatesInstance() {
     WithDefaultConstructor instance = createInstantiator(WithDefaultConstructor.class)
-            .instantiateTypes(Collections.singleton(WithDefaultConstructor.class)).get(0);
+            .instantiateTypes(Collections.singleton(WithDefaultConstructor.class))
+            .get(0);
     assertThat(instance).isInstanceOf(WithDefaultConstructor.class);
   }
 
@@ -106,7 +104,8 @@ class InstantiatorTests {
 
     };
     WithDefaultConstructor instance = createInstantiator(WithDefaultConstructor.class)
-            .instantiate(classLoader, Collections.singleton(WithDefaultConstructorSubclass.class.getName())).get(0);
+            .instantiate(classLoader, Collections.singleton(WithDefaultConstructorSubclass.class.getName()))
+            .get(0);
     assertThat(instance.getClass().getClassLoader()).isSameAs(classLoader);
   }
 
@@ -127,8 +126,30 @@ class InstantiatorTests {
             .withMessageContaining("custom failure handler message");
   }
 
+  @Test
+  void instantiateWithSingleNameCreatesInstance() {
+    WithDefaultConstructor instance = createInstantiator(WithDefaultConstructor.class)
+            .instantiate(WithDefaultConstructor.class.getName());
+    assertThat(instance).isInstanceOf(WithDefaultConstructor.class);
+  }
+
+  @Test
+  void getArgReturnsArg() {
+    Instantiator<?> instantiator = createInstantiator(WithMultipleConstructors.class);
+    assertThat(instantiator.getArg(ParamA.class)).isSameAs(this.paramA);
+    assertThat(instantiator.getArg(ParamB.class)).isSameAs(this.paramB);
+    assertThat(instantiator.getArg(ParamC.class)).isInstanceOf(ParamC.class);
+  }
+
+  @Test
+  void getArgWhenUnknownThrowsException() {
+    Instantiator<?> instantiator = createInstantiator(WithMultipleConstructors.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> instantiator.getArg(InputStream.class))
+            .withMessageStartingWith("Unknown argument type");
+  }
+
   private <T> T createInstance(Class<T> type) {
-    return createInstantiator(type).instantiate(Collections.singleton(type.getName())).get(0);
+    return createInstantiator(type).instantiate(type.getName());
   }
 
   private <T> Instantiator<T> createInstantiator(Class<T> type) {
@@ -173,7 +194,7 @@ class InstantiatorTests {
 
   static class WithFactory {
 
-    private ParamC paramC;
+    private final ParamC paramC;
 
     WithFactory(ParamC paramC) {
       this.paramC = paramC;

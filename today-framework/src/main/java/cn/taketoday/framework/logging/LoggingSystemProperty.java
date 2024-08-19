@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging;
@@ -35,7 +32,12 @@ public enum LoggingSystemProperty {
   /**
    * Logging system property for the application name that should be logged.
    */
-  APPLICATION_NAME("LOGGED_APPLICATION_NAME"),
+  APPLICATION_NAME("APPLICATION_NAME", "app.name", "logging.include-application-name"),
+
+  /**
+   * Logging system property for the application group that should be logged.
+   */
+  APPLICATION_GROUP("APPLICATION_GROUP", "app.group", "logging.include-application-group"),
 
   /**
    * Logging system property for the process ID.
@@ -88,6 +90,20 @@ public enum LoggingSystemProperty {
   FILE_PATTERN("FILE_LOG_PATTERN", "logging.pattern.file"),
 
   /**
+   * Logging system property for the console structured logging format.
+   *
+   * @since 5.0
+   */
+  CONSOLE_STRUCTURED_FORMAT("CONSOLE_LOG_STRUCTURED_FORMAT", "logging.structured.format.console"),
+
+  /**
+   * Logging system property for the file structured logging format.
+   *
+   * @since 5.0
+   */
+  FILE_STRUCTURED_FORMAT("FILE_LOG_STRUCTURED_FORMAT", "logging.structured.format.file"),
+
+  /**
    * Logging system property for the log level pattern.
    */
   LEVEL_PATTERN("LOG_LEVEL_PATTERN", "logging.pattern.level"),
@@ -105,15 +121,23 @@ public enum LoggingSystemProperty {
   private final String environmentVariableName;
 
   @Nullable
-  private final String applicationPropertyName;
+  final String applicationPropertyName;
+
+  @Nullable
+  final String includePropertyName;
 
   LoggingSystemProperty(String environmentVariableName) {
     this(environmentVariableName, null);
   }
 
   LoggingSystemProperty(String environmentVariableName, @Nullable String applicationPropertyName) {
+    this(environmentVariableName, applicationPropertyName, null);
+  }
+
+  LoggingSystemProperty(String environmentVariableName, @Nullable String applicationPropertyName, @Nullable String includePropertyName) {
     this.environmentVariableName = environmentVariableName;
     this.applicationPropertyName = applicationPropertyName;
+    this.includePropertyName = includePropertyName;
   }
 
   /**
@@ -123,11 +147,6 @@ public enum LoggingSystemProperty {
    */
   public String getEnvironmentVariableName() {
     return this.environmentVariableName;
-  }
-
-  @Nullable
-  String getApplicationPropertyName() {
-    return this.applicationPropertyName;
   }
 
 }

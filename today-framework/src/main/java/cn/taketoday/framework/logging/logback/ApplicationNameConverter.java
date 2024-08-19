@@ -32,20 +32,17 @@ import cn.taketoday.framework.logging.LoggingSystemProperty;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Deprecated
 public class ApplicationNameConverter extends ClassicConverter {
+
+  private static final String ENVIRONMENT_VARIABLE_NAME = LoggingSystemProperty.APPLICATION_NAME
+          .getEnvironmentVariableName();
 
   @Override
   public String convert(ILoggingEvent event) {
-    String applicationName = event.getLoggerContextVO()
-            .getPropertyMap()
-            .get(LoggingSystemProperty.APPLICATION_NAME.getEnvironmentVariableName());
-    if (applicationName == null) {
-      applicationName = System.getProperty(LoggingSystemProperty.APPLICATION_NAME.getEnvironmentVariableName());
-      if (applicationName == null) {
-        applicationName = "";
-      }
-    }
-    return applicationName;
+    String applicationName = event.getLoggerContextVO().getPropertyMap().get(ENVIRONMENT_VARIABLE_NAME);
+    applicationName = (applicationName != null) ? applicationName : System.getProperty(ENVIRONMENT_VARIABLE_NAME);
+    return (applicationName != null) ? applicationName : "";
   }
 
 }

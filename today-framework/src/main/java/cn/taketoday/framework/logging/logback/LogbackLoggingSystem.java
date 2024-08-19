@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.helpers.SubstituteLoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ import ch.qos.logback.core.status.OnConsoleStatusListener;
 import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusListenerConfigHelper;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
@@ -97,15 +96,17 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     LEVELS.map(LogLevel.OFF, Level.OFF);
   }
 
-  private static final TurboFilter FILTER = new TurboFilter() {
+  private static final TurboFilter SUPPRESS_ALL_FILTER = new TurboFilter() {
 
     @Override
-    public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger, Level level, String format,
-            Object[] params, Throwable t) {
+    public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger,
+            Level level, String format, Object[] params, Throwable t) {
       return FilterReply.DENY;
     }
 
   };
+
+  private final StatusPrinter2 statusPrinter = new StatusPrinter2();
 
   public LogbackLoggingSystem(ClassLoader classLoader) {
     super(classLoader);
@@ -129,7 +130,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     }
     super.beforeInitialize();
     configureJdkLoggingBridgeHandler();
-    loggerContext.getTurboFilterList().add(FILTER);
+    loggerContext.getTurboFilterList().add(SUPPRESS_ALL_FILTER);
   }
 
   private void configureJdkLoggingBridgeHandler() {
@@ -168,6 +169,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   @Override
   public void initialize(LoggingStartupContext startupContext, @Nullable String configLocation, @Nullable LogFile logFile) {
     LoggerContext loggerContext = getLoggerContext();
+    putInitializationContextObjects(loggerContext, startupContext);
     if (isAlreadyInitialized(loggerContext)) {
       return;
     }
@@ -175,9 +177,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     if (!initializeFromAotGeneratedArtifactsIfPossible(startupContext, logFile)) {
       super.initialize(startupContext, configLocation, logFile);
     }
-
-    loggerContext.putObject(Environment.class.getName(), startupContext.getEnvironment());
-    loggerContext.getTurboFilterList().remove(FILTER);
+    loggerContext.getTurboFilterList().remove(SUPPRESS_ALL_FILTER);
     markAsInitialized(loggerContext);
     if (StringUtils.hasText(System.getProperty(CONFIGURATION_FILE_PROPERTY))) {
       getLogger(LogbackLoggingSystem.class.getName())
@@ -194,6 +194,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     }
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
+    withLoggingSuppressed(() -> putInitializationContextObjects(loggerContext, startupContext));
     InfraJoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
     configurator.setContext(loggerContext);
     boolean configuredUsingAotGeneratedArtifacts = configurator.configureUsingAotGeneratedArtifacts();
@@ -228,12 +229,13 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
     withLoggingSuppressed(() -> {
+      putInitializationContextObjects(loggerContext, context);
       if (context != null) {
         applySystemProperties(context.getEnvironment(), logFile);
       }
       try {
         Resource resource = new ApplicationResourceLoader().getResource(location);
-        configureByResourceUrl(context, loggerContext, resource);
+        configureByResourceUrl(context, loggerContext, resource.getURL());
       }
       catch (Exception ex) {
         throw new IllegalStateException("Could not initialize Logback logging from " + location, ex);
@@ -257,31 +259,24 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
     if (errors.isEmpty()) {
       if (!StatusUtil.contextHasStatusListener(loggerContext)) {
-        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+        this.statusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
       }
       return;
     }
-    IllegalStateException ex = new IllegalStateException(String.format("Logback configuration error detected: %n%s", errors));
-    for (Throwable suppressedException : suppressedExceptions) {
-      ex.addSuppressed(suppressedException);
-    }
+    IllegalStateException ex = new IllegalStateException(
+            String.format("Logback configuration error detected: %n%s", errors));
+    suppressedExceptions.forEach(ex::addSuppressed);
     throw ex;
   }
 
-  private void configureByResourceUrl(LoggingStartupContext startupContext, LoggerContext loggerContext, Resource resource)
-          throws JoranException, IOException //
-  {
-    String name = resource.getName();
-    if (name != null && name.endsWith(".xml")) {
+  private void configureByResourceUrl(LoggingStartupContext startupContext, LoggerContext loggerContext, URL url) throws JoranException {
+    if (url.getPath().endsWith(".xml")) {
       JoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
       configurator.setContext(loggerContext);
-      try (InputStream inputStream = resource.getInputStream()) {
-        configurator.doConfigure(inputStream);
-      }
+      configurator.doConfigure(url);
     }
     else {
-      throw new IllegalArgumentException(
-              "Unsupported file extension in '%s'. Only .xml is supported".formatted(resource));
+      throw new IllegalArgumentException("Unsupported file extension in '%s'. Only .xml is supported".formatted(url));
     }
   }
 
@@ -313,7 +308,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     super.cleanUp();
     removeJdkLoggingBridgeHandler();
     context.getStatusManager().clear();
-    context.getTurboFilterList().remove(FILTER);
+    context.getTurboFilterList().remove(SUPPRESS_ALL_FILTER);
   }
 
   @Override
@@ -322,6 +317,11 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     loggerContext.reset();
     loggerContext.getStatusManager().clear();
     loadConfiguration(startupContext, getSelfInitializationConfig(), null);
+  }
+
+  private void putInitializationContextObjects(LoggerContext loggerContext, LoggingStartupContext startupContext) {
+    withLoggingSuppressed(
+            () -> loggerContext.putObject(Environment.class.getName(), startupContext.getEnvironment()));
   }
 
   @Override
@@ -454,12 +454,12 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
   private void withLoggingSuppressed(Runnable action) {
     TurboFilterList turboFilters = getLoggerContext().getTurboFilterList();
-    turboFilters.add(FILTER);
+    turboFilters.add(SUPPRESS_ALL_FILTER);
     try {
       action.run();
     }
     finally {
-      turboFilters.remove(FILTER);
+      turboFilters.remove(SUPPRESS_ALL_FILTER);
     }
   }
 
@@ -470,7 +470,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   public static class Factory implements LoggingSystemFactory {
 
     private static final boolean PRESENT = ClassUtils.isPresent(
-            "ch.qos.logback.classic.LoggerContext", Factory.class.getClassLoader());
+            "ch.qos.logback.classic.LoggerContext", Factory.class);
 
     @Override
     public LoggingSystem getLoggingSystem(ClassLoader classLoader) {

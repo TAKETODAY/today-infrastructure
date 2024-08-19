@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -107,9 +108,37 @@ public class Instantiator<T> {
    * Instantiate the given set of class name, injecting constructor arguments as
    * necessary.
    *
+   * @param name the class name to instantiate
+   * @return an instantiated instance
+   * @since 5.0
+   */
+  @Nullable
+  public T instantiate(String name) {
+    return instantiate(null, name);
+  }
+
+  /**
+   * Instantiate the given set of class name, injecting constructor arguments as
+   * necessary.
+   *
+   * @param classLoader the source classloader
+   * @param name the class name to instantiate
+   * @return an instantiated instance
+   * @since 5.0
+   */
+  @Nullable
+  public T instantiate(@Nullable ClassLoader classLoader, String name) {
+    return instantiate(TypeSupplier.forName(classLoader, name));
+  }
+
+  /**
+   * Instantiate the given set of class name, injecting constructor arguments as
+   * necessary.
+   *
    * @param names the class names to instantiate
    * @return a list of instantiated instances, can be modified
    */
+  @Modifiable
   public List<T> instantiate(Collection<String> names) {
     return instantiate(null, names);
   }
@@ -122,6 +151,7 @@ public class Instantiator<T> {
    * @param names the class names to instantiate
    * @return a list of instantiated instances, can be modified
    */
+  @Modifiable
   public List<T> instantiate(@Nullable ClassLoader classLoader, Collection<String> names) {
     Assert.notNull(names, "Names is required");
     return instantiate(names.stream().map((name) -> TypeSupplier.forName(classLoader, name)));
@@ -133,9 +163,29 @@ public class Instantiator<T> {
    * @param types the types to instantiate
    * @return a list of instantiated instances, can be modified
    */
+  @Modifiable
   public List<T> instantiateTypes(Collection<Class<?>> types) {
     Assert.notNull(types, "Types is required");
     return instantiate(types.stream().map(TypeSupplier::forType));
+  }
+
+  /**
+   * Get an injectable argument instance for the given type. This method can be used
+   * when manually instantiating an object without reflection.
+   *
+   * @param <A> the argument type
+   * @param type the argument type
+   * @return the argument to inject or {@code null}
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public <A> A getArg(Class<A> type) {
+    Assert.notNull(type, "'type' is required");
+    Function<Class<?>, Object> parameter = getAvailableParameter(type);
+    if (parameter == null) {
+      throw new IllegalArgumentException("Unknown argument type " + type.getName());
+    }
+    return (A) parameter.apply(this.type);
   }
 
   private List<T> instantiate(Stream<TypeSupplier> typeSuppliers) {

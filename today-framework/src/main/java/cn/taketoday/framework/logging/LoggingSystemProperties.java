@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging;
@@ -29,7 +29,6 @@ import cn.taketoday.core.env.PropertyResolver;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Utility to set system properties that can later be used by log configuration files.
@@ -120,15 +119,18 @@ public class LoggingSystemProperties {
 
   protected void apply(@Nullable LogFile logFile, PropertyResolver resolver) {
     String defaultCharsetName = getDefaultCharset().name();
-    setApplicationNameSystemProperty(resolver);
+    setSystemProperty(LoggingSystemProperty.APPLICATION_NAME, resolver);
+    setSystemProperty(LoggingSystemProperty.APPLICATION_GROUP, resolver);
     setSystemProperty(LoggingSystemProperty.PID, new ApplicationPid().toString());
     setSystemProperty(LoggingSystemProperty.CONSOLE_CHARSET, resolver, defaultCharsetName);
     setSystemProperty(LoggingSystemProperty.FILE_CHARSET, resolver, defaultCharsetName);
-    setSystemProperty(LoggingSystemProperty.CONSOLE_THRESHOLD, resolver);
-    setSystemProperty(LoggingSystemProperty.FILE_THRESHOLD, resolver);
+    setSystemProperty(LoggingSystemProperty.CONSOLE_THRESHOLD, resolver, this::thresholdMapper);
+    setSystemProperty(LoggingSystemProperty.FILE_THRESHOLD, resolver, this::thresholdMapper);
     setSystemProperty(LoggingSystemProperty.EXCEPTION_CONVERSION_WORD, resolver);
     setSystemProperty(LoggingSystemProperty.CONSOLE_PATTERN, resolver);
     setSystemProperty(LoggingSystemProperty.FILE_PATTERN, resolver);
+    setSystemProperty(LoggingSystemProperty.CONSOLE_STRUCTURED_FORMAT, resolver);
+    setSystemProperty(LoggingSystemProperty.FILE_STRUCTURED_FORMAT, resolver);
     setSystemProperty(LoggingSystemProperty.LEVEL_PATTERN, resolver);
     setSystemProperty(LoggingSystemProperty.DATEFORMAT_PATTERN, resolver);
     setSystemProperty(LoggingSystemProperty.CORRELATION_PATTERN, resolver);
@@ -137,30 +139,43 @@ public class LoggingSystemProperties {
     }
   }
 
-  private void setApplicationNameSystemProperty(PropertyResolver resolver) {
-    if (resolver.getFlag("logging.include-application-name", true)) {
-      String applicationName = resolver.getProperty("app.name");
-      if (StringUtils.hasText(applicationName)) {
-        setSystemProperty(LoggingSystemProperty.APPLICATION_NAME.getEnvironmentVariableName(),
-                "[%s] ".formatted(applicationName));
-      }
-    }
+  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver) {
+    setSystemProperty(property, resolver, Function.identity());
   }
 
-  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver) {
-    setSystemProperty(property, resolver, null);
+  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, Function<String, String> mapper) {
+    setSystemProperty(property, resolver, null, mapper);
   }
 
   private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, @Nullable String defaultValue) {
-    String value = (property.getApplicationPropertyName() != null)
-                   ? resolver.getProperty(property.getApplicationPropertyName()) : null;
-    value = (value != null) ? value : this.defaultValueResolver.apply(property.getApplicationPropertyName());
+    setSystemProperty(property, resolver, defaultValue, Function.identity());
+  }
+
+  private void setSystemProperty(LoggingSystemProperty property, PropertyResolver resolver, @Nullable String defaultValue,
+          Function<String, String> mapper) {
+    if (property.includePropertyName != null) {
+      if (!resolver.getProperty(property.includePropertyName, Boolean.class, Boolean.TRUE)) {
+        return;
+      }
+    }
+    String value = property.applicationPropertyName != null
+            ? resolver.getProperty(property.applicationPropertyName) : null;
+    value = (value != null) ? value : this.defaultValueResolver.apply(property.applicationPropertyName);
     value = (value != null) ? value : defaultValue;
+    value = mapper.apply(value);
     setSystemProperty(property.getEnvironmentVariableName(), value);
   }
 
   private void setSystemProperty(LoggingSystemProperty property, @Nullable String value) {
     setSystemProperty(property.getEnvironmentVariableName(), value);
+  }
+
+  private String thresholdMapper(String input) {
+    // YAML converts an unquoted OFF to false
+    if ("false".equals(input)) {
+      return "OFF";
+    }
+    return input;
   }
 
   /**
