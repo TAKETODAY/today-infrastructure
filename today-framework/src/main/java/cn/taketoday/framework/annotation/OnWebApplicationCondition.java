@@ -28,7 +28,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.server.context.GenericWebServerApplicationContext;
 import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
@@ -69,19 +68,20 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     if (type == null) {
       return null;
     }
+    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
-      if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("netty web application classes").atAll());
       }
     }
     else if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
-      if (!ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+      if (missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
-            && !ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+    if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
+            && missingClassFilter.matches(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive, netty web application classes").atAll());
     }
     return null;
@@ -126,8 +126,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-
-    if (!ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
+    if (ClassNameFilter.MISSING.matches(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
 
@@ -147,12 +146,12 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
    */
   private ConditionOutcome isNettyWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-
-    if (!ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
+    ClassNameFilter missingClassFilter = ClassNameFilter.MISSING;
+    if (missingClassFilter.matches(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("web application classes").atAll());
     }
 
-    if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
+    if (missingClassFilter.matches(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("netty classes").atAll());
     }
 

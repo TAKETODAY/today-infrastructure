@@ -133,7 +133,7 @@ public abstract class FilteringInfraCondition extends InfraCondition
 
     public abstract boolean matches(String className, @Nullable ClassLoader classLoader);
 
-    public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
+    private static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
       if (classLoader == null) {
         classLoader = ClassUtils.getDefaultClassLoader();
       }
