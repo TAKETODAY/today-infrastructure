@@ -73,6 +73,7 @@ class InfraJoranConfiguratorTests {
   @AfterEach
   void reset() {
     this.context.stop();
+    this.context.reset();
     new BasicConfigurator().configure((LoggerContext) LoggerFactory.getILoggerFactory());
   }
 
