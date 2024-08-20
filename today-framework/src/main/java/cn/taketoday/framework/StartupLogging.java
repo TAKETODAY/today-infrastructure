@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,21 +12,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
 
-import java.net.InetAddress;
-
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.core.ApplicationHome;
-import cn.taketoday.core.ApplicationPid;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -43,8 +40,11 @@ final class StartupLogging {
   @Nullable
   private final Class<?> sourceClass;
 
-  StartupLogging(@Nullable Class<?> sourceClass) {
+  private final Environment environment;
+
+  StartupLogging(@Nullable Class<?> sourceClass, Environment environment) {
     this.sourceClass = sourceClass;
+    this.environment = environment;
   }
 
   void logStarting(Logger applicationLog) {
@@ -69,9 +69,8 @@ final class StartupLogging {
     message.append("Starting");
     appendAotMode(message);
     appendApplicationName(message);
-    appendVersion(message, this.sourceClass);
+    appendApplicationVersion(message);
     appendJavaVersion(message);
-    appendOn(message);
     appendPid(message);
     appendContext(message);
     return message;
@@ -103,40 +102,12 @@ final class StartupLogging {
     append(message, null, name);
   }
 
-  private void appendVersion(StringBuilder message, @Nullable Class<?> source) {
-    if (source != null) {
-      Package sourcePkg = source.getPackage();
-      if (sourcePkg != null) {
-        append(message, "v", sourcePkg.getImplementationVersion());
-      }
-    }
-  }
-
-  private void appendOn(StringBuilder message) {
-    long startTime = System.currentTimeMillis();
-    try {
-      String hostName = InetAddress.getLocalHost().getHostName();
-      append(message, "on ", hostName);
-    }
-    catch (Throwable ignored) { }
-
-    long resolveTime = System.currentTimeMillis() - startTime;
-    if (resolveTime > HOST_NAME_RESOLVE_THRESHOLD) {
-      StringBuilder warning = new StringBuilder();
-      warning.append("InetAddress.getLocalHost().getHostName() took ");
-      warning.append(resolveTime);
-      warning.append(" milliseconds to respond.");
-      warning.append(" Please verify your network configuration");
-      if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-        warning.append(" (macOS machines may need to add entries to /etc/hosts)");
-      }
-      warning.append(".");
-      LoggerFactory.getLogger(StartupLogging.class).warn(warning);
-    }
+  private void appendApplicationVersion(StringBuilder message) {
+    append(message, "v", environment.getProperty("app.version"));
   }
 
   private void appendPid(StringBuilder message) {
-    append(message, "with PID ", new ApplicationPid().toString());
+    append(message, "with PID ", environment.getProperty("app.pid"));
   }
 
   private void appendContext(StringBuilder message) {
@@ -148,7 +119,7 @@ final class StartupLogging {
 
     append(context, "started by ", System.getProperty("user.name"));
     append(context, "in ", System.getProperty("user.dir"));
-    if (context.length() > 0) {
+    if (!context.isEmpty()) {
       message.append(" (");
       message.append(context);
       message.append(")");
@@ -161,7 +132,7 @@ final class StartupLogging {
 
   private void append(StringBuilder message, @Nullable String prefix, @Nullable String value) {
     if (StringUtils.hasText(value)) {
-      message.append((message.length() > 0) ? " " : "");
+      message.append((!message.isEmpty()) ? " " : "");
       if (prefix != null) {
         message.append(prefix);
       }

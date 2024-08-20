@@ -365,7 +365,7 @@ public class Application {
       afterRefresh(context, arguments);
       Duration timeTakenToStarted = startup.started();
       if (this.logStartupInfo) {
-        new StartupLogging(this.mainApplicationClass).logStarted(getApplicationLog(), startup);
+        new StartupLogging(this.mainApplicationClass, environment).logStarted(getApplicationLog(), startup);
       }
       listeners.started(context, timeTakenToStarted);
       callRunners(context, arguments);
@@ -553,7 +553,7 @@ public class Application {
     bootstrapContext.close(context);
 
     if (logStartupInfo) {
-      logStartupInfo(context.getParent() == null);
+      logStartupInfo(context);
       logStartupProfileInfo(context);
     }
 
@@ -817,11 +817,12 @@ public class Application {
    * Called to log startup information, subclasses may override to add additional
    * logging.
    *
-   * @param isRoot true if this application is the root of a context hierarchy
+   * @param context the application context
    */
-  protected void logStartupInfo(boolean isRoot) {
-    if (isRoot) {
-      new StartupLogging(this.mainApplicationClass).logStarting(getApplicationLog());
+  protected void logStartupInfo(ConfigurableApplicationContext context) {
+    if (context.getParent() == null) {
+      new StartupLogging(this.mainApplicationClass, context.getEnvironment())
+              .logStarting(getApplicationLog());
     }
   }
 
