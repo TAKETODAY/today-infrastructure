@@ -378,7 +378,7 @@ public interface JsonWriter<T> {
      * @param value the member value
      * @return the added {@link Member} which may be configured further
      */
-    public <V> Member<V> add(String name, V value) {
+    public <V> Member<V> add(String name, @Nullable V value) {
       return add(name, (instance) -> value);
     }
 

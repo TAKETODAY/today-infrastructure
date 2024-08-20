@@ -508,7 +508,7 @@ public class JsonWriterTests {
     void toResourceWithCharsetWhenOutIsNullThrowsException() {
       WritableJson writable = (out) -> out.append("{}");
       assertThatIllegalArgumentException().isThrownBy(() -> writable.toResource(null, StandardCharsets.UTF_8))
-              .withMessage("'out' must not be null");
+              .withMessage("'out' is required");
     }
 
     @Test
@@ -517,7 +517,7 @@ public class JsonWriterTests {
       WritableJson writable = (out) -> out.append("{}");
       assertThatIllegalArgumentException()
               .isThrownBy(() -> writable.toResource(new FileSystemResource(file), null))
-              .withMessage("'charset' must not be null");
+              .withMessage("'charset' is required");
     }
 
     @Test
@@ -540,7 +540,7 @@ public class JsonWriterTests {
     void toOutputStreamWithCharsetWhenOutIsNullThrowsException() {
       WritableJson writable = (out) -> out.append("{}");
       assertThatIllegalArgumentException().isThrownBy(() -> writable.toOutputStream(null, StandardCharsets.UTF_8))
-              .withMessage("'out' must not be null");
+              .withMessage("'out' is required");
     }
 
     @Test
@@ -548,7 +548,7 @@ public class JsonWriterTests {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       WritableJson writable = (out) -> out.append("{}");
       assertThatIllegalArgumentException().isThrownBy(() -> writable.toOutputStream(outputStream, null))
-              .withMessage("'charset' must not be null");
+              .withMessage("'charset' is required");
     }
 
     //
@@ -565,7 +565,7 @@ public class JsonWriterTests {
     void toWriterWhenWriterIsNullThrowsException() {
       WritableJson writable = (out) -> out.append("{}");
       assertThatIllegalArgumentException().isThrownBy(() -> writable.toWriter(null))
-              .withMessage("'out' must not be null");
+              .withMessage("'out' is required");
     }
 
     @Test

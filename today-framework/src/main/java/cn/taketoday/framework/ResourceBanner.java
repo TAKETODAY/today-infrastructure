@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -23,15 +20,18 @@ package cn.taketoday.framework;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ansi.AnsiPropertySource;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertyResolver;
+import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
 import cn.taketoday.core.io.Resource;
@@ -66,7 +66,9 @@ public class ResourceBanner implements Banner {
       String banner = StreamUtils.copyToString(resource.getInputStream(),
               environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8));
 
-      for (PropertyResolver resolver : getPropertyResolvers(environment, sourceClass)) {
+      ArrayList<PropertyResolver> resolvers = new ArrayList<>();
+      addPropertyResolvers(resolvers, environment, sourceClass);
+      for (PropertyResolver resolver : resolvers) {
         banner = resolver.resolvePlaceholders(banner);
       }
       out.println(banner);
@@ -78,23 +80,28 @@ public class ResourceBanner implements Banner {
     }
   }
 
-  protected List<PropertyResolver> getPropertyResolvers(Environment environment, @Nullable Class<?> sourceClass) {
-    PropertySources propertySources = new PropertySources();
+  protected void addPropertyResolvers(List<PropertyResolver> resolvers, Environment environment, @Nullable Class<?> sourceClass) {
+    PropertySources sources = new PropertySources();
 
-    propertySources.addLast(getVersionPropertySource(sourceClass));
-    propertySources.addLast(getAnsiPropertySource());
-    propertySources.addLast(getTitlePropertySource(sourceClass));
+    if (environment instanceof ConfigurableEnvironment ce) {
+      for (PropertySource<?> ps : ce.getPropertySources()) {
+        sources.addLast(ps);
+      }
+    }
 
-    var resolver = new PropertySourcesPropertyResolver(propertySources);
-    return List.of(environment, resolver);
+    sources.addLast(getVersionPropertySource(environment));
+    sources.addLast(getAnsiPropertySource());
+    sources.addLast(getTitlePropertySource(sourceClass));
+
+    resolvers.add(new PropertySourcesPropertyResolver(sources));
   }
 
-  private MapPropertySource getVersionPropertySource(@Nullable Class<?> sourceClass) {
-    return new MapPropertySource("version", getVersionsMap(sourceClass));
+  private MapPropertySource getVersionPropertySource(Environment environment) {
+    return new MapPropertySource("version", getVersionsMap(environment));
   }
 
-  private Map<String, Object> getVersionsMap(@Nullable Class<?> sourceClass) {
-    String appVersion = getApplicationVersion(sourceClass);
+  private Map<String, Object> getVersionsMap(Environment environment) {
+    String appVersion = getApplicationVersion(environment);
     String version = getInfraVersion();
     HashMap<String, Object> versions = new HashMap<>();
     versions.put("app.version", getVersionString(appVersion, false));
@@ -112,11 +119,8 @@ public class ResourceBanner implements Banner {
   }
 
   @Nullable
-  protected String getApplicationVersion(@Nullable Class<?> sourceClass) {
-    if (sourceClass != null) {
-      return sourceClass.getPackage().getImplementationVersion();
-    }
-    return null;
+  private String getApplicationVersion(Environment environment) {
+    return environment.getProperty("app.version");
   }
 
   protected String getInfraVersion() {

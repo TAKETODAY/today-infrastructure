@@ -68,7 +68,7 @@ public class ApplicationPid {
    * Return if the application PID is available.
    *
    * @return {@code true} if the PID is available
-   * @since 3.4.0
+   * @since 5.0
    */
   public boolean isAvailable() {
     return this.pid != null;

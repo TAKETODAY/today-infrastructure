@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.lang;
@@ -42,24 +42,25 @@ public abstract class VersionExtractor {
    * @return the version, or {@code null} if a version can not be extracted
    */
   @Nullable
-  public static String forClass(Class<?> cls) {
-    String implementationVersion = cls.getPackage().getImplementationVersion();
-    if (implementationVersion != null) {
-      return implementationVersion;
-    }
-    URL codeSourceLocation = cls.getProtectionDomain().getCodeSource().getLocation();
-    try {
-      URLConnection connection = codeSourceLocation.openConnection();
-      if (connection instanceof JarURLConnection jarURLConnection) {
-        return getImplementationVersion(jarURLConnection.getJarFile());
+  public static String forClass(@Nullable Class<?> cls) {
+    if (cls != null) {
+      String implementationVersion = cls.getPackage().getImplementationVersion();
+      if (implementationVersion != null) {
+        return implementationVersion;
       }
-      try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()))) {
-        return getImplementationVersion(jarFile);
+      URL codeSourceLocation = cls.getProtectionDomain().getCodeSource().getLocation();
+      try {
+        URLConnection connection = codeSourceLocation.openConnection();
+        if (connection instanceof JarURLConnection jarURLConnection) {
+          return getImplementationVersion(jarURLConnection.getJarFile());
+        }
+        try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()))) {
+          return getImplementationVersion(jarFile);
+        }
       }
+      catch (Exception ignored) { }
     }
-    catch (Exception ex) {
-      return null;
-    }
+    return null;
   }
 
   private static String getImplementationVersion(JarFile jarFile) throws IOException {

@@ -461,6 +461,7 @@ public class Application {
 
     ConfigurationPropertySources.attach(environment);
     listeners.environmentPrepared(context, environment);
+    ApplicationInfoPropertySource.moveToEnd(environment);
     DefaultPropertiesPropertySource.moveToEnd(environment);
 
     Assert.state(!environment.containsProperty("app.main.environment-prefix"),
@@ -756,6 +757,7 @@ public class Application {
         sources.addFirst(new SimpleCommandLinePropertySource(args));
       }
     }
+    sources.addLast(new ApplicationInfoPropertySource(this.mainApplicationClass));
   }
 
   /**
