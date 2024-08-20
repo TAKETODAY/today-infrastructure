@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class JsonWriterTests {
 
-  private static final Person PERSON = new Person("Spring", "Boot", 10);
+  private static final Person PERSON = new Person("Infra", "App", 10);
 
   @TempDir
   File temp;
@@ -92,13 +92,13 @@ public class JsonWriterTests {
   void ofAddingNamedSelf() {
     JsonWriter<Person> writer = JsonWriter.of((members) -> members.add("test"));
     assertThat(writer.writeToString(PERSON)).isEqualTo("""
-            {"test":"Spring Boot (10)"}""");
+            {"test":"Infra App (10)"}""");
   }
 
   @Test
   void ofAddingUnnamedSelf() {
     JsonWriter<Person> writer = JsonWriter.of((members) -> members.add());
-    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Spring Boot (10)"));
+    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Infra App (10)"));
   }
 
   @Test
@@ -123,25 +123,25 @@ public class JsonWriterTests {
       members.add("age", Person::age);
     });
     assertThat(writer.writeToString(PERSON)).isEqualTo("""
-            {"firstName":"Spring","lastName":"Boot","age":10}""");
+            {"firstName":"Infra","lastName":"App","age":10}""");
   }
 
   @Test
   void ofFromValue() {
-    JsonWriter<Person> writer = JsonWriter.of((members) -> members.from("Boot"));
-    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Boot"));
+    JsonWriter<Person> writer = JsonWriter.of((members) -> members.from("App"));
+    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("App"));
   }
 
   @Test
   void ofFromSupplier() {
-    JsonWriter<Person> writer = JsonWriter.of((members) -> members.from(() -> "Boot"));
-    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Boot"));
+    JsonWriter<Person> writer = JsonWriter.of((members) -> members.from(() -> "App"));
+    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("App"));
   }
 
   @Test
   void ofFromExtractor() {
     JsonWriter<Person> writer = JsonWriter.of((members) -> members.from(Person::lastName));
-    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Boot"));
+    assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("App"));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class JsonWriterTests {
   @Test
   void ofWhenOneContributesPairByNameAndOneHasNoNameThrowsException() {
     assertThatIllegalStateException().isThrownBy(() -> JsonWriter.of((members) -> {
-              members.add("Spring", "Boot");
+              members.add("Infra", "App");
               members.from("alone");
             }))
             .withMessage("Member at index 1 does not contribute a named pair, "
@@ -175,7 +175,7 @@ public class JsonWriterTests {
   @Test
   void ofWhenOneContributesPairByUsingPairsAndOneHasNoNameThrowsException() {
     assertThatIllegalStateException().isThrownBy(() -> JsonWriter.of((members) -> {
-              members.from(Map.of("Spring", "Boot")).usingPairs(Map::forEach);
+              members.from(Map.of("Infra", "App")).usingPairs(Map::forEach);
               members.from("alone");
             }))
             .withMessage("Member at index 1 does not contribute a named pair, "
@@ -216,8 +216,8 @@ public class JsonWriterTests {
 
     @Test
     void whenMap() {
-      assertThat(write(Map.of("spring", "boot"))).isEqualTo("""
-              {"spring":"boot"}""");
+      assertThat(write(Map.of("infra", "app"))).isEqualTo("""
+              {"infra":"app"}""");
     }
 
     @Test
@@ -243,9 +243,9 @@ public class JsonWriterTests {
 
     @Test
     void whenNotNullExtracted() {
-      Person personWithNull = new Person("Spring", null, 10);
+      Person personWithNull = new Person("Infra", null, 10);
       JsonWriter<Person> writer = JsonWriter.of((members) -> members.add().whenNotNull(Person::lastName));
-      assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Spring Boot (10)"));
+      assertThat(writer.writeToString(PERSON)).isEqualTo(quoted("Infra App (10)"));
       assertThat(writer.writeToString(personWithNull)).isEmpty();
     }
 
@@ -293,14 +293,14 @@ public class JsonWriterTests {
 
     @Test
     void chainedPredicates() {
-      Set<String> banned = Set.of("Spring", "Boot");
+      Set<String> banned = Set.of("Infra", "App");
       JsonWriter<String> writer = JsonWriter.of((members) -> members.add()
               .whenHasLength()
               .whenNot(banned::contains)
               .whenNot((string) -> string.length() <= 2));
       assertThat(writer.writeToString("")).isEmpty();
       assertThat(writer.writeToString("a")).isEmpty();
-      assertThat(writer.writeToString("Boot")).isEmpty();
+      assertThat(writer.writeToString("App")).isEmpty();
       assertThat(writer.writeToString("JSON")).isEqualTo(quoted("JSON"));
     }
 
@@ -396,7 +396,7 @@ public class JsonWriterTests {
 
     @Test
     void usingMembers() {
-      Couple couple = new Couple(PERSON, new Person("Spring", "Framework", 20));
+      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
       JsonWriter<Couple> writer = JsonWriter.of((member) -> {
         member.add("personOne", Couple::person1).usingMembers((personMembers) -> {
           personMembers.add("fn", Person::firstName);
@@ -408,13 +408,13 @@ public class JsonWriterTests {
         });
       });
       assertThat(writer.writeToString(couple)).isEqualTo("""
-              {"personOne":{"fn":"Spring","ln":"Boot"},""" + """
-              "personTwo":{"details":"Spring Framework (20)","eldest":true}}""");
+              {"personOne":{"fn":"Infra","ln":"App"},""" + """
+              "personTwo":{"details":"Harry Yang (20)","eldest":true}}""");
     }
 
     @Test
     void usingMembersWithoutName() {
-      Couple couple = new Couple(PERSON, new Person("Spring", "Framework", 20));
+      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
       JsonWriter<Couple> writer = JsonWriter.of((member) -> {
         member.add("version", 1);
         member.from(Couple::person1)
@@ -423,24 +423,24 @@ public class JsonWriterTests {
                 .usingMembers((personMembers) -> personMembers.add("two", Person::toString));
       });
       assertThat(writer.writeToString(couple)).isEqualTo("""
-              {"version":1,"one":"Spring Boot (10)","two":"Spring Framework (20)"}""");
+              {"version":1,"one":"Infra App (10)","two":"Harry Yang (20)"}""");
     }
 
     @Test
     void usingMembersWithoutNameInMember() {
-      Couple couple = new Couple(PERSON, new Person("Spring", "Framework", 20));
+      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
       JsonWriter<Couple> writer = JsonWriter.of((member) -> member.add("only", Couple::person2)
               .usingMembers((personMembers) -> personMembers.from(Person::toString)));
       assertThat(writer.writeToString(couple)).isEqualTo("""
-              {"only":"Spring Framework (20)"}""");
+              {"only":"Harry Yang (20)"}""");
     }
 
     @Test
     void usingMemebersWithoutNameAtAll() {
-      Couple couple = new Couple(PERSON, new Person("Spring", "Framework", 20));
+      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
       JsonWriter<Couple> writer = JsonWriter.of((member) -> member.from(Couple::person2)
               .usingMembers((personMembers) -> personMembers.from(Person::toString)));
-      assertThat(writer.writeToString(couple)).isEqualTo(quoted("Spring Framework (20)"));
+      assertThat(writer.writeToString(couple)).isEqualTo(quoted("Harry Yang (20)"));
     }
 
     @Test

@@ -100,18 +100,6 @@ public class Indexer extends SpelNodeImpl {
   private volatile CachedIndexState cachedIndexWriteState;
 
   /**
-   * Create an {@code Indexer} with the given start position, end position, and
-   * index expression.
-   *
-   * @see #Indexer(boolean, int, int, SpelNodeImpl)
-   * @deprecated as of Spring Framework 6.2, in favor of {@link #Indexer(boolean, int, int, SpelNodeImpl)}
-   */
-  @Deprecated(since = "6.2", forRemoval = true)
-  public Indexer(int startPos, int endPos, SpelNodeImpl indexExpression) {
-    this(false, startPos, endPos, indexExpression);
-  }
-
-  /**
    * Create an {@code Indexer} with the given null-safe flag, start position,
    * end position, and index expression.
    */
@@ -226,8 +214,7 @@ public class Indexer extends SpelNodeImpl {
 
     // Check for a custom IndexAccessor.
     EvaluationContext evalContext = state.getEvaluationContext();
-    List<IndexAccessor> accessorsToTry =
-            AstUtils.getAccessorsToTry(target, evalContext.getIndexAccessors());
+    List<IndexAccessor> accessorsToTry = AstUtils.getAccessorsToTry(target, evalContext.getIndexAccessors());
     if (accessMode.supportsReads) {
       try {
         for (IndexAccessor indexAccessor : accessorsToTry) {

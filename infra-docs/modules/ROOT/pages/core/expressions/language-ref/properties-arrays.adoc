@@ -145,7 +145,7 @@ String name = parser.parseExpression("#root['name']")
 [[expressions-indexing-custom]]
 == Indexing into Custom Structures
 
-Since Spring Framework 6.2, the Spring Expression Language supports indexing into custom
+the Spring Expression Language supports indexing into custom
 structures by allowing developers to implement and register an `IndexAccessor` with the
 `EvaluationContext`. If you would like to support
 xref:core/expressions/evaluation.adoc#expressions-spel-compilation[compilation] of

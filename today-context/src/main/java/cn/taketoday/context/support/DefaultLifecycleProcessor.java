@@ -135,7 +135,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * Specify the maximum time allotted for the shutdown of each given phase
    * (group of {@link SmartLifecycle} beans with the same 'phase' value).
    * <p>In case of no specific timeout configured, the default timeout per
-   * shutdown phase will apply: 10000 milliseconds (10 seconds) as of 6.2.
+   * shutdown phase will apply: 10000 milliseconds (10 seconds).
    *
    * @param timeoutsForShutdownPhases a map of phase values (matching
    * {@link SmartLifecycle#getPhase()}) and corresponding timeout values
@@ -152,7 +152,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * Specify the maximum time allotted for the shutdown of a specific phase
    * (group of {@link SmartLifecycle} beans with the same 'phase' value).
    * <p>In case of no specific timeout configured, the default timeout per
-   * shutdown phase will apply: 10000 milliseconds (10 seconds) as of 6.2.
+   * shutdown phase will apply: 10000 milliseconds (10 seconds).
    *
    * @param phase the phase value (matching {@link SmartLifecycle#getPhase()})
    * @param timeout the corresponding timeout value (in milliseconds)
