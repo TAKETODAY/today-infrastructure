@@ -96,7 +96,6 @@ class DefaultLogbackConfiguration {
   }
 
   private void defaults(LogbackConfigurator config) {
-    deprecatedDefaults(config);
     config.conversionRule("clr", ColorConverter.class);
     config.conversionRule("correlationId", CorrelationIdConverter.class);
     config.conversionRule("esb", EnclosedInSquareBracketsConverter.class);
@@ -112,11 +111,6 @@ class DefaultLogbackConfiguration {
     putProperty(config, "FILE_LOG_STRUCTURED_FORMAT", "${FILE_LOG_STRUCTURED_FORMAT:-}");
     config.logger("org.apache.sshd.common.util.SecurityUtils", Level.WARN);
     config.logger("org.hibernate.validator.internal.util.Version", Level.WARN);
-  }
-
-  @SuppressWarnings("removal")
-  private void deprecatedDefaults(LogbackConfigurator config) {
-    config.conversionRule("applicationName", ApplicationNameConverter.class);
   }
 
   void putProperty(LogbackConfigurator config, String name, String val) {

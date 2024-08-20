@@ -59,13 +59,14 @@ class LogbackRuntimeHints implements RuntimeHintsRegistrar {
   }
 
   private void registerHintsForBuiltInLogbackConverters(ReflectionHints reflection) {
-    registerForPublicConstructorInvocation(reflection, DateTokenConverter.class, IntegerTokenConverter.class, SyslogStartConverter.class);
+    registerForPublicConstructorInvocation(reflection, DateTokenConverter.class, IntegerTokenConverter.class,
+            SyslogStartConverter.class);
   }
 
   private void registerHintsForInfraConverters(ReflectionHints reflection) {
-    registerForPublicConstructorInvocation(reflection, ApplicationNameConverter.class, ColorConverter.class,
-            ExtendedWhitespaceThrowableProxyConverter.class, WhitespaceThrowableProxyConverter.class,
-            CorrelationIdConverter.class);
+    registerForPublicConstructorInvocation(reflection, ColorConverter.class,
+            EnclosedInSquareBracketsConverter.class, ExtendedWhitespaceThrowableProxyConverter.class,
+            WhitespaceThrowableProxyConverter.class, CorrelationIdConverter.class);
   }
 
   private void registerForPublicConstructorInvocation(ReflectionHints reflection, Class<?>... classes) {

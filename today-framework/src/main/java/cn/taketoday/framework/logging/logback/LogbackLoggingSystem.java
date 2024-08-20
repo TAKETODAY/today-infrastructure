@@ -65,6 +65,7 @@ import cn.taketoday.framework.logging.LoggingSystem;
 import cn.taketoday.framework.logging.LoggingSystemFactory;
 import cn.taketoday.framework.logging.LoggingSystemProperties;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.VisibleForTesting;
 import cn.taketoday.logging.SLF4JBridgeHandler;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -106,7 +107,8 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
   };
 
-  private final StatusPrinter2 statusPrinter = new StatusPrinter2();
+  @VisibleForTesting
+  final StatusPrinter2 statusPrinter = new StatusPrinter2();
 
   public LogbackLoggingSystem(ClassLoader classLoader) {
     super(classLoader);
@@ -209,6 +211,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     LoggerContext context = getLoggerContext();
     stopAndReset(context);
     withLoggingSuppressed(() -> {
+      putInitializationContextObjects(context, startupContext);
       boolean debug = Boolean.getBoolean("logback.debug");
       if (debug) {
         StatusListenerConfigHelper.addOnConsoleListenerInstance(context, new OnConsoleStatusListener());
@@ -404,7 +407,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       }
       catch (InterruptedException ex) {
         Thread.currentThread().interrupt();
-        throw new IllegalStateException("Interrupted while waiting for non-subtitute logger factory", ex);
+        throw new IllegalStateException("Interrupted while waiting for non-substitute logger factory", ex);
       }
       factory = LoggerFactory.getILoggerFactory();
     }

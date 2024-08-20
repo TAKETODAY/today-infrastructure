@@ -16,7 +16,7 @@
   -->
 
 <included>
-	<infra-profile name="production">
-		<logger name="cn.taketoday.framework.logging.logback" level="TRACE" />
-	</infra-profile>
+  <infra-profile name="production">
+    <logger name="cn.taketoday.framework.logging.logback" level="TRACE" />
+  </infra-profile>
 </included>

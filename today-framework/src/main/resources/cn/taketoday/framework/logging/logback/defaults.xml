@@ -22,7 +22,6 @@ Default logback configuration provided for import
 -->
 
 <included>
-  <conversionRule conversionWord="applicationName" converterClass="cn.taketoday.framework.logging.logback.ApplicationNameConverter" />
   <conversionRule conversionWord="clr" converterClass="cn.taketoday.framework.logging.logback.ColorConverter" />
   <conversionRule conversionWord="wex" converterClass="cn.taketoday.framework.logging.logback.WhitespaceThrowableProxyConverter" />
   <conversionRule conversionWord="wEx" converterClass="cn.taketoday.framework.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />

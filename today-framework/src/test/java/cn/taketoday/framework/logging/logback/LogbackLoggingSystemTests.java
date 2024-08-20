@@ -17,6 +17,7 @@
 
 package cn.taketoday.framework.logging.logback;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,9 +49,9 @@ import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.util.DynamicClassLoadingException;
-import ch.qos.logback.core.util.StatusPrinter;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.logging.AbstractLoggingSystemTests;
@@ -114,7 +115,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     var conversionService = ApplicationConversionService.getSharedInstance();
     this.environment.setConversionService(conversionService);
     this.initializationContext = new LoggingStartupContext(this.environment);
-    StatusPrinter.setPrintStream(System.out);
+    this.loggingSystem.statusPrinter.setPrintStream(System.out);
   }
 
   @AfterEach
@@ -148,7 +149,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
     assertThat(output).contains("Hello world").doesNotContain("Hidden");
-    assertThat(getLineWithText(output, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("INFO");
     assertThat(new File(tmpDir() + "/infra-app.log")).doesNotExist();
   }
 
@@ -161,9 +162,9 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     File file = new File(tmpDir() + "/infra-app.log");
     assertThat(output).doesNotContain("LOGBACK:");
     assertThat(output).contains("Hello world").doesNotContain("Hidden");
-    assertThat(getLineWithText(output, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("INFO");
     assertThat(file).exists();
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(maxFileSize()).hasToString("10 MB");
     assertThat(getRollingPolicy().getMaxHistory()).isEqualTo(7);
   }
@@ -348,7 +349,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggingStartupContext LoggingStartupContext = new LoggingStartupContext(this.environment);
     initialize(LoggingStartupContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).doesNotContain("INFO");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).doesNotContain("INFO");
   }
 
   @Test
@@ -358,7 +359,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggingStartupContext LoggingStartupContext = new LoggingStartupContext(this.environment);
     initialize(LoggingStartupContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).contains("XINFOX");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("XINFOX");
   }
 
   @Test
@@ -369,8 +370,8 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).contains("INFO");
-    assertThat(getLineWithText(file, "Hello world")).doesNotContain("INFO");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).doesNotContain("INFO");
   }
 
   @Test
@@ -381,7 +382,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getRollingPolicy().isCleanHistoryOnStart()).isTrue();
   }
 
@@ -393,7 +394,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getRollingPolicy().isCleanHistoryOnStart()).isTrue();
   }
 
@@ -419,7 +420,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(maxFileSize()).hasToString(expectedFileSize);
   }
 
@@ -431,7 +432,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(maxFileSize()).hasToString("100 MB");
   }
 
@@ -443,7 +444,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getRollingPolicy().getMaxHistory()).isEqualTo(30);
   }
 
@@ -455,7 +456,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getRollingPolicy().getMaxHistory()).isEqualTo(30);
   }
 
@@ -481,7 +482,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getTotalSizeCap()).hasToString(expectedFileSize);
   }
 
@@ -494,7 +495,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getTotalSizeCap()).hasToString(expectedSize);
   }
 
@@ -581,7 +582,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggingStartupContext LoggingStartupContext = new LoggingStartupContext(this.environment);
     initialize(LoggingStartupContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world"))
+    Assertions.assertThat(getLineWithText(output, "Hello world"))
             .containsPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}([-+]\\d{2}:\\d{2}|Z)");
   }
 
@@ -592,7 +593,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggingStartupContext LoggingStartupContext = new LoggingStartupContext(this.environment);
     initialize(LoggingStartupContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).containsPattern("\\d{2}-\\d{2}-\\d{4}\\s");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).containsPattern("\\d{2}-\\d{2}-\\d{4}\\s");
   }
 
   @Test
@@ -604,7 +605,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggingStartupContext LoggingStartupContext = new LoggingStartupContext(this.environment);
     initialize(LoggingStartupContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).containsPattern("\\d{2}-\\d{2}-\\d{4}\\s");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).containsPattern("\\d{2}-\\d{2}-\\d{4}\\s");
   }
 
   @Test
@@ -643,7 +644,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("INFO");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("INFO");
     assertThat(getRollingPolicy().getFileNamePattern()).isEqualTo(rollingFile);
   }
 
@@ -691,7 +692,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, logFile);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world"))
+    Assertions.assertThat(getLineWithText(file, "Hello world"))
             .contains(" [01234567890123456789012345678901-0123456789012345] ");
   }
 
@@ -701,7 +702,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, null);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world"))
+    Assertions.assertThat(getLineWithText(output, "Hello world"))
             .contains(" [01234567890123456789012345678901-0123456789012345] ");
   }
 
@@ -711,7 +712,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, null);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).doesNotContain("0123456789012345");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).doesNotContain("0123456789012345");
   }
 
   @Test
@@ -719,7 +720,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.environment.setProperty(LoggingSystem.EXPECT_CORRELATION_ID_PROPERTY, "true");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world"))
+    Assertions.assertThat(getLineWithText(output, "Hello world"))
             .contains(" [                                                 ] ");
   }
 
@@ -729,7 +730,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, null);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world"))
+    Assertions.assertThat(getLineWithText(output, "Hello world"))
             .contains(" [0123456789012345-01234567890123456789012345678901] ");
   }
 
@@ -739,7 +740,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, "classpath:logback-include-base.xml", null);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world"))
+    Assertions.assertThat(getLineWithText(output, "Hello world"))
             .contains(" [01234567890123456789012345678901-0123456789012345] ");
   }
 
@@ -751,7 +752,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, "classpath:logback-include-base.xml", logFile);
     MDC.setContextMap(Map.of("traceId", "01234567890123456789012345678901", "spanId", "0123456789012345"));
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world"))
+    Assertions.assertThat(getLineWithText(file, "Hello world"))
             .contains(" [01234567890123456789012345678901-0123456789012345] ");
   }
 
@@ -760,7 +761,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.environment.setProperty("app.name", "myapp");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).contains("[myapp] ");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("[myapp] ");
   }
 
   @Test
@@ -768,7 +769,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.environment.setProperty("app.name", "myapp (dev)");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).contains("[myapp (dev)] ");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("[myapp (dev)] ");
   }
 
   @Test
@@ -777,7 +778,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.environment.setProperty("logging.include-application-name", "false");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).doesNotContain("myapp").doesNotContain("null");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).doesNotContain("myapp").doesNotContain("null");
   }
 
   @Test
@@ -787,7 +788,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(this.initializationContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("[myapp] ");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("[myapp] ");
   }
 
   @Test
@@ -797,7 +798,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(this.initializationContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).contains("[myapp (dev)] ");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("[myapp (dev)] ");
   }
 
   @Test
@@ -808,7 +809,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     LogFile logFile = getLogFile(file.getPath(), null);
     initialize(this.initializationContext, null, logFile);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(file, "Hello world")).doesNotContain("myapp").doesNotContain("null");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).doesNotContain("myapp").doesNotContain("null");
   }
 
   @Test
@@ -870,6 +871,85 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
             .addFirst(new MapPropertySource("test", Map.of("logging.pattern.console", "[CONSOLE]%m")));
     this.loggingSystem.initialize(this.initializationContext, "classpath:logback-nondefault.xml", null);
     assertThat(output).doesNotContain("WARN");
+  }
+
+  @Test
+  void applicationGroupLoggingToConsoleWhenHasApplicationGroup(CapturedOutput output) {
+    this.environment.setProperty("app.group", "mygroup");
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("[mygroup] ");
+  }
+
+  @Test
+  void applicationGroupLoggingToConsoleWhenHasApplicationGroupWithParenthesis(CapturedOutput output) {
+    this.environment.setProperty("app.group", "mygroup (dev)");
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).contains("[mygroup (dev)] ");
+  }
+
+  @Test
+  void applicationGroupLoggingToConsoleWhenDisabled(CapturedOutput output) {
+    this.environment.setProperty("app.group", "mygroup");
+    this.environment.setProperty("logging.include-application-group", "false");
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(output, "Hello world")).doesNotContain("mygroup").doesNotContain("null");
+  }
+
+  @Test
+  void applicationGroupLoggingToFileWhenHasApplicationGroup() {
+    this.environment.setProperty("app.group", "mygroup");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("[mygroup] ");
+  }
+
+  @Test
+  void applicationGroupLoggingToFileWhenHasApplicationGroupWithParenthesis() {
+    this.environment.setProperty("app.group", "mygroup (dev)");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).contains("[mygroup (dev)] ");
+  }
+
+  @Test
+  void applicationGroupLoggingToFileWhenDisabled(CapturedOutput output) {
+    this.environment.setProperty("app.group", "myGroup");
+    this.environment.setProperty("logging.include-application-group", "false");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    Assertions.assertThat(getLineWithText(file, "Hello world")).doesNotContain("myGroup").doesNotContain("null");
+  }
+
+  @Test
+  void shouldNotContainAnsiEscapeCodes(CapturedOutput output) {
+    this.loggingSystem.beforeInitialize();
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Hello world");
+    assertThat(output).doesNotContain("\033[");
+  }
+
+  @Test
+  void getEnvironment() {
+    this.loggingSystem.beforeInitialize();
+    initialize(this.initializationContext, null, null);
+    assertThat(this.logger.getLoggerContext().getObject(Environment.class.getName())).isSameAs(this.environment);
+  }
+
+  @Test
+  void getEnvironmentWhenUsingFile() {
+    this.loggingSystem.beforeInitialize();
+    LogFile logFile = getLogFile(tmpDir() + "/example.log", null, false);
+    initialize(this.initializationContext, "classpath:logback-nondefault.xml", logFile);
+    assertThat(this.logger.getLoggerContext().getObject(Environment.class.getName())).isSameAs(this.environment);
   }
 
   private void initialize(LoggingStartupContext context, String configLocation, LogFile logFile) {

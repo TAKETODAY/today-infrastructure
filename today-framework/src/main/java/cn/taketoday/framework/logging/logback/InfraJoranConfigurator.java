@@ -17,7 +17,6 @@
 
 package cn.taketoday.framework.logging.logback;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +51,8 @@ import ch.qos.logback.core.model.processor.ModelInterpretationContext;
 import ch.qos.logback.core.spi.ContextAware;
 import ch.qos.logback.core.spi.ContextAwareBase;
 import ch.qos.logback.core.util.AggregationType;
+import cn.taketoday.aot.generate.GeneratedFiles.FileHandler;
+import cn.taketoday.aot.generate.GeneratedFiles.Kind;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.SerializationHints;
@@ -61,17 +63,17 @@ import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.logging.LoggingStartupContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.function.SingletonSupplier;
+import cn.taketoday.util.function.ThrowingConsumer;
 
 /**
  * Extended version of the Logback {@link JoranConfigurator} that adds additional Infra
- * Boot rules.
+ * rules.
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
@@ -93,14 +95,12 @@ class InfraJoranConfigurator extends JoranConfigurator {
   }
 
   @Override
-  protected void addModelHandlerAssociations(DefaultProcessor processor) {
-    processor.addHandler(InfraPropertyModel.class,
-            (handlerContext, handlerMic) ->
-                    new InfraPropertyModelHandler(context, startupContext.getEnvironment()));
-    processor.addHandler(InfraProfileModel.class,
-            (handlerContext, handlerMic) ->
-                    new InfraProfileModelHandler(context, startupContext.getEnvironment()));
-    super.addModelHandlerAssociations(processor);
+  protected void addModelHandlerAssociations(DefaultProcessor defaultProcessor) {
+    defaultProcessor.addHandler(InfraPropertyModel.class,
+            (handlerContext, handlerMic) -> new InfraPropertyModelHandler(context, startupContext.getEnvironment()));
+    defaultProcessor.addHandler(InfraProfileModel.class,
+            (handlerContext, handlerMic) -> new InfraProfileModelHandler(context, startupContext.getEnvironment()));
+    super.addModelHandlerAssociations(defaultProcessor);
   }
 
   @Override
@@ -179,15 +179,9 @@ class InfraJoranConfigurator extends JoranConfigurator {
     }
 
     private void writeTo(GenerationContext generationContext) {
-      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-      try (ObjectOutputStream output = new ObjectOutputStream(bytes)) {
-        output.writeObject(this.model);
-      }
-      catch (IOException ex) {
-        throw new IllegalStateException(ex);
-      }
-      Resource modelResource = new ByteArrayResource(bytes.toByteArray());
-      generationContext.getGeneratedFiles().addResourceFile(MODEL_RESOURCE_LOCATION, modelResource);
+      byte[] serializedModel = serializeModel();
+      generationContext.getGeneratedFiles().handleFile(Kind.RESOURCE, MODEL_RESOURCE_LOCATION,
+              new RequireNewOrMatchingContentFileHandler(serializedModel));
       generationContext.getRuntimeHints().resources().registerPattern(MODEL_RESOURCE_LOCATION);
       SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
       serializationTypes(this.model).forEach(serializationHints::registerType);
@@ -195,6 +189,17 @@ class InfraJoranConfigurator extends JoranConfigurator {
               .reflection()
               .registerType(TypeReference.of(type), MemberCategory.INTROSPECT_PUBLIC_METHODS,
                       MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
+    }
+
+    private byte[] serializeModel() {
+      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+      try (ObjectOutputStream output = new ObjectOutputStream(bytes)) {
+        output.writeObject(this.model);
+      }
+      catch (IOException ex) {
+        throw new IllegalStateException(ex);
+      }
+      return bytes.toByteArray();
     }
 
     @SuppressWarnings("unchecked")
@@ -337,7 +342,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
         }
       }
       catch (Exception ex) {
-        throw new RuntimeException("Failed to load model from '%s'".formatted(ModelWriter.MODEL_RESOURCE_LOCATION), ex);
+        throw new IllegalStateException("Failed to load model from '%s'".formatted(ModelWriter.MODEL_RESOURCE_LOCATION), ex);
       }
     }
 
@@ -393,7 +398,9 @@ class InfraJoranConfigurator extends JoranConfigurator {
 
     private void save(GenerationContext generationContext) {
       Map<String, String> registryMap = getRegistryMap();
-      generationContext.getGeneratedFiles().addResourceFile(RESOURCE_LOCATION, () -> asInputStream(registryMap));
+      byte[] rules = asBytes(registryMap);
+      generationContext.getGeneratedFiles()
+              .handleFile(Kind.RESOURCE, RESOURCE_LOCATION, new RequireNewOrMatchingContentFileHandler(rules));
       generationContext.getRuntimeHints().resources().registerPattern(RESOURCE_LOCATION);
       for (String ruleClassName : registryMap.values()) {
         generationContext.getRuntimeHints()
@@ -402,7 +409,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
       }
     }
 
-    private InputStream asInputStream(Map<String, String> patternRuleRegistry) {
+    private byte[] asBytes(Map<String, String> patternRuleRegistry) {
       Properties properties = CollectionUtils.createSortedProperties(true);
       patternRuleRegistry.forEach(properties::setProperty);
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -412,8 +419,34 @@ class InfraJoranConfigurator extends JoranConfigurator {
       catch (IOException ex) {
         throw new IllegalStateException(ex);
       }
-      return new ByteArrayInputStream(bytes.toByteArray());
+      return bytes.toByteArray();
     }
 
   }
+
+  private static final class RequireNewOrMatchingContentFileHandler implements ThrowingConsumer<FileHandler> {
+
+    private final byte[] newContent;
+
+    private RequireNewOrMatchingContentFileHandler(byte[] newContent) {
+      this.newContent = newContent;
+    }
+
+    @Override
+    public void acceptWithException(FileHandler file) throws Exception {
+      if (file.exists()) {
+        byte[] existingContent = file.getContent().getInputStream().readAllBytes();
+        if (!Arrays.equals(this.newContent, existingContent)) {
+          throw new IllegalStateException(
+                  "Logging configuration differs from the configuration that has already been written. "
+                          + "Update your logging configuration so that it is the same for each context");
+        }
+      }
+      else {
+        file.create(new ByteArrayResource(this.newContent));
+      }
+    }
+
+  }
+
 }

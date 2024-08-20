@@ -19,7 +19,7 @@
 
 <!--
 File appender with structured logging logback configuration provided for import,
-equivalent to the programmatic initialization performed by Boot
+equivalent to the programmatic initialization performed by Infra app
 -->
 
 <included>
