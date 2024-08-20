@@ -54,7 +54,7 @@ class NestedLocationTests {
   @Test
   void createWhenPathIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new NestedLocation(null, "nested.jar"))
-            .withMessageContaining("'path' must not be null");
+            .withMessageContaining("'path' is required");
   }
 
   @Test
@@ -74,7 +74,7 @@ class NestedLocationTests {
   @Test
   void fromUrlWhenUrlIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> NestedLocation.fromUrl(null))
-            .withMessageContaining("'url' must not be null");
+            .withMessageContaining("'url' is required");
   }
 
   @Test
@@ -109,7 +109,7 @@ class NestedLocationTests {
   @Test
   void fromUriWhenUrlIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> NestedLocation.fromUri(null))
-            .withMessageContaining("'uri' must not be null");
+            .withMessageContaining("'uri' is required");
   }
 
   @Test
