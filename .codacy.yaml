@@ -1,0 +1,12 @@
+---
+exclude_paths:
+  - "**.js"
+  - "**.css"
+  - "**.html"
+  - "**.xml"
+  - "**.json"
+  - "**.properties"
+  - "**.md"
+  - "**.adoc"
+  - "**.gradle"
+  - "**/test/**/*"
