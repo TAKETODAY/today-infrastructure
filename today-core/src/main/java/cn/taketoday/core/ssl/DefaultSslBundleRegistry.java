@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ssl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
@@ -38,9 +39,11 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
 
   private static final Logger logger = LoggerFactory.getLogger(DefaultSslBundleRegistry.class);
 
-  private final Map<String, RegisteredSslBundle> registeredBundles = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, RegisteredSslBundle> registeredBundles = new ConcurrentHashMap<>();
 
-  public DefaultSslBundleRegistry() { }
+  public DefaultSslBundleRegistry() {
+
+  }
 
   public DefaultSslBundleRegistry(String name, SslBundle bundle) {
     registerBundle(name, bundle);
@@ -67,6 +70,13 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
   @Override
   public void addBundleUpdateHandler(String name, Consumer<SslBundle> updateHandler) throws NoSuchSslBundleException {
     getRegistered(name).addUpdateHandler(updateHandler);
+  }
+
+  @Override
+  public List<String> getBundleNames() {
+    List<String> names = new ArrayList<>(this.registeredBundles.keySet());
+    Collections.sort(names);
+    return Collections.unmodifiableList(names);
   }
 
   private RegisteredSslBundle getRegistered(String name) throws NoSuchSslBundleException {

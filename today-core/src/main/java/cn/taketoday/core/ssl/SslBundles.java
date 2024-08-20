@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ssl;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -45,5 +46,13 @@ public interface SslBundles {
    * @throws NoSuchSslBundleException if a bundle with the provided name does not exist
    */
   void addBundleUpdateHandler(String name, Consumer<SslBundle> updateHandler) throws NoSuchSslBundleException;
+
+  /**
+   * Return the names of all bundles managed by this instance.
+   *
+   * @return the bundle names
+   * @since 5.0
+   */
+  List<String> getBundleNames();
 
 }
