@@ -35,8 +35,6 @@ import cn.taketoday.util.StringUtils;
  */
 final class StartupLogging {
 
-  private static final long HOST_NAME_RESOLVE_THRESHOLD = 200;
-
   @Nullable
   private final Class<?> sourceClass;
 
