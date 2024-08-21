@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,99 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
   private DataSize(long bytes) {
     this.bytes = bytes;
   }
+
+  /**
+   * Checks if this size is negative, excluding zero.
+   *
+   * @return true if this size has a size less than zero bytes
+   */
+  public boolean isNegative() {
+    return this.bytes < 0;
+  }
+
+  /**
+   * Return the number of bytes in this instance.
+   *
+   * @return the number of bytes
+   */
+  public long toBytes() {
+    return this.bytes;
+  }
+
+  /**
+   * Return the number of bytes in this instance.
+   *
+   * @return the number of bytes
+   * @since 4.0
+   */
+  public int toBytesInt() {
+    return Math.toIntExact(this.bytes);
+  }
+
+  /**
+   * Return the number of kilobytes in this instance.
+   *
+   * @return the number of kilobytes
+   */
+  public long toKilobytes() {
+    return this.bytes / BYTES_PER_KB;
+  }
+
+  /**
+   * Return the number of megabytes in this instance.
+   *
+   * @return the number of megabytes
+   */
+  public long toMegabytes() {
+    return this.bytes / BYTES_PER_MB;
+  }
+
+  /**
+   * Return the number of gigabytes in this instance.
+   *
+   * @return the number of gigabytes
+   */
+  public long toGigabytes() {
+    return this.bytes / BYTES_PER_GB;
+  }
+
+  /**
+   * Return the number of terabytes in this instance.
+   *
+   * @return the number of terabytes
+   */
+  public long toTerabytes() {
+    return this.bytes / BYTES_PER_TB;
+  }
+
+  @Override
+  public int compareTo(DataSize other) {
+    return Long.compare(this.bytes, other.bytes);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%dB", this.bytes);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    DataSize that = (DataSize) obj;
+    return (this.bytes == that.bytes);
+  }
+
+  @Override
+  public int hashCode() {
+    return Long.hashCode(this.bytes);
+  }
+
+  // Static factory methods
 
   /**
    * Obtain a {@link DataSize} representing the specified number of bytes.
@@ -197,97 +290,6 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
     catch (Exception ex) {
       throw new IllegalArgumentException("'%s' is not a valid data size".formatted(text), ex);
     }
-  }
-
-  /**
-   * Checks if this size is negative, excluding zero.
-   *
-   * @return true if this size has a size less than zero bytes
-   */
-  public boolean isNegative() {
-    return this.bytes < 0;
-  }
-
-  /**
-   * Return the number of bytes in this instance.
-   *
-   * @return the number of bytes
-   */
-  public long toBytes() {
-    return this.bytes;
-  }
-
-  /**
-   * Return the number of bytes in this instance.
-   *
-   * @return the number of bytes
-   * @since 4.0
-   */
-  public int toBytesInt() {
-    return (int) this.bytes;
-  }
-
-  /**
-   * Return the number of kilobytes in this instance.
-   *
-   * @return the number of kilobytes
-   */
-  public long toKilobytes() {
-    return this.bytes / BYTES_PER_KB;
-  }
-
-  /**
-   * Return the number of megabytes in this instance.
-   *
-   * @return the number of megabytes
-   */
-  public long toMegabytes() {
-    return this.bytes / BYTES_PER_MB;
-  }
-
-  /**
-   * Return the number of gigabytes in this instance.
-   *
-   * @return the number of gigabytes
-   */
-  public long toGigabytes() {
-    return this.bytes / BYTES_PER_GB;
-  }
-
-  /**
-   * Return the number of terabytes in this instance.
-   *
-   * @return the number of terabytes
-   */
-  public long toTerabytes() {
-    return this.bytes / BYTES_PER_TB;
-  }
-
-  @Override
-  public int compareTo(DataSize other) {
-    return Long.compare(this.bytes, other.bytes);
-  }
-
-  @Override
-  public String toString() {
-    return String.format("%dB", this.bytes);
-  }
-
-  @Override
-  public boolean equals(@Nullable Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    DataSize that = (DataSize) obj;
-    return (this.bytes == that.bytes);
-  }
-
-  @Override
-  public int hashCode() {
-    return Long.hashCode(this.bytes);
   }
 
   /**
