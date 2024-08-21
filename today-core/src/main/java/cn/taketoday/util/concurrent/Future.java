@@ -42,6 +42,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
+import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.util.function.ThrowingFunction;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -598,6 +599,26 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public <R> Future<R> mapNull() {
     return map(v -> null);
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped to {@code null} result.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param <R> The result type of the mapper function, and of the returned future.
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public <R> Future<R> mapNull(ThrowingConsumer<V> consumer) {
+    return map(v -> {
+      consumer.accept(v);
+      return null;
+    });
   }
 
   /**
