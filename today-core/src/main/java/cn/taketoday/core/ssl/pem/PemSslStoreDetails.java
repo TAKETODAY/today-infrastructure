@@ -123,7 +123,7 @@ public record PemSslStoreDetails(@Nullable String type, @Nullable String alias, 
   }
 
   private boolean isEmpty(@Nullable String value) {
-    return !StringUtils.hasText(value);
+    return StringUtils.isBlank(value);
   }
 
   /**

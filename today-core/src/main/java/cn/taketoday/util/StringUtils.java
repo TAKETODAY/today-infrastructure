@@ -1088,7 +1088,7 @@ public abstract class StringUtils {
    * @since 4.0
    */
   public static boolean isBlank(@Nullable String str) {
-    return !hasText(str);
+    return str == null || str.isBlank();
   }
 
   /**

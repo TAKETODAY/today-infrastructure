@@ -87,7 +87,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
       return null;
     }
     try {
-      String type = (!StringUtils.hasText(details.type())) ? KeyStore.getDefaultType() : details.type();
+      String type = (StringUtils.isBlank(details.type())) ? KeyStore.getDefaultType() : details.type();
       char[] password = (details.password() != null) ? details.password().toCharArray() : null;
       String location = details.location();
       KeyStore store = getKeyStoreInstance(type, details.provider());
@@ -106,7 +106,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
 
   private KeyStore getKeyStoreInstance(String type, @Nullable String provider)
           throws KeyStoreException, NoSuchProviderException {
-    return (!StringUtils.hasText(provider)) ? KeyStore.getInstance(type) : KeyStore.getInstance(type, provider);
+    return (StringUtils.isBlank(provider)) ? KeyStore.getInstance(type) : KeyStore.getInstance(type, provider);
   }
 
   private boolean isHardwareKeystoreType(String type) {

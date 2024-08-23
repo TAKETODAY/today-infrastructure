@@ -275,7 +275,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
 
   @Nullable
   private static Class<?> loadClassForExitDescriptor(@Nullable String exitDescriptor, ClassLoader classLoader) {
-    if (!StringUtils.hasText(exitDescriptor)) {
+    if (StringUtils.isBlank(exitDescriptor)) {
       return null;
     }
     String typeDescriptor = exitDescriptor;

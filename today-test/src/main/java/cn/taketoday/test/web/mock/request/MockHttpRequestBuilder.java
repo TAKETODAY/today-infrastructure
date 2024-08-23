@@ -555,10 +555,10 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
     if (!(parent instanceof MockHttpRequestBuilder parentBuilder)) {
       throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
     }
-    if (!StringUtils.hasText(this.contextPath)) {
+    if (StringUtils.isBlank(this.contextPath)) {
       this.contextPath = parentBuilder.contextPath;
     }
-    if (!StringUtils.hasText(this.mockPath)) {
+    if (StringUtils.isBlank(this.mockPath)) {
       this.mockPath = parentBuilder.mockPath;
     }
     if ("".equals(this.pathInfo)) {

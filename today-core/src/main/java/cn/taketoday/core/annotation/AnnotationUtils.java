@@ -1095,7 +1095,7 @@ public abstract class AnnotationUtils {
    */
   @Nullable
   public static Object getValue(@Nullable Annotation annotation, @Nullable String attributeName) {
-    if (annotation == null || !StringUtils.hasText(attributeName)) {
+    if (annotation == null || StringUtils.isBlank(attributeName)) {
       return null;
     }
     try {

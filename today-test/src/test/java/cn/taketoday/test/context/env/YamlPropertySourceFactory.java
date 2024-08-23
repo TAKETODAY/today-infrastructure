@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.env;
@@ -38,7 +38,7 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
   @Override
   public PropertySource<?> createPropertySource(String name, EncodedResource encodedResource) {
     Resource resource = encodedResource.getResource();
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       name = getNameForResource(resource);
     }
     YamlPropertiesFactoryBean factoryBean = new YamlPropertiesFactoryBean();
@@ -54,7 +54,7 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
    */
   private static String getNameForResource(Resource resource) {
     String name = resource.toString();
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       name = resource.getClass().getSimpleName() + "@" + System.identityHashCode(resource);
     }
     return name;

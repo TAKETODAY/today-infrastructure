@@ -337,7 +337,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       }
       else if (matches.isEmpty()) {
         if (metaDataProcedureName != null && metaDataProcedureName.contains(".") &&
-                !StringUtils.hasText(metaDataCatalogName)) {
+                StringUtils.isBlank(metaDataCatalogName)) {
           String packageName = metaDataProcedureName.substring(0, metaDataProcedureName.indexOf('.'));
           throw new InvalidDataAccessApiUsageException(
                   "Unable to determine the correct call signature for '" + metaDataProcedureName +
