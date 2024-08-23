@@ -22,11 +22,11 @@ Default logback configuration provided for import
 -->
 
 <included>
-  <conversionRule conversionWord="clr" converterClass="cn.taketoday.framework.logging.logback.ColorConverter" />
-  <conversionRule conversionWord="wex" converterClass="cn.taketoday.framework.logging.logback.WhitespaceThrowableProxyConverter" />
-  <conversionRule conversionWord="wEx" converterClass="cn.taketoday.framework.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
-  <conversionRule conversionWord="correlationId" converterClass="cn.taketoday.framework.logging.logback.CorrelationIdConverter" />
-  <conversionRule conversionWord="esb" converterClass="cn.taketoday.framework.logging.logback.EnclosedInSquareBracketsConverter" />
+  <conversionRule conversionWord="clr" class="cn.taketoday.framework.logging.logback.ColorConverter" />
+  <conversionRule conversionWord="wex" class="cn.taketoday.framework.logging.logback.WhitespaceThrowableProxyConverter" />
+  <conversionRule conversionWord="wEx" class="cn.taketoday.framework.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+  <conversionRule conversionWord="correlationId" class="cn.taketoday.framework.logging.logback.CorrelationIdConverter" />
+  <conversionRule conversionWord="esb" class="cn.taketoday.framework.logging.logback.EnclosedInSquareBracketsConverter" />
 
   <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/infra-app.log}" />
 
