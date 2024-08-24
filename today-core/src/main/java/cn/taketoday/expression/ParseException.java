@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
@@ -26,6 +23,7 @@ import cn.taketoday.lang.Nullable;
  * Represent an exception that occurs during expression parsing.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -49,18 +47,8 @@ public class ParseException extends ExpressionException {
    * @param message description of the problem that occurred
    * @param cause the underlying cause of this exception
    */
-  public ParseException(int position, String message, Throwable cause) {
+  public ParseException(int position, String message,@Nullable Throwable cause) {
     super(position, message, cause);
-  }
-
-  /**
-   * Create a new expression parsing exception.
-   *
-   * @param position the position in the expression string where the problem occurred
-   * @param message description of the problem that occurred
-   */
-  public ParseException(int position, String message) {
-    super(position, message);
   }
 
 }
