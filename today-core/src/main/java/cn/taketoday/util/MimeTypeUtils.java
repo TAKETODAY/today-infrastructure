@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -58,6 +59,43 @@ public abstract class MimeTypeUtils {
 
   @Nullable
   private static volatile Random random;
+
+  static final BitSet TOKEN;
+
+  static {
+    // variable names refer to RFC 2616, section 2.2
+    BitSet ctl = new BitSet(128);
+    for (int i = 0; i <= 31; i++) {
+      ctl.set(i);
+    }
+    ctl.set(127);
+
+    BitSet separators = new BitSet(128);
+    separators.set('(');
+    separators.set(')');
+    separators.set('<');
+    separators.set('>');
+    separators.set('@');
+    separators.set(',');
+    separators.set(';');
+    separators.set(':');
+    separators.set('\\');
+    separators.set('\"');
+    separators.set('/');
+    separators.set('[');
+    separators.set(']');
+    separators.set('?');
+    separators.set('=');
+    separators.set('{');
+    separators.set('}');
+    separators.set(' ');
+    separators.set('\t');
+
+    TOKEN = new BitSet(128);
+    TOKEN.set(0, 128);
+    TOKEN.andNot(ctl);
+    TOKEN.andNot(separators);
+  }
 
   /**
    * Parse the given String into a single {@code MimeType}. Recently parsed

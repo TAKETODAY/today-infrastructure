@@ -23,7 +23,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -226,43 +225,6 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   /** @since 5.0 */
   public static final String APPLICATION_PDF_VALUE = "application/pdf";
 
-  private static final BitSet TOKEN;
-
-  static {
-    // variable names refer to RFC 2616, section 2.2
-    BitSet ctl = new BitSet(128);
-    for (int i = 0; i <= 31; i++) {
-      ctl.set(i);
-    }
-    ctl.set(127);
-
-    BitSet separators = new BitSet(128);
-    separators.set('(');
-    separators.set(')');
-    separators.set('<');
-    separators.set('>');
-    separators.set('@');
-    separators.set(',');
-    separators.set(';');
-    separators.set(':');
-    separators.set('\\');
-    separators.set('\"');
-    separators.set('/');
-    separators.set('[');
-    separators.set(']');
-    separators.set('?');
-    separators.set('=');
-    separators.set('{');
-    separators.set('}');
-    separators.set(' ');
-    separators.set('\t');
-
-    TOKEN = new BitSet(128);
-    TOKEN.set(0, 128);
-    TOKEN.andNot(ctl);
-    TOKEN.andNot(separators);
-  }
-
   protected final String type;
 
   protected final String subtype;
@@ -408,7 +370,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     int length = token.length();
     for (int i = 0; i < length; i++) {
       char ch = token.charAt(i);
-      if (!TOKEN.get(ch)) {
+      if (!MimeTypeUtils.TOKEN.get(ch)) {
         throw new IllegalArgumentException("Invalid token character '%s' in token \"%s\"".formatted(ch, token));
       }
     }
