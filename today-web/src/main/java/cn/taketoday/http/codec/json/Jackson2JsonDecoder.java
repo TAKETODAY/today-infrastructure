@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -79,7 +78,7 @@ public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
     }
 
     // Re-encode as UTF-8.
-    MimeType textMimeType = MimeTypeUtils.TEXT_PLAIN.withCharset(charset);
+    MimeType textMimeType = MimeType.TEXT_PLAIN.withCharset(charset);
     Flux<CharBuffer> decoded = CHAR_BUFFER_DECODER.decode(input, CHAR_BUFFER_TYPE, textMimeType, null);
     return decoded.map(charBuffer -> DefaultDataBufferFactory.sharedInstance.wrap(StandardCharsets.UTF_8.encode(charBuffer)));
   }

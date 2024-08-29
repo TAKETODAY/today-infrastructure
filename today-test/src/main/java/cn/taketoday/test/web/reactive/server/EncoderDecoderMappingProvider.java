@@ -32,7 +32,6 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 
 /**
  * JSON Path {@link MappingProvider} implementation using {@link Encoder}
@@ -73,7 +72,7 @@ final class EncoderDecoderMappingProvider implements MappingProvider {
   @Nullable
   private <T> T mapToTargetType(Object source, ResolvableType targetType) {
     DataBufferFactory bufferFactory = DefaultDataBufferFactory.sharedInstance;
-    MimeType mimeType = MimeTypeUtils.APPLICATION_JSON;
+    MimeType mimeType = MimeType.APPLICATION_JSON;
     Map<String, Object> hints = Collections.emptyMap();
 
     DataBuffer buffer = ((Encoder<T>) this.encoder).encodeValue(
