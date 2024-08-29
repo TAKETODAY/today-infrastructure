@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -102,7 +102,7 @@ class MimeTypeTests {
 
   @Test
   public void includes() {
-    MimeType textPlain = MimeTypeUtils.TEXT_PLAIN;
+    MimeType textPlain = MimeType.TEXT_PLAIN;
     assertThat(textPlain.includes(null)).isFalse();
     assertThat(textPlain.includes(textPlain)).as("Equal types is not inclusive").isTrue();
     MimeType allText = new MimeType("text");
@@ -110,11 +110,11 @@ class MimeTypeTests {
     assertThat(allText.includes(textPlain)).as("All subtypes is not inclusive").isTrue();
     assertThat(textPlain.includes(allText)).as("All subtypes is inclusive").isFalse();
 
-    assertThat(MimeTypeUtils.ALL.includes(textPlain)).as("All types is not inclusive").isTrue();
-    assertThat(textPlain.includes(MimeTypeUtils.ALL)).as("All types is inclusive").isFalse();
+    assertThat(MimeType.ALL.includes(textPlain)).as("All types is not inclusive").isTrue();
+    assertThat(textPlain.includes(MimeType.ALL)).as("All types is inclusive").isFalse();
 
-    assertThat(MimeTypeUtils.ALL.includes(textPlain)).as("All types is not inclusive").isTrue();
-    assertThat(textPlain.includes(MimeTypeUtils.ALL)).as("All types is inclusive").isFalse();
+    assertThat(MimeType.ALL.includes(textPlain)).as("All types is not inclusive").isTrue();
+    assertThat(textPlain.includes(MimeType.ALL)).as("All types is inclusive").isFalse();
 
     MimeType applicationSoapXml = new MimeType("application", "soap+xml");
     MimeType applicationWildcardXml = new MimeType("application", "*+xml");
@@ -128,12 +128,12 @@ class MimeTypeTests {
     assertThat(applicationSoapXml.includes(applicationWildcardXml)).isFalse();
     assertThat(suffixXml.includes(applicationWildcardXml)).isFalse();
 
-    assertThat(applicationWildcardXml.includes(MimeTypeUtils.APPLICATION_JSON)).isFalse();
+    assertThat(applicationWildcardXml.includes(MimeType.APPLICATION_JSON)).isFalse();
   }
 
   @Test
   public void isCompatible() {
-    MimeType textPlain = MimeTypeUtils.TEXT_PLAIN;
+    MimeType textPlain = MimeType.TEXT_PLAIN;
     assertThat(textPlain.isCompatibleWith(null)).isFalse();
     assertThat(textPlain.isCompatibleWith(textPlain)).as("Equal types is not compatible").isTrue();
     MimeType allText = new MimeType("text");
@@ -141,11 +141,11 @@ class MimeTypeTests {
     assertThat(allText.isCompatibleWith(textPlain)).as("All subtypes is not compatible").isTrue();
     assertThat(textPlain.isCompatibleWith(allText)).as("All subtypes is not compatible").isTrue();
 
-    assertThat(MimeTypeUtils.ALL.isCompatibleWith(textPlain)).as("All types is not compatible").isTrue();
-    assertThat(textPlain.isCompatibleWith(MimeTypeUtils.ALL)).as("All types is not compatible").isTrue();
+    assertThat(MimeType.ALL.isCompatibleWith(textPlain)).as("All types is not compatible").isTrue();
+    assertThat(textPlain.isCompatibleWith(MimeType.ALL)).as("All types is not compatible").isTrue();
 
-    assertThat(MimeTypeUtils.ALL.isCompatibleWith(textPlain)).as("All types is not compatible").isTrue();
-    assertThat(textPlain.isCompatibleWith(MimeTypeUtils.ALL)).as("All types is compatible").isTrue();
+    assertThat(MimeType.ALL.isCompatibleWith(textPlain)).as("All types is not compatible").isTrue();
+    assertThat(textPlain.isCompatibleWith(MimeType.ALL)).as("All types is compatible").isTrue();
 
     MimeType applicationSoapXml = new MimeType("application", "soap+xml");
     MimeType applicationWildcardXml = new MimeType("application", "*+xml");
@@ -159,7 +159,7 @@ class MimeTypeTests {
     assertThat(applicationSoapXml.isCompatibleWith(applicationWildcardXml)).isTrue();
     assertThat(suffixXml.isCompatibleWith(applicationWildcardXml)).isTrue();
 
-    assertThat(applicationWildcardXml.isCompatibleWith(MimeTypeUtils.APPLICATION_JSON)).isFalse();
+    assertThat(applicationWildcardXml.isCompatibleWith(MimeType.APPLICATION_JSON)).isFalse();
   }
 
   @Test
@@ -233,25 +233,25 @@ class MimeTypeTests {
             "text/html; charset=foo-bar"));
   }
 
-  @Test // SPR-8917
+  @Test
   public void parseMimeTypeQuotedParameterValue() {
     MimeType mimeType = MimeTypeUtils.parseMimeType("audio/*;attr=\"v>alue\"");
     assertThat(mimeType.getParameter("attr")).isEqualTo("\"v>alue\"");
   }
 
-  @Test // SPR-8917
+  @Test
   public void parseMimeTypeSingleQuotedParameterValue() {
     MimeType mimeType = MimeTypeUtils.parseMimeType("audio/*;attr='v>alue'");
     assertThat(mimeType.getParameter("attr")).isEqualTo("'v>alue'");
   }
 
-  @Test // SPR-16630
+  @Test
   public void parseMimeTypeWithSpacesAroundEquals() {
     MimeType mimeType = MimeTypeUtils.parseMimeType("multipart/x-mixed-replace;boundary = --myboundary");
     assertThat(mimeType.getParameter("boundary")).isEqualTo("--myboundary");
   }
 
-  @Test // SPR-16630
+  @Test
   public void parseMimeTypeWithSpacesAroundEqualsAndQuotedValue() {
     MimeType mimeType = MimeTypeUtils.parseMimeType("text/plain; foo = \" bar \" ");
     assertThat(mimeType.getParameter("foo")).isEqualTo("\" bar \"");
@@ -279,14 +279,14 @@ class MimeTypeTests {
     assertThat(mimeTypes.size()).as("Invalid amount of mime types").isEqualTo(0);
   }
 
-  @Test // gh-23241
+  @Test
   public void parseMimeTypesWithTrailingComma() {
     List<MimeType> mimeTypes = MimeTypeUtils.parseMimeTypes("text/plain, text/html,");
     assertThat(mimeTypes).as("No mime types returned").isNotNull();
     assertThat(mimeTypes.size()).as("Incorrect number of mime types").isEqualTo(2);
   }
 
-  @Test // SPR-17459
+  @Test
   public void parseMimeTypesWithQuotedParameters() {
     testWithQuotedParameters("foo/bar;param=\",\"");
     testWithQuotedParameters("foo/bar;param=\"s,a,\"");
@@ -366,15 +366,15 @@ class MimeTypeTests {
     assertThat(audioBasic.isMoreSpecific(audioBasicLevel)).isFalse();
     assertThat(audioBasicLevel.isMoreSpecific(audioBasic)).isTrue();
 
-    assertThat(audio.isMoreSpecific(MimeTypeUtils.ALL)).isTrue();
-    assertThat(MimeTypeUtils.ALL.isMoreSpecific(audio)).isFalse();
+    assertThat(audio.isMoreSpecific(MimeType.ALL)).isTrue();
+    assertThat(MimeType.ALL.isMoreSpecific(audio)).isFalse();
 
     assertThat(audioBasicLevel.isMoreSpecific(audioBasic)).isTrue();
     assertThat(audioBasic.isMoreSpecific(audioBasicLevel)).isFalse();
 
-    assertThat(audioBasic.isMoreSpecific(MimeTypeUtils.TEXT_HTML)).isFalse();
+    assertThat(audioBasic.isMoreSpecific(MimeType.TEXT_HTML)).isFalse();
     assertThat(audioBasic.isMoreSpecific(audioWave)).isFalse();
-    assertThat(audioBasicLevel.isMoreSpecific(MimeTypeUtils.TEXT_HTML)).isFalse();
+    assertThat(audioBasicLevel.isMoreSpecific(MimeType.TEXT_HTML)).isFalse();
   }
 
   @Test
@@ -387,15 +387,15 @@ class MimeTypeTests {
     assertThat(audioBasic.isLessSpecific(audioBasicLevel)).isTrue();
     assertThat(audioBasicLevel.isLessSpecific(audioBasic)).isFalse();
 
-    assertThat(audio.isLessSpecific(MimeTypeUtils.ALL)).isFalse();
-    assertThat(MimeTypeUtils.ALL.isLessSpecific(audio)).isTrue();
+    assertThat(audio.isLessSpecific(MimeType.ALL)).isFalse();
+    assertThat(MimeType.ALL.isLessSpecific(audio)).isTrue();
 
     assertThat(audioBasicLevel.isLessSpecific(audioBasic)).isFalse();
     assertThat(audioBasic.isLessSpecific(audioBasicLevel)).isTrue();
 
-    assertThat(audioBasic.isLessSpecific(MimeTypeUtils.TEXT_HTML)).isFalse();
+    assertThat(audioBasic.isLessSpecific(MimeType.TEXT_HTML)).isFalse();
     assertThat(audioBasic.isLessSpecific(audioWave)).isFalse();
-    assertThat(audioBasicLevel.isLessSpecific(MimeTypeUtils.TEXT_HTML)).isFalse();
+    assertThat(audioBasicLevel.isLessSpecific(MimeType.TEXT_HTML)).isFalse();
   }
 
   @Test
@@ -406,11 +406,11 @@ class MimeTypeTests {
     MimeType audioBasicLevel = new MimeType("audio", "basic", singletonMap("level", "1"));
 
     List<MimeType> mimeTypes = new ArrayList<>(
-            List.of(MimeTypeUtils.ALL, audio, audioWave, audioBasic, audioBasicLevel));
+            List.of(MimeType.ALL, audio, audioWave, audioBasic, audioBasicLevel));
 
     MimeTypeUtils.sortBySpecificity(mimeTypes);
 
-    assertThat(mimeTypes).containsExactly(audioWave, audioBasicLevel, audioBasic, audio, MimeTypeUtils.ALL);
+    assertThat(mimeTypes).containsExactly(audioWave, audioBasicLevel, audioBasic, audio, MimeType.ALL);
   }
 
   @Test
@@ -421,7 +421,6 @@ class MimeTypeTests {
   }
 
   @Test
-    // SPR-13157
   void equalsIsCaseInsensitiveForCharsets() {
     MimeType m1 = new MimeType("text", "plain", singletonMap("charset", "UTF-8"));
     MimeType m2 = new MimeType("text", "plain", singletonMap("charset", "utf-8"));
@@ -432,7 +431,6 @@ class MimeTypeTests {
   }
 
   @Test
-    // gh-26127
   void serialize() throws Exception {
     MimeType original = new MimeType("text", "plain", StandardCharsets.UTF_8);
     MimeType deserialized = SerializationTestUtils.serializeAndDeserialize(original);

@@ -28,7 +28,6 @@ import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
 
@@ -77,8 +76,7 @@ public class WebSocketHttpRequestHandlerTests {
     MockRequestContext request = new MockRequestContext(
             null, new HttpMockRequestImpl(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
-            .isInstanceOf(HandshakeFailureException.class)
-            .hasRootCauseInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalStateException.class)
             .hasMessageEndingWith("bad state");
 
     request.requestCompleted();
@@ -87,7 +85,7 @@ public class WebSocketHttpRequestHandlerTests {
     assertThat(this.response.getHeader("exceptionHeaderName")).isEqualTo("exceptionHeaderValue");
   }
 
-  @Test // gh-23179
+  @Test
   public void handshakeNotAllowed() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(false);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
