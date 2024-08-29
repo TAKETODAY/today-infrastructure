@@ -47,7 +47,7 @@ public abstract class AbstractMessage<T> implements Message<T> {
    * @param payload the non-null payload
    * @param isLast if the message is the last of a series of partial messages
    */
-  AbstractMessage(T payload, boolean isLast) {
+  protected AbstractMessage(T payload, boolean isLast) {
     Assert.notNull(payload, "payload is required");
     this.payload = payload;
     this.last = isLast;

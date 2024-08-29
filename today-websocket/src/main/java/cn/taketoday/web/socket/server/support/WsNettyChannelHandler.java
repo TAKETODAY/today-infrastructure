@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.socket.server.support;
 
-import java.nio.charset.StandardCharsets;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.server.support.NettyChannelHandler;
@@ -134,8 +132,8 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
     if (frame instanceof PongWebSocketFrame) {
       return new PongMessage(frame.content().nioBuffer());
     }
-    if (frame instanceof TextWebSocketFrame) {
-      String text = frame.content().toString(StandardCharsets.UTF_8);
+    if (frame instanceof TextWebSocketFrame twsf) {
+      String text = twsf.text();
       return new TextMessage(text, frame.isFinalFragment());
     }
     if (frame instanceof BinaryWebSocketFrame) {

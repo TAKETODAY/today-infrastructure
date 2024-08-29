@@ -262,7 +262,7 @@ public interface DataBuffer {
   default DataBuffer write(CharSequence charSequence, Charset charset) {
     Assert.notNull(charSequence, "CharSequence is required");
     Assert.notNull(charset, "Charset is required");
-    if (charSequence.length() > 0) {
+    if (!charSequence.isEmpty()) {
       CharsetEncoder encoder = charset.newEncoder()
               .onMalformedInput(CodingErrorAction.REPLACE)
               .onUnmappableCharacter(CodingErrorAction.REPLACE);
