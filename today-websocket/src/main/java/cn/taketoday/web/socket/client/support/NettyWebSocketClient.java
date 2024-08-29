@@ -36,6 +36,7 @@ import cn.taketoday.web.socket.client.AbstractWebSocketClient;
 import cn.taketoday.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -153,16 +154,24 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   @Override
   protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions) {
-    SettableFuture<WebSocketSession> future = Future.forSettable();
 
     // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
     // If you change it to V00, ping is not supported and remember to change
     // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
     WebSocketClientHandshaker handshaker = createHandshaker(uri, subProtocols, extensions, createHeaders(headers));
-    MessageHandler handler = new MessageHandler(uri, webSocketHandler, handshaker, future);
+    MessageHandler handler = new MessageHandler(uri, webSocketHandler, handshaker);
 
-    Bootstrap bootstrap = new Bootstrap();
-    bootstrap.group(new NioEventLoopGroup())
+    Bootstrap bootstrap = getBootstrap(handler);
+    bootstrap.connect(uri.getHost(), uri.getPort());
+    return handler.future;
+  }
+
+  /**
+   * @since 5.0
+   */
+  protected Bootstrap getBootstrap(ChannelHandler handler) {
+    return new Bootstrap()
+            .group(new NioEventLoopGroup(1))
             .channel(NioSocketChannel.class)
             .handler(new ChannelInitializer<SocketChannel>() {
 
@@ -175,9 +184,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
                 NettyWebSocketClient.this.initChannel(ch);
               }
             });
-
-    bootstrap.connect(uri.getHost(), uri.getPort());
-    return future;
   }
 
   private DefaultHttpHeaders createHeaders(HttpHeaders headers) {
@@ -224,15 +230,13 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private final WebSocketClientHandshaker handshaker;
 
-    private final SettableFuture<WebSocketSession> future;
+    public final SettableFuture<WebSocketSession> future = Future.forSettable();
 
     private WebSocketSession session;
 
-    MessageHandler(URI uri, WebSocketHandler handler,
-            WebSocketClientHandshaker handshaker, SettableFuture<WebSocketSession> future) {
+    MessageHandler(URI uri, WebSocketHandler handler, WebSocketClientHandshaker handshaker) {
       this.uri = uri;
       this.handler = handler;
-      this.future = future;
       this.handshaker = handshaker;
     }
 

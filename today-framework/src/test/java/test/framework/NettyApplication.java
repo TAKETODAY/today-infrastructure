@@ -18,6 +18,7 @@
 package test.framework;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -44,10 +45,10 @@ import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.client.support.NettyWebSocketClient;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +63,7 @@ public class NettyApplication {
   public static void main(String[] args) {
     Application.forBuilder(NettyApplication.class)
             .type(ApplicationType.NETTY_WEB)
+            .properties(Map.of("logging.level.root", "debug"))
             .initializers(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
             .run(args);
   }
@@ -134,7 +136,8 @@ public class NettyApplication {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-      registry.addHandler(new WebSocket0(), "/endpoint");
+      registry.addHandler(new WebSocket0(), "/endpoint")
+              .setAllowedOriginPatterns("*");
     }
 
     @EventListener(MyEvent.class)
@@ -159,9 +162,8 @@ public class NettyApplication {
 
   static class WebSocket0 extends WebSocketHandler {
 
-    @SneakyThrows
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
       System.out.println("handleTextMessage" + message);
       session.sendMessage(message);
     }
@@ -172,14 +174,35 @@ public class NettyApplication {
     }
 
     @Override
-    public void afterHandshake(RequestContext context, WebSocketSession session) {
+    public void afterHandshake(RequestContext context, WebSocketSession session) throws IOException {
       System.out.println("afterHandshake");
+      context.addCookie("name", "demo");
     }
 
     @Override
     public void onClose(WebSocketSession session, CloseStatus status) {
       System.out.println("onClose " + status);
     }
+  }
+
+  static class Client {
+
+    public static void main(String[] args) throws InterruptedException {
+      NettyWebSocketClient client = new NettyWebSocketClient();
+      client.connect(new WebSocketHandler() {
+                @Override
+                protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+                  System.out.println("handleTextMessage: " + message);
+                  session.close();
+                }
+
+              }, "ws://localhost:8080/endpoint")
+              .onSuccess(session -> {
+                session.sendText("hello");
+              });
+
+    }
+
   }
 
 }

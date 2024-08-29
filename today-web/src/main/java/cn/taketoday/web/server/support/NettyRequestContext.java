@@ -26,7 +26,6 @@ import java.net.SocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,7 +77,6 @@ import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
@@ -492,32 +490,34 @@ public class NettyRequestContext extends RequestContext {
       // apply Status code and headers
       // ---------------------------------------------
       HttpHeaders headers = nettyResponseHeaders;
-      // set Content-Length header
-      if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
-        headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-        headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
-      }
-      else if (!isTransferEncodingChunked(headers)) {
-        if (headers.get(DefaultHttpHeaders.CONTENT_LENGTH) == null) {
-          ByteBuf responseBody = this.responseBody;
-          if (responseBody == null) {
-            if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-              headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
+      if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
+        // set Content-Length header
+        if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
+          headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+          headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
+        }
+        else if (!isTransferEncodingChunked(headers)) {
+          if (headers.get(DefaultHttpHeaders.CONTENT_LENGTH) == null) {
+            ByteBuf responseBody = this.responseBody;
+            if (responseBody == null) {
+              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
+                headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
+              }
+              else {
+                headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
+              }
             }
             else {
-              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
+              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
             }
-          }
-          else {
-            headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
           }
         }
       }
 
       // apply cookies
-      ArrayList<HttpCookie> responseCookies = this.responseCookies;
+      var responseCookies = this.responseCookies;
       if (responseCookies != null) {
-        ServerCookieEncoder cookieEncoder = config.cookieEncoder;
+        var cookieEncoder = config.cookieEncoder;
         for (HttpCookie cookie : responseCookies) {
           DefaultCookie nc = new DefaultCookie(cookie.getName(), cookie.getValue());
           if (cookie instanceof ResponseCookie rc) {
@@ -534,13 +534,7 @@ public class NettyRequestContext extends RequestContext {
         }
       }
 
-      // write response
-      if (isKeepAlive()) {
-        HttpUtil.setKeepAlive(headers, HttpVersion.HTTP_1_1, true);
-      }
-
-      var noBody = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers);
-      channelContext.write(noBody);
+      channelContext.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers));
     }
 
   }
