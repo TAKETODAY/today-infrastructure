@@ -420,7 +420,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     int cnt = request.refCnt();
     if (cnt != 0) {
       ReferenceCountUtil.safeRelease(request);
@@ -588,6 +588,16 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public void setStatus(HttpStatusCode status) {
     this.status = HttpResponseStatus.valueOf(status.value());
+  }
+
+  /**
+   * Set response status
+   *
+   * @param status http status
+   * @since 5.0
+   */
+  public void setStatus(HttpResponseStatus status) {
+    this.status = status;
   }
 
   @Override

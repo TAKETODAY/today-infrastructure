@@ -631,8 +631,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void postRequestCompleted(@Nullable Throwable notHandled) {
-    getDelegate().postRequestCompleted(notHandled);
+  public void requestCompletedInternal(@Nullable Throwable notHandled) {
+    getDelegate().requestCompletedInternal(notHandled);
   }
 
   @Override

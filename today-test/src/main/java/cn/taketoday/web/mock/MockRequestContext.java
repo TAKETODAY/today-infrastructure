@@ -436,7 +436,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     if (notHandled == null) {
       try {
         flush();

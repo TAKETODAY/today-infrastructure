@@ -202,9 +202,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   protected Boolean corsRequestFlag;
 
-  /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
+  /** Map from attribute name String to destruction callback Runnable.  @since 5.0 */
   @Nullable
-  protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
+  protected LinkedHashMap<String, Runnable> destructionCallbacks;
 
   private long requestCompletedTimeMillis;
 
@@ -887,19 +887,19 @@ public abstract class RequestContext extends AttributeAccessorSupport
       multipartRequest.cleanup();
     }
 
-    LinkedHashMap<String, Runnable> callbacks = requestDestructionCallbacks;
+    requestCompletedInternal(notHandled);
+
+    var callbacks = destructionCallbacks;
     if (callbacks != null) {
+      destructionCallbacks = null;
       for (Runnable runnable : callbacks.values()) {
         runnable.run();
       }
       callbacks.clear();
-      requestDestructionCallbacks = null;
     }
-
-    postRequestCompleted(notHandled);
   }
 
-  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
 
   }
 
@@ -907,12 +907,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Register the given callback as to be executed after request completion.
    *
    * @param callback the callback to be executed for destruction
-   * @since 4.0
+   * @since 5.0
    */
-  public final void registerRequestDestructionCallback(Runnable callback) {
+  public final void registerDestructionCallback(Runnable callback) {
     Assert.notNull(callback, "Destruction Callback is required");
     String variableName = Conventions.getVariableName(callback);
-    registerRequestDestructionCallback(variableName, callback);
+    registerDestructionCallback(variableName, callback);
   }
 
   /**
@@ -920,27 +920,27 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param name the name of the attribute to register the callback for
    * @param callback the callback to be executed for destruction
-   * @since 4.0
+   * @since 5.0
    */
-  public final void registerRequestDestructionCallback(String name, Runnable callback) {
+  public final void registerDestructionCallback(String name, Runnable callback) {
     Assert.notNull(name, "Name is required");
     Assert.notNull(callback, "Destruction Callback is required");
-    if (requestDestructionCallbacks == null) {
-      requestDestructionCallbacks = new LinkedHashMap<>(8);
+    if (destructionCallbacks == null) {
+      destructionCallbacks = new LinkedHashMap<>(8);
     }
-    requestDestructionCallbacks.put(name, callback);
+    destructionCallbacks.put(name, callback);
   }
 
   /**
    * Remove the request destruction callback for the specified attribute, if any.
    *
    * @param name the name of the attribute to remove the callback for
-   * @since 4.0
+   * @since 5.0
    */
-  public final void removeRequestDestructionCallback(String name) {
+  public final void removeDestructionCallback(String name) {
     Assert.notNull(name, "Name is required");
-    if (requestDestructionCallbacks != null) {
-      requestDestructionCallbacks.remove(name);
+    if (destructionCallbacks != null) {
+      destructionCallbacks.remove(name);
     }
   }
 

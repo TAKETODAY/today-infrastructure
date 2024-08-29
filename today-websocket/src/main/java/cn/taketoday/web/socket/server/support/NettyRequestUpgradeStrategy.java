@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.Decorator;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.server.support.NettyRequestContext;
@@ -31,9 +32,11 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
 /**
@@ -102,24 +105,37 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     session.setAttributes(attributes);
 
     FullHttpRequest request = nettyContext.nativeRequest();
-    WebSocketServerHandshaker handShaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
+    var handshaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channelContext.channel();
-    if (handShaker == null) {
+    if (handshaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;
     }
-    else {
-      WebSocketHolder.bind(channel, wsHandler, session);
-      handShaker.handshake(channel, request, nettyContext.nettyResponseHeaders, channel.newPromise())
-              .addListener(future -> {
-                if (future.isSuccess()) {
-                  wsHandler.onOpen(session);
-                }
-                else {
-                  wsHandler.onError(session, future.cause());
-                }
-              });
+
+    WebSocketHolder.bind(channel, wsHandler, session);
+    ChannelPromise writePromise = channel.newPromise();
+
+    var handshakeChannel = new HandshakeChannel(channel, writePromise);
+    ChannelFuture handshakeF = handshaker.handshake(handshakeChannel, request);
+    if (handshakeF.isDone() && !handshakeF.isSuccess()) {
+      throw new HandshakeFailureException("Handshake failed", handshakeF.cause());
     }
+
+    FullHttpResponse response = handshakeChannel.response;
+    Assert.state(response != null, "Handshake failed");
+
+    nettyContext.setStatus(response.status());
+    nettyContext.nettyResponseHeaders.add(response.headers());
+    nettyContext.registerDestructionCallback(handshakeChannel);
+
+    writePromise.addListener(future -> {
+      if (future.isSuccess()) {
+        wsHandler.onOpen(session);
+      }
+      else {
+        wsHandler.onError(session, future.cause());
+      }
+    });
     return session;
   }
 
