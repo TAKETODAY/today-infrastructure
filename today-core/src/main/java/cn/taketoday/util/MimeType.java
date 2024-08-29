@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +69,162 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   public static final String WILDCARD_TYPE = "*";
 
   public static final String PARAM_CHARSET = "charset";
+
+  /**
+   * Public constant mime type that includes all media ranges (i.e.
+   * "&#42;/&#42;").
+   *
+   * @since 5.0
+   */
+  public static final MimeType ALL = new MimeType("*", "*");
+
+  /**
+   * A String equivalent of {@link MimeType#ALL}.
+   *
+   * @since 5.0
+   */
+  public static final String ALL_VALUE = "*/*";
+
+  /**
+   * Public constant mime type for {@code application/json}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType APPLICATION_JSON = new MimeType("application", "json");
+
+  /**
+   * A String equivalent of {@link MimeType#APPLICATION_JSON}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_JSON_VALUE = "application/json";
+
+  /**
+   * A String equivalent of {@link MimeType#APPLICATION_JSON}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
+
+  /**
+   * Public constant mime type for {@code application/octet-stream}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType APPLICATION_OCTET_STREAM = new MimeType("application", "octet-stream");
+
+  /**
+   * A String equivalent of {@link MimeType#APPLICATION_OCTET_STREAM}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_OCTET_STREAM_VALUE = "application/octet-stream";
+
+  /**
+   * Public constant mime type for {@code application/xml}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType APPLICATION_XML = new MimeType("application", "xml");
+
+  /**
+   * A String equivalent of {@link MimeType#APPLICATION_XML}.
+   *
+   * @since 5.0
+   */
+  public static final String APPLICATION_XML_VALUE = "application/xml";
+
+  /**
+   * Public constant mime type for {@code image/gif}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType IMAGE_GIF = new MimeType("image", "gif");
+
+  /**
+   * A String equivalent of {@link MimeType#IMAGE_GIF}.
+   *
+   * @since 5.0
+   */
+  public static final String IMAGE_GIF_VALUE = "image/gif";
+
+  /**
+   * Public constant mime type for {@code image/jpeg}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType IMAGE_JPEG = new MimeType("image", "jpeg");
+
+  /**
+   * A String equivalent of {@link MimeType#IMAGE_JPEG}.
+   *
+   * @since 5.0
+   */
+  public static final String IMAGE_JPEG_VALUE = "image/jpeg";
+
+  /**
+   * Public constant mime type for {@code image/png}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType IMAGE_PNG = new MimeType("image", "png");
+
+  /**
+   * A String equivalent of {@link MimeType#IMAGE_PNG}.
+   *
+   * @since 5.0
+   */
+  public static final String IMAGE_PNG_VALUE = "image/png";
+
+  /**
+   * Public constant mime type for {@code text/html}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType TEXT_HTML = new MimeType("text", "html");
+
+  /**
+   * A String equivalent of {@link MimeType#TEXT_HTML}.
+   *
+   * @since 5.0
+   */
+  public static final String TEXT_HTML_VALUE = "text/html";
+
+  /**
+   * Public constant mime type for {@code text/plain}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType TEXT_PLAIN = new MimeType("text", "plain");
+
+  public static final MimeType TEXT_PLAIN_UTF8 = TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
+
+  /**
+   * A String equivalent of {@link MimeType#TEXT_PLAIN}.
+   *
+   * @since 5.0
+   */
+  public static final String TEXT_PLAIN_VALUE = "text/plain";
+
+  /**
+   * Public constant mime type for {@code text/xml}.
+   *
+   * @since 5.0
+   */
+  public static final MimeType TEXT_XML = new MimeType("text", "xml");
+
+  /**
+   * A String equivalent of {@link MimeType#TEXT_XML}.
+   *
+   * @since 5.0
+   */
+  public static final String TEXT_XML_VALUE = "text/xml";
+
+  /** @since 5.0 */
+  public static final String APPLICATION_YAML_VALUE = "application/yaml";
+
+  /** @since 5.0 */
+  public static final String APPLICATION_PDF_VALUE = "application/pdf";
 
   private static final BitSet TOKEN;
 

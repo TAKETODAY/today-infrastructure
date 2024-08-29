@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 
 /**
  * Decode from a data buffer stream to a {@code CharBuffer} stream, either splitting
@@ -75,7 +74,7 @@ public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuf
    * input strings
    */
   public static CharBufferDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
-    return new CharBufferDecoder(delimiters, stripDelimiter, MimeTypeUtils.TEXT_PLAIN_UTF8);
+    return new CharBufferDecoder(delimiters, stripDelimiter, MimeType.TEXT_PLAIN_UTF8);
   }
 
   /**
@@ -93,7 +92,7 @@ public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuf
    * input strings
    */
   public static CharBufferDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-    return new CharBufferDecoder(delimiters, stripDelimiter, MimeTypeUtils.TEXT_PLAIN_UTF8, MimeTypeUtils.ALL);
+    return new CharBufferDecoder(delimiters, stripDelimiter, MimeType.TEXT_PLAIN_UTF8, MimeType.ALL);
   }
 
 }

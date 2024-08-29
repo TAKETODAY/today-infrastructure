@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,14 +119,14 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
    * Create a {@code CharSequenceEncoder} that supports only "text/plain".
    */
   public static CharSequenceEncoder textPlainOnly() {
-    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN_UTF8);
+    return new CharSequenceEncoder(MimeType.TEXT_PLAIN_UTF8);
   }
 
   /**
    * Create a {@code CharSequenceEncoder} that supports all MIME types.
    */
   public static CharSequenceEncoder allMimeTypes() {
-    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN_UTF8, MimeTypeUtils.ALL);
+    return new CharSequenceEncoder(MimeType.TEXT_PLAIN_UTF8, MimeType.ALL);
   }
 
 }

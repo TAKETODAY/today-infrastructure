@@ -64,9 +64,6 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static final MediaType ALL = new MediaType("*", "*");
 
-  /** A String equivalent of {@link MediaType#ALL}. */
-  public static final String ALL_VALUE = "*/*";
-
   /** Public constant media type for {@code application/atom+xml}. */
   public static final MediaType APPLICATION_ATOM_XML = new MediaType("application", "atom+xml");
 
@@ -95,38 +92,17 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static final MediaType APPLICATION_YAML = new MediaType("application", "yaml");
 
-  /**
-   * A String equivalent of {@link MediaType#APPLICATION_YAML}.
-   *
-   * @since 4.0
-   */
-  public static final String APPLICATION_YAML_VALUE = "application/yaml";
-
-  /**
-   * A String equivalent of {@link MediaType#APPLICATION_JSON}.
-   *
-   * @see #APPLICATION_JSON_UTF8_VALUE
-   */
-  public static final String APPLICATION_JSON_VALUE = "application/json";
-  public static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
-
   /** Public constant media type for {@code application/octet-stream}. */
   public static final MediaType APPLICATION_OCTET_STREAM = new MediaType("application", "octet-stream");
 
-  /** A String equivalent of {@link MediaType#APPLICATION_OCTET_STREAM}. */
-  public static final String APPLICATION_OCTET_STREAM_VALUE = "application/octet-stream";
-
   /** Public constant media type for {@code application/pdf}. */
   public static final MediaType APPLICATION_PDF = new MediaType("application", "pdf");
-
-  /** A String equivalent of {@link MediaType#APPLICATION_PDF}. */
-  public static final String APPLICATION_PDF_VALUE = "application/pdf";
 
   /**
    * Public constant media type for {@code application/problem+json}.
    *
    * @see <a href="https://www.iana.org/assignments/media-types/application/problem+json">
-   * Problem Details for HTTP APIs, 6.1. application/problem+json</a>
+   * Problem Details for HTTP APIs. application/problem+json</a>
    */
   public static final MediaType APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
 
@@ -137,7 +113,7 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code application/problem+xml}.
    *
    * @see <a href="https://www.iana.org/assignments/media-types/application/problem+xml">
-   * Problem Details for HTTP APIs, 6.2. application/problem+xml</a>
+   * Problem Details for HTTP APIs. application/problem+xml</a>
    */
   public static final MediaType APPLICATION_PROBLEM_XML = new MediaType("application", "problem+xml");
 
@@ -175,26 +151,14 @@ public class MediaType extends MimeType implements Serializable {
   /** Public constant media type for {@code application/xml}. */
   public static final MediaType APPLICATION_XML = new MediaType("application", "xml");
 
-  /** A String equivalent of {@link MediaType#APPLICATION_XML}. */
-  public static final String APPLICATION_XML_VALUE = "application/xml";
-
   /** Public constant media type for {@code image/gif}. */
   public static final MediaType IMAGE_GIF = new MediaType("image", "gif");
-
-  /** A String equivalent of {@link MediaType#IMAGE_GIF}. */
-  public static final String IMAGE_GIF_VALUE = "image/gif";
 
   /** Public constant media type for {@code image/jpeg}. */
   public static final MediaType IMAGE_JPEG = new MediaType("image", "jpeg");
 
-  /** A String equivalent of {@link MediaType#IMAGE_JPEG}. */
-  public static final String IMAGE_JPEG_VALUE = "image/jpeg";
-
   /** Public constant media type for {@code image/png}. */
   public static final MediaType IMAGE_PNG = new MediaType("image", "png");
-
-  /** A String equivalent of {@link MediaType#IMAGE_PNG}. */
-  public static final String IMAGE_PNG_VALUE = "image/png";
 
   /** Public constant media type for {@code multipart/form-data}. */
   public static final MediaType MULTIPART_FORM_DATA = new MediaType("multipart", "form-data");
@@ -236,9 +200,6 @@ public class MediaType extends MimeType implements Serializable {
   /** Public constant media type for {@code text/html}. */
   public static final MediaType TEXT_HTML = new MediaType("text", "html");
 
-  /** A String equivalent of {@link MediaType#TEXT_HTML}. */
-  public static final String TEXT_HTML_VALUE = "text/html";
-
   /** Public constant media type for {@code text/markdown}. */
   public static final MediaType TEXT_MARKDOWN = new MediaType("text", "markdown");
 
@@ -248,14 +209,8 @@ public class MediaType extends MimeType implements Serializable {
   /** Public constant media type for {@code text/plain}. */
   public static final MediaType TEXT_PLAIN = new MediaType("text", "plain");
 
-  /** A String equivalent of {@link MediaType#TEXT_PLAIN}. */
-  public static final String TEXT_PLAIN_VALUE = "text/plain";
-
   /** Public constant media type for {@code text/xml}. */
   public static final MediaType TEXT_XML = new MediaType("text", "xml");
-
-  /** A String equivalent of {@link MediaType#TEXT_XML}. */
-  public static final String TEXT_XML_VALUE = "text/xml";
 
   /**
    * Public constant media type for {@code application/x-protobuf}.

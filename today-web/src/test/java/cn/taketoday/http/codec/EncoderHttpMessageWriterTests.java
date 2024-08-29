@@ -77,14 +77,14 @@ class EncoderHttpMessageWriterTests {
 
   @Test
   void getWritableMediaTypes() {
-    configureEncoder(MimeTypeUtils.TEXT_HTML, MimeTypeUtils.TEXT_XML);
+    configureEncoder(MimeType.TEXT_HTML, MimeType.TEXT_XML);
     HttpMessageWriter<?> writer = new EncoderHttpMessageWriter<>(this.encoder);
     assertThat(writer.getWritableMediaTypes()).isEqualTo(Arrays.asList(TEXT_HTML, TEXT_XML));
   }
 
   @Test
   void canWrite() {
-    configureEncoder(MimeTypeUtils.TEXT_HTML);
+    configureEncoder(MimeType.TEXT_HTML);
     HttpMessageWriter<?> writer = new EncoderHttpMessageWriter<>(this.encoder);
     given(this.encoder.canEncode(forClass(String.class), TEXT_HTML)).willReturn(true);
 
@@ -111,7 +111,7 @@ class EncoderHttpMessageWriterTests {
   }
 
   private void testDefaultMediaType(MediaType negotiatedMediaType) {
-    MimeType defaultContentType = MimeTypeUtils.TEXT_XML;
+    MimeType defaultContentType = MimeType.TEXT_XML;
     configureEncoder(defaultContentType);
     HttpMessageWriter<String> writer = new EncoderHttpMessageWriter<>(this.encoder);
     writer.write(Flux.empty(), forClass(String.class), negotiatedMediaType, this.response, NO_HINTS);
@@ -158,7 +158,7 @@ class EncoderHttpMessageWriterTests {
   void setContentLengthForMonoBody() {
     DefaultDataBufferFactory factory = DefaultDataBufferFactory.sharedInstance;
     DataBuffer buffer = factory.wrap("body".getBytes(StandardCharsets.UTF_8));
-    configureEncoder(Flux.just(buffer), MimeTypeUtils.TEXT_PLAIN);
+    configureEncoder(Flux.just(buffer), MimeType.TEXT_PLAIN);
     HttpMessageWriter<String> writer = new EncoderHttpMessageWriter<>(this.encoder);
     writer.write(Mono.just("body"), forClass(String.class), TEXT_PLAIN, this.response, NO_HINTS).block();
 
@@ -178,9 +178,8 @@ class EncoderHttpMessageWriterTests {
   }
 
   @Test
-    // SPR-17220
   void emptyBodyWritten() {
-    configureEncoder(MimeTypeUtils.TEXT_PLAIN);
+    configureEncoder(MimeType.TEXT_PLAIN);
     HttpMessageWriter<String> writer = new EncoderHttpMessageWriter<>(this.encoder);
     writer.write(Mono.empty(), forClass(String.class), TEXT_PLAIN, this.response, NO_HINTS).block();
     StepVerifier.create(this.response.getBody()).verifyComplete();
@@ -188,7 +187,6 @@ class EncoderHttpMessageWriterTests {
   }
 
   @Test
-    // gh-22936
   void isStreamingMediaType() throws InvocationTargetException, IllegalAccessException {
     configureEncoder(TEXT_HTML);
     MediaType streamingMediaType = new MediaType(TEXT_PLAIN, Collections.singletonMap("streaming", "true"));

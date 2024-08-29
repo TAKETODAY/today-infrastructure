@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,89 +53,11 @@ public abstract class MimeTypeUtils {
           'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
   };
 
-  /**
-   * Public constant mime type that includes all media ranges (i.e.
-   * "&#42;/&#42;").
-   */
-  public static final MimeType ALL;
-
-  /** A String equivalent of {@link MimeTypeUtils#ALL}. */
-  public static final String ALL_VALUE = "*/*";
-
-  /** Public constant mime type for {@code application/json}. */
-  public static final MimeType APPLICATION_JSON;
-
-  /** A String equivalent of {@link MimeTypeUtils#APPLICATION_JSON}. */
-  public static final String APPLICATION_JSON_VALUE = "application/json";
-
-  /** Public constant mime type for {@code application/octet-stream}. */
-  public static final MimeType APPLICATION_OCTET_STREAM;
-
-  /** A String equivalent of {@link MimeTypeUtils#APPLICATION_OCTET_STREAM}. */
-  public static final String APPLICATION_OCTET_STREAM_VALUE = "application/octet-stream";
-
-  /** Public constant mime type for {@code application/xml}. */
-  public static final MimeType APPLICATION_XML;
-
-  /** A String equivalent of {@link MimeTypeUtils#APPLICATION_XML}. */
-  public static final String APPLICATION_XML_VALUE = "application/xml";
-
-  /** Public constant mime type for {@code image/gif}. */
-  public static final MimeType IMAGE_GIF;
-
-  /** A String equivalent of {@link MimeTypeUtils#IMAGE_GIF}. */
-  public static final String IMAGE_GIF_VALUE = "image/gif";
-
-  /** Public constant mime type for {@code image/jpeg}. */
-  public static final MimeType IMAGE_JPEG;
-
-  /** A String equivalent of {@link MimeTypeUtils#IMAGE_JPEG}. */
-  public static final String IMAGE_JPEG_VALUE = "image/jpeg";
-
-  /** Public constant mime type for {@code image/png}. */
-  public static final MimeType IMAGE_PNG;
-
-  /** A String equivalent of {@link MimeTypeUtils#IMAGE_PNG}. */
-  public static final String IMAGE_PNG_VALUE = "image/png";
-
-  /** Public constant mime type for {@code text/html}. */
-  public static final MimeType TEXT_HTML;
-
-  /** A String equivalent of {@link MimeTypeUtils#TEXT_HTML}. */
-  public static final String TEXT_HTML_VALUE = "text/html";
-
-  /** Public constant mime type for {@code text/plain}. */
-  public static final MimeType TEXT_PLAIN = new MimeType("text", "plain");
-
-  public static final MimeType TEXT_PLAIN_UTF8 = TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
-
-  /** A String equivalent of {@link MimeTypeUtils#TEXT_PLAIN}. */
-  public static final String TEXT_PLAIN_VALUE = "text/plain";
-
-  /** Public constant mime type for {@code text/xml}. */
-  public static final MimeType TEXT_XML;
-
-  /** A String equivalent of {@link MimeTypeUtils#TEXT_XML}. */
-  public static final String TEXT_XML_VALUE = "text/xml";
-
-  private static final ConcurrentLruCache<String, MimeType> cachedMimeTypes = //
+  private static final ConcurrentLruCache<String, MimeType> cachedMimeTypes =
           new ConcurrentLruCache<>(64, MimeTypeUtils::parseMimeTypeInternal);
 
   @Nullable
   private static volatile Random random;
-
-  static {
-    // Not using "parseMimeType" to avoid static init cost
-    ALL = new MimeType("*", "*");
-    TEXT_XML = new MimeType("text", "xml");
-    IMAGE_GIF = new MimeType("image", "gif");
-    IMAGE_PNG = new MimeType("image", "png");
-    TEXT_HTML = new MimeType("text", "html");
-    IMAGE_JPEG = new MimeType("image", "jpeg");
-    APPLICATION_XML = new MimeType("application", "xml");
-    APPLICATION_JSON = new MimeType("application", "json");
-    APPLICATION_OCTET_STREAM = new MimeType("application", "octet-stream");
-  }
 
   /**
    * Parse the given String into a single {@code MimeType}. Recently parsed
