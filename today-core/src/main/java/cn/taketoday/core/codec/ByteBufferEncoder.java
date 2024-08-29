@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -30,19 +27,19 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
 /**
  * Encoder for {@link ByteBuffer ByteBuffers}.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ByteBufferEncoder extends AbstractEncoder<ByteBuffer> {
 
   public ByteBufferEncoder() {
-    super(MimeTypeUtils.ALL);
+    super(MimeType.ALL);
   }
 
   @Override
@@ -52,8 +49,7 @@ public class ByteBufferEncoder extends AbstractEncoder<ByteBuffer> {
   }
 
   @Override
-  public Flux<DataBuffer> encode(
-          Publisher<? extends ByteBuffer> inputStream, DataBufferFactory bufferFactory,
+  public Flux<DataBuffer> encode(Publisher<? extends ByteBuffer> inputStream, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return Flux.from(inputStream)
@@ -61,8 +57,7 @@ public class ByteBufferEncoder extends AbstractEncoder<ByteBuffer> {
   }
 
   @Override
-  public DataBuffer encodeValue(
-          ByteBuffer byteBuffer, DataBufferFactory bufferFactory,
+  public DataBuffer encodeValue(ByteBuffer byteBuffer, DataBufferFactory bufferFactory,
           ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     DataBuffer dataBuffer = bufferFactory.wrap(byteBuffer);

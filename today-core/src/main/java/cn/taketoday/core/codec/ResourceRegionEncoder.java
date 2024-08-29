@@ -34,7 +34,6 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,7 +64,7 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
   }
 
   public ResourceRegionEncoder(int bufferSize) {
-    super(MimeTypeUtils.APPLICATION_OCTET_STREAM, MimeTypeUtils.ALL);
+    super(MimeType.APPLICATION_OCTET_STREAM, MimeType.ALL);
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be larger than 0");
     this.bufferSize = bufferSize;
   }

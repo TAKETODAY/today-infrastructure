@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -30,7 +27,6 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import reactor.core.publisher.Flux;
 
@@ -38,6 +34,7 @@ import reactor.core.publisher.Flux;
  * Encoder for {@link Resource Resources}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ResourceEncoder extends AbstractSingleValueEncoder<Resource> {
@@ -54,7 +51,7 @@ public class ResourceEncoder extends AbstractSingleValueEncoder<Resource> {
   }
 
   public ResourceEncoder(int bufferSize) {
-    super(MimeTypeUtils.APPLICATION_OCTET_STREAM, MimeTypeUtils.ALL);
+    super(MimeType.APPLICATION_OCTET_STREAM, MimeType.ALL);
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be larger than 0");
     this.bufferSize = bufferSize;
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -28,7 +25,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -45,12 +41,13 @@ import reactor.core.publisher.Flux;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class DataBufferDecoder extends AbstractDataBufferDecoder<DataBuffer> {
 
   public DataBufferDecoder() {
-    super(MimeTypeUtils.ALL);
+    super(MimeType.ALL);
   }
 
   @Override
@@ -60,16 +57,14 @@ public class DataBufferDecoder extends AbstractDataBufferDecoder<DataBuffer> {
   }
 
   @Override
-  public Flux<DataBuffer> decode(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  public Flux<DataBuffer> decode(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return Flux.from(input);
   }
 
   @Override
-  public DataBuffer decode(
-          DataBuffer buffer, ResolvableType elementType,
+  public DataBuffer decode(DataBuffer buffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     if (logger.isDebugEnabled()) {
       logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), buffer.readableByteCount());

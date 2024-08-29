@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -27,7 +24,6 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 
 /**
  * Decoder for {@code byte} arrays.
@@ -39,7 +35,7 @@ import cn.taketoday.util.MimeTypeUtils;
 public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
   public ByteArrayDecoder() {
-    super(MimeTypeUtils.ALL);
+    super(MimeType.ALL);
   }
 
   @Override
@@ -49,7 +45,7 @@ public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
   @Override
   public byte[] decode(DataBuffer dataBuffer, ResolvableType elementType,
-                       @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     byte[] result = new byte[dataBuffer.readableByteCount()];
     dataBuffer.read(result);

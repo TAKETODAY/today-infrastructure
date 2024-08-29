@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -28,7 +25,6 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBuffer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -36,12 +32,13 @@ import io.netty.buffer.Unpooled;
  * Decoder for {@link ByteBuf ByteBufs}.
  *
  * @author Vladislav Kisel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
 
   public NettyByteBufDecoder() {
-    super(MimeTypeUtils.ALL);
+    super(MimeType.ALL);
   }
 
   @Override
@@ -52,7 +49,7 @@ public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
 
   @Override
   public ByteBuf decode(DataBuffer dataBuffer, ResolvableType elementType,
-                        @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled()) {
       logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableByteCount());

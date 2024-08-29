@@ -30,7 +30,6 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
 /**
@@ -47,7 +46,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
   public static String FILENAME_HINT = ResourceDecoder.class.getName() + ".filename";
 
   public ResourceDecoder() {
-    super(MimeTypeUtils.ALL);
+    super(MimeType.ALL);
   }
 
   @Override
