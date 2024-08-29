@@ -81,7 +81,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   static final boolean jackson2Present;
   static final boolean nettyByteBufPresent;
-  static final boolean synchronossMultipartPresent;
 
   private static final boolean protobufPresent;
   private static final boolean jackson2SmilePresent;
@@ -93,7 +92,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
             && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
-    synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
     netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.Buffer", classLoader);
   }
@@ -175,7 +173,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     this.protobufDecoder = other.protobufDecoder;
     this.protobufEncoder = other.protobufEncoder;
     this.multipartCodecs = other.multipartCodecs != null ?
-                           new DefaultMultipartCodecs(other.multipartCodecs) : null;
+            new DefaultMultipartCodecs(other.multipartCodecs) : null;
     this.multipartReader = other.multipartReader;
     this.codecConsumer = other.codecConsumer;
     this.maxInMemorySize = other.maxInMemorySize;
@@ -228,7 +226,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   @Override
   public void configureDefaultCodec(Consumer<Object> codecConsumer) {
     this.codecConsumer = (this.codecConsumer != null ?
-                          this.codecConsumer.andThen(codecConsumer) : codecConsumer);
+            this.codecConsumer.andThen(codecConsumer) : codecConsumer);
     initReaders();
     initWriters();
   }
@@ -327,7 +325,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (protobufPresent) {
       addCodec(this.typedReaders, new DecoderHttpMessageReader<>(
               this.protobufDecoder != null ?
-              (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
+                      (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
     }
     addCodec(this.typedReaders, new FormHttpMessageReader());
 
@@ -472,7 +470,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (jackson2SmilePresent) {
       addCodec(this.objectReaders, new DecoderHttpMessageReader<>(
               this.jackson2SmileDecoder != null ?
-              (Jackson2SmileDecoder) this.jackson2SmileDecoder : new Jackson2SmileDecoder()));
+                      (Jackson2SmileDecoder) this.jackson2SmileDecoder : new Jackson2SmileDecoder()));
     }
 //    if (jaxb2Present && !shouldIgnoreXml) {
 //      addCodec(this.objectReaders, new DecoderHttpMessageReader<>(this.jaxb2Decoder != null ?
@@ -544,7 +542,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (protobufPresent) {
       addCodec(writers, new ProtobufHttpMessageWriter(
               this.protobufEncoder != null ?
-              (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
+                      (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
     }
 
     addCodec(writers, new MultipartHttpMessageWriter(this::getPartWriters, new FormHttpMessageWriter()));
@@ -600,7 +598,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (jackson2SmilePresent) {
       addCodec(writers, new EncoderHttpMessageWriter<>(
               this.jackson2SmileEncoder != null ?
-              (Jackson2SmileEncoder) this.jackson2SmileEncoder : new Jackson2SmileEncoder()));
+                      (Jackson2SmileEncoder) this.jackson2SmileEncoder : new Jackson2SmileEncoder()));
     }
 //    if (jaxb2Present && !shouldIgnoreXml) {
 //      addCodec(writers, new EncoderHttpMessageWriter<>(this.jaxb2Encoder != null ?

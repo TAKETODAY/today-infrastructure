@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-description = "Web infrastructure based on netty"
+description = "Web infrastructure API, provides default netty implementation"
 
 configurations {
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)

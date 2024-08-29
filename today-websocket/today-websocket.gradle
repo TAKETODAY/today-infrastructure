@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-description = "WebSocket infrastructure"
+description = "WebSocket infrastructure API, provides default netty implementation"
 
 dependencies {
   api(project(":today-context"))
