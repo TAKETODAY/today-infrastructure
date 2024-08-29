@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.handler;
@@ -55,15 +55,8 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   private final Map<WebSocketSession, WebSocketHandler> handlers =
           new ConcurrentHashMap<>();
 
-  private final boolean supportsPartialMessages;
-
   public PerConnectionWebSocketHandler(Class<? extends WebSocketHandler> handlerType) {
-    this(handlerType, false);
-  }
-
-  public PerConnectionWebSocketHandler(Class<? extends WebSocketHandler> handlerType, boolean supportsPartialMessages) {
     this.provider = new BeanCreatingHandlerProvider<>(handlerType);
-    this.supportsPartialMessages = supportsPartialMessages;
   }
 
   @Override
@@ -98,11 +91,6 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
     }
   }
 
-  @Override
-  public boolean supportsPartialMessage() {
-    return this.supportsPartialMessages;
-  }
-
   private WebSocketHandler getHandler(WebSocketSession session) {
     WebSocketHandler handler = this.handlers.get(session);
     if (handler == null) {
@@ -127,7 +115,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
 
   @Override
   public String toString() {
-    return "PerConnectionWebSocketHandlerProxy[handlerType=" + this.provider.getHandlerType() + "]";
+    return "PerConnectionWebSocketHandlerProxy[handlerType=%s]".formatted(this.provider.getHandlerType());
   }
 
 }

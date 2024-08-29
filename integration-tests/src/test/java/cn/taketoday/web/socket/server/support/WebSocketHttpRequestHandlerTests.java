@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
@@ -118,7 +119,7 @@ public class WebSocketHttpRequestHandlerTests {
 
     @Override
     public void afterHandshake(RequestContext request,
-            WebSocketHandler wsHandler, Exception exception) {
+            WebSocketHandler wsHandler, @Nullable Throwable exception) {
 
       request.responseHeaders().add("exceptionHeaderName", "exceptionHeaderValue");
     }

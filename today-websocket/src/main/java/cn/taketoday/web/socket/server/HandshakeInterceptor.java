@@ -55,6 +55,6 @@ public interface HandshakeInterceptor {
    * @param wsHandler the target WebSocket handler
    * @param exception an exception raised during the handshake, or {@code null} if none
    */
-  void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Exception exception);
+  void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Throwable exception);
 
 }

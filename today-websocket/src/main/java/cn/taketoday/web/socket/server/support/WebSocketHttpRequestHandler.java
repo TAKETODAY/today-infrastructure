@@ -30,7 +30,6 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
-import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
 
@@ -78,7 +77,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   @Override
   public Object handleRequest(RequestContext request) throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
-    HandshakeFailureException failure = null;
+    Throwable failure = null;
     try {
       if (logger.isDebugEnabled()) {
         logger.debug(request);
@@ -91,12 +90,8 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
         wsHandler.afterHandshake(request, session);
       }
     }
-    catch (HandshakeFailureException ex) {
-      failure = ex;
-    }
     catch (Throwable ex) {
-      failure = new HandshakeFailureException(
-              "Uncaught failure for request %s - %s".formatted(request.getURI(), ex.getMessage()), ex);
+      failure = ex;
     }
     finally {
       if (failure != null) {

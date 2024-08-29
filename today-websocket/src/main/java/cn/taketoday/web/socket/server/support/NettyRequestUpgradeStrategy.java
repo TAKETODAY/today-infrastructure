@@ -111,7 +111,14 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     else {
       WebSocketHolder.bind(channel, wsHandler, session);
       handShaker.handshake(channel, request, nettyContext.nettyResponseHeaders, channel.newPromise())
-              .addListener(future -> wsHandler.onOpen(session));
+              .addListener(future -> {
+                if (future.isSuccess()) {
+                  wsHandler.onOpen(session);
+                }
+                else {
+                  wsHandler.onError(session, future.cause());
+                }
+              });
     }
     return session;
   }

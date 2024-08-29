@@ -125,8 +125,8 @@ public class OriginHandshakeInterceptor implements HandshakeInterceptor {
   }
 
   @Override
-  public void afterHandshake(RequestContext request,
-          WebSocketHandler wsHandler, @Nullable Exception exception) {
+  public void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Throwable exception) {
+
   }
 
 }

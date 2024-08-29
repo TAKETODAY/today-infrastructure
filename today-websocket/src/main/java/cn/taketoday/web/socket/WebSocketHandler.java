@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,9 +72,11 @@ public abstract class WebSocketHandler {
   }
 
   /**
-   * called after Handshake
+   * called after server handshake
    * <p>
    * if session is {@code null} means handshake failed
+   * <p>
+   * websocket client handler never invoke this method
    *
    * @param session un-initialize session, cannot send message
    */
@@ -185,13 +187,6 @@ public abstract class WebSocketHandler {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }
-  }
-
-  public boolean supportsPartialMessage() {
-    if (delegate != null) {
-      return delegate.supportsPartialMessage();
-    }
-    return false;
   }
 
 }
