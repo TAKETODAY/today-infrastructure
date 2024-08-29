@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.testfixture.codec.AbstractDecoderTests;
-import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MimeType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import reactor.core.publisher.Flux;
@@ -48,12 +48,9 @@ class NettyByteBufDecoderTests extends AbstractDecoderTests<NettyByteBufDecoder>
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
-            MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class),
-            MimeTypeUtils.APPLICATION_JSON)).isTrue();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class), MimeType.TEXT_PLAIN)).isFalse();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class), MimeType.APPLICATION_JSON)).isTrue();
   }
 
   @Override

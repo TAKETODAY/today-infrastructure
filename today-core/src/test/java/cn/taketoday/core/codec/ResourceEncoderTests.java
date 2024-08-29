@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -30,7 +30,6 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.testfixture.codec.AbstractEncoderTests;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -51,16 +50,10 @@ class ResourceEncoderTests extends AbstractEncoderTests<ResourceEncoder> {
   @Override
   @Test
   public void canEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(ByteArrayResource.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
-            MimeTypeUtils.APPLICATION_JSON)).isTrue();
-
-    // SPR-15464
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(ByteArrayResource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class), MimeType.APPLICATION_JSON)).isTrue();
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
   }
 

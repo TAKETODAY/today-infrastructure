@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -29,7 +29,7 @@ import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.testfixture.codec.AbstractDecoderTests;
-import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MimeType;
 import cn.taketoday.util.StreamUtils;
 import reactor.core.publisher.Flux;
 
@@ -52,11 +52,11 @@ class ResourceDecoderTests extends AbstractDecoderTests<ResourceDecoder> {
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(forClass(ByteArrayResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(forClass(Resource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
-    assertThat(this.decoder.canDecode(forClass(Object.class), MimeTypeUtils.APPLICATION_JSON)).isFalse();
+    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(ByteArrayResource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Resource.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeType.APPLICATION_JSON)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Object.class), MimeType.APPLICATION_JSON)).isFalse();
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -54,13 +54,10 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
     ResolvableType resourceRegion = ResolvableType.forClass(ResourceRegion.class);
     MimeType allMimeType = MimeType.valueOf("*/*");
 
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
-            MimeTypeUtils.APPLICATION_OCTET_STREAM)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class), MimeType.APPLICATION_OCTET_STREAM)).isFalse();
     assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class), allMimeType)).isFalse();
-    assertThat(this.encoder.canEncode(resourceRegion, MimeTypeUtils.APPLICATION_OCTET_STREAM)).isTrue();
+    assertThat(this.encoder.canEncode(resourceRegion, MimeType.APPLICATION_OCTET_STREAM)).isTrue();
     assertThat(this.encoder.canEncode(resourceRegion, allMimeType)).isTrue();
-
-    // SPR-15464
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
   }
 
@@ -68,9 +65,8 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
   void shouldEncodeResourceRegionFileResource() throws Exception {
     ResourceRegion region = new ResourceRegion(
             new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()), 0, 6);
-    Flux<DataBuffer> result = this.encoder.encode(
-            Mono.just(region), this.bufferFactory, ResolvableType.forClass(ResourceRegion.class),
-            MimeTypeUtils.APPLICATION_OCTET_STREAM, Collections.emptyMap());
+    Flux<DataBuffer> result = this.encoder.encode(Mono.just(region), this.bufferFactory,
+            ResolvableType.forClass(ResourceRegion.class), MimeType.APPLICATION_OCTET_STREAM, Collections.emptyMap());
 
     StepVerifier.create(result)
             .consumeNextWith(stringConsumer("Spring"))

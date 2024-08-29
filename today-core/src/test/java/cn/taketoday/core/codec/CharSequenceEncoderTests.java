@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.testfixture.codec.AbstractEncoderTests;
-import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -49,18 +49,11 @@ class CharSequenceEncoderTests extends AbstractEncoderTests<CharSequenceEncoder>
   @Override
   @Test
   public void canEncode() throws Exception {
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuilder.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuffer.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
-            MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class),
-            MimeTypeUtils.APPLICATION_JSON)).isFalse();
-
-    // SPR-15464
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuilder.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuffer.class), MimeType.TEXT_PLAIN)).isTrue();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Integer.class), MimeType.TEXT_PLAIN)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class), MimeType.APPLICATION_JSON)).isFalse();
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();
   }
 

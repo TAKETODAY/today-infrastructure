@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -26,7 +26,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.testfixture.codec.AbstractDecoderTests;
-import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,11 +48,11 @@ class DataBufferDecoderTests extends AbstractDecoderTests<DataBufferDecoder> {
   @Test
   public void canDecode() {
     assertThat(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
-            MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            MimeType.TEXT_PLAIN)).isTrue();
     assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
-            MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            MimeType.TEXT_PLAIN)).isFalse();
     assertThat(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
-            MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            MimeType.APPLICATION_JSON)).isTrue();
   }
 
   @Override
