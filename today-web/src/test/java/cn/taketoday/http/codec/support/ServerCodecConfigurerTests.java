@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.support;
@@ -68,6 +65,7 @@ import cn.taketoday.http.codec.multipart.PartEventHttpMessageWriter;
 import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
+import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
@@ -290,21 +288,21 @@ public class ServerCodecConfigurerTests {
   @SuppressWarnings("unchecked")
   private void assertStringDecoder(Decoder<?> decoder, boolean textOnly) {
     assertThat(decoder.getClass()).isEqualTo(StringDecoder.class);
-    assertThat(decoder.canDecode(forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(decoder.canDecode(forClass(String.class), MimeType.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
     assertThat(decoder.canDecode(forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
 
     byte[] bytes = "line1\nline2".getBytes(StandardCharsets.UTF_8);
     Flux<String> flux = (Flux<String>) decoder.decode(
             Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes)),
-            forClass(String.class), MimeTypeUtils.TEXT_PLAIN, Collections.emptyMap());
+            forClass(String.class), MimeType.TEXT_PLAIN, Collections.emptyMap());
 
     assertThat(flux.collectList().block(Duration.ZERO)).isEqualTo(Arrays.asList("line1", "line2"));
   }
 
   private void assertStringEncoder(Encoder<?> encoder, boolean textOnly) {
     assertThat(encoder.getClass()).isEqualTo(CharSequenceEncoder.class);
-    assertThat(encoder.canEncode(forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(encoder.canEncode(forClass(String.class), MimeType.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
     assertThat(encoder.canEncode(forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
   }

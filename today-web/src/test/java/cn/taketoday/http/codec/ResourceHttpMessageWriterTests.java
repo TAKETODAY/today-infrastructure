@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -32,6 +29,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRange;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
@@ -64,7 +62,7 @@ public class ResourceHttpMessageWriterTests {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void getWritableMediaTypes() throws Exception {
     assertThat((List) this.writer.getWritableMediaTypes())
-            .containsExactlyInAnyOrder(MimeTypeUtils.APPLICATION_OCTET_STREAM, MimeTypeUtils.ALL);
+            .containsExactlyInAnyOrder(MimeType.APPLICATION_OCTET_STREAM, MimeType.ALL);
   }
 
   @Test

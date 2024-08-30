@@ -47,7 +47,6 @@ import cn.taketoday.http.codec.Pojo;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView1;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView3;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -187,7 +186,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
                     .expectNext(List.of(pojo1, pojo2))
                     .expectNext(List.of(new Pojo("f3", "b3"), new Pojo("f4", "b4")))
                     .verifyComplete(),
-            MimeTypeUtils.APPLICATION_JSON,
+            MimeType.APPLICATION_JSON,
             Collections.emptyMap());
   }
 
