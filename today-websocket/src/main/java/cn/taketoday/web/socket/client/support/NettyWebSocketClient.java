@@ -19,6 +19,7 @@ package cn.taketoday.web.socket.client.support;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.core.Decorator;
 import cn.taketoday.http.HttpHeaders;
@@ -36,10 +37,12 @@ import cn.taketoday.web.socket.client.AbstractWebSocketClient;
 import cn.taketoday.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -55,6 +58,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 
+import static cn.taketoday.util.concurrent.Future.ok;
+import static cn.taketoday.web.socket.client.support.SettableFutureAdapter.adapt;
 import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
@@ -106,6 +111,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   private boolean failOnMissingResponse = HttpClientCodec.DEFAULT_FAIL_ON_MISSING_RESPONSE;
 
+  @Nullable
+  private ChannelFactory<?> channelFactory;
+
+  @Nullable
+  private NioEventLoopGroup eventLoopGroup;
+
   public void setFailOnMissingResponse(boolean failOnMissingResponse) {
     this.failOnMissingResponse = failOnMissingResponse;
   }
@@ -151,6 +162,22 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     this.httpDecoderConfig = httpDecoderConfig;
   }
 
+  /**
+   * {@link io.netty.channel.ChannelFactory} which is used to create {@link Channel} instances from
+   * when calling {@link Bootstrap#bind()}.
+   */
+  public void setChannelFactory(@Nullable ChannelFactory<?> channelFactory) {
+    this.channelFactory = channelFactory;
+  }
+
+  /**
+   * The {@link EventLoopGroup} which is used to handle all the events for the to-be-created
+   * {@link Channel}
+   */
+  public void setEventLoopGroup(@Nullable NioEventLoopGroup eventLoopGroup) {
+    this.eventLoopGroup = eventLoopGroup;
+  }
+
   @Override
   protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions) {
@@ -167,12 +194,25 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   }
 
   /**
+   * cleanup resource
+   */
+  @SuppressWarnings("unchecked")
+  public Future<Void> shutdown() {
+    if (eventLoopGroup != null) {
+      return (Future<Void>) adapt(eventLoopGroup.shutdownGracefully(1, 10, TimeUnit.SECONDS));
+    }
+    return ok();
+  }
+
+  /**
    * @since 5.0
    */
   protected Bootstrap getBootstrap(ChannelHandler handler) {
+    NioEventLoopGroup eventLoopGroup = eventLoopGroup();
+    ChannelFactory<?> channelFactory = channelFactory();
     return new Bootstrap()
-            .group(new NioEventLoopGroup(1))
-            .channel(NioSocketChannel.class)
+            .group(eventLoopGroup)
+            .channelFactory(channelFactory)
             .handler(new ChannelInitializer<SocketChannel>() {
 
               @Override
@@ -184,12 +224,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
                 NettyWebSocketClient.this.initChannel(ch);
               }
             });
-  }
-
-  private DefaultHttpHeaders createHeaders(HttpHeaders headers) {
-    DefaultHttpHeaders entries = new DefaultHttpHeaders();
-    headers.forEach(entries::add);
-    return entries;
   }
 
   protected WebSocketClientHandshaker createHandshaker(URI uri, List<String> subProtocols,
@@ -220,6 +254,33 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   protected void processCloseFrame(ChannelHandlerContext ctx) {
     ctx.channel().close();
+  }
+
+  /**
+   * default Channel is NioSocketChannel
+   */
+  private ChannelFactory<?> channelFactory() {
+    ChannelFactory<?> channelFactory = this.channelFactory;
+    if (channelFactory == null) {
+      channelFactory = NioSocketChannel::new;
+      this.channelFactory = channelFactory;
+    }
+    return channelFactory;
+  }
+
+  private NioEventLoopGroup eventLoopGroup() {
+    NioEventLoopGroup eventLoopGroup = this.eventLoopGroup;
+    if (eventLoopGroup == null) {
+      eventLoopGroup = new NioEventLoopGroup(4);
+      this.eventLoopGroup = eventLoopGroup;
+    }
+    return eventLoopGroup;
+  }
+
+  private DefaultHttpHeaders createHeaders(HttpHeaders headers) {
+    DefaultHttpHeaders entries = new DefaultHttpHeaders();
+    headers.forEach(entries::add);
+    return entries;
   }
 
   final class MessageHandler extends ChannelInboundHandlerAdapter {

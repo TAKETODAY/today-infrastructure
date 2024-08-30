@@ -201,6 +201,7 @@ public class NettyApplication {
                 session.sendText("hello");
               });
 
+      client.shutdown();
     }
 
   }
