@@ -42,7 +42,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see DefaultDataBufferFactory
  * @since 4.0
  */
-public class DefaultDataBuffer implements DataBuffer {
+public class DefaultDataBuffer extends DataBuffer {
 
   private static final int MAX_CAPACITY = Integer.MAX_VALUE;
 
