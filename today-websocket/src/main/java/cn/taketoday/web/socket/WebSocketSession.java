@@ -66,10 +66,20 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
     sendMessage(new BinaryMessage(buffer));
   }
 
+  /**
+   * Send ping message
+   *
+   * @since 5.0
+   */
   public void sendPing() throws IOException {
     sendMessage(new PingMessage());
   }
 
+  /**
+   * Send pong message
+   *
+   * @since 5.0
+   */
   public void sendPong() throws IOException {
     sendMessage(new PongMessage());
   }
