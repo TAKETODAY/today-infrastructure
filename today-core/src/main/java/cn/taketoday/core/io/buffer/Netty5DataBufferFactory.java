@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -32,6 +32,7 @@ import io.netty5.buffer.DefaultBufferAllocators;
  *
  * @author Violeta Georgieva
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class Netty5DataBufferFactory implements DataBufferFactory {
@@ -76,6 +77,13 @@ public class Netty5DataBufferFactory implements DataBufferFactory {
   @Override
   public Netty5DataBuffer wrap(byte[] bytes) {
     Buffer buffer = this.bufferAllocator.copyOf(bytes);
+    return new Netty5DataBuffer(buffer, this);
+  }
+
+  @Override
+  public DataBuffer wrap(byte[] bytes, int offset, int length) {
+    Buffer buffer = bufferAllocator.allocate(bytes.length)
+            .writeBytes(bytes, offset, length);
     return new Netty5DataBuffer(buffer, this);
   }
 

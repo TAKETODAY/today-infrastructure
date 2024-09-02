@@ -105,8 +105,9 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
-  public DefaultDataBuffer wrap(byte[] bytes) {
-    return DefaultDataBuffer.fromFilledByteBuffer(this, ByteBuffer.wrap(bytes));
+  public DataBuffer wrap(byte[] bytes, int offset, int length) {
+    return DefaultDataBuffer.fromFilledByteBuffer(this,
+            ByteBuffer.wrap(bytes, offset, length));
   }
 
   /**
