@@ -128,6 +128,8 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     nettyContext.nettyResponseHeaders.add(response.headers());
     nettyContext.registerDestructionCallback(handshakeChannel);
 
+    handshakeChannel.release();
+
     writePromise.addListener(future -> {
       if (future.isSuccess()) {
         wsHandler.onOpen(session);

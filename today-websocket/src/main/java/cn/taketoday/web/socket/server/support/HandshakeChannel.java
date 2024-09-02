@@ -52,6 +52,13 @@ class HandshakeChannel implements Channel, Runnable {
     this.writePromise = writePromise;
   }
 
+  public void release() {
+    if (response != null) {
+      response.release();
+      response = null;
+    }
+  }
+
   @Override
   public void run() {
     writePromise.trySuccess();
