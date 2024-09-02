@@ -557,15 +557,15 @@ public abstract class DataBufferUtils {
   }
 
   /**
-   * Retain the given data buffer, if it is a {@link PooledDataBuffer}.
+   * Retain the given data buffer, if it is a {@link DataBuffer#isPooled() PooledDataBuffer}.
    *
    * @param dataBuffer the data buffer to retain
    * @return the retained buffer
    */
   @SuppressWarnings("unchecked")
   public static <T extends DataBuffer> T retain(T dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
-      return (T) pooledDataBuffer.retain();
+    if (dataBuffer.isPooled()) {
+      return (T) dataBuffer.retain();
     }
     else {
       return dataBuffer;
@@ -582,8 +582,8 @@ public abstract class DataBufferUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T extends DataBuffer> T touch(T dataBuffer, Object hint) {
-    if (dataBuffer instanceof TouchableDataBuffer touchableDataBuffer) {
-      return (T) touchableDataBuffer.touch(hint);
+    if (dataBuffer.isTouchable()) {
+      return (T) dataBuffer.touch(hint);
     }
     else {
       return dataBuffer;
@@ -591,40 +591,41 @@ public abstract class DataBufferUtils {
   }
 
   /**
-   * Release the given data buffer. If it is a {@link PooledDataBuffer} and
-   * has been {@linkplain PooledDataBuffer#isAllocated() allocated}, this
-   * method will call {@link PooledDataBuffer#release()}. If it is a
-   * {@link CloseableDataBuffer}, this method will call
-   * {@link CloseableDataBuffer#close()}.
+   * Release the given data buffer. If it is a {@link DataBuffer#isPooled() Pooled DataBuffer}
+   * and has been {@linkplain DataBuffer#isAllocated() allocated}, this
+   * method will call {@link DataBuffer#release()}. If it is a
+   * {@link DataBuffer#isCloseable() Closeable DataBuffer}, this method will call
+   * {@link DataBuffer#close()}.
    *
    * @param dataBuffer the data buffer to release
    * @return {@code true} if the buffer was released; {@code false} otherwise.
    */
   public static boolean release(@Nullable DataBuffer dataBuffer) {
-    if (dataBuffer instanceof PooledDataBuffer pooledDataBuffer) {
-      if (pooledDataBuffer.isAllocated()) {
+    if (dataBuffer != null) {
+      if (dataBuffer.isPooled()) {
+        if (dataBuffer.isAllocated()) {
+          try {
+            return dataBuffer.release();
+          }
+          catch (IllegalStateException ex) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
+            }
+            return false;
+          }
+        }
+      }
+      else if (dataBuffer.isCloseable()) {
         try {
-          return pooledDataBuffer.release();
+          dataBuffer.close();
+          return true;
         }
         catch (IllegalStateException ex) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
+            logger.debug("Failed to release CloseableDataBuffer {}", dataBuffer, ex);
           }
           return false;
         }
-      }
-    }
-    else if (dataBuffer instanceof CloseableDataBuffer closeableDataBuffer) {
-      try {
-        closeableDataBuffer.close();
-        return true;
-      }
-      catch (IllegalStateException ex) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Failed to release CloseableDataBuffer {}", dataBuffer, ex);
-        }
-        return false;
-
       }
     }
     return false;

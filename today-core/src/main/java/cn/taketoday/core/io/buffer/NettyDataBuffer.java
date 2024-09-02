@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -38,7 +38,7 @@ import io.netty.buffer.ByteBufUtil;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class NettyDataBuffer implements PooledDataBuffer {
+public class NettyDataBuffer extends DataBuffer {
 
   private ByteBuf byteBuf;
 
@@ -250,7 +250,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
       ByteBufUtil.writeAscii(this.byteBuf, charSequence);
     }
     else {
-      return PooledDataBuffer.super.write(charSequence, charset);
+      return super.write(charSequence, charset);
     }
     return this;
   }
@@ -296,8 +296,8 @@ public class NettyDataBuffer implements PooledDataBuffer {
   @Override
   public ByteBuffer toByteBuffer(int index, int length) {
     ByteBuffer result = this.byteBuf.isDirect()
-                        ? ByteBuffer.allocateDirect(length)
-                        : ByteBuffer.allocate(length);
+            ? ByteBuffer.allocateDirect(length)
+            : ByteBuffer.allocate(length);
 
     this.byteBuf.getBytes(index, result);
 
@@ -313,13 +313,13 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
-  public DataBuffer.ByteBufferIterator readableByteBuffers() {
+  public ByteBufferIterator readableByteBuffers() {
     ByteBuffer[] readable = this.byteBuf.nioBuffers(this.byteBuf.readerIndex(), this.byteBuf.readableBytes());
     return new ByteBufferIterator(readable, true);
   }
 
   @Override
-  public DataBuffer.ByteBufferIterator writableByteBuffers() {
+  public ByteBufferIterator writableByteBuffers() {
     ByteBuffer[] writable = this.byteBuf.nioBuffers(this.byteBuf.writerIndex(), this.byteBuf.writableBytes());
     return new ByteBufferIterator(writable, false);
   }
@@ -337,17 +337,27 @@ public class NettyDataBuffer implements PooledDataBuffer {
   }
 
   @Override
+  public boolean isTouchable() {
+    return true;
+  }
+
+  @Override
+  public boolean isPooled() {
+    return true;
+  }
+
+  @Override
   public boolean isAllocated() {
     return this.byteBuf.refCnt() > 0;
   }
 
   @Override
-  public PooledDataBuffer retain() {
+  public NettyDataBuffer retain() {
     return new NettyDataBuffer(this.byteBuf.retain(), this.dataBufferFactory);
   }
 
   @Override
-  public PooledDataBuffer touch(Object hint) {
+  public NettyDataBuffer touch(Object hint) {
     this.byteBuf.touch(hint);
     return this;
   }

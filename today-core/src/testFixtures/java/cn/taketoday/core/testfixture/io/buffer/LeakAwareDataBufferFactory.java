@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.testfixture.io.buffer;
@@ -139,6 +139,11 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
   @Override
   public DataBuffer wrap(byte[] bytes) {
     return this.delegate.wrap(bytes);
+  }
+
+  @Override
+  public DataBuffer wrap(byte[] bytes, int offset, int length) {
+    return delegate.wrap(bytes, offset, length);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -35,10 +35,10 @@ import io.netty5.buffer.ComponentIterator;
  *
  * @author Violeta Georgieva
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public final class Netty5DataBuffer
-        implements CloseableDataBuffer, TouchableDataBuffer {
+public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable {
 
   private final Buffer buffer;
 
@@ -286,8 +286,8 @@ public final class Netty5DataBuffer
   @Override
   public ByteBuffer toByteBuffer(int index, int length) {
     ByteBuffer copy = this.buffer.isDirect() ?
-                      ByteBuffer.allocateDirect(length) :
-                      ByteBuffer.allocate(length);
+            ByteBuffer.allocateDirect(length) :
+            ByteBuffer.allocate(length);
 
     this.buffer.copyInto(index, copy, 0, length);
     return copy;
@@ -320,6 +320,16 @@ public final class Netty5DataBuffer
     byte[] data = new byte[length];
     this.buffer.copyInto(index, data, 0, length);
     return new String(data, 0, length, charset);
+  }
+
+  @Override
+  public boolean isTouchable() {
+    return true;
+  }
+
+  @Override
+  public boolean isCloseable() {
+    return true;
   }
 
   @Override

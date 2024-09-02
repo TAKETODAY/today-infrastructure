@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.testfixture.io.buffer;
@@ -20,15 +20,15 @@ package cn.taketoday.core.testfixture.io.buffer;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DataBufferWrapper;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.lang.Assert;
 
 /**
  * DataBuffer implementation created by {@link LeakAwareDataBufferFactory}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-class LeakAwareDataBuffer extends DataBufferWrapper implements PooledDataBuffer {
+class LeakAwareDataBuffer extends DataBufferWrapper {
 
   private final AssertionError leakError;
 
@@ -59,20 +59,29 @@ class LeakAwareDataBuffer extends DataBufferWrapper implements PooledDataBuffer 
   }
 
   @Override
-  public boolean isAllocated() {
-    DataBuffer delegate = dataBuffer();
-    return delegate instanceof PooledDataBuffer &&
-            ((PooledDataBuffer) delegate).isAllocated();
+  public boolean isTouchable() {
+    return true;
   }
 
   @Override
-  public PooledDataBuffer retain() {
+  public boolean isPooled() {
+    return true;
+  }
+
+  @Override
+  public boolean isAllocated() {
+    DataBuffer delegate = dataBuffer();
+    return delegate.isPooled() && delegate.isAllocated();
+  }
+
+  @Override
+  public LeakAwareDataBuffer retain() {
     DataBufferUtils.retain(dataBuffer());
     return this;
   }
 
   @Override
-  public PooledDataBuffer touch(Object hint) {
+  public LeakAwareDataBuffer touch(Object hint) {
     DataBufferUtils.touch(dataBuffer(), hint);
     return this;
   }

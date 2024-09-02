@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -28,6 +25,7 @@ import java.util.List;
  * wrapping of data buffers.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DataBuffer
  * @since 4.0
  */
@@ -68,7 +66,24 @@ public interface DataBufferFactory {
    * @param bytes the byte array to wrap
    * @return the wrapped buffer
    */
-  DataBuffer wrap(byte[] bytes);
+  default DataBuffer wrap(byte[] bytes) {
+    return wrap(bytes, 0, bytes.length);
+  }
+
+  /**
+   * Wrap the given {@code byte} array in a {@code DataBuffer}. Unlike
+   * {@linkplain #allocateBuffer(int) allocating}, wrapping does not use new memory.
+   *
+   * @param bytes the byte array to wrap
+   * @param offset The offset of the subarray to be used; must be non-negative and
+   * no larger than {@code array.length}. The new buffer's position will be set to this value.
+   * @param length The length of the subarray to be used;
+   * must be non-negative and no larger than {@code array.length - offset}.
+   * The new buffer's limit will be set to {@code offset + length}.
+   * @return the wrapped buffer
+   * @since 5.0
+   */
+  DataBuffer wrap(byte[] bytes, int offset, int length);
 
   /**
    * Return a new {@code DataBuffer} composed of the {@code dataBuffers} elements joined together.

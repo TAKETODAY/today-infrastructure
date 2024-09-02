@@ -2,7 +2,7 @@
 = 数据缓冲区和编解码器
 
 Java NIO 提供了 `ByteBuffer`，但许多库在其之上构建了自己的字节缓冲区 API，
-特别是对于网络操作，其中重用缓冲区和/或使用直接缓冲区有利于性能。例如，Netty 使用 `ByteBuf` 层次结构，
+特别是对于网络操作，其中重用缓冲区和/或使用直接缓冲区有利于性能。例如，Netty 使用 `ByteBuf` 结构，
 Undertow 使用 XNIO，Jetty 使用带有释放回调的池化字节缓冲区，等等。
 `today-core` 模块提供了一组抽象，以处理各种字节缓冲区 API，如下所示：
 
@@ -30,25 +30,25 @@ xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
 
 * 独立的读和写位置，即不需要调用 `flip()` 来在读和写之间切换。
 * 根据需要扩展容量，与 `java.lang.StringBuilder` 类似。
-* 通过 xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[`PooledDataBuffer`] 实现的缓冲池和引用计数。
+* 通过 xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[`Pooled DataBuffer`] 实现的缓冲池和引用计数。
 * 将缓冲区视为 `java.nio.ByteBuffer`、`InputStream` 或 `OutputStream`。
 * 确定给定字节的索引或最后一个索引。
 
 [[databuffers-buffer-pooled]]
-== `PooledDataBuffer`
+== `Pooled DataBuffer`
 
 如 {java-api}/java.base/java/nio/ByteBuffer.html[ByteBuffer]
 的 Javadoc 所述，字节缓冲区可以是直接的或非直接的。直接缓冲区可能驻留在 Java 堆之外，这消除了原生 I/O 操作的复制需求。
 这使得直接缓冲区特别适用于通过套接字接收和发送数据，但它们创建和释放的成本也更高，因此引入了缓冲区池的概念。
 
-`PooledDataBuffer` 是 `DataBuffer` 的扩展，它有助于引用计数，这对字节缓冲区池是至关重要的。
-它是如何工作的呢？当分配一个 `PooledDataBuffer` 时，引用计数为 1。
+`Pooled DataBuffer` 是 `DataBuffer` 的扩展，它有助于引用计数，这对字节缓冲区池是至关重要的。
+它是如何工作的呢？当分配一个 `Pooled DataBuffer` 时，引用计数为 1。
 调用 `retain()` 方法会增加计数，而调用 `release()` 方法会减少计数。
 只要计数大于 0，就保证不会释放缓冲区。
 当计数减少到 0 时，池化缓冲区可以被释放，实际上这可能意味着为缓冲区保留的内存被返回到内存池中。
 
-需要注意的是，在大多数情况下，不直接操作 `PooledDataBuffer`，而是使用 `DataBufferUtils` 中的便利方法更好，
-这些方法仅在 `DataBuffer` 是 `PooledDataBuffer` 的实例时应用释放或保留。
+需要注意的是，在大多数情况下，不直接操作 `Pooled DataBuffer`，而是使用 `DataBufferUtils` 中的便利方法更好，
+这些方法仅在 `DataBuffer` 是 `Pooled DataBuffer` 的实例时应用释放或保留。
 
 
 [[databuffers-utils]]
@@ -58,7 +58,7 @@ xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
 
 * 将数据缓冲区流合并成一个单一的缓冲区，可能通过复合缓冲区实现零拷贝，例如，如果底层字节缓冲区 API 支持的话。
 * 将 `InputStream` 或 NIO `Channel` 转换为 `Flux<DataBuffer>`，反之亦然，将 `Publisher<DataBuffer>` 转换为 `OutputStream` 或 NIO `Channel`。
-* 如果缓冲区是 `PooledDataBuffer` 的实例，则释放或保留数据缓冲区的方法。
+* 如果缓冲区是 `Pooled DataBuffer` 的实例，则释放或保留数据缓冲区的方法。
 * 从字节流中跳过或取出特定字节计数。
 
 

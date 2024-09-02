@@ -60,14 +60,14 @@ import cn.taketoday.lang.Assert;
  * @see DataBufferFactory
  * @since 4.0
  */
-public interface DataBuffer {
+public abstract class DataBuffer {
 
   /**
    * Return the {@link DataBufferFactory} that created this buffer.
    *
    * @return the creating buffer factory
    */
-  DataBufferFactory factory();
+  public abstract DataBufferFactory factory();
 
   /**
    * Return the index of the first byte in this buffer that matches
@@ -78,7 +78,7 @@ public interface DataBuffer {
    * @return the index of the first byte that matches {@code predicate};
    * or {@code -1} if none match
    */
-  int indexOf(IntPredicate predicate, int fromIndex);
+  public abstract int indexOf(IntPredicate predicate, int fromIndex);
 
   /**
    * Return the index of the last byte in this buffer that matches
@@ -89,28 +89,28 @@ public interface DataBuffer {
    * @return the index of the last byte that matches {@code predicate};
    * or {@code -1} if none match
    */
-  int lastIndexOf(IntPredicate predicate, int fromIndex);
+  public abstract int lastIndexOf(IntPredicate predicate, int fromIndex);
 
   /**
    * Return the number of bytes that can be read from this data buffer.
    *
    * @return the readable byte count
    */
-  int readableByteCount();
+  public abstract int readableByteCount();
 
   /**
    * Return the number of bytes that can be written to this data buffer.
    *
    * @return the writable byte count
    */
-  int writableByteCount();
+  public abstract int writableByteCount();
 
   /**
    * Return the number of bytes that this buffer can contain.
    *
    * @return the capacity
    */
-  int capacity();
+  public abstract int capacity();
 
   /**
    * Set the number of bytes that this buffer can contain.
@@ -122,7 +122,7 @@ public interface DataBuffer {
    * @return this buffer
    * @see #ensureWritable(int) in favor of ensureWritable
    */
-  DataBuffer capacity(int capacity);
+  public abstract DataBuffer capacity(int capacity);
 
   /**
    * Ensure that the current buffer has enough {@link #writableByteCount()}
@@ -132,14 +132,14 @@ public interface DataBuffer {
    * @param capacity the writable capacity to check for
    * @return this buffer
    */
-  DataBuffer ensureWritable(int capacity);
+  public abstract DataBuffer ensureWritable(int capacity);
 
   /**
    * Return the position from which this buffer will read.
    *
    * @return the read position
    */
-  int readPosition();
+  public abstract int readPosition();
 
   /**
    * Set the position from which this buffer will read.
@@ -149,14 +149,14 @@ public interface DataBuffer {
    * @throws IndexOutOfBoundsException if {@code readPosition} is smaller than 0
    * or greater than {@link #writePosition()}
    */
-  DataBuffer readPosition(int readPosition);
+  public abstract DataBuffer readPosition(int readPosition);
 
   /**
    * Return the position to which this buffer will write.
    *
    * @return the write position
    */
-  int writePosition();
+  public abstract int writePosition();
 
   /**
    * Set the position to which this buffer will write.
@@ -166,7 +166,7 @@ public interface DataBuffer {
    * @throws IndexOutOfBoundsException if {@code writePosition} is smaller than
    * {@link #readPosition()} or greater than {@link #capacity()}
    */
-  DataBuffer writePosition(int writePosition);
+  public abstract DataBuffer writePosition(int writePosition);
 
   /**
    * Read a single byte at the given index from this data buffer.
@@ -175,14 +175,14 @@ public interface DataBuffer {
    * @return the byte at the given index
    * @throws IndexOutOfBoundsException when {@code index} is out of bounds
    */
-  byte getByte(int index);
+  public abstract byte getByte(int index);
 
   /**
    * Read a single byte from the current reading position from this data buffer.
    *
    * @return the byte at this buffer's current reading position
    */
-  byte read();
+  public abstract byte read();
 
   /**
    * Read this buffer's data into the specified destination, starting at the current
@@ -191,7 +191,7 @@ public interface DataBuffer {
    * @param destination the array into which the bytes are to be written
    * @return this buffer
    */
-  DataBuffer read(byte[] destination);
+  public abstract DataBuffer read(byte[] destination);
 
   /**
    * Read at most {@code length} bytes of this buffer into the specified destination,
@@ -202,7 +202,7 @@ public interface DataBuffer {
    * @param length the maximum number of bytes to be written in {@code destination}
    * @return this buffer
    */
-  DataBuffer read(byte[] destination, int offset, int length);
+  public abstract DataBuffer read(byte[] destination, int offset, int length);
 
   /**
    * Write a single byte into this buffer at the current writing position.
@@ -210,7 +210,7 @@ public interface DataBuffer {
    * @param b the byte to be written
    * @return this buffer
    */
-  DataBuffer write(byte b);
+  public abstract DataBuffer write(byte b);
 
   /**
    * Write the given source into this buffer, starting at the current writing position
@@ -219,7 +219,7 @@ public interface DataBuffer {
    * @param source the bytes to be written into this buffer
    * @return this buffer
    */
-  DataBuffer write(byte[] source);
+  public abstract DataBuffer write(byte[] source);
 
   /**
    * Write at most {@code length} bytes of the given source into this buffer, starting
@@ -230,7 +230,7 @@ public interface DataBuffer {
    * @param length the maximum number of bytes to be written from {@code source}
    * @return this buffer
    */
-  DataBuffer write(byte[] source, int offset, int length);
+  public abstract DataBuffer write(byte[] source, int offset, int length);
 
   /**
    * Write one or more {@code DataBuffer}s to this buffer, starting at the current
@@ -240,7 +240,7 @@ public interface DataBuffer {
    * @param buffers the byte buffers to write into this buffer
    * @return this buffer
    */
-  DataBuffer write(DataBuffer... buffers);
+  public abstract DataBuffer write(DataBuffer... buffers);
 
   /**
    * Write one or more {@link ByteBuffer} to this buffer, starting at the current
@@ -249,7 +249,7 @@ public interface DataBuffer {
    * @param buffers the byte buffers to write into this buffer
    * @return this buffer
    */
-  DataBuffer write(ByteBuffer... buffers);
+  public abstract DataBuffer write(ByteBuffer... buffers);
 
   /**
    * Write the given {@code CharSequence} using the given {@code Charset},
@@ -259,7 +259,7 @@ public interface DataBuffer {
    * @param charset the charset to encode the char sequence with
    * @return this buffer
    */
-  default DataBuffer write(CharSequence charSequence, Charset charset) {
+  public DataBuffer write(CharSequence charSequence, Charset charset) {
     Assert.notNull(charSequence, "CharSequence is required");
     Assert.notNull(charset, "Charset is required");
     if (!charSequence.isEmpty()) {
@@ -305,7 +305,7 @@ public interface DataBuffer {
    * @return the specified slice of this data buffer
    * @see #split(int) which has different semantics
    */
-  DataBuffer slice(int index, int length);
+  public abstract DataBuffer slice(int index, int length);
 
   /**
    * Create a new {@code DataBuffer} whose contents is a shared, retained subsequence of this
@@ -321,7 +321,7 @@ public interface DataBuffer {
    * @return the specified, retained slice of this data buffer
    * @see #split(int) which has different semantics
    */
-  default DataBuffer retainedSlice(int index, int length) {
+  public DataBuffer retainedSlice(int index, int length) {
     return DataBufferUtils.retain(slice(index, length));
   }
 
@@ -343,7 +343,7 @@ public interface DataBuffer {
    * @return a new data buffer, containing the bytes from index {@code 0} to
    * {@code index}
    */
-  DataBuffer split(int index);
+  public abstract DataBuffer split(int index);
 
   /**
    * Expose this buffer's bytes as a {@link ByteBuffer}. Data between this
@@ -355,7 +355,7 @@ public interface DataBuffer {
    *
    * @return this data buffer as a byte buffer
    */
-  ByteBuffer asByteBuffer();
+  public abstract ByteBuffer asByteBuffer();
 
   /**
    * Expose a subsequence of this buffer's bytes as a {@link ByteBuffer}. Data between
@@ -370,7 +370,7 @@ public interface DataBuffer {
    * @param length the length of the returned byte buffer
    * @return this data buffer as a byte buffer
    */
-  ByteBuffer asByteBuffer(int index, int length);
+  public abstract ByteBuffer asByteBuffer(int index, int length);
 
   /**
    * Returns a {@link ByteBuffer} representation of this data buffer. Data
@@ -379,7 +379,7 @@ public interface DataBuffer {
    *
    * @return this data buffer as a byte buffer
    */
-  default ByteBuffer toByteBuffer() {
+  public ByteBuffer toByteBuffer() {
     return toByteBuffer(readPosition(), readableByteCount());
   }
 
@@ -390,7 +390,7 @@ public interface DataBuffer {
    *
    * @return this data buffer as a byte buffer
    */
-  ByteBuffer toByteBuffer(int index, int length);
+  public abstract ByteBuffer toByteBuffer(int index, int length);
 
   /**
    * Copies this entire data buffer into the given destination
@@ -400,7 +400,7 @@ public interface DataBuffer {
    *
    * @param dest the destination byte buffer
    */
-  default void toByteBuffer(ByteBuffer dest) {
+  public void toByteBuffer(ByteBuffer dest) {
     toByteBuffer(readPosition(), dest, dest.position(), readableByteCount());
   }
 
@@ -414,7 +414,7 @@ public interface DataBuffer {
    * @param destPos the position in {@code dest} to where copying should start
    * @param length the amount of data to copy
    */
-  void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length);
+  public abstract void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length);
 
   /**
    * Returns a closeable iterator over each {@link ByteBuffer} in this data
@@ -427,7 +427,7 @@ public interface DataBuffer {
    *
    * @return a closeable iterator over the readable byte buffers contained in this data buffer
    */
-  ByteBufferIterator readableByteBuffers();
+  public abstract ByteBufferIterator readableByteBuffers();
 
   /**
    * Returns a closeable iterator over each {@link ByteBuffer} in this data
@@ -439,7 +439,7 @@ public interface DataBuffer {
    *
    * @return a closeable iterator over the writable byte buffers contained in this data buffer
    */
-  ByteBufferIterator writableByteBuffers();
+  public abstract ByteBufferIterator writableByteBuffers();
 
   /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
@@ -450,7 +450,7 @@ public interface DataBuffer {
    * @return this data buffer as an input stream
    * @see #asInputStream(boolean)
    */
-  default InputStream asInputStream() {
+  public InputStream asInputStream() {
     return new DataBufferInputStream(this, false);
   }
 
@@ -463,7 +463,7 @@ public interface DataBuffer {
    * {@linkplain InputStream#close() closed}.
    * @return this data buffer as an input stream
    */
-  default InputStream asInputStream(boolean releaseOnClose) {
+  public InputStream asInputStream(boolean releaseOnClose) {
     return new DataBufferInputStream(this, releaseOnClose);
   }
 
@@ -473,7 +473,7 @@ public interface DataBuffer {
    *
    * @return this data buffer as an output stream
    */
-  default OutputStream asOutputStream() {
+  public OutputStream asOutputStream() {
     return new DataBufferOutputStream(this);
   }
 
@@ -484,7 +484,7 @@ public interface DataBuffer {
    * @param charset the character set to use
    * @return a string representation of all this buffers data
    */
-  default String toString(Charset charset) {
+  public String toString(Charset charset) {
     Assert.notNull(charset, "Charset is required");
     return toString(readPosition(), readableByteCount(), charset);
   }
@@ -497,7 +497,100 @@ public interface DataBuffer {
    * @param charset the charset to use
    * @return a string representation of a part of this buffers data
    */
-  String toString(int index, int length, Charset charset);
+  public abstract String toString(int index, int length, Charset charset);
+
+  // Touchable
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that can be given
+   * hints for debugging purposes.
+   *
+   * @since 5.0
+   */
+  public boolean isTouchable() {
+    return false;
+  }
+
+  /**
+   * Associate the given hint with the data buffer for debugging purposes.
+   *
+   * @return this buffer
+   * @see #isTouchable()
+   * @since 5.0
+   */
+  public DataBuffer touch(Object hint) {
+    return this;
+  }
+
+  // Pooled
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that share
+   * a memory pool. Introduces methods for reference counting.
+   *
+   * @since 5.0
+   */
+  public boolean isPooled() {
+    return false;
+  }
+
+  /**
+   * Return {@code true} if this buffer is allocated;
+   * {@code false} if it has been deallocated.
+   *
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public boolean isAllocated() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Increase the reference count for this buffer by one.
+   *
+   * @return this buffer
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public DataBuffer retain() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Decrease the reference count for this buffer by one,
+   * and deallocate it once the count reaches zero.
+   *
+   * @return {@code true} if the buffer was deallocated;
+   * {@code false} otherwise
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public boolean release() {
+    throw new UnsupportedOperationException();
+  }
+
+  // Closeable
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that can be used
+   * in a {@code try}-with-resources statement.
+   *
+   * @since 5.0
+   */
+  public boolean isCloseable() {
+    return false;
+  }
+
+  /**
+   * Closes this data buffer, freeing any resources.
+   *
+   * @throws IllegalStateException if this buffer has already been closed
+   * @see #isCloseable()
+   * @since 5.0
+   */
+  public void close() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * A dedicated iterator type that ensures the lifecycle of iterated
@@ -507,7 +600,7 @@ public interface DataBuffer {
    * @see DataBuffer#readableByteBuffers()
    * @see DataBuffer#writableByteBuffers()
    */
-  interface ByteBufferIterator extends Iterator<ByteBuffer>, Closeable {
+  public interface ByteBufferIterator extends Iterator<ByteBuffer>, Closeable {
 
     @Override
     void close();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -75,13 +72,13 @@ class PooledDataBufferTests {
 
     DataBufferFactory createDataBufferFactory();
 
-    default PooledDataBuffer createDataBuffer(int capacity) {
-      return (PooledDataBuffer) createDataBufferFactory().allocateBuffer(capacity);
+    default DataBuffer createDataBuffer(int capacity) {
+      return createDataBufferFactory().allocateBuffer(capacity);
     }
 
     @Test
     default void retainAndRelease() {
-      PooledDataBuffer buffer = createDataBuffer(1);
+      DataBuffer buffer = createDataBuffer(1);
       buffer.write((byte) 'a');
 
       buffer.retain();
@@ -91,7 +88,7 @@ class PooledDataBufferTests {
 
     @Test
     default void tooManyReleases() {
-      PooledDataBuffer buffer = createDataBuffer(1);
+      DataBuffer buffer = createDataBuffer(1);
       buffer.write((byte) 'a');
 
       buffer.release();
