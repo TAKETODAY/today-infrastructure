@@ -38,7 +38,7 @@ import io.netty.buffer.ByteBufUtil;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class NettyDataBuffer extends DataBuffer implements PooledDataBuffer {
+public class NettyDataBuffer extends DataBuffer {
 
   private ByteBuf byteBuf;
 
@@ -337,17 +337,27 @@ public class NettyDataBuffer extends DataBuffer implements PooledDataBuffer {
   }
 
   @Override
+  public boolean isTouchable() {
+    return true;
+  }
+
+  @Override
+  public boolean isPooled() {
+    return true;
+  }
+
+  @Override
   public boolean isAllocated() {
     return this.byteBuf.refCnt() > 0;
   }
 
   @Override
-  public PooledDataBuffer retain() {
+  public NettyDataBuffer retain() {
     return new NettyDataBuffer(this.byteBuf.retain(), this.dataBufferFactory);
   }
 
   @Override
-  public PooledDataBuffer touch(Object hint) {
+  public NettyDataBuffer touch(Object hint) {
     this.byteBuf.touch(hint);
     return this;
   }

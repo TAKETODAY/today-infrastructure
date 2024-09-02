@@ -38,7 +38,7 @@ import io.netty5.buffer.ComponentIterator;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public final class Netty5DataBuffer extends DataBuffer implements CloseableDataBuffer, TouchableDataBuffer {
+public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable {
 
   private final Buffer buffer;
 
@@ -320,6 +320,16 @@ public final class Netty5DataBuffer extends DataBuffer implements CloseableDataB
     byte[] data = new byte[length];
     this.buffer.copyInto(index, data, 0, length);
     return new String(data, 0, length, charset);
+  }
+
+  @Override
+  public boolean isTouchable() {
+    return true;
+  }
+
+  @Override
+  public boolean isCloseable() {
+    return true;
   }
 
   @Override

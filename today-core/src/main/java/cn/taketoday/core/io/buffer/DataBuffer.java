@@ -499,6 +499,99 @@ public abstract class DataBuffer {
    */
   public abstract String toString(int index, int length, Charset charset);
 
+  // Touchable
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that can be given
+   * hints for debugging purposes.
+   *
+   * @since 5.0
+   */
+  public boolean isTouchable() {
+    return false;
+  }
+
+  /**
+   * Associate the given hint with the data buffer for debugging purposes.
+   *
+   * @return this buffer
+   * @see #isTouchable()
+   * @since 5.0
+   */
+  public DataBuffer touch(Object hint) {
+    return this;
+  }
+
+  // Pooled
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that share
+   * a memory pool. Introduces methods for reference counting.
+   *
+   * @since 5.0
+   */
+  public boolean isPooled() {
+    return false;
+  }
+
+  /**
+   * Return {@code true} if this buffer is allocated;
+   * {@code false} if it has been deallocated.
+   *
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public boolean isAllocated() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Increase the reference count for this buffer by one.
+   *
+   * @return this buffer
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public DataBuffer retain() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Decrease the reference count for this buffer by one,
+   * and deallocate it once the count reaches zero.
+   *
+   * @return {@code true} if the buffer was deallocated;
+   * {@code false} otherwise
+   * @see #isPooled()
+   * @since 5.0
+   */
+  public boolean release() {
+    throw new UnsupportedOperationException();
+  }
+
+  // Closeable
+
+  /**
+   * Extension of {@link DataBuffer} that allows for buffers that can be used
+   * in a {@code try}-with-resources statement.
+   *
+   * @since 5.0
+   */
+  public boolean isCloseable() {
+    return false;
+  }
+
+  /**
+   * Closes this data buffer, freeing any resources.
+   *
+   * @throws IllegalStateException if this buffer has already been closed
+   * @see #isCloseable()
+   * @since 5.0
+   */
+  public void close() {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * A dedicated iterator type that ensures the lifecycle of iterated
    * {@link ByteBuffer} elements. This iterator must be used in a

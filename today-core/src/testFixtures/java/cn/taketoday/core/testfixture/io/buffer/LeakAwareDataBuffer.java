@@ -20,7 +20,6 @@ package cn.taketoday.core.testfixture.io.buffer;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DataBufferWrapper;
-import cn.taketoday.core.io.buffer.PooledDataBuffer;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -29,7 +28,7 @@ import cn.taketoday.lang.Assert;
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-class LeakAwareDataBuffer extends DataBufferWrapper implements PooledDataBuffer {
+class LeakAwareDataBuffer extends DataBufferWrapper {
 
   private final AssertionError leakError;
 
@@ -60,20 +59,29 @@ class LeakAwareDataBuffer extends DataBufferWrapper implements PooledDataBuffer 
   }
 
   @Override
-  public boolean isAllocated() {
-    DataBuffer delegate = dataBuffer();
-    return delegate instanceof PooledDataBuffer &&
-            ((PooledDataBuffer) delegate).isAllocated();
+  public boolean isTouchable() {
+    return true;
   }
 
   @Override
-  public PooledDataBuffer retain() {
+  public boolean isPooled() {
+    return true;
+  }
+
+  @Override
+  public boolean isAllocated() {
+    DataBuffer delegate = dataBuffer();
+    return delegate.isPooled() && delegate.isAllocated();
+  }
+
+  @Override
+  public LeakAwareDataBuffer retain() {
     DataBufferUtils.retain(dataBuffer());
     return this;
   }
 
   @Override
-  public PooledDataBuffer touch(Object hint) {
+  public LeakAwareDataBuffer touch(Object hint) {
     DataBufferUtils.touch(dataBuffer(), hint);
     return this;
   }
