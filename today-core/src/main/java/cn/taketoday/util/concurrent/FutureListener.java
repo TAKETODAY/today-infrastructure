@@ -55,14 +55,14 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * Java 8 lambda-friendly alternative with success and failure callbacks.
    *
    * <p> Adapts {@link AbstractFuture#trySuccess(Object)},
-   * {@link SettableFuture#setFailure(Throwable)} and
+   * {@link Promise#setFailure(Throwable)} and
    * {@link AbstractFuture#tryFailure(Throwable)} operations
    *
    * @param onSuccess success callback
    * @param onFailure failure callback
    * @param <F> Future subtype
    * @see AbstractFuture#trySuccess(Object)
-   * @see SettableFuture#setFailure(Throwable)
+   * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
   static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
@@ -83,7 +83,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * <p>Java 8 lambda-friendly alternative with failure callbacks.
    *
    * @param failureCallback the failure callback
-   * @see SettableFuture#setFailure(Throwable)
+   * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
   static <V, F extends Future<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {

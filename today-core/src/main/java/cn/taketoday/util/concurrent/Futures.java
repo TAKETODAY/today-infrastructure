@@ -140,10 +140,10 @@ final class Futures {
     if (future.isSuccess()) {
       return new ListenableFutureTask<>(future.executor(), new MapCallable<>(future.getNow(), mapper)).execute();
     }
-    SettableFuture<R> settable = Future.forSettable(future.executor());
-    future.onCompleted(new Mapper<>(settable, mapper));
-    settable.onCompleted(propagateCancel, future);
-    return settable;
+    Promise<R> promise = Future.forPromise(future.executor());
+    future.onCompleted(new Mapper<>(promise, mapper));
+    promise.onCompleted(propagateCancel, future);
+    return promise;
   }
 
   /**
@@ -175,15 +175,15 @@ final class Futures {
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
-  public static <V, R> SettableFuture<R> flatMap(Future<V> future, ThrowingFunction<V, Future<R>> mapper) {
-    SettableFuture<R> settable = Future.forSettable(future.executor());
-    future.onCompleted(new FlatMapper<>(settable, mapper));
+  public static <V, R> Promise<R> flatMap(Future<V> future, ThrowingFunction<V, Future<R>> mapper) {
+    Promise<R> promise = Future.forPromise(future.executor());
+    future.onCompleted(new FlatMapper<>(promise, mapper));
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel, future);
+      promise.onCompleted(propagateCancel, future);
     }
-    return settable;
+    return promise;
   }
 
   /**
@@ -215,15 +215,15 @@ final class Futures {
       return future;
     }
 
-    SettableFuture<V> settable = Future.forSettable(future.executor);
-    future.onCompleted(new ErrorHandling<>(settable, exType, errorHandler, causeFunction));
+    Promise<V> promise = Future.forPromise(future.executor);
+    future.onCompleted(new ErrorHandling<>(promise, exType, errorHandler, causeFunction));
 
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel, future);
+      promise.onCompleted(propagateCancel, future);
     }
-    return settable;
+    return promise;
   }
 
   /**
@@ -239,7 +239,7 @@ final class Futures {
    * @return A new Future that returns both Future results.
    */
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
-    SettableFuture<R> recipient = Future.forSettable(future.executor);
+    Promise<R> recipient = Future.forPromise(future.executor);
     future.onCompleted(completed -> {
       if (completed.isSuccess()) {
         // succeed
@@ -302,28 +302,28 @@ final class Futures {
    * @since 5.0
    */
   public static <V> Future<V> timeout(Future<V> delegate, long timeout,
-          TimeUnit unit, Scheduler scheduler, FutureListener<SettableFuture<V>> timeoutListener) {
+          TimeUnit unit, Scheduler scheduler, FutureListener<Promise<V>> timeoutListener) {
     if (delegate.isDone()) {
       return delegate;
     }
 
-    SettableFuture<V> settable = Future.forSettable(scheduler);
+    Promise<V> promise = Future.forPromise(scheduler);
     ScheduledFuture<?> timeoutFuture = scheduler.schedule(() -> {
       if (!delegate.isDone()) {
         // timeout
-        Future.notifyListener(settable, timeoutListener);
+        Future.notifyListener(promise, timeoutListener);
         delegate.cancel(true);
       }
     }, timeout, unit);
 
     delegate.onCompleted(completed -> {
       timeoutFuture.cancel(true);
-      if (!settable.isDone()) {
+      if (!promise.isDone()) {
         if (completed.isSuccess()) {
-          settable.trySuccess(completed.getNow());
+          promise.trySuccess(completed.getNow());
         }
         else {
-          propagateUncommonCompletion(completed, settable);
+          propagateUncommonCompletion(completed, promise);
         }
       }
     });
@@ -331,51 +331,51 @@ final class Futures {
     if (!delegate.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel, delegate);
+      promise.onCompleted(propagateCancel, delegate);
     }
-    return settable;
+    return promise;
   }
 
   /**
-   * Link the {@link Future} and {@link SettableFuture} such that if the {@link Future} completes the {@link SettableFuture}
+   * Link the {@link Future} and {@link Promise} such that if the {@link Future} completes the {@link Promise}
    * will be notified. Cancellation is propagated both ways such that if the {@link Future} is cancelled
-   * the {@link SettableFuture} is cancelled and vice-versa.
+   * the {@link Promise} is cancelled and vice-versa.
    *
-   * @param future the {@link Future} which will be used to listen to for notifying the {@link SettableFuture}.
-   * @param settable the {@link SettableFuture} which will be notified
+   * @param future the {@link Future} which will be used to listen to for notifying the {@link Promise}.
+   * @param promise the {@link Promise} which will be notified
    * @param <V> the type of the value.
    */
-  static <V> void cascadeTo(final Future<V> future, final SettableFuture<V> settable) {
+  static <V> void cascadeTo(final Future<V> future, final Promise<V> promise) {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel, future);
+      promise.onCompleted(propagateCancel, future);
     }
-    future.onCompleted(passThrough(), settable);
+    future.onCompleted(passThrough(), promise);
   }
 
   /**
-   * Try to mark the {@link SettableFuture} as failure and log if {@code logger} is not {@code null} in case this fails.
+   * Try to mark the {@link Promise} as failure and log if {@code logger} is not {@code null} in case this fails.
    */
-  static void tryFailure(SettableFuture<?> p, Throwable cause, @Nullable Logger logger) {
+  static void tryFailure(Promise<?> p, Throwable cause, @Nullable Logger logger) {
     if (!p.tryFailure(cause) && logger != null) {
       Throwable err = p.getCause();
       if (err == null) {
-        logger.warn("Failed to mark a SettableFuture as failure because it has succeeded already: {}", p, cause);
+        logger.warn("Failed to mark a Promise as failure because it has succeeded already: {}", p, cause);
       }
       else if (logger.isWarnEnabled()) {
-        logger.warn("Failed to mark a SettableFuture as failure because it has failed already: {}, unnotified cause: {}",
+        logger.warn("Failed to mark a Promise as failure because it has failed already: {}, unnotified cause: {}",
                 p, ExceptionUtils.stackTraceToString(err), cause);
       }
     }
   }
 
   @SuppressWarnings("unchecked")
-  static <R, V> FutureContextListener<Future<V>, SettableFuture<R>> passThrough() {
-    return (FutureContextListener<Future<V>, SettableFuture<R>>) (FutureContextListener<?, ?>) PASS_THROUGH;
+  static <R, V> FutureContextListener<Future<V>, Promise<R>> passThrough() {
+    return (FutureContextListener<Future<V>, Promise<R>>) (FutureContextListener<?, ?>) PASS_THROUGH;
   }
 
-  static <A, B> void propagateUncommonCompletion(Future<? extends A> completed, SettableFuture<B> recipient) {
+  static <A, B> void propagateUncommonCompletion(Future<? extends A> completed, Promise<B> recipient) {
     if (completed.isCancelled()) {
       // Don't check or log if cancellation propagation fails.
       // Propagation goes both ways, which means at least one future will already be cancelled here.
@@ -387,10 +387,10 @@ final class Futures {
     }
   }
 
-  private static final class PassThrough<R> implements FutureContextListener<Future<R>, SettableFuture<R>> {
+  private static final class PassThrough<R> implements FutureContextListener<Future<R>, Promise<R>> {
 
     @Override
-    public void operationComplete(Future<R> completed, SettableFuture<R> recipient) {
+    public void operationComplete(Future<R> completed, Promise<R> recipient) {
       if (completed.isSuccess()) {
         recipient.trySuccess(completed.getNow());
       }
@@ -424,11 +424,11 @@ final class Futures {
 
   private static final class Mapper<R, T> implements FutureListener<Future<T>> {
 
-    private final SettableFuture<R> recipient;
+    private final Promise<R> recipient;
 
     private final ThrowingFunction<T, R> mapper;
 
-    Mapper(SettableFuture<R> recipient, ThrowingFunction<T, R> mapper) {
+    Mapper(Promise<R> recipient, ThrowingFunction<T, R> mapper) {
       this.recipient = recipient;
       this.mapper = mapper;
     }
@@ -452,11 +452,11 @@ final class Futures {
 
   private static final class FlatMapper<R, T> implements FutureListener<Future<T>> {
 
-    private final SettableFuture<R> recipient;
+    private final Promise<R> recipient;
 
     private final ThrowingFunction<T, Future<R>> mapper;
 
-    FlatMapper(SettableFuture<R> recipient, ThrowingFunction<T, Future<R>> mapper) {
+    FlatMapper(Promise<R> recipient, ThrowingFunction<T, Future<R>> mapper) {
       this.recipient = recipient;
       this.mapper = mapper;
     }
@@ -492,13 +492,13 @@ final class Futures {
     @Nullable
     private final Class<T> exType;
 
-    private final SettableFuture<V> recipient;
+    private final Promise<V> recipient;
 
     private final ThrowingFunction<T, V> recoverFunc;
 
     private final BiFunction<Throwable, Class<T>, T> causeFunction;
 
-    private ErrorHandling(SettableFuture<V> recipient, @Nullable Class<T> exType,
+    private ErrorHandling(Promise<V> recipient, @Nullable Class<T> exType,
             ThrowingFunction<T, V> recoverFunc, BiFunction<Throwable, Class<T>, T> causeFunction) {
       this.recipient = recipient;
       this.exType = exType;

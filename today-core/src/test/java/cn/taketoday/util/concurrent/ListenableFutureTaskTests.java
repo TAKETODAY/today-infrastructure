@@ -135,10 +135,10 @@ class ListenableFutureTaskTests {
     ListenableFutureTask<Integer> futureTask = Future.run(() -> 1);
     assertThat(futureTask.await().getNow()).isEqualTo(1);
 
-    SettableFuture<Integer> settable = Future.forSettable();
-    futureTask.cascadeTo(settable);
+    Promise<Integer> promise = Future.forPromise();
+    futureTask.cascadeTo(promise);
 
-    assertThat(settable.await().getNow()).isEqualTo(1);
+    assertThat(promise.await().getNow()).isEqualTo(1);
   }
 
 }

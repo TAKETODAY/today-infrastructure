@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.SettableFuture;
+import cn.taketoday.util.concurrent.Promise;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
@@ -59,7 +59,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import static cn.taketoday.util.concurrent.Future.ok;
-import static cn.taketoday.web.socket.client.support.SettableFutureAdapter.adapt;
+import static cn.taketoday.web.socket.client.support.PromiseAdapter.adapt;
 import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
@@ -291,7 +291,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private final WebSocketClientHandshaker handshaker;
 
-    public final SettableFuture<WebSocketSession> future = Future.forSettable();
+    public final Promise<WebSocketSession> future = Future.forPromise();
 
     private WebSocketSession session;
 

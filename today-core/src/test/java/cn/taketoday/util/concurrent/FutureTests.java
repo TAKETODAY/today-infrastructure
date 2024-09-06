@@ -46,7 +46,7 @@ import lombok.SneakyThrows;
 
 import static cn.taketoday.util.concurrent.Future.failed;
 import static cn.taketoday.util.concurrent.Future.forExecutor;
-import static cn.taketoday.util.concurrent.Future.forSettable;
+import static cn.taketoday.util.concurrent.Future.forPromise;
 import static cn.taketoday.util.concurrent.Future.ok;
 import static cn.taketoday.util.concurrent.Future.whenAllComplete;
 import static cn.taketoday.util.concurrent.Future.whenAllSucceed;
@@ -63,7 +63,7 @@ class FutureTests {
 
   @Test
   void validateInitialValues() {
-    SettableFuture<Object> future = Future.forSettable();
+    Promise<Object> future = Future.forPromise();
     assertThat(future.isCancelled()).isFalse();
     assertThat(future.isDone()).isFalse();
     assertThat(future.isSuccess()).isFalse();
@@ -77,7 +77,7 @@ class FutureTests {
 
   @Test
   void validateValuesAfterCancel() {
-    SettableFuture<Object> future = Future.forSettable();
+    Promise<Object> future = Future.forPromise();
     assertThat(future.cancel()).isTrue();
     assertThat(future.isCancelled()).isTrue();
     assertThat(future.isDone()).isTrue();
@@ -202,25 +202,25 @@ class FutureTests {
 
   @Test
   void errorHandling_cancel() throws InterruptedException {
-    SettableFuture<String> settable = Future.forSettable();
-    Future<String> stringFuture = settable.errorHandling(Throwable::getMessage);
+    Promise<String> promise = Future.forPromise();
+    Future<String> stringFuture = promise.errorHandling(Throwable::getMessage);
 
-    settable.cancel();
+    promise.cancel();
     assertThat(stringFuture.await()).isCancelled();
 
-    settable = Future.forSettable();
-    settable.cancel();
+    promise = Future.forPromise();
+    promise.cancel();
 
-    stringFuture = settable.errorHandling(Throwable::getMessage);
+    stringFuture = promise.errorHandling(Throwable::getMessage);
     assertThat(stringFuture.await()).isCancelled();
   }
 
   @Test
   void errorHandling_failed() throws InterruptedException {
     IllegalStateException exception = new IllegalStateException("result");
-    SettableFuture<String> settable = Future.forSettable();
-    Future<String> stringFuture = settable.errorHandling(Throwable::getMessage);
-    settable.tryFailure(exception);
+    Promise<String> promise = Future.forPromise();
+    Future<String> stringFuture = promise.errorHandling(Throwable::getMessage);
+    promise.tryFailure(exception);
 
     assertThat(stringFuture.await()).isDone();
     assertThat(stringFuture.getNow()).isEqualTo("result");
@@ -228,9 +228,9 @@ class FutureTests {
 
   @Test
   void errorHandling_success() throws InterruptedException {
-    SettableFuture<String> settable = Future.forSettable();
-    Future<String> stringFuture = settable.errorHandling(Throwable::getMessage);
-    settable.trySuccess("result");
+    Promise<String> promise = Future.forPromise();
+    Future<String> stringFuture = promise.errorHandling(Throwable::getMessage);
+    promise.trySuccess("result");
 
     assertThat(stringFuture.await()).isDone();
     assertThat(stringFuture.getNow()).isEqualTo("result");
@@ -238,10 +238,10 @@ class FutureTests {
 
   @Test
   void errorHandling_notPropagate() throws InterruptedException {
-    SettableFuture<String> settable = Future.forSettable();
-    Future<String> stringFuture = settable.errorHandling(s -> "notPropagate")
+    Promise<String> promise = Future.forPromise();
+    Future<String> stringFuture = promise.errorHandling(s -> "notPropagate")
             .errorHandling(Throwable::getMessage);
-    settable.tryFailure(new IllegalStateException());
+    promise.tryFailure(new IllegalStateException());
 
     assertThat(stringFuture.await()).isDone();
     assertThat(stringFuture.getNow()).isEqualTo("notPropagate");
@@ -309,7 +309,7 @@ class FutureTests {
 
   @Test
   void catching_failed() {
-    SettableFuture<String> future = forSettable();
+    Promise<String> future = Future.forPromise();
     Future<String> stringFuture = future
             .catching(IllegalArgumentException.class, iae -> { throw new IllegalStateException("result"); })
             .catching(IllegalStateException.class, IllegalStateException::getMessage);
@@ -322,7 +322,7 @@ class FutureTests {
 
   @Test
   void catching_lost() {
-    SettableFuture<String> future = forSettable();
+    Promise<String> future = Future.forPromise();
     Future<String> stringFuture = future
             .catching(UnsupportedOperationException.class, UnsupportedOperationException::getMessage);
 
@@ -358,46 +358,46 @@ class FutureTests {
 
     //
 
-    SettableFuture<Integer> settable = Future.forSettable();
-    Future<Integer> map = settable.map(i -> i + 1);
-    settable.tryFailure(exception);
+    Promise<Integer> promise = Future.forPromise();
+    Future<Integer> map = promise.map(i -> i + 1);
+    promise.tryFailure(exception);
 
     assertThat(map.awaitUninterruptibly().getCause()).isSameAs(exception);
-    assertThat(settable.awaitUninterruptibly().getCause()).isSameAs(exception);
+    assertThat(promise.awaitUninterruptibly().getCause()).isSameAs(exception);
   }
 
   @Test
   void map_failedInMapper() {
     IllegalStateException exception = new IllegalStateException();
-    SettableFuture<Void> settable = forSettable();
-    Future<Void> failedFuture = settable
+    Promise<Void> promise = Future.forPromise();
+    Future<Void> failedFuture = promise
             .map(s -> {
               throw exception;
             });
 
-    settable.setSuccess(null);
+    promise.setSuccess(null);
 
     assertThat(failedFuture.awaitUninterruptibly().getCause()).isSameAs(exception);
   }
 
   @Test
   void map_cancel() {
-    SettableFuture<String> settableFuture = Future.forSettable();
-    assertThat(settableFuture.toString()).endsWith("[Not completed]");
+    Promise<String> promise = Future.forPromise();
+    assertThat(promise.toString()).endsWith("[Not completed]");
 
-    Future<String> stringFuture = settableFuture.map(s -> (s + "1"));
+    Future<String> stringFuture = promise.map(s -> (s + "1"));
     stringFuture.cancel();
 
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture.awaitUninterruptibly()).isCancelled();
 
-    settableFuture = Future.forSettable();
-    stringFuture = settableFuture.map(s -> (s + "1"));
-    settableFuture.cancel();
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    promise = Future.forPromise();
+    stringFuture = promise.map(s -> (s + "1"));
+    promise.cancel();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture.awaitUninterruptibly()).isCancelled();
 
-    assertThat(settableFuture.toString()).endsWith("[Cancelled]");
+    assertThat(promise.toString()).endsWith("[Cancelled]");
   }
 
   @Test
@@ -408,8 +408,8 @@ class FutureTests {
 
   @Test
   void mapCombiner() throws ExecutionException, InterruptedException {
-    SettableFuture<Integer> futureInteger = Future.forSettable();
-    SettableFuture<Boolean> futureBoolean = Future.forSettable();
+    Promise<Integer> futureInteger = Future.forPromise();
+    Promise<Boolean> futureBoolean = Future.forPromise();
 
     Callable<String> combiner = () -> {
       assertThat(futureInteger.isDone()).isTrue();
@@ -446,127 +446,127 @@ class FutureTests {
     assertThat(Future.ok("ok")
             .flatMap(s -> Future.failed(new RuntimeException())).awaitUninterruptibly().getCause()).isInstanceOf(RuntimeException.class);
 
-    SettableFuture<String> settableFuture = Future.forSettable();
+    Promise<String> promise = Future.forPromise();
 
     Future<String> future = ok("ok")
-            .flatMap(s -> settableFuture);
+            .flatMap(s -> promise);
 
     future.awaitUninterruptibly(500);
 
-    settableFuture.setSuccess("okk");
-    assertThat(settableFuture.awaitUninterruptibly().getNow()).isEqualTo("okk");
+    promise.setSuccess("okk");
+    assertThat(promise.awaitUninterruptibly().getNow()).isEqualTo("okk");
     assertThat(future.awaitUninterruptibly().getNow()).isEqualTo("okk");
   }
 
   @Test
   void flatMap_failedInMapper() {
     IllegalStateException exception = new IllegalStateException();
-    SettableFuture<Void> settable = forSettable();
-    Future<Void> failedFuture = settable
+    Promise<Void> promise = Future.forPromise();
+    Future<Void> failedFuture = promise
             .flatMap(s -> {
               throw exception;
             });
 
-    settable.setSuccess(null);
+    promise.setSuccess(null);
     assertThat(failedFuture.awaitUninterruptibly().getCause()).isSameAs(exception);
   }
 
   @Test
   void flatMap_cancel() {
-    SettableFuture<String> settableFuture = Future.forSettable();
-    Future<String> stringFuture = settableFuture.flatMap(s -> ok(s + "1"));
+    Promise<String> promise = Future.forPromise();
+    Future<String> stringFuture = promise.flatMap(s -> ok(s + "1"));
     stringFuture.cancel();
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture).isCancelled();
 
-    settableFuture = Future.forSettable();
-    stringFuture = settableFuture.flatMap(s -> ok(s + "1"));
-    settableFuture.cancel();
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    promise = Future.forPromise();
+    stringFuture = promise.flatMap(s -> ok(s + "1"));
+    promise.cancel();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture.awaitUninterruptibly()).isCancelled();
 
     //
 
-    settableFuture = Future.forSettable();
-    SettableFuture<String> finalSettableFuture = settableFuture;
+    promise = Future.forPromise();
+    Promise<String> finalPromise = promise;
 
     stringFuture = ok("ok")
-            .flatMap(s -> finalSettableFuture);
+            .flatMap(s -> finalPromise);
     stringFuture.cancel();
 
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture.awaitUninterruptibly()).isCancelled();
 
-    settableFuture = Future.forSettable();
-    stringFuture = settableFuture
-            .flatMap(s -> Future.forSettable());
-    settableFuture.cancel();
+    promise = Future.forPromise();
+    stringFuture = promise
+            .flatMap(s -> Future.forPromise());
+    promise.cancel();
 
-    assertThat(settableFuture.awaitUninterruptibly()).isCancelled();
+    assertThat(promise.awaitUninterruptibly()).isCancelled();
     assertThat(stringFuture.awaitUninterruptibly()).isCancelled();
 
   }
 
   @Test
   void cascadeTo_success() {
-    SettableFuture<String> settableFuture = Future.forSettable();
-    var stringFuture = Future.<String>forSettable()
-            .cascadeTo(settableFuture);
+    Promise<String> promise = Future.forPromise();
+    var stringFuture = Future.<String>forPromise()
+            .cascadeTo(promise);
 
     assertThat(stringFuture).isNotDone();
     assertThat(stringFuture).isNotCancelled();
-    assertThat(settableFuture).isNotDone();
-    assertThat(settableFuture).isNotCancelled();
+    assertThat(promise).isNotDone();
+    assertThat(promise).isNotCancelled();
     stringFuture.setSuccess("ok");
 
-    assertThat(settableFuture.awaitUninterruptibly()).isDone();
+    assertThat(promise.awaitUninterruptibly()).isDone();
     assertThat(stringFuture).isNotCancelled();
-    assertThat(settableFuture).isDone();
-    assertThat(settableFuture).isNotCancelled();
-    assertThat(settableFuture.getNow()).isEqualTo("ok");
+    assertThat(promise).isDone();
+    assertThat(promise).isNotCancelled();
+    assertThat(promise.getNow()).isEqualTo("ok");
   }
 
   @Test
   void cascadeTo_failed() {
     RuntimeException exception = new RuntimeException();
-    SettableFuture<String> settableFuture = Future.forSettable();
-    var stringFuture = Future.<String>forSettable()
-            .cascadeTo(settableFuture);
+    Promise<String> promise = Future.forPromise();
+    var stringFuture = Future.<String>forPromise()
+            .cascadeTo(promise);
 
     assertThat(stringFuture).isNotDone();
     assertThat(stringFuture).isNotCancelled();
-    assertThat(settableFuture).isNotDone();
-    assertThat(settableFuture).isNotCancelled();
+    assertThat(promise).isNotDone();
+    assertThat(promise).isNotCancelled();
     stringFuture.tryFailure(exception);
 
-    assertThat(settableFuture.awaitUninterruptibly()).isDone();
+    assertThat(promise.awaitUninterruptibly()).isDone();
     assertThat(stringFuture).isNotCancelled();
-    assertThat(settableFuture).isDone();
-    assertThat(settableFuture).isNotCancelled();
-    assertThat(settableFuture.getNow()).isNull();
+    assertThat(promise).isDone();
+    assertThat(promise).isNotCancelled();
+    assertThat(promise.getNow()).isNull();
 
-    assertThat(settableFuture.getCause()).isSameAs(exception).isSameAs(stringFuture.getCause());
+    assertThat(promise.getCause()).isSameAs(exception).isSameAs(stringFuture.getCause());
   }
 
   @Test
   void cascadeTo_cancel() {
-    SettableFuture<String> settableFuture = Future.forSettable();
-    var stringFuture = Future.<String>forSettable()
-            .cascadeTo(settableFuture);
+    Promise<String> promise = Future.forPromise();
+    var stringFuture = Future.<String>forPromise()
+            .cascadeTo(promise);
 
     assertThat(stringFuture).isNotDone();
     assertThat(stringFuture).isNotCancelled();
-    assertThat(settableFuture).isNotDone();
-    assertThat(settableFuture).isNotCancelled();
+    assertThat(promise).isNotDone();
+    assertThat(promise).isNotCancelled();
     stringFuture.cancel();
 
-    assertThat(settableFuture.awaitUninterruptibly()).isDone();
+    assertThat(promise.awaitUninterruptibly()).isDone();
     assertThat(stringFuture).isCancelled();
-    assertThat(settableFuture).isDone();
-    assertThat(settableFuture).isCancelled();
-    assertThat(settableFuture.getNow()).isNull();
+    assertThat(promise).isDone();
+    assertThat(promise).isCancelled();
+    assertThat(promise.getNow()).isNull();
 
-    assertThat(settableFuture.getCause()).isInstanceOf(CancellationException.class);
+    assertThat(promise.getCause()).isInstanceOf(CancellationException.class);
     assertThat(stringFuture.getCause()).isInstanceOf(CancellationException.class);
   }
 
@@ -598,8 +598,8 @@ class FutureTests {
 
   @Test
   void whenAllComplete_cancelledNotInterrupted() throws Exception {
-    SettableFuture<String> stringFuture = Future.forSettable();
-    SettableFuture<Boolean> booleanFuture = Future.forSettable();
+    Promise<String> stringFuture = Future.forPromise();
+    Promise<Boolean> booleanFuture = Future.forPromise();
     final CountDownLatch inFunction = new CountDownLatch(1);
     final CountDownLatch shouldCompleteFunction = new CountDownLatch(1);
     Callable<String> combiner = () -> {
@@ -629,8 +629,8 @@ class FutureTests {
 
   @Test
   void whenAllComplete_interrupted() throws Exception {
-    SettableFuture<String> stringFuture = Future.forSettable();
-    SettableFuture<Boolean> booleanFuture = Future.forSettable();
+    Promise<String> stringFuture = Future.forPromise();
+    Promise<Boolean> booleanFuture = Future.forPromise();
     final CountDownLatch inFunction = new CountDownLatch(1);
     final CountDownLatch gotException = new CountDownLatch(1);
     Callable<String> combiner = () -> {
@@ -663,8 +663,8 @@ class FutureTests {
 
   @Test
   void whenAllComplete_runnableResult() throws Exception {
-    final SettableFuture<Integer> futureInteger = Future.forSettable();
-    final SettableFuture<Boolean> futureBoolean = Future.forSettable();
+    final Promise<Integer> futureInteger = Future.forPromise();
+    final Promise<Boolean> futureBoolean = Future.forPromise();
     final String[] result = new String[1];
     Runnable combiner = () -> {
       assertThat(futureInteger.isDone()).isTrue();
@@ -687,8 +687,8 @@ class FutureTests {
   void whenAllComplete_runnableError() throws Exception {
     final RuntimeException thrown = new RuntimeException("test");
 
-    final SettableFuture<Integer> futureInteger = Future.forSettable();
-    final SettableFuture<Boolean> futureBoolean = Future.forSettable();
+    final Promise<Integer> futureInteger = Future.forPromise();
+    final Promise<Boolean> futureBoolean = Future.forPromise();
     Runnable combiner = () -> {
       assertThat(futureInteger.isDone()).isTrue();
       assertThat(futureBoolean.isDone()).isTrue();
@@ -714,8 +714,8 @@ class FutureTests {
   @Test
   void whenAllCompleteRunnable_resultCanceledWithoutInterrupt_doesNotInterruptRunnable()
           throws Exception {
-    SettableFuture<String> stringFuture = Future.forSettable();
-    SettableFuture<Boolean> booleanFuture = Future.forSettable();
+    Promise<String> stringFuture = Future.forPromise();
+    Promise<Boolean> booleanFuture = Future.forPromise();
     final CountDownLatch inFunction = new CountDownLatch(1);
     final CountDownLatch shouldCompleteFunction = new CountDownLatch(1);
     final CountDownLatch combinerCompletedWithoutInterrupt = new CountDownLatch(1);
@@ -751,8 +751,8 @@ class FutureTests {
 
   @Test
   void whenAllCompleteRunnable_resultCanceledWithInterrupt_InterruptsRunnable() throws Exception {
-    SettableFuture<String> stringFuture = Future.forSettable();
-    SettableFuture<Boolean> booleanFuture = Future.forSettable();
+    Promise<String> stringFuture = Future.forPromise();
+    Promise<Boolean> booleanFuture = Future.forPromise();
     final CountDownLatch inFunction = new CountDownLatch(1);
     final CountDownLatch gotException = new CountDownLatch(1);
     Runnable combiner = () -> {
@@ -787,8 +787,8 @@ class FutureTests {
   void whenAllSucceed_() throws Exception {
     class PartialResultException extends Exception { }
 
-    final SettableFuture<Integer> futureInteger = Future.forSettable();
-    final SettableFuture<Boolean> futureBoolean = Future.forSettable();
+    final Promise<Integer> futureInteger = Future.forPromise();
+    final Promise<Boolean> futureBoolean = Future.forPromise();
     Callable<String> combiner = new Callable<String>() {
       @Override
       public String call() throws Exception {
@@ -814,8 +814,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_combineSuccess() throws Exception {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
@@ -867,8 +867,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_combineFailed() throws Exception {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
@@ -898,8 +898,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_runSucceed() throws Exception {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     AtomicInteger counter = new AtomicInteger(0);
     Future<Void> combine = whenAllSucceed(future1, future2)
@@ -931,8 +931,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_callSucceed() throws Exception {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     Future<Long> combine = whenAllSucceed(future1, future2)
             .call(() -> future1.obtain() + future2.obtain());
@@ -965,8 +965,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_callCancel() {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     Future<Long> combine = whenAllSucceed(future1, future2)
             .call(() -> future1.obtain() + future2.obtain(), null);
@@ -986,13 +986,13 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_combineCancel() {
-    SettableFuture<Long> future1 = Future.forSettable();
-    SettableFuture<Long> future2 = Future.forSettable();
+    Promise<Long> future1 = Future.forPromise();
+    Promise<Long> future2 = Future.forPromise();
 
     Future<Void> combine = whenAllSucceed(future1, future2)
             .combine();
 
-    assertThat(combine).isInstanceOf(SettableFuture.class);
+    assertThat(combine).isInstanceOf(Promise.class);
     assertThat(combine).isNotDone();
     assertThat(combine).isNotCancelled();
     assertThat(future1).isNotCancelled();
@@ -1007,37 +1007,37 @@ class FutureTests {
 
   @Test
   void awaitOk() throws Exception {
-    SettableFuture<Void> settable = Future.forSettable();
-    assertThat(settable).isNotDone();
+    Promise<Void> promise = Future.forPromise();
+    assertThat(promise).isNotDone();
     Future.defaultScheduler.execute(new Runnable() {
       @SneakyThrows
       @Override
       public void run() {
         Thread.sleep(1000);
-        settable.setSuccess(null);
+        promise.setSuccess(null);
       }
     });
 
-    assertThat(settable.await(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(promise.await(5, TimeUnit.SECONDS)).isTrue();
   }
 
   @Test
   void awaitFalse() throws Exception {
-    SettableFuture<Void> settable = Future.forSettable();
-    assertThat(settable).isNotDone();
-    assertThat(settable.await(1, TimeUnit.SECONDS)).isFalse();
+    Promise<Void> promise = Future.forPromise();
+    assertThat(promise).isNotDone();
+    assertThat(promise.await(1, TimeUnit.SECONDS)).isFalse();
   }
 
   @Test
   void completable() {
-    SettableFuture<Void> settable = Future.forSettable();
-    CompletableFuture<Void> completable = settable.completable();
+    Promise<Void> promise = Future.forPromise();
+    CompletableFuture<Void> completable = promise.completable();
     assertThat(completable).isNotDone();
     assertThat(completable).isNotCancelled();
     assertThat(completable).isNotCompleted();
 
-    settable.setSuccess(null);
-    settable.awaitUninterruptibly();
+    promise.setSuccess(null);
+    promise.awaitUninterruptibly();
 
     assertThat(completable.join()).isNull();
     assertThat(completable).isDone();
@@ -1055,7 +1055,7 @@ class FutureTests {
   void static_tryFailure() {
     IllegalStateException exception = new IllegalStateException("result");
 
-    SettableFuture<Void> future = Future.forSettable();
+    Promise<Void> future = Future.forPromise();
     Futures.tryFailure(future, exception, null);
 
     assertThat(future).isDone();
@@ -1067,7 +1067,7 @@ class FutureTests {
   void static_tryFailure_failed() {
     IllegalStateException exception = new IllegalStateException("result");
 
-    SettableFuture<Void> future = Future.forSettable();
+    Promise<Void> future = Future.forPromise();
     future.tryFailure(exception);
     Futures.tryFailure(future, new RuntimeException(), LoggerFactory.getLogger(getClass()));
 
@@ -1164,9 +1164,9 @@ class FutureTests {
     Future.ok().onCancelled(Assertions::fail);
 
     AtomicBoolean flag = new AtomicBoolean(false);
-    var settable = forSettable(directExecutor())
+    var promise = forPromise(directExecutor())
             .onCancelled(() -> flag.set(true));
-    settable.cancel();
+    promise.cancel();
     assertThat(flag).isTrue();
 
     assertThatThrownBy(() -> Future.ok().onCancelled(null))
@@ -1179,22 +1179,22 @@ class FutureTests {
     Future.ok().onFailed(Assertions::fail);
 
     AtomicBoolean flag = new AtomicBoolean(false);
-    var settable = forSettable(directExecutor())
+    var promise = forPromise(directExecutor())
             .onFailed(e -> flag.set(true));
 
-    settable.cancel();
-    assertThat(settable.getCause()).isInstanceOf(CancellationException.class);
+    promise.cancel();
+    assertThat(promise.getCause()).isInstanceOf(CancellationException.class);
 
     assertThat(flag).isTrue();
 
-    SettableFuture<Object> settable1 = forSettable(directExecutor());
-    settable1.onFailed(e -> flag.set(false));
+    Promise<Object> promise1 = forPromise(directExecutor());
+    promise1.onFailed(e -> flag.set(false));
 
     RuntimeException exception = new RuntimeException();
-    settable1.tryFailure(exception);
+    promise1.tryFailure(exception);
 
     assertThat(flag).isFalse();
-    assertThat(settable1.getCause()).isSameAs(exception);
+    assertThat(promise1.getCause()).isSameAs(exception);
   }
 
   @Test
@@ -1208,7 +1208,7 @@ class FutureTests {
     assertThat(flag).isTrue();
 
     // cancel
-    forSettable(directExecutor())
+    forPromise(directExecutor())
             .onFinally(() -> flag.set(false))
             .onSuccess(v -> Assertions.fail())
             .cancel();
@@ -1234,13 +1234,13 @@ class FutureTests {
 
     assertThat(flag).isTrue();
 
-    var timeout = forSettable(directExecutor()).timeout(Duration.ofSeconds(1), scheduledService,
+    var timeout = forPromise(directExecutor()).timeout(Duration.ofSeconds(1), scheduledService,
             f -> f.cancel(true));
 
     assertThat(timeout.await()).isDone();
     assertThat(timeout).isCancelled();
 
-    assertThat(forSettable(directExecutor()).timeout(Duration.ofMillis(500), scheduledService))
+    assertThat(forPromise(directExecutor()).timeout(Duration.ofMillis(500), scheduledService))
             .failsWithin(Duration.ofMillis(1000))
             .withThrowableOfType(ExecutionException.class)
             .withMessageEndingWith("Timeout, after 0 seconds");
@@ -1305,7 +1305,7 @@ class FutureTests {
       }
     };
 
-    objectFuture = Future.forSettable()
+    objectFuture = Future.forPromise()
             .timeout(1, TimeUnit.SECONDS, scheduler);
 
     assertThat(objectFuture).failsWithin(1, TimeUnit.SECONDS)
