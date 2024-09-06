@@ -26,7 +26,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.SettableFuture;
+import cn.taketoday.util.concurrent.Promise;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.async.DeferredResult;
@@ -82,7 +82,7 @@ class DeferredResultReturnValueHandlerTests {
 
   @Test
   public void listenableFuture() throws Exception {
-    SettableFuture<String> future = Future.forSettable(Runnable::run);
+    Promise<String> future = Future.forPromise(Runnable::run);
     testHandle(future, Future.class,
             () -> future.trySuccess("foo"), "foo");
   }
@@ -101,7 +101,7 @@ class DeferredResultReturnValueHandlerTests {
 
   @Test
   public void listenableFutureWithError() throws Exception {
-    SettableFuture<String> future = Future.forSettable(Runnable::run);
+    Promise<String> future = Future.forPromise(Runnable::run);
     IllegalStateException ex = new IllegalStateException();
     testHandle(future, Future.class,
             () -> future.tryFailure(ex), ex);

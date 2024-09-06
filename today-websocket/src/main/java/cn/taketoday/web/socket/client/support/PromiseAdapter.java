@@ -18,37 +18,38 @@
 package cn.taketoday.web.socket.client.support;
 
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.SettableFuture;
+import cn.taketoday.util.concurrent.Promise;
 import io.netty.util.concurrent.GenericFutureListener;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class SettableFutureAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
-  private final SettableFuture<V> settable;
+class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
 
-  SettableFutureAdapter(SettableFuture<V> settable) {
-    this.settable = settable;
+  private final Promise<V> promise;
+
+  PromiseAdapter(Promise<V> promise) {
+    this.promise = promise;
   }
 
   @Override
   public void operationComplete(io.netty.util.concurrent.Future<V> future) {
     Throwable cause = future.cause();
     if (cause != null) {
-      settable.tryFailure(cause);
+      promise.tryFailure(cause);
     }
     else {
-      settable.trySuccess(future.getNow());
+      promise.trySuccess(future.getNow());
     }
   }
 
   public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future) {
-    return adapt(future, Future.forSettable());
+    return adapt(future, Future.forPromise());
   }
 
-  public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future, SettableFuture<T> settable) {
-    future.addListener(new SettableFutureAdapter<>(settable));
+  public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future, Promise<T> settable) {
+    future.addListener(new PromiseAdapter<>(settable));
     return settable;
   }
 }

@@ -89,7 +89,7 @@ class DefaultFutureTests {
   @Test
   public void testCancelDoesNotScheduleWhenNoListeners() {
     Executor executor = new RejectingExecutor();
-    SettableFuture<Void> future = Future.forSettable(executor);
+    Promise<Void> future = Future.forPromise(executor);
     assertTrue(future.cancel(false));
     assertTrue(future.isCancelled());
   }
@@ -99,7 +99,7 @@ class DefaultFutureTests {
     Executor executor = new RejectingExecutor();
 
     Object value = new Object();
-    SettableFuture<Object> future = new SettableFuture<>(executor);
+    Promise<Object> future = new Promise<>(executor);
     future.setSuccess(value);
     assertSame(value, future.getNow());
   }
@@ -109,14 +109,14 @@ class DefaultFutureTests {
     Executor executor = new RejectingExecutor();
 
     Exception cause = new Exception();
-    SettableFuture<Void> future = new SettableFuture<Void>(executor);
+    Promise<Void> future = new Promise<Void>(executor);
     future.setFailure(cause);
     assertSame(cause, future.getCause());
   }
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGet() {
-    final SettableFuture<Void> future = Future.forSettable();
+    final Promise<Void> future = Future.forPromise();
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -128,7 +128,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGetWithTimeout() {
-    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultScheduler);
+    final Promise<Void> future = new Promise<>(Future.defaultScheduler);
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -140,7 +140,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsReturnedAsCause() {
-    final SettableFuture<Void> future = new SettableFuture<>(Future.defaultScheduler);
+    final Promise<Void> future = new Promise<>(Future.defaultScheduler);
     assertTrue(future.cancel(false));
     assertThat(future.getCause()).isInstanceOf(CancellationException.class);
   }
@@ -194,7 +194,7 @@ class DefaultFutureTests {
     int runs = 100000;
 
     for (int i = 0; i < runs; i++) {
-      final SettableFuture<Void> future = new SettableFuture<>(executor);
+      final Promise<Void> future = new Promise<>(executor);
       final FutureListener<Future<Void>> listener1 = new FutureListener<>() {
         @Override
         public void operationComplete(Future<Void> future) throws Exception {
@@ -274,9 +274,9 @@ class DefaultFutureTests {
     Executor executor = new TestExecutor();
 
     final int numberOfAttempts = 4096;
-    final Map<Thread, SettableFuture<Void>> futures = new HashMap<Thread, SettableFuture<Void>>();
+    final Map<Thread, Promise<Void>> futures = new HashMap<Thread, Promise<Void>>();
     for (int i = 0; i < numberOfAttempts; i++) {
-      final SettableFuture<Void> future = new SettableFuture<Void>(executor);
+      final Promise<Void> future = new Promise<Void>(executor);
       final Thread thread = new Thread(new Runnable() {
         @Override
         public void run() {
@@ -286,7 +286,7 @@ class DefaultFutureTests {
       futures.put(thread, future);
     }
 
-    for (final Map.Entry<Thread, SettableFuture<Void>> future : futures.entrySet()) {
+    for (final Map.Entry<Thread, Promise<Void>> future : futures.entrySet()) {
       future.getKey().start();
       final long start = System.nanoTime();
       future.getValue().awaitUninterruptibly(wait, TimeUnit.NANOSECONDS);
@@ -296,23 +296,23 @@ class DefaultFutureTests {
 
   @Test
   public void signalUncancellableCompletionValue() {
-    final SettableFuture<Signal> future = new SettableFuture<Signal>(Runnable::run);
-    future.setSuccess(Signal.valueOf(SettableFuture.class, "UNCANCELLABLE"));
+    final Promise<Signal> future = new Promise<Signal>(Runnable::run);
+    future.setSuccess(Signal.valueOf(Promise.class, "UNCANCELLABLE"));
     assertTrue(future.isDone());
     assertTrue(future.isSuccess());
   }
 
   @Test
   public void signalSuccessCompletionValue() {
-    final SettableFuture<Signal> future = new SettableFuture<Signal>(Runnable::run);
-    future.setSuccess(Signal.valueOf(SettableFuture.class, "SUCCESS"));
+    final Promise<Signal> future = new Promise<Signal>(Runnable::run);
+    future.setSuccess(Signal.valueOf(Promise.class, "SUCCESS"));
     assertTrue(future.isDone());
     assertTrue(future.isSuccess());
   }
 
   @Test
   public void setUncancellableGetNow() {
-    final SettableFuture<String> future = new SettableFuture<String>(Runnable::run);
+    final Promise<String> future = new Promise<String>(Runnable::run);
     assertNull(future.getNow());
     assertNull(future.getNow());
     assertFalse(future.isDone());
@@ -327,7 +327,7 @@ class DefaultFutureTests {
 
   private static void testStackOverFlowChainedFuturesA(int futureChainLength, final Executor executor,
           boolean runTestInExecutorThread) throws InterruptedException {
-    final SettableFuture<Void>[] p = new SettableFuture[futureChainLength];
+    final Promise<Void>[] p = new Promise[futureChainLength];
     final CountDownLatch latch = new CountDownLatch(futureChainLength);
 
     if (runTestInExecutorThread) {
@@ -348,11 +348,11 @@ class DefaultFutureTests {
     }
   }
 
-  private static void testStackOverFlowChainedFuturesA(Executor executor, final SettableFuture<Void>[] p,
+  private static void testStackOverFlowChainedFuturesA(Executor executor, final Promise<Void>[] p,
           final CountDownLatch latch) {
     for (int i = 0; i < p.length; i++) {
       final int finalI = i;
-      p[i] = new SettableFuture<Void>(executor).onCompleted(future -> {
+      p[i] = new Promise<Void>(executor).onCompleted(future -> {
         if (finalI + 1 < p.length) {
           p[finalI + 1].setSuccess(null);
         }
@@ -365,7 +365,7 @@ class DefaultFutureTests {
 
   private static void testStackOverFlowChainedFuturesB(int futureChainLength,
           final Executor executor, boolean runTestInExecutorThread) throws InterruptedException {
-    final SettableFuture<Void>[] p = new SettableFuture[futureChainLength];
+    final Promise<Void>[] p = new Promise[futureChainLength];
     final CountDownLatch latch = new CountDownLatch(futureChainLength);
 
     if (runTestInExecutorThread) {
@@ -386,11 +386,11 @@ class DefaultFutureTests {
     }
   }
 
-  private static void testStackOverFlowChainedFuturesB(Executor executor, final SettableFuture<Void>[] p,
+  private static void testStackOverFlowChainedFuturesB(Executor executor, final Promise<Void>[] p,
           final CountDownLatch latch) {
     for (int i = 0; i < p.length; i++) {
       final int finalI = i;
-      p[i] = new SettableFuture<Void>(executor);
+      p[i] = new Promise<Void>(executor);
       p[i].onCompleted(future -> future.onCompleted(future1 -> {
         if (finalI + 1 < p.length) {
           p[finalI + 1].setSuccess(null);
@@ -417,7 +417,7 @@ class DefaultFutureTests {
     final AtomicInteger state = new AtomicInteger();
     final CountDownLatch latch1 = new CountDownLatch(1);
     final CountDownLatch latch2 = new CountDownLatch(2);
-    final SettableFuture<Void> future = new SettableFuture<Void>(executor);
+    final Promise<Void> future = new Promise<Void>(executor);
 
     // Add a listener before completion so "lateListener" is used next time we add a listener.
     future.onCompleted(future1 -> assertTrue(state.compareAndSet(0, 1)));
@@ -459,13 +459,13 @@ class DefaultFutureTests {
 
   private static void testSettableFutureListenerAddWhenComplete(Throwable cause) throws InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
-    final SettableFuture<Void> settableFuture = new SettableFuture<>(Runnable::run);
-    settableFuture.onCompleted(future -> settableFuture.onCompleted(future1 -> latch.countDown()));
+    final Promise<Void> promise = new Promise<>(Runnable::run);
+    promise.onCompleted(future -> promise.onCompleted(future1 -> latch.countDown()));
     if (cause == null) {
-      settableFuture.setSuccess(null);
+      promise.setSuccess(null);
     }
     else {
-      settableFuture.setFailure(cause);
+      promise.setFailure(cause);
     }
     latch.await();
   }
@@ -475,7 +475,7 @@ class DefaultFutureTests {
     int expectedCount = numListenersBefore + 2;
     final CountDownLatch latch = new CountDownLatch(expectedCount);
     final FutureListener<Future<Void>> listener = future -> latch.countDown();
-    final SettableFuture<Void> future = new SettableFuture<Void>(executor);
+    final Promise<Void> future = new Promise<Void>(executor);
     executor.execute(() -> {
       for (int i = 0; i < numListenersBefore; i++) {
         future.onCompleted(listener);

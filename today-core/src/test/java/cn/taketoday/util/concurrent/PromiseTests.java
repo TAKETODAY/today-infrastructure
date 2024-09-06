@@ -37,30 +37,30 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Mattias Severson
  * @author Juergen Hoeller
  */
-class SettableFutureTests {
+class PromiseTests {
 
-  private final SettableFuture<String> settableFuture = Future.forSettable(Runnable::run);
+  private final Promise<String> promise = Future.forPromise(Runnable::run);
 
   @Test
   void validateInitialValues() {
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isFalse();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isFalse();
   }
 
   @Test
   void returnsSetValue() throws ExecutionException, InterruptedException {
     String string = "hello";
-    assertThat(settableFuture.trySuccess(string)).isTrue();
-    assertThat(settableFuture.get()).isEqualTo(string);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.trySuccess(string)).isTrue();
+    assertThat(promise.get()).isEqualTo(string);
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void returnsSetValueFromCompletable() throws ExecutionException, InterruptedException {
     String string = "hello";
-    assertThat(settableFuture.trySuccess(string)).isTrue();
-    var completable = settableFuture.completable();
+    assertThat(promise.trySuccess(string)).isTrue();
+    var completable = promise.completable();
     assertThat(completable.get()).isEqualTo(string);
     assertThat(completable.isCancelled()).isFalse();
     assertThat(completable.isDone()).isTrue();
@@ -68,29 +68,29 @@ class SettableFutureTests {
 
   @Test
   void setValueUpdatesDoneStatus() {
-    settableFuture.trySuccess("hello");
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    promise.trySuccess("hello");
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void throwsSetExceptionWrappedInExecutionException() throws Exception {
     Throwable exception = new RuntimeException();
-    assertThat(settableFuture.tryFailure(exception)).isTrue();
+    assertThat(promise.tryFailure(exception)).isTrue();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    settableFuture::get)
+                    promise::get)
             .withCause(exception);
 
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void throwsSetExceptionWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new RuntimeException();
-    assertThat(settableFuture.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = settableFuture.completable();
+    assertThat(promise.tryFailure(exception)).isTrue();
+    CompletableFuture<String> completable = promise.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -103,21 +103,21 @@ class SettableFutureTests {
   @Test
   void throwsSetErrorWrappedInExecutionException() throws Exception {
     Throwable exception = new OutOfMemoryError();
-    assertThat(settableFuture.tryFailure(exception)).isTrue();
+    assertThat(promise.tryFailure(exception)).isTrue();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    settableFuture::get)
+                    promise::get)
             .withCause(exception);
 
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void throwsSetErrorWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new OutOfMemoryError();
-    assertThat(settableFuture.tryFailure(exception)).isTrue();
-    CompletableFuture<String> completable = settableFuture.completable();
+    assertThat(promise.tryFailure(exception)).isTrue();
+    CompletableFuture<String> completable = promise.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -132,7 +132,7 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.onCompleted(future -> {
+    promise.onCompleted(future -> {
       if (future.isSuccess()) {
         callbackHolder[0] = future.getNow();
         fail("Expected onFailure() to be called");
@@ -142,10 +142,10 @@ class SettableFutureTests {
       }
     });
 
-    settableFuture.trySuccess(string);
+    promise.trySuccess(string);
     assertThat(callbackHolder[0]).isEqualTo(string);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -153,7 +153,7 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.onCompleted(future -> {
+    promise.onCompleted(future -> {
       if (future.isSuccess()) {
         callbackHolder[0] = future.getNow();
         fail("Expected onFailure() to be called");
@@ -163,11 +163,11 @@ class SettableFutureTests {
       }
     });
 
-    settableFuture.trySuccess(string);
-    assertThat(settableFuture.trySuccess("good bye")).isFalse();
+    promise.trySuccess(string);
+    assertThat(promise.trySuccess("good bye")).isFalse();
     assertThat(callbackHolder[0]).isEqualTo(string);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -175,7 +175,7 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.onCompleted(future -> {
+    promise.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
@@ -184,10 +184,10 @@ class SettableFutureTests {
       }
     });
 
-    settableFuture.tryFailure(exception);
+    promise.tryFailure(exception);
     assertThat(callbackHolder[0]).isEqualTo(exception);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -195,7 +195,7 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.onCompleted(future -> {
+    promise.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
@@ -204,19 +204,19 @@ class SettableFutureTests {
       }
     });
 
-    settableFuture.tryFailure(exception);
-    assertThat(settableFuture.tryFailure(new IllegalArgumentException())).isFalse();
+    promise.tryFailure(exception);
+    assertThat(promise.tryFailure(new IllegalArgumentException())).isFalse();
     assertThat(callbackHolder[0]).isEqualTo(exception);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void nullIsAcceptedAsValueToSet() throws ExecutionException, InterruptedException {
-    settableFuture.trySuccess(null);
-    assertThat((Object) settableFuture.get()).isNull();
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    promise.trySuccess(null);
+    assertThat((Object) promise.get()).isNull();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -226,23 +226,23 @@ class SettableFutureTests {
     new Thread(() -> {
       try {
         Thread.sleep(20L);
-        settableFuture.trySuccess(string);
+        promise.trySuccess(string);
       }
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
       }
     }).start();
 
-    String value = settableFuture.get();
+    String value = promise.get();
     assertThat(value).isEqualTo(string);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void getWithTimeoutThrowsTimeoutException() throws ExecutionException, InterruptedException {
     assertThatExceptionOfType(TimeoutException.class).isThrownBy(() ->
-            settableFuture.get(1L, TimeUnit.MILLISECONDS));
+            promise.get(1L, TimeUnit.MILLISECONDS));
   }
 
   @Test
@@ -252,32 +252,32 @@ class SettableFutureTests {
     new Thread(() -> {
       try {
         Thread.sleep(20L);
-        settableFuture.trySuccess(string);
+        promise.trySuccess(string);
       }
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
       }
     }).start();
 
-    String value = settableFuture.get(500L, TimeUnit.MILLISECONDS);
+    String value = promise.get(500L, TimeUnit.MILLISECONDS);
     assertThat(value).isEqualTo(string);
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void cancelPreventsValueFromBeingSet() {
-    assertThat(settableFuture.cancel(true)).isTrue();
-    assertThat(settableFuture.trySuccess("hello")).isFalse();
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.cancel(true)).isTrue();
+    assertThat(promise.trySuccess("hello")).isFalse();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void cancelSetsFutureToDone() {
-    settableFuture.cancel(true);
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    promise.cancel(true);
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -300,36 +300,36 @@ class SettableFutureTests {
 
   @Test
   void setPreventsCancel() {
-    assertThat(settableFuture.trySuccess("hello")).isTrue();
-    assertThat(settableFuture.cancel(true)).isFalse();
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.trySuccess("hello")).isTrue();
+    assertThat(promise.cancel(true)).isFalse();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void cancelPreventsExceptionFromBeingSet() {
-    assertThat(settableFuture.cancel(true)).isTrue();
-    assertThat(settableFuture.tryFailure(new RuntimeException())).isFalse();
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.cancel(true)).isTrue();
+    assertThat(promise.tryFailure(new RuntimeException())).isFalse();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void setExceptionPreventsCancel() {
-    assertThat(settableFuture.tryFailure(new RuntimeException())).isTrue();
-    assertThat(settableFuture.cancel(true)).isFalse();
-    assertThat(settableFuture.isCancelled()).isFalse();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.tryFailure(new RuntimeException())).isTrue();
+    assertThat(promise.cancel(true)).isFalse();
+    assertThat(promise.isCancelled()).isFalse();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void cancelStateThrowsExceptionWhenCallingGet() throws ExecutionException, InterruptedException {
-    settableFuture.cancel(true);
+    promise.cancel(true);
 
-    assertThatExceptionOfType(CancellationException.class).isThrownBy(settableFuture::get);
+    assertThatExceptionOfType(CancellationException.class).isThrownBy(promise::get);
 
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
@@ -337,7 +337,7 @@ class SettableFutureTests {
     new Thread(() -> {
       try {
         Thread.sleep(20L);
-        settableFuture.cancel(true);
+        promise.cancel(true);
       }
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
@@ -345,50 +345,50 @@ class SettableFutureTests {
     }).start();
 
     assertThatExceptionOfType(CancellationException.class)
-            .isThrownBy(() -> settableFuture.get(500L, TimeUnit.MILLISECONDS));
+            .isThrownBy(() -> promise.get(500L, TimeUnit.MILLISECONDS));
 
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSet() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
-    settableFuture.onCompleted(callback);
-    settableFuture.cancel(true);
+    promise.onCompleted(callback);
+    promise.cancel(true);
 
-    verify(callback).operationComplete(settableFuture);
+    verify(callback).operationComplete(promise);
     verifyNoMoreInteractions(callback);
 
-    settableFuture.trySuccess("hello");
+    promise.trySuccess("hello");
     verifyNoMoreInteractions(callback);
 
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSetException() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
-    settableFuture.onCompleted(callback);
-    settableFuture.cancel(true);
+    promise.onCompleted(callback);
+    promise.cancel(true);
 
-    verify(callback).operationComplete(settableFuture);
+    verify(callback).operationComplete(promise);
 
     verifyNoMoreInteractions(callback);
 
-    settableFuture.tryFailure(new RuntimeException());
+    promise.tryFailure(new RuntimeException());
     verifyNoMoreInteractions(callback);
 
-    assertThat(settableFuture.isCancelled()).isTrue();
-    assertThat(settableFuture.isDone()).isTrue();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isDone()).isTrue();
   }
 
   @Test
   void setSuccess() {
-    SettableFuture<Void> settable = Future.forSettable();
+    Promise<Void> settable = Future.forPromise();
     settable.setSuccess(null);
     assertThatThrownBy(() -> settable.setSuccess(null))
             .hasMessageStartingWith("complete already:");
@@ -396,13 +396,13 @@ class SettableFutureTests {
 
   @Test
   void setFailure() {
-    SettableFuture<Void> settable = Future.forSettable();
+    Promise<Void> settable = Future.forPromise();
     settable.setSuccess(null);
     assertThatThrownBy(() -> settable.setFailure(new RuntimeException()))
             .hasMessageStartingWith("complete already:");
   }
 
-  private static class InterruptibleSettableFuture extends SettableFuture<String> {
+  private static class InterruptibleSettableFuture extends Promise<String> {
 
     private boolean interrupted = false;
 

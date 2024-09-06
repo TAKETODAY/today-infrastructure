@@ -248,14 +248,14 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Java 8 lambda-friendly alternative with success and failure callbacks.
    *
    * <p> Adapts {@link AbstractFuture#trySuccess(Object)},
-   * {@link SettableFuture#setFailure(Throwable)} and
+   * {@link Promise#setFailure(Throwable)} and
    * {@link AbstractFuture#tryFailure(Throwable)} operations
    *
    * @param successCallback the success callback
    * @param failureCallback the failure callback
    * @return this future object.
    * @see AbstractFuture#trySuccess(Object)
-   * @see SettableFuture#setFailure(Throwable)
+   * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
   public Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
@@ -488,10 +488,10 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * <p>
    * must invoke after {@link #isSuccess()}
    *
-   * @throws IllegalStateException {@link SettableFuture#setSuccess(Object)} is set {@code null}
+   * @throws IllegalStateException {@link Promise#setSuccess(Object)} is set {@code null}
    * @see #isSuccess()
    * @see #getNow()
-   * @see SettableFuture#setSuccess(Object)
+   * @see Promise#setSuccess(Object)
    */
   public V obtain() throws IllegalStateException {
     V v = getNow();
@@ -658,19 +658,19 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Link the {@link Future} and {@link SettableFuture} such that if the
-   * {@link Future} completes the {@link SettableFuture}
+   * Link the {@link Future} and {@link Promise} such that if the
+   * {@link Future} completes the {@link Promise}
    * will be notified. Cancellation is propagated both ways such that if
-   * the {@link Future} is cancelled the {@link SettableFuture} is cancelled
+   * the {@link Future} is cancelled the {@link Promise} is cancelled
    * and vice-versa.
    *
-   * @param settable the {@link SettableFuture} which will be notified
+   * @param promise the {@link Promise} which will be notified
    * @return itself
-   * @throws IllegalArgumentException SettableFuture is null.
+   * @throws IllegalArgumentException Promise is null.
    */
-  public Future<V> cascadeTo(SettableFuture<V> settable) {
-    Assert.notNull(settable, "SettableFuture is required");
-    Futures.cascadeTo(this, settable);
+  public Future<V> cascadeTo(Promise<V> promise) {
+    Assert.notNull(promise, "Promise is required");
+    Futures.cascadeTo(this, promise);
     return this;
   }
 
@@ -924,7 +924,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, FutureListener<SettableFuture<V>> timeoutListener) {
+  public Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
     return timeout(duration, scheduler(), timeoutListener);
   }
 
@@ -939,7 +939,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<SettableFuture<V>> timeoutListener) {
+  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<Promise<V>> timeoutListener) {
     Scheduler scheduler = createScheduler(scheduled);
     return timeout(duration, scheduler, timeoutListener);
   }
@@ -955,7 +955,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, Scheduler scheduler, FutureListener<SettableFuture<V>> timeoutListener) {
+  public Future<V> timeout(Duration duration, Scheduler scheduler, FutureListener<Promise<V>> timeoutListener) {
     Assert.notNull(duration, "Duration is required");
     Assert.notNull(scheduler, "Scheduler is required");
     Assert.notNull(timeoutListener, "timeoutListener is required");
@@ -1222,46 +1222,46 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   * Adapts {@code CompletionStage} to a new Promise instance.
    */
   public static <V> Future<V> forAdaption(CompletionStage<V> stage) {
     return forAdaption(stage, defaultScheduler);
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   * Adapts {@code CompletionStage} to a new Promise instance.
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
    */
   public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
-    SettableFuture<V> settable = forSettable(executor);
+    Promise<V> promise = forPromise(executor);
     stage.whenCompleteAsync((v, failure) -> {
       if (failure != null) {
-        settable.tryFailure(failure);
+        promise.tryFailure(failure);
       }
       else {
-        settable.trySuccess(v);
+        promise.trySuccess(v);
       }
-    }, settable.executor());
-    return settable;
+    }, promise.executor());
+    return promise;
   }
 
   /**
-   * Creates a new SettableFuture instance.
+   * Creates a new Promise instance.
    */
-  public static <V> SettableFuture<V> forSettable() {
-    return new SettableFuture<>(defaultScheduler);
+  public static <V> Promise<V> forPromise() {
+    return new Promise<>(defaultScheduler);
   }
 
   /**
-   * Creates a new SettableFuture instance.
+   * Creates a new Promise instance.
    *
    * @param executor the {@link Executor} which is used to notify
-   * the SettableFuture once it is complete.
+   * the Promise once it is complete.
    */
-  public static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
-    return new SettableFuture<>(executor);
+  public static <V> Promise<V> forPromise(@Nullable Executor executor) {
+    return new Promise<>(executor);
   }
 
   /**

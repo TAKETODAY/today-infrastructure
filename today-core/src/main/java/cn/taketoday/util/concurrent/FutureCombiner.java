@@ -220,11 +220,11 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     if (expectedCount == 0) {
       return Future.ok();
     }
-    var settable = new SettableFuture<Void>(executor);
+    var promise = new Promise<Void>(executor);
     for (Future future : futures) {
-      future.onCompleted(this, settable);
+      future.onCompleted(this, promise);
     }
-    return settable;
+    return promise;
   }
 
   @Override
@@ -249,13 +249,13 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     }
   }
 
-  private <C> void propagateFailure(Future<?> completed, AbstractFuture<C> settable, Throwable cause) {
+  private <C> void propagateFailure(Future<?> completed, AbstractFuture<C> promise, Throwable cause) {
     // failed
     if (completed.isCancelled()) {
-      settable.cancel(true);
+      promise.cancel(true);
     }
     else {
-      settable.tryFailure(cause);
+      promise.tryFailure(cause);
     }
 
     // cancel all tasks

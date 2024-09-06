@@ -209,8 +209,8 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   }
 
   @Override
-  public ListenableFutureTask<V> cascadeTo(SettableFuture<V> settable) {
-    super.cascadeTo(settable);
+  public ListenableFutureTask<V> cascadeTo(Promise<V> promise) {
+    super.cascadeTo(promise);
     return this;
   }
 
