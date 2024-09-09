@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context;
 
 /**
@@ -60,10 +61,10 @@ package cn.taketoday.context;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author Harry Yang 2021/11/12 16:28
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see LifecycleProcessor
  * @see ConfigurableApplicationContext
- * @since 4.0
+ * @since 4.0 2021/11/12 16:28
  */
 public interface SmartLifecycle extends Lifecycle, Phased {
 

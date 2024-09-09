@@ -74,6 +74,7 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactoryAware {
+
   private static final Logger log = LoggerFactory.getLogger(DefaultLifecycleProcessor.class);
 
   /**
@@ -167,7 +168,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   /**
    * Specify the maximum time allotted in milliseconds for the shutdown of
    * any phase (group of SmartLifecycle beans with the same 'phase' value).
-   * <p>The default value is 30 seconds.
+   * <p>The default value is 10 seconds.
    */
   public void setTimeoutPerShutdownPhase(long timeoutPerShutdownPhase) {
     this.timeoutPerShutdownPhase = timeoutPerShutdownPhase;
@@ -479,6 +480,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     private final boolean autoStartupOnly;
 
     private final Map<String, ? extends Lifecycle> lifecycleBeans;
+
     private final ArrayList<LifecycleGroupMember> members = new ArrayList<>();
 
     public LifecycleGroup(int phase, long timeout,
