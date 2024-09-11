@@ -24,13 +24,12 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Listens to the result of a {@link Future}.
+ * <p>
  * The result of the asynchronous operation is notified once this listener
  * is added by calling {@link Future#onCompleted(FutureListener)}.
  *
  * @param <F> the future type
- * @author Arjen Poutsma
- * @author Sebastien Deleuze
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -59,20 +58,20 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * {@link AbstractFuture#tryFailure(Throwable)} operations
    *
    * @param onSuccess success callback
-   * @param onFailure failure callback
+   * @param onFailed failed callback
    * @param <F> Future subtype
    * @see AbstractFuture#trySuccess(Object)
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
-  static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
+  static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailed) {
     Assert.notNull(onSuccess, "successCallback is required");
     return future -> {
       if (future.isSuccess()) {
         onSuccess.onSuccess(future.getNow());
       }
-      else if (onFailure != null) {
-        onFailure(future, onFailure);
+      else if (onFailed != null) {
+        onFailure(future, onFailed);
       }
     };
   }
@@ -118,13 +117,14 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @param future target future
    * @param failureCallback failure callback
    * @param <V> value type
-   * @throws NullPointerException failureCallback is null
    * @since 5.0
    */
   private static <V> void onFailure(Future<V> future, FailureCallback failureCallback) throws Throwable {
-    Throwable cause = future.getCause();
-    if (cause != null) {
-      failureCallback.onFailure(cause);
+    if (!future.isCancelled()) {
+      Throwable cause = future.getCause();
+      if (cause != null) {
+        failureCallback.onFailure(cause);
+      }
     }
   }
 

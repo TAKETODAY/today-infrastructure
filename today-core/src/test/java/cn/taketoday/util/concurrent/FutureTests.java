@@ -1198,6 +1198,37 @@ class FutureTests {
   }
 
   @Test
+  void onFailure() {
+    Future.ok().onFailure(Assertions::fail);
+
+    AtomicBoolean flag = new AtomicBoolean(false);
+    var promise = forPromise(directExecutor())
+            .onFailure(e -> flag.set(true));
+
+    promise.cancel();
+    assertThat(promise.getCause()).isInstanceOf(CancellationException.class);
+
+    assertThat(flag).isFalse();
+    assertThat(promise.isDone()).isTrue();
+    assertThat(promise.isFailed()).isTrue();
+    assertThat(promise.isCancelled()).isTrue();
+    assertThat(promise.isSuccess()).isFalse();
+
+    Promise<Object> promise1 = forPromise(directExecutor());
+    promise1.onFailure(e -> flag.set(true));
+
+    RuntimeException exception = new RuntimeException();
+    promise1.tryFailure(exception);
+
+    assertThat(flag).isTrue();
+    assertThat(promise1.isDone()).isTrue();
+    assertThat(promise1.isFailed()).isTrue();
+    assertThat(promise1.isCancelled()).isFalse();
+    assertThat(promise1.isSuccess()).isFalse();
+    assertThat(promise1.getCause()).isSameAs(exception);
+  }
+
+  @Test
   void onFinally() {
     AtomicBoolean flag = new AtomicBoolean(false);
 

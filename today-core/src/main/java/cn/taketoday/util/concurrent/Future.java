@@ -274,9 +274,13 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with failure callbacks.
+   * <p>
+   * non-cancelled {@link Future#isFailed() failed}
    *
    * @param failureCallback the failure callback
    * @return this future object.
+   * @see Promise#setFailure(Throwable)
+   * @see AbstractFuture#tryFailure(Throwable)
    */
   public Future<V> onFailure(FailureCallback failureCallback) {
     return onCompleted(FutureListener.forFailure(failureCallback));
@@ -305,6 +309,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param failedCallback failed callback
    * @return this future object
    * @see #isFailed()
+   * @see #isCancelled()
    * @since 5.0
    */
   public Future<V> onFailed(FailureCallback failedCallback) {
