@@ -22,6 +22,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -404,6 +405,22 @@ class FutureTests {
   void map_null() {
     assertThat(ok(1).mapNull()).succeedsWithin(1, TimeUnit.SECONDS)
             .isNull();
+  }
+
+  @Test
+  void mapNull() {
+    assertThat(ok(1).mapNull(s -> {
+
+    })).succeedsWithin(1, TimeUnit.SECONDS)
+            .isNull();
+
+    assertThat(ok(1).mapNull(res -> {
+      assertThat(res).isEqualTo(1);
+      throw new IOException();
+    })).failsWithin(1, TimeUnit.SECONDS)
+            .withThrowableThat()
+            .withRootCauseInstanceOf(IOException.class)
+            .isNotNull();
   }
 
   @Test

@@ -621,7 +621,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public <R> Future<R> mapNull(ThrowingConsumer<V> consumer) {
     return map(v -> {
-      consumer.accept(v);
+      consumer.acceptWithException(v);
       return null;
     });
   }

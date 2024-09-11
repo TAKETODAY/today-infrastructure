@@ -28,6 +28,7 @@ import cn.taketoday.lang.TodayStrategies;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Future#timeout
  * @see java.util.concurrent.Executor
+ * @see java.util.concurrent.ScheduledExecutorService
  * @since 5.0 2024/8/5 15:25
  */
 public interface Scheduler extends Executor {
