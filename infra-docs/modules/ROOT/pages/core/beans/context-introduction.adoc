@@ -1,7 +1,7 @@
 [[context-introduction]]
 = `ApplicationContext` 的附加功能
 
-如前文所述，在 xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[章节介绍]中，
+如前文所述，在 xref:core/beans/introduction.adoc[章节介绍]中，
 `cn.taketoday.beans.factory` 包提供了管理和操作 bean 的基本功能，包括以编程方式进行操作。
 `cn.taketoday.context` 包添加了 `ApplicationContext` 接口，该接口扩展了 `BeanFactory`
 接口，并扩展了其他接口，以提供更多面向应用框架的功能。许多人以完全声明式的方式使用 `ApplicationContext`，
