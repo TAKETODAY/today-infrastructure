@@ -24,6 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.expression.Expression;
@@ -407,10 +409,30 @@ class MethodInvocationTests extends AbstractExpressionTests {
   }
 
   @Test
-  void methodOfClass() {
+  void methodOfJavaLangClass() {
     Expression expression = parser.parseExpression("getName()");
     Object value = expression.getValue(new StandardEvaluationContext(String.class));
     assertThat(value).isEqualTo("java.lang.String");
+  }
+
+  @Test
+  void methodOfJavaLangObject() {
+    Expression expression = parser.parseExpression("toString()");
+    Object value = expression.getValue(new StandardEvaluationContext(42));
+    assertThat(value).isEqualTo("42");
+  }
+
+  @Test
+  void methodOfJavaLangObjectDeclaredInNonPublicType() throws Exception {
+    Expression expression = parser.parseExpression("toString()");
+    List<String> unmodifiableList = Collections.unmodifiableList(Arrays.asList("foo", "bar"));
+    Method toStringMethod = unmodifiableList.getClass().getMethod("toString");
+
+    // Prerequisite for this use case:
+    assertThat(toStringMethod.getDeclaringClass()).isPackagePrivate();
+
+    Object value = expression.getValue(new StandardEvaluationContext(unmodifiableList));
+    assertThat(value).isEqualTo(unmodifiableList.toString());
   }
 
   @Test

@@ -42,7 +42,6 @@ import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.ReflectiveMethodExecutor;
 import cn.taketoday.expression.spel.support.ReflectiveMethodResolver;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
@@ -299,9 +298,8 @@ public class MethodReference extends SpelNodeImpl {
     }
 
     Method method = executor.getMethod();
-    return ((Modifier.isPublic(method.getModifiers()) &&
-            (Modifier.isPublic(method.getDeclaringClass().getModifiers()) ||
-                    executor.getPublicDeclaringClass() != null)));
+    return Modifier.isPublic(method.getModifiers())
+            && executor.getPublicDeclaringClass() != null;
   }
 
   @Override
@@ -310,18 +308,13 @@ public class MethodReference extends SpelNodeImpl {
     if (executorToCheck == null || !(executorToCheck.get() instanceof ReflectiveMethodExecutor methodExecutor)) {
       throw new IllegalStateException("No applicable cached executor found: " + executorToCheck);
     }
+
+    Class<?> publicDeclaringClass = methodExecutor.getPublicDeclaringClass();
+    if (publicDeclaringClass == null) {
+      throw new IllegalStateException("Failed to find public declaring class for method: " + methodExecutor.getMethod());
+    }
+
     Method method = methodExecutor.getMethod();
-
-    Class<?> publicDeclaringClass;
-    if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-      publicDeclaringClass = method.getDeclaringClass();
-    }
-    else {
-      publicDeclaringClass = methodExecutor.getPublicDeclaringClass();
-    }
-    Assert.state(publicDeclaringClass != null,
-            () -> "Failed to find public declaring class for method: " + method);
-
     String classDesc = publicDeclaringClass.getName().replace('.', '/');
     boolean isStatic = Modifier.isStatic(method.getModifiers());
     String descriptor = cf.lastDescriptor();
@@ -359,8 +352,8 @@ public class MethodReference extends SpelNodeImpl {
     generateCodeForArguments(mv, cf, method, this.children);
     boolean isInterface = publicDeclaringClass.isInterface();
     int opcode = (isStatic ? INVOKESTATIC : isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL);
-    mv.visitMethodInsn(opcode, classDesc, method.getName(), CodeFlow.createSignatureDescriptor(method),
-            isInterface);
+    mv.visitMethodInsn(opcode, classDesc, method.getName(),
+            CodeFlow.createSignatureDescriptor(method), isInterface);
     cf.pushDescriptor(this.exitTypeDescriptor);
 
     if (this.originalPrimitiveExitTypeDescriptor != null) {

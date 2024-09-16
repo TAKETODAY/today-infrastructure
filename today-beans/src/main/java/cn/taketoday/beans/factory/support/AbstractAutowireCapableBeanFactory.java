@@ -570,7 +570,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
               }
             }
 
-            Method methodToInvoke = ReflectionUtils.getInterfaceMethodIfPossible(initMethod, bean.getClass());
+            Method methodToInvoke = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(initMethod, beanClass);
             methods.add(methodToInvoke);
           }
         }

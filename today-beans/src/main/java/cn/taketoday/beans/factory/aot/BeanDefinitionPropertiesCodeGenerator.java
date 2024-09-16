@@ -165,9 +165,9 @@ class BeanDefinitionPropertiesCodeGenerator {
     Method method = ReflectionUtils.findMethod(methodDeclaringClass, methodName);
     if (method != null) {
       this.hints.reflection().registerMethod(method, ExecutableMode.INVOKE);
-      Method interfaceMethod = ReflectionUtils.getInterfaceMethodIfPossible(method, beanUserClass);
-      if (!interfaceMethod.equals(method)) {
-        this.hints.reflection().registerMethod(interfaceMethod, ExecutableMode.INVOKE);
+      Method publiclyAccessibleMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(method, beanUserClass);
+      if (!publiclyAccessibleMethod.equals(method)) {
+        this.hints.reflection().registerMethod(publiclyAccessibleMethod, ExecutableMode.INVOKE);
       }
     }
   }

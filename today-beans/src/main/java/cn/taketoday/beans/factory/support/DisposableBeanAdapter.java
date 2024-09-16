@@ -141,7 +141,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
                                 .formatted(destroyMethodName, beanName));
               }
             }
-            destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, bean.getClass());
+            destroyMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(destroyMethod, bean.getClass());
             destroyMethods.add(destroyMethod);
           }
         }
@@ -247,8 +247,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       for (String destroyMethodName : this.destroyMethodNames) {
         Method destroyMethod = determineDestroyMethod(destroyMethodName);
         if (destroyMethod != null) {
-          invokeCustomDestroyMethod(
-                  ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, this.bean.getClass()));
+          destroyMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(destroyMethod, this.bean.getClass());
+          invokeCustomDestroyMethod(destroyMethod);
         }
       }
     }
@@ -282,8 +282,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   @Nullable
   private Method findDestroyMethod(Class<?> clazz, String name) {
     return nonPublicAccessAllowed ?
-           ReflectionUtils.findMethodWithMinimalParameters(clazz, name) :
-           ReflectionUtils.findMethodWithMinimalParameters(clazz.getMethods(), name);
+            ReflectionUtils.findMethodWithMinimalParameters(clazz, name) :
+            ReflectionUtils.findMethodWithMinimalParameters(clazz.getMethods(), name);
   }
 
   /**
