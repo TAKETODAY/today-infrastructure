@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -476,7 +476,7 @@ public class MethodParameter implements AnnotatedElement {
           index = this.parameterIndex - 1;
         }
         paramType = (index >= 0 && index < genericParameterTypes.length ?
-                     genericParameterTypes[index] : computeParameterType());
+                genericParameterTypes[index] : computeParameterType());
       }
       this.genericParameterType = paramType;
     }
@@ -594,9 +594,9 @@ public class MethodParameter implements AnnotatedElement {
         // for inner classes, so access it with the actual parameter index lowered by 1
         index = this.parameterIndex - 1;
       }
-      paramAnns = index >= 0 && index < annotationArray.length
-                  ? adaptAnnotationArray(annotationArray[index])
-                  : Constant.EMPTY_ANNOTATIONS;
+      paramAnns = index >= 0 && index < annotationArray.length && annotationArray[index].length > 0
+              ? adaptAnnotationArray(annotationArray[index])
+              : Constant.EMPTY_ANNOTATIONS;
       this.parameterAnnotations = paramAnns;
     }
     return paramAnns;
@@ -707,8 +707,8 @@ public class MethodParameter implements AnnotatedElement {
   @Override
   public Annotation[] getAnnotations() {
     return parameterIndex == -1
-           ? getMethodAnnotations()
-           : getParameterAnnotations();
+            ? getMethodAnnotations()
+            : getParameterAnnotations();
   }
 
   @Override
