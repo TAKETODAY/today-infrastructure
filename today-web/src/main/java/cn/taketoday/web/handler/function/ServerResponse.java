@@ -631,12 +631,98 @@ public interface ServerResponse {
      */
     ServerResponse render(ModelAndView modelAndView);
 
+    /**
+     * Create a low-level streaming response; for SSE support, see {@link #sse(Consumer)}.
+     * <p>The {@link StreamBuilder} provided to the {@code streamConsumer} can
+     * be used to write to the response in a streaming fashion. Note, the builder is
+     * responsible for flushing the buffered content to the network.
+     * <p>For example:
+     * <pre> {@code
+     * public ServerResponse handleStream(ServerRequest request) {
+     *     return ServerResponse.ok()
+     *       .contentType(MediaType.APPLICATION_ND_JSON)
+     *       .stream(stream -> {
+     *         try {
+     *           // Write and flush a first item
+     *           stream.write(new Person("John", 51), MediaType.APPLICATION_JSON)
+     *             .write(new byte[]{'\n'})
+     *             .flush();
+     *           // Write and complete with the last item
+     *           stream.write(new Person("Jane", 42), MediaType.APPLICATION_JSON)
+     *             .write(new byte[]{'\n'})
+     *             .complete();
+     *         }
+     *         catch (IOException ex) {
+     *           throw new UncheckedIOException(ex);
+     *         }
+     *     });
+     * }
+     * }</pre>
+     *
+     * @param streamConsumer consumer that will be provided with a stream builder
+     * @return the server-side streaming response
+     * @since 5.0
+     */
+    ServerResponse stream(Consumer<StreamBuilder> streamConsumer);
+
+  }
+
+  /**
+   * Defines a builder for async response bodies.
+   *
+   * @param <B> the builder subclass
+   * @since 5.0
+   */
+  interface AsyncBuilder<B extends AsyncBuilder<B>> {
+
+    /**
+     * Completes the stream with the given error.
+     *
+     * <p>The throwable is dispatched back into Spring MVC, and passed to
+     * its exception handling mechanism. Since the response has
+     * been committed by this point, the response status can not change.
+     *
+     * @param t the throwable to dispatch
+     */
+    void error(Throwable t);
+
+    /**
+     * Completes the stream.
+     */
+    void complete();
+
+    /**
+     * Register a callback to be invoked when a request times
+     * out.
+     *
+     * @param onTimeout the callback to invoke on timeout
+     * @return this builder
+     */
+    B onTimeout(Runnable onTimeout);
+
+    /**
+     * Register a callback to be invoked when an error occurs during
+     * processing.
+     *
+     * @param onError the callback to invoke on error
+     * @return this builder
+     */
+    B onError(Consumer<Throwable> onError);
+
+    /**
+     * Register a callback to be invoked when the request completes.
+     *
+     * @param onCompletion the callback to invoked on completion
+     * @return this builder
+     */
+    B onComplete(Runnable onCompletion);
+
   }
 
   /**
    * Defines a builder for a body that sends server-sent events.
    */
-  interface SseBuilder {
+  interface SseBuilder extends AsyncBuilder<SseBuilder> {
 
     /**
      * Sends the given object as a server-sent event.
@@ -717,47 +803,47 @@ public interface ServerResponse {
      */
     void data(Object object, @Nullable MediaType mediaType) throws IOException;
 
-    /**
-     * Completes the event stream with the given error.
-     *
-     * <p>The throwable is dispatched back into Web MVC, and passed to
-     * its exception handling mechanism. Since the response has
-     * been committed by this point, the response status can not change.
-     *
-     * @param t the throwable to dispatch
-     */
-    void error(Throwable t);
+  }
+
+  /**
+   * Defines a builder for a streaming response body.
+   *
+   * @since 5.0
+   */
+  interface StreamBuilder extends AsyncBuilder<StreamBuilder> {
 
     /**
-     * Completes the event stream.
-     */
-    void complete();
-
-    /**
-     * Register a callback to be invoked when an SSE request times
-     * out.
+     * Write the given object to the response stream, without flushing.
+     * Strings will be sent as UTF-8 encoded bytes, byte arrays will be sent as-is,
+     * and other objects will be converted into JSON using
+     * {@linkplain HttpMessageConverter message converters}.
      *
-     * @param onTimeout the callback to invoke on timeout
+     * @param object the object to send as data
      * @return this builder
+     * @throws IOException in case of I/O errors
      */
-    SseBuilder onTimeout(Runnable onTimeout);
+    StreamBuilder write(Object object) throws IOException;
 
     /**
-     * Register a callback to be invoked when an error occurs during SSE
-     * processing.
+     * Write the given object to the response stream, without flushing.
+     * Strings will be sent as UTF-8 encoded bytes, byte arrays will be sent as-is,
+     * and other objects will be converted into JSON using
+     * {@linkplain HttpMessageConverter message converters}.
      *
-     * @param onError the callback to invoke on error
+     * @param object the object to send as data
+     * @param mediaType the media type to use for encoding the provided data
      * @return this builder
+     * @throws IOException in case of I/O errors
      */
-    SseBuilder onError(Consumer<Throwable> onError);
+    StreamBuilder write(Object object, @Nullable MediaType mediaType) throws IOException;
 
     /**
-     * Register a callback to be invoked when the SSE request completes.
+     * Flush the buffered response stream content to the network.
      *
-     * @param onCompletion the callback to invoked on completion
-     * @return this builder
+     * @throws IOException in case of I/O errors
      */
-    SseBuilder onComplete(Runnable onCompletion);
+    void flush() throws IOException;
+
   }
 
   /**
