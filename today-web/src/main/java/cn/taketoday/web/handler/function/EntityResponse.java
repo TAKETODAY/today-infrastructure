@@ -207,7 +207,7 @@ public interface EntityResponse<T> extends ServerResponse {
      * @return this builder
      * @see HttpHeaders#setETag(String)
      */
-    Builder<T> eTag(String etag);
+    Builder<T> eTag(@Nullable String etag);
 
     /**
      * Set the time the resource was last changed, as specified by the

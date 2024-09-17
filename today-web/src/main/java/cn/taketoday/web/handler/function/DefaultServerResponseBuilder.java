@@ -149,13 +149,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse.BodyBuilder eTag(String etag) {
-    if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
-      etag = "\"" + etag;
-    }
-    if (!etag.endsWith("\"")) {
-      etag = etag + "\"";
-    }
+  public ServerResponse.BodyBuilder eTag(@Nullable String etag) {
     this.headers.setETag(etag);
     return this;
   }

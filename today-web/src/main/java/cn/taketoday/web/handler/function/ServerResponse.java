@@ -463,7 +463,7 @@ public interface ServerResponse {
      * @return this builder
      * @see HttpHeaders#setETag(String)
      */
-    B eTag(String eTag);
+    B eTag(@Nullable String eTag);
 
     /**
      * Set the time the resource was last changed, as specified by the

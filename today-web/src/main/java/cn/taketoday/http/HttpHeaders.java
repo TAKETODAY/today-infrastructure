@@ -1174,11 +1174,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * Set the (new) entity tag of the body, as specified by the {@code ETag}
    * header.
    */
-  public void setETag(@Nullable String etag) {
-    if (etag != null) {
-      Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/\""), "ETag does not start with W/\" or \"");
-      Assert.isTrue(etag.endsWith("\""), "ETag does not end with \"");
-      setOrRemove(ETAG, etag);
+  public void setETag(@Nullable String tag) {
+    if (tag != null) {
+      setHeader(ETAG, ETag.quoteETagIfNecessary(tag));
     }
     else {
       remove(ETAG);

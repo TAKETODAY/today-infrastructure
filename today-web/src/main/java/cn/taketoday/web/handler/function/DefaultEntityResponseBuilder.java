@@ -182,13 +182,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
   }
 
   @Override
-  public EntityResponse.Builder<T> eTag(String etag) {
-    if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
-      etag = "\"" + etag;
-    }
-    if (!etag.endsWith("\"")) {
-      etag = etag + "\"";
-    }
+  public EntityResponse.Builder<T> eTag(@Nullable String etag) {
     this.headers.setETag(etag);
     return this;
   }

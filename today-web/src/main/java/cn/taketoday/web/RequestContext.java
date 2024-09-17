@@ -1221,60 +1221,24 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return true;
   }
 
-  private boolean matchRequestedETags(List<String> requestedETags, @Nullable String etag, boolean weakCompare) {
-    etag = padEtagIfNecessary(etag);
-    for (String requestedEtag : requestedETags) {      // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
-      for (ETag requestedETag : ETag.parse(requestedEtag)) {
-        // only consider "lost updates" checks for unsafe HTTP methods
-        if (requestedETag.isWildcard()
-                && StringUtils.isNotEmpty(etag)
-                && !SAFE_METHODS.contains(getMethodValue())) {
-          return false;
-        }
-        if (weakCompare) {
-          if (eTagWeakMatch(etag, requestedETag.formattedTag())) {
+  private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
+    if (StringUtils.isNotEmpty(tag)) {
+      ETag eTag = ETag.create(tag);
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodValue());
+      for (String requestedETagString : requestedETags) {
+        // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
+        for (ETag requestedETag : ETag.parse(requestedETagString)) {
+          // only consider "lost updates" checks for unsafe HTTP methods
+          if (requestedETag.isWildcard() && isNotSafeMethod) {
             return false;
           }
-        }
-        else {
-          if (eTagStrongMatch(etag, requestedETag.formattedTag())) {
+          if (requestedETag.compare(eTag, !weakCompare)) {
             return false;
           }
         }
       }
     }
     return true;
-  }
-
-  @Nullable
-  private String padEtagIfNecessary(@Nullable String etag) {
-    if (StringUtils.isEmpty(etag)) {
-      return etag;
-    }
-    if ((etag.startsWith("\"") || etag.startsWith("W/\"")) && etag.endsWith("\"")) {
-      return etag;
-    }
-    return "\"" + etag + "\"";
-  }
-
-  private boolean eTagStrongMatch(@Nullable String first, @Nullable String second) {
-    if (StringUtils.isEmpty(first) || first.startsWith("W/")) {
-      return false;
-    }
-    return first.equals(second);
-  }
-
-  private boolean eTagWeakMatch(@Nullable String first, @Nullable String second) {
-    if (StringUtils.isEmpty(first) || StringUtils.isEmpty(second)) {
-      return false;
-    }
-    if (first.startsWith("W/")) {
-      first = first.substring(2);
-    }
-    if (second.startsWith("W/")) {
-      second = second.substring(2);
-    }
-    return first.equals(second);
   }
 
   private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
@@ -1321,7 +1285,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, ETag.quoteETagIfNecessary(eTag));
       }
     }
   }
@@ -1333,7 +1297,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
         httpHeaders.setLastModified(lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
-        httpHeaders.setOrRemove(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+        httpHeaders.setOrRemove(HttpHeaders.ETAG, ETag.quoteETagIfNecessary(eTag));
       }
     }
   }
