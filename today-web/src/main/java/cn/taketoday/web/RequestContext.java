@@ -133,9 +133,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 3.0 */
   @Nullable
   protected HttpHeaders responseHeaders;
-  /** @since 3.0 */
-  @Nullable
-  protected String method;
 
   /** @since 3.0 */
   @Nullable
@@ -667,24 +664,22 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public String getMethodValue() {
-    String method = this.method;
-    if (method == null) {
-      method = doGetMethod();
-      this.method = method;
-    }
-    return method;
+    return getMethod().name();
   }
 
   @Override
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
     if (httpMethod == null) {
-      httpMethod = HttpMethod.valueOf(getMethodValue());
+      httpMethod = HttpMethod.valueOf(doGetMethod());
       this.httpMethod = httpMethod;
     }
     return httpMethod;
   }
 
+  /**
+   * @return upper-case http method
+   */
   protected abstract String doGetMethod();
 
   /**

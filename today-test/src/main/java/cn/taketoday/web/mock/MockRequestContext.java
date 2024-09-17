@@ -76,6 +76,8 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
+  protected String method;
+
   public MockRequestContext() {
     this(null);
   }
