@@ -32,6 +32,7 @@ import java.net.URLConnection;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -207,9 +208,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    */
   private static final Set<String> systemModuleNames =
           NativeDetector.inNativeImage() ? Collections.emptySet() :
-          ModuleFinder.ofSystem().findAll().stream()
-                  .map(moduleReference -> moduleReference.descriptor().name())
-                  .collect(Collectors.toSet());
+                  ModuleFinder.ofSystem().findAll().stream()
+                          .map(moduleReference -> moduleReference.descriptor().name())
+                          .collect(Collectors.toSet());
   /**
    * {@link Predicate} that tests whether the supplied {@link ResolvedModule}
    * is not a {@linkplain ModuleFinder#ofSystem() system module}.
@@ -321,8 +322,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       // Generally only look for a pattern after a prefix here,
       // and on Tomcat only after the "*/" separator for its "war:" protocol.
       int prefixEnd = locationPattern.startsWith("war:") ?
-                      locationPattern.indexOf("*/") :
-                      locationPattern.indexOf(':');
+              locationPattern.indexOf("*/") :
+              locationPattern.indexOf(':');
 
       if (getPathMatcher().isPattern(prefixEnd > -1 ? locationPattern.substring(prefixEnd + 1) : locationPattern)) {
         findPathMatchingResources(locationPattern, consumer); // a file pattern
@@ -403,8 +404,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           try {
             UrlResource jarResource =
                     ResourceUtils.URL_PROTOCOL_JAR.equals(url.getProtocol())
-                    ? new UrlResource(url)
-                    : new UrlResource(ResourceUtils.JAR_URL_PREFIX + url + ResourceUtils.JAR_URL_SEPARATOR);
+                            ? new UrlResource(url)
+                            : new UrlResource(ResourceUtils.JAR_URL_PREFIX + url + ResourceUtils.JAR_URL_SEPARATOR);
             if (jarResource.exists()) {
               consumer.accept(jarResource);
             }
@@ -742,7 +743,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
                 rootPath.toAbsolutePath(), subPattern);
       }
 
-      try (Stream<Path> files = Files.walk(rootPath)) {
+      try (Stream<Path> files = Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS)) {
         files.filter(isMatchingFile).sorted().forEach(file -> {
           try {
             consumer.accept(new FileSystemResource(file));
@@ -834,8 +835,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         // for the same path discovered via class-path scanning.
         URI uri = uriOptional.get();
         resource = ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
-                   ? new FileSystemResource(uri.getPath())
-                   : UrlResource.from(uri);
+                ? new FileSystemResource(uri.getPath())
+                : UrlResource.from(uri);
       }
       else {
         return;
