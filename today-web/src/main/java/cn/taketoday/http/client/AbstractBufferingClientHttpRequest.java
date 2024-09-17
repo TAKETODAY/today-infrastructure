@@ -43,7 +43,7 @@ public abstract class AbstractBufferingClientHttpRequest extends AbstractClientH
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
     byte[] bytes = bufferedOutput.toByteArrayUnsafe();
-    if (bytes.length > 0 && headers.getContentLength() < 0) {
+    if (headers.getContentLength() < 0) {
       headers.setContentLength(bytes.length);
     }
     ClientHttpResponse result = executeInternal(headers, bytes);

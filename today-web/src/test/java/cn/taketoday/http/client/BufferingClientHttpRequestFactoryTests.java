@@ -19,7 +19,6 @@ package cn.taketoday.http.client;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -51,23 +50,18 @@ class BufferingClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryT
     FileCopyUtils.copy(body, request.getBody());
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+
       assertThat(response.getHeaders().containsKey(headerName)).as("Header not found").isTrue();
+      assertThat(response.getHeaders().containsKey(headerName)).as("Header not found").isTrue();
+
+      assertThat(response.getHeaders().get(headerName)).as("Header value not found").isEqualTo(Arrays.asList(headerValue1, headerValue2));
       assertThat(response.getHeaders().get(headerName)).as("Header value not found").isEqualTo(Arrays.asList(headerValue1, headerValue2));
 
       byte[] result = FileCopyUtils.copyToByteArray(response.getBody());
       assertThat(Arrays.equals(body, result)).as("Invalid body").isTrue();
       FileCopyUtils.copyToByteArray(response.getBody());
       assertThat(Arrays.equals(body, result)).as("Invalid body").isTrue();
-    }
-  }
-
-  @Test
-  void shouldNotSetContentLengthWhenEmptyBody() throws Exception {
-    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/header/Content-Length"), HttpMethod.POST);
-    try (ClientHttpResponse response = request.execute()) {
-      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
-      String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
-      assertThat(result).as("Invalid body").isEqualTo("Content-Length:0");
     }
   }
 
