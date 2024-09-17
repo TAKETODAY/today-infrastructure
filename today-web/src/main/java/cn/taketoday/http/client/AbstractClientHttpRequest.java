@@ -85,7 +85,8 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
    * @param headers the HTTP headers
    * @return the body output stream
    */
-  protected abstract OutputStream getBodyInternal(HttpHeaders headers) throws IOException;
+  protected abstract OutputStream getBodyInternal(HttpHeaders headers)
+          throws IOException;
 
   /**
    * Abstract template method that writes the given headers and content to the HTTP request.
@@ -93,6 +94,7 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
    * @param headers the HTTP headers
    * @return the response object for the executed request
    */
-  protected abstract ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException;
+  protected abstract ClientHttpResponse executeInternal(HttpHeaders headers)
+          throws IOException;
 
 }

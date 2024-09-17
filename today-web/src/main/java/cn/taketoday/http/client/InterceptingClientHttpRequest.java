@@ -81,24 +81,25 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
     @Override
     public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
       if (iterator.hasNext()) {
-        ClientHttpRequestInterceptor nextInterceptor = iterator.next();
+        var nextInterceptor = iterator.next();
         return nextInterceptor.intercept(request, body, this);
       }
-      else {
-        HttpMethod method = request.getMethod();
-        // Assert.state(method != null, "No standard HTTP method");
-        ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);
-        delegate.getHeaders().addAll(request.getHeaders());
 
-        if (request.hasAttributes()) {
-          delegate.copyFrom(request);
-        }
+      ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), request.getMethod());
+      delegate.getHeaders().addAll(request.getHeaders());
 
-        if (body.length > 0) {
-          StreamingHttpOutputMessage.writeBody(delegate, body);
-        }
-        return delegate.execute();
+      if (request.hasAttributes()) {
+        delegate.copyFrom(request);
       }
+
+      if (body.length > 0) {
+        long contentLength = delegate.getHeaders().getContentLength();
+        if (contentLength > -1 && contentLength != body.length) {
+          delegate.getHeaders().setContentLength(body.length);
+        }
+        StreamingHttpOutputMessage.writeBody(delegate, body);
+      }
+      return delegate.execute();
     }
   }
 

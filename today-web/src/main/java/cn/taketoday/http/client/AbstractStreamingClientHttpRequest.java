@@ -77,6 +77,7 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
    * @param body the HTTP body, may be {@code null} if no body was {@linkplain #setBody(Body) set}
    * @return the response object for the executed request
    */
-  protected abstract ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException;
+  protected abstract ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body)
+          throws IOException;
 
 }
