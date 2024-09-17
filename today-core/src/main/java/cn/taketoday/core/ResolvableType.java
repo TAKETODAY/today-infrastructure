@@ -572,9 +572,14 @@ public class ResolvableType implements Serializable {
     ResolvableType[] interfaces = this.interfaces;
     if (interfaces == null) {
       Type[] genericIfcs = resolved.getGenericInterfaces();
-      interfaces = new ResolvableType[genericIfcs.length];
-      for (int i = 0; i < genericIfcs.length; i++) {
-        interfaces[i] = forType(genericIfcs[i], this);
+      if (genericIfcs.length > 0) {
+        interfaces = new ResolvableType[genericIfcs.length];
+        for (int i = 0; i < genericIfcs.length; i++) {
+          interfaces[i] = forType(genericIfcs[i], this);
+        }
+      }
+      else {
+        interfaces = EMPTY_TYPES_ARRAY;
       }
       this.interfaces = interfaces;
     }
