@@ -21,13 +21,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-import cn.taketoday.web.server.Compression;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.InvalidMimeTypeException;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.server.Compression;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import reactor.netty.http.server.HttpServer;
