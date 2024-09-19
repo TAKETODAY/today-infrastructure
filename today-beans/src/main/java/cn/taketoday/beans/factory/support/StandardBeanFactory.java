@@ -176,6 +176,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /** Whether bean definition metadata may be cached for all beans. */
   private volatile boolean configurationFrozen;
 
+  // @since 5.0
+  private volatile boolean preInstantiationPhase;
+
   /** Cached array of bean definition names in case of frozen configuration. */
   @Nullable
   private volatile String[] frozenBeanDefinitionNames;
@@ -489,9 +492,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
+  @Nullable
   @Override
-  protected boolean isCurrentThreadAllowedToHoldSingletonLock() {
-    return preInstantiationThread.get() != PreInstantiation.BACKGROUND;
+  protected Boolean isCurrentThreadAllowedToHoldSingletonLock() {
+    return preInstantiationPhase ? preInstantiationThread.get() != PreInstantiation.BACKGROUND : null;
   }
 
   @Override
@@ -505,7 +509,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     ArrayList<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
     // Trigger initialization of all non-lazy singleton beans...
-    List<CompletableFuture<?>> futures = new ArrayList<>();
+    var futures = new ArrayList<>();
+
+    this.preInstantiationPhase = true;
     this.preInstantiationThread.set(PreInstantiation.MAIN);
     try {
       for (String beanName : beanNames) {
@@ -520,6 +526,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
     finally {
       this.preInstantiationThread.remove();
+      this.preInstantiationPhase = false;
     }
     if (!futures.isEmpty()) {
       try {
