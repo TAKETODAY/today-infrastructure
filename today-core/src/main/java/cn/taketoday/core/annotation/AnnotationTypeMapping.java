@@ -48,6 +48,9 @@ import cn.taketoday.util.StringUtils;
 final class AnnotationTypeMapping {
 
   private static final MirrorSets.MirrorSet[] EMPTY_MIRROR_SETS = new MirrorSets.MirrorSet[0];
+
+  private static final int[] EMPTY_INT_ARRAY = new int[0];
+
   /**
    * Get the source of the mapping or {@code null}.
    *
@@ -518,6 +521,9 @@ final class AnnotationTypeMapping {
   }
 
   private static int[] filledIntArray(int size) {
+    if (size == 0) {
+      return EMPTY_INT_ARRAY;
+    }
     int[] array = new int[size];
     Arrays.fill(array, -1);
     return array;
@@ -586,10 +592,11 @@ final class AnnotationTypeMapping {
   final class MirrorSets {
 
     public MirrorSet[] mirrorSets;
+
     public final MirrorSet[] assigned;
 
     MirrorSets() {
-      this.assigned = new MirrorSet[methods.size()];
+      this.assigned = methods.size() > 0 ? new MirrorSet[methods.size()] : EMPTY_MIRROR_SETS;
       this.mirrorSets = EMPTY_MIRROR_SETS;
     }
 
@@ -636,6 +643,9 @@ final class AnnotationTypeMapping {
     }
 
     int[] resolve(@Nullable Object source, @Nullable Object annotation, ValueExtractor valueExtractor) {
+      if (methods.size() == 0) {
+        return EMPTY_INT_ARRAY;
+      }
       int[] result = new int[methods.size()];
       for (int i = 0; i < result.length; i++) {
         result[i] = i;
