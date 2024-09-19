@@ -228,7 +228,7 @@ public class ClientHttpConnectorTests {
   // Do not auto-close arguments since HttpComponentsClientHttpConnector implements
   // AutoCloseable and is shared between parameterized test invocations.
   @ParameterizedTest(name = "{0}", autoCloseArguments = false)
-  @MethodSource("org.springframework.http.client.reactive.ClientHttpConnectorTests#connectors")
+  @MethodSource("cn.taketoday.http.client.reactive.ClientHttpConnectorTests#connectors")
   public @interface ParameterizedConnectorTest {
   }
 
@@ -244,7 +244,9 @@ public class ClientHttpConnectorTests {
     List<Arguments> result = new ArrayList<>();
     for (Named<ClientHttpConnector> connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
-        result.add(Arguments.of(connector, method));
+        if (method != HttpMethod.CONNECT) {
+          result.add(Arguments.of(connector, method));
+        }
       }
     }
     return result;

@@ -17,10 +17,13 @@
 
 package cn.taketoday.web.client;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.http.client.ClientHttpRequestFactory;
@@ -34,19 +37,19 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/1/21 20:43
  */
-class DefaultRestClientBuilderTests {
+class RestClientBuilderTests {
 
   @SuppressWarnings("unchecked")
   @Test
   void createFromRestTemplate() {
-    ClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
-    DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("baseUri");
+    ClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(); DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("baseUri");
     ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
     List<HttpMessageConverter<?>> restTemplateMessageConverters = List.of(new StringHttpMessageConverter());
     ClientHttpRequestInterceptor interceptor = new BasicAuthenticationInterceptor("foo", "bar");
@@ -103,6 +106,35 @@ class DefaultRestClientBuilderTests {
     DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
 
     assertThat(fieldValue("baseURI", defaultBuilder)).isEqualTo(baseUrl);
+  }
+
+  @Test
+  void messageConvertersList() {
+    StringHttpMessageConverter stringConverter = new StringHttpMessageConverter();
+    RestClient.Builder builder = RestClient.builder();
+    builder.messageConverters(List.of(stringConverter));
+
+    assertThat(builder).isInstanceOf(DefaultRestClientBuilder.class);
+    DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
+
+    assertThat(fieldValue("messageConverters", defaultBuilder))
+            .asInstanceOf(InstanceOfAssertFactories.LIST)
+            .containsExactly(stringConverter);
+  }
+
+  @Test
+  void messageConvertersListEmpty() {
+    RestClient.Builder builder = RestClient.builder();
+    List<HttpMessageConverter<?>> converters = Collections.emptyList();
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.messageConverters(converters));
+  }
+
+  @Test
+  void messageConvertersListWithNullElement() {
+    RestClient.Builder builder = RestClient.builder();
+    List<HttpMessageConverter<?>> converters = new ArrayList<>();
+    converters.add(null);
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.messageConverters(converters));
   }
 
   @Nullable

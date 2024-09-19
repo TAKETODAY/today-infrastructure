@@ -439,6 +439,16 @@ public interface RestClient {
     Builder messageConverters(Consumer<List<HttpMessageConverter<?>>> configurer);
 
     /**
+     * Set the message converters for the {@code RestClient} to use.
+     *
+     * @param messageConverters the list of {@link HttpMessageConverter} to use
+     * @return this builder
+     * @see #messageConverters(Consumer)
+     * @since 5.0
+     */
+    Builder messageConverters(List<HttpMessageConverter<?>> messageConverters);
+
+    /**
      * Apply the given {@code Consumer} to this builder instance.
      * <p>This can be useful for applying pre-packaged customizations.
      *
