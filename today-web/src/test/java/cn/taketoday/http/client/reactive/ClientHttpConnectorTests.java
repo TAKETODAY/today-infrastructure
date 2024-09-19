@@ -20,6 +20,7 @@ package cn.taketoday.http.client.reactive;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -31,11 +32,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
@@ -45,7 +50,6 @@ import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
-import cn.taketoday.lang.NonNull;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -55,7 +59,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Named.named;
 
 /**
  * @author Arjen Poutsma
@@ -64,8 +68,8 @@ public class ClientHttpConnectorTests {
 
   private static final int BUF_SIZE = 1024;
 
-  private static final EnumSet<HttpMethod> METHODS_WITH_BODY =
-          EnumSet.of(HttpMethod.PUT, HttpMethod.POST, HttpMethod.PATCH);
+  private static final Set<HttpMethod> METHODS_WITH_BODY =
+          Set.of(HttpMethod.PUT, HttpMethod.POST, HttpMethod.PATCH);
 
   private final MockWebServer server = new MockWebServer();
 
@@ -126,7 +130,7 @@ public class ClientHttpConnectorTests {
                               s -> assertThat(s).isEqualTo(responseBody),
                               throwable -> {
                                 latch.countDown();
-                                fail(throwable.getMessage(), throwable);
+                                Assertions.fail(throwable.getMessage(), throwable);
                               },
                               latch::countDown);
             })
@@ -173,7 +177,26 @@ public class ClientHttpConnectorTests {
             .verify();
   }
 
-  @NonNull
+  @ParameterizedConnectorTest
+  void cookieExpireValueSetAsMaxAge(ClientHttpConnector connector) {
+    ZonedDateTime tomorrow = ZonedDateTime.now(ZoneId.of("UTC")).plusDays(1);
+    String formattedDate = tomorrow.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+
+    prepareResponse(response -> {
+      response.setResponseCode(200);
+      response.addHeader("Set-Cookie", "id=test; Expires= " + formattedDate + ";");
+    });
+    Mono<ClientHttpResponse> futureResponse =
+            connector.connect(HttpMethod.GET, this.server.url("/").uri(), ReactiveHttpOutputMessage::setComplete);
+    StepVerifier.create(futureResponse)
+            .assertNext(response -> {
+                      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                      assertThat(response.getCookies().getFirst("id").getMaxAge()).isCloseTo(Duration.ofDays(1), Duration.ofSeconds(10));
+                    }
+            )
+            .verifyComplete();
+  }
+
   private Buffer randomBody(int size) {
     Buffer responseBody = new Buffer();
     Random rnd = new Random();
@@ -204,25 +227,24 @@ public class ClientHttpConnectorTests {
   @Target(ElementType.METHOD)
   // Do not auto-close arguments since HttpComponentsClientHttpConnector implements
   // AutoCloseable and is shared between parameterized test invocations.
-  @ParameterizedTest(autoCloseArguments = false)
-  @MethodSource("cn.taketoday.http.client.reactive.ClientHttpConnectorTests#connectors")
+  @ParameterizedTest(name = "{0}", autoCloseArguments = false)
+  @MethodSource("org.springframework.http.client.reactive.ClientHttpConnectorTests#connectors")
   public @interface ParameterizedConnectorTest {
   }
 
-  static List<ClientHttpConnector> connectors() {
+  static List<Named<ClientHttpConnector>> connectors() {
     return Arrays.asList(
-            new ReactorClientHttpConnector(),
-            new HttpComponentsClientHttpConnector()
+            named("Reactor Netty", new ReactorClientHttpConnector()),
+            named("HttpComponents", new HttpComponentsClientHttpConnector()),
+            named("Jdk", new JdkClientHttpConnector())
     );
   }
 
   static List<Arguments> methodsWithConnectors() {
-    ArrayList<Arguments> result = new ArrayList<>();
-    for (ClientHttpConnector connector : connectors()) {
+    List<Arguments> result = new ArrayList<>();
+    for (Named<ClientHttpConnector> connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
-        if (method != HttpMethod.CONNECT) {
-          result.add(Arguments.of(connector, method));
-        }
+        result.add(Arguments.of(connector, method));
       }
     }
     return result;
