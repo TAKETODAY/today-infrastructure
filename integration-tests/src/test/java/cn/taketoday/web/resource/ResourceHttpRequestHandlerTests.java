@@ -386,7 +386,7 @@ public class ResourceHttpRequestHandlerTests {
               "Content-Type", "Content-Length", "Content-Range", "Accept-Ranges",
               "Last-Modified", "Content-Encoding", "Vary");
 
-      assertThat(this.response.getContentType()).isEqualTo("application/javascript");
+      assertThat(this.response.getContentType()).isEqualTo("text/javascript");
       assertThat(this.response.getContentLength()).isEqualTo(2);
       assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes 0-1/66");
       assertThat(this.response.getHeaderValues("Accept-Ranges")).containsExactly("bytes");
@@ -597,7 +597,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("js/foo.js");
       this.handler.handleRequest(requestContext);
 
-      assertThat(this.response.getContentType()).isEqualTo("application/javascript");
+      assertThat(this.response.getContentType()).isEqualTo("text/javascript");
       assertThat(this.response.getContentAsString()).isEqualTo("function foo() { console.log(\"hello world\"); }");
     }
 
@@ -607,7 +607,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("js/baz.js");
       this.handler.handleRequest(requestContext);
 
-      assertThat(this.response.getContentType()).isEqualTo("application/javascript");
+      assertThat(this.response.getContentType()).isEqualTo("text/javascript");
       assertThat(this.response.getContentAsString()).isEqualTo("function foo() { console.log(\"hello world\"); }");
     }
 
