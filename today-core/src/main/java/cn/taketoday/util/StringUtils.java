@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Contract;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -91,12 +92,30 @@ public abstract class StringUtils {
   // General convenience methods for working with Strings
   //---------------------------------------------------------------------
 
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable CharSequence str) {
     return str == null || str.isEmpty();
   }
 
+  /**
+   * Check that the given {@code CharSequence} is neither {@code null} nor
+   * of length 0.
+   * <p>Note: this method returns {@code true} for a {@code CharSequence}
+   * that purely consists of whitespace.
+   * <p><pre class="code">
+   * StringUtils.isNotEmpty(null) = false
+   * StringUtils.isNotEmpty("") = false
+   * StringUtils.isNotEmpty(" ") = true
+   * StringUtils.isNotEmpty("Hello") = true
+   * </pre>
+   *
+   * @param str the {@code CharSequence} to check (may be {@code null})
+   * @return {@code true} if the {@code CharSequence} is not {@code null} and has length
+   * @see #hasText(CharSequence)
+   */
+  @Contract("null -> false")
   public static boolean isNotEmpty(@Nullable CharSequence str) {
-    return !isEmpty(str);
+    return str != null && !str.isEmpty();
   }
 
   /**
@@ -106,7 +125,6 @@ public abstract class StringUtils {
    * @return if source is null this will returns
    * {@link Constant#EMPTY_STRING_ARRAY}
    */
-
   public static String[] split(@Nullable String source) {
     if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
