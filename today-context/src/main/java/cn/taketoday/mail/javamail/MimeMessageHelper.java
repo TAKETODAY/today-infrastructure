@@ -30,6 +30,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mail.MailMessage;
 import cn.taketoday.mail.SimpleMailMessage;
+import cn.taketoday.util.MimeType;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
@@ -1014,7 +1015,14 @@ public class MimeMessageHelper {
    */
   public void addInline(String contentId, Resource resource) throws MessagingException {
     Assert.notNull(resource, "Resource is required");
-    String contentType = getFileTypeMap().getContentType(resource.getName());
+    String contentType;
+    String filename = resource.getName();
+    if (filename == null) {
+      contentType = MimeType.APPLICATION_OCTET_STREAM_VALUE;
+    }
+    else {
+      contentType = getFileTypeMap().getContentType(filename);
+    }
     addInline(contentId, resource, contentType);
   }
 

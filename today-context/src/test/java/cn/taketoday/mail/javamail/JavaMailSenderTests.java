@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mail.javamail;
@@ -30,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.mail.MailParseException;
 import cn.taketoday.mail.MailSendException;
 import cn.taketoday.mail.SimpleMailMessage;
@@ -261,6 +259,25 @@ public class JavaMailSenderTests {
     assertThat(message.getFileTypeMap()).isEqualTo(fileTypeMap);
 
     message.setTo("you@mail.org");
+    sender.send(message.getMimeMessage());
+
+    assertThat(sender.transport.getConnectedHost()).isEqualTo("host");
+    assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
+    assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
+    assertThat(sender.transport.isCloseCalled()).isTrue();
+    assertThat(sender.transport.getSentMessages()).containsExactly(message.getMimeMessage());
+  }
+
+  @Test
+  void javaMailSenderWithMimeMessageHelperAndCustomResource() throws Exception {
+    sender.setHost("host");
+    sender.setUsername("username");
+    sender.setPassword("password");
+
+    MimeMessageHelper message = new MimeMessageHelper(sender.createMimeMessage(), true);
+    message.setTo("you@mail.org");
+    message.addInline("id", new ByteArrayResource(new byte[] { 1, 2, 3 }));
+
     sender.send(message.getMimeMessage());
 
     assertThat(sender.transport.getConnectedHost()).isEqualTo("host");
@@ -514,7 +531,7 @@ public class JavaMailSenderTests {
         throw new MessagingException("failed");
       }
       if (addresses == null || (message.getAllRecipients() == null ? addresses.length > 0 :
-                                !ObjectUtils.nullSafeEquals(addresses, message.getAllRecipients()))) {
+              !ObjectUtils.nullSafeEquals(addresses, message.getAllRecipients()))) {
         throw new MessagingException("addresses not correct");
       }
       if (message.getSentDate() == null) {
