@@ -44,9 +44,9 @@ import reactor.netty.resources.LoopResources;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactory, SmartLifecycle {
+public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory, SmartLifecycle {
 
-  private static final Logger logger = LoggerFactory.getLogger(ReactorNettyClientRequestFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpRequestFactory.class);
 
   private static final Function<HttpClient, HttpClient> defaultInitializer = client -> client.compress(true);
 
@@ -72,7 +72,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * Create a new instance of the {@code ReactorNettyClientRequestFactory}
    * with a default {@link HttpClient} that has compression enabled.
    */
-  public ReactorNettyClientRequestFactory() {
+  public ReactorClientHttpRequestFactory() {
     this.httpClient = defaultInitializer.apply(HttpClient.create());
     this.resourceFactory = null;
     this.mapper = null;
@@ -84,7 +84,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    *
    * @param httpClient the client to base on
    */
-  public ReactorNettyClientRequestFactory(HttpClient httpClient) {
+  public ReactorClientHttpRequestFactory(HttpClient httpClient) {
     Assert.notNull(httpClient, "HttpClient is required");
     this.httpClient = httpClient;
     this.resourceFactory = null;
@@ -109,7 +109,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
    * @param resourceFactory the resource factory to obtain the resources from
    * @param mapper a mapper for further initialization of the created client
    */
-  public ReactorNettyClientRequestFactory(ReactorResourceFactory resourceFactory, Function<HttpClient, HttpClient> mapper) {
+  public ReactorClientHttpRequestFactory(ReactorResourceFactory resourceFactory, Function<HttpClient, HttpClient> mapper) {
     this.resourceFactory = resourceFactory;
     this.mapper = mapper;
     if (resourceFactory.isRunning()) {
@@ -202,7 +202,7 @@ public class ReactorNettyClientRequestFactory implements ClientHttpRequestFactor
       Assert.state(this.resourceFactory != null && this.mapper != null, "Illegal configuration");
       httpClient = createHttpClient(this.resourceFactory, this.mapper);
     }
-    return new ReactorNettyClientRequest(httpClient, uri, httpMethod, this.exchangeTimeout, this.readTimeout);
+    return new ReactorClientHttpRequest(httpClient, uri, httpMethod, this.exchangeTimeout, this.readTimeout);
   }
 
   @Override

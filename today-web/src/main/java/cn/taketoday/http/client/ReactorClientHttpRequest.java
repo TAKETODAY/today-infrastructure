@@ -40,13 +40,13 @@ import reactor.netty.http.client.HttpClientRequest;
 
 /**
  * {@link ClientHttpRequest} implementation for the Reactor-Netty HTTP client.
- * Created via the {@link ReactorNettyClientRequestFactory}.
+ * Created via the {@link ReactorClientHttpRequestFactory}.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest {
+final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private final HttpClient httpClient;
 
@@ -58,7 +58,7 @@ final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest
 
   private final Duration readTimeout;
 
-  public ReactorNettyClientRequest(HttpClient httpClient, URI uri, HttpMethod method,
+  public ReactorClientHttpRequest(HttpClient httpClient, URI uri, HttpMethod method,
           Duration exchangeTimeout, Duration readTimeout) {
 
     this.httpClient = httpClient;
@@ -86,10 +86,10 @@ final class ReactorNettyClientRequest extends AbstractStreamingClientHttpRequest
     requestSender = (this.uri.isAbsolute() ? requestSender.uri(this.uri) : requestSender.uri(this.uri.toString()));
 
     try {
-      ReactorNettyClientResponse result = requestSender.send((reactorRequest, nettyOutbound) ->
+      ReactorClientHttpResponse result = requestSender.send((reactorRequest, nettyOutbound) ->
                       send(headers, body, reactorRequest, nettyOutbound))
               .responseConnection((reactorResponse, connection) ->
-                      Mono.just(new ReactorNettyClientResponse(reactorResponse, connection, this.readTimeout)))
+                      Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, this.readTimeout)))
               .next()
               .block(this.exchangeTimeout);
 

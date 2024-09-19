@@ -51,7 +51,7 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.ReactorNettyClientRequestFactory;
+import cn.taketoday.http.client.ReactorClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
@@ -96,7 +96,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
             named("JDK HttpURLConnection", new SimpleClientHttpRequestFactory()),
             named("HttpComponents", new HttpComponentsClientHttpRequestFactory()),
             named("JDK HttpClient", new JdkClientHttpRequestFactory()),
-            named("Reactor Netty", new ReactorNettyClientRequestFactory())
+            named("Reactor Netty", new ReactorClientHttpRequestFactory())
     );
   }
 

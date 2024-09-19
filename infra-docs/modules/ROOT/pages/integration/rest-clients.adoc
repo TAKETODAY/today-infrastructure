@@ -338,7 +338,7 @@ Various implementations are available:
 
 * `JdkClientHttpRequestFactory` for Java's `HttpClient`
 * `HttpComponentsClientHttpRequestFactory` for use with Apache HTTP Components `HttpClient`
-* `ReactorNettyClientRequestFactory` for Reactor Netty's `HttpClient`
+* `ReactorClientHttpRequestFactory` for Reactor Netty's `HttpClient`
 * `SimpleClientHttpRequestFactory` as a simple default
 
 If no request factory is specified when the `RestClient` was built, it will use the Apache if they are available on the classpath.
