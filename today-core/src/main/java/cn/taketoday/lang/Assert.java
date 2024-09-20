@@ -177,7 +177,7 @@ public abstract class Assert {
 
   /**
    * Assert that an object is not {@code null}.
-   * <pre class="code">Assert.notNull(clazz, "The class must not be null");</pre>
+   * <pre class="code">Assert.notNull(clazz, "The class is required");</pre>
    *
    * @param object the object to check
    * @param message the exception message to use if the assertion fails
@@ -194,7 +194,7 @@ public abstract class Assert {
    * Assert that an object is not {@code null}.
    * <pre class="code">
    * Assert.notNull(entity.getId(),
-   *     () -&gt; "ID for entity " + entity.getName() + " must not be null");
+   *     () -&gt; "ID for entity " + entity.getName() + " is required");
    * </pre>
    *
    * @param object the object to check
@@ -528,7 +528,7 @@ public abstract class Assert {
    */
   @Contract("_, null, _ -> fail")
   public static void isInstanceOf(Class<?> type, @Nullable Object obj, String message) {
-    notNull(type, "Type to check against must not be null");
+    notNull(type, "Type to check against is required");
     if (!type.isInstance(obj)) {
       instanceCheckFailed(type, obj, message);
     }
@@ -548,7 +548,7 @@ public abstract class Assert {
    */
   @Contract("_, null, _ -> fail")
   public static void isInstanceOf(Class<?> type, @Nullable Object obj, Supplier<String> messageSupplier) {
-    notNull(type, "Type to check against must not be null");
+    notNull(type, "Type to check against is required");
     if (!type.isInstance(obj)) {
       instanceCheckFailed(type, obj, nullSafeGet(messageSupplier));
     }
@@ -582,7 +582,7 @@ public abstract class Assert {
    */
   @Contract("_, null, _ -> fail")
   public static void isAssignable(Class<?> superType, @Nullable Class<?> subType, String message) {
-    notNull(superType, "Supertype to check against must not be null");
+    notNull(superType, "Supertype to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, message);
     }
@@ -602,7 +602,7 @@ public abstract class Assert {
    */
   @Contract("_, null, _ -> fail")
   public static void isAssignable(Class<?> superType, @Nullable Class<?> subType, Supplier<String> messageSupplier) {
-    notNull(superType, "Supertype to check against must not be null");
+    notNull(superType, "Supertype to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, nullSafeGet(messageSupplier));
     }
