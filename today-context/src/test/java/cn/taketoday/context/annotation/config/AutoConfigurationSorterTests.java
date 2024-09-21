@@ -309,7 +309,7 @@ class AutoConfigurationSorterTests {
 
   }
 
-  @AutoConfigureAfter(name = "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureB")
+  @AutoConfigureAfter(name = "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureB")
   static class AutoConfigureA2 {
 
   }
@@ -344,7 +344,7 @@ class AutoConfigurationSorterTests {
   }
 
   // @DeprecatedAutoConfiguration(replacement =
-  // "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureC")
+  // "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureC")
   public static class DeprecatedAutoConfigureC {
 
   }
@@ -363,7 +363,7 @@ class AutoConfigurationSorterTests {
 
   }
 
-  @AutoConfigureBefore(name = "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureB")
+  @AutoConfigureBefore(name = "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureB")
   static class AutoConfigureW2 {
 
   }
@@ -383,7 +383,7 @@ class AutoConfigurationSorterTests {
   }
 
   // @DeprecatedAutoConfiguration(replacement =
-  // "org.springframework.boot.autoconfigure.AutoConfigurationSorterTests$AutoConfigureY")
+  // "cn.taketoday.context.annotation.config.AutoConfigurationSorterTests$AutoConfigureY")
   public static class DeprecatedAutoConfigureY {
 
   }
