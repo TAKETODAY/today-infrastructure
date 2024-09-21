@@ -65,7 +65,6 @@ import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
-import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -82,7 +81,6 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.NullValue;
@@ -1363,27 +1361,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
           String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
 
-    // find on factory-method then find on class
-
-    boolean containsBeanDefinition = containsBeanDefinition(beanName);
-    if (containsBeanDefinition) {
-      BeanDefinition definition = getBeanDefinition(beanName);
-      if (definition instanceof AnnotatedBeanDefinition annotated) {
-        // find on factory method
-        MethodMetadata methodMetadata = annotated.getFactoryMethodMetadata();
-        if (methodMetadata != null) {
-          MergedAnnotation<A> annotation = methodMetadata.getAnnotation(annotationType);
-          if (annotation.isPresent()) {
-            return annotation;
-          }
-          // factory-method not found
-        }
-        else {
-          return annotated.getMetadata().getAnnotation(annotationType);
-        }
-      }
-    }
-
     // find it on class
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     if (beanType != null) {
@@ -1393,7 +1370,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         return annotation;
       }
     }
-    if (containsBeanDefinition) {
+    if (containsBeanDefinition(beanName)) {
       RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
       // Check raw bean class, e.g. in case of a proxy.
       if (merged.hasBeanClass() && merged.getFactoryMethodName() == null) {
