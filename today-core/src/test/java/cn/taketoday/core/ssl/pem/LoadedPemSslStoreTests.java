@@ -46,4 +46,20 @@ class LoadedPemSslStoreTests {
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::privateKey);
   }
 
+  @Test
+  void withAliasIsLazy() {
+    PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:missing-test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
+    PemSslStore store = new LoadedPemSslStore(details).withAlias("alias");
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::certificates);
+  }
+
+  @Test
+  void withPasswordIsLazy() {
+    PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:missing-test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
+    PemSslStore store = new LoadedPemSslStore(details).withPassword("password");
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::certificates);
+  }
+
 }

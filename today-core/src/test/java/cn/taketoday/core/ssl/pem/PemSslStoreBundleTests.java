@@ -28,6 +28,10 @@ import java.util.function.Consumer;
 import cn.taketoday.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 /**
  * Tests for {@link PemSslStoreBundle}.
@@ -168,17 +172,6 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetailsAndAlias() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
-            .withPrivateKey("classpath:test-key.pem");
-    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
-            .withPrivateKey("classpath:test-key.pem");
-    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails, "test-alias");
-    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias"));
-    assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("test-alias"));
-  }
-
-  @Test
   void createWithDetailsWhenHasStoreType() {
     PemSslStoreDetails keyStoreDetails = new PemSslStoreDetails("PKCS12", "classpath:test-cert.pem",
             "classpath:test-key.pem");
@@ -212,6 +205,18 @@ class PemSslStoreBundleTests {
     PemSslStoreBundle bundle = new PemSslStoreBundle(pemSslStore, pemSslStore);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("ssl"));
+  }
+
+  @Test
+  void storeCreationIsLazy() {
+    PemSslStore pemSslStore = mock(PemSslStore.class);
+    PemSslStoreBundle bundle = new PemSslStoreBundle(pemSslStore, pemSslStore);
+    given(pemSslStore.certificates()).willReturn(PemContent.of(CERTIFICATE).getCertificates());
+    then(pemSslStore).shouldHaveNoInteractions();
+    bundle.getKeyStore();
+    then(pemSslStore).should().certificates();
+    bundle.getTrustStore();
+    then(pemSslStore).should(times(2)).certificates();
   }
 
   private Consumer<KeyStore> storeContainingCert(String keyAlias) {

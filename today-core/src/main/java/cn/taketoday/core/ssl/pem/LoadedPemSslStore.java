@@ -106,4 +106,14 @@ final class LoadedPemSslStore implements PemSslStore {
     return this.privateKeySupplier.get();
   }
 
+  @Override
+  public PemSslStore withAlias(String alias) {
+    return new LoadedPemSslStore(this.details.withAlias(alias));
+  }
+
+  @Override
+  public PemSslStore withPassword(String password) {
+    return new LoadedPemSslStore(this.details.withPassword(password));
+  }
+
 }

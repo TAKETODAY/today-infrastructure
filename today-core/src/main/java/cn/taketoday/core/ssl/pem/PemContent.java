@@ -20,7 +20,6 @@ package cn.taketoday.core.ssl.pem;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,9 +31,10 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StreamUtils;
 
 /**
@@ -130,7 +130,8 @@ public final class PemContent {
       return new PemContent(content);
     }
     try {
-      return load(ResourceUtils.getURL(content));
+      Resource resource = new DefaultResourceLoader().getResource(content);
+      return load(resource.getInputStream());
     }
     catch (IOException | UncheckedIOException ex) {
       throw new IOException("Error reading certificate or key from file '%s'".formatted(content), ex);
@@ -147,13 +148,6 @@ public final class PemContent {
   public static PemContent load(Path path) throws IOException {
     Assert.notNull(path, "Path is required");
     try (InputStream in = Files.newInputStream(path, StandardOpenOption.READ)) {
-      return load(in);
-    }
-  }
-
-  private static PemContent load(URL url) throws IOException {
-    Assert.notNull(url, "Url is required");
-    try (InputStream in = url.openStream()) {
       return load(in);
     }
   }

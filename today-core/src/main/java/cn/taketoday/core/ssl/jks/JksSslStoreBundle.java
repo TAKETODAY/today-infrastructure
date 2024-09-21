@@ -19,18 +19,21 @@ package cn.taketoday.core.ssl.jks;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.function.Supplier;
 
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.ssl.SslStoreBundle;
+import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * {@link SslStoreBundle} backed by a Java keystore.
@@ -45,11 +48,9 @@ public class JksSslStoreBundle implements SslStoreBundle {
   @Nullable
   private final JksSslStoreDetails keyStoreDetails;
 
-  @Nullable
-  private final KeyStore keyStore;
+  private final Supplier<KeyStore> keyStore;
 
-  @Nullable
-  private final KeyStore trustStore;
+  private final Supplier<KeyStore> trustStore;
 
   /**
    * Create a new {@link JksSslStoreBundle} instance.
@@ -59,14 +60,14 @@ public class JksSslStoreBundle implements SslStoreBundle {
    */
   public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
     this.keyStoreDetails = keyStoreDetails;
-    this.keyStore = createKeyStore("key", this.keyStoreDetails);
-    this.trustStore = createKeyStore("trust", trustStoreDetails);
+    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", this.keyStoreDetails));
+    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", trustStoreDetails));
   }
 
   @Nullable
   @Override
   public KeyStore getKeyStore() {
-    return this.keyStore;
+    return this.keyStore.get();
   }
 
   @Nullable
@@ -78,7 +79,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
   @Override
   @Nullable
   public KeyStore getTrustStore() {
-    return this.trustStore;
+    return this.trustStore.get();
   }
 
   @Nullable
@@ -87,7 +88,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
       return null;
     }
     try {
-      String type = (StringUtils.isBlank(details.type())) ? KeyStore.getDefaultType() : details.type();
+      String type = StringUtils.isBlank(details.type()) ? KeyStore.getDefaultType() : details.type();
       char[] password = (details.password() != null) ? details.password().toCharArray() : null;
       String location = details.location();
       KeyStore store = getKeyStoreInstance(type, details.provider());
@@ -125,14 +126,26 @@ public class JksSslStoreBundle implements SslStoreBundle {
   private void loadKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password) {
     Assert.state(StringUtils.hasText(location), "Location must not be empty or null");
     try {
-      URL url = ResourceUtils.getURL(location);
-      try (InputStream stream = url.openStream()) {
+      Resource resource = new DefaultResourceLoader().getResource(location);
+      try (InputStream stream = resource.getInputStream()) {
         store.load(stream, password);
       }
     }
     catch (Exception ex) {
       throw new IllegalStateException("Could not load store from '" + location + "'", ex);
     }
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder creator = new ToStringBuilder(this);
+    KeyStore keyStore = this.keyStore.get();
+    creator.append("keyStore.type", (keyStore != null) ? keyStore.getType() : "none");
+    String keyStorePassword = getKeyStorePassword();
+    creator.append("keyStorePassword", (keyStorePassword != null) ? "******" : null);
+    KeyStore trustStore = this.trustStore.get();
+    creator.append("trustStore.type", (trustStore != null) ? trustStore.getType() : "none");
+    return creator.toString();
   }
 
 }

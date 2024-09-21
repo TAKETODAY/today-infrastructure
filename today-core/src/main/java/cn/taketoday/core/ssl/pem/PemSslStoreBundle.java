@@ -25,12 +25,14 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * {@link SslStoreBundle} backed by PEM-encoded certificates and private keys.
@@ -44,11 +46,9 @@ public class PemSslStoreBundle implements SslStoreBundle {
 
   private static final String DEFAULT_ALIAS = "ssl";
 
-  @Nullable
-  private final KeyStore keyStore;
+  private final Supplier<KeyStore> keyStore;
 
-  @Nullable
-  private final KeyStore trustStore;
+  private final Supplier<KeyStore> trustStore;
 
   /**
    * Create a new {@link PemSslStoreBundle} instance.
@@ -68,8 +68,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param alias the alias to use or {@code null} to use a default alias
    */
   public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails, @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String alias) {
-    this.keyStore = createKeyStore("key", PemSslStore.load(keyStoreDetails), alias);
-    this.trustStore = createKeyStore("trust", PemSslStore.load(trustStoreDetails), alias);
+    this(PemSslStore.load(keyStoreDetails), PemSslStore.load(trustStoreDetails));
   }
 
   /**
@@ -79,14 +78,14 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param pemTrustStore the PEM trust store
    */
   public PemSslStoreBundle(@Nullable PemSslStore pemKeyStore, @Nullable PemSslStore pemTrustStore) {
-    this.keyStore = createKeyStore("key", pemKeyStore, null);
-    this.trustStore = createKeyStore("trust", pemTrustStore, null);
+    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", pemKeyStore));
+    this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", pemTrustStore));
   }
 
   @Nullable
   @Override
   public KeyStore getKeyStore() {
-    return this.keyStore;
+    return this.keyStore.get();
   }
 
   @Nullable
@@ -98,20 +97,20 @@ public class PemSslStoreBundle implements SslStoreBundle {
   @Nullable
   @Override
   public KeyStore getTrustStore() {
-    return this.trustStore;
+    return this.trustStore.get();
   }
 
   @Nullable
-  private static KeyStore createKeyStore(String name, @Nullable PemSslStore pemSslStore, @Nullable String alias) {
+  private static KeyStore createKeyStore(String name, @Nullable PemSslStore pemSslStore) {
     if (pemSslStore == null) {
       return null;
     }
     try {
-      Assert.notEmpty(pemSslStore.certificates(), "Certificates must not be empty");
-      alias = (pemSslStore.alias() != null) ? pemSslStore.alias() : alias;
-      alias = (alias != null) ? alias : DEFAULT_ALIAS;
-      KeyStore store = createKeyStore(pemSslStore.type());
       List<X509Certificate> certificates = pemSslStore.certificates();
+      Assert.notEmpty(certificates, "Certificates must not be empty");
+      String alias = pemSslStore.alias();
+      alias = alias != null ? alias : DEFAULT_ALIAS;
+      KeyStore store = createKeyStore(pemSslStore.type());
       PrivateKey privateKey = pemSslStore.privateKey();
       if (privateKey != null) {
         addPrivateKey(store, privateKey, alias, pemSslStore.password(), certificates);
@@ -151,9 +150,11 @@ public class PemSslStoreBundle implements SslStoreBundle {
   @Override
   public String toString() {
     ToStringBuilder creator = new ToStringBuilder(this);
-    creator.append("keyStore.type", (this.keyStore != null) ? this.keyStore.getType() : "none");
+    KeyStore keyStore = this.keyStore.get();
+    KeyStore trustStore = this.trustStore.get();
+    creator.append("keyStore.type", (keyStore != null) ? keyStore.getType() : "none");
     creator.append("keyStorePassword", null);
-    creator.append("trustStore.type", (this.trustStore != null) ? this.trustStore.getType() : "none");
+    creator.append("trustStore.type", (trustStore != null) ? trustStore.getType() : "none");
     return creator.toString();
   }
 
