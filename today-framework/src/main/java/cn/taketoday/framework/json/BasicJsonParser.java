@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.json;
@@ -25,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -41,48 +39,69 @@ import cn.taketoday.util.StringUtils;
  */
 public class BasicJsonParser extends AbstractJsonParser {
 
+  private static final int MAX_DEPTH = 1000;
+
   @Override
   public Map<String, Object> parseMap(String json) {
-    return parseMap(json, this::parseMapInternal);
+    return tryParse(() -> parseMap(json, (jsonToParse) -> parseMapInternal(0, jsonToParse)), Exception.class);
   }
 
   @Override
   public List<Object> parseList(String json) {
-    return parseList(json, this::parseListInternal);
+    return tryParse(() -> parseList(json, (jsonToParse) -> parseListInternal(0, jsonToParse)), Exception.class);
   }
 
-  private List<Object> parseListInternal(String json) {
+  private List<Object> parseListInternal(int nesting, String json) {
     List<Object> list = new ArrayList<>();
-    json = trimLeadingCharacter(trimTrailingCharacter(json, ']'), '[').trim();
+    json = trimEdges(json, '[', ']').trim();
     for (String value : tokenize(json)) {
-      list.add(parseInternal(value));
+      list.add(parseInternal(nesting + 1, value));
     }
     return list;
   }
 
-  private Object parseInternal(String json) {
+  private Object parseInternal(int nesting, String json) {
+    if (nesting > MAX_DEPTH) {
+      throw new IllegalStateException("JSON is too deeply nested");
+    }
     if (json.startsWith("[")) {
-      return parseListInternal(json);
+      return parseListInternal(nesting + 1, json);
     }
     if (json.startsWith("{")) {
-      return parseMapInternal(json);
+      return parseMapInternal(nesting + 1, json);
     }
     if (json.startsWith("\"")) {
-      return trimTrailingCharacter(trimLeadingCharacter(json, '"'), '"');
+      return trimEdges(json, '"', '"');
     }
+    return parseNumber(json);
+  }
+
+  private Map<String, Object> parseMapInternal(int nesting, String json) {
+    Map<String, Object> map = new LinkedHashMap<>();
+    json = trimEdges(json, '{', '}').trim();
+    for (String pair : tokenize(json)) {
+      String[] values = StringUtils.trimArrayElements(StringUtils.split(pair, ":"));
+      Assert.state(values[0].startsWith("\"") && values[0].endsWith("\""),
+              "Expecting double-quotes around field names");
+      String key = trimEdges(values[0], '"', '"');
+      Object value = parseInternal(nesting, values[1]);
+      map.put(key, value);
+    }
+    return map;
+  }
+
+  private Object parseNumber(String json) {
     try {
       return Long.valueOf(json);
     }
     catch (NumberFormatException ex) {
-      // ignore
+      try {
+        return Double.valueOf(json);
+      }
+      catch (NumberFormatException ex2) {
+        return json;
+      }
     }
-    try {
-      return Double.valueOf(json);
-    }
-    catch (NumberFormatException ex) {
-      // ignore
-    }
-    return json;
   }
 
   private static String trimTrailingCharacter(String string, char c) {
@@ -99,16 +118,8 @@ public class BasicJsonParser extends AbstractJsonParser {
     return string;
   }
 
-  private Map<String, Object> parseMapInternal(String json) {
-    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-    json = trimLeadingCharacter(trimTrailingCharacter(json, '}'), '{').trim();
-    for (String pair : tokenize(json)) {
-      String[] values = StringUtils.trimArrayElements(StringUtils.split(pair, ":"));
-      String key = trimLeadingCharacter(trimTrailingCharacter(values[0], '"'), '"');
-      Object value = parseInternal(values[1]);
-      map.put(key, value);
-    }
-    return map;
+  private static String trimEdges(String string, char leadingChar, char trailingChar) {
+    return trimTrailingCharacter(trimLeadingCharacter(string, leadingChar), trailingChar);
   }
 
   private List<String> tokenize(String json) {
@@ -154,7 +165,7 @@ public class BasicJsonParser extends AbstractJsonParser {
       }
       index++;
     }
-    if (build.length() > 0) {
+    if (!build.isEmpty()) {
       list.add(build.toString().trim());
     }
     return list;
