@@ -94,8 +94,10 @@ public final class ZipContent implements Closeable {
 
   private final boolean hasJarSignatureFile;
 
+  @Nullable
   private SoftReference<CloseableDataBlock> virtualData;
 
+  @Nullable
   private SoftReference<Map<Class<?>, Object>> info;
 
   private ZipContent(Source source, Kind kind, FileDataBlock data, long centralDirectoryPos, long commentPos,
@@ -118,7 +120,6 @@ public final class ZipContent implements Closeable {
    * Return the kind of content that was loaded.
    *
    * @return the content kind
-   * @since 3.2.2
    */
   public Kind getKind() {
     return this.kind;
@@ -204,7 +205,8 @@ public final class ZipContent implements Closeable {
    * @param name the name of the entry to find
    * @return the entry or {@code null}
    */
-  public Entry getEntry(CharSequence name) {
+  @Nullable
+  public Entry getEntry(@Nullable CharSequence name) {
     return getEntry(null, name);
   }
 
@@ -215,7 +217,8 @@ public final class ZipContent implements Closeable {
    * @param name the name of the entry to find
    * @return the entry or {@code null}
    */
-  public Entry getEntry(CharSequence namePrefix, CharSequence name) {
+  @Nullable
+  public Entry getEntry(@Nullable CharSequence namePrefix, @Nullable CharSequence name) {
     int nameHash = nameHash(namePrefix, name);
     int lookupIndex = getFirstLookupIndex(nameHash);
     int size = size();
@@ -278,7 +281,7 @@ public final class ZipContent implements Closeable {
     }
   }
 
-  private int nameHash(CharSequence namePrefix, CharSequence name) {
+  private int nameHash(@Nullable CharSequence namePrefix, @Nullable CharSequence name) {
     int nameHash = 0;
     nameHash = (namePrefix != null) ? ZipString.hash(nameHash, namePrefix, false) : nameHash;
     nameHash = ZipString.hash(nameHash, name, true);
@@ -301,7 +304,7 @@ public final class ZipContent implements Closeable {
   }
 
   private boolean hasName(int lookupIndex, ZipCentralDirectoryFileHeaderRecord centralRecord, long pos,
-          CharSequence namePrefix, CharSequence name) {
+          @Nullable CharSequence namePrefix, @Nullable CharSequence name) {
     int offset = this.nameOffsetLookups.get(lookupIndex);
     pos += ZipCentralDirectoryFileHeaderRecord.FILE_NAME_OFFSET + offset;
     int len = centralRecord.fileNameLength() - offset;
@@ -437,7 +440,7 @@ public final class ZipContent implements Closeable {
    * @param path the path of the zip or container zip
    * @param nestedEntryName the name of the nested entry to use or {@code null}
    */
-  private record Source(Path path, String nestedEntryName) {
+  private record Source(Path path, @Nullable String nestedEntryName) {
 
     /**
      * Return if this is the source of a nested zip.
@@ -479,7 +482,7 @@ public final class ZipContent implements Closeable {
 
     private int cursor;
 
-    private Loader(Source source, Entry directoryEntry, FileDataBlock data, long centralDirectoryPos,
+    private Loader(Source source, @Nullable Entry directoryEntry, FileDataBlock data, long centralDirectoryPos,
             int maxSize) {
       this.source = source;
       this.data = data;
@@ -675,7 +678,7 @@ public final class ZipContent implements Closeable {
     private static ZipContent loadNestedDirectory(Source source, ZipContent zip, Entry directoryEntry)
             throws IOException {
       debug.log("Loading nested directory entry '%s' from '%s'", source.nestedEntryName(), source.path());
-      if (!source.nestedEntryName().endsWith("/")) {
+      if (source.nestedEntryName() == null || !source.nestedEntryName().endsWith("/")) {
         throw new IllegalArgumentException("Nested entry name must end with '/'");
       }
       String directoryName = directoryEntry.getName();

@@ -92,30 +92,31 @@ final class SecurityInfo {
    * @return the security info
    * @throws IOException on I/O error
    */
+  @SuppressWarnings("resource")
   private static SecurityInfo load(ZipContent content) throws IOException {
     int size = content.size();
     boolean hasSecurityInfo = false;
     Certificate[][] entryCertificates = new Certificate[size][];
     CodeSigner[][] entryCodeSigners = new CodeSigner[size][];
-    try (JarInputStream in = new JarInputStream(content.openRawZipData().asInputStream())) {
-      JarEntry jarEntry = in.getNextJarEntry();
-      while (jarEntry != null) {
-        in.closeEntry(); // Close to trigger a read and set certs/signers
-        Certificate[] certificates = jarEntry.getCertificates();
-        CodeSigner[] codeSigners = jarEntry.getCodeSigners();
-        if (certificates != null || codeSigners != null) {
-          ZipContent.Entry contentEntry = content.getEntry(jarEntry.getName());
-          if (contentEntry != null) {
+    try (JarEntriesStream entries = new JarEntriesStream(content.openRawZipData().asInputStream())) {
+      JarEntry entry = entries.getNextEntry();
+      while (entry != null) {
+        ZipContent.Entry relatedEntry = content.getEntry(entry.getName());
+        if (relatedEntry != null && entries.matches(relatedEntry.isDirectory(),
+                relatedEntry.getUncompressedSize(), relatedEntry.getCompressionMethod(),
+                () -> relatedEntry.openContent().asInputStream())) {
+          Certificate[] certificates = entry.getCertificates();
+          CodeSigner[] codeSigners = entry.getCodeSigners();
+          if (certificates != null || codeSigners != null) {
             hasSecurityInfo = true;
-            entryCertificates[contentEntry.getLookupIndex()] = certificates;
-            entryCodeSigners[contentEntry.getLookupIndex()] = codeSigners;
+            entryCertificates[relatedEntry.getLookupIndex()] = certificates;
+            entryCodeSigners[relatedEntry.getLookupIndex()] = codeSigners;
           }
         }
-        jarEntry = in.getNextJarEntry();
+        entry = entries.getNextEntry();
       }
-      return (!hasSecurityInfo) ? NONE : new SecurityInfo(entryCertificates, entryCodeSigners);
     }
-
+    return (!hasSecurityInfo) ? NONE : new SecurityInfo(entryCertificates, entryCodeSigners);
   }
 
 }

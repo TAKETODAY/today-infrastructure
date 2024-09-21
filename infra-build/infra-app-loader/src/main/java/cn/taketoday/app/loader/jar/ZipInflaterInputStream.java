@@ -32,7 +32,7 @@ import java.util.zip.InflaterInputStream;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-abstract class ZipInflaterInputStream extends InflaterInputStream {
+class ZipInflaterInputStream extends InflaterInputStream {
 
   private int available;
 

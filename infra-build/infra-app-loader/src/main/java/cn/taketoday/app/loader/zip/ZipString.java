@@ -157,9 +157,9 @@ final class ZipString {
    * with one
    * @return true if the contents are considered equal
    */
-  static boolean matches(ByteBuffer buffer, DataBlock dataBlock, long pos, int len, CharSequence charSequence,
+  static boolean matches(@Nullable ByteBuffer buffer, DataBlock dataBlock, long pos, int len, @Nullable CharSequence charSequence,
           boolean addSlash) {
-    if (charSequence.isEmpty()) {
+    if (charSequence == null || charSequence.isEmpty()) {
       return true;
     }
     buffer = (buffer != null) ? buffer : ByteBuffer.allocate(BUFFER_SIZE);
