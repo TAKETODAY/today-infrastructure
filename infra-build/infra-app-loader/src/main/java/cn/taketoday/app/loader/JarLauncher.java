@@ -38,24 +38,6 @@ public class JarLauncher extends ExecutableArchiveLauncher {
     super(archive);
   }
 
-  @Override
-  protected boolean isIncludedOnClassPath(Archive.Entry entry) {
-    return isLibraryFileOrClassesDirectory(entry);
-  }
-
-  @Override
-  protected String getEntryPathPrefix() {
-    return "APP-INF/";
-  }
-
-  static boolean isLibraryFileOrClassesDirectory(Archive.Entry entry) {
-    String name = entry.name();
-    if (entry.isDirectory()) {
-      return name.equals("APP-INF/classes/");
-    }
-    return name.startsWith("APP-INF/lib/");
-  }
-
   public static void main(String[] args) throws Exception {
     new JarLauncher().launch(args);
   }

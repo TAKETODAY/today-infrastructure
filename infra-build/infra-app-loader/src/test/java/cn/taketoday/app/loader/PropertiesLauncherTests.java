@@ -23,7 +23,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +30,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,10 +64,7 @@ import static org.hamcrest.Matchers.containsString;
  */
 @ExtendWith(OutputCaptureExtension.class)
 @AssertFileChannelDataBlocksClosed
-class PropertiesLauncherTests {
-
-  @TempDir
-  File tempDir;
+class PropertiesLauncherTests extends AbstractLauncherTests {
 
   private PropertiesLauncher launcher;
 
@@ -224,7 +222,8 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "nested-jars/nested-jar-app.jar!/BOOT-INF/classes/");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(paths()).hasToString("[nested-jars/nested-jar-app.jar!/BOOT-INF/classes/]");
+    assertThat(paths())
+            .hasToString("[nested-jars/nested-jar-app.jar!/BOOT-INF/classes/]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -332,7 +331,7 @@ class PropertiesLauncherTests {
       manifest.write(manifestStream);
     }
     this.launcher = new PropertiesLauncher();
-    assertThat((List<String>) ReflectionTestUtils.getField(this.launcher, "paths")).containsExactly("/foo.jar",
+    assertThat((List<String>) paths()).containsExactly("/foo.jar",
             "/bar/");
   }
 
@@ -396,11 +395,64 @@ class PropertiesLauncherTests {
     this.launcher = new PropertiesLauncher(archive);
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
+  }
 
+  @Test
+  void explodedJarShouldPreserveClasspathOrderWhenIndexPresent() throws Exception {
+    File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF", true, Collections.emptyList()));
+    PropertiesLauncher launcher = new PropertiesLauncher(new ExplodedArchive(explodedRoot));
+    URLClassLoader classLoader = createClassLoader(launcher);
+    assertThat(classLoader.getURLs()).containsExactly(getExpectedFileUrls(explodedRoot));
+  }
+
+  @Test
+  void customClassLoaderAndExplodedJarAndShouldPreserveClasspathOrderWhenIndexPresent() throws Exception {
+    System.setProperty("loader.classLoader", URLClassLoader.class.getName());
+    File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF", true, Collections.emptyList()));
+    PropertiesLauncher launcher = new PropertiesLauncher(new ExplodedArchive(explodedRoot));
+    URLClassLoader classLoader = createClassLoader(launcher);
+    assertThat(classLoader.getParent()).isInstanceOf(URLClassLoader.class);
+    assertThat(((URLClassLoader) classLoader.getParent()).getURLs())
+            .containsExactly(getExpectedFileUrls(explodedRoot));
+  }
+
+  @Test
+  void jarFilesPresentInBootInfLibsAndNotInClasspathIndexShouldBeAddedAfterBootInfClasses() throws Exception {
+    ArrayList<String> extraLibs = new ArrayList<>(Arrays.asList("extra-1.jar", "extra-2.jar"));
+    File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF", true, extraLibs));
+    PropertiesLauncher launcher = new PropertiesLauncher(new ExplodedArchive(explodedRoot));
+    URLClassLoader classLoader = createClassLoader(launcher);
+    List<File> expectedFiles = getExpectedFilesWithExtraLibs(explodedRoot);
+    URL[] expectedFileUrls = expectedFiles.stream().map(this::toUrl).toArray(URL[]::new);
+    assertThat(classLoader.getURLs()).containsExactly(expectedFileUrls);
   }
 
   private void waitFor(String value) {
     Awaitility.waitAtMost(Duration.ofSeconds(5)).until(this.output::toString, containsString(value));
+  }
+
+  private URL[] getExpectedFileUrls(File explodedRoot) {
+    return getExpectedFiles(explodedRoot).stream().map(this::toUrl).toArray(URL[]::new);
+  }
+
+  private List<File> getExpectedFiles(File parent) {
+    List<File> expected = new ArrayList<>();
+    expected.add(new File(parent, "APP-INF/classes"));
+    expected.add(new File(parent, "APP-INF/lib/foo.jar"));
+    expected.add(new File(parent, "APP-INF/lib/bar.jar"));
+    expected.add(new File(parent, "APP-INF/lib/baz.jar"));
+    return expected;
+  }
+
+  private List<File> getExpectedFilesWithExtraLibs(File parent) {
+    List<File> expected = new ArrayList<>();
+    expected.add(new File(parent, "APP-INF/classes"));
+    expected.add(new File(parent, "APP-INF/lib/extra-1.jar"));
+    expected.add(new File(parent, "APP-INF/lib/extra-2.jar"));
+    expected.add(new File(parent, "APP-INF/lib/foo.jar"));
+    expected.add(new File(parent, "APP-INF/lib/bar.jar"));
+    expected.add(new File(parent, "APP-INF/lib/baz.jar"));
+    return expected;
   }
 
   private Condition<URL> endingWith(String value) {

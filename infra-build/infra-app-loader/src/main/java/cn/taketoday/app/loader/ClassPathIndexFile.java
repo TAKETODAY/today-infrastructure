@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * A class path index file that provides an ordered classpath for exploded JARs.
  *
@@ -37,11 +39,12 @@ import java.util.stream.Collectors;
  */
 final class ClassPathIndexFile {
 
+  @Nullable
   private final File root;
 
   private final Set<String> lines;
 
-  private ClassPathIndexFile(File root, List<String> lines) {
+  private ClassPathIndexFile(@Nullable File root, List<String> lines) {
     this.root = root;
     this.lines = lines.stream().map(this::extractName).collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -57,7 +60,7 @@ final class ClassPathIndexFile {
     return this.lines.size();
   }
 
-  boolean containsEntry(String name) {
+  boolean containsEntry(@Nullable String name) {
     if (name == null || name.isEmpty()) {
       return false;
     }
@@ -77,11 +80,13 @@ final class ClassPathIndexFile {
     }
   }
 
-  static ClassPathIndexFile loadIfPossible(File root, String location) throws IOException {
+  @Nullable
+  static ClassPathIndexFile loadIfPossible(@Nullable File root, String location) throws IOException {
     return loadIfPossible(root, new File(root, location));
   }
 
-  private static ClassPathIndexFile loadIfPossible(File root, File indexFile) throws IOException {
+  @Nullable
+  private static ClassPathIndexFile loadIfPossible(@Nullable File root, File indexFile) throws IOException {
     if (indexFile.exists() && indexFile.isFile()) {
       List<String> lines = Files.readAllLines(indexFile.toPath())
               .stream()

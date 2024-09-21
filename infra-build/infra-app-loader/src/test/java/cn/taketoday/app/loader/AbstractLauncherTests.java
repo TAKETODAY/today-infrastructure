@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -47,7 +48,7 @@ import cn.taketoday.util.FileCopyUtils;
  * @author Madhura Bhave
  * @author Scott Frederick
  */
-abstract class AbstractExecutableArchiveLauncherTests {
+abstract class AbstractLauncherTests {
 
   @TempDir
   File tempDir;
@@ -132,6 +133,10 @@ abstract class AbstractExecutableArchiveLauncherTests {
     catch (MalformedURLException ex) {
       throw new IllegalStateException(ex);
     }
+  }
+
+  protected URLClassLoader createClassLoader(Launcher launcher) throws Exception {
+    return (URLClassLoader) launcher.createClassLoader(launcher.getClassPathUrls());
   }
 
 }
