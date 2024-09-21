@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -53,7 +54,7 @@ public final class PemContent {
   private final String text;
 
   private PemContent(String text) {
-    this.text = text;
+    this.text = text.lines().map(String::trim).collect(Collectors.joining("\n"));
   }
 
   /**
@@ -157,7 +158,14 @@ public final class PemContent {
     }
   }
 
-  private static PemContent load(InputStream in) throws IOException {
+  /**
+   * Load {@link PemContent} from the given {@link InputStream}.
+   *
+   * @param in an input stream to load the content from
+   * @return the loaded PEM content
+   * @throws IOException on IO error
+   */
+  public static PemContent load(InputStream in) throws IOException {
     return of(StreamUtils.copyToString(in, StandardCharsets.UTF_8));
   }
 
