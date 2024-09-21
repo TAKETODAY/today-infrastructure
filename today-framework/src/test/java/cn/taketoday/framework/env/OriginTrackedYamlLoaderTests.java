@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.env;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.composer.ComposerException;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -116,18 +115,19 @@ class OriginTrackedYamlLoaderTests {
   void processEmptyAndNullValues() {
     OriginTrackedValue empty = getValue("empty");
     OriginTrackedValue nullValue = getValue("null-value");
+    OriginTrackedValue emptyList = getValue("emptylist");
     assertThat(empty.getValue()).isEqualTo("");
     assertThat(getLocation(empty)).isEqualTo("27:8");
     assertThat(nullValue.getValue()).isEqualTo("");
     assertThat(getLocation(nullValue)).isEqualTo("28:13");
+    assertThat(emptyList.getValue()).isEqualTo("");
+    assertThat(getLocation(emptyList)).isEqualTo("29:12");
   }
 
   @Test
-  void processEmptyListAndMap() {
-    OriginTrackedValue emptymap = getValue("emptymap");
-    OriginTrackedValue emptylist = getValue("emptylist");
-    assertThat(emptymap.getValue()).isEqualTo(Collections.emptyMap());
-    assertThat(emptylist.getValue()).isEqualTo(Collections.emptyList());
+  void emptyMapsAreDropped() {
+    Object emptyMap = getValue("emptymap");
+    assertThat(emptyMap).isNull();
   }
 
   @Test
@@ -195,11 +195,12 @@ class OriginTrackedYamlLoaderTests {
     assertThat(loaded).isNotEmpty();
   }
 
-  private OriginTrackedValue getValue(String name) {
+  @SuppressWarnings("unchecked")
+  private <T> T getValue(String name) {
     if (this.result == null) {
       this.result = this.loader.load();
     }
-    return (OriginTrackedValue) this.result.get(0).get(name);
+    return (T) this.result.get(0).get(name);
   }
 
   private String getLocation(OriginTrackedValue value) {
