@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -24,11 +21,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.annotation.Primary;
+import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.properties.bind.BindMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +81,7 @@ class ConfigurationPropertiesBeanRegistrarTests {
     String beanName = "valuecp-" + ValueObjectConfigurationProperties.class.getName();
     this.registrar.register(ValueObjectConfigurationProperties.class);
     BeanDefinition definition = this.registry.getBeanDefinition(beanName);
-    assertThat(definition).satisfies(configurationPropertiesBeanDefinition(BindMethod.VALUE_OBJECT));
+    assertThat(definition).satisfies(hasBindMethodAttribute(BindMethod.VALUE_OBJECT));
   }
 
   @Test
@@ -87,12 +89,54 @@ class ConfigurationPropertiesBeanRegistrarTests {
     String beanName = MultiConstructorBeanConfigurationProperties.class.getName();
     this.registrar.register(MultiConstructorBeanConfigurationProperties.class);
     BeanDefinition definition = this.registry.getBeanDefinition(beanName);
-    assertThat(definition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
+    assertThat(definition).satisfies(hasBindMethodAttribute(BindMethod.JAVA_BEAN));
   }
 
-  private Consumer<BeanDefinition> configurationPropertiesBeanDefinition(BindMethod bindMethod) {
+  @Test
+  void registerWhenNoScopeUsesSingleton() {
+    String beanName = "beancp-" + BeanConfigurationProperties.class.getName();
+    this.registrar.register(BeanConfigurationProperties.class);
+    BeanDefinition definition = this.registry.getBeanDefinition(beanName);
+    assertThat(definition).isNotNull();
+    assertThat(definition.getScope()).isEqualTo(BeanDefinition.SCOPE_SINGLETON);
+  }
+
+  @Test
+  void registerScopedBeanDefinition() {
+    String beanName = "beancp-" + ScopedBeanConfigurationProperties.class.getName();
+    this.registrar.register(ScopedBeanConfigurationProperties.class);
+    BeanDefinition beanDefinition = this.registry.getBeanDefinition(beanName);
+    assertThat(beanDefinition).isNotNull();
+    assertThat(beanDefinition.getBeanClassName()).isEqualTo(ScopedBeanConfigurationProperties.class.getName());
+    assertThat(beanDefinition.getScope()).isEqualTo(BeanDefinition.SCOPE_PROTOTYPE);
+  }
+
+  @Test
+  void registerScopedBeanDefinitionWithProxyMode() {
+    String beanName = "beancp-" + ProxyScopedBeanConfigurationProperties.class.getName();
+    this.registrar.register(ProxyScopedBeanConfigurationProperties.class);
+    BeanDefinition proxiedBeanDefinition = this.registry.getBeanDefinition(beanName);
+    assertThat(proxiedBeanDefinition).isNotNull();
+    assertThat(proxiedBeanDefinition.getBeanClassName()).isEqualTo(ScopedProxyFactoryBean.class.getName());
+    String targetBeanName = (String) proxiedBeanDefinition.getPropertyValues().getPropertyValue("targetBeanName");
+    assertThat(targetBeanName).isNotNull();
+    BeanDefinition beanDefinition = this.registry.getBeanDefinition(targetBeanName);
+    assertThat(beanDefinition).isNotNull();
+    assertThat(beanDefinition.getBeanClassName()).isEqualTo(ProxyScopedBeanConfigurationProperties.class.getName());
+    assertThat(beanDefinition.getScope()).isEqualTo(BeanDefinition.SCOPE_PROTOTYPE);
+  }
+
+  @Test
+  void registerBeanDefinitionWithCommonDefinitionAnnotations() {
+    String beanName = "beancp-" + PrimaryConfigurationProperties.class.getName();
+    this.registrar.register(PrimaryConfigurationProperties.class);
+    BeanDefinition beanDefinition = this.registry.getBeanDefinition(beanName);
+    assertThat(beanDefinition).isNotNull();
+    assertThat(beanDefinition.isPrimary()).isEqualTo(true);
+  }
+
+  private Consumer<BeanDefinition> hasBindMethodAttribute(BindMethod bindMethod) {
     return (definition) -> {
-      assertThat(definition).isExactlyInstanceOf(RootBeanDefinition.class);
       assertThat(definition.hasAttribute(BindMethod.class.getName())).isTrue();
       assertThat(definition.getAttribute(BindMethod.class.getName())).isEqualTo(bindMethod);
     };
@@ -100,6 +144,24 @@ class ConfigurationPropertiesBeanRegistrarTests {
 
   @ConfigurationProperties(prefix = "beancp")
   static class BeanConfigurationProperties {
+
+  }
+
+  @ConfigurationProperties(prefix = "beancp")
+  @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+  static class ScopedBeanConfigurationProperties {
+
+  }
+
+  @ConfigurationProperties(prefix = "beancp")
+  @Scope(scopeName = BeanDefinition.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+  static class ProxyScopedBeanConfigurationProperties {
+
+  }
+
+  @ConfigurationProperties(prefix = "beancp")
+  @Primary
+  static class PrimaryConfigurationProperties {
 
   }
 

@@ -17,11 +17,18 @@
 
 package cn.taketoday.context.properties;
 
+import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
+import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
+import cn.taketoday.context.annotation.ScopeMetadata;
+import cn.taketoday.context.annotation.ScopeMetadataResolver;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -39,6 +46,8 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 final class ConfigurationPropertiesBeanRegistrar {
+
+  private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
   private final BeanDefinitionRegistry registry;
 
@@ -75,15 +84,28 @@ final class ConfigurationPropertiesBeanRegistrar {
     if (!annotation.isPresent()) {
       throw new IllegalStateException("No %s annotation found on '%s'.".formatted(ConfigurationProperties.class.getSimpleName(), type.getName()));
     }
-    this.registry.registerBeanDefinition(beanName, createBeanDefinition(beanName, type));
+    BeanDefinitionReaderUtils.registerBeanDefinition(createBeanDefinition(beanName, type), this.registry);
   }
 
-  private BeanDefinition createBeanDefinition(String beanName, Class<?> type) {
+  private BeanDefinitionHolder createBeanDefinition(String beanName, Class<?> type) {
+    AnnotatedGenericBeanDefinition definition = new AnnotatedGenericBeanDefinition(type);
+    AnnotationConfigUtils.processCommonDefinitionAnnotations(definition);
     BindMethod bindMethod = ConfigurationPropertiesBean.deduceBindMethod(type);
-    RootBeanDefinition definition = new RootBeanDefinition(type);
     BindMethodAttribute.set(definition, bindMethod);
     if (bindMethod == BindMethod.VALUE_OBJECT) {
       definition.setInstanceSupplier(() -> ConstructorBound.from(this.beanFactory, beanName, type));
+    }
+    ScopeMetadata metadata = scopeMetadataResolver.resolveScopeMetadata(definition);
+    definition.setScope(metadata.getScopeName());
+    BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(definition, beanName);
+    return applyScopedProxyMode(metadata, definitionHolder, this.registry);
+  }
+
+  static BeanDefinitionHolder applyScopedProxyMode(ScopeMetadata metadata, BeanDefinitionHolder definition,
+          BeanDefinitionRegistry registry) {
+    ScopedProxyMode mode = metadata.getScopedProxyMode();
+    if (mode != ScopedProxyMode.NO) {
+      return ScopedProxyUtils.createScopedProxy(definition, registry, mode == ScopedProxyMode.TARGET_CLASS);
     }
     return definition;
   }

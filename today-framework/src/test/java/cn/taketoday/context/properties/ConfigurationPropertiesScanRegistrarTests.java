@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -23,10 +20,10 @@ package cn.taketoday.context.properties;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.properties.bind.BindMethod;
@@ -61,9 +58,9 @@ class ConfigurationPropertiesScanRegistrarTests {
             "foo-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties");
     BeanDefinition barDefinition = this.beanFactory.getBeanDefinition(
             "bar-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$BarProperties");
-    assertThat(bingDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
-    assertThat(fooDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
-    assertThat(barDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.VALUE_OBJECT));
+    assertThat(bingDefinition).satisfies(hasBindMethod(BindMethod.JAVA_BEAN));
+    assertThat(fooDefinition).satisfies(hasBindMethod(BindMethod.JAVA_BEAN));
+    assertThat(barDefinition).satisfies(hasBindMethod(BindMethod.VALUE_OBJECT));
   }
 
   @Test
@@ -72,9 +69,12 @@ class ConfigurationPropertiesScanRegistrarTests {
     beanFactory.setAllowBeanDefinitionOverriding(false);
     this.registrar.registerBeanDefinitions(
             getAnnotationMetadata(ConfigurationPropertiesScanConfiguration.TestConfiguration.class), new BootstrapContext(beanFactory, null));
-    BeanDefinition fooDefinition = beanFactory.getBeanDefinition(
-            "foo-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties");
-    assertThat(fooDefinition).isExactlyInstanceOf(RootBeanDefinition.class);
+    assertThat(beanFactory.containsBeanDefinition(
+            "foo-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties"))
+            .isTrue();
+    assertThat(beanFactory.getBeanDefinitionNames())
+            .filteredOn((name) -> name.toLowerCase(Locale.ENGLISH).contains("fooproperties"))
+            .hasSize(1);
   }
 
   @Test
@@ -93,11 +93,11 @@ class ConfigurationPropertiesScanRegistrarTests {
             "b.first-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BFirstProperties");
     BeanDefinition bSecondDefinition = beanFactory.getBeanDefinition(
             "b.second-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BSecondProperties");
-    assertThat(aDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
+    assertThat(aDefinition).satisfies(hasBindMethod(BindMethod.JAVA_BEAN));
     // Constructor injection
-    assertThat(bFirstDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.VALUE_OBJECT));
+    assertThat(bFirstDefinition).satisfies(hasBindMethod(BindMethod.VALUE_OBJECT));
     // Post-processing injection
-    assertThat(bSecondDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
+    assertThat(bSecondDefinition).satisfies(hasBindMethod(BindMethod.JAVA_BEAN));
   }
 
   @Test
@@ -118,9 +118,8 @@ class ConfigurationPropertiesScanRegistrarTests {
     assertThat(beanFactory.getBeanDefinitionCount()).isZero();
   }
 
-  private Consumer<BeanDefinition> configurationPropertiesBeanDefinition(BindMethod bindMethod) {
+  private Consumer<BeanDefinition> hasBindMethod(BindMethod bindMethod) {
     return (definition) -> {
-      assertThat(definition).isExactlyInstanceOf(RootBeanDefinition.class);
       assertThat(definition.hasAttribute(BindMethod.class.getName())).isTrue();
       assertThat(definition.getAttribute(BindMethod.class.getName())).isEqualTo(bindMethod);
     };

@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -45,6 +46,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -1214,6 +1216,24 @@ class ConfigurationPropertiesTests {
   }
 
   @Test
+  void loadPrototypeScopedProperties() {
+    load(PrototypeScopePropertiesConfiguration.class);
+    PrototypeScopeProperties p1 = this.context.getBean(PrototypeScopeProperties.class);
+    PrototypeScopeProperties p2 = this.context.getBean(PrototypeScopeProperties.class);
+    assertThat(p1.id).isNotNull();
+    assertThat(p2.id).isNotNull();
+    assertThat(p1.id).isNotEqualTo(p2.id);
+  }
+
+  @Test
+  void loadProxyScopedProperties() {
+    load(ProxyScopePropertiesConfiguration.class, "name=test");
+    ProxyScopeProperties p = this.context.getBean(ProxyScopeProperties.class);
+    assertThat(p.name).isEqualTo("test");
+    assertThat(p.getName()).isEqualTo("test");
+  }
+
+  @Test
   void loadWhenBindingToJavaBeanWithConversionToCustomListImplementation() {
     load(SetterBoundCustomListPropertiesConfiguration.class, "test.values=a,b");
     assertThat(this.context.getBean(SetterBoundCustomListProperties.class).getValues()).containsExactly("a", "b");
@@ -1463,12 +1483,52 @@ class ConfigurationPropertiesTests {
 
   }
 
+  @EnableConfigurationProperties(PrototypeScopeProperties.class)
+  @Configuration(proxyBeanMethods = false)
+  static class PrototypeScopePropertiesConfiguration {
+
+  }
+
+  @ConfigurationProperties
+  @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+  static class PrototypeScopeProperties {
+
+    private final String id = UUID.randomUUID().toString();
+
+    String getId() {
+      return this.id;
+    }
+
+  }
+
+  @EnableConfigurationProperties(ProxyScopeProperties.class)
+  @Configuration(proxyBeanMethods = false)
+  static class ProxyScopePropertiesConfiguration {
+
+  }
+
+  @ConfigurationProperties
+  @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+  static class ProxyScopeProperties {
+
+    private String name;
+
+    String getName() {
+      return this.name;
+    }
+
+    void setName(String name) {
+      this.name = name;
+    }
+
+  }
+
   @Configuration(proxyBeanMethods = false)
   @EnableConfigurationProperties
   static class PrototypePropertiesConfiguration {
 
     @Bean
-    @Scope("prototype")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     @ConfigurationProperties("example")
     PrototypeBean prototypeBean() {
       return new PrototypeBean();
