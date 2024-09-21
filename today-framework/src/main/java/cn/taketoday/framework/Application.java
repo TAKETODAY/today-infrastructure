@@ -80,10 +80,12 @@ import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.diagnostics.ApplicationExceptionReporter;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.lang.VisibleForTesting;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -209,7 +211,8 @@ public class Application {
   @Nullable
   private Banner banner;
 
-  private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
+  @Nullable
+  private Banner.Mode bannerMode;
 
   private boolean headless = true;
   private boolean logStartupInfo = true;
@@ -504,7 +507,8 @@ public class Application {
 
   @Nullable
   private Banner printBanner(ConfigurableEnvironment environment) {
-    if (this.bannerMode == Banner.Mode.OFF) {
+    var bannerMode = determineBannerMode(environment);
+    if (bannerMode == Banner.Mode.OFF) {
       return null;
     }
     ResourceLoader resourceLoader = this.resourceLoader;
@@ -513,10 +517,22 @@ public class Application {
     }
 
     var bannerPrinter = new InfraBannerPrinter(resourceLoader, banner);
-    if (this.bannerMode == Banner.Mode.LOG) {
+    if (bannerMode == Banner.Mode.LOG) {
       return bannerPrinter.print(environment, mainApplicationClass, logger);
     }
     return bannerPrinter.print(environment, mainApplicationClass, System.out);
+  }
+
+  /**
+   * @since 5.0
+   */
+  @VisibleForTesting
+  Banner.Mode determineBannerMode(ConfigurableEnvironment environment) {
+    if (this.bannerMode != null) {
+      return this.bannerMode;
+    }
+    boolean structuredLoggingEnabled = environment.containsProperty(LoggingSystemProperty.CONSOLE_STRUCTURED_FORMAT.applicationPropertyName);
+    return structuredLoggingEnabled ? Banner.Mode.OFF : Banner.Mode.CONSOLE;
   }
 
   /**
@@ -1173,7 +1189,7 @@ public class Application {
    *
    * @param bannerMode the mode used to display the banner
    */
-  public void setBannerMode(Banner.Mode bannerMode) {
+  public void setBannerMode(@Nullable Banner.Mode bannerMode) {
     this.bannerMode = bannerMode;
   }
 

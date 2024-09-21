@@ -109,6 +109,7 @@ import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.classpath.ForkedClassPath;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
@@ -1422,6 +1423,21 @@ class ApplicationTests {
     ExampleAdditionalConfig.local.set(null);
   }
 
+  @Test
+  void bannerModeShouldBeConsoleIfStructuredLoggingIsNotEnabled() {
+    Application application = new Application();
+    assertThat(application.determineBannerMode(new MockEnvironment())).isEqualTo(Banner.Mode.CONSOLE);
+  }
+
+  @Test
+  void bannerModeShouldBeOffIfStructuredLoggingIsEnabled() {
+    Application application = new Application();
+
+    MockEnvironment environment = new MockEnvironment();
+    environment.setProperty("logging.structured.format.console", "ecs");
+    assertThat(application.determineBannerMode(environment)).isEqualTo(Banner.Mode.OFF);
+  }
+
   private <S extends AvailabilityState> ArgumentMatcher<ApplicationEvent> isAvailabilityChangeEventWithState(
           S state) {
     return (argument) -> (argument instanceof AvailabilityChangeEvent<?>)
@@ -1557,7 +1573,7 @@ class ApplicationTests {
     }
 
     @Override
-    public void setBannerMode(Banner.Mode bannerMode) {
+    public void setBannerMode(@Nullable Banner.Mode bannerMode) {
       super.setBannerMode(bannerMode);
       this.bannerMode = bannerMode;
     }

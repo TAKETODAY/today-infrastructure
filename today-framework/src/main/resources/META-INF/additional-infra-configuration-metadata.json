@@ -284,8 +284,7 @@
       "name": "app.main.banner-mode",
       "type": "cn.taketoday.framework.Banner$Mode",
       "sourceType": "cn.taketoday.framework.Application",
-      "description": "Mode used to display the banner when the application runs.",
-      "defaultValue": "console"
+      "description": "Mode used to display the banner when the application runs. Defaults to 'off' if structured logging is enabled or to 'console' otherwise."
     },
     {
       "name": "app.main.cloud-platform",

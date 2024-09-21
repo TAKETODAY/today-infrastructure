@@ -120,8 +120,12 @@ public enum LoggingSystemProperty {
 
   private final String environmentVariableName;
 
+  /**
+   * Return the name of the application property name that can be used to set this
+   * property.
+   */
   @Nullable
-  final String applicationPropertyName;
+  public final String applicationPropertyName;
 
   @Nullable
   final String includePropertyName;
