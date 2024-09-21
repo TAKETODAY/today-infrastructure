@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -27,7 +27,6 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpTrace;
 import org.apache.hc.client5.http.config.Configurable;
-import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -76,6 +75,8 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   @Nullable
   private BiFunction<HttpMethod, URI, HttpContext> httpContextFactory;
 
+  private long readTimeout = -1;
+
   /**
    * Create a new instance of the {@code HttpComponentsClientHttpRequestFactory}
    * with a default {@link HttpClient} based on system properties.
@@ -122,7 +123,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * {@link HttpClient} itself.
    *
    * @param connectTimeout the timeout value in milliseconds
-   * @see ConnectionConfig#getConnectTimeout()
+   * @see RequestConfig#getConnectTimeout()
    * @see SocketConfig#getSoTimeout
    */
   public void setConnectTimeout(int connectTimeout) {
@@ -140,12 +141,12 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * use the {@link SocketConfig} on the
    * {@link HttpClient} itself.
    *
-   * @param connectTimeout the timeout value in milliseconds
-   * @see ConnectionConfig#getConnectTimeout()
+   * @param connectTimeout the timeout as a {@code Duration}.
+   * @see RequestConfig#getConnectTimeout()
    * @see SocketConfig#getSoTimeout
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout is required");
+    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
     Assert.isTrue(!connectTimeout.isNegative(), "Timeout must be a non-negative value");
     this.connectTimeout = connectTimeout.toMillis();
   }
@@ -157,7 +158,8 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
-   * @param connectionRequestTimeout the timeout value to request a connection in milliseconds
+   * @param connectionRequestTimeout the timeout value to request a connection
+   * in milliseconds
    * @see RequestConfig#getConnectionRequestTimeout()
    */
   public void setConnectionRequestTimeout(int connectionRequestTimeout) {
@@ -172,13 +174,45 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
-   * @param connectionRequestTimeout the timeout value to request a connection in milliseconds
+   * @param connectionRequestTimeout the timeout value to request a connection
+   * as a {@code Duration}.
    * @see RequestConfig#getConnectionRequestTimeout()
    */
   public void setConnectionRequestTimeout(Duration connectionRequestTimeout) {
     Assert.notNull(connectionRequestTimeout, "ConnectionRequestTimeout is required");
     Assert.isTrue(!connectionRequestTimeout.isNegative(), "Timeout must be a non-negative value");
     this.connectionRequestTimeout = connectionRequestTimeout.toMillis();
+  }
+
+  /**
+   * Set the response timeout for the underlying {@link RequestConfig}.
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Additional properties can be configured by specifying a
+   * {@link RequestConfig} instance on a custom {@link HttpClient}.
+   *
+   * @param readTimeout the timeout value in milliseconds
+   * @see RequestConfig#getResponseTimeout()
+   * @since 5.0
+   */
+  public void setReadTimeout(int readTimeout) {
+    Assert.isTrue(readTimeout >= 0, "Timeout must be a non-negative value");
+    this.readTimeout = readTimeout;
+  }
+
+  /**
+   * Set the response timeout for the underlying {@link RequestConfig}.
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Additional properties can be configured by specifying a
+   * {@link RequestConfig} instance on a custom {@link HttpClient}.
+   *
+   * @param readTimeout the timeout as a {@code Duration}.
+   * @see RequestConfig#getResponseTimeout()
+   * @since 5.0
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
+    this.readTimeout = readTimeout.toMillis();
   }
 
   /**
@@ -252,7 +286,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @SuppressWarnings("deprecation")  // setConnectTimeout
   protected RequestConfig mergeRequestConfig(RequestConfig clientConfig) {
-    if (this.connectTimeout == -1 && this.connectionRequestTimeout == -1) {  // nothing to merge
+    if (this.connectTimeout == -1 && this.connectionRequestTimeout == -1 && this.readTimeout == -1) {  // nothing to merge
       return clientConfig;
     }
 
@@ -262,6 +296,9 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
     }
     if (this.connectionRequestTimeout >= 0) {
       builder.setConnectionRequestTimeout(this.connectionRequestTimeout, TimeUnit.MILLISECONDS);
+    }
+    if (this.readTimeout >= 0) {
+      builder.setResponseTimeout(this.readTimeout, TimeUnit.MILLISECONDS);
     }
     return builder.build();
   }
@@ -283,18 +320,20 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
       case PATCH -> new HttpPatch(uri);
       case DELETE -> new HttpDelete(uri);
       case OPTIONS -> new HttpOptions(uri);
-      default -> throw new UnsupportedOperationException("Unsupported httpMethod '" + httpMethod + "'");
+      default -> throw new UnsupportedOperationException("Unsupported httpMethod '%s'".formatted(httpMethod));
     };
   }
 
   /**
-   * Template method that allows for manipulating the {@link ClassicHttpRequest} before it is
-   * returned as part of a {@link HttpComponentsClientHttpRequest}.
+   * Template method that allows for manipulating the {@link ClassicHttpRequest}
+   * before it is returned as part of a {@link HttpComponentsClientHttpRequest}.
    * <p>The default implementation is empty.
    *
    * @param request the request to process
    */
-  protected void postProcessHttpRequest(ClassicHttpRequest request) { }
+  protected void postProcessHttpRequest(ClassicHttpRequest request) {
+
+  }
 
   /**
    * Template methods that creates a {@link HttpContext} for the given HTTP method and URI.
@@ -306,12 +345,11 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @Nullable
   protected HttpContext createHttpContext(HttpMethod httpMethod, URI uri) {
-    return httpContextFactory != null ? httpContextFactory.apply(httpMethod, uri) : null;
+    return httpContextFactory != null ? this.httpContextFactory.apply(httpMethod, uri) : null;
   }
 
   /**
-   * Shutdown hook that closes the underlying
-   * {@link HttpClientConnectionManager ClientConnectionManager}'s
+   * Shutdown hook that closes the underlying {@link HttpClientConnectionManager}'s
    * connection pool, if any.
    */
   @Override
@@ -321,4 +359,5 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
       closeable.close();
     }
   }
+
 }
