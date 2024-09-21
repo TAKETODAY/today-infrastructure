@@ -188,7 +188,7 @@ class PemContentTests {
 
   @Test
   void loadWithStringWhenFileLocationReturnsContent() throws IOException {
-    String actual = PemContent.load("src/test/resources/ssl/test-cert.pem").toString();
+    String actual = PemContent.load("test-cert.pem").toString();
     String expected = contentFromClasspath("test-cert.pem");
     assertThat(actual).isEqualTo(expected);
   }
