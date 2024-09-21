@@ -306,6 +306,7 @@ public class ResolvableType implements Serializable {
    * @param other the type to be checked against (as a {@code ResolvableType})
    * @return {@code true} if the specified other type can be assigned to this
    * {@code ResolvableType} as far as it is resolvable; {@code false} otherwise
+   * @since 5.0
    */
   public boolean isAssignableFromResolvedPart(ResolvableType other) {
     return isAssignableFrom(other, false, null, true);
@@ -333,17 +334,18 @@ public class ResolvableType implements Serializable {
       }
     }
 
+    if (upUntilUnresolvable && (other.isUnresolvableTypeVariable() || other.isWildcardWithoutBounds())) {
+      return true;
+    }
+
     // Deal with array by delegating to the component type
     if (isArray()) {
       return (other.isArray() && getComponentType().isAssignableFrom(
               other.getComponentType(), true, matchedBefore, upUntilUnresolvable));
     }
 
-    if (upUntilUnresolvable && (other.isUnresolvableTypeVariable() || other.isWildcardWithoutBounds())) {
-      return true;
-    }
-
-    boolean exactMatch = (strict && matchedBefore != null);  // We're checking nested generic variables now...
+    // We're checking nested generic variables now...
+    boolean exactMatch = strict && matchedBefore != null;
 
     // Deal with wildcard bounds
     WildcardBounds ourBounds = WildcardBounds.get(this);
