@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config;
@@ -23,11 +20,17 @@ package cn.taketoday.annotation.config;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import cn.taketoday.annotation.config.context.LifecycleAutoConfiguration;
 import cn.taketoday.annotation.config.context.MessageSourceAutoConfiguration;
@@ -37,15 +40,19 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.DeferredImportSelector.Group;
+import cn.taketoday.context.annotation.DeferredImportSelector.Group.Entry;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportEvent;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportFilter;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportSelector;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
+import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.annotation.config.ImportCandidates;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +70,7 @@ class AutoConfigurationImportSelectorTests {
 
   private List<AutoConfigurationImportFilter> filters = new ArrayList<>();
 
-  private final TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector();
+  private final TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector(null);
 
   @Test
   void importsAreSelectedWhenUsingEnableAutoConfiguration() {
@@ -152,6 +159,16 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @Test
+  void removedExclusionsAreApplied() {
+    TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector(
+            TestAutoConfiguration.class);
+    AnnotationMetadata metadata = AnnotationMetadata.introspect(BasicEnableAutoConfiguration.class);
+    assertThat(importSelector.selectImports(metadata)).contains(ReplacementAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude", DeprecatedAutoConfiguration.class.getName());
+    assertThat(importSelector.selectImports(metadata)).doesNotContain(ReplacementAutoConfiguration.class.getName());
+  }
+
+  @Test
   void nonAutoConfigurationClassExclusionsShouldThrowException() {
     assertThatIllegalStateException()
             .isThrownBy(() -> selectImports(EnableAutoConfigurationWithFaultyClassExclude.class));
@@ -201,6 +218,21 @@ class AutoConfigurationImportSelectorTests {
     Assertions.assertThat(this.importSelector.getExclusionFilter().test("com.example.C")).isTrue();
   }
 
+  @Test
+  void soringConsidersReplacements() {
+    TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector(
+            TestAutoConfiguration.class);
+    AnnotationMetadata metadata = AnnotationMetadata.introspect(BasicEnableAutoConfiguration.class);
+    assertThat(importSelector.selectImports(metadata)).containsExactly(
+            AfterDeprecatedAutoConfiguration.class.getName(), ReplacementAutoConfiguration.class.getName());
+
+    Group group = importSelector.getBootstrapContext().instantiate(importSelector.getImportGroup());
+    group.process(metadata, importSelector);
+    Stream<Entry> imports = StreamSupport.stream(group.selectImports().spliterator(), false);
+    assertThat(imports.map(Entry::importClassName)).containsExactly(ReplacementAutoConfiguration.class.getName(),
+            AfterDeprecatedAutoConfiguration.class.getName());
+  }
+
   private String[] selectImports(Class<?> source) {
     return this.importSelector.selectImports(AnnotationMetadata.introspect(source));
   }
@@ -216,7 +248,8 @@ class AutoConfigurationImportSelectorTests {
 
     private AutoConfigurationImportEvent lastEvent;
 
-    private TestAutoConfigurationImportSelector() {
+    TestAutoConfigurationImportSelector(@Nullable Class<?> autoConfigurationAnnotation) {
+      super(autoConfigurationAnnotation);
       setBootstrapContext(new BootstrapContext(environment, beanFactory));
     }
 
@@ -234,6 +267,9 @@ class AutoConfigurationImportSelectorTests {
       return this.lastEvent;
     }
 
+    public BootstrapContext getBootstrapContext() {
+      return bootstrapContext;
+    }
   }
 
   static class TestAutoConfigurationImportFilter implements AutoConfigurationImportFilter, BeanFactoryAware {
@@ -290,7 +326,7 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @EnableAutoConfiguration(exclude = PropertyPlaceholderAutoConfiguration.class,
-                           excludeName = "cn.taketoday.annotation.config.context.LifecycleAutoConfiguration")
+          excludeName = "cn.taketoday.annotation.config.context.LifecycleAutoConfiguration")
   private class EnableAutoConfigurationWithClassAndClassNameExclusions {
 
   }
@@ -313,6 +349,25 @@ class AutoConfigurationImportSelectorTests {
 
   @EnableAutoConfiguration(excludeName = "cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration")
   private class ApplicationWithClassNameExclusions {
+
+  }
+
+  static class DeprecatedAutoConfiguration {
+
+  }
+
+  static class ReplacementAutoConfiguration {
+
+  }
+
+  @AutoConfigureAfter(DeprecatedAutoConfiguration.class)
+  static class AfterDeprecatedAutoConfiguration {
+
+  }
+
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface TestAutoConfiguration {
 
   }
 

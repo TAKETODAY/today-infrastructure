@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -30,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
@@ -46,23 +44,42 @@ class ConfigurationsTests {
 
   @Test
   void createWhenClassesIsNullShouldThrowException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new TestConfigurations(null))
+    assertThatIllegalArgumentException().isThrownBy(() -> new TestConfigurations((Collection<Class<?>>) null))
             .withMessageContaining("Classes is required");
   }
 
   @Test
-  void createShouldSortClasses() {
-    TestSortedConfigurations configurations = new TestSortedConfigurations(
+  void createShouldSortClassesUsingSortMethod() {
+    TestDeprecatedSortedConfigurations configurations = new TestDeprecatedSortedConfigurations(
             Arrays.asList(OutputStream.class, InputStream.class));
     assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
   }
 
   @Test
-  void getClassesShouldMergeByClassAndSort() {
-    Configurations c1 = new TestSortedConfigurations(Arrays.asList(OutputStream.class, InputStream.class));
+  void getClassesShouldMergeByClassAndSortUsingSortMethod() {
+    Configurations c1 = new TestDeprecatedSortedConfigurations(
+            Arrays.asList(OutputStream.class, InputStream.class));
     Configurations c2 = new TestConfigurations(Collections.singletonList(Short.class));
-    Configurations c3 = new TestSortedConfigurations(Arrays.asList(String.class, Integer.class));
+    Configurations c3 = new TestDeprecatedSortedConfigurations(Arrays.asList(String.class, Integer.class));
     Configurations c4 = new TestConfigurations(Arrays.asList(Long.class, Byte.class));
+    Class<?>[] classes = Configurations.getClasses(c1, c2, c3, c4);
+    assertThat(classes).containsExactly(Short.class, Long.class, Byte.class, InputStream.class, Integer.class,
+            OutputStream.class, String.class);
+  }
+
+  @Test
+  void createShouldSortClasses() {
+    TestConfigurations configurations = new TestConfigurations(Sorter.instance, OutputStream.class,
+            InputStream.class);
+    assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
+  }
+
+  @Test
+  void getClassesShouldMergeByClassAndSort() {
+    Configurations c1 = new TestSortedConfigurations(OutputStream.class, InputStream.class);
+    Configurations c2 = new TestConfigurations(Short.class);
+    Configurations c3 = new TestSortedConfigurations(String.class, Integer.class);
+    Configurations c4 = new TestConfigurations(Long.class, Byte.class);
     Class<?>[] classes = Configurations.getClasses(c1, c2, c3, c4);
     assertThat(classes).containsExactly(Short.class, Long.class, Byte.class, InputStream.class, Integer.class,
             OutputStream.class, String.class);
@@ -71,7 +88,15 @@ class ConfigurationsTests {
   @Order(Ordered.HIGHEST_PRECEDENCE)
   static class TestConfigurations extends Configurations {
 
-    protected TestConfigurations(Collection<Class<?>> classes) {
+    TestConfigurations(Class<?>... classes) {
+      this(Arrays.asList(classes));
+    }
+
+    TestConfigurations(UnaryOperator<Collection<Class<?>>> sorter, Class<?>... classes) {
+      super(sorter, Arrays.asList(classes));
+    }
+
+    TestConfigurations(Collection<Class<?>> classes) {
       super(classes);
     }
 
@@ -85,20 +110,51 @@ class ConfigurationsTests {
   @Order(Ordered.LOWEST_PRECEDENCE)
   static class TestSortedConfigurations extends Configurations {
 
-    protected TestSortedConfigurations(Collection<Class<?>> classes) {
-      super(classes);
+    protected TestSortedConfigurations(Class<?>... classes) {
+      this(Arrays.asList(classes));
     }
 
-    @Override
-    protected Collection<Class<?>> sort(Collection<Class<?>> classes) {
-      ArrayList<Class<?>> sorted = new ArrayList<>(classes);
-      sorted.sort(Comparator.comparing(ClassUtils::getShortName));
-      return sorted;
+    protected TestSortedConfigurations(Collection<Class<?>> classes) {
+      super(Sorter.instance, classes);
     }
 
     @Override
     protected Configurations merge(Set<Class<?>> mergedClasses) {
       return new TestSortedConfigurations(mergedClasses);
+    }
+
+  }
+
+  @Order(Ordered.LOWEST_PRECEDENCE)
+  @SuppressWarnings("removal")
+  static class TestDeprecatedSortedConfigurations extends Configurations {
+
+    protected TestDeprecatedSortedConfigurations(Collection<Class<?>> classes) {
+      super(classes);
+    }
+
+    @Override
+    protected Collection<Class<?>> sort(Collection<Class<?>> classes) {
+      return Sorter.instance.apply(classes);
+    }
+
+    @Override
+    protected Configurations merge(Set<Class<?>> mergedClasses) {
+      return new TestDeprecatedSortedConfigurations(mergedClasses);
+    }
+
+  }
+
+  static class Sorter implements UnaryOperator<Collection<Class<?>>> {
+
+    static final Sorter instance = new Sorter();
+
+    @Override
+    public Collection<Class<?>> apply(Collection<Class<?>> classes) {
+      ArrayList<Class<?>> sorted = new ArrayList<>(classes);
+      sorted.sort(Comparator.comparing(ClassUtils::getShortName));
+      return sorted;
+
     }
 
   }

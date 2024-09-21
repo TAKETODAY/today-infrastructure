@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -23,7 +20,10 @@ package cn.taketoday.context.annotation.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
@@ -38,39 +38,43 @@ import cn.taketoday.util.ClassUtils;
  */
 public class AutoConfigurations extends Configurations implements Ordered {
 
-  private static final AutoConfigurationSorter SORTER =
-          new AutoConfigurationSorter(new SimpleMetadataReaderFactory(), null);
+  private static final SimpleMetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
 
-  private static final Ordered ORDER = new AutoConfigurationImportSelector();
+  private static final int ORDER = AutoConfigurationImportSelector.ORDER;
+
+  static final AutoConfigurationReplacements replacements = AutoConfigurationReplacements
+          .load(AutoConfiguration.class, null);
+
+  private final UnaryOperator<String> replacementMapper;
 
   protected AutoConfigurations(Collection<Class<?>> classes) {
-    super(classes);
+    this(replacements::replace, classes);
   }
 
-  @Override
-  protected Collection<Class<?>> sort(Collection<Class<?>> classes) {
-    var names = new ArrayList<String>();
-    for (Class<?> c : classes) {
-      names.add(c.getName());
-    }
+  AutoConfigurations(UnaryOperator<String> replacementMapper, Collection<Class<?>> classes) {
+    super(sorter(replacementMapper), classes);
+    this.replacementMapper = replacementMapper;
+  }
 
-    var sorted = SORTER.getInPriorityOrder(names);
-    var configClasses = new ArrayList<Class<?>>();
-    for (String className : sorted) {
-      Class<?> configClass = ClassUtils.resolveClassName(className, null);
-      configClasses.add(configClass);
-    }
-    return configClasses;
+  private static UnaryOperator<Collection<Class<?>>> sorter(UnaryOperator<String> replacementMapper) {
+    AutoConfigurationSorter sorter = new AutoConfigurationSorter(metadataReaderFactory, null, replacementMapper);
+    return classes -> {
+      List<String> names = classes.stream().map(Class::getName).map(replacementMapper).toList();
+      List<String> sorted = sorter.getInPriorityOrder(names);
+      return sorted.stream()
+              .map((className) -> ClassUtils.resolveClassName(className, null))
+              .collect(Collectors.toCollection(ArrayList::new));
+    };
   }
 
   @Override
   public int getOrder() {
-    return ORDER.getOrder();
+    return ORDER;
   }
 
   @Override
   protected AutoConfigurations merge(Set<Class<?>> mergedClasses) {
-    return new AutoConfigurations(mergedClasses);
+    return new AutoConfigurations(this.replacementMapper, mergedClasses);
   }
 
   public static AutoConfigurations of(Class<?>... classes) {

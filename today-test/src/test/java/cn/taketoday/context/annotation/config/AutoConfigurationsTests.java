@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,12 +36,36 @@ class AutoConfigurationsTests {
             AutoConfigureA.class);
   }
 
+  @Test
+  void whenHasReplacementForAutoConfigureAfterShouldCreateOrderedConfigurations() {
+    Configurations configurations = new AutoConfigurations(this::replaceB,
+            Arrays.asList(AutoConfigureA.class, AutoConfigureB2.class));
+    assertThat(Configurations.getClasses(configurations)).containsExactly(AutoConfigureB2.class,
+            AutoConfigureA.class);
+  }
+
+  @Test
+  void whenHasReplacementForClassShouldReplaceClass() {
+    Configurations configurations = new AutoConfigurations(this::replaceB,
+            Arrays.asList(AutoConfigureA.class, AutoConfigureB.class));
+    assertThat(Configurations.getClasses(configurations)).containsExactly(AutoConfigureB2.class,
+            AutoConfigureA.class);
+  }
+
+  private String replaceB(String className) {
+    return (!AutoConfigureB.class.getName().equals(className)) ? className : AutoConfigureB2.class.getName();
+  }
+
   @AutoConfigureAfter(AutoConfigureB.class)
   static class AutoConfigureA {
 
   }
 
   static class AutoConfigureB {
+
+  }
+
+  static class AutoConfigureB2 {
 
   }
 

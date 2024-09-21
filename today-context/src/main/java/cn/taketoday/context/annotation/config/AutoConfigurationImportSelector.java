@@ -46,6 +46,7 @@ import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -68,11 +69,26 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "infra.autoconfigure.exclude";
 
+  static final int ORDER = Ordered.LOWEST_PRECEDENCE - 1;
+
+  private final Class<?> autoConfigurationAnnotation;
+
   private ClassLoader beanClassLoader;
 
-  private BootstrapContext bootstrapContext;
+  protected BootstrapContext bootstrapContext;
 
-  private ConfigurationClassFilter configurationClassFilter;
+  private volatile ConfigurationClassFilter configurationClassFilter;
+
+  private volatile AutoConfigurationReplacements autoConfigurationReplacements;
+
+  public AutoConfigurationImportSelector() {
+    this(null);
+  }
+
+  protected AutoConfigurationImportSelector(@Nullable Class<?> autoConfigurationAnnotation) {
+    this.autoConfigurationAnnotation = autoConfigurationAnnotation != null ? autoConfigurationAnnotation
+            : AutoConfiguration.class;
+  }
 
   @Override
   public String[] selectImports(AnnotationMetadata annotationMetadata) {
@@ -174,13 +190,15 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    * @return a list of candidate configurations
    */
   protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
-    var configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).getCandidates();
+    var configurations = ImportCandidates.load(autoConfigurationAnnotation, getBeanClassLoader()).getCandidates();
     configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
 
-    Assert.notEmpty(configurations,
-            "No auto configuration classes found in META-INF/today.strategies " +
-                    "nor in META-INF/config/cn.taketoday.context.annotation.config.AutoConfiguration.imports." +
-                    " If you are using a custom packaging, make sure that file is correct.");
+    if (CollectionUtils.isEmpty(configurations)) {
+      throw new IllegalArgumentException("No auto configuration classes found in META-INF/today.strategies " +
+              "nor in META-INF/config/%s.imports If you are using a custom packaging, make sure that file is correct."
+                      .formatted(autoConfigurationAnnotation.getName()));
+    }
+
     return configurations;
   }
 
@@ -239,7 +257,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       excluded.addAll(asList(attributes, "excludeName"));
     }
     excluded.addAll(getExcludeAutoConfigurationsProperty());
-    return excluded;
+    return getAutoConfigurationReplacements().replaceAll(excluded);
   }
 
   /**
@@ -264,15 +282,26 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
-    return TodayStrategies.find(AutoConfigurationImportFilter.class, beanClassLoader, bootstrapContext);
+    return TodayStrategies.find(AutoConfigurationImportFilter.class, getBeanClassLoader(), bootstrapContext);
   }
 
   private ConfigurationClassFilter getConfigurationClassFilter() {
-    if (this.configurationClassFilter == null) {
+    ConfigurationClassFilter configurationClassFilter = this.configurationClassFilter;
+    if (configurationClassFilter == null) {
       List<AutoConfigurationImportFilter> filters = getAutoConfigurationImportFilters();
-      this.configurationClassFilter = new ConfigurationClassFilter(this.beanClassLoader, filters);
+      configurationClassFilter = new ConfigurationClassFilter(getBeanClassLoader(), filters);
+      this.configurationClassFilter = configurationClassFilter;
     }
-    return this.configurationClassFilter;
+    return configurationClassFilter;
+  }
+
+  private AutoConfigurationReplacements getAutoConfigurationReplacements() {
+    AutoConfigurationReplacements autoConfigurationReplacements = this.autoConfigurationReplacements;
+    if (autoConfigurationReplacements == null) {
+      autoConfigurationReplacements = AutoConfigurationReplacements.load(autoConfigurationAnnotation, getBeanClassLoader());
+      this.autoConfigurationReplacements = autoConfigurationReplacements;
+    }
+    return autoConfigurationReplacements;
   }
 
   protected final <T> List<T> removeDuplicates(List<T> list) {
@@ -295,7 +324,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
-    return TodayStrategies.find(AutoConfigurationImportListener.class, beanClassLoader, bootstrapContext);
+    return TodayStrategies.find(AutoConfigurationImportListener.class, getBeanClassLoader(), bootstrapContext);
   }
 
   @Override
@@ -321,7 +350,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   @Override
   public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE - 1;
+    return ORDER;
   }
 
   private static class ConfigurationClassFilter {
@@ -375,6 +404,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
     private AutoConfigurationMetadata autoConfigurationMetadata;
 
+    private AutoConfigurationReplacements autoConfigurationReplacements;
+
     private final LinkedHashMap<String, AnnotationMetadata> entries = new LinkedHashMap<>();
 
     private final ArrayList<AutoConfigurationEntry> autoConfigurationEntries = new ArrayList<>();
@@ -387,6 +418,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     @Override
     public void process(AnnotationMetadata annotationMetadata, DeferredImportSelector selector) {
       if (selector instanceof AutoConfigurationImportSelector autoConfigSelector) {
+
+        var autoConfigurationReplacements = autoConfigSelector.getAutoConfigurationReplacements();
+        Assert.state(this.autoConfigurationReplacements == null
+                        || this.autoConfigurationReplacements.equals(autoConfigurationReplacements),
+                "Auto-configuration replacements must be the same for each call to process");
+        this.autoConfigurationReplacements = autoConfigurationReplacements;
+
         AutoConfigurationEntry entry = autoConfigSelector.getAutoConfigurationEntry(annotationMetadata);
         autoConfigurationEntries.add(entry);
         for (String importClassName : entry.configurations) {
@@ -432,7 +470,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     }
 
     private List<String> sortAutoConfigurations(Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
-      return new AutoConfigurationSorter(context.getMetadataReaderFactory(), autoConfigurationMetadata)
+      return new AutoConfigurationSorter(context.getMetadataReaderFactory(), autoConfigurationMetadata, autoConfigurationReplacements::replace)
               .getInPriorityOrder(configurations);
     }
 

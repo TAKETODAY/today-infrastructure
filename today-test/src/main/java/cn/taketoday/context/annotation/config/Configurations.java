@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -29,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +37,6 @@ import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * A set of {@link Configuration @Configuration} classes that can be registered in
@@ -61,14 +58,37 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class Configurations {
 
-  private static final Comparator<Object> COMPARATOR =
-          OrderComparator.INSTANCE.thenComparing(ObjectUtils::getClassName);
+  private static final Comparator<Object> COMPARATOR = OrderComparator.INSTANCE
+          .thenComparing((other) -> other.getClass().getName());
+
+  private final UnaryOperator<Collection<Class<?>>> sorter;
 
   private final Set<Class<?>> classes;
 
+  /**
+   * Create a new {@link Configurations} instance.
+   *
+   * @param classes the configuration classes
+   */
   protected Configurations(Collection<Class<?>> classes) {
     Assert.notNull(classes, "Classes is required");
     Collection<Class<?>> sorted = sort(classes);
+    this.sorter = null;
+    this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));
+  }
+
+  /**
+   * Create a new {@link Configurations} instance.
+   *
+   * @param sorter a {@link UnaryOperator} used to sort the configurations
+   * @param classes the configuration classes
+   * @since 5.0
+   */
+  protected Configurations(UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes) {
+    Assert.notNull(sorter, "Sorter must not be null");
+    Assert.notNull(classes, "Classes must not be null");
+    Collection<Class<?>> sorted = sorter.apply(classes);
+    this.sorter = sorter;
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));
   }
 
@@ -96,6 +116,9 @@ public abstract class Configurations {
   protected Configurations merge(Configurations other) {
     LinkedHashSet<Class<?>> mergedClasses = new LinkedHashSet<>(getClasses());
     mergedClasses.addAll(other.getClasses());
+    if (this.sorter != null) {
+      mergedClasses = new LinkedHashSet<>(this.sorter.apply(mergedClasses));
+    }
     return merge(mergedClasses);
   }
 
@@ -129,7 +152,8 @@ public abstract class Configurations {
     List<Configurations> ordered = new ArrayList<>(configurations);
     ordered.sort(COMPARATOR);
     List<Configurations> collated = collate(ordered);
-    LinkedHashSet<Class<?>> classes = collated.stream().flatMap(Configurations::streamClasses)
+    LinkedHashSet<Class<?>> classes = collated.stream()
+            .flatMap(Configurations::streamClasses)
             .collect(Collectors.toCollection(LinkedHashSet::new));
     return ClassUtils.toClassArray(classes);
   }

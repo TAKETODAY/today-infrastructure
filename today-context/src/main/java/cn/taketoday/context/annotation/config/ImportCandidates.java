@@ -71,10 +71,9 @@ public final class ImportCandidates implements Iterable<String> {
   }
 
   /**
-   * Loads the names of import candidates from the classpath.
-   * <p>
-   * The names of the import candidates are stored in files named
-   * {@code META-INF/config/full-qualified-annotation-name.import} on the classpath.
+   * Loads the names of import candidates from the classpath. The names of the import
+   * candidates are stored in files named
+   * {@code META-INF/config/full-qualified-annotation-name.imports} on the classpath.
    * Every line contains the full qualified name of the candidate class. Comments are
    * supported using the # character.
    *
