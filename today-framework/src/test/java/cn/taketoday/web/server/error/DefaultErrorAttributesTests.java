@@ -21,11 +21,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.ReflectionUtils;
@@ -34,9 +35,10 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.MapBindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
-import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +63,7 @@ class DefaultErrorAttributesTests {
   void includeTimeStamp() {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
-    assertThat(attributes.get("timestamp")).isInstanceOf(LocalDateTime.class);
+    assertThat(attributes.get("timestamp")).isInstanceOf(Instant.class);
   }
 
   @Test
@@ -269,6 +271,20 @@ class DefaultErrorAttributesTests {
 
     }.getErrorAttributes(this.webRequest, ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(attributes).containsEntry("message", "custom message");
+  }
+
+  @Test
+  void extractBindingResultErrorsThatCausedAResponseStatusException() throws Exception {
+    BindingResult bindingResult = new MapBindingResult(Collections.singletonMap("a", "b"), "objectName");
+    bindingResult.addError(new ObjectError("c", "d"));
+    Exception ex = new BindException(bindingResult);
+    ResponseStatusException invalid = new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid", ex);
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, invalid);
+
+    Map<String, Object> attributes = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.of(Include.MESSAGE, Include.BINDING_ERRORS));
+
+    assertThat(attributes.get("message")).isEqualTo("Invalid");
+    assertThat(attributes).containsEntry("errors", bindingResult.getAllErrors());
   }
 
 }

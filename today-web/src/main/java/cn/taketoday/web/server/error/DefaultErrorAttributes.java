@@ -19,7 +19,7 @@ package cn.taketoday.web.server.error;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +31,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.HttpStatusProvider;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.web.util.WebUtils;
 
@@ -69,7 +70,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   @Override
   public Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
     HashMap<String, Object> errorAttributes = new HashMap<>();
-    errorAttributes.put("timestamp", LocalDateTime.now());
+    errorAttributes.put("timestamp", Instant.now());
     addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
     addErrorDetails(errorAttributes, context, options);
@@ -132,6 +133,17 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
       if (options.isIncluded(Include.MESSAGE)) {
         attributes.put("message", "Validation failed for object='%s'. Error count: %d"
                 .formatted(result.getObjectName(), result.getErrorCount()));
+      }
+    }
+    else if (error instanceof ResponseStatusException rse) {
+      if (options.isIncluded(Include.MESSAGE)) {
+        attributes.put("message", rse.getReason());
+      }
+      error = rse.getCause() != null ? rse.getCause() : error;
+      if (error instanceof BindingResult bindingResult) {
+        if (options.isIncluded(Include.BINDING_ERRORS)) {
+          attributes.put("errors", bindingResult.getAllErrors());
+        }
       }
     }
     else if (options.isIncluded(Include.MESSAGE)) {
