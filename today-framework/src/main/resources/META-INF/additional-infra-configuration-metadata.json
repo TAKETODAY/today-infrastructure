@@ -162,7 +162,7 @@
     {
       "name": "logging.structured.ecs.service.version",
       "type": "java.lang.String",
-      "description": "Structured ECS service version."
+      "description": "Structured ECS service version (defaults to 'app.version')."
     },
     {
       "name": "logging.structured.format.console",
@@ -173,6 +173,16 @@
       "name": "logging.structured.format.file",
       "type": "java.lang.String",
       "description": "Structured logging format for output to a file. Must be either a format id or a fully qualified class name."
+    },
+    {
+      "name": "logging.structured.gelf.service.name",
+      "type": "java.lang.String",
+      "description": "Structured GELF service name (defaults to 'app.name')."
+    },
+    {
+      "name": "logging.structured.gelf.service.version",
+      "type": "java.lang.String",
+      "description": "Structured GELF service version (defaults to 'app.version')."
     },
     {
       "name": "logging.threshold.console",
@@ -446,6 +456,50 @@
       "providers": [
         {
           "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "logging.structured.format.console",
+      "values": [
+        {
+          "value": "ecs"
+        },
+        {
+          "value": "gelf"
+        },
+        {
+          "value": "logstash"
+        }
+      ],
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.lang.Class"
+          }
+        }
+      ]
+    },
+    {
+      "name": "logging.structured.format.file",
+      "values": [
+        {
+          "value": "ecs"
+        },
+        {
+          "value": "gelf"
+        },
+        {
+          "value": "logstash"
+        }
+      ],
+      "providers": [
+        {
+          "name": "handle-as",
+          "parameters": {
+            "target": "java.lang.Class"
+          }
         }
       ]
     },

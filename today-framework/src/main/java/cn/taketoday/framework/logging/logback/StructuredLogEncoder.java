@@ -32,6 +32,7 @@ import cn.taketoday.framework.logging.structured.StructuredLogFormatterFactory;
 import cn.taketoday.framework.logging.structured.StructuredLogFormatterFactory.CommonFormatters;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.Instantiator.AvailableParameters;
 
 /**
@@ -84,12 +85,29 @@ public class StructuredLogEncoder extends EncoderBase<ILoggingEvent> {
   }
 
   private void addCommonFormatters(CommonFormatters<ILoggingEvent> commonFormatters) {
-    commonFormatters.add(CommonStructuredLogFormat.ELASTIC_COMMON_SCHEMA, instantiator ->
-            new ElasticCommonSchemaStructuredLogFormatter(
-                    instantiator.getArg(ConfigurableEnvironment.class),
-                    instantiator.getArg(ThrowableProxyConverter.class)));
-    commonFormatters.add(CommonStructuredLogFormat.LOGSTASH,
-            instantiator -> new LogstashStructuredLogFormatter(instantiator.getArg(ThrowableProxyConverter.class)));
+    commonFormatters.add(CommonStructuredLogFormat.ELASTIC_COMMON_SCHEMA, this::createEcsFormatter);
+    commonFormatters.add(CommonStructuredLogFormat.GRAYLOG_EXTENDED_LOG_FORMAT, this::createGraylogFormatter);
+    commonFormatters.add(CommonStructuredLogFormat.LOGSTASH, this::createLogstashFormatter);
+  }
+
+  private StructuredLogFormatter<ILoggingEvent> createEcsFormatter(
+          Instantiator<StructuredLogFormatter<ILoggingEvent>> instantiator) {
+    ConfigurableEnvironment environment = instantiator.getArg(ConfigurableEnvironment.class);
+    ThrowableProxyConverter throwableProxyConverter = instantiator.getArg(ThrowableProxyConverter.class);
+    return new ElasticCommonSchemaStructuredLogFormatter(environment, throwableProxyConverter);
+  }
+
+  private StructuredLogFormatter<ILoggingEvent> createGraylogFormatter(
+          Instantiator<StructuredLogFormatter<ILoggingEvent>> instantiator) {
+    ConfigurableEnvironment environment = instantiator.getArg(ConfigurableEnvironment.class);
+    ThrowableProxyConverter throwableProxyConverter = instantiator.getArg(ThrowableProxyConverter.class);
+    return new GraylogExtendedLogFormatStructuredLogFormatter(environment, throwableProxyConverter);
+  }
+
+  private StructuredLogFormatter<ILoggingEvent> createLogstashFormatter(
+          Instantiator<StructuredLogFormatter<ILoggingEvent>> instantiator) {
+    ThrowableProxyConverter throwableProxyConverter = instantiator.getArg(ThrowableProxyConverter.class);
+    return new LogstashStructuredLogFormatter(throwableProxyConverter);
   }
 
   @Override
