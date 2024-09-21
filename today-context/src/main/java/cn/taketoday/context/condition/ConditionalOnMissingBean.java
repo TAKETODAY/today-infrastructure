@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -25,7 +25,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link Conditional @Conditional} that only matches when no beans meeting the specified
@@ -67,17 +70,27 @@ public @interface ConditionalOnMissingBean {
 
   /**
    * The class types of beans that should be checked. The condition matches when no bean
-   * of each class specified is contained in the {@link BeanFactory}.
+   * of each class specified is contained in the {@link BeanFactory}. Beans that are not
+   * autowire candidates or that are not default candidates are ignored.
    *
    * @return the class types of beans to check
+   * @see Component#autowireCandidate()
+   * @see BeanDefinition#isAutowireCandidate
+   * @see Component#defaultCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate
    */
   Class<?>[] value() default {};
 
   /**
    * The class type names of beans that should be checked. The condition matches when no
-   * bean of each class specified is contained in the {@link BeanFactory}.
+   * bean of each class specified is contained in the {@link BeanFactory}. Beans that
+   * are not autowire candidates or that are not default candidates are ignored.
    *
    * @return the class type names of beans to check
+   * @see Component#autowireCandidate()
+   * @see BeanDefinition#isAutowireCandidate
+   * @see Component#defaultCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate
    */
   String[] type() default {};
 
@@ -99,9 +112,14 @@ public @interface ConditionalOnMissingBean {
   /**
    * The annotation type decorating a bean that should be checked. The condition matches
    * when each annotation specified is missing from all beans in the
-   * {@link BeanFactory}.
+   * {@link BeanFactory}. Beans that are not autowire candidates or that are not default
+   * candidates are ignored.
    *
    * @return the class-level annotation types to check
+   * @see Component#autowireCandidate()
+   * @see BeanDefinition#isAutowireCandidate
+   * @see Component#defaultCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate
    */
   Class<? extends Annotation>[] annotation() default {};
 

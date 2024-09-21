@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -24,7 +24,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.stereotype.Component;
 
 /**
  * {@link Conditional @Conditional} that only matches when a bean of the specified class
@@ -53,24 +56,34 @@ public @interface ConditionalOnSingleCandidate {
   /**
    * The class type of bean that should be checked. The condition matches if a bean of
    * the class specified is contained in the {@link BeanFactory} and a primary candidate
-   * exists in case of multiple instances.
+   * exists in case of multiple instances. Beans that are not autowire candidates or
+   * that are not default candidates are ignored.
    * <p>
    * This attribute may <strong>not</strong> be used in conjunction with
    * {@link #type()}, but it may be used instead of {@link #type()}.
    *
    * @return the class type of the bean to check
+   * @see Component#autowireCandidate()
+   * @see BeanDefinition#isAutowireCandidate
+   * @see Component#defaultCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate
    */
   Class<?> value() default Object.class;
 
   /**
    * The class type name of bean that should be checked. The condition matches if a bean
    * of the class specified is contained in the {@link BeanFactory} and a primary
-   * candidate exists in case of multiple instances.
+   * candidate exists in case of multiple instances. Beans that are not autowire
+   * candidates or that are not default candidates are ignored.
    * <p>
    * This attribute may <strong>not</strong> be used in conjunction with
    * {@link #value()}, but it may be used instead of {@link #value()}.
    *
    * @return the class type name of the bean to check
+   * @see Component#autowireCandidate()
+   * @see BeanDefinition#isAutowireCandidate
+   * @see Component#defaultCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate
    */
   String type() default "";
 

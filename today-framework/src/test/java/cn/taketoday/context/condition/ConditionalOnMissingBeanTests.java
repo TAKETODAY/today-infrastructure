@@ -48,7 +48,6 @@ import cn.taketoday.context.condition.scan.ScannedFactoryBeanWithBeanMethodArgum
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.scheduling.annotation.EnableScheduling;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -143,7 +142,8 @@ class ConditionalOnMissingBeanTests {
   void testOnMissingBeanConditionOutputShouldNotContainConditionalOnBeanClassInMessage() {
     this.contextRunner.withUserConfiguration(OnBeanNameConfiguration.class).run((context) -> {
       Collection<ConditionEvaluationReport.ConditionAndOutcomes> conditionAndOutcomes = ConditionEvaluationReport
-              .get(context.getSourceApplicationContext().getBeanFactory()).getConditionAndOutcomesBySource()
+              .get(context.getSourceApplicationContext().getBeanFactory())
+              .getConditionAndOutcomesBySource()
               .values();
       String message = conditionAndOutcomes.iterator().next().iterator().next().outcome.getMessage();
       assertThat(message).doesNotContain("@ConditionalOnBean");
@@ -155,7 +155,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(FactoryBeanConfiguration.class, ConditionalOnFactoryBean.class,
                     PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -163,7 +163,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(ComponentScannedFactoryBeanBeanMethodConfiguration.class,
                     ConditionalOnFactoryBean.class, PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ScanBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ScanBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -171,7 +171,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(ComponentScannedFactoryBeanBeanMethodWithArgumentsConfiguration.class,
                     ConditionalOnFactoryBean.class, PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ScanBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ScanBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -180,7 +180,7 @@ class ConditionalOnMissingBeanTests {
             .withUserConfiguration(FactoryBeanWithBeanMethodArgumentsConfiguration.class,
                     ConditionalOnFactoryBean.class, PropertyPlaceholderAutoConfiguration.class)
             .withPropertyValues("theValue=foo")
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -188,7 +188,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(ConcreteFactoryBeanConfiguration.class, ConditionalOnFactoryBean.class,
                     PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -205,7 +205,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(RegisteredFactoryBeanConfiguration.class, ConditionalOnFactoryBean.class,
                     PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
@@ -213,41 +213,45 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner
             .withUserConfiguration(NonspecificFactoryBeanClassAttributeConfiguration.class,
                     ConditionalOnFactoryBean.class, PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
   void testOnMissingBeanConditionWithNonspecificFactoryBeanWithStringAttribute() {
-    contextRunner.withUserConfiguration(NonspecificFactoryBeanStringAttributeConfiguration.class,
+    this.contextRunner
+            .withUserConfiguration(NonspecificFactoryBeanStringAttributeConfiguration.class,
                     ConditionalOnFactoryBean.class, PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory"));
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
   void testOnMissingBeanConditionWithFactoryBeanInXml() {
-    this.contextRunner.withUserConfiguration(FactoryBeanXmlConfiguration.class, ConditionalOnFactoryBean.class,
+    this.contextRunner
+            .withUserConfiguration(FactoryBeanXmlConfiguration.class, ConditionalOnFactoryBean.class,
                     PropertyPlaceholderAutoConfiguration.class)
-            .run((context) -> {
-              assertThat(context.getBean(ExampleBean.class).toString()).isEqualTo("fromFactory");
-            });
+            .run((context) -> assertThat(context.getBean(ExampleBean.class)).hasToString("fromFactory"));
   }
 
   @Test
   void testOnMissingBeanConditionWithIgnoredSubclass() {
-    this.contextRunner.withUserConfiguration(CustomExampleBeanConfiguration.class,
-            ConditionalOnIgnoredSubclass.class, PropertyPlaceholderAutoConfiguration.class).run((context) -> {
-      assertThat(context).getBeans(ExampleBean.class).hasSize(2);
-      assertThat(context).getBeans(CustomExampleBean.class).hasSize(1);
-    });
+    this.contextRunner
+            .withUserConfiguration(CustomExampleBeanConfiguration.class, ConditionalOnIgnoredSubclass.class,
+                    PropertyPlaceholderAutoConfiguration.class)
+            .run((context) -> {
+              assertThat(context).getBeans(ExampleBean.class).hasSize(2);
+              assertThat(context).getBeans(CustomExampleBean.class).hasSize(1);
+            });
   }
 
   @Test
   void testOnMissingBeanConditionWithIgnoredSubclassByName() {
-    this.contextRunner.withUserConfiguration(CustomExampleBeanConfiguration.class,
-            ConditionalOnIgnoredSubclassByName.class, PropertyPlaceholderAutoConfiguration.class).run((context) -> {
-      assertThat(context).getBeans(ExampleBean.class).hasSize(2);
-      assertThat(context).getBeans(CustomExampleBean.class).hasSize(1);
-    });
+    this.contextRunner
+            .withUserConfiguration(CustomExampleBeanConfiguration.class, ConditionalOnIgnoredSubclassByName.class,
+                    PropertyPlaceholderAutoConfiguration.class)
+            .run((context) -> {
+              assertThat(context).getBeans(ExampleBean.class).hasSize(2);
+              assertThat(context).getBeans(CustomExampleBean.class).hasSize(1);
+            });
   }
 
   @Test
@@ -255,8 +259,7 @@ class ConditionalOnMissingBeanTests {
     this.contextRunner.withUserConfiguration(ExampleBeanConfiguration.class)
             .run((grandparent) -> new ApplicationContextRunner().withParent(grandparent)
                     .run((parent) -> new ApplicationContextRunner().withParent(parent)
-                            .withUserConfiguration(ExampleBeanConfiguration.class,
-                                    OnBeanInAncestorsConfiguration.class)
+                            .withUserConfiguration(ExampleBeanConfiguration.class, OnBeanInAncestorsConfiguration.class)
                             .run((context) -> assertThat(context).getBeans(ExampleBean.class).hasSize(1))));
   }
 
@@ -269,18 +272,19 @@ class ConditionalOnMissingBeanTests {
 
   @Test
   void beanProducedByFactoryBeanIsConsideredWhenMatchingOnAnnotation() {
-    this.contextRunner.withUserConfiguration(ConcreteFactoryBeanConfiguration.class,
-            OnAnnotationWithFactoryBeanConfiguration.class).run((context) -> {
-      assertThat(context).doesNotHaveBean("bar");
-      assertThat(context).hasSingleBean(ExampleBean.class);
-    });
+    this.contextRunner
+            .withUserConfiguration(ConcreteFactoryBeanConfiguration.class,
+                    OnAnnotationWithFactoryBeanConfiguration.class)
+            .run((context) -> {
+              assertThat(context).doesNotHaveBean("bar");
+              assertThat(context).hasSingleBean(ExampleBean.class);
+            });
   }
 
   @Test
   void parameterizedContainerWhenValueIsOfMissingBeanMatches() {
     this.contextRunner
-            .withUserConfiguration(ParameterizedWithoutCustomConfig.class,
-                    ParameterizedConditionWithValueConfig.class)
+            .withUserConfiguration(ParameterizedWithoutCustomConfig.class, ParameterizedConditionWithValueConfig.class)
             .run((context) -> assertThat(context)
                     .satisfies(exampleBeanRequirement("otherExampleBean", "conditionalCustomExampleBean")));
   }
@@ -341,6 +345,45 @@ class ConditionalOnMissingBeanTests {
             .run((context) -> assertThat(context).satisfies(exampleBeanRequirement("customExampleBean")));
   }
 
+  @Test
+  void typeBasedMatchingIgnoresBeanThatIsNotAutowireCandidate() {
+    this.contextRunner.withUserConfiguration(NotAutowireCandidateConfig.class, OnBeanTypeConfiguration.class)
+            .run((context) -> assertThat(context).hasBean("bar"));
+  }
+
+  @Test
+  void nameBasedMatchingConsidersBeanThatIsNotAutowireCandidate() {
+    this.contextRunner.withUserConfiguration(NotAutowireCandidateConfig.class, OnBeanNameConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("bar"));
+  }
+
+  @Test
+  void annotationBasedMatchingIgnoresBeanThatIsNotAutowireCandidateBean() {
+    this.contextRunner
+            .withUserConfiguration(AnnotatedNotAutowireCandidateConfig.class, OnAnnotationConfiguration.class)
+            .run((context) -> assertThat(context).hasBean("bar"));
+  }
+
+  @Test
+  void typeBasedMatchingIgnoresBeanThatIsNotDefaultCandidate() {
+    this.contextRunner.withUserConfiguration(NotDefaultCandidateConfig.class, OnBeanTypeConfiguration.class)
+            .run((context) -> assertThat(context).hasBean("bar"));
+  }
+
+  @Test
+  void nameBasedMatchingConsidersBeanThatIsNotDefaultCandidate() {
+    this.contextRunner.withUserConfiguration(NotDefaultCandidateConfig.class, OnBeanNameConfiguration.class)
+            .run((context) -> assertThat(context).doesNotHaveBean("bar"));
+  }
+
+  @Test
+  void annotationBasedMatchingIgnoresBeanThatIsNotDefaultCandidateBean() {
+    this.contextRunner
+            .withUserConfiguration(AnnotatedNotDefaultCandidateConfig.class, OnAnnotationConfiguration.class)
+            .run((context) ->
+                    assertThat(context).hasBean("bar"));
+  }
+
   private Consumer<ConfigurableApplicationContext> exampleBeanRequirement(String... names) {
     return (context) -> {
       String[] beans = StringUtils.toStringArray(context.getBeanNamesForType(ExampleBean.class));
@@ -363,6 +406,17 @@ class ConditionalOnMissingBeanTests {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnMissingBean(name = "foo")
   static class OnBeanNameConfiguration {
+
+    @Bean
+    String bar() {
+      return "bar";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMissingBean(type = "java.lang.String")
+  static class OnBeanTypeConfiguration {
 
     @Bean
     String bar() {
@@ -395,16 +449,16 @@ class ConditionalOnMissingBeanTests {
 
   @Configuration(proxyBeanMethods = false)
   @ComponentScan(basePackages = "cn.taketoday.context.condition.scan", useDefaultFilters = false,
-                 includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
-                                          classes = ScannedFactoryBeanConfiguration.class))
+          includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
+                  classes = ScannedFactoryBeanConfiguration.class))
   static class ComponentScannedFactoryBeanBeanMethodConfiguration {
 
   }
 
   @Configuration(proxyBeanMethods = false)
   @ComponentScan(basePackages = "cn.taketoday.context.condition.scan", useDefaultFilters = false,
-                 includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
-                                          classes = ScannedFactoryBeanWithBeanMethodArgumentsConfiguration.class))
+          includeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
+                  classes = ScannedFactoryBeanWithBeanMethodArgumentsConfiguration.class))
   static class ComponentScannedFactoryBeanBeanMethodWithArgumentsConfiguration {
 
   }
@@ -533,7 +587,7 @@ class ConditionalOnMissingBeanTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnMissingBean(annotation = EnableScheduling.class)
+  @ConditionalOnMissingBean(annotation = TestAnnotation.class)
   static class OnAnnotationConfiguration {
 
     @Bean
@@ -555,10 +609,30 @@ class ConditionalOnMissingBeanTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @EnableScheduling
+  @TestAnnotation
   static class FooConfiguration {
 
     @Bean
+    String foo() {
+      return "foo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class NotAutowireCandidateConfig {
+
+    @Bean(autowireCandidate = false)
+    String foo() {
+      return "foo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class NotDefaultCandidateConfig {
+
+    @Bean(defaultCandidate = false)
     String foo() {
       return "foo";
     }
@@ -699,7 +773,7 @@ class ConditionalOnMissingBeanTests {
 
     @Bean
     @ConditionalOnMissingBean(value = CustomExampleBean.class,
-                              parameterizedContainer = TestParameterizedContainer.class)
+            parameterizedContainer = TestParameterizedContainer.class)
     CustomExampleBean conditionalCustomExampleBean() {
       return new CustomExampleBean();
     }
@@ -728,10 +802,30 @@ class ConditionalOnMissingBeanTests {
 
   }
 
+  @Configuration(proxyBeanMethods = false)
+  static class AnnotatedNotAutowireCandidateConfig {
+
+    @Bean(autowireCandidate = false)
+    ExampleBean exampleBean() {
+      return new ExampleBean("value");
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class AnnotatedNotDefaultCandidateConfig {
+
+    @Bean(autowireCandidate = false)
+    ExampleBean exampleBean() {
+      return new ExampleBean("value");
+    }
+
+  }
+
   @TestAnnotation
   static class ExampleBean {
 
-    private String value;
+    private final String value;
 
     ExampleBean(String value) {
       this.value = value;

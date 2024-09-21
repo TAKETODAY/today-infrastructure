@@ -107,7 +107,8 @@ class ConditionalOnSingleCandidateTests {
 
   @Test
   void singleCandidateMultipleCandidatesOnePrimary() {
-    this.contextRunner.withUserConfiguration(AlphaPrimaryConfiguration.class, BravoConfiguration.class,
+    this.contextRunner
+            .withUserConfiguration(AlphaPrimaryConfiguration.class, BravoConfiguration.class,
                     OnBeanSingleCandidateConfiguration.class)
             .run((context) -> {
               assertThat(context).hasBean("consumer");
@@ -171,6 +172,28 @@ class ConditionalOnSingleCandidateTests {
                       assertThat(child).hasBean("consumer");
                       assertThat(child.getBean("consumer")).isEqualTo("alpha");
                     }));
+  }
+
+  @Test
+  void singleCandidateMultipleCandidatesOneAutowireCandidate() {
+    this.contextRunner
+            .withUserConfiguration(AlphaConfiguration.class, BravoNonAutowireConfiguration.class,
+                    OnBeanSingleCandidateConfiguration.class)
+            .run((context) -> {
+              assertThat(context).hasBean("consumer");
+              assertThat(context.getBean("consumer")).isEqualTo("alpha");
+            });
+  }
+
+  @Test
+  void singleCandidateMultipleCandidatesOneDefaultCandidate() {
+    this.contextRunner
+            .withUserConfiguration(AlphaConfiguration.class, BravoNonDefaultConfiguration.class,
+                    OnBeanSingleCandidateConfiguration.class)
+            .run((context) -> {
+              assertThat(context).hasBean("consumer");
+              assertThat(context.getBean("consumer")).isEqualTo("alpha");
+            });
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -276,6 +299,26 @@ class ConditionalOnSingleCandidateTests {
 
     @Bean
     @Fallback
+    String bravo() {
+      return "bravo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class BravoNonAutowireConfiguration {
+
+    @Bean(autowireCandidate = false)
+    String bravo() {
+      return "bravo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class BravoNonDefaultConfiguration {
+
+    @Bean(defaultCandidate = false)
     String bravo() {
       return "bravo";
     }
