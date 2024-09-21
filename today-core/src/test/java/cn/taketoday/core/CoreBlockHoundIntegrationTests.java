@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -24,11 +21,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledForJreRange;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import cn.taketoday.tests.sample.objects.TestObject;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import reactor.blockhound.BlockHound;
 import reactor.core.scheduler.ReactorBlockHoundIntegration;
@@ -36,20 +31,20 @@ import reactor.core.scheduler.Schedulers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.condition.JRE.JAVA_14;
+import static org.junit.jupiter.api.condition.JRE.JAVA_18;
 
 /**
  * Tests to verify the core BlockHound integration rules.
  *
  * @author Rossen Stoyanchev
  */
-@DisabledForJreRange(min = JAVA_14)
+@DisabledForJreRange(min = JAVA_18, disabledReason = "BlockHound is not compatible with Java 18+")
 class CoreBlockHoundIntegrationTests {
 
   @BeforeAll
-  static void setUp() {
+  static void setup() {
     BlockHound.builder()
-            .with(new ReactorBlockHoundIntegration()) // Reactor non-blocking thread predicate
+            .with(new ReactorBlockHoundIntegration())  // Reactor non-blocking thread predicate
             .with(new ReactiveAdapterRegistry.CoreBlockHoundIntegration())
             .install();
   }
@@ -61,16 +56,7 @@ class CoreBlockHoundIntegrationTests {
   }
 
   @Test
-  void localVariableTableParameterNameDiscoverer() {
-    testNonBlockingTask(() -> {
-      Method setName = TestObject.class.getMethod("setName", String.class);
-      String[] names = new LocalVariableTableParameterNameDiscoverer().getParameterNames(setName);
-      assertThat(names).isEqualTo(new String[] { "name" });
-    });
-  }
-
-  @Test
-  void concurrentReferenceHashMap() {
+  void concurrentReferenceHashMapSegmentDoTask() {
     int size = 10000;
     Map<String, String> map = new ConcurrentReferenceHashMap<>(size);
 
@@ -90,6 +76,29 @@ class CoreBlockHoundIntegrationTests {
 
     CompletableFuture.allOf(future1, future2).join();
     assertThat(map).hasSize(size);
+  }
+
+  @Test
+  void concurrentReferenceHashMapSegmentClear() {
+    int size = 10000;
+    Map<String, String> map = new ConcurrentReferenceHashMap<>(size);
+
+    CompletableFuture<Object> future1 = new CompletableFuture<>();
+    testNonBlockingTask(() -> {
+      for (int i = 0; i < size / 2; i++) {
+        map.put("a" + i, "bar");
+      }
+    }, future1);
+
+    CompletableFuture<Object> future2 = new CompletableFuture<>();
+    testNonBlockingTask(() -> {
+      for (int i = 0; i < size; i++) {
+        map.clear();
+      }
+    }, future2);
+
+    CompletableFuture.allOf(future1, future2).join();
+    assertThat(map).isEmpty();
   }
 
   private void testNonBlockingTask(NonBlockingTask task) {

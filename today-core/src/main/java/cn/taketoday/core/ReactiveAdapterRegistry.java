@@ -413,6 +413,9 @@ public class ReactiveAdapterRegistry {
       builder.allowBlockingCallsInside(className, "doTask");
       builder.allowBlockingCallsInside(className, "clear");
       builder.allowBlockingCallsInside(className, "restructure");
+
+      String referenceManagerClassName = "cn.taketoday.util.ConcurrentReferenceHashMap$ReferenceManager";
+      builder.allowBlockingCallsInside(referenceManagerClassName, "pollForPurge");
     }
   }
 
