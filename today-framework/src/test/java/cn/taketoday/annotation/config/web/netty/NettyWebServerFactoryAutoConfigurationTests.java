@@ -135,7 +135,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
               .hasRootCauseInstanceOf(FileNotFoundException.class)
-              .hasRootCauseMessage("class path resource [not-found.crt] cannot be resolved to URL because it does not exist");
+              .hasRootCauseMessage("class path resource [not-found.crt] cannot be opened because it does not exist");
     });
   }
 
@@ -147,7 +147,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
               .hasRootCauseInstanceOf(FileNotFoundException.class)
-              .hasRootCauseMessage("class path resource [not-found.pem] cannot be resolved to URL because it does not exist");
+              .hasRootCauseMessage("class path resource [not-found.pem] cannot be opened because it does not exist");
     });
   }
 
