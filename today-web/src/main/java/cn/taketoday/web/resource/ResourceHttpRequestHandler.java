@@ -18,9 +18,7 @@
 package cn.taketoday.web.resource;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +47,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
@@ -597,7 +592,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   protected Resource getResource(RequestContext request) throws IOException {
     String path;
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    var matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata == null) {
       path = request.getRequestPath().value();
     }
@@ -606,10 +601,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
 
     path = processPath(path);
-    if (StringUtils.isBlank(path) || isInvalidPath(path)) {
-      return null;
-    }
-    if (isInvalidEncodedPath(path)) {
+    if (ResourceHandlerUtils.shouldIgnoreInputPath(path) || isInvalidPath(path)) {
       return null;
     }
 
@@ -627,127 +619,18 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   /**
    * Process the given resource path.
-   * <p>The default implementation replaces:
-   * <ul>
-   * <li>Backslash with forward slash.
-   * <li>Duplicate occurrences of slash with a single slash.
-   * <li>Any combination of leading slash and control characters (00-1F and 7F)
-   * with a single "/" or "". For example {@code "  / // foo/bar"}
-   * becomes {@code "/foo/bar"}.
-   * </ul>
+   * <p>By default, this method delegates to {@link ResourceHandlerUtils#normalizeInputPath}.
    */
   protected String processPath(String path) {
-    path = StringUtils.replace(path, "\\", "/");
-    path = cleanDuplicateSlashes(path);
-    return cleanLeadingSlash(path);
-  }
-
-  private String cleanDuplicateSlashes(String path) {
-    StringBuilder sb = null;
-    char prev = 0;
-    for (int i = 0; i < path.length(); i++) {
-      char curr = path.charAt(i);
-      try {
-        if ((curr == '/') && (prev == '/')) {
-          if (sb == null) {
-            sb = new StringBuilder(path.substring(0, i));
-          }
-          continue;
-        }
-        if (sb != null) {
-          sb.append(path.charAt(i));
-        }
-      }
-      finally {
-        prev = curr;
-      }
-    }
-    return sb != null ? sb.toString() : path;
-  }
-
-  private String cleanLeadingSlash(String path) {
-    boolean slash = false;
-    for (int i = 0; i < path.length(); i++) {
-      if (path.charAt(i) == '/') {
-        slash = true;
-      }
-      else if (path.charAt(i) > ' ' && path.charAt(i) != 127) {
-        if (i == 0 || (i == 1 && slash)) {
-          return path;
-        }
-        return (slash ? "/" + path.substring(i) : path.substring(i));
-      }
-    }
-    return (slash ? "/" : "");
+    return ResourceHandlerUtils.normalizeInputPath(path);
   }
 
   /**
-   * Check whether the given path contains invalid escape sequences.
-   *
-   * @param path the path to validate
-   * @return {@code true} if the path is invalid, {@code false} otherwise
-   */
-  private boolean isInvalidEncodedPath(String path) {
-    if (path.contains("%")) {
-      try {
-        // Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars
-        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-        if (isInvalidPath(decodedPath)) {
-          return true;
-        }
-        decodedPath = processPath(decodedPath);
-        if (isInvalidPath(decodedPath)) {
-          return true;
-        }
-      }
-      catch (IllegalArgumentException ex) {
-        // May not be possible to decode...
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Identifies invalid resource paths. By default rejects:
-   * <ul>
-   * <li>Paths that contain "WEB-INF" or "META-INF"
-   * <li>Paths that contain "../" after a call to
-   * {@link cn.taketoday.util.StringUtils#cleanPath}.
-   * <li>Paths that represent a {@link cn.taketoday.util.ResourceUtils#isUrl
-   * valid URL} or would represent one after the leading slash is removed.
-   * </ul>
-   * <p><strong>Note:</strong> this method assumes that leading, duplicate '/'
-   * or control characters (e.g. white space) have been trimmed so that the
-   * path starts predictably with a single '/' or does not have one.
-   *
-   * @param path the path to validate
-   * @return {@code true} if the path is invalid, {@code false} otherwise
+   * Invoked after {@link ResourceHandlerUtils#isInvalidPath(String)}
+   * to allow subclasses to perform further validation.
+   * <p>By default, this method does not perform any validations.
    */
   protected boolean isInvalidPath(String path) {
-    if (path.contains("WEB-INF") || path.contains("META-INF")) {
-      if (log.isWarnEnabled()) {
-        log.warn(LogFormatUtils.formatValue(
-                "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));
-      }
-      return true;
-    }
-    if (path.contains(":/")) {
-      String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
-      if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
-        if (log.isWarnEnabled()) {
-          log.warn(LogFormatUtils.formatValue(
-                  "Path represents URL or has \"url:\" prefix: [%s]".formatted(path), -1, true));
-        }
-        return true;
-      }
-    }
-    if (path.contains("..") && StringUtils.cleanPath(path).contains("../")) {
-      if (log.isWarnEnabled()) {
-        log.warn(LogFormatUtils.formatValue(
-                "Path contains \"../\" after call to StringUtils#cleanPath: [%s]".formatted(path), -1, true));
-      }
-      return true;
-    }
     return false;
   }
 
