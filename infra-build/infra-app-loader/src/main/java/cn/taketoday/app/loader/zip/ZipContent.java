@@ -657,7 +657,8 @@ public final class ZipContent implements Closeable {
     private static long getStartOfZipContent(FileDataBlock data, ZipEndOfCentralDirectoryRecord eocd,
             @Nullable Zip64EndOfCentralDirectoryRecord zip64Eocd) throws IOException {
       long specifiedOffsetToStartOfCentralDirectory = (zip64Eocd != null)
-              ? zip64Eocd.offsetToStartOfCentralDirectory() : eocd.offsetToStartOfCentralDirectory();
+              ? zip64Eocd.offsetToStartOfCentralDirectory()
+              : Integer.toUnsignedLong(eocd.offsetToStartOfCentralDirectory());
       long sizeOfCentralDirectoryAndEndRecords = getSizeOfCentralDirectoryAndEndRecords(eocd, zip64Eocd);
       long actualOffsetToStartOfCentralDirectory = data.size() - sizeOfCentralDirectoryAndEndRecords;
       return actualOffsetToStartOfCentralDirectory - specifiedOffsetToStartOfCentralDirectory;
@@ -671,7 +672,8 @@ public final class ZipContent implements Closeable {
         result += Zip64EndOfCentralDirectoryLocator.SIZE;
         result += zip64Eocd.size();
       }
-      result += (zip64Eocd != null) ? zip64Eocd.sizeOfCentralDirectory() : eocd.sizeOfCentralDirectory();
+      result += (zip64Eocd != null) ? zip64Eocd.sizeOfCentralDirectory()
+              : Integer.toUnsignedLong(eocd.sizeOfCentralDirectory());
       return result;
     }
 
