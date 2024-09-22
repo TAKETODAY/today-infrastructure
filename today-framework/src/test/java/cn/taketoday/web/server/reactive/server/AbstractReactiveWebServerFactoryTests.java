@@ -42,12 +42,6 @@ import javax.net.ssl.KeyManagerFactory;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
-import cn.taketoday.web.server.Compression;
-import cn.taketoday.web.server.GracefulShutdownResult;
-import cn.taketoday.web.server.Http2;
-import cn.taketoday.web.server.Shutdown;
-import cn.taketoday.web.server.Ssl;
-import cn.taketoday.web.server.WebServer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
@@ -60,6 +54,12 @@ import cn.taketoday.util.DataSize;
 import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.reactive.function.client.WebClientRequestException;
+import cn.taketoday.web.server.Compression;
+import cn.taketoday.web.server.GracefulShutdownResult;
+import cn.taketoday.web.server.Http2;
+import cn.taketoday.web.server.Shutdown;
+import cn.taketoday.web.server.Ssl;
+import cn.taketoday.web.server.WebServer;
 import cn.taketoday.web.server.reactive.AbstractReactiveWebServerFactory;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -77,7 +77,6 @@ import reactor.test.StepVerifier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Base for testing classes that extends {@link AbstractReactiveWebServerFactory}.
@@ -170,8 +169,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
 
   @Test
   void basicSslFromFileSystem() {
-    testBasicSslWithKeyStore("src/test/resources/test.jks", "password");
-
+    testBasicSslWithKeyStore("test.jks", "password");
   }
 
   protected final void testBasicSslWithKeyStore(String keyStore, String keyPassword) {
@@ -240,11 +238,12 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   protected void assertThatSslWithInvalidAliasCallFails(ThrowingCallable call) {
-    assertThatThrownBy(call).hasStackTraceContaining("Keystore does not contain alias 'test-alias-404'");
+    assertThatException().isThrownBy(call)
+            .withStackTraceContaining("Keystore does not contain alias 'test-alias-404'");
   }
 
   protected ReactorClientHttpConnector buildTrustAllSslConnector() {
-    Http11SslContextSpec sslContextSpec = Http11SslContextSpec.forClient()
+    var sslContextSpec = Http11SslContextSpec.forClient()
             .configure((builder) -> builder.sslProvider(SslProvider.JDK)
                     .trustManager(InsecureTrustManagerFactory.INSTANCE));
     HttpClient client = HttpClient.create().wiretap(true).secure((spec) -> spec.sslContext(sslContextSpec));
@@ -283,7 +282,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
             .getInstance(KeyManagerFactory.getDefaultAlgorithm());
     clientKeyManagerFactory.init(clientKeyStore, keyStorePassword.toCharArray());
 
-    Http11SslContextSpec sslContextSpec = Http11SslContextSpec.forClient()
+    var sslContextSpec = Http11SslContextSpec.forClient()
             .configure((builder) -> builder.sslProvider(SslProvider.JDK)
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .keyManager(clientKeyManagerFactory));
@@ -582,8 +581,8 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     AbstractReactiveWebServerFactory factory = getFactory();
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
-    assertThat(startedLogMessage()).matches("(Jetty|Netty|Tomcat|Undertow) started on port "
-            + this.webServer.getPort() + "( \\(http(/1.1)?\\))?( with context path '(/)?')?");
+    assertThat(startedLogMessage()).matches(
+            "Netty started on port " + this.webServer.getPort());
   }
 
   @Test
@@ -593,7 +592,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(startedLogMessage()).matches("(Jetty|Tomcat|Undertow) started on ports " + this.webServer.getPort()
-            + "( \\(http(/1.1)?\\))?, [0-9]+( \\(http(/1.1)?\\))?( with context path '(/)?')?");
+            + " \\(http(/1.1)?\\), [0-9]+ \\(http(/1.1)?\\)");
   }
 
   protected WebClient prepareCompressionTest() {
@@ -657,7 +656,8 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   }
 
   protected final void doWithBlockedPort(BlockedPortAction action) throws Exception {
-    try (ServerSocket serverSocket = new ServerSocket()) {
+    ServerSocket serverSocket = new ServerSocket();
+    try (serverSocket) {
       int blockedPort = doWithRetry(() -> {
         serverSocket.bind(null);
         return serverSocket.getLocalPort();
@@ -765,7 +765,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
       response.setStatusCode(HttpStatus.OK);
-      response.getHeaders().setOrRemove(HttpHeaders.CONTENT_TYPE, this.mediaType);
+      response.getHeaders().set(HttpHeaders.CONTENT_TYPE, this.mediaType);
       response.getHeaders().setContentLength(this.bytes.readableByteCount());
       return response.writeWith(Mono.just(this.bytes));
     }

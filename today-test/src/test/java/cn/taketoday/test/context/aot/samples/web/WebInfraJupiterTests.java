@@ -64,7 +64,7 @@ public class WebInfraJupiterTests {
   void resources() throws Exception {
     this.mockMvc.perform(get("/resources/Spring.js"))
             .andExpectAll(
-                    content().contentType("application/javascript"),
+                    content().contentType("text/javascript"),
                     content().string(containsString("Spring={};"))
             );
   }
