@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ParameterizedTypeReference;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
@@ -193,10 +192,6 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
       this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
       this.multipartBuilder.asyncPart(name, publisher, elementTye);
       return this;
-    }
-
-    public <T, P extends Publisher<T>> Builder addRequestPart(String name, P publisher, ResolvableType type) {
-      return addRequestPartPublisher(name, publisher, ParameterizedTypeReference.forType(type.getType()));
     }
 
     /**
