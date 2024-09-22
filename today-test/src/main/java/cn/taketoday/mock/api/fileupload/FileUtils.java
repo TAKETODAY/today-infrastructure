@@ -291,7 +291,7 @@ public class FileUtils {
    */
   public static boolean isSymlink(File file) throws IOException {
     if (file == null) {
-      throw new NullPointerException("File must not be null");
+      throw new NullPointerException("File is required");
     }
     //FilenameUtils.isSystemWindows()
     if (File.separatorChar == '\\') {

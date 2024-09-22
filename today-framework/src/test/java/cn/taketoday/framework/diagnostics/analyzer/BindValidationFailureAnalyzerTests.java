@@ -64,9 +64,9 @@ class BindValidationFailureAnalyzerTests {
   @Test
   void bindExceptionWithFieldErrorsDueToValidationFailure() {
     FailureAnalysis analysis = performAnalysis(FieldValidationFailureConfiguration.class);
-    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "must not be null"))
+    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "is required"))
             .contains(failure("test.foo.value", "0", "at least five"))
-            .contains(failure("test.foo.nested.bar", "null", "must not be null"))
+            .contains(failure("test.foo.nested.bar", "null", "is required"))
             .contains(
                     "Binding to target cn.taketoday.framework.diagnostics.analyzer.BindValidationFailureAnalyzerTests$FieldValidationFailureProperties failed:");
   }
@@ -87,10 +87,10 @@ class BindValidationFailureAnalyzerTests {
   void otherBindExceptionShouldReturnAnalysis() {
     BindException cause = new BindException(new FieldValidationFailureProperties(),
             "fieldValidationFailureProperties");
-    cause.addError(new FieldError("test", "value", "must not be null"));
+    cause.addError(new FieldError("test", "value", "is required"));
     BeanCreationException rootFailure = new BeanCreationException("bean creation failure", cause);
     FailureAnalysis analysis = new BindValidationFailureAnalyzer().analyze(rootFailure, rootFailure);
-    assertThat(analysis.getDescription()).contains(failure("test.value", "null", "must not be null"));
+    assertThat(analysis.getDescription()).contains(failure("test.value", "null", "is required"));
   }
 
   private static String failure(String property, String value, String reason) {

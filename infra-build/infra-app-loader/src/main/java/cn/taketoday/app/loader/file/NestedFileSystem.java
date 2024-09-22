@@ -62,7 +62,7 @@ class NestedFileSystem extends FileSystem {
 
   NestedFileSystem(NestedFileSystemProvider provider, Path jarPath) {
     if (provider == null || jarPath == null) {
-      throw new IllegalArgumentException("Provider and JarPath must not be null");
+      throw new IllegalArgumentException("Provider and JarPath is required");
     }
     this.provider = provider;
     this.jarPath = jarPath;

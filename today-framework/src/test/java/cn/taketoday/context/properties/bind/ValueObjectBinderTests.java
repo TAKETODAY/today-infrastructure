@@ -678,7 +678,7 @@ class ValueObjectBinderTests {
     private final String bar;
 
     ValidatingConstructorBean(String foo, String bar) {
-      Assert.notNull(foo, "Foo must not be null");
+      Assert.notNull(foo, "Foo is required");
       this.foo = foo;
       this.bar = bar;
     }

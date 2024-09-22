@@ -52,7 +52,7 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
    */
   public MockClientHttpResponse(byte[] body, HttpStatusCode statusCode) {
     super(body);
-    Assert.notNull(statusCode, "HttpStatusCode must not be null");
+    Assert.notNull(statusCode, "HttpStatusCode is required");
     this.statusCode = statusCode;
   }
 
@@ -72,7 +72,7 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
    */
   public MockClientHttpResponse(InputStream body, HttpStatusCode statusCode) {
     super(body);
-    Assert.notNull(statusCode, "HttpStatusCode must not be null");
+    Assert.notNull(statusCode, "HttpStatusCode is required");
     this.statusCode = statusCode;
   }
 

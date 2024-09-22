@@ -85,8 +85,8 @@ public abstract class Configurations {
    * @since 5.0
    */
   protected Configurations(UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes) {
-    Assert.notNull(sorter, "Sorter must not be null");
-    Assert.notNull(classes, "Classes must not be null");
+    Assert.notNull(sorter, "Sorter is required");
+    Assert.notNull(classes, "Classes is required");
     Collection<Class<?>> sorted = sorter.apply(classes);
     this.sorter = sorter;
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));

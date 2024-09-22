@@ -49,7 +49,7 @@ public class Handler extends URLStreamHandler {
    */
   public static void assertUrlIsNotMalformed(String url) {
     if (url == null || !url.startsWith(PREFIX)) {
-      throw new IllegalArgumentException("'url' must not be null and must use 'nested' protocol");
+      throw new IllegalArgumentException("'url' is required and must use 'nested' protocol");
     }
     NestedLocation.parse(url.substring(PREFIX.length()));
   }

@@ -54,7 +54,7 @@ class HandlerTests {
   @Test
   void assertUrlIsNotMalformedWhenUrlIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Handler.assertUrlIsNotMalformed(null))
-            .withMessageContaining("'url' must not be null");
+            .withMessageContaining("'url' is required");
   }
 
   @Test
