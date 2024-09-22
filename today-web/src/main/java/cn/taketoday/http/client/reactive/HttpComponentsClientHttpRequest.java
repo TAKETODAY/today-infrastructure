@@ -40,6 +40,7 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -171,8 +172,9 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
       HttpHeaders headers = getHeaders();
       String contentEncoding = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
       ContentType contentType = null;
-      if (headers.getContentType() != null) {
-        contentType = ContentType.parse(headers.getContentType().toString());
+      MediaType mediaType = headers.getContentType();
+      if (mediaType != null) {
+        contentType = ContentType.create("%s/%s".formatted(mediaType.getType(), mediaType.getSubtype()), mediaType.getCharset());
       }
       reactiveEntityProducer = new ReactiveEntityProducer(
               byteBufferFlux, contentLength, contentType, contentEncoding);
