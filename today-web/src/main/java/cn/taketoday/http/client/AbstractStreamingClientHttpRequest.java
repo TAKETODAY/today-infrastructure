@@ -25,6 +25,7 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FastByteArrayOutputStream;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * Abstract base for {@link ClientHttpRequest} that also implement
@@ -70,6 +71,14 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
     return executeInternal(headers, this.body);
   }
 
+  @Override
+  protected final Future<ClientHttpResponse> asyncInternal(HttpHeaders headers) {
+    if (this.body == null && this.bodyStream != null) {
+      this.body = outputStream -> this.bodyStream.writeTo(outputStream);
+    }
+    return asyncInternal(headers, body);
+  }
+
   /**
    * Abstract template method that writes the given headers and content to the HTTP request.
    *
@@ -79,5 +88,17 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
    */
   protected abstract ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body)
           throws IOException;
+
+  /**
+   * Abstract template method that writes the given headers and content to the HTTP request.
+   *
+   * @param headers the HTTP headers
+   * @param body the HTTP body, may be {@code null} if no body was {@linkplain #setBody(Body) set}
+   * @return the response object for the executed request
+   */
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+    // todo 这样实现肯定不行
+    return Future.run(() -> executeInternal(headers, body));
+  }
 
 }

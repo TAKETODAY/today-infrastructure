@@ -24,6 +24,7 @@ import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * Abstract base for {@link ClientHttpRequest} that makes sure that headers
@@ -70,6 +71,13 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
     return result;
   }
 
+  @Override
+  public Future<ClientHttpResponse> async() {
+    assertNotExecuted();
+    this.executed = true;
+    return asyncInternal(headers);
+  }
+
   /**
    * Assert that this request has not been {@linkplain #execute() executed} yet.
    *
@@ -96,5 +104,16 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
    */
   protected abstract ClientHttpResponse executeInternal(HttpHeaders headers)
           throws IOException;
+
+  /**
+   * Abstract template method that writes the given headers and content to the HTTP request.
+   *
+   * @param headers the HTTP headers
+   * @return the response object for the executed request
+   */
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers) {
+    // todo 这样实现肯定不行
+    return Future.run(() -> executeInternal(headers));
+  }
 
 }

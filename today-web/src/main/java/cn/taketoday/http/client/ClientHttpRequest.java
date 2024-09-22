@@ -22,6 +22,7 @@ import java.io.IOException;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * Represents a client-side HTTP request.
@@ -44,5 +45,13 @@ public interface ClientHttpRequest extends HttpRequest, HttpOutputMessage {
    * @throws IOException in case of I/O errors
    */
   ClientHttpResponse execute() throws IOException;
+
+  /**
+   * Execute this request async, resulting in a {@code Future<ClientHttpResponse>} that can be read.
+   *
+   * @return the async response result of the execution
+   * @since 5.0
+   */
+  Future<ClientHttpResponse> async();
 
 }

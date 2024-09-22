@@ -19,6 +19,7 @@ package cn.taketoday.http.client;
 
 import org.reactivestreams.FlowAdapters;
 import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -31,8 +32,11 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.Promise;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Mono;
 import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClient;
@@ -80,18 +84,18 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
-    HttpClient.RequestSender requestSender = this.httpClient
-            .request(io.netty.handler.codec.http.HttpMethod.valueOf(this.method.name()));
+    HttpClient.RequestSender requestSender = httpClient
+            .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
 
-    requestSender = (this.uri.isAbsolute() ? requestSender.uri(this.uri) : requestSender.uri(this.uri.toString()));
+    requestSender = uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString());
 
     try {
       ReactorClientHttpResponse result = requestSender.send((reactorRequest, nettyOutbound) ->
                       send(headers, body, reactorRequest, nettyOutbound))
               .responseConnection((reactorResponse, connection) ->
-                      Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, this.readTimeout)))
+                      Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, readTimeout)))
               .next()
-              .block(this.exchangeTimeout);
+              .block(exchangeTimeout);
 
       if (result == null) {
         throw new IOException("HTTP exchange resulted in no result");
@@ -139,6 +143,46 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
       }
     }
     return new IOException(ex.getMessage(), (cause != null ? cause : ex));
+  }
+
+  @Override
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+    HttpClient.RequestSender requestSender = httpClient
+            .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
+
+    requestSender = uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString());
+
+    Promise<ClientHttpResponse> promise = Future.forPromise();
+    requestSender.send((reactorRequest, nettyOutbound) -> send(headers, body, reactorRequest, nettyOutbound))
+            .responseConnection((reactorResponse, connection) -> Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, readTimeout)))
+            .next()
+            .subscribe(new CoreSubscriber<>() {
+
+              volatile Subscription s;
+
+              @Override
+              public void onSubscribe(Subscription s) {
+                s.request(1);
+                promise.onCancelled(s::cancel);
+                this.s = s;
+              }
+
+              @Override
+              public void onNext(ReactorClientHttpResponse response) {
+                promise.trySuccess(response);
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                promise.tryFailure(throwable);
+              }
+
+              @Override
+              public void onComplete() {
+
+              }
+            });
+    return promise;
   }
 
   private static final class ByteBufMapper implements OutputStreamPublisher.ByteMapper<ByteBuf> {

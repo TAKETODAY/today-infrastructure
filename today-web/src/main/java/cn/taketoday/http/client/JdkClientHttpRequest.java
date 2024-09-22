@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * {@link ClientHttpRequest} implementation based the Java {@link HttpClient}.
@@ -108,7 +110,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
     try {
       HttpRequest request = buildRequest(headers, body);
-      HttpResponse<InputStream> response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      HttpResponse<InputStream> response = this.httpClient.send(request, BodyHandlers.ofInputStream());
       return new JdkClientHttpResponse(response);
     }
     catch (UncheckedIOException ex) {
@@ -118,6 +120,13 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
       Thread.currentThread().interrupt();
       throw new IOException("Could not send request: " + ex.getMessage(), ex);
     }
+  }
+
+  @Override
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+    HttpRequest request = buildRequest(headers, body);
+    return Future.forAdaption(httpClient.sendAsync(request, BodyHandlers.ofInputStream()))
+            .map(JdkClientHttpResponse::new);
   }
 
   private HttpRequest buildRequest(HttpHeaders headers, @Nullable Body body) {

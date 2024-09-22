@@ -39,6 +39,7 @@ import java.util.Set;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.VisibleForTesting;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -57,7 +58,9 @@ import cn.taketoday.util.StringUtils;
 final class HttpComponentsClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private final HttpClient httpClient;
+
   private final HttpContext httpContext;
+
   private final ClassicHttpRequest httpRequest;
 
   private final HttpMethod method;
@@ -84,6 +87,7 @@ final class HttpComponentsClientHttpRequest extends AbstractStreamingClientHttpR
     }
   }
 
+  @VisibleForTesting
   HttpContext getHttpContext() {
     return this.httpContext;
   }

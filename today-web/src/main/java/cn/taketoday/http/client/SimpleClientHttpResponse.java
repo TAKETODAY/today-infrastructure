@@ -36,6 +36,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Deprecated(forRemoval = true)
 final class SimpleClientHttpResponse implements ClientHttpResponse {
 
   private final HttpURLConnection connection;
