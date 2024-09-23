@@ -71,6 +71,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
@@ -1376,6 +1377,17 @@ class ApplicationTests {
   }
 
   @Test
+  void fromAppliesProfiles() {
+    this.context = Application.from(ExampleFromMainMethod::main)
+            .with(ProfileConfig.class)
+            .withAdditionalProfiles("custom")
+            .run()
+            .getApplicationContext();
+    assertThat(this.context).isNotNull();
+    assertThat(this.context.getBeanProvider(Example.class).getIfAvailable()).isNotNull();
+  }
+
+  @Test
   void shouldStartDaemonThreadIfKeepAliveIsEnabled() {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
@@ -2080,4 +2092,14 @@ class ApplicationTests {
 
   }
 
+  @Configuration
+  static class ProfileConfig {
+
+    @Bean
+    @Profile("custom")
+    Example example() {
+      return new Example();
+    }
+
+  }
 }

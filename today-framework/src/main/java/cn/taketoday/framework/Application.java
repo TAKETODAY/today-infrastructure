@@ -1553,7 +1553,7 @@ public class Application {
    */
   public static Application.Augmented from(ThrowingConsumer<String[]> main) {
     Assert.notNull(main, "Main ThrowingConsumer is required");
-    return new Augmented(main, Collections.emptySet());
+    return new Augmented(main, Collections.emptySet(), Collections.emptySet());
   }
 
   private static void close(ApplicationContext context) {
@@ -1611,9 +1611,12 @@ public class Application {
 
     private final Set<Class<?>> sources;
 
-    Augmented(ThrowingConsumer<String[]> main, Set<Class<?>> sources) {
+    private final Set<String> additionalProfiles;
+
+    Augmented(ThrowingConsumer<String[]> main, Set<Class<?>> sources, Set<String> additionalProfiles) {
       this.main = main;
       this.sources = Set.copyOf(sources);
+      this.additionalProfiles = additionalProfiles;
     }
 
     /**
@@ -1626,18 +1629,33 @@ public class Application {
     public Augmented with(Class<?>... sources) {
       LinkedHashSet<Class<?>> merged = new LinkedHashSet<>(this.sources);
       merged.addAll(Arrays.asList(sources));
-      return new Augmented(this.main, merged);
+      return new Augmented(this.main, merged, this.additionalProfiles);
+    }
+
+    /**
+     * Return a new {@link Application.Augmented} instance with additional
+     * profiles that should be applied when the application runs.
+     *
+     * @param profiles the profiles that should be applied
+     * @return a new {@link Application.Augmented} instance
+     */
+    public Augmented withAdditionalProfiles(String... profiles) {
+      Set<String> merged = new LinkedHashSet<>(this.additionalProfiles);
+      merged.addAll(Arrays.asList(profiles));
+      return new Augmented(this.main, this.sources, merged);
     }
 
     /**
      * Run the application using the given args.
      *
      * @param args the main method args
+     * @return the running {@link ApplicationContext}
      */
     public Running run(String... args) {
       RunListener runListener = new RunListener();
-      ApplicationHook hook = ApplicationHook.forSingleUse((application) -> {
-        application.addPrimarySources(this.sources);
+      ApplicationHook hook = ApplicationHook.forSingleUse(application -> {
+        application.addPrimarySources(sources);
+        application.setAdditionalProfiles(StringUtils.toStringArray(additionalProfiles));
         return runListener;
       });
       withHook(hook, () -> this.main.accept(args));
@@ -1648,9 +1666,10 @@ public class Application {
      * {@link ApplicationStartupListener} to capture {@link Running} application
      * details.
      */
-    private static class RunListener implements ApplicationStartupListener, Running {
+    private static final class RunListener implements ApplicationStartupListener, Running {
 
-      private final List<ConfigurableApplicationContext> contexts = Collections.synchronizedList(new ArrayList<>());
+      private final List<ConfigurableApplicationContext> contexts = Collections
+              .synchronizedList(new ArrayList<>());
 
       @Override
       public void contextLoaded(ConfigurableApplicationContext context) {
