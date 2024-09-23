@@ -1,7 +1,7 @@
 import cn.taketoday.build.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-description = "Core for Infra AOT infrastructure."
+description = "Core for AOT infrastructure."
 
 def javapoetVersion = "1.13.0"
 

@@ -16,7 +16,7 @@
  */
 
 /**
- * Core package for Infra AOT infrastructure.
+ * Core package for AOT infrastructure.
  */
 @NonNullApi
 @NonNullFields
