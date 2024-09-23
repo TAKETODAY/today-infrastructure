@@ -19,7 +19,8 @@ package cn.taketoday.web.client.config;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
+import java.net.http.HttpClient;
+import java.time.Duration;
 
 import cn.taketoday.aot.hint.ExecutableMode;
 import cn.taketoday.aot.hint.ReflectionHints;
@@ -29,8 +30,9 @@ import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -45,21 +47,21 @@ import cn.taketoday.util.ReflectionUtils;
 class ClientHttpRequestFactoriesRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
-  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     if (ClassUtils.isPresent("cn.taketoday.http.client.ClientHttpRequestFactory", classLoader)) {
       registerHints(hints.reflection(), classLoader);
     }
   }
 
-  private void registerHints(ReflectionHints hints, ClassLoader classLoader) {
+  private void registerHints(ReflectionHints hints, @Nullable ClassLoader classLoader) {
     hints.registerField(findField(ClientHttpRequestFactoryWrapper.class, "requestFactory"));
     hints.registerTypeIfPresent(classLoader, ClientHttpRequestFactories.APACHE_HTTP_CLIENT_CLASS, (typeHint) -> {
       typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.APACHE_HTTP_CLIENT_CLASS));
       registerReflectionHints(hints, HttpComponentsClientHttpRequestFactory.class);
     });
-    hints.registerType(SimpleClientHttpRequestFactory.class, (typeHint) -> {
-      typeHint.onReachableType(HttpURLConnection.class);
-      registerReflectionHints(hints, SimpleClientHttpRequestFactory.class);
+    hints.registerType(JdkClientHttpRequestFactory.class, (typeHint) -> {
+      typeHint.onReachableType(HttpClient.class);
+      registerReflectionHints(hints, JdkClientHttpRequestFactory.class, Duration.class);
     });
   }
 

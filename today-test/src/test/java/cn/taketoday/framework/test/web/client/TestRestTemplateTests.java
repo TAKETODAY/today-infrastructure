@@ -39,7 +39,6 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
@@ -143,7 +142,7 @@ class TestRestTemplateTests {
   @Test
   void restOperationsAreAvailable() {
     RestTemplate delegate = mock(RestTemplate.class);
-    given(delegate.getRequestFactory()).willReturn(new SimpleClientHttpRequestFactory());
+    given(delegate.getRequestFactory()).willReturn(new JdkClientHttpRequestFactory());
     given(delegate.getUriTemplateHandler()).willReturn(new DefaultUriBuilderFactory());
     RestTemplateBuilder builder = mock(RestTemplateBuilder.class);
     given(builder.build()).willReturn(delegate);

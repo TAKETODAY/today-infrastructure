@@ -168,7 +168,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Create a new instance of the {@link RestTemplate} based on the given {@link ClientHttpRequestFactory}.
    *
    * @param requestFactory the HTTP request factory to use
-   * @see cn.taketoday.http.client.SimpleClientHttpRequestFactory
+   * @see cn.taketoday.http.client.JdkClientHttpRequestFactory
    * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   public RestTemplate(ClientHttpRequestFactory requestFactory) {

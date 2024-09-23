@@ -24,25 +24,18 @@ import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
-
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -70,7 +63,6 @@ public abstract class ClientHttpRequestFactories {
    * dependencies {@link ClassUtils#isPresent are available} is returned:
    * <ol>
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
-   * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ol>
    *
    * @param settings the settings to apply
@@ -81,7 +73,7 @@ public abstract class ClientHttpRequestFactories {
     if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
     }
-    return Simple.get(settings);
+    return Jdk.get(settings);
   }
 
   /**
@@ -92,7 +84,6 @@ public abstract class ClientHttpRequestFactories {
    * <ul>
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
    * <li>{@link JdkClientHttpRequestFactory}</li>
-   * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ul>
    * A {@code requestFactoryType} of {@link ClientHttpRequestFactory} is equivalent to
    * calling {@link #get(ClientHttpRequestFactorySettings)}.
@@ -103,8 +94,7 @@ public abstract class ClientHttpRequestFactories {
    * @return a new {@link ClientHttpRequestFactory} instance
    */
   @SuppressWarnings("unchecked")
-  public static <T extends ClientHttpRequestFactory> T get(Class<T> requestFactoryType,
-          ClientHttpRequestFactorySettings settings) {
+  public static <T extends ClientHttpRequestFactory> T get(Class<T> requestFactoryType, ClientHttpRequestFactorySettings settings) {
     Assert.notNull(settings, "Settings is required");
     if (requestFactoryType == ClientHttpRequestFactory.class) {
       return (T) get(settings);
@@ -114,9 +104,6 @@ public abstract class ClientHttpRequestFactories {
     }
     if (requestFactoryType == JdkClientHttpRequestFactory.class) {
       return (T) Jdk.get(settings);
-    }
-    if (requestFactoryType == SimpleClientHttpRequestFactory.class) {
-      return (T) Simple.get(settings);
     }
     return get(() -> createRequestFactory(requestFactoryType), settings);
   }
@@ -210,50 +197,6 @@ public abstract class ClientHttpRequestFactories {
         builder.sslContext(sslBundle.createSslContext());
       }
       return builder.build();
-    }
-
-  }
-
-  /**
-   * Support for {@link SimpleClientHttpRequestFactory}.
-   */
-  static class Simple {
-
-    static SimpleClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
-      SslBundle sslBundle = settings.sslBundle();
-      SimpleClientHttpRequestFactory requestFactory = sslBundle != null
-              ? new SimpleClientHttpsRequestFactory(sslBundle)
-              : new SimpleClientHttpRequestFactory();
-      Assert.state(sslBundle == null || !sslBundle.getOptions().isSpecified(),
-              "SSL Options cannot be specified with Java connections");
-      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-      map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
-      map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
-      return requestFactory;
-    }
-
-    /**
-     * {@link SimpleClientHttpsRequestFactory} to configure SSL from an
-     * {@link SslBundle}.
-     */
-    private static class SimpleClientHttpsRequestFactory extends SimpleClientHttpRequestFactory {
-
-      @Nullable
-      private final SslBundle sslBundle;
-
-      SimpleClientHttpsRequestFactory(@Nullable SslBundle sslBundle) {
-        this.sslBundle = sslBundle;
-      }
-
-      @Override
-      protected void prepareConnection(HttpURLConnection connection, HttpMethod httpMethod) throws IOException {
-        super.prepareConnection(connection, httpMethod);
-        if (sslBundle != null && connection instanceof HttpsURLConnection secureConnection) {
-          SSLSocketFactory socketFactory = this.sslBundle.createSslContext().getSocketFactory();
-          secureConnection.setSSLSocketFactory(socketFactory);
-        }
-      }
-
     }
 
   }

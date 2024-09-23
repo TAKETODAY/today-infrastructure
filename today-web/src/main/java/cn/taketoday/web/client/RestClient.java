@@ -421,9 +421,7 @@ public interface RestClient {
      * {@linkplain cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory Apache Http Client},
      * if available on the classpath, and defaults to the
      * {@linkplain cn.taketoday.http.client.JdkClientHttpRequestFactory JDK HttpClient}
-     * if the {@code java.net.http} module is loaded, or to a
-     * {@linkplain cn.taketoday.http.client.SimpleClientHttpRequestFactory simple default}
-     * otherwise.
+     * if the {@code java.net.http} module is loaded
      *
      * @param requestFactory the request factory to use
      * @return this builder

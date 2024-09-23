@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.config;
@@ -29,7 +29,6 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -52,13 +51,6 @@ class ClientHttpRequestFactoriesTests {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactory.class,
             ClientHttpRequestFactorySettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
-  }
-
-  @Test
-  void getOfSimpleFactoryReturnsSimpleFactory() {
-    ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(SimpleClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
-    assertThat(requestFactory).isInstanceOf(SimpleClientHttpRequestFactory.class);
   }
 
   @Test
@@ -134,22 +126,22 @@ class ClientHttpRequestFactoriesTests {
 
   @Test
   void connectTimeoutCanBeConfiguredOnAWrappedRequestFactory() {
-    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     BufferingClientHttpRequestFactory result = ClientHttpRequestFactories.get(
             () -> new BufferingClientHttpRequestFactory(requestFactory),
             ClientHttpRequestFactorySettings.DEFAULTS.withConnectTimeout(Duration.ofMillis(1234)));
     assertThat(result).extracting("requestFactory").isSameAs(requestFactory);
-    assertThat(requestFactory).hasFieldOrPropertyWithValue("connectTimeout", 1234);
+    assertThat(requestFactory).hasFieldOrPropertyWithValue("connectTimeout", 1234L);
   }
 
   @Test
   void readTimeoutCanBeConfiguredOnAWrappedRequestFactory() {
-    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
     BufferingClientHttpRequestFactory result = ClientHttpRequestFactories.get(
             () -> new BufferingClientHttpRequestFactory(requestFactory),
             ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofMillis(1234)));
     assertThat(result).extracting("requestFactory").isSameAs(requestFactory);
-    assertThat(requestFactory).hasFieldOrPropertyWithValue("readTimeout", 1234);
+    assertThat(requestFactory).hasFieldOrPropertyWithValue("readTimeout", Duration.ofMillis(1234));
   }
 
   public static class TestClientHttpRequestFactory implements ClientHttpRequestFactory {

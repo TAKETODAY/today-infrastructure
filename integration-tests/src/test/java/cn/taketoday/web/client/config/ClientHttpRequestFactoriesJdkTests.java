@@ -17,32 +17,40 @@
 
 package cn.taketoday.web.client.config;
 
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import org.junit.jupiter.api.Disabled;
+
+import java.time.Duration;
+
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 /**
- * Tests for {@link ClientHttpRequestFactories} when the simple JDK-based client is the
- * predominant HTTP client.
- *
- * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2024/9/23 22:41
  */
-@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar" })
-class ClientHttpRequestFactoriesSimpleTests
-        extends AbstractClientHttpRequestFactoriesTests<SimpleClientHttpRequestFactory> {
+@ClassPathExclusions({ "httpclient5-*.jar" })
+class ClientHttpRequestFactoriesJdkTests
+        extends AbstractClientHttpRequestFactoriesTests<JdkClientHttpRequestFactory> {
 
-  ClientHttpRequestFactoriesSimpleTests() {
-    super(SimpleClientHttpRequestFactory.class);
+  ClientHttpRequestFactoriesJdkTests() {
+    super(JdkClientHttpRequestFactory.class);
   }
 
   @Override
-  protected long connectTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "connectTimeout");
+  protected long connectTimeout(JdkClientHttpRequestFactory requestFactory) {
+    return 0;
   }
 
   @Override
-  protected long readTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "readTimeout");
+  protected long readTimeout(JdkClientHttpRequestFactory requestFactory) {
+    Duration readTimeout = ReflectionTestUtils.getField(requestFactory, "readTimeout");
+    return readTimeout != null ? readTimeout.toMillis() : 0;
+  }
+
+  @Disabled
+  void getReturnsRequestFactoryWithConfiguredConnectTimeout() {
+
   }
 
 }

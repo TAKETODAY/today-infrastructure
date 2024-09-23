@@ -42,7 +42,6 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -257,8 +256,8 @@ class RestTemplateBuilderTests {
 
   @Test
   void requestFactoryClassShouldApply() {
-    RestTemplate template = this.builder.requestFactory(SimpleClientHttpRequestFactory.class).build();
-    assertThat(template.getRequestFactory()).isInstanceOf(SimpleClientHttpRequestFactory.class);
+    RestTemplate template = this.builder.requestFactory(JdkClientHttpRequestFactory.class).build();
+    assertThat(template.getRequestFactory()).isInstanceOf(JdkClientHttpRequestFactory.class);
   }
 
   @Test
@@ -476,7 +475,7 @@ class RestTemplateBuilderTests {
 
   @Test
   void unwrappingDoesNotAffectRequestFactoryThatIsSetOnTheBuiltTemplate() {
-    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
     RestTemplate template = this.builder.requestFactory(() -> new BufferingClientHttpRequestFactory(requestFactory))
             .build();
     assertThat(template.getRequestFactory()).isInstanceOf(BufferingClientHttpRequestFactory.class);
@@ -491,7 +490,7 @@ class RestTemplateBuilderTests {
 
   }
 
-  static class TestClientHttpRequestFactory extends SimpleClientHttpRequestFactory {
+  static class TestClientHttpRequestFactory extends JdkClientHttpRequestFactory {
 
   }
 

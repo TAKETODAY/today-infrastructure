@@ -21,13 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.time.Duration;
 
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.predicate.ReflectionHintsPredicates;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,9 +65,7 @@ class ClientHttpRequestFactoriesRuntimeHintsTests {
     RuntimeHints hints = new RuntimeHints();
     new ClientHttpRequestFactoriesRuntimeHints().registerHints(hints, getClass().getClassLoader());
     ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
-    assertThat(reflection.onMethod(method(SimpleClientHttpRequestFactory.class, "setConnectTimeout", int.class)))
-            .accepts(hints);
-    assertThat(reflection.onMethod(method(SimpleClientHttpRequestFactory.class, "setReadTimeout", int.class)))
+    assertThat(reflection.onMethod(method(JdkClientHttpRequestFactory.class, "setReadTimeout", Duration.class)))
             .accepts(hints);
   }
 

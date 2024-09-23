@@ -52,7 +52,6 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.ReactorClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -93,7 +92,6 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 
   public static Stream<Named<ClientHttpRequestFactory>> clientHttpRequestFactories() {
     return Stream.of(
-            named("JDK HttpURLConnection", new SimpleClientHttpRequestFactory()),
             named("HttpComponents", new HttpComponentsClientHttpRequestFactory()),
             named("JDK HttpClient", new JdkClientHttpRequestFactory()),
             named("Reactor Netty", new ReactorClientHttpRequestFactory())
@@ -223,9 +221,6 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 
   @ParameterizedRestTemplateTest
   void patchForObject(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
-    assumeFalse(clientHttpRequestFactory instanceof SimpleClientHttpRequestFactory,
-            "HttpURLConnection does not support the PATCH method");
-
     setUpClient(clientHttpRequestFactory);
 
     String s = template.patchForObject(baseUrl + "/{method}", helloWorld, String.class, "patch");
@@ -258,9 +253,9 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
                     template.execute(url, HttpMethod.GET, null, null))
             .satisfies(ex -> {
               assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-              assertThat(ex.getMessage()).containsSubsequence("400", "on GET request for \""+url+ "\": [no body]");
+              assertThat(ex.getMessage()).containsSubsequence("400", "on GET request for \"" + url + "\": [no body]");
               assumeFalse(clientHttpRequestFactory instanceof JdkClientHttpRequestFactory, "JDK HttpClient does not expose status text");
-              assertThat(ex.getMessage()).isEqualTo("400 Client Error on GET request for \""+url+ "\": [no body]");
+              assertThat(ex.getMessage()).isEqualTo("400 Client Error on GET request for \"" + url + "\": [no body]");
             });
   }
 

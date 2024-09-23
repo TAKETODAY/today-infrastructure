@@ -34,7 +34,6 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -423,13 +422,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpRequestFactory();
     }
-    else if (jdkClientPresent) {
-      // java.net.http module might not be loaded, so we can't default to the JDK HttpClient
-      return new JdkClientHttpRequestFactory();
-    }
-    else {
-      return new SimpleClientHttpRequestFactory();
-    }
+    return new JdkClientHttpRequestFactory();
   }
 
   private UriBuilderFactory initUriBuilderFactory() {

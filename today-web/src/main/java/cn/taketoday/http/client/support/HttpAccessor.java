@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.support;
@@ -28,7 +28,6 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -61,13 +60,13 @@ public abstract class HttpAccessor {
 
   /**
    * Set the request factory that this accessor uses for obtaining client request handles.
-   * <p>The default is a {@link SimpleClientHttpRequestFactory} based on the JDK's own
+   * <p>The default is a {@link JdkClientHttpRequestFactory} based on the JDK's own
    * HTTP libraries ({@link java.net.HttpURLConnection}).
    * <p><b>Note that the standard JDK HTTP library does not support the HTTP PATCH method.
    * Configure the Apache HttpComponents or OkHttp request factory to enable PATCH.</b>
    *
    * @see #createRequest(URI, HttpMethod)
-   * @see SimpleClientHttpRequestFactory
+   * @see JdkClientHttpRequestFactory
    * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   public void setRequestFactory(ClientHttpRequestFactory requestFactory) {

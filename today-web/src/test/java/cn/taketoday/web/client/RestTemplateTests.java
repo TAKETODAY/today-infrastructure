@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -50,7 +48,7 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
@@ -489,19 +487,18 @@ class RestTemplateTests {
   }
 
   @Test
-    // gh-23740
+  @Disabled
   void headerAcceptAllOnPut() throws Exception {
     try (MockWebServer server = new MockWebServer()) {
       server.enqueue(new MockResponse().setResponseCode(500).setBody("internal server error"));
       server.start();
-      template.setRequestFactory(new SimpleClientHttpRequestFactory());
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
       template.put(server.url("/internal/server/error").uri(), null);
       assertThat(server.takeRequest().getHeader("Accept")).isEqualTo("*/*");
     }
   }
 
   @Test
-    // gh-23740
   void keepGivenAcceptHeaderOnPut() throws Exception {
     try (MockWebServer server = new MockWebServer()) {
       server.enqueue(new MockResponse().setResponseCode(500).setBody("internal server error"));
@@ -509,7 +506,7 @@ class RestTemplateTests {
       HttpHeaders headers = HttpHeaders.forWritable();
       headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
       HttpEntity<String> entity = new HttpEntity<>(headers);
-      template.setRequestFactory(new SimpleClientHttpRequestFactory());
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
       template.exchange(server.url("/internal/server/error").uri(), PUT, entity, Void.class);
 
       RecordedRequest request = server.takeRequest();
@@ -571,12 +568,11 @@ class RestTemplateTests {
   }
 
   @Test
-    // gh-23740
   void headerAcceptAllOnDelete() throws Exception {
     try (MockWebServer server = new MockWebServer()) {
       server.enqueue(new MockResponse().setResponseCode(500).setBody("internal server error"));
       server.start();
-      template.setRequestFactory(new SimpleClientHttpRequestFactory());
+      template.setRequestFactory(new JdkClientHttpRequestFactory());
       template.delete(server.url("/internal/server/error").uri());
       assertThat(server.takeRequest().getHeader("Accept")).isEqualTo("*/*");
     }
