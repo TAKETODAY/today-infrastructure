@@ -28,6 +28,7 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 /**
@@ -141,6 +142,11 @@ public class MockClientHttpRequest extends MockHttpOutputMessage implements Clie
   public final ClientHttpResponse execute() throws IOException {
     this.executed = true;
     return executeInternal();
+  }
+
+  @Override
+  public Future<ClientHttpResponse> async() {
+    return Future.run(this::execute);
   }
 
   /**
