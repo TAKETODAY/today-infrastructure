@@ -64,9 +64,9 @@ class BindValidationFailureAnalyzerTests {
   @Test
   void bindExceptionWithFieldErrorsDueToValidationFailure() {
     FailureAnalysis analysis = performAnalysis(FieldValidationFailureConfiguration.class);
-    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "is required"))
+    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "must not be null"))
             .contains(failure("test.foo.value", "0", "at least five"))
-            .contains(failure("test.foo.nested.bar", "null", "is required"))
+            .contains(failure("test.foo.nested.bar", "null", "must not be null"))
             .contains(
                     "Binding to target cn.taketoday.framework.diagnostics.analyzer.BindValidationFailureAnalyzerTests$FieldValidationFailureProperties failed:");
   }
