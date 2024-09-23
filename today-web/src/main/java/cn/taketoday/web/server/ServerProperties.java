@@ -101,7 +101,7 @@ public class ServerProperties {
    * Type of shutdown that the server will support.
    */
   @Nullable
-  public Shutdown shutdown = Shutdown.IMMEDIATE;
+  public Shutdown shutdown = Shutdown.GRACEFUL;
 
   @Nullable
   @NestedConfigurationProperty
