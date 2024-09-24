@@ -77,6 +77,7 @@ public interface ClientHttpRequest extends HttpRequest, HttpOutputMessage {
    * <p>
    * NOT Fully async {@link ClientHttpResponse#getBody()}
    *
+   * @param executor request executor. Virtual thread executor is better
    * @return the async response result of the execution
    * @since 5.0
    */
