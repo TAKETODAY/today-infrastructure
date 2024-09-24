@@ -146,13 +146,13 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
   }
 
   @Override
-  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     HttpClient.RequestSender requestSender = httpClient
             .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
 
     requestSender = uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString());
 
-    Promise<ClientHttpResponse> promise = Future.forPromise();
+    Promise<ClientHttpResponse> promise = Future.forPromise(executor);
     requestSender.send((reactorRequest, nettyOutbound) -> send(headers, body, reactorRequest, nettyOutbound))
             .responseConnection((reactorResponse, connection) -> Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, readTimeout)))
             .next()

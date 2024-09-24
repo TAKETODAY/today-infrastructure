@@ -19,6 +19,7 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.AbstractHttpRequest;
 import cn.taketoday.http.HttpHeaders;
@@ -72,10 +73,10 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
   }
 
   @Override
-  public Future<ClientHttpResponse> async() {
+  public Future<ClientHttpResponse> async(@Nullable Executor executor) {
     assertNotExecuted();
     this.executed = true;
-    return asyncInternal(headers);
+    return asyncInternal(headers, executor);
   }
 
   /**
@@ -111,9 +112,9 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
    * @param headers the HTTP headers
    * @return the response object for the executed request
    */
-  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers) {
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Executor executor) {
     // todo 这样实现肯定不行
-    return Future.run(() -> executeInternal(headers));
+    return Future.run(() -> executeInternal(headers), executor);
   }
 
 }

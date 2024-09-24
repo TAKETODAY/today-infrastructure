@@ -22,11 +22,13 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.test.web.client.ExpectedCount;
 import cn.taketoday.test.web.client.MockRestServiceServer;
@@ -200,6 +202,11 @@ public class RootUriRequestExpectationManager implements RequestExpectationManag
     @Override
     public Future<ClientHttpResponse> async() {
       return getRequest().async();
+    }
+
+    @Override
+    public Future<ClientHttpResponse> async(@Nullable Executor executor) {
+      return getRequest().async(executor);
     }
 
     @Override

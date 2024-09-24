@@ -616,14 +616,9 @@ final class DefaultRestClient implements RestClient {
 
     private <T> ResponseEntity<T> toEntityInternal(Type bodyType, Class<T> bodyClass) {
       T body = readBody(bodyType, bodyClass);
-      try {
-        return ResponseEntity.status(this.clientResponse.getStatusCode())
-                .headers(this.clientResponse.getHeaders())
-                .body(body);
-      }
-      catch (IOException ex) {
-        throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
-      }
+      return ResponseEntity.status(this.clientResponse.getStatusCode())
+              .headers(this.clientResponse.getHeaders())
+              .body(body);
     }
 
     @Override
@@ -636,9 +631,6 @@ final class DefaultRestClient implements RestClient {
       }
       catch (UncheckedIOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex.getCause());
-      }
-      catch (IOException ex) {
-        throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
       }
     }
 
@@ -699,12 +691,17 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public HttpStatusCode getStatusCode() throws IOException {
+    public HttpStatusCode getStatusCode() {
       return this.delegate.getStatusCode();
     }
 
     @Override
-    public String getStatusText() throws IOException {
+    public int getRawStatusCode() {
+      return delegate.getRawStatusCode();
+    }
+
+    @Override
+    public String getStatusText() {
       return this.delegate.getStatusText();
     }
 

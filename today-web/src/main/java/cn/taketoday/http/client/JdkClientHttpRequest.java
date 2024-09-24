@@ -123,9 +123,9 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
   }
 
   @Override
-  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     HttpRequest request = buildRequest(headers, body);
-    return Future.forAdaption(httpClient.sendAsync(request, BodyHandlers.ofInputStream()))
+    return Future.forAdaption(httpClient.sendAsync(request, BodyHandlers.ofInputStream()), executor)
             .map(JdkClientHttpResponse::new);
   }
 

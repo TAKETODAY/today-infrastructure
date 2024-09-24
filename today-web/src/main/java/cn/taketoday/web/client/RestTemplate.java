@@ -32,7 +32,6 @@ import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
@@ -702,8 +701,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    */
   @Nullable
-  protected <T> T doExecute(URI url, @Nullable HttpMethod method,
-          @Nullable RequestCallback requestCallback, @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
+  protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
 
     Assert.notNull(url, "URI is required");
     Assert.notNull(method, "HttpMethod is required");
@@ -746,13 +745,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     ResponseErrorHandler errorHandler = getErrorHandler();
     boolean hasError = errorHandler.hasError(response);
     if (logger.isDebugEnabled()) {
-      try {
-        HttpStatusCode status = response.getStatusCode();
-        logger.debug("{} Response {}", url, status);
-      }
-      catch (IOException ex) {
-        logger.debug("Failed to get response status code", ex);
-      }
+      logger.debug("{} Response {}", url, response.getStatusCode());
     }
     if (hasError) {
       errorHandler.handleError(url, method, response);
@@ -965,6 +958,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * Response extractor for {@link HttpEntity}.
    */
   private class ResponseEntityResponseExtractor<T> implements ResponseExtractor<ResponseEntity<T>> {
+
     @Nullable
     private final HttpMessageConverterExtractor<T> delegate;
 

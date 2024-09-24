@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -26,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -181,6 +179,17 @@ abstract class AbstractHttpRequestFactoryTests extends AbstractMockWebServerTest
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
     }
+  }
+
+  @Test
+  void async() throws Exception {
+    URI uri = new URI(baseUrl + "/params?param1=value&param2=value1&param2=value2");
+    ClientHttpRequest request = factory.createRequest(uri, HttpMethod.GET);
+
+    var future = request.async();
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1))
+            .extracting(ClientHttpResponse::getStatusCode)
+            .as("Invalid status code").isEqualTo(HttpStatus.OK);
   }
 
 }

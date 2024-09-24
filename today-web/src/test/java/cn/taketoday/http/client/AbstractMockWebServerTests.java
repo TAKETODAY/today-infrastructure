@@ -20,9 +20,6 @@ package cn.taketoday.http.client;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.Collections;
-
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StringUtils;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -41,9 +38,6 @@ public abstract class AbstractMockWebServerTests {
   protected int port;
 
   protected String baseUrl;
-
-  protected static final MediaType textContentType =
-          new MediaType("text", "plain", Collections.singletonMap("charset", "UTF-8"));
 
   @BeforeEach
   public void setUp() throws Exception {

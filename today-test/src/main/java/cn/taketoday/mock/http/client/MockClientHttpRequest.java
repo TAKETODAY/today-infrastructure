@@ -20,6 +20,7 @@ package cn.taketoday.mock.http.client;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
@@ -113,8 +114,8 @@ public class MockClientHttpRequest extends MockHttpOutputMessage implements Clie
   }
 
   @Override
-  public Future<ClientHttpResponse> async() {
-    return Future.run(this::execute);
+  public Future<ClientHttpResponse> async(@Nullable Executor executor) {
+    return Future.run(this::execute, executor);
   }
 
   /**

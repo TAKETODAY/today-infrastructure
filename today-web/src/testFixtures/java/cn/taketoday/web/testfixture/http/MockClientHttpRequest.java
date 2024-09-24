@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MockHttpOutputMessage;
@@ -145,8 +146,8 @@ public class MockClientHttpRequest extends MockHttpOutputMessage implements Clie
   }
 
   @Override
-  public Future<ClientHttpResponse> async() {
-    return Future.run(this::execute);
+  public Future<ClientHttpResponse> async(@Nullable Executor executor) {
+    return Future.run(this::execute, executor);
   }
 
   /**

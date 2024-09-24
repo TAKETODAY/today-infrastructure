@@ -19,6 +19,7 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.StreamingHttpOutputMessage;
@@ -72,11 +73,11 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
   }
 
   @Override
-  protected final Future<ClientHttpResponse> asyncInternal(HttpHeaders headers) {
+  protected final Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Executor executor) {
     if (this.body == null && this.bodyStream != null) {
       this.body = outputStream -> this.bodyStream.writeTo(outputStream);
     }
-    return asyncInternal(headers, body);
+    return asyncInternal(headers, body, executor);
   }
 
   /**
@@ -96,9 +97,9 @@ abstract class AbstractStreamingClientHttpRequest extends AbstractClientHttpRequ
    * @param body the HTTP body, may be {@code null} if no body was {@linkplain #setBody(Body) set}
    * @return the response object for the executed request
    */
-  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body) {
+  protected Future<ClientHttpResponse> asyncInternal(HttpHeaders headers, @Nullable Body body, @Nullable Executor executor) {
     // todo 这样实现肯定不行
-    return Future.run(() -> executeInternal(headers, body));
+    return Future.run(() -> executeInternal(headers, body), executor);
   }
 
 }

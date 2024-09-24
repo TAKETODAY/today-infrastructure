@@ -18,10 +18,12 @@
 package cn.taketoday.http.client;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.HttpRequest;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.Future;
 
 /**
@@ -49,9 +51,35 @@ public interface ClientHttpRequest extends HttpRequest, HttpOutputMessage {
   /**
    * Execute this request async, resulting in a {@code Future<ClientHttpResponse>} that can be read.
    *
+   * <p> The returned future completes exceptionally with:
+   * <ul>
+   * <li>{@link IOException} - if an I/O error occurs when sending or receiving</li>
+   * </ul>
+   *
+   * <p>
+   * NOT Fully async {@link ClientHttpResponse#getBody()}
+   *
    * @return the async response result of the execution
    * @since 5.0
    */
-  Future<ClientHttpResponse> async();
+  default Future<ClientHttpResponse> async() {
+    return async(null);
+  }
+
+  /**
+   * Execute this request async, resulting in a {@code Future<ClientHttpResponse>} that can be read.
+   *
+   * <p> The returned future completes exceptionally with:
+   * <ul>
+   * <li>{@link IOException} - if an I/O error occurs when sending or receiving</li>
+   * </ul>
+   *
+   * <p>
+   * NOT Fully async {@link ClientHttpResponse#getBody()}
+   *
+   * @return the async response result of the execution
+   * @since 5.0
+   */
+  Future<ClientHttpResponse> async(@Nullable Executor executor);
 
 }
