@@ -73,7 +73,7 @@ public abstract class AbstractClientHttpRequest extends AbstractHttpRequest impl
   }
 
   @Override
-  public Future<ClientHttpResponse> async(@Nullable Executor executor) {
+  public final Future<ClientHttpResponse> async(@Nullable Executor executor) {
     assertNotExecuted();
     this.executed = true;
     return asyncInternal(headers, executor);

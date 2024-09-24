@@ -53,6 +53,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * </pre>
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>32
  * @see RootUriTemplateHandler
  * @see #bindTo(RestTemplate)
  * @see #forRestTemplate(RestTemplate, RequestExpectationManager)
