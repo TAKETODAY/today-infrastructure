@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.function.Predicate;
 
 import cn.taketoday.http.client.ClientHttpResponse;
-import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
+import cn.taketoday.web.client.RestClient.ErrorHandler;
 
 /**
  * A basic, no operation {@link ResponseErrorHandler} implementation suitable

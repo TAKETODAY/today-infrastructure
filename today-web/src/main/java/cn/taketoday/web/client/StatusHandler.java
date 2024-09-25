@@ -50,14 +50,14 @@ final class StatusHandler {
 
   private final ResponsePredicate predicate;
 
-  private final RestClient.ResponseSpec.ErrorHandler errorHandler;
+  private final RestClient.ErrorHandler errorHandler;
 
-  private StatusHandler(ResponsePredicate predicate, RestClient.ResponseSpec.ErrorHandler errorHandler) {
+  private StatusHandler(ResponsePredicate predicate, RestClient.ErrorHandler errorHandler) {
     this.predicate = predicate;
     this.errorHandler = errorHandler;
   }
 
-  public static StatusHandler of(Predicate<HttpStatusCode> predicate, RestClient.ResponseSpec.ErrorHandler errorHandler) {
+  public static StatusHandler of(Predicate<HttpStatusCode> predicate, RestClient.ErrorHandler errorHandler) {
     Assert.notNull(predicate, "Predicate is required");
     Assert.notNull(errorHandler, "ErrorHandler is required");
 

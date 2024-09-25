@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import cn.taketoday.core.Pair;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
@@ -60,7 +61,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
 
@@ -174,14 +174,14 @@ final class DefaultRestClient implements RestClient {
 
   @Nullable
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable Runnable callback, Type bodyType, Class<T> bodyClass) {
+  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable Consumer<ClientHttpResponse> callback, Type bodyType, Class<T> bodyClass) {
     MediaType contentType = getContentType(clientResponse);
 
     // todo callback
 
     try (IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
       if (callback != null) {
-        callback.run();
+        callback.accept(clientResponse);
       }
 
       if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
@@ -461,17 +461,27 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public AsyncResponseSpec async(@Nullable Executor executor) {
-      URI uri = null;
-      try {
-        uri = initUri();
-        var clientRequest = createRequest(uri);
+    public AsyncSpec async(@Nullable Executor executor) {
+      var pair = executeAsyncInternal(executor);
+      return new DefaultAsyncSpec(pair.first, pair.second);
+    }
 
-        Future<ClientHttpResponse> clientResponse = clientRequest.async(executor);
-        return new DefaultAsyncResponseSpec(clientRequest, clientResponse);
+    @Override
+    public Future<ClientHttpResponse> executeAsync(@Nullable Executor executor) {
+      return executeAsyncInternal(executor).second;
+    }
+
+    private Pair<ClientHttpRequest, Future<ClientHttpResponse>> executeAsyncInternal(@Nullable Executor executor) {
+      ClientHttpRequest clientRequest = null;
+      try {
+        URI uri = initUri();
+        clientRequest = createRequest(uri);
+        return Pair.of(clientRequest, clientRequest.async(executor).catching(IOException.class, ex -> {
+          throw createResourceAccessException(uri, this.httpMethod, ex);
+        }));
       }
-      catch (IOException ex) {
-        throw createResourceAccessException(uri, this.httpMethod, ex);
+      catch (Throwable e) {
+        return Pair.of(clientRequest, Future.failed(e));
       }
     }
 
@@ -493,12 +503,10 @@ final class DefaultRestClient implements RestClient {
     private <T> T exchangeInternal(ExchangeFunction<T> exchangeFunction, boolean close) {
       Assert.notNull(exchangeFunction, "ExchangeFunction is required");
 
+      URI uri = initUri();
+      var clientRequest = createRequest(uri);
       ClientHttpResponse clientResponse = null;
-      URI uri = null;
       try {
-        uri = initUri();
-        var clientRequest = createRequest(uri);
-
         clientResponse = clientRequest.execute();
         var convertibleWrapper = new DefaultConvertibleClientHttpResponse(clientResponse);
         return exchangeFunction.exchange(clientRequest, convertibleWrapper);
@@ -517,7 +525,7 @@ final class DefaultRestClient implements RestClient {
       return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
     }
 
-    private ClientHttpRequest createRequest(URI uri) throws IOException {
+    private ClientHttpRequest createRequest(URI uri) throws ResourceAccessException {
       ClientHttpRequestFactory factory;
       if (interceptors != null) {
         factory = interceptingRequestFactory;
@@ -529,26 +537,32 @@ final class DefaultRestClient implements RestClient {
       else {
         factory = clientRequestFactory;
       }
-      ClientHttpRequest request = factory.createRequest(uri, this.httpMethod);
-      if (initializers != null) {
-        for (ClientHttpRequestInitializer initializer : initializers) {
-          initializer.initialize(request);
+
+      try {
+        ClientHttpRequest request = factory.createRequest(uri, this.httpMethod);
+        HttpHeaders headers = request.getHeaders();
+        headers.setAll(defaultHeaders);
+        headers.setAll(this.headers);
+        request.setAttributes(attributes);
+
+        if (initializers != null) {
+          for (ClientHttpRequestInitializer initializer : initializers) {
+            initializer.initialize(request);
+          }
         }
-      }
 
-      HttpHeaders headers = request.getHeaders();
-      headers.setAll(defaultHeaders);
-      headers.setAll(this.headers);
-      request.setAttributes(attributes);
-      if (this.body != null) {
-        this.body.writeTo(request);
-      }
+        if (this.body != null) {
+          this.body.writeTo(request);
+        }
 
-      if (httpRequestConsumer != null) {
-        httpRequestConsumer.accept(request);
+        if (httpRequestConsumer != null) {
+          httpRequestConsumer.accept(request);
+        }
+        return request;
       }
-
-      return request;
+      catch (IOException ex) {
+        throw createResourceAccessException(uri, this.httpMethod, ex);
+      }
     }
 
     private static ResourceAccessException createResourceAccessException(URI url, HttpMethod method, IOException ex) {
@@ -609,8 +623,8 @@ final class DefaultRestClient implements RestClient {
     private ResponseSpec onStatusInternal(StatusHandler statusHandler) {
       Assert.notNull(statusHandler, "StatusHandler is required");
 
-      int index = this.statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
-      this.statusHandlers.add(index, statusHandler);
+      int index = statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
+      statusHandlers.add(index, statusHandler);
       return this;
     }
 
@@ -640,17 +654,17 @@ final class DefaultRestClient implements RestClient {
 
     private <T> ResponseEntity<T> toEntityInternal(Type bodyType, Class<T> bodyClass) {
       T body = readBody(bodyType, bodyClass);
-      return ResponseEntity.status(this.clientResponse.getStatusCode())
-              .headers(this.clientResponse.getHeaders())
+      return ResponseEntity.status(clientResponse.getStatusCode())
+              .headers(clientResponse.getHeaders())
               .body(body);
     }
 
     @Override
     public ResponseEntity<Void> toBodilessEntity() {
-      try (this.clientResponse) {
-        applyStatusHandlers();
-        return ResponseEntity.status(this.clientResponse.getStatusCode())
-                .headers(this.clientResponse.getHeaders())
+      try (clientResponse) {
+        applyStatusHandlers(clientResponse);
+        return ResponseEntity.status(clientResponse.getStatusCode())
+                .headers(clientResponse.getHeaders())
                 .build();
       }
       catch (UncheckedIOException ex) {
@@ -660,12 +674,11 @@ final class DefaultRestClient implements RestClient {
 
     @Nullable
     private <T> T readBody(Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(this.clientResponse, this::applyStatusHandlers, bodyType, bodyClass);
+      return readWithMessageConverters(clientResponse, this::applyStatusHandlers, bodyType, bodyClass);
     }
 
-    private void applyStatusHandlers() {
+    private void applyStatusHandlers(ClientHttpResponse response) {
       try {
-        ClientHttpResponse response = this.clientResponse;
         if (response instanceof DefaultConvertibleClientHttpResponse convertibleResponse) {
           response = convertibleResponse.delegate;
         }
@@ -682,7 +695,7 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private class DefaultAsyncResponseSpec implements AsyncResponseSpec {
+  private class DefaultAsyncSpec implements AsyncSpec {
 
     private final HttpRequest clientRequest;
 
@@ -692,7 +705,7 @@ final class DefaultRestClient implements RestClient {
 
     private final int defaultStatusHandlerCount;
 
-    DefaultAsyncResponseSpec(HttpRequest clientRequest, Future<ClientHttpResponse> clientResponse) {
+    DefaultAsyncSpec(HttpRequest clientRequest, Future<ClientHttpResponse> clientResponse) {
       this.clientRequest = clientRequest;
       this.clientResponse = clientResponse;
       this.statusHandlers.addAll(defaultStatusHandlers);
@@ -701,19 +714,19 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public AsyncResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
+    public AsyncSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
       Assert.notNull(errorHandler, "ErrorHandler is required");
       Assert.notNull(statusPredicate, "StatusPredicate is required");
       return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
     }
 
     @Override
-    public AsyncResponseSpec onStatus(ResponseErrorHandler errorHandler) {
+    public AsyncSpec onStatus(ResponseErrorHandler errorHandler) {
       Assert.notNull(errorHandler, "ResponseErrorHandler is required");
       return onStatusInternal(StatusHandler.fromErrorHandler(errorHandler));
     }
 
-    private AsyncResponseSpec onStatusInternal(StatusHandler statusHandler) {
+    private AsyncSpec onStatusInternal(StatusHandler statusHandler) {
       Assert.notNull(statusHandler, "StatusHandler is required");
 
       int index = this.statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
@@ -774,7 +787,7 @@ final class DefaultRestClient implements RestClient {
 
     @Nullable
     private <T> T readBody(ClientHttpResponse response, Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(response, () -> applyStatusHandlers(response), bodyType, bodyClass);
+      return readWithMessageConverters(response, this::applyStatusHandlers, bodyType, bodyClass);
     }
 
     private void applyStatusHandlers(ClientHttpResponse response) {
@@ -782,9 +795,10 @@ final class DefaultRestClient implements RestClient {
         if (response instanceof DefaultConvertibleClientHttpResponse cr) {
           response = cr.delegate;
         }
-        for (StatusHandler handler : this.statusHandlers) {
+
+        for (StatusHandler handler : statusHandlers) {
           if (handler.test(response)) {
-            handler.handle(this.clientRequest, response);
+            handler.handle(clientRequest, response);
             return;
           }
         }

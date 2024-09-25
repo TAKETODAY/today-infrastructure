@@ -276,7 +276,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   @Override
-  public RestClient.Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate, RestClient.ResponseSpec.ErrorHandler errorHandler) {
+  public RestClient.Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate, RestClient.ErrorHandler errorHandler) {
     return defaultStatusHandlerInternal(StatusHandler.of(statusPredicate, errorHandler));
   }
 

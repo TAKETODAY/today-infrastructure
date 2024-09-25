@@ -1083,6 +1083,33 @@ class RestClientIntegrationTests {
     });
   }
 
+  @ParameterizedRestClientTest
+  void executeAsync(ClientHttpRequestFactory requestFactory) throws IOException {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json")
+            .setBody("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}"));
+
+    Future<ClientHttpResponse> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .executeAsync();
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    ClientHttpResponse result = future.getNow();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.getBody()).hasContent("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}");
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
+  }
+
   private void prepareResponse(Consumer<MockResponse> consumer) {
     MockResponse response = new MockResponse();
     consumer.accept(response);
