@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -230,7 +229,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   }
 
   @Override
-  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
     HttpClient client = getHttpClient();
 
     ClassicHttpRequest httpRequest = createHttpUriRequest(httpMethod, uri);

@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -58,6 +59,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
 
@@ -173,6 +176,8 @@ final class DefaultRestClient implements RestClient {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable Runnable callback, Type bodyType, Class<T> bodyClass) {
     MediaType contentType = getContentType(clientResponse);
+
+    // todo callback
 
     try (IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
       if (callback != null) {
@@ -456,6 +461,21 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    public AsyncResponseSpec async(@Nullable Executor executor) {
+      URI uri = null;
+      try {
+        uri = initUri();
+        var clientRequest = createRequest(uri);
+
+        Future<ClientHttpResponse> clientResponse = clientRequest.async(executor);
+        return new DefaultAsyncResponseSpec(clientRequest, clientResponse);
+      }
+      catch (IOException ex) {
+        throw createResourceAccessException(uri, this.httpMethod, ex);
+      }
+    }
+
+    @Override
     public void execute() {
       execute(true);
     }
@@ -478,16 +498,7 @@ final class DefaultRestClient implements RestClient {
       try {
         uri = initUri();
         var clientRequest = createRequest(uri);
-        HttpHeaders headers = clientRequest.getHeaders();
-        headers.setAll(defaultHeaders);
-        headers.setAll(this.headers);
-        clientRequest.setAttributes(attributes);
-        if (this.body != null) {
-          this.body.writeTo(clientRequest);
-        }
-        if (this.httpRequestConsumer != null) {
-          this.httpRequestConsumer.accept(clientRequest);
-        }
+
         clientResponse = clientRequest.execute();
         var convertibleWrapper = new DefaultConvertibleClientHttpResponse(clientResponse);
         return exchangeFunction.exchange(clientRequest, convertibleWrapper);
@@ -524,6 +535,19 @@ final class DefaultRestClient implements RestClient {
           initializer.initialize(request);
         }
       }
+
+      HttpHeaders headers = request.getHeaders();
+      headers.setAll(defaultHeaders);
+      headers.setAll(this.headers);
+      request.setAttributes(attributes);
+      if (this.body != null) {
+        this.body.writeTo(request);
+      }
+
+      if (httpRequestConsumer != null) {
+        httpRequestConsumer.accept(request);
+      }
+
       return request;
     }
 
@@ -644,6 +668,119 @@ final class DefaultRestClient implements RestClient {
         ClientHttpResponse response = this.clientResponse;
         if (response instanceof DefaultConvertibleClientHttpResponse convertibleResponse) {
           response = convertibleResponse.delegate;
+        }
+        for (StatusHandler handler : this.statusHandlers) {
+          if (handler.test(response)) {
+            handler.handle(this.clientRequest, response);
+            return;
+          }
+        }
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    }
+  }
+
+  private class DefaultAsyncResponseSpec implements AsyncResponseSpec {
+
+    private final HttpRequest clientRequest;
+
+    private final Future<ClientHttpResponse> clientResponse;
+
+    private final ArrayList<StatusHandler> statusHandlers = new ArrayList<>(1);
+
+    private final int defaultStatusHandlerCount;
+
+    DefaultAsyncResponseSpec(HttpRequest clientRequest, Future<ClientHttpResponse> clientResponse) {
+      this.clientRequest = clientRequest;
+      this.clientResponse = clientResponse;
+      this.statusHandlers.addAll(defaultStatusHandlers);
+      this.statusHandlers.add(StatusHandler.defaultHandler(messageConverters));
+      this.defaultStatusHandlerCount = this.statusHandlers.size();
+    }
+
+    @Override
+    public AsyncResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
+      Assert.notNull(errorHandler, "ErrorHandler is required");
+      Assert.notNull(statusPredicate, "StatusPredicate is required");
+      return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
+    }
+
+    @Override
+    public AsyncResponseSpec onStatus(ResponseErrorHandler errorHandler) {
+      Assert.notNull(errorHandler, "ResponseErrorHandler is required");
+      return onStatusInternal(StatusHandler.fromErrorHandler(errorHandler));
+    }
+
+    private AsyncResponseSpec onStatusInternal(StatusHandler statusHandler) {
+      Assert.notNull(statusHandler, "StatusHandler is required");
+
+      int index = this.statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
+      this.statusHandlers.add(index, statusHandler);
+      return this;
+    }
+
+    @Override
+    public <T> Future<T> body(Class<T> bodyType) {
+      return clientResponse.map(response -> readBody(response, bodyType, bodyType));
+    }
+
+    @Override
+    public <T> Future<T> body(ParameterizedTypeReference<T> bodyType) {
+      return clientResponse.map(response -> {
+        Type type = bodyType.getType();
+        Class<T> bodyClass = bodyClass(type);
+        return readBody(response, type, bodyClass);
+      });
+    }
+
+    @Override
+    public <T> Future<ResponseEntity<T>> toEntity(Class<T> bodyType) {
+      return toEntityInternal(bodyType, bodyType);
+    }
+
+    @Override
+    public <T> Future<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyType) {
+      Type type = bodyType.getType();
+      Class<T> bodyClass = bodyClass(type);
+      return toEntityInternal(type, bodyClass);
+    }
+
+    private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {
+      return clientResponse.map(response -> {
+        T body = readBody(response, bodyType, bodyClass);
+        return ResponseEntity.status(response.getStatusCode())
+                .headers(response.getHeaders())
+                .body(body);
+      });
+    }
+
+    @Override
+    public Future<ResponseEntity<Void>> toBodilessEntity() {
+      return clientResponse.map(response -> {
+        try (response) {
+          applyStatusHandlers(response);
+          return ResponseEntity.status(response.getStatusCode())
+                  .headers(response.getHeaders())
+                  .build();
+        }
+        catch (UncheckedIOException ex) {
+          throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex.getCause());
+        }
+      });
+
+    }
+
+    @Nullable
+    private <T> T readBody(ClientHttpResponse response, Type bodyType, Class<T> bodyClass) {
+      return readWithMessageConverters(response, () -> applyStatusHandlers(response), bodyType, bodyClass);
+    }
+
+    private void applyStatusHandlers(ClientHttpResponse response) {
+      try {
+        if (response instanceof DefaultConvertibleClientHttpResponse cr) {
+          response = cr.delegate;
         }
         for (StatusHandler handler : this.statusHandlers) {
           if (handler.test(response)) {

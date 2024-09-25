@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.client;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.function.Function;
@@ -196,7 +195,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   @Override
-  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
     HttpClient httpClient = this.httpClient;
     if (httpClient == null) {
       Assert.state(this.resourceFactory != null && this.mapper != null, "Illegal configuration");

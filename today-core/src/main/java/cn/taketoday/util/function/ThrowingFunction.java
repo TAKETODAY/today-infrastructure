@@ -20,6 +20,8 @@ package cn.taketoday.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * A {@link Function} that allows invocation of code that throws a checked
  * exception.
@@ -42,6 +44,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * @return the function result
    * @throws Throwable on error
    */
+  @Nullable
   R applyWithException(T t) throws Throwable;
 
   /**

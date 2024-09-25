@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -50,6 +51,7 @@ import cn.taketoday.http.client.ReactorClientHttpRequestFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.testfixture.Pojo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -342,7 +344,6 @@ class RestClientIntegrationTests {
   }
 
   @ParameterizedRestClientTest
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   void retrieveJsonEmpty(ClientHttpRequestFactory requestFactory) {
     startServer(requestFactory);
 
@@ -944,6 +945,142 @@ class RestClientIntegrationTests {
 
     expectRequestCount(1);
     expectRequest(request -> assertThat(request.getPath()).isEqualTo("/foo%20bar"));
+  }
+
+  // Future
+
+  @ParameterizedRestClientTest
+  void relativeUriFuture(ClientHttpRequestFactory requestFactory) throws URISyntaxException {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response.setHeader("Content-Type", "text/plain")
+            .setBody("Hello Spring!"));
+
+    URI uri = new URI(null, null, "/foo bar", null);
+
+    Future<String> result = this.restClient
+            .get()
+            .uri(uri)
+            .accept(MediaType.TEXT_PLAIN)
+            .async()
+            .body(String.class);
+
+    assertThat(result).succeedsWithin(Duration.ofSeconds(1))
+            .isEqualTo("Hello Spring!");
+
+    expectRequestCount(1);
+    expectRequest(request -> assertThat(request.getPath()).isEqualTo("/foo%20bar"));
+  }
+
+  @ParameterizedRestClientTest
+  void retrieveJsonWithParameterizedTypeReferenceFuture(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    String content = "{\"containerValue\":{\"bar\":\"barbar\",\"foo\":\"foofoo\"}}";
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json").setBody(content));
+
+    Future<ValueContainer<Pojo>> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .body(new ParameterizedTypeReference<>() { });
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+
+    ValueContainer<Pojo> result = future.getNow();
+
+    assertThat(result.getContainerValue()).isNotNull();
+    Pojo pojo = result.getContainerValue();
+    assertThat(pojo.getFoo()).isEqualTo("foofoo");
+    assertThat(pojo.getBar()).isEqualTo("barbar");
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
+  }
+
+  @ParameterizedRestClientTest
+  void retrieveJsonWithListParameterizedTypeReferenceFuture(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    String content = "{\"containerValue\":[{\"bar\":\"barbar\",\"foo\":\"foofoo\"}]}";
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json").setBody(content));
+
+    Future<ValueContainer<List<Pojo>>> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .body(new ParameterizedTypeReference<>() { });
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+
+    ValueContainer<List<Pojo>> result = future.getNow();
+    assertThat(result.containerValue).isNotNull();
+    assertThat(result.containerValue).containsExactly(new Pojo("foofoo", "barbar"));
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
+  }
+
+  @ParameterizedRestClientTest
+  void retrieveJsonAsResponseEntityFuture(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    String content = "{\"bar\":\"barbar\",\"foo\":\"foofoo\"}";
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json").setBody(content));
+
+    Future<ResponseEntity<String>> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .toEntity(String.class);
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    ResponseEntity<String> result = future.getNow();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.getBody()).isEqualTo(content);
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
+  }
+
+  @ParameterizedRestClientTest
+  void retrieveJsonAsBodilessEntityFuture(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json")
+            .setBody("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}"));
+
+    Future<ResponseEntity<Void>> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .toBodilessEntity();
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    ResponseEntity<Void> result = future.getNow();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.getBody()).isNull();
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {

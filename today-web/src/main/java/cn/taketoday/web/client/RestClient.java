@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -44,6 +45,7 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilder;
@@ -651,6 +653,66 @@ public interface RestClient {
     ResponseSpec retrieve();
 
     /**
+     * Proceed to declare how to extract the response. For example to extract
+     * a {@link ResponseEntity} with status, headers, and body:
+     * <p><pre>{@code
+     * Future<ResponseEntity<Person>> entity = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .async()
+     *     .toEntity(Person.class);
+     * }</pre>
+     * <p>Or if interested only in the body:
+     * <p><pre>{@code
+     * Future<Person> person = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .async()
+     *     .body(Person.class);
+     * }</pre>
+     * <p>By default, 4xx response code result in a
+     * {@link HttpClientErrorException} and 5xx response codes in a
+     * {@link HttpServerErrorException}. To customize error handling, use
+     * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
+     *
+     * @return {@code AsyncResponseSpec} to specify how to decode the body
+     * @see ClientHttpRequest#async(Executor)
+     * @since 5.0
+     */
+    default AsyncResponseSpec async() {
+      return async(null);
+    }
+
+    /**
+     * Proceed to declare how to extract the response. For example to extract
+     * a {@link ResponseEntity} with status, headers, and body:
+     * <p><pre>{@code
+     * Future<ResponseEntity<Person>> entity = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .async()
+     *     .toEntity(Person.class);
+     * }</pre>
+     * <p>Or if interested only in the body:
+     * <p><pre>{@code
+     * Future<Person> person = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .async()
+     *     .body(Person.class);
+     * }</pre>
+     * <p>By default, 4xx response code result in a
+     * {@link HttpClientErrorException} and 5xx response codes in a
+     * {@link HttpServerErrorException}. To customize error handling, use
+     * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
+     *
+     * @return {@code AsyncResponseSpec} to specify how to decode the body
+     * @see ClientHttpRequest#async(Executor)
+     * @since 5.0
+     */
+    AsyncResponseSpec async(@Nullable Executor executor);
+
+    /**
      * Execute the HTTP request:
      * <p><pre>{@code
      * client.delete()
@@ -988,6 +1050,142 @@ public interface RestClient {
       void handle(HttpRequest request, ClientHttpResponse response) throws IOException;
 
     }
+
+  }
+
+  /**
+   * Contract for specifying response operations following the exchange.
+   */
+  interface AsyncResponseSpec {
+
+    /**
+     * Provide a function to map specific error status codes to an error handler.
+     * <p>By default, if there are no matching status handlers, responses with
+     * status codes &gt;= 400 wil throw a {@link RestClientResponseException}.
+     * <p>Note that {@link IOException IOExceptions},
+     * {@link java.io.UncheckedIOException UncheckedIOExceptions}, and
+     * {@link cn.taketoday.http.converter.HttpMessageNotReadableException HttpMessageNotReadableExceptions}
+     * thrown from {@code errorHandler} will be wrapped in a
+     * {@link RestClientException}.
+     *
+     * @param statusPredicate to match responses with
+     * @param errorHandler handler that typically, though not necessarily,
+     * throws an exception
+     * @return this builder
+     */
+    AsyncResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler);
+
+    /**
+     * Provide a function to map specific error status codes to an error handler.
+     * <p>By default, if there are no matching status handlers, responses with
+     * status codes &gt;= 400 wil throw a {@link RestClientResponseException}.
+     * <p>Note that {@link IOException IOExceptions},
+     * {@link java.io.UncheckedIOException UncheckedIOExceptions}, and
+     * {@link cn.taketoday.http.converter.HttpMessageNotReadableException HttpMessageNotReadableExceptions}
+     * thrown from {@code errorHandler} will be wrapped in a
+     * {@link RestClientException}.
+     *
+     * @param errorHandler the error handler
+     * @return this builder
+     */
+    AsyncResponseSpec onStatus(ResponseErrorHandler errorHandler);
+
+    /**
+     * Extract the body as an object of the given type.
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     *
+     * </li>
+     * </ul>
+     *
+     * <p>
+     * NOT Fully async {@link ClientHttpResponse#getBody()}
+     *
+     * @param bodyType the type of return value
+     * @param <T> the body type
+     * @return the Future body
+     */
+    <T> Future<T> body(Class<T> bodyType);
+
+    /**
+     * Extract the body as an object of the given type.
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * <p>
+     * NOT Fully async {@link ClientHttpResponse#getBody()}
+     *
+     * @param bodyType the type of return value
+     * @param <T> the body type
+     * @return the Future body
+     */
+    <T> Future<T> body(ParameterizedTypeReference<T> bodyType);
+
+    /**
+     * Return a {@code ResponseEntity} with the body decoded to an Object of
+     * the given type.
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the expected response body type
+     * @param <T> response body type
+     * @return the {@code Future<ResponseEntity>} with the decoded body
+     */
+    <T> Future<ResponseEntity<T>> toEntity(Class<T> bodyType);
+
+    /**
+     * Return a {@code ResponseEntity} with the body decoded to an Object of
+     * the given type.
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @param bodyType the expected response body type
+     * @param <T> response body type
+     * @return the {@code Future<ResponseEntity>} with the decoded body
+     */
+    <T> Future<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyType);
+
+    /**
+     * Return a {@code ResponseEntity} without a body.
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @return the {@code Future<ResponseEntity>}
+     */
+    Future<ResponseEntity<Void>> toBodilessEntity();
 
   }
 
