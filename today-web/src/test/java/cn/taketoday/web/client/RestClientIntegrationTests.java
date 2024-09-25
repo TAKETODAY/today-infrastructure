@@ -988,7 +988,7 @@ class RestClientIntegrationTests {
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
 
     ValueContainer<Pojo> result = future.getNow();
-
+    assertThat(result).isNotNull();
     assertThat(result.getContainerValue()).isNotNull();
     Pojo pojo = result.getContainerValue();
     assertThat(pojo.getFoo()).isEqualTo("foofoo");
@@ -1017,6 +1017,7 @@ class RestClientIntegrationTests {
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
 
     ValueContainer<List<Pojo>> result = future.getNow();
+    assertThat(result).isNotNull();
     assertThat(result.containerValue).isNotNull();
     assertThat(result.containerValue).containsExactly(new Pojo("foofoo", "barbar"));
 
@@ -1042,7 +1043,7 @@ class RestClientIntegrationTests {
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
     ResponseEntity<String> result = future.getNow();
-
+    assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
@@ -1070,7 +1071,7 @@ class RestClientIntegrationTests {
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
     ResponseEntity<Void> result = future.getNow();
-
+    assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
@@ -1097,7 +1098,7 @@ class RestClientIntegrationTests {
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
     ClientHttpResponse result = future.getNow();
-
+    assertThat(result).isNotNull();
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
