@@ -1098,23 +1098,54 @@ class RestClientIntegrationTests {
             .executeAsync();
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
-    var response = future.getNow();
-    assertThat(response).isNotNull();
+    try (var response = future.getNow()) {
+      assertThat(response).isNotNull();
+      Map<String, String> body = response.bodyTo(new ParameterizedTypeReference<>() {
 
-    Map<String, String> body = response.bodyTo(new ParameterizedTypeReference<>() {
+      });
+      assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
 
-    });
-    assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+      assertThat(response.getHeaders().getContentLength()).isEqualTo(31);
 
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(response.getHeaders().getContentLength()).isEqualTo(31);
+      expectRequestCount(1);
+      expectRequest(request -> {
+        assertThat(request.getPath()).isEqualTo("/json");
+        assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+      });
+    }
+  }
 
-    expectRequestCount(1);
-    expectRequest(request -> {
-      assertThat(request.getPath()).isEqualTo("/json");
-      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
-    });
+  @ParameterizedRestClientTest
+  void executeAsyncBody(ClientHttpRequestFactory requestFactory) throws IOException {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response
+            .setHeader("Content-Type", "application/json")
+            .setBody("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}"));
+
+    var future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .executeAsync();
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    try (var response = future.getNow()) {
+      assertThat(response).isNotNull();
+
+      Map<String, String> body = response.bodyTo(Map.class);
+      assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
+
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+      assertThat(response.getHeaders().getContentLength()).isEqualTo(31);
+
+      expectRequestCount(1);
+      expectRequest(request -> {
+        assertThat(request.getPath()).isEqualTo("/json");
+        assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+      });
+    }
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {
