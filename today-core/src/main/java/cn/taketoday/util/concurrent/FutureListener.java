@@ -84,6 +84,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @param failureCallback the failure callback
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
+   * @see Future#isFailure()
    */
   static <V, F extends Future<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
     Assert.notNull(failureCallback, "failureCallback is required");
@@ -117,6 +118,7 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * @param future target future
    * @param failureCallback failure callback
    * @param <V> value type
+   * @see Future#isFailure()
    * @since 5.0
    */
   private static <V> void onFailure(Future<V> future, FailureCallback failureCallback) throws Throwable {

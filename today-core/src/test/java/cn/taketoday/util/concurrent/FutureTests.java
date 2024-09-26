@@ -527,7 +527,7 @@ class FutureTests {
   @Test
   void cascadeTo_success() {
     Promise<String> promise = Future.forPromise();
-    var stringFuture = Future.<String>forPromise()
+    Promise stringFuture = (Promise) Future.<String>forPromise()
             .cascadeTo(promise);
 
     assertThat(stringFuture).isNotDone();
@@ -547,7 +547,7 @@ class FutureTests {
   void cascadeTo_failed() {
     RuntimeException exception = new RuntimeException();
     Promise<String> promise = Future.forPromise();
-    var stringFuture = Future.<String>forPromise()
+    Promise stringFuture = (Promise) Future.<String>forPromise()
             .cascadeTo(promise);
 
     assertThat(stringFuture).isNotDone();
@@ -1184,12 +1184,13 @@ class FutureTests {
     var joinTask = Future.run(() -> {
       try {
         latch.countDown();
-        futureTask.join(Duration.ofMillis(700), true);
+        futureTask.join(Duration.ofMillis(1000), true);
       }
       catch (TimeoutException e) {
         fail();
       }
       catch (Exception e) {
+        interrupted.set(true);
         assertThat(e).isInstanceOf(InterruptedException.class);
       }
 
@@ -1507,6 +1508,176 @@ class FutureTests {
     assertThat(future.isFailed()).isTrue();
 
     assertThat(whenAllSucceed(Stream.of(1, 2, 3).map(Future::ok)).combine()).succeedsWithin(Duration.ofSeconds(1));
+  }
+
+  @Test
+  void onErrorResume() {
+    RuntimeException exception = new IllegalStateException("msg");
+    Future<Integer> future = Future.<Integer>failed(exception)
+            .onErrorResume(e -> ok(1));
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(1);
+    future = future.onErrorResume(IllegalArgumentException.class, e -> {
+      fail();
+      return ok(2);
+    });
+    // already success
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(1);
+
+    future = Future.<Integer>failed(exception).onErrorResume(IllegalArgumentException.class, e -> {
+      fail();
+      return ok(2);
+    });
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+
+    future = future.onErrorResume(ex -> true, e -> ok(2));
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(2);
+
+    future = Future.<Integer>failed(exception)
+            .onErrorResume(ex -> false, e -> ok(3));
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+  }
+
+  @Test
+  void onErrorMap() {
+    RuntimeException exception = new IllegalStateException("msg");
+    Future<Integer> future = Future.<Integer>failed(exception)
+            .onErrorMap(IllegalArgumentException::new);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withCauseInstanceOf(IllegalArgumentException.class)
+            .withMessageEndingWith("msg")
+            .withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+
+    // Class
+    future = Future.<Integer>failed(exception)
+            .onErrorMap(IOException.class, IllegalArgumentException::new);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+
+    future = Future.<Integer>failed(exception)
+            .onErrorMap(IllegalStateException.class, IllegalArgumentException::new);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withCauseInstanceOf(IllegalArgumentException.class)
+            .withMessageEndingWith("msg")
+            .withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+
+    // Predicate
+
+    future = Future.<Integer>failed(exception)
+            .onErrorMap(IllegalStateException.class::isInstance, IllegalArgumentException::new);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withCauseInstanceOf(IllegalArgumentException.class)
+            .withMessageEndingWith("msg")
+            .withRootCauseInstanceOf(IllegalStateException.class)
+            .withMessageEndingWith("msg");
+
+  }
+
+  @Test
+  void onErrorComplete() {
+    RuntimeException exception = new IllegalStateException("msg");
+
+    Future<Integer> future = Future.<Integer>failed(exception).onErrorComplete();
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isNull();
+
+    future = Future.<Integer>failed(exception).onErrorComplete(IllegalStateException.class);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isNull();
+
+    future = Future.<Integer>failed(exception).onErrorComplete(e -> true);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isNull();
+
+    future = Future.<Integer>failed(exception).onErrorComplete(e -> false);
+    assertThat(future).failsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isTrue();
+    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isFalse();
+    assertThat(future.getNow()).isNull();
+    assertThat(future.getCause()).isSameAs(exception);
+
+    future = Future.<Integer>failed(exception).onErrorComplete(e -> true);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isNull();
+
+  }
+
+  @Test
+  void onErrorReturn() {
+    RuntimeException exception = new IllegalStateException("msg");
+
+    Future<Integer> future = Future.<Integer>failed(exception).onErrorReturn(1);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isEqualTo(1);
+
+    future = Future.<Integer>failed(exception).onErrorReturn(IllegalStateException.class, 2);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isEqualTo(2);
+
+    future = Future.<Integer>failed(exception).onErrorReturn(e -> true, 3);
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isFalse();
+    assertThat(future.isFailure()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isTrue();
+    assertThat(future.getNow()).isEqualTo(3);
+
+    future = Future.<Integer>failed(exception).onErrorReturn(e -> false, 4);
+    assertThat(future).failsWithin(Duration.ofSeconds(1));
+    assertThat(future.isFailed()).isTrue();
+    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isFalse();
+    assertThat(future.getNow()).isNull();
+    assertThat(future.getCause()).isSameAs(exception);
+
   }
 
   static Executor directExecutor() {

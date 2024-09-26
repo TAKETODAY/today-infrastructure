@@ -58,6 +58,11 @@ final class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
+  public boolean isFailure() {
+    return executionException != null;
+  }
+
+  @Override
   @Nullable
   public V get() throws ExecutionException {
     if (this.executionException != null) {

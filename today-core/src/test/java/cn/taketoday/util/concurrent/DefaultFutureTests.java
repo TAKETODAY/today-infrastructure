@@ -352,7 +352,7 @@ class DefaultFutureTests {
           final CountDownLatch latch) {
     for (int i = 0; i < p.length; i++) {
       final int finalI = i;
-      p[i] = new Promise<Void>(executor).onCompleted(future -> {
+      p[i] = (Promise<Void>) new Promise<Void>(executor).onCompleted(future -> {
         if (finalI + 1 < p.length) {
           p[finalI + 1].setSuccess(null);
         }

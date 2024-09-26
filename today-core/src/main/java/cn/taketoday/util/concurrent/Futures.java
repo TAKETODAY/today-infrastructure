@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -200,11 +201,12 @@ final class Futures {
    */
   public static <V, T> Future<V> errorHandling(Future<V> future, @Nullable Class<T> exType,
           ThrowingFunction<T, V> errorHandler, BiFunction<Throwable, Class<T>, T> causeFunction) {
-    Assert.notNull(errorHandler, "errorHandler is required");
-    if (future.isCancelled()) {
+    if (future.isSuccess() || future.isCancelled()) {
+      // already success or cancelled
       return future;
     }
 
+    Assert.notNull(errorHandler, "errorHandler is required");
     Throwable cause = future.getCause();
     if (cause != null) {
       T target = causeFunction.apply(cause, exType);
@@ -218,12 +220,38 @@ final class Futures {
     Promise<V> promise = Future.forPromise(future.executor);
     future.onCompleted(new ErrorHandling<>(promise, exType, errorHandler, causeFunction));
 
-    if (!future.isSuccess()) {
-      // Propagate cancellation if future is either incomplete or failed.
-      // Failed means it could be cancelled, so that needs to be propagated.
-      promise.onCompleted(propagateCancel, future);
-    }
+    // Propagate cancellation if future is either incomplete or failed.
+    // Failed means it could be cancelled, so that needs to be propagated.
+    promise.onCompleted(propagateCancel, future);
     return promise;
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> { throw new Error("oh!"); })
+   *   .onErrorResume(ex -> ok("ok"));
+   * }</pre>
+   *
+   * @return A new Future.
+   */
+  public static <V> Future<V> onErrorResume(Future<V> future, Function<Throwable, Future<V>> errorHandler) {
+    if (future.isSuccess() || future.isCancelled()) {
+      // already success or cancelled
+      return future;
+    }
+
+    Assert.notNull(errorHandler, "errorHandler is required");
+    Promise<V> recipient = Future.forPromise(future.executor);
+    future.onCompleted(new ErrorResume<>(recipient, errorHandler));
+
+    // Propagate cancellation if future is either incomplete or failed.
+    // Failed means it could be cancelled, so that needs to be propagated.
+    recipient.onCompleted(propagateCancel, future);
+    return recipient;
   }
 
   /**
@@ -529,6 +557,46 @@ final class Futures {
         else {
           // just propagate
           recipient.tryFailure(cc);
+        }
+      }
+    }
+
+  }
+
+  /**
+   * @param <V> value type
+   * @since 5.0
+   */
+  static class ErrorResume<V> implements FutureListener<Future<V>> {
+
+    private final Promise<V> recipient;
+
+    private final Function<Throwable, Future<V>> errorHandler;
+
+    public ErrorResume(Promise<V> recipient, Function<Throwable, Future<V>> errorHandler) {
+      this.recipient = recipient;
+      this.errorHandler = errorHandler;
+    }
+
+    @Override
+    public void operationComplete(Future<V> completed) throws Throwable {
+      Throwable cause = completed.getCause();
+      if (cause != null && !completed.isCancelled()) {
+        try {
+          Future<V> mapped = errorHandler.apply(cause);
+          if (mapped.isSuccess()) {
+            recipient.trySuccess(mapped.getNow());
+          }
+          else if (mapped.isFailed()) {
+            propagateUncommonCompletion(mapped, recipient);
+          }
+          else {
+            mapped.onCompleted(passThrough(), recipient);
+            recipient.onCompleted(propagateCancel, mapped);
+          }
+        }
+        catch (Throwable e) {
+          tryFailure(recipient, e, logger);
         }
       }
     }

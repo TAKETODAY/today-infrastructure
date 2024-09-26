@@ -172,48 +172,6 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
 
   //
 
-  @Override
-  public ListenableFutureTask<V> sync() throws InterruptedException {
-    super.sync();
-    return this;
-  }
-
-  @Override
-  public ListenableFutureTask<V> syncUninterruptibly() {
-    super.syncUninterruptibly();
-    return this;
-  }
-
-  @Override
-  public ListenableFutureTask<V> await() throws InterruptedException {
-    super.await();
-    return this;
-  }
-
-  @Override
-  public ListenableFutureTask<V> awaitUninterruptibly() {
-    super.awaitUninterruptibly();
-    return this;
-  }
-
-  @Override
-  public ListenableFutureTask<V> onCompleted(FutureListener<? extends Future<V>> listener) {
-    super.onCompleted(listener);
-    return this;
-  }
-
-  @Override
-  public <C> ListenableFutureTask<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    super.onCompleted(listener, context);
-    return this;
-  }
-
-  @Override
-  public ListenableFutureTask<V> cascadeTo(Promise<V> promise) {
-    super.cascadeTo(promise);
-    return this;
-  }
-
   // VarHandle mechanics
   private static final VarHandle RUNNER;
 

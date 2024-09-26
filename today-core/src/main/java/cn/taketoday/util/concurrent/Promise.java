@@ -68,46 +68,4 @@ public class Promise<V> extends AbstractFuture<V> {
     }
   }
 
-  @Override
-  public Promise<V> onCompleted(FutureListener<? extends Future<V>> listener) {
-    super.onCompleted(listener);
-    return this;
-  }
-
-  @Override
-  public <C> Promise<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    super.onCompleted(listener, context);
-    return this;
-  }
-
-  @Override
-  public Promise<V> sync() throws InterruptedException {
-    super.sync();
-    return this;
-  }
-
-  @Override
-  public Promise<V> syncUninterruptibly() {
-    super.syncUninterruptibly();
-    return this;
-  }
-
-  @Override
-  public Promise<V> await() throws InterruptedException {
-    super.await();
-    return this;
-  }
-
-  @Override
-  public Promise<V> awaitUninterruptibly() {
-    super.awaitUninterruptibly();
-    return this;
-  }
-
-  @Override
-  public Promise<V> cascadeTo(final Promise<V> promise) {
-    super.cascadeTo(promise);
-    return this;
-  }
-
 }

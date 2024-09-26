@@ -34,6 +34,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.Pair;
@@ -198,7 +200,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   public abstract boolean isSuccess();
 
   /**
-   * Returns {@code true} if and only if the operation was completed and failed.
+   * Returns {@code true} if and only if the operation was completed and failed or cancelled.
    *
    * <p>Returns {@code true} this future maybe {@link #isCancelled() cancelled}
    *
@@ -206,6 +208,17 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isCancelled()
    */
   public abstract boolean isFailed();
+
+  /**
+   * Returns {@code true} if and only if the operation was completed and failed.
+   *
+   * @return Returns {@code true} if and only if the operation was completed and failed.
+   * @see AbstractFuture#tryFailure(Throwable)
+   * @since 5.0
+   */
+  public boolean isFailure() {
+    return isFailed() && !isCancelled();
+  }
 
   /**
    * Return {@code true} if this operation has been {@linkplain #cancel() cancelled}.
@@ -275,17 +288,59 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Java 8 lambda-friendly alternative with failure callbacks.
+   * Add behavior triggered when the {@link Future} completes with
+   * an error matching the given exception type.
+   *
    * <p>
-   * non-cancelled {@link Future#isFailed() failed}
+   * This error must non-cancelled {@link Future#isFailed() failed}
    *
    * @param failureCallback the failure callback
    * @return this future object.
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
+   * @see Future#isFailure()
    */
   public Future<V> onFailure(FailureCallback failureCallback) {
     return onCompleted(FutureListener.forFailure(failureCallback));
+  }
+
+  /**
+   * Add behavior triggered when the {@link Future} completes with
+   * an error matching the given exception type.
+   *
+   * <p>
+   * This error must non-cancelled {@link Future#isFailed() failed}
+   *
+   * @param exceptionType the type of exceptions to handle
+   * @param failureCallback the error handler for relevant errors
+   * @param <E> type of the error to handle
+   * @return this {@link Future}
+   * @since 5.0
+   */
+  public final <E extends Throwable> Future<V> onFailure(Class<E> exceptionType, FailureCallback failureCallback) {
+    return onFailure(exceptionType::isInstance, failureCallback);
+  }
+
+  /**
+   * Add behavior triggered when the {@link Future} completes with an
+   * error matching the given predicate.
+   *
+   * <p>
+   * This error must non-cancelled {@link Future#isFailed() failed}
+   *
+   * @param predicate the matcher for exceptions to handle
+   * @param failureCallback the error handler for relevant error
+   * @return this {@link Future}
+   * @since 5.0
+   */
+  public final Future<V> onFailure(Predicate<Throwable> predicate, FailureCallback failureCallback) {
+    Assert.notNull(predicate, "predicate is required");
+    Assert.notNull(failureCallback, "failureCallback is required");
+    return onFailure(ex -> {
+      if (predicate.test(ex)) {
+        failureCallback.onFailure(ex);
+      }
+    });
   }
 
   /**
@@ -768,6 +823,178 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   public <T> Future<V> catchRootCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
     Assert.notNull(exType, "exType is required");
     return Futures.errorHandling(this, exType, errorHandler, Futures.rootCauseFunction);
+  }
+
+  /**
+   * Transform any error emitted by this {@link Future} by synchronously applying a function to it.
+   *
+   * @param mapper the error transforming {@link Function}
+   * @return a {@link Future} that transforms source errors to other errors
+   * @since 5.0
+   */
+  public final Future<V> onErrorMap(Function<Throwable, Throwable> mapper) {
+    return onErrorResume(e -> Future.failed(mapper.apply(e), executor));
+  }
+
+  /**
+   * Transform an error emitted by this {@link Future} by synchronously applying a function
+   * to it if the error matches the given type. Otherwise let the error pass through.
+   *
+   * @param type the class of the exception type to react to
+   * @param mapper the error transforming {@link Function}
+   * @param <E> the error type
+   * @return a {@link Future} that transforms some source errors to other errors
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public <E extends Throwable> Future<V> onErrorMap(Class<E> type, Function<E, Throwable> mapper) {
+    return onErrorMap(type::isInstance, (Function<Throwable, Throwable>) mapper);
+  }
+
+  /**
+   * Transform an error emitted by this {@link Future} by synchronously applying a function
+   * to it if the error matches the given predicate. Otherwise, let the error pass through.
+   *
+   * @param predicate the error predicate
+   * @param mapper the error transforming {@link Function}
+   * @return a {@link Future} that transforms some source errors to other errors
+   * @since 5.0
+   */
+  public final Future<V> onErrorMap(Predicate<Throwable> predicate, Function<Throwable, Throwable> mapper) {
+    return onErrorResume(predicate, e -> Future.failed(mapper.apply(e), executor));
+  }
+
+  /**
+   * Given a fallback Future when an error matching the given type
+   * occurs, using a function to choose the fallback depending on the error.
+   *
+   * @param type the error type to match
+   * @param fallback the function to choose the fallback to an alternative {@link Future}
+   * @param <E> the error type
+   * @return a {@link Future} falling back upon source onError
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public final <E extends Throwable> Future<V> onErrorResume(Class<E> type, Function<E, Future<V>> fallback) {
+    Assert.notNull(type, "type is required");
+    return onErrorResume(type::isInstance, (Function<Throwable, Future<V>>) fallback);
+  }
+
+  /**
+   * Given a fallback Future when an error matching a given predicate occurs.
+   *
+   * @param predicate the error predicate to match
+   * @param fallback the function to choose the fallback to an alternative {@link Future}
+   * @return a {@link Future} falling back upon source onError
+   * @since 5.0
+   */
+  public final Future<V> onErrorResume(Predicate<Throwable> predicate, Function<Throwable, Future<V>> fallback) {
+    Assert.notNull(predicate, "predicate is required");
+    return onErrorResume(e -> predicate.test(e) ? fallback.apply(e) : failed(e, executor));
+  }
+
+  /**
+   * Given a fallback Future when any error occurs, using a function to
+   * choose the fallback depending on the error.
+   *
+   * @param fallback the function to choose the fallback to an alternative {@link Future}
+   * @return a {@link Future} falling back upon source onError
+   * @since 5.0
+   */
+  public final Future<V> onErrorResume(Function<Throwable, Future<V>> fallback) {
+    return Futures.onErrorResume(this, fallback);
+  }
+
+  /**
+   * Simply complete the Future by replacing an {@link #isFailure() failure signal}
+   * with an {@link #isSuccess() null-result}. All other signals are propagated as-is.
+   *
+   * @return a new {@link Future} falling back on completion when an onError occurs
+   * @see #onErrorReturn(Object)
+   * @since 5.0
+   */
+  public final Future<V> onErrorComplete() {
+    return onErrorReturn((Predicate<Throwable>) null, null);
+  }
+
+  /**
+   * Simply complete the Future by replacing an {@link #isFailure() failure signal}
+   * with an {@link #isSuccess() null-result} if the error matches the given
+   * {@link Class}. All other signals, including non-matching failure, are propagated as-is.
+   *
+   * @return a new {@link Future} falling back on completion when a matching error occurs
+   * @see #onErrorReturn(Class, Object)
+   * @since 5.0
+   */
+  public final Future<V> onErrorComplete(Class<? extends Throwable> type) {
+    Assert.notNull(type, "type is required");
+    return onErrorComplete(type::isInstance);
+  }
+
+  /**
+   * Simply complete the Future by replacing an {@link #isFailure() failure signal}
+   * with an {@link #isSuccess() null-result} if the error matches the given
+   * {@link Predicate}. All other signals, including non-matching failure, are propagated as-is.
+   *
+   * @return a new {@link Future} falling back on completion when a matching error occurs
+   * @see #onErrorReturn(Predicate, Object)
+   * @since 5.0
+   */
+  public final Future<V> onErrorComplete(Predicate<Throwable> predicate) {
+    Assert.notNull(predicate, "predicate is required");
+    return onErrorReturn(predicate, null);
+  }
+
+  /**
+   * Simply emit a captured fallback value when any error is observed on this {@link Future}.
+   *
+   * @param fallbackValue the value to emit if an error occurs
+   * @return a new falling back {@link Future}
+   * @see #onErrorComplete()
+   * @since 5.0
+   */
+  public final Future<V> onErrorReturn(@Nullable V fallbackValue) {
+    return onErrorReturn((Predicate<Throwable>) null, fallbackValue);
+  }
+
+  /**
+   * Simply emit a captured fallback value when an error of the specified type is
+   * observed on this {@link Future}.
+   *
+   * @param type the error type to match
+   * @param fallbackValue the value to emit if an error occurs that matches the type
+   * @return a new falling back {@link Future}
+   * @see #onErrorComplete(Class)
+   * @since 5.0
+   */
+  public final Future<V> onErrorReturn(Class<? extends Throwable> type, @Nullable V fallbackValue) {
+    Assert.notNull(type, "type is required");
+    return onErrorReturn(type::isInstance, fallbackValue);
+  }
+
+  /**
+   * Simply emit a captured fallback value when an error matching the given predicate is
+   * observed on this {@link Future}.
+   *
+   * @param predicate the error predicate to match o null predicate indicates that all matches
+   * @param fallbackValue the value to emit if an error occurs that matches the predicate
+   * @return a new {@link Future}
+   * @see #onErrorComplete(Predicate)
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public final Future<V> onErrorReturn(@Nullable Predicate<Throwable> predicate, @Nullable V fallbackValue) {
+    return Futures.errorHandling(this, null, new ThrowingFunction<Throwable, V>() {
+
+      @Nullable
+      @Override
+      public V applyWithException(Throwable param) throws Throwable {
+        if (predicate == null || predicate.test(param)) {
+          return fallbackValue;
+        }
+        throw param;
+      }
+    }, Futures.alwaysFunction);
   }
 
   /**

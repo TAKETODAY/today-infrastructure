@@ -478,12 +478,10 @@ final class DefaultRestClient implements RestClient {
         URI uri = initUri();
         clientRequest = createRequest(uri);
         return Pair.of(clientRequest, clientRequest.async(executor)
-                .catching(IOException.class, ex -> {
-                  throw createResourceAccessException(uri, this.httpMethod, ex);
-                }));
+                .onErrorMap(IOException.class, ex -> createResourceAccessException(uri, this.httpMethod, ex)));
       }
       catch (Throwable e) {
-        return Pair.of(clientRequest, Future.failed(e));
+        return Pair.of(clientRequest, Future.failed(e, executor));
       }
     }
 

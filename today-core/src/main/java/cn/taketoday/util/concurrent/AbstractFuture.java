@@ -93,6 +93,11 @@ public abstract class AbstractFuture<V> extends Future<V> {
   }
 
   @Override
+  public boolean isFailure() {
+    return state == EXCEPTIONAL;
+  }
+
+  @Override
   public boolean isCancelled() {
     return state >= CANCELLED;
   }
