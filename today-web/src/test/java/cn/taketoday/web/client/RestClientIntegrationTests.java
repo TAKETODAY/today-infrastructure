@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.Pair;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
@@ -52,7 +53,6 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.web.client.RestClient.ConvertibleClientHttpResponse;
 import cn.taketoday.web.testfixture.Pojo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -1098,12 +1098,17 @@ class RestClientIntegrationTests {
             .executeAsync();
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
-    ClientHttpResponse result = future.getNow();
-    assertThat(result).isNotNull();
-    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
-    assertThat(result.getBody()).hasContent("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}");
+    var response = future.getNow();
+    assertThat(response).isNotNull();
+
+    Map<String, String> body = response.bodyTo(new ParameterizedTypeReference<>() {
+
+    });
+    assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(response.getHeaders().getContentLength()).isEqualTo(31);
 
     expectRequestCount(1);
     expectRequest(request -> {
