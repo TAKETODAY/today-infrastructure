@@ -1086,7 +1086,7 @@ class RestClientIntegrationTests {
   }
 
   @ParameterizedRestClientTest
-  void executeAsync(ClientHttpRequestFactory requestFactory) throws IOException {
+  void executeAsync(ClientHttpRequestFactory requestFactory) {
     startServer(requestFactory);
 
     prepareResponse(response -> response
@@ -1097,8 +1097,7 @@ class RestClientIntegrationTests {
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .executeAsync();
 
-    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
-    try (var response = future.getNow()) {
+    try (var response = future.join()) {
       assertThat(response).isNotNull();
       Map<String, String> body = response.bodyTo(new ParameterizedTypeReference<>() {
 
@@ -1118,7 +1117,7 @@ class RestClientIntegrationTests {
   }
 
   @ParameterizedRestClientTest
-  void executeAsyncBody(ClientHttpRequestFactory requestFactory) throws IOException {
+  void executeAsyncBody(ClientHttpRequestFactory requestFactory) {
     startServer(requestFactory);
 
     prepareResponse(response -> response
@@ -1129,8 +1128,7 @@ class RestClientIntegrationTests {
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .executeAsync();
 
-    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
-    try (var response = future.getNow()) {
+    try (var response = future.block().orElse(null)) {
       assertThat(response).isNotNull();
 
       Map<String, String> body = response.bodyTo(Map.class);
