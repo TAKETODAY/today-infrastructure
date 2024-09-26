@@ -462,23 +462,25 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public AsyncSpec async(@Nullable Executor executor) {
-      var pair = executeAsyncInternal(executor);
+      var pair = asyncInternal(executor);
       return new DefaultAsyncSpec(pair.first, pair.second);
     }
 
     @Override
-    public Future<ClientHttpResponse> executeAsync(@Nullable Executor executor) {
-      return executeAsyncInternal(executor).second;
+    public Future<ConvertibleClientHttpResponse> executeAsync(@Nullable Executor executor) {
+      return asyncInternal(executor).second
+              .map(DefaultConvertibleClientHttpResponse::new);
     }
 
-    private Pair<ClientHttpRequest, Future<ClientHttpResponse>> executeAsyncInternal(@Nullable Executor executor) {
+    private Pair<ClientHttpRequest, Future<ClientHttpResponse>> asyncInternal(@Nullable Executor executor) {
       ClientHttpRequest clientRequest = null;
       try {
         URI uri = initUri();
         clientRequest = createRequest(uri);
-        return Pair.of(clientRequest, clientRequest.async(executor).catching(IOException.class, ex -> {
-          throw createResourceAccessException(uri, this.httpMethod, ex);
-        }));
+        return Pair.of(clientRequest, clientRequest.async(executor)
+                .catching(IOException.class, ex -> {
+                  throw createResourceAccessException(uri, this.httpMethod, ex);
+                }));
       }
       catch (Throwable e) {
         return Pair.of(clientRequest, Future.failed(e));
@@ -809,7 +811,7 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private class DefaultConvertibleClientHttpResponse implements RequestHeadersSpec.ConvertibleClientHttpResponse {
+  private class DefaultConvertibleClientHttpResponse implements ConvertibleClientHttpResponse {
 
     private final ClientHttpResponse delegate;
 

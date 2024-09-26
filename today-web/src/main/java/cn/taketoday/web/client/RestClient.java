@@ -738,7 +738,7 @@ public interface RestClient {
      * @see ClientHttpRequest#async(Executor)
      * @since 5.0
      */
-    default Future<ClientHttpResponse> executeAsync() {
+    default Future<ConvertibleClientHttpResponse> executeAsync() {
       return executeAsync(null);
     }
 
@@ -769,7 +769,7 @@ public interface RestClient {
      * @see ClientHttpRequest#async(Executor)
      * @since 5.0
      */
-    Future<ClientHttpResponse> executeAsync(@Nullable Executor executor);
+    Future<ConvertibleClientHttpResponse> executeAsync(@Nullable Executor executor);
 
     /**
      * Execute the HTTP request:
@@ -893,33 +893,6 @@ public interface RestClient {
        * @throws IOException in case of I/O errors
        */
       T exchange(HttpRequest clientRequest, ConvertibleClientHttpResponse clientResponse) throws IOException;
-
-    }
-
-    /**
-     * Extension of {@link ClientHttpResponse} that can convert the body.
-     */
-    interface ConvertibleClientHttpResponse extends ClientHttpResponse {
-
-      /**
-       * Extract the response body as an object of the given type.
-       *
-       * @param bodyType the type of return value
-       * @param <T> the body type
-       * @return the body, or {@code null} if no response body was available
-       */
-      @Nullable
-      <T> T bodyTo(Class<T> bodyType);
-
-      /**
-       * Extract the response body as an object of the given type.
-       *
-       * @param bodyType the type of return value
-       * @param <T> the body type
-       * @return the body, or {@code null} if no response body was available
-       */
-      @Nullable
-      <T> T bodyTo(ParameterizedTypeReference<T> bodyType);
 
     }
 
@@ -1246,6 +1219,33 @@ public interface RestClient {
      * @throws IOException in case of I/O errors
      */
     void handle(HttpRequest request, ClientHttpResponse response) throws IOException;
+
+  }
+
+  /**
+   * Extension of {@link ClientHttpResponse} that can convert the body.
+   */
+  interface ConvertibleClientHttpResponse extends ClientHttpResponse {
+
+    /**
+     * Extract the response body as an object of the given type.
+     *
+     * @param bodyType the type of return value
+     * @param <T> the body type
+     * @return the body, or {@code null} if no response body was available
+     */
+    @Nullable
+    <T> T bodyTo(Class<T> bodyType);
+
+    /**
+     * Extract the response body as an object of the given type.
+     *
+     * @param bodyType the type of return value
+     * @param <T> the body type
+     * @return the body, or {@code null} if no response body was available
+     */
+    @Nullable
+    <T> T bodyTo(ParameterizedTypeReference<T> bodyType);
 
   }
 
