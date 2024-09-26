@@ -1113,6 +1113,120 @@ class FutureTests {
   }
 
   @Test
+  void join() {
+    var res = ok(1)
+            .join();
+
+    assertThat(res).isEqualTo(1);
+
+    assertThatThrownBy(() ->
+            failed(new RuntimeException("msg")).join())
+            .hasMessage("msg");
+  }
+
+  @Test
+  void joinTimeout() throws TimeoutException {
+    var res = ok(1).join(Duration.ofSeconds(1));
+    assertThat(res).isEqualTo(1);
+
+    assertThatThrownBy(() ->
+            failed(new RuntimeException("msg")).join(Duration.ofSeconds(1))).hasMessage("msg");
+
+    Promise<Object> promise = forPromise();
+    assertThatThrownBy(() -> promise.join(Duration.ofMillis(50)))
+            .isInstanceOf(TimeoutException.class)
+            .hasMessage("Timeout on blocking read for 50 ms");
+    //
+
+    var futureTask = Future.run(() -> {
+      try {
+        Thread.sleep(10);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    });
+
+    Void join = futureTask.join(Duration.ofMillis(100));
+    assertThat(join).isNull();
+
+    var task = Future.run(() -> {
+      try {
+        Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    });
+
+    assertThatThrownBy(() -> task.join(Duration.ofMillis(100), true))
+            .isInstanceOf(TimeoutException.class)
+            .hasMessage("Timeout on blocking read for 100 ms");
+
+    assertThat(task).isDone();
+    assertThat(task).isCancelled();
+  }
+
+  @Test
+  void joinInterrupted() throws InterruptedException {
+    AtomicBoolean interrupted = new AtomicBoolean(false);
+    var futureTask = Future.run(() -> {
+      try {
+        Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+        interrupted.set(true);
+        Thread.currentThread().interrupt();
+      }
+    });
+
+    CountDownLatch latch = new CountDownLatch(1);
+    var joinTask = Future.run(() -> {
+      try {
+        latch.countDown();
+        futureTask.join(Duration.ofMillis(700), true);
+      }
+      catch (TimeoutException e) {
+        fail();
+      }
+      catch (Exception e) {
+        assertThat(e).isInstanceOf(InterruptedException.class);
+      }
+
+    });
+    latch.await();
+    Thread.sleep(100);
+    joinTask.cancel();
+
+    assertThat(joinTask.isCancelled()).isTrue();
+
+    assertThat(futureTask).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().isInstanceOf(CancellationException.class);
+    assertThat(futureTask.isCancelled()).isTrue();
+    assertThat(interrupted).isTrue();
+  }
+
+  @Test
+  void block() throws TimeoutException {
+    var res = ok(1).block();
+    assertThat(res).hasValue(1);
+
+    assertThatThrownBy(() ->
+            failed(new RuntimeException("msg")).block()).hasMessage("msg");
+
+    res = ok(1).block(Duration.ofSeconds(1));
+    assertThat(res).hasValue(1);
+
+    assertThatThrownBy(() ->
+            failed(new RuntimeException("msg")).block(Duration.ofSeconds(1))).hasMessage("msg");
+
+    Promise<Object> promise = forPromise();
+    assertThatThrownBy(() -> promise.block(Duration.ofMillis(50)))
+            .isInstanceOf(TimeoutException.class)
+            .hasMessage("Timeout on blocking read for 50 ms");
+  }
+
+  @Test
   void operationComplete_failed() {
     Future.ok(1)
             .onCompleted(future -> {

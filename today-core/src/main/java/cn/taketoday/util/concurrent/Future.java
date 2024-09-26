@@ -20,6 +20,7 @@ package cn.taketoday.util.concurrent;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +46,7 @@ import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.util.function.ThrowingFunction;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
@@ -405,8 +407,22 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Waits for this future to be completed within the
-   * specified time limit without interruption.  This method catches an
-   * {@link InterruptedException} and discards it silently.
+   * specified time limit without interruption.
+   *
+   * <p> This method catches an {@link InterruptedException} and sneaky throws.
+   *
+   * @return {@code true} if and only if the future was completed within
+   * the specified time limit
+   */
+  public boolean awaitUninterruptibly(long timeoutMillis) {
+    return awaitUninterruptibly(timeoutMillis, MILLISECONDS);
+  }
+
+  /**
+   * Waits for this future to be completed within the
+   * specified time limit without interruption.
+   *
+   * <p> This method catches an {@link InterruptedException} and sneaky throws.
    *
    * @return {@code true} if and only if the future was completed within
    * the specified time limit
@@ -414,24 +430,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
     try {
       return await(timeout, unit);
-    }
-    catch (InterruptedException e) {
-      // Should not be raised at all.
-      throw new InternalError();
-    }
-  }
-
-  /**
-   * Waits for this future to be completed within the
-   * specified time limit without interruption.  This method catches an
-   * {@link InterruptedException} and discards it silently.
-   *
-   * @return {@code true} if and only if the future was completed within
-   * the specified time limit
-   */
-  public boolean awaitUninterruptibly(long timeoutMillis) {
-    try {
-      return await(timeoutMillis);
     }
     catch (InterruptedException e) {
       // Should not be raised at all.
@@ -999,6 +997,127 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     else {
       return resultHandler.applyWithException(null, getCause());
     }
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @return The result.
+   * @see ExceptionUtils#sneakyThrow(Throwable)
+   * @since 5.0
+   */
+  @Nullable
+  public V join() {
+    syncUninterruptibly();
+    return getNow();
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @param timeout timeout
+   * @return The result.
+   * @throws TimeoutException timeout
+   * @see ExceptionUtils#sneakyThrow(Throwable)
+   * @since 5.0
+   */
+  @Nullable
+  public V join(Duration timeout) throws TimeoutException {
+    return join(timeout, false);
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @param timeout timeout
+   * @param cancelOnTimeout invoke {@link #cancel()} when timeout
+   * @return The result.
+   * @throws TimeoutException timeout
+   * @since 5.0
+   */
+  @Nullable
+  public V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
+    if (!isDone()) {
+      try {
+        if (!await(timeout.toNanos(), NANOSECONDS)) {
+          if (cancelOnTimeout) {
+            cancel();
+          }
+          throw new TimeoutException("Timeout on blocking read for %s ms".formatted(timeout.toMillis()));
+        }
+      }
+      catch (InterruptedException ex) {
+        cancel();
+        ex.addSuppressed(new Exception("#join(timeout) has been interrupted"));
+        Thread.currentThread().interrupt();
+        throw ExceptionUtils.sneakyThrow(ex);
+      }
+    }
+    rethrowIfFailed();
+    return getNow();
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @return The result.
+   * @see ExceptionUtils#sneakyThrow(Throwable)
+   * @since 5.0
+   */
+  public Optional<V> block() {
+    return Optional.ofNullable(join());
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @param timeout timeout
+   * @return The result.
+   * @throws TimeoutException timeout
+   * @see ExceptionUtils#sneakyThrow(Throwable)
+   * @since 5.0
+   */
+  @Nullable
+  public Optional<V> block(Duration timeout) throws TimeoutException {
+    return block(timeout, false);
+  }
+
+  /**
+   * Waits for the future to complete.
+   * <p>
+   * If the future completes successfully, then returns result
+   * <p>
+   * If the future fails, sneaky throw any exception
+   *
+   * @param timeout timeout
+   * @param cancelOnTimeout invoke {@link #cancel()} when timeout
+   * @return The result.
+   * @throws TimeoutException timeout
+   * @since 5.0
+   */
+  @Nullable
+  public Optional<V> block(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
+    return Optional.ofNullable(join(timeout, cancelOnTimeout));
   }
 
   /**

@@ -52,6 +52,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.RestClient.ConvertibleClientHttpResponse;
 import cn.taketoday.web.testfixture.Pojo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -1092,7 +1093,7 @@ class RestClientIntegrationTests {
             .setHeader("Content-Type", "application/json")
             .setBody("{\"bar\":\"barbar\",\"foo\":\"foofoo\"}"));
 
-    Future<ClientHttpResponse> future = this.restClient.get()
+    var future = this.restClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .executeAsync();
 
