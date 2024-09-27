@@ -637,7 +637,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped
    * result of this future.
    */
-  public <R> Future<R> map(ThrowingFunction<V, R> mapper) {
+  public final <R> Future<R> map(ThrowingFunction<V, R> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.map(this, mapper);
   }
@@ -655,7 +655,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * result of this future.
    * @since 5.0
    */
-  public <R> Future<R> mapNull() {
+  public final <R> Future<R> mapNull() {
     return map(v -> null);
   }
 
@@ -672,7 +672,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * result of this future.
    * @since 5.0
    */
-  public <R> Future<R> mapNull(ThrowingConsumer<V> consumer) {
+  public final <R> Future<R> mapNull(ThrowingConsumer<V> consumer) {
     return map(v -> {
       consumer.acceptWithException(v);
       return null;
@@ -710,7 +710,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped result
    * of this future.
    */
-  public <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
+  public final <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.flatMap(this, mapper);
   }
@@ -749,7 +749,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws IllegalArgumentException errorHandler is null.
    */
   @SuppressWarnings("unchecked")
-  public Future<V> errorHandling(ThrowingFunction<Throwable, V> errorHandler) {
+  public final Future<V> errorHandling(ThrowingFunction<Throwable, V> errorHandler) {
     return Futures.errorHandling(this, null, errorHandler, Futures.alwaysFunction);
   }
 
@@ -772,7 +772,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see Class#isInstance(Object)
    */
   @SuppressWarnings("unchecked")
-  public <T> Future<V> catching(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+  public final <T> Future<V> catching(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
     Assert.notNull(exType, "exType is required");
     return Futures.errorHandling(this, exType, errorHandler, Futures.isInstanceFunction);
   }
@@ -796,7 +796,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see ExceptionUtils#getMostSpecificCause(Throwable, Class)
    */
   @SuppressWarnings("unchecked")
-  public <T> Future<V> catchSpecificCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+  public final <T> Future<V> catchSpecificCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
     Assert.notNull(exType, "exType is required");
     return Futures.errorHandling(this, exType, errorHandler, Futures.mostSpecificCauseFunction);
   }
@@ -820,7 +820,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see ExceptionUtils#getRootCause(Throwable)
    */
   @SuppressWarnings("unchecked")
-  public <T> Future<V> catchRootCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+  public final <T> Future<V> catchRootCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
     Assert.notNull(exType, "exType is required");
     return Futures.errorHandling(this, exType, errorHandler, Futures.rootCauseFunction);
   }
@@ -847,7 +847,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @since 5.0
    */
   @SuppressWarnings("unchecked")
-  public <E extends Throwable> Future<V> onErrorMap(Class<E> type, Function<E, Throwable> mapper) {
+  public final <E extends Throwable> Future<V> onErrorMap(Class<E> type, Function<E, Throwable> mapper) {
     return onErrorMap(type::isInstance, (Function<Throwable, Throwable>) mapper);
   }
 
@@ -982,19 +982,13 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #onErrorComplete(Predicate)
    * @since 5.0
    */
-  @SuppressWarnings("unchecked")
   public final Future<V> onErrorReturn(@Nullable Predicate<Throwable> predicate, @Nullable V fallbackValue) {
-    return Futures.errorHandling(this, null, new ThrowingFunction<Throwable, V>() {
-
-      @Nullable
-      @Override
-      public V applyWithException(Throwable param) throws Throwable {
-        if (predicate == null || predicate.test(param)) {
-          return fallbackValue;
-        }
-        throw param;
+    return errorHandling(param -> {
+      if (predicate == null || predicate.test(param)) {
+        return fallbackValue;
       }
-    }, Futures.alwaysFunction);
+      throw param;
+    });
   }
 
   /**
