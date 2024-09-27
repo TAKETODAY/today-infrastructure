@@ -139,7 +139,6 @@ final class HttpServiceMethod {
         throw new IllegalStateException("Could not resolve parameter [%d] in %s: No suitable resolver"
                 .formatted(this.parameters[i].getParameterIndex(), this.parameters[i].getExecutable().toGenericString()));
       }
-
     }
   }
 
