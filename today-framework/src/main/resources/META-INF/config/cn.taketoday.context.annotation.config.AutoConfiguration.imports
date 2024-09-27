@@ -18,6 +18,7 @@
 cn.taketoday.annotation.config.context.LifecycleAutoConfiguration
 cn.taketoday.annotation.config.context.MessageSourceAutoConfiguration
 cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration
+cn.taketoday.annotation.config.context.ConfigurationPropertiesAutoConfiguration
 cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
 cn.taketoday.annotation.config.task.TaskSchedulingAutoConfiguration
 cn.taketoday.annotation.config.validation.ValidationAutoConfiguration
