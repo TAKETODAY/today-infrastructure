@@ -273,7 +273,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see Promise#setFailure(Throwable)
    * @see AbstractFuture#tryFailure(Throwable)
    */
-  public Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+  public final Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
     return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
@@ -283,7 +283,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param successCallback the success callback
    * @return this future object.
    */
-  public Future<V> onSuccess(SuccessCallback<V> successCallback) {
+  public final Future<V> onSuccess(SuccessCallback<V> successCallback) {
     return onCompleted(successCallback, null);
   }
 
@@ -300,7 +300,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see AbstractFuture#tryFailure(Throwable)
    * @see Future#isFailure()
    */
-  public Future<V> onFailure(FailureCallback failureCallback) {
+  public final Future<V> onFailure(FailureCallback failureCallback) {
     return onCompleted(FutureListener.forFailure(failureCallback));
   }
 
@@ -351,7 +351,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isCancelled()
    * @since 5.0
    */
-  public Future<V> onCancelled(Runnable callback) {
+  public final Future<V> onCancelled(Runnable callback) {
     Assert.notNull(callback, "cancelledCallback is required");
     return onCompleted(future -> {
       if (future.isCancelled()) {
@@ -369,7 +369,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isCancelled()
    * @since 5.0
    */
-  public Future<V> onFailed(FailureCallback failedCallback) {
+  public final Future<V> onFailed(FailureCallback failedCallback) {
     return onCompleted(FutureListener.forFailed(failedCallback));
   }
 
@@ -384,7 +384,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isDone()
    * @since 5.0
    */
-  public Future<V> onFinally(Runnable callback) {
+  public final Future<V> onFinally(Runnable callback) {
     Assert.notNull(callback, "finallyCallback is required");
     return onCompleted(future -> callback.run());
   }
@@ -551,7 +551,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #getNow()
    * @see Promise#setSuccess(Object)
    */
-  public V obtain() throws IllegalStateException {
+  public final V obtain() throws IllegalStateException {
     V v = getNow();
     if (v == null) {
       throw new IllegalStateException("Result is required");
@@ -726,7 +726,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return itself
    * @throws IllegalArgumentException Promise is null.
    */
-  public Future<V> cascadeTo(Promise<V> promise) {
+  public final Future<V> cascadeTo(Promise<V> promise) {
     Assert.notNull(promise, "Promise is required");
     Futures.cascadeTo(this, promise);
     return this;
@@ -1002,7 +1002,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  public <U> Future<Pair<V, U>> zip(Future<U> that) {
+  public final <U> Future<Pair<V, U>> zip(Future<U> that) {
     return zipWith(that, Pair::of);
   }
 
@@ -1016,7 +1016,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws IllegalArgumentException if {@code that} is null
    * @throws NullPointerException if {@code thatA} is null
    */
-  public <A, B> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
+  public final <A, B> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
     return zipWith(thatA.zip(thatB), (v, ab) -> Triple.of(v, ab.first, ab.second));
   }
 
@@ -1033,7 +1033,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  public <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
+  public final <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     Assert.notNull(that, "Future is required");
     Assert.notNull(combinator, "combinator is required");
     return Futures.zipWith(this, that, combinator);
@@ -1052,7 +1052,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see Scheduler
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration) {
+  public final Future<V> timeout(Duration duration) {
     return timeout(duration, scheduler());
   }
 
@@ -1067,7 +1067,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled) {
+  public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled) {
     Scheduler scheduler = createScheduler(scheduled);
     return timeout(duration, scheduler);
   }
@@ -1083,7 +1083,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see Scheduler
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, Scheduler scheduler) {
+  public final Future<V> timeout(Duration duration, Scheduler scheduler) {
     Assert.notNull(duration, "Duration is required");
     Assert.notNull(scheduler, "Scheduler is required");
     return Futures.timeout(this, duration.toNanos(), NANOSECONDS, scheduler);
@@ -1100,7 +1100,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(long timeout, TimeUnit unit) {
+  public final Future<V> timeout(long timeout, TimeUnit unit) {
     return timeout(timeout, unit, scheduler());
   }
 
@@ -1116,7 +1116,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduled) {
+  public final Future<V> timeout(long timeout, TimeUnit unit, ScheduledExecutorService scheduled) {
     Scheduler scheduler = createScheduler(scheduled);
     return timeout(timeout, unit, scheduler);
   }
@@ -1132,7 +1132,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(long timeout, TimeUnit unit, Scheduler scheduler) {
+  public final Future<V> timeout(long timeout, TimeUnit unit, Scheduler scheduler) {
     Assert.notNull(unit, "TimeUnit is required");
     Assert.notNull(scheduler, "Scheduler is required");
     return Futures.timeout(this, timeout, unit, scheduler);
@@ -1148,7 +1148,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
+  public final Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
     return timeout(duration, scheduler(), timeoutListener);
   }
 
@@ -1163,7 +1163,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<Promise<V>> timeoutListener) {
+  public final Future<V> timeout(Duration duration, ScheduledExecutorService scheduled, FutureListener<Promise<V>> timeoutListener) {
     Scheduler scheduler = createScheduler(scheduled);
     return timeout(duration, scheduler, timeoutListener);
   }
@@ -1179,7 +1179,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see TimeoutException
    * @since 5.0
    */
-  public Future<V> timeout(Duration duration, Scheduler scheduler, FutureListener<Promise<V>> timeoutListener) {
+  public final Future<V> timeout(Duration duration, Scheduler scheduler, FutureListener<Promise<V>> timeoutListener) {
     Assert.notNull(duration, "Duration is required");
     Assert.notNull(scheduler, "Scheduler is required");
     Assert.notNull(timeoutListener, "timeoutListener is required");
@@ -1209,7 +1209,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
-  public <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
+  public final <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();
     if (isSuccess()) {
@@ -1232,7 +1232,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @since 5.0
    */
   @Nullable
-  public V join() {
+  public final V join() {
     syncUninterruptibly();
     return getNow();
   }
@@ -1251,7 +1251,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @since 5.0
    */
   @Nullable
-  public V join(Duration timeout) throws TimeoutException {
+  public final V join(Duration timeout) throws TimeoutException {
     return join(timeout, false);
   }
 
@@ -1269,7 +1269,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @since 5.0
    */
   @Nullable
-  public V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
+  public final V join(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
     if (!isDone()) {
       try {
         if (!await(timeout.toNanos(), NANOSECONDS)) {
@@ -1301,7 +1301,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
-  public Optional<V> block() {
+  public final Optional<V> block() {
     return Optional.ofNullable(join());
   }
 
@@ -1318,8 +1318,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see ExceptionUtils#sneakyThrow(Throwable)
    * @since 5.0
    */
-  @Nullable
-  public Optional<V> block(Duration timeout) throws TimeoutException {
+  public final Optional<V> block(Duration timeout) throws TimeoutException {
     return block(timeout, false);
   }
 
@@ -1336,8 +1335,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws TimeoutException timeout
    * @since 5.0
    */
-  @Nullable
-  public Optional<V> block(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
+  public final Optional<V> block(Duration timeout, boolean cancelOnTimeout) throws TimeoutException {
     return Optional.ofNullable(join(timeout, cancelOnTimeout));
   }
 

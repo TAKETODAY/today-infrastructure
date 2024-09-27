@@ -1358,6 +1358,9 @@ class FutureTests {
     assertThat(promise1.isCancelled()).isFalse();
     assertThat(promise1.isSuccess()).isFalse();
     assertThat(promise1.getCause()).isSameAs(exception);
+
+    assertThat(ok().isFailure()).isFalse();
+    assertThat(failed(new Exception()).isFailure()).isTrue();
   }
 
   @Test
