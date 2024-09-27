@@ -1367,9 +1367,8 @@ class FutureTests {
 
     assertThat(flag).isTrue();
 
-    failed(new IllegalStateException())
-            .onFailure(IllegalStateException.class, e -> flag.set(false))
-            .awaitUninterruptibly();
+    failed(new IllegalStateException(), directExecutor())
+            .onFailure(IllegalStateException.class, e -> flag.set(false));
 
     assertThat(flag).isFalse();
 
@@ -1442,7 +1441,7 @@ class FutureTests {
     //
 
     forExecutor(directExecutor())
-            .timeout(Duration.ofSeconds(1), scheduledService, future -> future.trySuccess(1))
+            .timeout(Duration.ofSeconds(1), future -> future.trySuccess(1))
             .onSuccess(v -> flag.set(false));
 
     assertThat(flag).isFalse();
