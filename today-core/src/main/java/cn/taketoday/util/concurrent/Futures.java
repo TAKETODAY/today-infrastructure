@@ -439,6 +439,7 @@ final class Futures {
       this.mapper = mapper;
     }
 
+    @Nullable
     @Override
     public R call() {
       try {
@@ -581,7 +582,13 @@ final class Futures {
     @Override
     public void operationComplete(Future<V> completed) throws Throwable {
       Throwable cause = completed.getCause();
-      if (cause != null && !completed.isCancelled()) {
+      if (cause == null) {
+        recipient.trySuccess(completed.getNow());
+      }
+      else if (completed.isCancelled()) {
+        recipient.cancel();
+      }
+      else {
         try {
           Future<V> mapped = errorHandler.apply(cause);
           if (mapped.isSuccess()) {
