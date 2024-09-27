@@ -1361,6 +1361,22 @@ class FutureTests {
 
     assertThat(ok().isFailure()).isFalse();
     assertThat(failed(new Exception()).isFailure()).isTrue();
+
+    failed(new IllegalStateException())
+            .onFailure(IllegalArgumentException.class, e -> fail());
+
+    assertThat(flag).isTrue();
+
+    failed(new IllegalStateException())
+            .onFailure(IllegalStateException.class, e -> flag.set(false))
+            .awaitUninterruptibly();
+
+    assertThat(flag).isFalse();
+
+    failed(new IllegalStateException(), directExecutor())
+            .onFailure(throwable -> throwable instanceof IllegalStateException, e -> flag.set(true));
+
+    assertThat(flag).isTrue();
   }
 
   @Test
@@ -1452,7 +1468,7 @@ class FutureTests {
     assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
     assertThat(objectFuture.executor()).isSameAs(scheduler);
 
-    objectFuture = objectFuture.timeout(Duration.ofSeconds(1), scheduler)
+    objectFuture = objectFuture.timeout(1, TimeUnit.SECONDS, scheduler)
             .onFailure(e -> fail());
 
     assertThat(objectFuture).succeedsWithin(Duration.ofSeconds(2));
