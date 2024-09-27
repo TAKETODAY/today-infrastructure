@@ -122,7 +122,8 @@ class ReflectionUtilsTests {
     assertTrue(pojo.pojo4_constructorInvoked);
   }
 
-  public static class SetterMethodTest {
+  @Nested
+  class SetterMethodTest {
     @Getter
     @Setter
     public static class POJO1 {
@@ -204,6 +205,7 @@ class ReflectionUtilsTests {
       }
     }
 
+    @Test
     public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
       POJO1 pojo1 = new POJO1();
       pojo1._boolean = true;
@@ -326,7 +328,9 @@ class ReflectionUtilsTests {
 
   // --------------
 
-  public static class GetterMethodTest {
+  @Nested
+  class GetterMethodTest {
+
     @Getter
     @Setter
     public static class POJO1 {
@@ -407,6 +411,7 @@ class ReflectionUtilsTests {
       }
     }
 
+    @Test
     public void testAllTypes() throws IllegalAccessException, NoSuchFieldException {
       POJO1 pojo = new POJO1();
       pojo._boolean = true;
