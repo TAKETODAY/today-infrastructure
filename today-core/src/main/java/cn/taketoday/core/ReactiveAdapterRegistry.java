@@ -32,6 +32,7 @@ import java.util.function.Function;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.concurrent.Future;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.integration.BlockHoundIntegration;
@@ -142,8 +143,8 @@ public class ReactiveAdapterRegistry {
           Function<Object, Publisher<?>> toAdapter, Function<Publisher<?>, Object> fromAdapter) {
 
     return ReactiveStreams.reactorPresent
-           ? new ReactorAdapter(descriptor, toAdapter, fromAdapter)
-           : new ReactiveAdapter(descriptor, toAdapter, fromAdapter);
+            ? new ReactorAdapter(descriptor, toAdapter, fromAdapter)
+            : new ReactiveAdapter(descriptor, toAdapter, fromAdapter);
   }
 
   /**
@@ -276,6 +277,13 @@ public class ReactiveAdapterRegistry {
               ReactiveTypeDescriptor.multiValue(Flow.Publisher.class, () -> EMPTY_FLOW),
               source -> JdkFlowAdapter.flowPublisherToFlux((Flow.Publisher<?>) source),
               JdkFlowAdapter::publisherToFlowPublisher);
+
+      // @since 5.0
+      registry.registerReactiveType(
+              ReactiveTypeDescriptor.nonDeferredAsyncValue(Future.class, Future::ok),
+              source -> Mono.fromCompletionStage(((Future<?>) source).completable()),
+              source -> Future.forAdaption(Mono.from(source).toFuture()));
+
     }
   }
 
