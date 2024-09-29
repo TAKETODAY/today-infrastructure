@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.Promise;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import reactor.adapter.JdkFlowAdapter;
@@ -121,6 +123,16 @@ class ReactiveAdapterRegistryTests {
 
       // Completable
       assertThat(getAdapter(CompletableFuture.class)).isNotNull();
+
+      // @since 5.0
+      assertThat(getAdapter(Future.class)).isNotNull();
+
+      assertThat(getAdapter(Future.class).supportsEmpty()).isTrue();
+      assertThat(getAdapter(Mono.class).supportsEmpty()).isTrue();
+      assertThat(getAdapter(Flux.class).supportsEmpty()).isTrue();
+      assertThat(getAdapter(Publisher.class).supportsEmpty()).isTrue();
+      assertThat(getAdapter(CompletableFuture.class).supportsEmpty()).isTrue();
+
     }
 
     @Test
@@ -166,6 +178,24 @@ class ReactiveAdapterRegistryTests {
       assertThat(target).as("Expected Mono Publisher: " + target.getClass().getName()).isInstanceOf(Mono.class);
       assertThat(((Mono<Integer>) target).block(ONE_SECOND)).isEqualTo(Integer.valueOf(1));
     }
+
+    @Test
+    void fromFuture() {
+      Promise<Integer> future = Future.forPromise();
+      future.trySuccess(1);
+      Object target = getAdapter(Future.class).toPublisher(future);
+      assertThat(target).as("Expected Mono Publisher: " + target.getClass().getName()).isInstanceOf(Mono.class);
+      assertThat(((Mono<Integer>) target).block(ONE_SECOND)).isEqualTo(Integer.valueOf(1));
+    }
+
+    @Test
+    void toFuture() {
+      Publisher<Integer> source = Flux.fromArray(new Integer[] { 1, 2, 3 });
+      Object target = getAdapter(Future.class).fromPublisher(source);
+      assertThat(target).isInstanceOf(Future.class);
+      assertThat(((Future<Integer>) target).join()).isEqualTo(Integer.valueOf(1));
+    }
+
   }
 
   @Nested
