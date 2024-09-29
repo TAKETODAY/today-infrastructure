@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,15 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
 
 import cn.taketoday.core.ParameterizedTypeReference;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
 
 /**
  * Contract to abstract an HTTP client from {@linkplain HttpServiceProxyFactory}
@@ -43,17 +44,17 @@ public interface HttpExchangeAdapter {
    * Perform the given request, and release the response content, if any.
    *
    * @param requestValues the request to perform
+   * @return Returns non-closed ConvertibleClientHttpResponse
    */
-  void exchange(HttpRequestValues requestValues);
+  ClientResponse exchange(HttpRequestValues requestValues);
 
   /**
-   * Perform the given request, release the response content, and return the
-   * response headers.
+   * Perform the given request, and release the response content, if any.
    *
    * @param requestValues the request to perform
-   * @return the response headers
+   * @since 5.0
    */
-  HttpHeaders exchangeForHeaders(HttpRequestValues requestValues);
+  Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
 
   /**
    * Perform the given request and decode the response content to the given type.
@@ -75,11 +76,29 @@ public interface HttpExchangeAdapter {
   ResponseEntity<Void> exchangeForBodilessEntity(HttpRequestValues requestValues);
 
   /**
+   * Variant of {@link #exchange(HttpRequestValues)} with additional
+   * access to the response status and headers.
+   *
+   * @return the response entity with status and headers.
+   * @since 5.0
+   */
+  Future<ResponseEntity<Void>> exchangeForBodilessEntityAsync(HttpRequestValues requestValues);
+
+  /**
    * Variant of {@link #exchangeForBody(HttpRequestValues, ParameterizedTypeReference)}
    * with additional access to the response status and headers.
    *
    * @return the response entity with status, headers, and body.
    */
   <T> ResponseEntity<T> exchangeForEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+
+  /**
+   * Variant of {@link #exchangeForBody(HttpRequestValues, ParameterizedTypeReference)}
+   * with additional access to the response status and headers.
+   *
+   * @return the response entity with status, headers, and body.
+   * @since 5.0
+   */
+  <T> Future<ResponseEntity<T>> exchangeForEntityAsync(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
 }

@@ -1095,7 +1095,7 @@ class RestClientIntegrationTests {
 
     var future = this.restClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
-            .executeAsync();
+            .send();
 
     try (var response = future.join()) {
       assertThat(response).isNotNull();
@@ -1126,7 +1126,7 @@ class RestClientIntegrationTests {
 
     var future = this.restClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
-            .executeAsync();
+            .send();
 
     try (var response = future.block().orElse(null)) {
       assertThat(response).isNotNull();

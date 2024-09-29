@@ -712,18 +712,18 @@ public interface RestClient {
     AsyncSpec async(@Nullable Executor executor);
 
     /**
-     * Execute the HTTP request:
+     * Send the HTTP request:
      * <pre>{@code
      * client.delete()
      *     .uri("/persons/1")
-     *     .execute();
+     *     .send();
      * }</pre>
      * <p>Or if interested only in the body:
      * <pre>{@code
      *  client.put()
      *     .uri("/persons/1")
      *     .body(persons)
-     *     .execute();
+     *     .send();
      * }</pre>
      * <p> The returned future completes exceptionally with:
      * <ul>
@@ -738,23 +738,23 @@ public interface RestClient {
      * @see ClientHttpRequest#async(Executor)
      * @since 5.0
      */
-    default Future<ConvertibleClientHttpResponse> executeAsync() {
-      return executeAsync(null);
+    default Future<ClientResponse> send() {
+      return send(null);
     }
 
     /**
-     * Execute the HTTP request:
+     * Send the HTTP request:
      * <pre>{@code
      * client.delete()
      *     .uri("/persons/1")
-     *     .executeAsync();
+     *     .send();
      * }</pre>
      * <p>Or if interested only in the body:
      * <pre>{@code
      *  client.put()
      *     .uri("/persons/1")
      *     .body(persons)
-     *     .executeAsync();
+     *     .send();
      * }</pre>
      * <p> The returned future completes exceptionally with:
      * <ul>
@@ -769,7 +769,7 @@ public interface RestClient {
      * @see ClientHttpRequest#async(Executor)
      * @since 5.0
      */
-    Future<ConvertibleClientHttpResponse> executeAsync(@Nullable Executor executor);
+    Future<ClientResponse> send(@Nullable Executor executor);
 
     /**
      * Execute the HTTP request:
@@ -789,9 +789,10 @@ public interface RestClient {
      * {@link HttpClientErrorException} and 5xx response codes in a
      * {@link HttpServerErrorException}. To customize error handling, use
      * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
+     * <p> This ClientHttpResponse body is closed
      */
-    default void execute() {
-      execute(true);
+    default ClientResponse execute() {
+      return execute(true);
     }
 
     /**
@@ -815,7 +816,7 @@ public interface RestClient {
      *
      * @param close {@code true} to close the response
      */
-    void execute(boolean close);
+    ClientResponse execute(boolean close);
 
     /**
      * Exchange the {@link ClientHttpResponse} for a type {@code T}. This
@@ -892,7 +893,7 @@ public interface RestClient {
        * @return the exchanged type
        * @throws IOException in case of I/O errors
        */
-      T exchange(HttpRequest clientRequest, ConvertibleClientHttpResponse clientResponse) throws IOException;
+      T exchange(HttpRequest clientRequest, ClientResponse clientResponse) throws IOException;
 
     }
 
@@ -1219,33 +1220,6 @@ public interface RestClient {
      * @throws IOException in case of I/O errors
      */
     void handle(HttpRequest request, ClientHttpResponse response) throws IOException;
-
-  }
-
-  /**
-   * Extension of {@link ClientHttpResponse} that can convert the body.
-   */
-  interface ConvertibleClientHttpResponse extends ClientHttpResponse {
-
-    /**
-     * Extract the response body as an object of the given type.
-     *
-     * @param bodyType the type of return value
-     * @param <T> the body type
-     * @return the body, or {@code null} if no response body was available
-     */
-    @Nullable
-    <T> T bodyTo(Class<T> bodyType);
-
-    /**
-     * Extract the response body as an object of the given type.
-     *
-     * @param bodyType the type of return value
-     * @param <T> the body type
-     * @return the body, or {@code null} if no response body was available
-     */
-    @Nullable
-    <T> T bodyTo(ParameterizedTypeReference<T> bodyType);
 
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -21,10 +21,12 @@ import java.time.Duration;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
+import reactor.core.publisher.Mono;
 
 /**
  * Convenient base class for a {@link ReactorHttpExchangeAdapter} implementation
@@ -76,49 +78,47 @@ public abstract class AbstractReactorHttpExchangeAdapter implements ReactorHttpE
   }
 
   @Override
-  public void exchange(HttpRequestValues requestValues) {
-    if (this.blockTimeout != null) {
-      exchangeForMono(requestValues).block(this.blockTimeout);
-    }
-    else {
-      exchangeForMono(requestValues).block();
-    }
-  }
+  public abstract ClientResponse exchange(HttpRequestValues requestValues);
 
   @Override
-  public HttpHeaders exchangeForHeaders(HttpRequestValues requestValues) {
-    HttpHeaders headers = (this.blockTimeout != null ?
-                           exchangeForHeadersMono(requestValues).block(this.blockTimeout) :
-                           exchangeForHeadersMono(requestValues).block());
-    Assert.state(headers != null, "Expected HttpHeaders");
-    return headers;
-  }
+  public abstract Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
 
   @Override
   public <T> T exchangeForBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
-    return (this.blockTimeout != null ?
-            exchangeForBodyMono(requestValues, bodyType).block(this.blockTimeout) :
-            exchangeForBodyMono(requestValues, bodyType).block());
+    return blockingGet(exchangeForBodyMono(requestValues, bodyType));
   }
 
   @Override
   public ResponseEntity<Void> exchangeForBodilessEntity(HttpRequestValues requestValues) {
-    ResponseEntity<Void> entity = (this.blockTimeout != null ?
-                                   exchangeForBodilessEntityMono(requestValues).block(this.blockTimeout) :
-                                   exchangeForBodilessEntityMono(requestValues).block());
+    ResponseEntity<Void> entity = blockingGet(exchangeForBodilessEntityMono(requestValues));
     Assert.state(entity != null, "Expected ResponseEntity");
     return entity;
   }
 
   @Override
-  public <T> ResponseEntity<T> exchangeForEntity(
-          HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
-
-    ResponseEntity<T> entity = (this.blockTimeout != null ?
-                                exchangeForEntityMono(requestValues, bodyType).block(this.blockTimeout) :
-                                exchangeForEntityMono(requestValues, bodyType).block());
+  public <T> ResponseEntity<T> exchangeForEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+    ResponseEntity<T> entity = blockingGet(exchangeForEntityMono(requestValues, bodyType));
     Assert.state(entity != null, "Expected ResponseEntity");
     return entity;
   }
- 
+
+  @Override
+  public <T> Future<ResponseEntity<T>> exchangeForEntityAsync(
+          HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+    return Future.forAdaption(exchangeForEntityMono(requestValues, bodyType).toFuture());
+  }
+
+  @Override
+  public Future<ResponseEntity<Void>> exchangeForBodilessEntityAsync(HttpRequestValues requestValues) {
+    return Future.forAdaption(exchangeForBodilessEntityMono(requestValues).toFuture());
+  }
+
+  @Nullable
+  protected final <T> T blockingGet(Mono<T> mono) {
+    if (blockTimeout != null) {
+      return mono.block(blockTimeout);
+    }
+    return mono.block();
+  }
+
 }

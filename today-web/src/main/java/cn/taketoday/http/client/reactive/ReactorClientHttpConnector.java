@@ -166,8 +166,7 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
     requestSender = setUri(requestSender, uri);
     AtomicReference<ReactorClientHttpResponse> responseRef = new AtomicReference<>();
 
-    return requestSender
-            .send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
+    return requestSender.send((request, outbound) -> requestCallback.apply(adaptRequest(method, uri, request, outbound)))
             .responseConnection((response, connection) -> {
               responseRef.set(new ReactorClientHttpResponse(response, connection));
               return Mono.just((ClientHttpResponse) responseRef.get());

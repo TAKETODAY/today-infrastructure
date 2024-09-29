@@ -20,11 +20,13 @@ package cn.taketoday.web.testfixture.http;
 import java.io.IOException;
 import java.io.InputStream;
 
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MockHttpInputMessage;
-import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.client.ClientResponse;
 
 /**
  * Mock implementation of {@link cn.taketoday.http.client.ClientHttpResponse}.
@@ -34,7 +36,7 @@ import cn.taketoday.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-public class MockClientHttpResponse extends MockHttpInputMessage implements ClientHttpResponse {
+public class MockClientHttpResponse extends MockHttpInputMessage implements ClientResponse {
 
   private final HttpStatusCode statusCode;
 
@@ -59,8 +61,6 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
   /**
    * Create a {@code MockClientHttpResponse} with response body as a byte array
    * and a custom HTTP status code.
-   *
-   * @since 5.3.17
    */
   public MockClientHttpResponse(byte[] body, int statusCode) {
     this(body, HttpStatusCode.valueOf(statusCode));
@@ -102,6 +102,18 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
     catch (IOException ex) {
       // ignore
     }
+  }
+
+  @Nullable
+  @Override
+  public <T> T bodyTo(Class<T> bodyType) {
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
+    return null;
   }
 
 }

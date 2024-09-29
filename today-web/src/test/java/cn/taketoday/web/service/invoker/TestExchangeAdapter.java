@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -20,9 +20,11 @@ package cn.taketoday.web.service.invoker;
 import java.util.Collections;
 
 import cn.taketoday.core.ParameterizedTypeReference;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
+import cn.taketoday.web.testfixture.http.MockClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,14 +61,9 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   }
 
   @Override
-  public void exchange(HttpRequestValues requestValues) {
+  public ClientResponse exchange(HttpRequestValues requestValues) {
     saveInput("exchange", requestValues, null);
-  }
-
-  @Override
-  public HttpHeaders exchangeForHeaders(HttpRequestValues requestValues) {
-    saveInput("exchangeForHeaders", requestValues, null);
-    return HttpHeaders.forWritable();
+    return new MockClientHttpResponse();
   }
 
   @SuppressWarnings("unchecked")
@@ -74,7 +71,7 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   public <T> T exchangeForBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     saveInput("exchangeForBody", requestValues, bodyType);
     return bodyType.getType().getTypeName().contains("List") ?
-           (T) Collections.singletonList(getInvokedMethodName()) : (T) getInvokedMethodName();
+            (T) Collections.singletonList(getInvokedMethodName()) : (T) getInvokedMethodName();
   }
 
   @Override
@@ -90,6 +87,23 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
 
     saveInput("exchangeForEntity", requestValues, bodyType);
     return (ResponseEntity<T>) ResponseEntity.ok(getInvokedMethodName());
+  }
+
+  @Override
+  public Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
+    saveInput("exchange", requestValues, null);
+    MockClientHttpResponse result = new MockClientHttpResponse();
+    return Future.ok(result);
+  }
+
+  @Override
+  public <T> Future<ResponseEntity<T>> exchangeForEntityAsync(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+    return Future.ok(exchangeForEntity(requestValues, bodyType));
+  }
+
+  @Override
+  public Future<ResponseEntity<Void>> exchangeForBodilessEntityAsync(HttpRequestValues requestValues) {
+    return Future.ok(exchangeForBodilessEntity(requestValues));
   }
 
   @Override

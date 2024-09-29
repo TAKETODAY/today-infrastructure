@@ -122,15 +122,14 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     for (Map.Entry<CharSequence, Set<Cookie>> entry : response.cookies().entrySet()) {
       Set<Cookie> cookies = entry.getValue();
       for (Cookie cookie : cookies) {
-        result.add(cookie.name(),
-                ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
-                        .domain(cookie.domain())
-                        .path(cookie.path())
-                        .maxAge(cookie.maxAge())
-                        .secure(cookie.isSecure())
-                        .httpOnly(cookie.isHttpOnly())
-                        .sameSite(getSameSite(cookie))
-                        .build());
+        result.add(cookie.name(), ResponseCookie.fromClientResponse(cookie.name(), cookie.value())
+                .domain(cookie.domain())
+                .path(cookie.path())
+                .maxAge(cookie.maxAge())
+                .secure(cookie.isSecure())
+                .httpOnly(cookie.isHttpOnly())
+                .sameSite(getSameSite(cookie))
+                .build());
       }
     }
     return result.asReadOnly();
@@ -169,16 +168,15 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   }
 
   private boolean mayHaveBody(HttpMethod method) {
-    int code = this.getRawStatusCode();
+    int code = getRawStatusCode();
     return !((code >= 100 && code < 200) || code == 204 || code == 205 ||
             method.equals(HttpMethod.HEAD) || getHeaders().getContentLength() == 0);
   }
 
   @Override
   public String toString() {
-    return "ReactorClientHttpResponse{" +
-            "request=[" + this.response.method().name() + " " + this.response.uri() + "]," +
-            "status=" + getRawStatusCode() + '}';
+    return "ReactorClientHttpResponse{request=[%s %s],status=%d}"
+            .formatted(this.response.method().name(), this.response.uri(), getRawStatusCode());
   }
 
 }

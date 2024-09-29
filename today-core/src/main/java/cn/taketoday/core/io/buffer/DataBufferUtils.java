@@ -186,7 +186,7 @@ public abstract class DataBufferUtils {
     if (ObjectUtils.isNotEmpty(options)) {
       for (OpenOption option : options) {
         if (option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE) {
-          throw new IllegalArgumentException("'" + option + "' not allowed");
+          throw new IllegalArgumentException("'%s' not allowed".formatted(option));
         }
       }
     }
@@ -367,7 +367,7 @@ public abstract class DataBufferUtils {
     Set<OpenOption> optionSet = checkWriteOptions(options);
     return Mono.create(sink -> {
       try {
-        AsynchronousFileChannel channel = AsynchronousFileChannel.open(destination, optionSet, null);
+        var channel = AsynchronousFileChannel.open(destination, optionSet, null);
         sink.onDispose(() -> closeChannel(channel));
         write(source, channel)
                 .subscribe(DataBufferUtils::release, sink::error, sink::success, Context.of(sink.contextView()));

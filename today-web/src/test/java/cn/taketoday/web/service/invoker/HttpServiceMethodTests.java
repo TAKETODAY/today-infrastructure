@@ -24,8 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
@@ -34,6 +37,8 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
 import cn.taketoday.web.service.annotation.GetExchange;
 import cn.taketoday.web.service.annotation.HttpExchange;
 import cn.taketoday.web.service.annotation.PostExchange;
@@ -99,6 +104,9 @@ class HttpServiceMethodTests {
 
     List<String> list = service.getList();
     assertThat(list).containsOnly("exchangeForBody");
+
+    assertThat(service.convertible()).isNotNull();
+    assertThat(service.request()).isNotNull();
   }
 
   @Test
@@ -245,6 +253,40 @@ class HttpServiceMethodTests {
                     PostExchange.class.getSimpleName(), PutExchange.class.getSimpleName());
   }
 
+  @Test
+  void simpleAsyncService() {
+    SimpleAsyncService service = this.proxyFactory.createClient(SimpleAsyncService.class);
+
+    assertThat(service.execute()).isNotNull();
+    assertThat(service.future()).isNotNull();
+
+    var convertible = service.convertible();
+
+    assertThat(convertible).isNotNull();
+    assertThat(service.completableFuture()).isNotNull();
+    assertThat(service.completionStage()).isNotNull();
+    assertThat(service.jucFuture()).isNotNull();
+
+    Future<HttpHeaders> headers = service.headers();
+    assertThat(headers).isNotNull();
+    assertThat(service.stringBody()).isNotNull();
+
+    assertThat(service.stringBody()).succeedsWithin(Duration.ofSeconds(1))
+            .isNull();
+
+    Future<ResponseEntity<String>> entity = service.entity();
+    assertThat(entity).succeedsWithin(Duration.ofSeconds(1))
+            .extracting(ResponseEntity::getBody).isEqualTo("exchangeForEntity");
+
+    Future<ResponseEntity<Void>> voidEntity = service.voidEntity();
+    assertThat(voidEntity).succeedsWithin(Duration.ofSeconds(1)).extracting(ResponseEntity::getBody).isNull();
+
+    Future<List<String>> list = service.getListBody();
+    assertThat(list).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(list.getNow()).isNull();
+
+  }
+
   protected void verifyReactorClientInvocation(String methodName, @Nullable ParameterizedTypeReference<?> expectedBodyType) {
     assertThat(this.reactorClient.getInvokedMethodName()).isEqualTo(methodName);
     assertThat(this.reactorClient.getBodyType()).isEqualTo(expectedBodyType);
@@ -255,6 +297,12 @@ class HttpServiceMethodTests {
 
     @GetExchange
     void execute();
+
+    @GetExchange
+    cn.taketoday.http.client.ClientHttpResponse request();
+
+    @GetExchange
+    ClientResponse convertible();
 
     @GetExchange
     HttpHeaders getHeaders();
@@ -372,4 +420,43 @@ class HttpServiceMethodTests {
   private @interface ExtraHttpExchange {
   }
 
+  interface SimpleAsyncService {
+
+    @GetExchange
+    Future<Void> execute();
+
+    @GetExchange
+    Future<Void> execute(HttpHeaders headers);
+
+    @GetExchange
+    Future<cn.taketoday.http.client.ClientHttpResponse> future();
+
+    @GetExchange
+    Future<ClientResponse> convertible();
+
+    @GetExchange
+    CompletionStage<ClientResponse> completionStage();
+
+    @GetExchange
+    CompletableFuture<ClientResponse> completableFuture();
+
+    @GetExchange
+    java.util.concurrent.Future<ClientResponse> jucFuture();
+
+    @GetExchange
+    Future<HttpHeaders> headers();
+
+    @GetExchange
+    Future<String> stringBody();
+
+    @GetExchange
+    Future<List<String>> getListBody();
+
+    @GetExchange
+    Future<ResponseEntity<Void>> voidEntity();
+
+    @GetExchange
+    Future<ResponseEntity<String>> entity();
+
+  }
 }

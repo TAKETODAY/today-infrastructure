@@ -29,6 +29,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * Shortcut for {@link HttpExchange @HttpExchange} for HTTP GET requests.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @Target(ElementType.METHOD)

@@ -19,11 +19,23 @@ package cn.taketoday.web.reactive.function.client.support;
 
 import org.reactivestreams.Publisher;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamUtils;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.reactive.function.client.ClientResponse;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.service.invoker.AbstractReactorHttpExchangeAdapter;
 import cn.taketoday.web.service.invoker.HttpRequestValues;
@@ -96,9 +108,24 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     return newRequest(requestValues).retrieve().toEntityFlux(bodyType);
   }
 
+  @Override
+  public cn.taketoday.web.client.ClientResponse exchange(HttpRequestValues requestValues) {
+    return blockingGet(newRequest(requestValues).exchange().map(ReactorClientResponse::new));
+  }
+
+  @Override
+  public Future<cn.taketoday.web.client.ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
+    return Future.forAdaption(newRequest(requestValues).exchange().toFuture())
+            .map(ReactorClientResponse::new);
+  }
+
+  @Override
+  public Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues) {
+    return newRequest(requestValues).exchange();
+  }
+
   @SuppressWarnings("ReactiveStreamsUnusedPublisher")
   private WebClient.RequestBodySpec newRequest(HttpRequestValues values) {
-
     HttpMethod httpMethod = values.getHttpMethod();
     Assert.notNull(httpMethod, "HttpMethod is required");
 
@@ -148,6 +175,85 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
    */
   public static WebClientAdapter forClient(WebClient webClient) {
     return new WebClientAdapter(webClient);
+  }
+
+  /**
+   * @since 5.0
+   */
+  final class ReactorClientResponse implements ClientHttpResponse, cn.taketoday.web.client.ClientResponse {
+
+    private final ClientResponse clientResponse;
+
+    @Nullable
+    private volatile InputStream body;
+
+    private ReactorClientResponse(ClientResponse clientResponse) {
+      this.clientResponse = clientResponse;
+    }
+
+    @Override
+    public HttpStatusCode getStatusCode() {
+      return clientResponse.statusCode();
+    }
+
+    @Override
+    public String getStatusText() {
+      if (getStatusCode() instanceof HttpStatus status) {
+        return status.getReasonPhrase();
+      }
+      else {
+        return "";
+      }
+    }
+
+    @Override
+    public void close() {
+      InputStream body = this.body;
+      if (body != null) {
+        try (body) {
+          StreamUtils.drain(this.body);
+        }
+        catch (IOException ignored) {
+
+        }
+      }
+    }
+
+    @Override
+    public InputStream getBody() {
+      InputStream body = this.body;
+      if (body != null) {
+        return body;
+      }
+
+      Mono<InputStream> inputStreamMono = clientResponse.body((response, context) ->
+              DataBufferUtils.join(response.getBody())).map(DataBuffer::asInputStream);
+
+      body = blockingGet(inputStreamMono);
+      if (body == null) {
+        body = InputStream.nullInputStream();
+      }
+      this.body = body;
+      return body;
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return clientResponse.headers().asHttpHeaders();
+    }
+
+    @Nullable
+    @Override
+    public <T> T bodyTo(Class<T> bodyType) {
+      return blockingGet(clientResponse.bodyToMono(bodyType));
+    }
+
+    @Nullable
+    @Override
+    public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
+      return blockingGet(clientResponse.bodyToMono(bodyType));
+    }
+
   }
 
 }

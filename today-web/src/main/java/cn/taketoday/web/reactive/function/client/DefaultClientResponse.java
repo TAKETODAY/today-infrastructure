@@ -161,7 +161,7 @@ class DefaultClientResponse implements ClientResponse {
   @SuppressWarnings("unchecked")
   public <T> Flux<T> bodyToFlux(Class<? extends T> elementClass) {
     return elementClass.equals(DataBuffer.class) ?
-           (Flux<T>) body(BodyExtractors.toDataBuffers()) : body(BodyExtractors.toFlux(elementClass));
+            (Flux<T>) body(BodyExtractors.toDataBuffers()) : body(BodyExtractors.toFlux(elementClass));
   }
 
   @Override

@@ -55,7 +55,6 @@ import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -467,9 +466,9 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public Future<ConvertibleClientHttpResponse> executeAsync(@Nullable Executor executor) {
+    public Future<ClientResponse> send(@Nullable Executor executor) {
       return asyncInternal(executor).second
-              .map(DefaultConvertibleClientHttpResponse::new);
+              .map(DefaultClientResponse::new);
     }
 
     private Pair<ClientHttpRequest, Future<ClientHttpResponse>> asyncInternal(@Nullable Executor executor) {
@@ -486,13 +485,13 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public void execute() {
-      execute(true);
+    public ClientResponse execute() {
+      return execute(true);
     }
 
     @Override
-    public void execute(boolean close) {
-      exchangeInternal((clientRequest, clientResponse) -> NullValue.INSTANCE, close);
+    public ClientResponse execute(boolean close) {
+      return exchangeInternal((clientRequest, clientResponse) -> clientResponse, close);
     }
 
     @Override
@@ -508,7 +507,7 @@ final class DefaultRestClient implements RestClient {
       ClientHttpResponse clientResponse = null;
       try {
         clientResponse = clientRequest.execute();
-        var convertibleWrapper = new DefaultConvertibleClientHttpResponse(clientResponse);
+        var convertibleWrapper = new DefaultClientResponse(clientResponse);
         return exchangeFunction.exchange(clientRequest, convertibleWrapper);
       }
       catch (IOException ex) {
@@ -679,7 +678,7 @@ final class DefaultRestClient implements RestClient {
 
     private void applyStatusHandlers(ClientHttpResponse response) {
       try {
-        if (response instanceof DefaultConvertibleClientHttpResponse convertibleResponse) {
+        if (response instanceof DefaultClientResponse convertibleResponse) {
           response = convertibleResponse.delegate;
         }
         for (StatusHandler handler : this.statusHandlers) {
@@ -792,7 +791,7 @@ final class DefaultRestClient implements RestClient {
 
     private void applyStatusHandlers(ClientHttpResponse response) {
       try {
-        if (response instanceof DefaultConvertibleClientHttpResponse cr) {
+        if (response instanceof DefaultClientResponse cr) {
           response = cr.delegate;
         }
 
@@ -809,11 +808,11 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private class DefaultConvertibleClientHttpResponse implements ConvertibleClientHttpResponse {
+  private class DefaultClientResponse implements ClientResponse {
 
     private final ClientHttpResponse delegate;
 
-    public DefaultConvertibleClientHttpResponse(ClientHttpResponse delegate) {
+    public DefaultClientResponse(ClientHttpResponse delegate) {
       this.delegate = delegate;
     }
 

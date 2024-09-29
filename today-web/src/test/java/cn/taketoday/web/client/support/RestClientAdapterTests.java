@@ -87,16 +87,11 @@ class RestClientAdapterTests {
   @interface ParameterizedAdapterTest {
   }
 
-  public static Stream<Object[]> arguments() {
+  public static Stream<Object> arguments() {
     return Stream.of(
             args(url -> {
               RestClient restClient = RestClient.builder().baseURI(url).build();
               return RestClientAdapter.create(restClient);
-            }),
-            args(url -> {
-              RestTemplate restTemplate = new RestTemplate();
-              restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(url));
-              return RestTemplateAdapter.create(restTemplate);
             }));
   }
 

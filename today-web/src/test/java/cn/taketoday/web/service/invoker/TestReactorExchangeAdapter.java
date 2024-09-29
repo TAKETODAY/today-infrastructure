@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -23,7 +23,9 @@ import java.util.Collections;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -62,8 +64,8 @@ class TestReactorExchangeAdapter extends TestExchangeAdapter implements ReactorH
   public <T> Mono<T> exchangeForBodyMono(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     saveInput("exchangeForBodyMono", requestValues, bodyType);
     return bodyType.getType().getTypeName().contains("List") ?
-           (Mono<T>) Mono.just(Collections.singletonList(getInvokedMethodName())) :
-           (Mono<T>) Mono.just(getInvokedMethodName());
+            (Mono<T>) Mono.just(Collections.singletonList(getInvokedMethodName())) :
+            (Mono<T>) Mono.just(getInvokedMethodName());
   }
 
   @Override
@@ -92,6 +94,12 @@ class TestReactorExchangeAdapter extends TestExchangeAdapter implements ReactorH
 
     saveInput("exchangeForEntityFlux", requestValues, bodyType);
     return Mono.just(ResponseEntity.ok((Flux<T>) Flux.just("exchange", "For", "Entity", "Flux")));
+  }
+
+  @Override
+  public Mono<ClientResponse> exchangeMono(HttpRequestValues requestValues) {
+    saveInput("exchangeMono", requestValues, null);
+    return Mono.just(ClientResponse.create(HttpStatus.OK).build());
   }
 
 }

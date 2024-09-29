@@ -21,12 +21,13 @@ import org.reactivestreams.Publisher;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,6 +35,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -46,6 +48,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -53,9 +56,10 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
 import cn.taketoday.web.service.annotation.HttpExchange;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * Implements the invocation of an {@link HttpExchange @HttpExchange}-annotated,
@@ -92,9 +96,15 @@ final class HttpServiceMethod {
     this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, containingClass, embeddedValueResolver,
             isReactorAdapter ? ReactiveHttpRequestValues::builder : HttpRequestValues::builder);
 
-    this.responseFunction = isReactorAdapter
-            ? ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) adapter, method)
-            : createResponseFunction(adapter, method);
+    ResponseFunction responseFunction = null;
+    if (isReactorAdapter) {
+      responseFunction = ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) adapter, method);
+    }
+
+    if (responseFunction == null) {
+      responseFunction = createResponseFunction(adapter, method);
+    }
+    this.responseFunction = responseFunction;
   }
 
   private static MethodParameter[] initMethodParameters(Method method) {
@@ -386,37 +396,118 @@ final class HttpServiceMethod {
    * Create the {@code ResponseFunction} that matches the method return type.
    */
   private static ResponseFunction createResponseFunction(HttpExchangeAdapter client, Method method) {
-    MethodParameter param = new MethodParameter(method, -1).nestedIfOptional();
-    Class<?> paramType = param.getNestedParameterType();
+    MethodParameter param = returnType(method);
 
+    Class<?> returnType = param.getParameterType();
+    if (isAsync(returnType)) {
+      ResponseFunction function = createResponseFunctionAsync(client, param);
+      if (CompletionStage.class.isAssignableFrom(returnType)) {
+        return request -> {
+          Future<?> result = (Future<?>) function.execute(request);
+          return result.completable();  // result non-null
+        };
+      }
+      return function;
+    }
+
+    Class<?> paramType = param.getNestedParameterType();
     if (ClassUtils.isVoidType(paramType)) {
-      return requestValues -> {
-        client.exchange(requestValues);
+      return request -> {
+        client.exchange(request).close();
         return null;
       };
     }
-    else if (paramType.equals(HttpHeaders.class)) {
-      return request -> asOptionalIfNecessary(client.exchangeForHeaders(request), param);
+    else if (paramType == ClientHttpResponse.class || paramType == ClientResponse.class) {
+      return client::exchange;
     }
-    else if (paramType.equals(ResponseEntity.class)) {
+    else if (paramType == HttpHeaders.class) {
+      return request -> {
+        try (var response = client.exchange(request)) {
+          return asOptionalIfNecessary(response.getHeaders(), param);
+        }
+      };
+    }
+    else if (paramType == ResponseEntity.class) {
       MethodParameter bodyParam = param.nested();
       if (bodyParam.getNestedParameterType().equals(Void.class)) {
         return request ->
                 asOptionalIfNecessary(client.exchangeForBodilessEntity(request), param);
       }
       else {
-        ParameterizedTypeReference<?> bodyTypeRef =
-                ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+        var bodyTypeRef = ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
         return request ->
                 asOptionalIfNecessary(client.exchangeForEntity(request, bodyTypeRef), param);
       }
     }
-    else {
-      ParameterizedTypeReference<?> bodyTypeRef =
-              ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
-      return request ->
-              asOptionalIfNecessary(client.exchangeForBody(request, bodyTypeRef), param);
+
+    var sharedRegistry = ReactiveAdapterRegistry.getSharedInstance();
+    ReactiveAdapter reactiveAdapter = sharedRegistry.getAdapter(Future.class);
+    if (reactiveAdapter != null) {
+      // Future reactive adapter
+      ReactiveAdapter returnAdapter = sharedRegistry.getAdapter(returnType);
+      if (returnAdapter == null) {
+        throw new IllegalStateException("return type: '%s' reactive adapter not found".formatted(returnType.getName()));
+      }
+      ResponseFunction responseFunction = createResponseFunctionAsync(client, param.nested());
+      return request -> returnAdapter.fromPublisher(reactiveAdapter.toPublisher(responseFunction.execute(request)));
     }
+
+    var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+    return request ->
+            asOptionalIfNecessary(client.exchangeForBody(request, bodyTypeRef), param);
+  }
+
+  private static boolean isAsync(Class<?> parameterType) {
+    return java.util.concurrent.Future.class == parameterType || Future.class == parameterType
+            || CompletionStage.class == parameterType || CompletableFuture.class == parameterType;
+  }
+
+  // @since 5.0
+  private static ResponseFunction createResponseFunctionAsync(HttpExchangeAdapter client, MethodParameter param) {
+    Class<?> paramType = param.getNestedParameterType();
+
+    if (ClassUtils.isVoidType(paramType)) {
+      // Future<Void> auto close response
+      return request -> client.exchangeAsync(request)
+              .onSuccess(ClientHttpResponse::close);
+    }
+    if (paramType == ClientHttpResponse.class
+            || paramType == ClientResponse.class) {
+      // Future<ClientHttpResponse/ConvertibleClientHttpResponse> close by user
+      return client::exchangeAsync;
+    }
+    else if (paramType == HttpHeaders.class) {
+      // Future<HttpHeaders>
+      return request -> client.exchangeAsync(request)
+              .onSuccess(ClientHttpResponse::close)
+              .map(ClientHttpResponse::getHeaders);
+    }
+    else if (paramType == ResponseEntity.class) {
+      MethodParameter bodyParam = param.nested();
+      if (bodyParam.getNestedParameterType().equals(Void.class)) {
+        // Future<ResponseEntity<Void>>
+        return client::exchangeForBodilessEntityAsync;
+      }
+      else {
+        // Future<ResponseEntity<T>>
+        var bodyTypeRef = ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+        return request -> client.exchangeForEntityAsync(request, bodyTypeRef);
+      }
+    }
+    else {
+      // Future<T>, Future<List<T>>
+      var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+      return request -> client.exchangeAsync(request)
+              .map(response -> response.bodyTo(bodyTypeRef));
+    }
+  }
+
+  private static MethodParameter returnType(Method method) {
+    MethodParameter param = new MethodParameter(method, -1).nestedIfOptional();
+    if (isAsync(param.getParameterType())) {
+      param = param.nested();
+    }
+    return param;
   }
 
   @Nullable
@@ -427,55 +518,41 @@ final class HttpServiceMethod {
   /**
    * {@link ResponseFunction} for {@link ReactorHttpExchangeAdapter}.
    */
-  private record ReactorExchangeResponseFunction(
-          Function<HttpRequestValues, Publisher<?>> responseFunction,
-          @Nullable ReactiveAdapter returnTypeAdapter,
-          boolean blockForOptional, @Nullable Duration blockTimeout) implements ResponseFunction {
+  private record ReactorExchangeResponseFunction(Function<HttpRequestValues, Publisher<?>> responseFunction,
+          ReactiveAdapter returnTypeAdapter) implements ResponseFunction {
 
-    @Nullable
+    @Override
     public Object execute(HttpRequestValues requestValues) {
-
-      Publisher<?> responsePublisher = this.responseFunction.apply(requestValues);
-
-      if (this.returnTypeAdapter != null) {
-        return this.returnTypeAdapter.fromPublisher(responsePublisher);
-      }
-
-      if (this.blockForOptional) {
-        return (this.blockTimeout != null ?
-                ((Mono<?>) responsePublisher).blockOptional(this.blockTimeout) :
-                ((Mono<?>) responsePublisher).blockOptional());
-      }
-      else {
-        return (this.blockTimeout != null ?
-                ((Mono<?>) responsePublisher).block(this.blockTimeout) :
-                ((Mono<?>) responsePublisher).block());
-      }
+      Publisher<?> responsePublisher = responseFunction.apply(requestValues);
+      return returnTypeAdapter.fromPublisher(responsePublisher);
     }
 
     /**
      * Create the {@code ResponseFunction} that matches the method return type.
      */
+    @Nullable
     public static ResponseFunction create(ReactorHttpExchangeAdapter client, Method method) {
       MethodParameter returnParam = new MethodParameter(method, -1);
       Class<?> returnType = returnParam.getParameterType();
 
       ReactiveAdapter reactiveAdapter = client.getReactiveAdapterRegistry().getAdapter(returnType);
-
-      MethodParameter actualParam = (reactiveAdapter != null ? returnParam.nested() : returnParam.nestedIfOptional());
+      if (reactiveAdapter == null) {
+        return null;
+      }
+      MethodParameter actualParam = returnParam.nested();
       Class<?> actualType = actualParam.getNestedParameterType();
 
       Function<HttpRequestValues, Publisher<?>> responseFunction;
-      if (actualType.equals(void.class) || actualType.equals(Void.class)) {
+      if (ClassUtils.isVoidType(actualType)) {
         responseFunction = client::exchangeForMono;
       }
-      else if (reactiveAdapter != null && reactiveAdapter.isNoValue()) {
+      else if (reactiveAdapter.isNoValue()) {
         responseFunction = client::exchangeForMono;
       }
-      else if (actualType.equals(HttpHeaders.class)) {
+      else if (actualType == HttpHeaders.class) {
         responseFunction = client::exchangeForHeadersMono;
       }
-      else if (actualType.equals(ResponseEntity.class)) {
+      else if (actualType == ResponseEntity.class) {
         MethodParameter bodyParam = actualParam.nested();
         Class<?> bodyType = bodyParam.getNestedParameterType();
         if (bodyType.equals(Void.class)) {
@@ -486,18 +563,24 @@ final class HttpServiceMethod {
           responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter);
         }
       }
+      else if (actualType == cn.taketoday.web.reactive.function.client.ClientResponse.class) {
+        responseFunction = client::exchangeMono;
+      }
+      else if (actualType == ClientResponse.class) {
+        ReactiveAdapter futureAdapter = client.getReactiveAdapterRegistry().getAdapter(Future.class);
+        Assert.state(futureAdapter != null, "Future reactive adapter not found");
+        responseFunction = request -> futureAdapter.toPublisher(client.exchangeAsync(request));
+      }
       else {
         responseFunction = initBodyFunction(client, actualParam, reactiveAdapter);
       }
 
-      return new ReactorExchangeResponseFunction(
-              responseFunction, reactiveAdapter, returnType.equals(Optional.class), client.getBlockTimeout());
+      return new ReactorExchangeResponseFunction(responseFunction, reactiveAdapter);
     }
 
     @SuppressWarnings("ConstantConditions")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
-            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
-            @Nullable ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
 
       if (reactiveAdapter == null) {
         return request -> client.exchangeForEntityMono(
@@ -523,13 +606,12 @@ final class HttpServiceMethod {
     }
 
     private static Function<HttpRequestValues, Publisher<?>> initBodyFunction(
-            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
-            @Nullable ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam, ReactiveAdapter reactiveAdapter) {
 
       ParameterizedTypeReference<?> bodyType =
               ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType());
 
-      return reactiveAdapter != null && reactiveAdapter.isMultiValue()
+      return reactiveAdapter.isMultiValue()
               ? request -> client.exchangeForBodyFlux(request, bodyType)
               : request -> client.exchangeForBodyMono(request, bodyType);
     }

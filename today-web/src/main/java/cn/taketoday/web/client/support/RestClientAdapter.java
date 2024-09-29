@@ -19,6 +19,7 @@ package cn.taketoday.web.client.support;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpCookie;
@@ -26,6 +27,9 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.web.client.ClientResponse;
 import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.service.invoker.HttpExchangeAdapter;
 import cn.taketoday.web.service.invoker.HttpRequestValues;
@@ -48,8 +52,12 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
 
   private final RestClient restClient;
 
-  private RestClientAdapter(RestClient restClient) {
+  @Nullable
+  private final Executor asyncExecutor;
+
+  private RestClientAdapter(RestClient restClient, @Nullable Executor asyncExecutor) {
     this.restClient = restClient;
+    this.asyncExecutor = asyncExecutor;
   }
 
   @Override
@@ -58,13 +66,13 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
   }
 
   @Override
-  public void exchange(HttpRequestValues requestValues) {
-    newRequest(requestValues).retrieve().toBodilessEntity();
+  public ClientResponse exchange(HttpRequestValues requestValues) {
+    return newRequest(requestValues).execute(false);
   }
 
   @Override
-  public HttpHeaders exchangeForHeaders(HttpRequestValues values) {
-    return newRequest(values).retrieve().toBodilessEntity().getHeaders();
+  public Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
+    return newRequest(requestValues).send(asyncExecutor);
   }
 
   @Override
@@ -78,12 +86,21 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
   }
 
   @Override
+  public Future<ResponseEntity<Void>> exchangeForBodilessEntityAsync(HttpRequestValues values) {
+    return newRequest(values).async(asyncExecutor).toBodilessEntity();
+  }
+
+  @Override
   public <T> ResponseEntity<T> exchangeForEntity(HttpRequestValues values, ParameterizedTypeReference<T> bodyType) {
     return newRequest(values).retrieve().toEntity(bodyType);
   }
 
-  private RestClient.RequestBodySpec newRequest(HttpRequestValues values) {
+  @Override
+  public <T> Future<ResponseEntity<T>> exchangeForEntityAsync(HttpRequestValues values, ParameterizedTypeReference<T> bodyType) {
+    return newRequest(values).async(asyncExecutor).toEntity(bodyType);
+  }
 
+  private RestClient.RequestBodySpec newRequest(HttpRequestValues values) {
     HttpMethod httpMethod = values.getHttpMethod();
     Assert.notNull(httpMethod, "HttpMethod is required");
 
@@ -133,7 +150,18 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
    * Create a {@link RestClientAdapter} for the given {@link RestClient}.
    */
   public static RestClientAdapter create(RestClient restClient) {
-    return new RestClientAdapter(restClient);
+    return create(restClient, null);
+  }
+
+  /**
+   * Create a {@link RestClientAdapter} for the given {@link RestClient}.
+   *
+   * @param asyncExecutor for async request
+   * @see RestClient.RequestHeadersSpec#async(Executor)
+   * @since 5.0
+   */
+  public static RestClientAdapter create(RestClient restClient, @Nullable Executor asyncExecutor) {
+    return new RestClientAdapter(restClient, asyncExecutor);
   }
 
 }

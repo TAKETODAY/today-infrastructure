@@ -91,13 +91,8 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public void close() {
-    try {
-      try {
-        StreamUtils.drain(this.body);
-      }
-      finally {
-        this.body.close();
-      }
+    try (body) {
+      StreamUtils.drain(body);
     }
     catch (IOException ignored) { }
   }
