@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -68,7 +68,6 @@ class NamedValueArgumentResolverTests {
   }
 
   @Test
-    // gh-29095
   void dateTestValue() {
     this.service.executeDate(LocalDate.of(2022, 9, 16));
     assertTestValue("value", "2022-09-16");
@@ -117,6 +116,18 @@ class NamedValueArgumentResolverTests {
   }
 
   @Test
+  void nullTestValue() {
+    this.service.executeOptional((Object) null);
+    assertTestValue("value");
+  }
+
+  @Test
+  void nullableStringTestValue() {
+    this.service.executeOptional("test");
+    assertTestValue("value", "test");
+  }
+
+  @Test
   void optionalStringTestValue() {
     this.service.executeOptional(Optional.of("test"));
     assertTestValue("value", "test");
@@ -124,7 +135,7 @@ class NamedValueArgumentResolverTests {
 
   @Test
   void optionalObjectTestValue() {
-    this.service.executeOptional(Optional.of(Boolean.TRUE));
+    this.service.executeOptional(Optional.of(true));
     assertTestValue("value", "true");
   }
 
@@ -196,10 +207,13 @@ class NamedValueArgumentResolverTests {
     void executeWithDefaultValue(@Nullable @TestValue(defaultValue = "default") String value);
 
     @GetExchange
+    void executeOptional(@TestValue @Nullable Object value);
+
+    @GetExchange
     void executeOptional(@TestValue Optional<Object> value);
 
     @GetExchange
-    void executeOptionalWithDefaultValue(@TestValue(defaultValue = "default") Optional<Object> value);
+    void executeOptionalWithDefaultValue(@TestValue(defaultValue = "default") @Nullable Object value);
 
     @GetExchange
     void executeMap(@Nullable @TestValue Map<String, String> value);

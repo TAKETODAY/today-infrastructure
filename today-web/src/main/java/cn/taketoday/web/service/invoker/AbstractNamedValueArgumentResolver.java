@@ -140,7 +140,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
                         .formatted(parameter.getParameterType().getName()));
       }
     }
-    boolean required = (info.required && !parameter.getParameterType().equals(Optional.class));
+    boolean required = (info.required && !parameter.isOptional());
     String defaultValue = (Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
     return info.update(name, required, defaultValue);
   }
@@ -185,7 +185,8 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     }
 
     if (conversionService != null && !(value instanceof String)) {
-      Class<?> type = parameter.getParameterType();
+      parameter = parameter.nestedIfOptional();
+      Class<?> type = parameter.getNestedParameterType();
       value = (type != Object.class && !type.isArray() ?
               this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE) :
               this.conversionService.convert(value, String.class));
