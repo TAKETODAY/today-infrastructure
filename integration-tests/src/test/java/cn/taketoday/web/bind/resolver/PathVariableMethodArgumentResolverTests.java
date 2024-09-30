@@ -21,11 +21,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.ReflectionUtils;
@@ -130,19 +130,14 @@ class PathVariableMethodArgumentResolverTests {
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
 
-    @SuppressWarnings("unchecked")
-    Optional<String> result = (Optional<String>)
-            resolver.resolveArgument(webRequest, paramOptional);
-    assertThat(result.get()).as("PathVariable not resolved correctly").isEqualTo("value");
+    String result = (String) resolver.resolveArgument(webRequest, paramOptional);
+    assertThat(result).as("PathVariable not resolved correctly").isEqualTo("value");
 
     // not required
     applyTemplateVars("name", "");
     Object value = resolver.resolveArgument(webRequest, paramOptional);
-    assertThat(value).isNotNull().isInstanceOf(Optional.class);
+    assertThat(value).isNull();
 
-    result = (Optional<String>) value;
-
-    assertThat(result).isEmpty();
   }
 
   @Test
@@ -164,13 +159,14 @@ class PathVariableMethodArgumentResolverTests {
     BindingContext binderFactory = new BindingContext(initializer);
     webRequest.setBinding(binderFactory);
 
-    assertThat(resolver.resolveArgument(webRequest, paramOptional)).isEqualTo(Optional.empty());
+    assertThat(resolver.resolveArgument(webRequest, paramOptional))
+            .isNull();
   }
 
   @SuppressWarnings("unused")
   public void handle(@PathVariable("name") String param1, String param2,
           @PathVariable(name = "name", required = false) String param3,
-          @PathVariable("name") Optional<String> param4) {
+          @PathVariable("name") @Nullable String param4) {
   }
 
 }
