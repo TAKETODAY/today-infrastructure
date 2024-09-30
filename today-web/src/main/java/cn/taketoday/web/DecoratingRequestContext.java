@@ -72,17 +72,6 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String getRequestId() {
-    return getDelegate().getRequestId();
-  }
-
-  @Nullable
-  @Override
-  protected String initId() {
-    return getDelegate().initId();
-  }
-
-  @Override
   public ApplicationContext getApplicationContext() {
     return getDelegate().getApplicationContext();
   }

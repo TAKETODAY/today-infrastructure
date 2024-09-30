@@ -74,7 +74,6 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
     addErrorDetails(errorAttributes, context, options);
-    errorAttributes.put("requestId", context.getRequestId());
 
     if (!options.isIncluded(Include.PATH)) {
       errorAttributes.remove("path");

@@ -121,12 +121,6 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     return requestTimeMillis;
   }
 
-  @Nullable
-  @Override
-  protected String initId() {
-    return request.getRequestId();
-  }
-
   @Override
   public String getScheme() {
     return request.getScheme();

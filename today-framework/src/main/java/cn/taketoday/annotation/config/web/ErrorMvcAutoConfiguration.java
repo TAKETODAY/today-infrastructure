@@ -44,6 +44,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -57,7 +58,6 @@ import cn.taketoday.web.server.error.ErrorViewResolver;
 import cn.taketoday.web.util.HtmlUtils;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
-import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error
@@ -167,7 +167,6 @@ public class ErrorMvcAutoConfiguration {
       Object timestamp = model.get("timestamp");
       Object message = model.get("message");
       Object trace = model.get("trace");
-      Object requestId = model.get("requestId");
 
       if (request.getContentType() == null) {
         request.setContentType(getContentType());
@@ -175,9 +174,8 @@ public class ErrorMvcAutoConfiguration {
 
       builder.append("<html><body><h1>Whitelabel Error Page</h1>")
               .append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
-              .append("<div id='created'>").append(timestamp).append("</div><div>[")
-              .append(requestId)
-              .append("] There was an unexpected error (type=").append(htmlEscape(model.get("error")))
+              .append("<div id='created'>").append(timestamp).append("</div>")
+              .append("<div>There was an unexpected error (type=").append(htmlEscape(model.get("error")))
               .append(", status=").append(htmlEscape(model.get("status"))).append(").</div>");
       if (message != null) {
         builder.append("<div>").append(htmlEscape(message)).append("</div>");
