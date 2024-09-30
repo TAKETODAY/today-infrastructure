@@ -234,13 +234,12 @@ public interface WebClient {
     /**
      * Configure default URL variable values to use when expanding URI
      * templates with a {@link Map}. Effectively a shortcut for:
-     * <p>
-     * <pre class="code">
-     * Map&lt;String, ?&gt; defaultVars = ...;
+     * <pre>{@code
+     * Map<String, ?> defaultVars = ...;
      * DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
      * factory.setDefaultVariables(defaultVars);
      * WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> this method is mutually exclusive with
      * {@link #uriBuilderFactory(UriBuilderFactory)}. If both are used, the
      * defaultUriVariables value provided here will be ignored.
@@ -622,21 +621,21 @@ public interface WebClient {
     /**
      * Proceed to declare how to extract the response. For example to extract
      * a {@link ResponseEntity} with status, headers, and body:
-     * <p><pre>
-     * Mono&lt;ResponseEntity&lt;Person&gt;&gt; entityMono = client.get()
+     * <pre>{@code
+     * Mono<ResponseEntity<Person>> entityMono = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
      *     .retrieve()
      *     .toEntity(Person.class);
-     * </pre>
+     * }</pre>
      * <p>Or if interested only in the body:
-     * <p><pre>
-     * Mono&lt;Person&gt; entityMono = client.get()
+     * <pre>{@code
+     * Mono<Person> entityMono = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
      *     .retrieve()
      *     .bodyToMono(Person.class);
-     * </pre>
+     * }</pre>
      * <p>By default, 4xx and 5xx responses result in a
      * {@link WebClientResponseException}. To customize error handling, use
      * {@link ResponseSpec#onStatus(Predicate, Function) onStatus} handlers.
@@ -648,11 +647,11 @@ public interface WebClient {
      * access to the {@link ClientResponse}. This can be useful for advanced
      * scenarios, for example to decode the response differently depending
      * on the response status:
-     * <p><pre>
-     * Mono&lt;Person&gt; entityMono = client.get()
+     * <pre>{@code
+     * Mono<Person> entityMono = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
-     *     .exchangeToMono(response -&gt; {
+     *     .exchangeToMono(response -> {
      *         if (response.statusCode().equals(HttpStatus.OK)) {
      *             return response.bodyToMono(Person.class);
      *         }
@@ -660,7 +659,7 @@ public interface WebClient {
      *             return response.createError();
      *         }
      *     });
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> After the returned {@code Mono} completes,
      * the response body is automatically released if it hasn't been consumed.
      * If the response content is needed, the provided function must declare
@@ -677,11 +676,11 @@ public interface WebClient {
      * access to the {@link ClientResponse}. This can be useful for advanced
      * scenarios, for example to decode the response differently depending
      * on the response status:
-     * <p><pre>
-     * Flux&lt;Person&gt; entityMono = client.get()
+     * <pre>{@code
+     * Flux<Person> entityMono = client.get()
      *     .uri("/persons")
      *     .accept(MediaType.APPLICATION_JSON)
-     *     .exchangeToFlux(response -&gt; {
+     *     .exchangeToFlux(response -> {
      *         if (response.statusCode().equals(HttpStatus.OK)) {
      *             return response.bodyToFlux(Person.class);
      *         }
@@ -689,7 +688,7 @@ public interface WebClient {
      *             return response.createError().flux();
      *         }
      *     });
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> After the returned {@code Flux} completes,
      * the response body is automatically released if it hasn't been consumed.
      * If the response content is needed, the provided function must declare
@@ -705,19 +704,19 @@ public interface WebClient {
      * Perform the HTTP request and return a {@link ClientResponse} with the
      * response status and headers. You can then use methods of the response
      * to consume the body:
-     * <p><pre>
-     * Mono&lt;Person&gt; mono = client.get()
+     * <pre>{@code
+     * Mono<Person> mono = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
      *     .exchange()
-     *     .flatMap(response -&gt; response.bodyToMono(Person.class));
+     *     .flatMap(response -> response.bodyToMono(Person.class));
      *
-     * Flux&lt;Person&gt; flux = client.get()
+     * Flux<Person> flux = client.get()
      *     .uri("/persons")
      *     .accept(MediaType.APPLICATION_STREAM_JSON)
      *     .exchange()
-     *     .flatMapMany(response -&gt; response.bodyToFlux(Person.class));
-     * </pre>
+     *     .flatMapMany(response -> response.bodyToFlux(Person.class));
+     * }</pre>
      * <p><strong>NOTE:</strong> Unlike {@link #retrieve()}, when using
      * {@code exchange()}, it is the responsibility of the application to
      * consume any response content regardless of the scenario (success,
@@ -770,16 +769,16 @@ public interface WebClient {
      * Shortcut for {@link #body(BodyInserter)} with a
      * {@linkplain BodyInserters#fromValue value inserter}.
      * For example:
-     * <p><pre class="code">
+     * <pre>{@code
      * Person person = ... ;
      *
-     * Mono&lt;Void&gt; result = client.post()
+     * Mono<Void> result = client.post()
      *     .uri("/persons/{id}", id)
      *     .contentType(MediaType.APPLICATION_JSON)
      *     .bodyValue(person)
      *     .retrieve()
      *     .bodyToMono(Void.class);
-     * </pre>
+     * }</pre>
      * <p>For multipart requests consider providing
      * {@link MultiValueMap MultiValueMap} prepared
      * with {@link cn.taketoday.http.client.MultipartBodyBuilder
@@ -796,16 +795,16 @@ public interface WebClient {
      * Shortcut for {@link #body(BodyInserter)} with a
      * {@linkplain BodyInserters#fromPublisher Publisher inserter}.
      * For example:
-     * <p><pre>
-     * Mono&lt;Person&gt; personMono = ... ;
+     * <pre>{@code
+     * Mono<Person> personMono = ... ;
      *
-     * Mono&lt;Void&gt; result = client.post()
+     * Mono<Void> result = client.post()
      *     .uri("/persons/{id}", id)
      *     .contentType(MediaType.APPLICATION_JSON)
      *     .body(personMono, Person.class)
      *     .retrieve()
      *     .bodyToMono(Void.class);
-     * </pre>
+     * }</pre>
      *
      * @param publisher the {@code Publisher} to write to the request
      * @param elementClass the type of elements published
@@ -880,14 +879,14 @@ public interface WebClient {
      * <p>To ignore an error response completely, and propagate neither
      * response nor error, use a {@link ExchangeFilterFunction filter}, or
      * add {@code onErrorResume} downstream, for example:
-     * <pre class="code">
+     * <pre>{@code
      * webClient.get()
      *     .uri("https://abc.com/account/123")
      *     .retrieve()
      *     .bodyToMono(Account.class)
      *     .onErrorResume(WebClientResponseException.class,
-     *          ex -&gt; ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex));
-     * </pre>
+     *          ex -> ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex));
+     * }</pre>
      *
      * @param statusPredicate to match responses with
      * @param exceptionFunction to map the response to an error signal
