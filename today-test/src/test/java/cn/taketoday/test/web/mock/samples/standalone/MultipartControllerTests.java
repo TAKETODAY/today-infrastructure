@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockMultipartFile;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.stereotype.Controller;
@@ -230,7 +230,6 @@ class MultipartControllerTests {
     mockMvc.perform(multipart("/json").file(jsonPart)).andExpect(status().isFound());
   }
 
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   @Controller
   private static class MultipartController {
 
@@ -272,31 +271,31 @@ class MultipartControllerTests {
 
     @PostMapping("/optionalfile")
     public String processOptionalFile(
-            @RequestParam Optional<MultipartFile> file, @RequestPart Map<String, String> json) {
+            @RequestParam @Nullable MultipartFile file, @RequestPart Map<String, String> json) {
 
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam Optional<MultipartFile[]> file, @RequestPart Map<String, String> json)
+            @RequestParam @Nullable MultipartFile[] file, @RequestPart Map<String, String> json)
             throws IOException {
 
-      if (file.isPresent()) {
-        byte[] content = file.get()[0].getBytes();
-        assertThat(file.get()[1].getBytes()).isEqualTo(content);
+      if (file != null) {
+        byte[] content = file[0].getBytes();
+        assertThat(file[1].getBytes()).isEqualTo(content);
       }
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilelist")
     public String processOptionalFileList(
-            @RequestParam Optional<List<MultipartFile>> file, @RequestPart Map<String, String> json)
+            @RequestParam @Nullable List<MultipartFile> file, @RequestPart Map<String, String> json)
             throws IOException {
 
-      if (file.isPresent()) {
-        byte[] content = file.get().get(0).getBytes();
-        assertThat(file.get().get(1).getBytes()).isEqualTo(content);
+      if (file != null) {
+        byte[] content = file.get(0).getBytes();
+        assertThat(file.get(1).getBytes()).isEqualTo(content);
       }
 
       return "redirect:/index";

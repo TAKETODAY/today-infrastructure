@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -65,8 +65,8 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
     if (ReactiveStreams.reactorPresent) {
       this.reactiveAdapterRegistry =
               (exchangeAdapter instanceof ReactorHttpExchangeAdapter reactorAdapter ?
-               reactorAdapter.getReactiveAdapterRegistry() :
-               ReactiveAdapterRegistry.getSharedInstance());
+                      reactorAdapter.getReactiveAdapterRegistry() :
+                      ReactiveAdapterRegistry.getSharedInstance());
     }
     else {
       this.reactiveAdapterRegistry = null;
@@ -76,7 +76,7 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   @Override
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
-    boolean isMultiPartFile = parameter.nestedIfOptional().getNestedParameterType().equals(MultipartFile.class);
+    boolean isMultiPartFile = parameter.getParameterType().equals(MultipartFile.class);
     String label = isMultiPartFile ? "MultipartFile" : "request part";
 
     if (annot != null) {

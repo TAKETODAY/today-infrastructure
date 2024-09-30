@@ -38,6 +38,9 @@ import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
 import cn.taketoday.web.BindingContext;
@@ -52,8 +55,6 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockRequestContext;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -131,7 +132,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     paramInt = new ResolvableMethodParameter(new MethodParameter(methodHandle1, 1));
     paramValidBean = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle2", SimpleBean.class), 0));
     paramStringNotRequired = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle3", String.class), 0));
-    paramOptionalString = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle4", Optional.class), 0));
+    paramOptionalString = new ResolvableMethodParameter(new MethodParameter(getClass().getMethod("handle4", String.class), 0));
 
     Method handle5 = getClass().getMethod("handle5");
     Method handle6 = getClass().getMethod("handle6");
@@ -303,7 +304,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest.setContent("body".getBytes());
     given(stringMessageConverter.canRead(String.class, MediaType.TEXT_PLAIN)).willReturn(true);
     given(stringMessageConverter.read(ArgumentMatchers.eq(String.class), ArgumentMatchers.isA(HttpInputMessage.class))).willReturn("body");
-    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isEqualTo(Optional.of("body"));
+    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isEqualTo("body");
   }
 
   @Test
@@ -311,7 +312,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest.setContentType("text/plain");
     mockRequest.setContent(new byte[0]);
     given(stringMessageConverter.canRead(String.class, MediaType.TEXT_PLAIN)).willReturn(true);
-    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isEqualTo(Optional.empty());
+    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isNull();
   }
 
   @Test
@@ -319,7 +320,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest.setContent(new byte[0]);
     given(stringMessageConverter.canRead(String.class, MediaType.TEXT_PLAIN)).willReturn(true);
     given(stringMessageConverter.canRead(String.class, MediaType.APPLICATION_OCTET_STREAM)).willReturn(false);
-    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isEqualTo(Optional.empty());
+    assertThat(processor.resolveArgument(webRequest, paramOptionalString)).isNull();
   }
 
   @Test
@@ -460,7 +461,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
   }
 
   @SuppressWarnings("unused")
-  public void handle4(@RequestBody Optional<String> s) {
+  public void handle4(@RequestBody @Nullable String s) {
   }
 
   @SuppressWarnings("unused")

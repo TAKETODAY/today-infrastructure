@@ -140,7 +140,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
                         .formatted(parameter.getParameterType().getName()));
       }
     }
-    boolean required = (info.required && !parameter.getParameterType().equals(Optional.class));
+    boolean required = (info.required && !parameter.isOptional());
     String defaultValue = (Constant.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
     return info.update(name, required, defaultValue);
   }

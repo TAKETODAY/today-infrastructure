@@ -100,7 +100,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
       if (parameter.hasParameterAnnotation(RequestParam.class)) {
         return false;
       }
-      return MultipartResolutionDelegate.isMultipartArgument(parameter.getParameter().nestedIfOptional());
+      return MultipartResolutionDelegate.isMultipartArgument(parameter.getParameter());
     }
   }
 
@@ -111,7 +111,6 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
     String name = namedValueInfo.name;
-    parameter = parameter.nestedIfOptional();
     Object arg = null;
 
     Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, context);
@@ -139,7 +138,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
         throw new MissingRequestPartException(name);
       }
     }
-    return adaptArgumentIfNecessary(arg, parameter);
+    return arg;
   }
 
   @Override

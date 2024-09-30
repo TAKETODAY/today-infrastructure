@@ -23,12 +23,10 @@ import java.io.PushbackInputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.MethodParameter;
@@ -235,7 +233,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     return body;
   }
 
-  protected void validateIfApplicable(RequestContext context, MethodParameter parameter, Object arg) throws Throwable {
+  protected void validateIfApplicable(RequestContext context, MethodParameter parameter, @Nullable Object arg) throws Throwable {
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);
@@ -300,27 +298,6 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     ArrayList<MediaType> result = new ArrayList<>(mediaTypeSet);
     MimeTypeUtils.sortBySpecificity(result);
     return result;
-  }
-
-  /**
-   * Adapt the given argument against the method parameter, if necessary.
-   *
-   * @param arg the resolved argument
-   * @param parameter the method parameter descriptor
-   * @return the adapted argument, or the original resolved argument as-is
-   */
-  @Nullable
-  protected Object adaptArgumentIfNecessary(@Nullable Object arg, MethodParameter parameter) {
-    if (parameter.getParameterType() == Optional.class) {
-      if (arg == null || (arg instanceof Collection && ((Collection<?>) arg).isEmpty())
-              || (arg instanceof Object[] && ((Object[]) arg).length == 0)) {
-        return Optional.empty();
-      }
-      else {
-        return Optional.of(arg);
-      }
-    }
-    return arg;
   }
 
   /**
