@@ -24,19 +24,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.MultipartBodyBuilder;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.http.Part;
 import cn.taketoday.stereotype.Controller;
-import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.mock.client.MockMvcWebTestClient;
+import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.mock.api.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -273,31 +273,30 @@ public class MultipartControllerTests {
 
     @PostMapping("/optionalfile")
     public String processOptionalFile(
-            @RequestParam Optional<MultipartFile> file, @RequestPart Map<String, String> json) {
+            @RequestParam @Nullable MultipartFile file, @RequestPart Map<String, String> json) {
 
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilearray")
     public String processOptionalFileArray(
-            @RequestParam Optional<MultipartFile[]> file, @RequestPart Map<String, String> json)
-            throws IOException {
+            @RequestParam @Nullable MultipartFile[] file, @RequestPart Map<String, String> json) throws IOException {
 
-      if (file.isPresent()) {
-        byte[] content = file.get()[0].getBytes();
-        assertThat(file.get()[1].getBytes()).isEqualTo(content);
+      if (file != null) {
+        byte[] content = file[0].getBytes();
+        assertThat(file[1].getBytes()).isEqualTo(content);
       }
       return "redirect:/index";
     }
 
     @PostMapping("/optionalfilelist")
     public String processOptionalFileList(
-            @RequestParam Optional<List<MultipartFile>> file, @RequestPart Map<String, String> json)
+            @RequestParam @Nullable List<MultipartFile> file, @RequestPart Map<String, String> json)
             throws IOException {
 
-      if (file.isPresent()) {
-        byte[] content = file.get().get(0).getBytes();
-        assertThat(file.get().get(1).getBytes()).isEqualTo(content);
+      if (file != null) {
+        byte[] content = file.get(0).getBytes();
+        assertThat(file.get(1).getBytes()).isEqualTo(content);
       }
       return "redirect:/index";
     }
