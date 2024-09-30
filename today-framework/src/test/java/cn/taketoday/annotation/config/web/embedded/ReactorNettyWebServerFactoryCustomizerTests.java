@@ -134,7 +134,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
     DataSize headerSize = DataSize.ofKilobytes(24);
     serverProperties.http2 = new Http2();
     this.serverProperties.http2.setEnabled(true);
-    this.serverProperties.maxHttpRequestHeaderSize = (headerSize);
+    this.serverProperties.reactorNetty.maxHeaderSize = (headerSize);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyHttp2MaxHeaderSize(factory, headerSize.toBytes());
@@ -143,7 +143,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void configureHttpRequestDecoder() {
     ServerProperties.ReactorNetty nettyProperties = this.serverProperties.reactorNetty;
-    this.serverProperties.maxHttpRequestHeaderSize = (DataSize.ofKilobytes(24));
+    this.serverProperties.reactorNetty.maxHeaderSize = (DataSize.ofKilobytes(24));
     nettyProperties.validateHeaders = (false);
     nettyProperties.initialBufferSize = (DataSize.ofBytes(512));
     nettyProperties.h2cMaxContentLength = (DataSize.ofKilobytes(1));
@@ -155,7 +155,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
     HttpServer httpServer = serverCustomizer.apply(HttpServer.create());
     HttpRequestDecoderSpec decoder = httpServer.configuration().decoder();
     assertThat(decoder.validateHeaders()).isFalse();
-    assertThat(decoder.maxHeaderSize()).isEqualTo(this.serverProperties.maxHttpRequestHeaderSize.toBytes());
+    assertThat(decoder.maxHeaderSize()).isEqualTo(this.serverProperties.reactorNetty.maxHeaderSize.toBytes());
     assertThat(decoder.initialBufferSize()).isEqualTo(nettyProperties.initialBufferSize.toBytes());
     assertThat(decoder.h2cMaxContentLength()).isEqualTo(nettyProperties.h2cMaxContentLength.toBytes());
     assertThat(decoder.maxInitialLineLength()).isEqualTo(nettyProperties.maxInitialLineLength.toBytes());

@@ -93,11 +93,6 @@ public class ServerProperties {
   public ForwardHeadersStrategy forwardHeadersStrategy;
 
   /**
-   * Maximum size of the HTTP message header.
-   */
-  public DataSize maxHttpRequestHeaderSize = DataSize.ofKilobytes(8);
-
-  /**
    * Type of shutdown that the server will support.
    */
   @Nullable
@@ -225,7 +220,7 @@ public class ServerProperties {
      * This limits how much memory Netty will use when parsing
      * HTTP header key-value pairs.
      */
-    public int maxHeaderSize = 8192;
+    public DataSize maxHeaderSize = DataSize.ofBytes(8192);
 
     /**
      * The maximum length of the first line of the HTTP header.
@@ -379,6 +374,11 @@ public class ServerProperties {
      * Maximum chunk size that can be decoded for an HTTP request.
      */
     public DataSize maxChunkSize = DataSize.ofKilobytes(8);
+
+    /**
+     * Maximum size of the HTTP message header.
+     */
+    public DataSize maxHeaderSize = DataSize.ofKilobytes(8);
 
     /**
      * Maximum length that can be decoded for an HTTP request's initial line.

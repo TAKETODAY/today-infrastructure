@@ -28,8 +28,8 @@ import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MapConfigurationPropertySource;
-import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.util.DataSize;
+import cn.taketoday.web.server.ServerProperties;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import reactor.netty.http.HttpDecoderSpec;
@@ -71,26 +71,26 @@ class ServerPropertiesTests {
 
   @Test
   void testCustomizeHeaderSize() {
-    bind("server.max-http-request-header-size", "1MB");
-    assertThat(this.properties.maxHttpRequestHeaderSize).isEqualTo(DataSize.ofMegabytes(1));
+    bind("server.reactor-netty.max-header-size", "1MB");
+    assertThat(this.properties.reactorNetty.maxHeaderSize).isEqualTo(DataSize.ofMegabytes(1));
   }
 
   @Test
   void testCustomizeHeaderSizeUseBytesByDefault() {
-    bind("server.max-http-request-header-size", "1024");
-    assertThat(this.properties.maxHttpRequestHeaderSize).isEqualTo(DataSize.ofKilobytes(1));
+    bind("server.reactor-netty.max-header-size", "1024");
+    assertThat(this.properties.reactorNetty.maxHeaderSize).isEqualTo(DataSize.ofKilobytes(1));
   }
 
   @Test
   void testCustomizeMaxHttpRequestHeaderSize() {
-    bind("server.max-http-request-header-size", "1MB");
-    assertThat(this.properties.maxHttpRequestHeaderSize).isEqualTo(DataSize.ofMegabytes(1));
+    bind("server.reactor-netty.max-header-size", "1MB");
+    assertThat(this.properties.reactorNetty.maxHeaderSize).isEqualTo(DataSize.ofMegabytes(1));
   }
 
   @Test
   void testCustomizeMaxHttpRequestHeaderSizeUseBytesByDefault() {
-    bind("server.max-http-request-header-size", "1024");
-    assertThat(this.properties.maxHttpRequestHeaderSize).isEqualTo(DataSize.ofKilobytes(1));
+    bind("server.reactor-netty.max-header-size", "1024");
+    assertThat(this.properties.reactorNetty.maxHeaderSize).isEqualTo(DataSize.ofKilobytes(1));
   }
 
   @Test

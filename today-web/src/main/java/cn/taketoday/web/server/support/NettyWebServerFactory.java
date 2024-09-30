@@ -333,7 +333,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return new HttpDecoderConfig()
             .setInitialBufferSize(netty.initialBufferSize.toBytesInt())
             .setMaxChunkSize(netty.maxChunkSize.toBytesInt())
-            .setMaxHeaderSize(netty.maxHeaderSize)
+            .setMaxHeaderSize(netty.maxHeaderSize.toBytesInt())
             .setValidateHeaders(netty.validateHeaders)
             .setChunkedSupported(netty.chunkedSupported)
             .setAllowPartialChunks(netty.allowPartialChunks)

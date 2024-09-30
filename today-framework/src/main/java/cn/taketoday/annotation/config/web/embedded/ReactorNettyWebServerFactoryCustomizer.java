@@ -22,11 +22,11 @@ import java.time.Duration;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.cloud.CloudPlatform;
-import cn.taketoday.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.web.server.Http2;
 import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.web.server.WebServerFactoryCustomizer;
-import cn.taketoday.util.PropertyMapper;
+import cn.taketoday.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
 import io.netty.channel.ChannelOption;
 
 /**
@@ -66,7 +66,7 @@ public class ReactorNettyWebServerFactoryCustomizer
     map.from(nettyProperties.maxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
     if (Http2.isEnabled(serverProperties.http2)) {
-      map.from(serverProperties.maxHttpRequestHeaderSize)
+      map.from(serverProperties.reactorNetty.maxHeaderSize)
               .whenNonNull()
               .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
     }
@@ -87,7 +87,7 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   private void customizeRequestDecoder(ReactorNettyReactiveWebServerFactory factory, PropertyMapper propertyMapper) {
     factory.addServerCustomizers((httpServer) -> httpServer.httpRequestDecoder((httpRequestDecoderSpec) -> {
-      propertyMapper.from(this.serverProperties.maxHttpRequestHeaderSize)
+      propertyMapper.from(this.serverProperties.reactorNetty.maxHeaderSize)
               .whenNonNull()
               .to(maxHttpRequestHeader -> httpRequestDecoderSpec.maxHeaderSize((int) maxHttpRequestHeader.toBytes()));
       ServerProperties.ReactorNetty nettyProperties = this.serverProperties.reactorNetty;

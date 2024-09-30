@@ -66,7 +66,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.max-content-length=10MB",
             "server.netty.closeOnExpectationFailed=true",
             "server.netty.maxChunkSize=1KB",
-            "server.netty.maxHeaderSize=120",
+            "server.netty.maxHeaderSize=120B",
             "server.netty.maxInitialLineLength=100",
             "server.netty.validateHeaders=false",
             "server.netty.socketChannel=io.netty.channel.socket.nio.NioServerSocketChannel",
@@ -92,7 +92,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
     assertThat(netty.maxContentLength).isEqualTo(DataSize.ofMegabytes(10));
     assertThat(netty.closeOnExpectationFailed).isEqualTo(true);
     assertThat(netty.maxChunkSize).isEqualTo(DataSize.ofKilobytes(1));
-    assertThat(netty.maxHeaderSize).isEqualTo(120);
+    assertThat(netty.maxHeaderSize).isEqualTo(DataSize.ofBytes(120));
     assertThat(netty.maxInitialLineLength).isEqualTo(100);
     assertThat(netty.validateHeaders).isEqualTo(false);
     assertThat(netty.socketChannel).isEqualTo(NioServerSocketChannel.class);
