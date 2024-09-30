@@ -738,7 +738,6 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-    // SPR-16246
   void postLargeTextFile(ClientHttpConnector connector) {
     startServer(connector);
 
