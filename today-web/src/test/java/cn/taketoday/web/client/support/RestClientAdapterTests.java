@@ -19,6 +19,7 @@ package cn.taketoday.web.client.support;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
@@ -87,7 +88,7 @@ class RestClientAdapterTests {
   @interface ParameterizedAdapterTest {
   }
 
-  public static Stream<Object> arguments() {
+  public static Stream<Arguments> arguments() {
     return Stream.of(
             args(url -> {
               RestClient restClient = RestClient.builder().baseURI(url).build();
@@ -95,18 +96,17 @@ class RestClientAdapterTests {
             }));
   }
 
-  @SuppressWarnings("resource")
-  private static Object[] args(Function<String, HttpExchangeAdapter> adapterFactory) {
+  private static Arguments args(Function<String, HttpExchangeAdapter> adapterFactory) {
     MockWebServer server = new MockWebServer();
 
     MockResponse response = new MockResponse();
-    response.setHeader("Content-Type", "text/plain").setBody("Hello Spring!");
+    response.setHeader("Content-Type", "text/plain").setBody("Hello Infra!");
     server.enqueue(response);
 
     HttpExchangeAdapter adapter = adapterFactory.apply(server.url("/").toString());
     Service service = HttpServiceProxyFactory.forAdapter(adapter).createClient(Service.class);
 
-    return new Object[] { server, service };
+    return Arguments.of(server, service);
   }
 
   @ParameterizedAdapterTest
@@ -114,7 +114,7 @@ class RestClientAdapterTests {
     String response = service.getGreeting();
 
     RecordedRequest request = server.takeRequest();
-    assertThat(response).isEqualTo("Hello Spring!");
+    assertThat(response).isEqualTo("Hello Infra!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getPath()).isEqualTo("/greeting");
   }
@@ -125,7 +125,7 @@ class RestClientAdapterTests {
 
     RecordedRequest request = server.takeRequest();
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody()).isEqualTo("Hello Spring!");
+    assertThat(response.getBody()).isEqualTo("Hello Infra!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getPath()).isEqualTo("/greeting/456");
   }
@@ -136,7 +136,7 @@ class RestClientAdapterTests {
     Optional<String> response = service.getGreetingWithDynamicUri(dynamicUri, "456");
 
     RecordedRequest request = server.takeRequest();
-    assertThat(response.orElse("empty")).isEqualTo("Hello Spring!");
+    assertThat(response.orElse("empty")).isEqualTo("Hello Infra!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getRequestUrl().uri()).isEqualTo(dynamicUri);
   }
@@ -209,7 +209,7 @@ class RestClientAdapterTests {
 
     RecordedRequest request = this.anotherServer.takeRequest();
     assertThat(actualResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualResponse.getBody()).isEqualTo("Hello Spring 2!");
+    assertThat(actualResponse.getBody()).isEqualTo("Hello Infra 2!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getPath()).isEqualTo("/greeting");
     assertThat(server.getRequestCount()).isEqualTo(0);
@@ -224,7 +224,7 @@ class RestClientAdapterTests {
 
     RecordedRequest request = this.anotherServer.takeRequest();
     assertThat(actualResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualResponse.getBody()).isEqualTo("Hello Spring 2!");
+    assertThat(actualResponse.getBody()).isEqualTo("Hello Infra 2!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getPath()).isEqualTo("/greeting/123?param=test");
     assertThat(server.getRequestCount()).isEqualTo(0);
@@ -239,7 +239,7 @@ class RestClientAdapterTests {
 
     RecordedRequest request = server.takeRequest();
     assertThat(actualResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualResponse.getBody()).isEqualTo("Hello Spring!");
+    assertThat(actualResponse.getBody()).isEqualTo("Hello Infra!");
     assertThat(request.getMethod()).isEqualTo("GET");
     assertThat(request.getPath()).isEqualTo("/greeting/123");
     assertThat(this.anotherServer.getRequestCount()).isEqualTo(0);
@@ -248,7 +248,7 @@ class RestClientAdapterTests {
   private static MockWebServer anotherServer() {
     MockWebServer server = new MockWebServer();
     MockResponse response = new MockResponse();
-    response.setHeader("Content-Type", "text/plain").setBody("Hello Spring 2!");
+    response.setHeader("Content-Type", "text/plain").setBody("Hello Infra 2!");
     server.enqueue(response);
     return server;
   }

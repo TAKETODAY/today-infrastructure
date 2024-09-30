@@ -441,12 +441,12 @@ final class HttpServiceMethod {
     }
 
     var sharedRegistry = ReactiveAdapterRegistry.getSharedInstance();
-    ReactiveAdapter reactiveAdapter = sharedRegistry.getAdapter(Future.class);
-    if (reactiveAdapter != null) {
+    ReactiveAdapter returnAdapter = sharedRegistry.getAdapter(returnType);
+    if (returnAdapter != null) {
+      ReactiveAdapter reactiveAdapter = sharedRegistry.getAdapter(Future.class);
       // Future reactive adapter
-      ReactiveAdapter returnAdapter = sharedRegistry.getAdapter(returnType);
-      if (returnAdapter == null) {
-        throw new IllegalStateException("return type: '%s' reactive adapter not found".formatted(returnType.getName()));
+      if (reactiveAdapter == null) {
+        throw new IllegalStateException("Return type: '%s' reactive adapter not found".formatted(Future.class.getName()));
       }
       ResponseFunction responseFunction = createResponseFunctionAsync(client, param.nested());
       return request -> returnAdapter.fromPublisher(reactiveAdapter.toPublisher(responseFunction.execute(request)));
