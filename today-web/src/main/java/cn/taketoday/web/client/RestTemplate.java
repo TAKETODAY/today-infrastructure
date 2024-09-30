@@ -82,7 +82,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * <p><strong>NOTE:</strong> {@link RestClient} offers a more modern
  * API for synchronous HTTP access. For asynchronous and streaming scenarios,
  * consider the reactive
- * {@link cn.taketoday.web.reactive.function.client.WebClient}.
+ * {@link cn.taketoday.web.client.reactive.WebClient}.
  *
  * @author Arjen Poutsma
  * @author Brian Clozel

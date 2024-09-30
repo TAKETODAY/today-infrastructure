@@ -37,7 +37,7 @@ import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.web.reactive.function.BodyInserters;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.WebClient;
 import cn.taketoday.web.server.PortInUseException;
 import cn.taketoday.web.server.Shutdown;
 import cn.taketoday.web.server.Ssl;

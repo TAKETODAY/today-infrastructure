@@ -37,10 +37,10 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.reactive.function.client.ExchangeFilterFunction;
-import cn.taketoday.web.reactive.function.client.ExchangeFunction;
-import cn.taketoday.web.reactive.function.client.ExchangeFunctions;
-import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
+import cn.taketoday.web.client.reactive.ExchangeFilterFunction;
+import cn.taketoday.web.client.reactive.ExchangeFunction;
+import cn.taketoday.web.client.reactive.ExchangeFunctions;
+import cn.taketoday.web.client.reactive.ExchangeStrategies;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
 

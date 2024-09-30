@@ -24,7 +24,7 @@ import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.reactive.function.client.ClientResponse;
+import cn.taketoday.web.client.reactive.ClientResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -48,7 +48,7 @@ import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
+import cn.taketoday.web.client.reactive.ExchangeStrategies;
 
 /**
  * {@link ContextCustomizer} for {@link WebTestClient}.

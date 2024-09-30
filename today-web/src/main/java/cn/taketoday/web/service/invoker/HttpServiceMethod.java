@@ -563,7 +563,7 @@ final class HttpServiceMethod {
           responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter);
         }
       }
-      else if (actualType == cn.taketoday.web.reactive.function.client.ClientResponse.class) {
+      else if (actualType == cn.taketoday.web.client.reactive.ClientResponse.class) {
         responseFunction = client::exchangeMono;
       }
       else if (actualType == ClientResponse.class) {

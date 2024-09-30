@@ -15,29 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.web.reactive.client;
-
-import cn.taketoday.web.client.reactive.WebClient;
-
 /**
- * Callback interface that can be used to customize a
- * {@link cn.taketoday.web.client.reactive.WebClient.Builder
- * WebClient.Builder}.
- *
- * @author Brian Clozel
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * Classes supporting the {@code cn.taketoday.web.client.reactive} package.
+ * Contains a {@code ClientResponse} wrapper to adapt a request.
  */
-@FunctionalInterface
-public interface WebClientCustomizer {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.client.reactive.support;
 
-  /**
-   * Callback to customize a
-   * {@link cn.taketoday.web.client.reactive.WebClient.Builder
-   * WebClient.Builder} instance.
-   *
-   * @param webClientBuilder the client builder to customize
-   */
-  void customize(WebClient.Builder webClientBuilder);
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

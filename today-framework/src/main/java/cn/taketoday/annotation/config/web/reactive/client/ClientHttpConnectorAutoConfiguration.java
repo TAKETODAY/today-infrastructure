@@ -29,7 +29,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.WebClient;
 import reactor.core.publisher.Mono;
 
 /**

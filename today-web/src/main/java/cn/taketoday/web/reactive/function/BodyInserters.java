@@ -45,7 +45,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.WebClient;
 import reactor.core.publisher.Mono;
 
 /**

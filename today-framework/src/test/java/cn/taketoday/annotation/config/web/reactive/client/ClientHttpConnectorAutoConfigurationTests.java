@@ -29,7 +29,7 @@ import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;

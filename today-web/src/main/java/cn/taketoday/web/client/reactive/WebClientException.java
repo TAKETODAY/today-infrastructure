@@ -15,33 +15,37 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.web.reactive.client;
+package cn.taketoday.web.client.reactive;
 
-import cn.taketoday.http.codec.CodecCustomizer;
-import cn.taketoday.web.client.reactive.WebClient;
+import cn.taketoday.core.NestedRuntimeException;
 
 /**
- * {@link WebClientCustomizer} that configures codecs for the HTTP client.
+ * Abstract base class for exception published by {@link WebClient} in case of errors.
  *
- * @author Brian Clozel
+ * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class WebClientCodecCustomizer implements WebClientCustomizer {
+public abstract class WebClientException extends NestedRuntimeException {
 
-  private final Iterable<CodecCustomizer> codecCustomizers;
-
-  public WebClientCodecCustomizer(Iterable<CodecCustomizer> codecCustomizers) {
-    this.codecCustomizers = codecCustomizers;
+  /**
+   * Construct a new instance of {@code WebClientException} with the given message.
+   *
+   * @param msg the message
+   */
+  public WebClientException(String msg) {
+    super(msg);
   }
 
-  @Override
-  public void customize(WebClient.Builder webClientBuilder) {
-    webClientBuilder.codecs(codecs -> {
-      for (CodecCustomizer customizer : codecCustomizers) {
-        customizer.customize(codecs);
-      }
-    });
+  /**
+   * Construct a new instance of {@code WebClientException} with the given message
+   * and exception.
+   *
+   * @param msg the message
+   * @param ex the exception
+   */
+  public WebClientException(String msg, Throwable ex) {
+    super(msg, ex);
   }
 
 }

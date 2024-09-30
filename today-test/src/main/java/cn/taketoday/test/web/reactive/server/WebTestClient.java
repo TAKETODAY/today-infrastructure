@@ -42,9 +42,9 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.reactive.function.BodyInserter;
 import cn.taketoday.web.reactive.function.BodyInserters;
-import cn.taketoday.web.reactive.function.client.ExchangeFilterFunction;
-import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.ExchangeFilterFunction;
+import cn.taketoday.web.client.reactive.ExchangeStrategies;
+import cn.taketoday.web.client.reactive.WebClient;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
 
@@ -230,14 +230,14 @@ public interface WebTestClient {
   /**
    * Steps for customizing the {@link WebClient} used to test with,
    * internally delegating to a
-   * {@link cn.taketoday.web.reactive.function.client.WebClient.Builder
+   * {@link cn.taketoday.web.client.reactive.WebClient.Builder
    * WebClient.Builder}.
    */
   interface Builder {
 
     /**
      * Configure a base URI as described in
-     * {@link cn.taketoday.web.reactive.function.client.WebClient#create(String)
+     * {@link cn.taketoday.web.client.reactive.WebClient#create(String)
      * WebClient.create(String)}.
      */
     Builder baseUrl(String baseUrl);
@@ -579,7 +579,7 @@ public interface WebTestClient {
 
     /**
      * Set the body to the given {@code Object} value. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#bodyValue(Object)
+     * {@link cn.taketoday.web.client.reactive.WebClient.RequestBodySpec#bodyValue(Object)
      * bodyValue} method on the underlying {@code WebClient}.
      *
      * @param body the value to write to the request body
@@ -615,7 +615,7 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, Class)
+     * {@link cn.taketoday.web.client.reactive.WebClient.RequestBodySpec#body(Object, Class)
      * body(Object, Class)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -628,7 +628,7 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
+     * {@link cn.taketoday.web.client.reactive.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
      * body(Object, TypeReference)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -642,7 +642,7 @@ public interface WebTestClient {
     /**
      * Set the body of the request to the given {@code BodyInserter}.
      * This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(BodyInserter)
+     * {@link cn.taketoday.web.client.reactive.WebClient.RequestBodySpec#body(BodyInserter)
      * body(BodyInserter)} method on the underlying {@code WebClient}.
      *
      * @param inserter the body inserter to use

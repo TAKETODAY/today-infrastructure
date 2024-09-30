@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -83,7 +80,7 @@ import reactor.core.publisher.Flux;
  *   }))
  * </pre>
  * Received part events can also be relayed to another service by using the
- * {@link cn.taketoday.web.reactive.function.client.WebClient WebClient}.
+ * {@link cn.taketoday.web.client.reactive.WebClient WebClient}.
  * See below.
  *
  * <p><strong>NOTE</strong> that the {@linkplain PartEvent#content() body contents}
@@ -97,7 +94,7 @@ import reactor.core.publisher.Flux;
  * </ul>
  * The streams returned by these static methods can be concatenated via
  * {@link Flux#concat(Publisher[])} to create a request for the
- * {@link cn.taketoday.web.reactive.function.client.WebClient WebClient}:
+ * {@link cn.taketoday.web.client.reactive.WebClient WebClient}:
  * For instance, this sample will POST a multipart form containing a form field
  * and a file.
  *

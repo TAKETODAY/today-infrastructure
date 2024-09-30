@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive.client;
@@ -32,14 +32,14 @@ import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.stereotype.Prototype;
-import cn.taketoday.web.reactive.function.client.WebClient;
+import cn.taketoday.web.client.reactive.WebClient;
 import reactor.core.publisher.Mono;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebClient}.
  * <p>
  * This will produce a
- * {@link cn.taketoday.web.reactive.function.client.WebClient.Builder
+ * {@link cn.taketoday.web.client.reactive.WebClient.Builder
  * WebClient.Builder} bean with the {@code prototype} scope, meaning each injection point
  * will receive a newly cloned instance of the builder.
  *

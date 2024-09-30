@@ -32,8 +32,8 @@ import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.web.server.context.WebServerApplicationContext;
 import cn.taketoday.web.server.WebServer;
-import cn.taketoday.web.reactive.function.client.WebClient;
-import cn.taketoday.web.reactive.function.client.WebClientRequestException;
+import cn.taketoday.web.client.reactive.WebClient;
+import cn.taketoday.web.client.reactive.WebClientRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
