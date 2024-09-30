@@ -88,7 +88,6 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   public final Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
-    MethodParameter nestedParameter = methodParameter.nestedIfOptional();
 
     Object arg;
     if (namedValueInfo.nameEmbedded) {
@@ -107,10 +106,10 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       if (namedValueInfo.defaultValue != null) {
         arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
       }
-      else if (namedValueInfo.required && !nestedParameter.isOptional()) {
-        handleMissingValue(namedValueInfo.name, nestedParameter, context);
+      else if (namedValueInfo.required && !methodParameter.isNullable()) {
+        handleMissingValue(namedValueInfo.name, methodParameter, context);
       }
-      arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
+      arg = handleNullValue(namedValueInfo.name, arg, methodParameter.getParameterType());
     }
     else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
@@ -125,8 +124,8 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
           arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
           arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
         }
-        else if (namedValueInfo.required && !nestedParameter.isOptional()) {
-          handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
+        else if (namedValueInfo.required && !methodParameter.isNullable()) {
+          handleMissingValueAfterConversion(namedValueInfo.name, methodParameter, context);
         }
       }
     }
@@ -137,7 +136,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   private static Object convertIfNecessary(RequestContext context, BindingContext bindingContext,
-          NamedValueInfo namedValueInfo, MethodParameter methodParameter, Object arg) throws Throwable {
+          NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Throwable {
 
     WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
     try {
@@ -228,7 +227,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    */
   protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) throws Exception {
     throw new MissingRequestValueException("Missing argument '%s' for method parameter of type %s"
-            .formatted(name, parameter.getNestedParameterType().getSimpleName()), true);
+            .formatted(name, parameter.getParameterType().getSimpleName()), true);
   }
 
   /**

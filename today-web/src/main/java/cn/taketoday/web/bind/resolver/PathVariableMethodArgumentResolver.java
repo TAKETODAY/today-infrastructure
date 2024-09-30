@@ -65,7 +65,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     if (resolvable.hasParameterAnnotation(PathVariable.class)) {
-      if (Map.class.isAssignableFrom(resolvable.getParameter().nestedIfOptional().getNestedParameterType())) {
+      if (Map.class.isAssignableFrom(resolvable.getParameter().getParameterType())) {
         PathVariable pathVariable = resolvable.getParameterAnnotation(PathVariable.class);
         return pathVariable != null && StringUtils.hasText(pathVariable.value());
       }
@@ -110,13 +110,13 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   public void contributeMethodArgument(MethodParameter parameter, Object value,
           UriComponentsBuilder builder, Map<String, Object> uriVariables, ConversionService conversionService) {
 
-    if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+    if (Map.class.isAssignableFrom(parameter.getParameterType())) {
       return;
     }
 
     PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
     String name = (ann != null && StringUtils.isNotEmpty(ann.value()) ? ann.value() : parameter.getParameterName());
-    String formatted = formatUriValue(conversionService, new TypeDescriptor(parameter.nestedIfOptional()), value);
+    String formatted = formatUriValue(conversionService, new TypeDescriptor(parameter), value);
     uriVariables.put(name, formatted);
   }
 

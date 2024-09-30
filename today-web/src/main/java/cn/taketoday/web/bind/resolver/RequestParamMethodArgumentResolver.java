@@ -121,7 +121,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     if (parameter.hasParameterAnnotation(RequestParam.class)) {
-      if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
+      if (Map.class.isAssignableFrom(parameter.getParameterType())) {
         RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
         return requestParam != null && StringUtils.hasText(requestParam.name());
       }
@@ -133,12 +133,11 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       if (parameter.hasParameterAnnotation(RequestPart.class)) {
         return false;
       }
-      parameter = parameter.nestedIfOptional();
       if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
         return true;
       }
       else if (useDefaultResolution) {
-        return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
+        return BeanUtils.isSimpleProperty(parameter.getParameterType());
       }
       else {
         return false;
@@ -228,7 +227,6 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
             ? requestParam.name() : parameter.getParameterName();
     Assert.state(name != null, "Unresolvable parameter name");
 
-    parameter = parameter.nestedIfOptional();
     if (value instanceof Optional<?> optional) {
       value = optional.orElse(null);
     }

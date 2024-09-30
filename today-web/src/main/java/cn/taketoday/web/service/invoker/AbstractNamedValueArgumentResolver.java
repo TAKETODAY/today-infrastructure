@@ -185,8 +185,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     }
 
     if (conversionService != null && !(value instanceof String)) {
-      parameter = parameter.nestedIfOptional();
-      Class<?> type = parameter.getNestedParameterType();
+      Class<?> type = parameter.getParameterType();
       value = (type != Object.class && !type.isArray() ?
               this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE) :
               this.conversionService.convert(value, String.class));
