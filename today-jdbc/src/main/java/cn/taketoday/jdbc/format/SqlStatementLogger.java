@@ -49,7 +49,7 @@ public class SqlStatementLogger {
           TodayStrategies.getFlag("sql.highlight", true),
           TodayStrategies.getFlag("sql.stdoutOnly", false),
           TodayStrategies.getLong("sql.logSlowQuery", 0),
-          TodayStrategies.getProperty("", DEFAULT_LOG_PREFIX)
+          TodayStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX)
   );
 
   private final boolean format;
