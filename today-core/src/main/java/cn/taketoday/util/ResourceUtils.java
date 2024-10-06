@@ -150,14 +150,10 @@ public abstract class ResourceUtils {
       if (!cleanedPath.equals(urlString)) {
         // Prefer cleaned URL, aligned with UrlResource#createRelative(String)
         try {
-          // Cannot test for URLStreamHandler directly: URL equality for same String
-          // in order to find out whether original URL uses default URLStreamHandler.
-          if (ResourceUtils.toURL(urlString).equals(url)) {
-            // Plain URL with default URLStreamHandler -> replace with cleaned path.
-            return new UrlResource(ResourceUtils.toURI(cleanedPath));
-          }
+          // Retain original URL instance, potentially including custom URLStreamHandler.
+          return new UrlResource(new URL(url, cleanedPath));
         }
-        catch (URISyntaxException | MalformedURLException ex) {
+        catch (MalformedURLException ex) {
           // Fallback to regular URL construction below...
         }
       }
@@ -521,11 +517,11 @@ public abstract class ResourceUtils {
    */
   public static URL toURL(String location) throws MalformedURLException {
     try {
-      // Prefer URI construction with toURL conversion
+      // Prefer URI construction with toURL conversion (as of 5.0)
       return toURI(StringUtils.cleanPath(location)).toURL();
     }
     catch (URISyntaxException | IllegalArgumentException ex) {
-      // Lenient fallback to deprecated (on JDK 20) URL constructor,
+      // Lenient fallback to deprecated URL constructor,
       // e.g. for decoded location Strings with percent characters.
       return new URL(location);
     }
@@ -544,7 +540,9 @@ public abstract class ResourceUtils {
   public static URL toRelativeURL(URL root, String relativePath) throws MalformedURLException {
     // # can appear in filenames, java.net.URL should not treat it as a fragment
     relativePath = StringUtils.replace(relativePath, "#", "%23");
-    return toURL(StringUtils.applyRelativePath(root.toString(), relativePath));
+
+    // Retain original URL instance, potentially including custom URLStreamHandler.
+    return new URL(root, StringUtils.cleanPath(StringUtils.applyRelativePath(root.toString(), relativePath)));
   }
 
 }
