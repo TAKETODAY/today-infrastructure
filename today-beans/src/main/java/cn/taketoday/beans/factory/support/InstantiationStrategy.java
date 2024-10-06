@@ -20,6 +20,7 @@ package cn.taketoday.beans.factory.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
@@ -30,7 +31,6 @@ import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
  * Simple object instantiation strategy for use in a BeanFactory.
@@ -67,7 +67,7 @@ public class InstantiationStrategy {
    * @return the result of the instance supplier
    * @since 5.0
    */
-  public static <T> T instantiateWithFactoryMethod(Method method, ThrowingSupplier<T> instanceSupplier) {
+  public static <T> T instantiateWithFactoryMethod(Method method, Supplier<T> instanceSupplier) {
     Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
     try {
       currentlyInvokedFactoryMethod.set(method);
