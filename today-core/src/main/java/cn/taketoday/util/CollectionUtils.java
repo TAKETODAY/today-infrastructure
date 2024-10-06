@@ -1129,7 +1129,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static <K, V> HashMap<K, V> newHashMap(int expectedSize) {
-    return new HashMap<>(computeMapInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+    return new HashMap<>(computeInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
   }
 
   /**
@@ -1143,10 +1143,38 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(int expectedSize) {
-    return new LinkedHashMap<>(computeMapInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+    return new LinkedHashMap<>(computeInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
   }
 
-  private static int computeMapInitialCapacity(int expectedSize) {
+  /**
+   * Instantiate a new {@link HashSet} with an initial capacity that can
+   * accommodate the specified number of elements without any immediate
+   * resize/rehash operations to be expected.
+   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
+   * @see #newLinkedHashSet(int)
+   * @since 5.0
+   */
+  public static <E> HashSet<E> newHashSet(int expectedSize) {
+    return new HashSet<>(computeInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+  }
+
+  /**
+   * Instantiate a new {@link LinkedHashSet} with an initial capacity that can
+   * accommodate the specified number of elements without any immediate
+   * resize/rehash operations to be expected.
+   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
+   * @see #newHashSet(int)
+   * @since 5.0
+   */
+  public static <E> LinkedHashSet<E> newLinkedHashSet(int expectedSize) {
+    return new LinkedHashSet<>(computeInitialCapacity(expectedSize), DEFAULT_LOAD_FACTOR);
+  }
+
+  private static int computeInitialCapacity(int expectedSize) {
     return (int) Math.ceil(expectedSize / (double) DEFAULT_LOAD_FACTOR);
   }
 

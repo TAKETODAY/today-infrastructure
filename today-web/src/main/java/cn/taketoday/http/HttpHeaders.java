@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +48,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Unmodifiable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
@@ -881,15 +881,16 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     String value = getFirst(ALLOW);
     if (StringUtils.isNotEmpty(value)) {
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
-      ArrayList<HttpMethod> result = new ArrayList<>(tokens.length);
+      var result = CollectionUtils.<HttpMethod>newLinkedHashSet(tokens.length);
       for (String token : tokens) {
-        result.add(HttpMethod.resolve(token));
+        HttpMethod method = HttpMethod.resolve(token);
+        if (method != null) {
+          result.add(method);
+        }
       }
-      return EnumSet.copyOf(result);
+      return result;
     }
-    else {
-      return EnumSet.noneOf(HttpMethod.class);
-    }
+    return Collections.emptySet();
   }
 
   /**

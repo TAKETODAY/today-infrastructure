@@ -318,8 +318,8 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
     while (targetClass != null && targetClass != Object.class);
     return initMethods.isEmpty() && destroyMethods.isEmpty()
-           ? this.emptyLifecycleMetadata
-           : new LifecycleMetadata(beanClass, initMethods, destroyMethods);
+            ? this.emptyLifecycleMetadata
+            : new LifecycleMetadata(beanClass, initMethods, destroyMethods);
   }
 
   //---------------------------------------------------------------------
@@ -359,7 +359,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
 
     public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
-      var checkedInitMethods = new LinkedHashSet<LifecycleMethod>(initMethods.size());
+      var checkedInitMethods = CollectionUtils.<LifecycleMethod>newLinkedHashSet(initMethods.size());
       for (LifecycleMethod element : initMethods) {
         if (!beanDefinition.isExternallyManagedInitMethod(element.identifier)) {
           beanDefinition.registerExternallyManagedInitMethod(element.identifier);
@@ -370,7 +370,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
         }
       }
 
-      var checkedDestroyMethods = new LinkedHashSet<LifecycleMethod>(destroyMethods.size());
+      var checkedDestroyMethods = CollectionUtils.<LifecycleMethod>newLinkedHashSet(destroyMethods.size());
       for (LifecycleMethod element : destroyMethods) {
         if (!beanDefinition.isExternallyManagedDestroyMethod(element.identifier)) {
           beanDefinition.registerExternallyManagedDestroyMethod(element.identifier);
@@ -436,7 +436,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       ReflectionUtils.makeAccessible(method);
       this.method = method;
       this.identifier = isPrivateOrNotVisible(method, beanClass) ?
-                        ClassUtils.getQualifiedMethodName(method) : method.getName();
+              ClassUtils.getQualifiedMethodName(method) : method.getName();
     }
 
     public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
