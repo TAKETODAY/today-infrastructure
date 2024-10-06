@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -148,70 +148,43 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
   @Override
   public void subscribe(Flow.Subscriber<? super T> subscriber) {
+    // We don't use Assert.notNull(), because a NullPointerException is required
+    // for Reactive Streams compliance.
     Assert.notNull(subscriber, "Subscriber is required");
 
     OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(
             subscriber, this.outputStreamHandler, this.byteMapper, this.chunkSize);
+
     subscriber.onSubscribe(subscription);
     this.executor.execute(subscription::invokeHandler);
   }
 
   /**
-   * Defines the contract for handling the {@code OutputStream} provided by
-   * the {@code OutputStreamPublisher}.
+   * Contract to provide callback access to the {@link OutputStream}.
    */
   @FunctionalInterface
   public interface OutputStreamHandler {
 
-    /**
-     * Use the given stream for writing.
-     * <ul>
-     * <li>If the linked subscription has
-     * {@linkplain Flow.Subscription#request(long) demand}, any
-     * {@linkplain OutputStream#write(byte[], int, int) written} bytes
-     * will be {@linkplain ByteMapper#map(byte[], int, int) mapped}
-     * and {@linkplain Flow.Subscriber#onNext(Object) published} to the
-     * {@link Flow.Subscriber Subscriber}.</li>
-     * <li>If there is no demand, any
-     * {@link OutputStream#write(byte[], int, int) write()} invocations will
-     * block until there is demand.</li>
-     * <li>If the linked subscription is
-     * {@linkplain Flow.Subscription#cancel() cancelled},
-     * {@link OutputStream#write(byte[], int, int) write()} invocations will
-     * result in a {@code IOException}.</li>
-     * </ul>
-     *
-     * @param outputStream the stream to write to
-     * @throws IOException any thrown I/O errors will be dispatched to the
-     * {@linkplain Flow.Subscriber#onError(Throwable) Subscriber}
-     */
-    void handle(OutputStream outputStream) throws IOException;
+    void handle(OutputStream outputStream) throws Exception;
 
   }
 
   /**
-   * Maps bytes written to in {@link OutputStreamHandler#handle(OutputStream)}
-   * to published items.
+   * Maps from bytes to byte buffers.
    *
-   * @param <T> the type to map to
+   * @param <T> the type of byte buffer to map to
    */
   public interface ByteMapper<T> {
 
-    /**
-     * Maps a single byte to {@code T}.
-     */
     T map(int b);
 
-    /**
-     * Maps a byte array to {@code T}.
-     */
     T map(byte[] b, int off, int len);
 
   }
 
   private static final class OutputStreamSubscription<T> extends OutputStream implements Flow.Subscription {
 
-    static final Object READY = new Object();
+    private static final Object READY = new Object();
 
     private final Flow.Subscriber<? super T> actual;
 
@@ -230,8 +203,10 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
     private long produced;
 
-    public OutputStreamSubscription(Flow.Subscriber<? super T> actual,
-            OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, int chunkSize) {
+    OutputStreamSubscription(
+            Flow.Subscriber<? super T> actual, OutputStreamHandler outputStreamHandler,
+            ByteMapper<T> byteMapper, int chunkSize) {
+
       this.actual = actual;
       this.byteMapper = byteMapper;
       this.outputStreamHandler = outputStreamHandler;
@@ -241,11 +216,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
     @Override
     public void write(int b) throws IOException {
       checkDemandAndAwaitIfNeeded();
-
       T next = this.byteMapper.map(b);
-
       this.actual.onNext(next);
-
       this.produced++;
     }
 
@@ -257,11 +229,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
       checkDemandAndAwaitIfNeeded();
-
       T next = this.byteMapper.map(b, off, len);
-
       this.actual.onNext(next);
-
       this.produced++;
     }
 
@@ -295,7 +264,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
       }
     }
 
-    public void invokeHandler() {
+    private void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered
@@ -303,18 +272,19 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
       try (OutputStream outputStream = new BufferedOutputStream(this, this.chunkSize)) {
         this.outputStreamHandler.handle(outputStream);
       }
-      catch (IOException ex) {
+      catch (Exception ex) {
         long previousState = tryTerminate();
         if (isCancelled(previousState)) {
           return;
         }
-
         if (isTerminated(previousState)) {
           // failure due to illegal requestN
-          this.actual.onError(this.error);
-          return;
+          Throwable error = this.error;
+          if (error != null) {
+            this.actual.onError(error);
+            return;
+          }
         }
-
         this.actual.onError(ex);
         return;
       }
@@ -326,10 +296,12 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
       if (isTerminated(previousState)) {
         // failure due to illegal requestN
-        this.actual.onError(this.error);
-        return;
+        Throwable error = this.error;
+        if (error != null) {
+          this.actual.onError(error);
+          return;
+        }
       }
-
       this.actual.onComplete();
     }
 
@@ -338,16 +310,13 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
       if (n <= 0) {
         this.error = new IllegalArgumentException("request should be a positive number");
         long previousState = tryTerminate();
-
         if (isTerminated(previousState) || isCancelled(previousState)) {
           return;
         }
-
         if (previousState > 0) {
           // error should eventually be observed and propagated
           return;
         }
-
         // resume parked thread, so it can observe error and propagate it
         resume();
         return;
@@ -405,11 +374,9 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
     private long tryCancel() {
       while (true) {
         long r = this.requested.get();
-
         if (isCancelled(r)) {
           return r;
         }
-
         if (this.requested.compareAndSet(r, Long.MIN_VALUE)) {
           return r;
         }
@@ -419,11 +386,9 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
     private long tryTerminate() {
       while (true) {
         long r = this.requested.get();
-
         if (isCancelled(r) || isTerminated(r)) {
           return r;
         }
-
         if (this.requested.compareAndSet(r, Long.MIN_VALUE | Long.MAX_VALUE)) {
           return r;
         }
@@ -478,4 +443,5 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
       return res;
     }
   }
+
 }
