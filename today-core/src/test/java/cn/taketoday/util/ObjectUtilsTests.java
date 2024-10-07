@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -1015,4 +1015,21 @@ class ObjectUtilsTests {
 
   enum Tropes {FOO, BAR, baz}
 
+  @Test
+  void unwrapOptional() {
+
+    assertThat(ObjectUtils.unwrapOptional(null)).isNull();
+    assertThat(ObjectUtils.unwrapOptional(Optional.empty())).isNull();
+    assertThat(ObjectUtils.unwrapOptional(Optional.of("some value"))).isEqualTo("some value");
+
+    Optional<Optional<Object>> nestedEmptyOptional = Optional.of(Optional.empty());
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ObjectUtils.unwrapOptional(nestedEmptyOptional))
+            .withMessage("Multi-level Optional usage not supported");
+
+    Optional<Optional<String>> nestedStringOptional = Optional.of(Optional.of("some value"));
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ObjectUtils.unwrapOptional(nestedStringOptional))
+            .withMessage("Multi-level Optional usage not supported");
+  }
 }
