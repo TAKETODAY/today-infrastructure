@@ -19,6 +19,8 @@ package cn.taketoday.util;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -40,6 +42,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 2018-12-10 19:06
  */
 class StringUtilsTests {
+
+  @ParameterizedTest
+  @ValueSource(strings = { "text", "  text  ", "  ", "\t", "\n text" })
+  void hasLengthForValidValues(String value) {
+    assertThat(StringUtils.isNotEmpty(value)).isTrue();
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  void hasLengthForInvalidValues(String value) {
+    assertThat(StringUtils.isNotEmpty(value)).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "text", "  text  ", "\n text" })
+  void hasTextForValidValues(String value) {
+    assertThat(StringUtils.hasText(value)).isTrue();
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = { "  ", "\t" })
+  void hasTextForInvalidValues(String value) {
+    assertThat(StringUtils.hasText(value)).isFalse();
+  }
 
   @Test
   void trivial() {
