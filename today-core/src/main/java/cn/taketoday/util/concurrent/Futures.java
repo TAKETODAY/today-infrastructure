@@ -56,29 +56,31 @@ final class Futures {
    */
   static final CompleteFuture okFuture = new CompleteFuture(Future.defaultScheduler, null, null);
 
-  private static final FutureContextListener propagateCancel = new FutureContextListener<Future<Object>, Future<Object>>() {
+  public static final FutureContextListener propagateCancel =
+          new FutureContextListener<Future<Object>, java.util.concurrent.Future<Object>>() {
 
-    @Override
-    public void operationComplete(Future<Object> completed, Future<Object> context) {
-      if (completed.isCancelled()) {
-        context.cancel();
-      }
-    }
-  };
+            @Override
+            public void operationComplete(Future<Object> completed, java.util.concurrent.Future<Object> context) {
+              if (completed.isCancelled()) {
+                context.cancel(true);
+              }
+            }
+          };
 
-  public static final FutureContextListener completableAdapter = new FutureContextListener<Future<Object>, CompletableFuture<Object>>() {
+  public static final FutureContextListener completableAdapter =
+          new FutureContextListener<Future<Object>, CompletableFuture<Object>>() {
 
-    @Override
-    public void operationComplete(Future<Object> completed, CompletableFuture<Object> context) {
-      Throwable cause = completed.getCause();
-      if (cause != null) {
-        context.completeExceptionally(cause);
-      }
-      else {
-        context.complete(completed.getNow());
-      }
-    }
-  };
+            @Override
+            public void operationComplete(Future<Object> completed, CompletableFuture<Object> context) {
+              Throwable cause = completed.getCause();
+              if (cause != null) {
+                context.completeExceptionally(cause);
+              }
+              else {
+                context.complete(completed.getNow());
+              }
+            }
+          };
 
   static final BiFunction rootCauseFunction = new BiFunction<Throwable, Class<?>, Throwable>() {
 

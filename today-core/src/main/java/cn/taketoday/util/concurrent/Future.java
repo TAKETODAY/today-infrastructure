@@ -1577,6 +1577,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
    */
+  @SuppressWarnings({ "unchecked" })
   public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     Promise<V> promise = forPromise(executor);
     stage.whenCompleteAsync((v, failure) -> {
@@ -1587,6 +1588,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
         promise.trySuccess(v);
       }
     }, promise.executor());
+    promise.onCompleted(Futures.propagateCancel, stage);
     return promise;
   }
 
