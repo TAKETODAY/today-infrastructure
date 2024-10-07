@@ -1007,18 +1007,13 @@ class ObjectUtilsTests {
     }
   }
 
-  private void assertEqualHashCodes(int expected, Object array) {
-    int actual = ObjectUtils.nullSafeHashCode(array);
-    assertThat(actual).isEqualTo(expected);
-    assertThat(array.hashCode() != actual).isTrue();
-  }
-
   enum Tropes {FOO, BAR, baz}
 
   @Test
   void unwrapOptional() {
 
     assertThat(ObjectUtils.unwrapOptional(null)).isNull();
+    assertThat(ObjectUtils.unwrapOptional("some value")).isEqualTo("some value");
     assertThat(ObjectUtils.unwrapOptional(Optional.empty())).isNull();
     assertThat(ObjectUtils.unwrapOptional(Optional.of("some value"))).isEqualTo("some value");
 
