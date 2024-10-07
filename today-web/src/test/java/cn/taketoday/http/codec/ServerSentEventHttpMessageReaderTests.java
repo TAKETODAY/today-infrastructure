@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -42,27 +41,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Sebastien Deleuze
  */
-public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
+class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
-  private Jackson2JsonDecoder jsonDecoder = new Jackson2JsonDecoder();
+  private final Jackson2JsonDecoder jsonDecoder = new Jackson2JsonDecoder();
 
   private ServerSentEventHttpMessageReader reader = new ServerSentEventHttpMessageReader(this.jsonDecoder);
 
   @Test
-  public void cantRead() {
+  void cannotRead() {
     assertThat(reader.canRead(ResolvableType.forClass(Object.class), new MediaType("foo", "bar"))).isFalse();
     assertThat(reader.canRead(ResolvableType.forClass(Object.class), null)).isFalse();
   }
 
   @Test
-  public void canRead() {
+  void canRead() {
     assertThat(reader.canRead(ResolvableType.forClass(Object.class), new MediaType("text", "event-stream"))).isTrue();
     assertThat(reader.canRead(ResolvableType.forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
   }
 
   @Test
   @SuppressWarnings("rawtypes")
-  public void readServerSentEvents() {
+  void readServerSentEvents() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer(
                     "id:c42\nevent:foo\nretry:123\n:bla\n:bla bla\n:bla bla bla\ndata:bar\n\n" +
@@ -73,29 +72,19 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                     request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
-            .consumeNextWith(event -> {
-              assertThat(event.id()).isEqualTo("c42");
-              assertThat(event.event()).isEqualTo("foo");
-              assertThat(event.retry()).isEqualTo(Duration.ofMillis(123));
-              assertThat(event.comment()).isEqualTo("bla\nbla bla\nbla bla bla");
-              assertThat(event.data()).isEqualTo("bar");
-            })
-            .consumeNextWith(event -> {
-              assertThat(event.id()).isEqualTo("c43");
-              assertThat(event.event()).isEqualTo("bar");
-              assertThat(event.retry()).isEqualTo(Duration.ofMillis(456));
-              assertThat(event.comment()).isNull();
-              assertThat(event.data()).isEqualTo("baz");
-            })
-            .consumeNextWith(event -> Assertions.assertThat(event.data()).isNull())
-            .consumeNextWith(event -> Assertions.assertThat(event.data()).isNull())
+            .expectNext(ServerSentEvent.builder().id("c42").event("foo")
+                    .retry(Duration.ofMillis(123)).comment("bla\nbla bla\nbla bla bla").data("bar").build())
+            .expectNext(ServerSentEvent.builder().id("c43").event("bar")
+                    .retry(Duration.ofMillis(456)).data("baz").build())
+            .consumeNextWith(event -> assertThat(event.data()).isNull())
+            .consumeNextWith(event -> assertThat(event.data()).isNull())
             .expectComplete()
             .verify();
   }
 
   @Test
   @SuppressWarnings("rawtypes")
-  public void readServerSentEventsWithMultipleChunks() {
+  void readServerSentEventsWithMultipleChunks() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Flux.just(
                     stringBuffer("id:c42\nev"),
@@ -107,26 +96,16 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                     request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
-            .consumeNextWith(event -> {
-              assertThat(event.id()).isEqualTo("c42");
-              assertThat(event.event()).isEqualTo("foo");
-              assertThat(event.retry()).isEqualTo(Duration.ofMillis(123));
-              assertThat(event.comment()).isEqualTo("bla\nbla bla\nbla bla bla");
-              assertThat(event.data()).isEqualTo("bar");
-            })
-            .consumeNextWith(event -> {
-              assertThat(event.id()).isEqualTo("c43");
-              assertThat(event.event()).isEqualTo("bar");
-              assertThat(event.retry()).isEqualTo(Duration.ofMillis(456));
-              assertThat(event.comment()).isNull();
-              assertThat(event.data()).isEqualTo("baz");
-            })
+            .expectNext(ServerSentEvent.builder().id("c42").event("foo")
+                    .retry(Duration.ofMillis(123)).comment("bla\nbla bla\nbla bla bla").data("bar").build())
+            .expectNext(ServerSentEvent.builder().id("c43").event("bar")
+                    .retry(Duration.ofMillis(456)).data("baz").build())
             .expectComplete()
             .verify();
   }
 
   @Test
-  public void readString() {
+  void readString() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer("data:foo\ndata:bar\n\ndata:baz\n\n")));
 
@@ -141,7 +120,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
   }
 
   @Test
-  public void trimWhitespace() {
+  void trimWhitespace() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer("data: \tfoo \ndata:bar\t\n\n")));
 
@@ -155,11 +134,14 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
   }
 
   @Test
-  public void readPojo() {
+  void readPojo() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
-            .body(Mono.just(stringBuffer(
-                    "data:{\"foo\": \"foofoo\", \"bar\": \"barbar\"}\n\n" +
-                            "data:{\"foo\": \"foofoofoo\", \"bar\": \"barbarbar\"}\n\n")));
+            .body(Mono.just(stringBuffer("""
+                    data:{"foo": "foofoo", "bar": "barbar"}
+
+                    data:{"foo": "foofoofoo", "bar": "barbarbar"}
+
+                    """)));
 
     Flux<Pojo> data = reader.read(ResolvableType.forClass(Pojo.class), request,
             Collections.emptyMap()).cast(Pojo.class);
@@ -189,8 +171,8 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     StepVerifier.create(data).expectComplete().verify();
   }
 
-  @Test  // SPR-15331
-  public void decodeFullContentAsString() {
+  @Test
+  void decodeFullContentAsString() {
     String body = "data:foo\ndata:bar\n\ndata:baz\n\n";
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer(body)));
@@ -204,13 +186,11 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
   }
 
   @Test
-  public void readError() {
-    Flux<DataBuffer> body =
-            Flux.just(stringBuffer("data:foo\ndata:bar\n\ndata:baz\n\n"))
-                    .concatWith(Flux.error(new RuntimeException()));
+  void readError() {
+    Flux<DataBuffer> body = Flux.just(stringBuffer("data:foo\ndata:bar\n\ndata:baz\n\n"))
+            .concatWith(Flux.error(new RuntimeException()));
 
-    MockServerHttpRequest request = MockServerHttpRequest.post("/")
-            .body(body);
+    MockServerHttpRequest request = MockServerHttpRequest.post("/").body(body);
 
     Flux<String> data = reader.read(ResolvableType.forClass(String.class),
             request, Collections.emptyMap()).cast(String.class);
@@ -223,8 +203,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
   }
 
   @Test
-  public void maxInMemoryLimit() {
-
+  void maxInMemoryLimit() {
     this.reader.setMaxInMemorySize(17);
 
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
@@ -238,12 +217,11 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .verify();
   }
 
-  @Test // gh-24312
-  public void maxInMemoryLimitAllowsReadingPojoLargerThanDefaultSize() {
-
+  @Test
+  void maxInMemoryLimitAllowsReadingPojoLargerThanDefaultSize() {
     int limit = this.jsonDecoder.getMaxInMemorySize();
 
-    String fooValue = getStringOfSize(limit) + "and then some more";
+    String fooValue = "x".repeat(limit) + " and then some more";
     String content = "data:{\"foo\": \"" + fooValue + "\"}\n\n";
     MockServerHttpRequest request = MockServerHttpRequest.post("/").body(Mono.just(stringBuffer(content)));
 
@@ -257,17 +235,9 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             Collections.emptyMap()).cast(Pojo.class);
 
     StepVerifier.create(data)
-            .consumeNextWith(pojo -> Assertions.assertThat(pojo.getFoo()).isEqualTo(fooValue))
+            .consumeNextWith(pojo -> assertThat(pojo.getFoo()).isEqualTo(fooValue))
             .expectComplete()
             .verify();
-  }
-
-  private static String getStringOfSize(long size) {
-    StringBuilder content = new StringBuilder("Aa");
-    while (content.length() < size) {
-      content.append(content);
-    }
-    return content.toString();
   }
 
   private DataBuffer stringBuffer(String value) {
