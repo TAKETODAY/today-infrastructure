@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author Mark Paluch
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -62,10 +63,6 @@ public class TransactionalAnnotationParser implements TransactionAnnotationParse
     else {
       return null;
     }
-  }
-
-  public TransactionAttribute parseTransactionAnnotation(Transactional ann) {
-    return parseTransactionAnnotation(MergedAnnotation.from(ann));
   }
 
   protected TransactionAttribute parseTransactionAnnotation(MergedAnnotation<Transactional> attributes) {

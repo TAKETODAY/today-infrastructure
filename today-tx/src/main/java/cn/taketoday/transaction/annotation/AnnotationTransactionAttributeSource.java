@@ -32,6 +32,7 @@ import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Implementation of the
@@ -93,7 +94,7 @@ public class AnnotationTransactionAttributeSource
     boolean ejb3Present = ClassUtils.isPresent("jakarta.ejb.TransactionAttribute", classLoader);
 
     if (jta12Present || ejb3Present) {
-      this.annotationParsers = new LinkedHashSet<>(4);
+      this.annotationParsers = CollectionUtils.newLinkedHashSet(3);
       this.annotationParsers.add(new TransactionalAnnotationParser());
       if (jta12Present) {
         this.annotationParsers.add(new JtaTransactionAnnotationParser());

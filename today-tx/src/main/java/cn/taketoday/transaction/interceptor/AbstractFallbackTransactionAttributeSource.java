@@ -19,7 +19,6 @@ package cn.taketoday.transaction.interceptor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.support.AopUtils;
@@ -83,7 +82,7 @@ public abstract class AbstractFallbackTransactionAttributeSource
    * <p>As this base class is not marked Serializable, the cache will be recreated
    * after serialization - provided that the concrete subclass is Serializable.
    */
-  private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
+  private final ConcurrentHashMap<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
 
   @Override
   public void setEmbeddedValueResolver(StringValueResolver resolver) {
@@ -161,10 +160,8 @@ public abstract class AbstractFallbackTransactionAttributeSource
   /**
    * Same signature as {@link #getTransactionAttribute}, but doesn't cache the result.
    * {@link #getTransactionAttribute} is effectively a caching decorator for this method.
-   * <p>As of 4.1.8, this method can be overridden.
    *
    * @see #getTransactionAttribute
-   * @since 4.1.8
    */
   @Nullable
   protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {

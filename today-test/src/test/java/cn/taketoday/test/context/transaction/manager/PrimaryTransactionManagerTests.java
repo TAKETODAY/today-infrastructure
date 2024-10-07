@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.transaction.manager;
@@ -38,11 +35,11 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
-import cn.taketoday.test.transaction.TransactionAssert;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.EnableTransactionManagement;
 import cn.taketoday.transaction.annotation.Transactional;
 
+import static cn.taketoday.test.transaction.TransactionAssert.assertThatTransaction;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -77,7 +74,7 @@ final /* Intentionally FINAL */ class PrimaryTransactionManagerTests {
   @Test
   @Transactional
   void transactionalTest() {
-    TransactionAssert.assertThatTransaction().isActive();
+    assertThatTransaction().isActive();
 
     ClassPathResource resource = new ClassPathResource("/cn/taketoday/test/context/jdbc/data.sql");
     new ResourceDatabasePopulator(resource).execute(jdbcTemplate.getDataSource());
@@ -90,7 +87,7 @@ final /* Intentionally FINAL */ class PrimaryTransactionManagerTests {
   }
 
   @Configuration
-  @EnableTransactionManagement  // SPR-17137: should not break trying to proxy the final test class
+  @EnableTransactionManagement
   static class Config {
 
     @Primary
