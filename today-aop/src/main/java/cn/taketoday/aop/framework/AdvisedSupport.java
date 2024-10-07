@@ -233,15 +233,15 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /**
    * Add a new proxied interface.
    *
-   * @param intf the additional interface to proxy
+   * @param ifc the additional interface to proxy
    */
-  public void addInterface(Class<?> intf) {
-    Assert.notNull(intf, "Interface is required");
-    if (!intf.isInterface()) {
-      throw new IllegalArgumentException("[" + intf.getName() + "] is not an interface");
+  public void addInterface(Class<?> ifc) {
+    Assert.notNull(ifc, "Interface is required");
+    if (!ifc.isInterface()) {
+      throw new IllegalArgumentException("[%s] is not an interface".formatted(ifc.getName()));
     }
-    if (!this.interfaces.contains(intf)) {
-      this.interfaces.add(intf);
+    if (!this.interfaces.contains(ifc)) {
+      this.interfaces.add(ifc);
       adviceChanged();
     }
   }
@@ -250,12 +250,12 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Remove a proxied interface.
    * <p>Does nothing if the given interface isn't proxied.
    *
-   * @param intf the interface to remove from the proxy
+   * @param ifc the interface to remove from the proxy
    * @return {@code true} if the interface was removed; {@code false}
    * if the interface was not found and hence could not be removed
    */
-  public boolean removeInterface(Class<?> intf) {
-    return this.interfaces.remove(intf);
+  public boolean removeInterface(Class<?> ifc) {
+    return this.interfaces.remove(ifc);
   }
 
   @Override
@@ -264,10 +264,32 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   }
 
   @Override
-  public boolean isInterfaceProxied(Class<?> intf) {
+  public boolean isInterfaceProxied(Class<?> ifc) {
     for (Class<?> proxyIntf : this.interfaces) {
-      if (intf.isAssignableFrom(proxyIntf)) {
+      if (ifc.isAssignableFrom(proxyIntf)) {
         return true;
+      }
+    }
+    return false;
+  }
+
+  boolean hasUserSuppliedInterfaces() {
+    for (Class<?> ifc : this.interfaces) {
+      if (!StandardProxy.class.isAssignableFrom(ifc) && !isAdvisorIntroducedInterface(ifc)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isAdvisorIntroducedInterface(Class<?> ifc) {
+    for (Advisor advisor : this.advisors) {
+      if (advisor instanceof IntroductionAdvisor ia) {
+        for (Class<?> introducedInterface : ia.getInterfaces()) {
+          if (introducedInterface == ifc) {
+            return true;
+          }
+        }
       }
     }
     return false;
