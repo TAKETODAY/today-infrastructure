@@ -32,13 +32,16 @@ import reactor.util.context.Context;
  * such as AOP interceptors or transactional operators.
  *
  * @author Mark Paluch
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see TransactionSynchronization
  * @since 4.0
  */
 public abstract class TransactionContextManager {
 
-  private TransactionContextManager() {
-  }
+  private static final NoTransactionInContextException NO_TRANSACTION_IN_CONTEXT_EXCEPTION =
+          new NoTransactionInContextException();
+
+  private TransactionContextManager() { }
 
   /**
    * Obtain the current {@link TransactionContext} from the subscriber context or the
@@ -60,7 +63,7 @@ public abstract class TransactionContextManager {
           return Mono.just(holder.currentContext());
         }
       }
-      return Mono.error(new NoTransactionInContextException());
+      return Mono.error(NO_TRANSACTION_IN_CONTEXT_EXCEPTION);
     });
   }
 
