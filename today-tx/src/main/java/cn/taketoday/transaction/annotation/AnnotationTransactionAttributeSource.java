@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
@@ -28,6 +28,8 @@ import java.util.Set;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.interceptor.AbstractFallbackTransactionAttributeSource;
+import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
+import cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 import cn.taketoday.util.ClassUtils;
 
@@ -36,7 +38,7 @@ import cn.taketoday.util.ClassUtils;
  * {@link cn.taketoday.transaction.interceptor.TransactionAttributeSource}
  * interface for working with transaction metadata in JDK 1.5+ annotation format.
  *
- * <p>This class reads Framework's JDK 1.5+ {@link Transactional} annotation and
+ * <p>This class reads Infra JDK 1.5+ {@link Transactional} annotation and
  * exposes corresponding transaction attributes to Framework's transaction infrastructure.
  * Also supports JTA 1.2's {@link jakarta.transaction.Transactional} and EJB3's
  * {@link jakarta.ejb.TransactionAttribute} annotation (if present).
@@ -45,6 +47,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Colin Sampaleanu
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Transactional
  * @see TransactionAnnotationParser
  * @see TransactionalAnnotationParser
@@ -60,6 +63,9 @@ public class AnnotationTransactionAttributeSource
   private final boolean publicMethodsOnly;
 
   private final Set<TransactionAnnotationParser> annotationParsers;
+
+  @Nullable
+  private Set<RollbackRuleAttribute> defaultRollbackRules;
 
   /**
    * Create a default AnnotationTransactionAttributeSource, supporting
@@ -134,6 +140,28 @@ public class AnnotationTransactionAttributeSource
     this.annotationParsers = annotationParsers;
   }
 
+  /**
+   * Add a default rollback rule, to be applied to all rule-based
+   * transaction attributes returned by this source.
+   * <p>By default, a rollback will be triggered on unchecked exceptions
+   * but not on checked exceptions. A default rule may override this
+   * while still respecting any custom rules in the transaction attribute.
+   *
+   * @param rollbackRule a rollback rule overriding the default behavior,
+   * for example, {@link RollbackRuleAttribute#ROLLBACK_ON_ALL_EXCEPTIONS}
+   * @see RuleBasedTransactionAttribute#getRollbackRules()
+   * @see EnableTransactionManagement#rollbackOn()
+   * @see Transactional#rollbackFor()
+   * @see Transactional#noRollbackFor()
+   * @since 5.0
+   */
+  public void addDefaultRollbackRule(RollbackRuleAttribute rollbackRule) {
+    if (this.defaultRollbackRules == null) {
+      this.defaultRollbackRules = new LinkedHashSet<>();
+    }
+    this.defaultRollbackRules.add(rollbackRule);
+  }
+
   @Override
   public boolean isCandidateClass(Class<?> targetClass) {
     for (TransactionAnnotationParser parser : this.annotationParsers) {
@@ -172,6 +200,9 @@ public class AnnotationTransactionAttributeSource
     for (TransactionAnnotationParser parser : this.annotationParsers) {
       TransactionAttribute attr = parser.parseTransactionAnnotation(element);
       if (attr != null) {
+        if (this.defaultRollbackRules != null && attr instanceof RuleBasedTransactionAttribute ruleAttr) {
+          ruleAttr.getRollbackRules().addAll(this.defaultRollbackRules);
+        }
         return attr;
       }
     }

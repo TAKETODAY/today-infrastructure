@@ -17,7 +17,6 @@
 
 package cn.taketoday.transaction.annotation;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -48,8 +47,10 @@ import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 
+import static cn.taketoday.transaction.annotation.RollbackOn.ALL_EXCEPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 /**
  * Tests demonstrating use of @EnableTransactionManagement @Configuration classes.
@@ -258,7 +259,7 @@ class EnableTransactionManagementTests {
     assertThat(txManager.commits).isEqualTo(2);
     assertThat(txManager.rollbacks).isEqualTo(0);
 
-    AssertionsForClassTypes.assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(bean::findAllFoos);
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(bean::findAllFoos);
 
     ctx.close();
   }
@@ -333,7 +334,7 @@ class EnableTransactionManagementTests {
   }
 
   @Test
-  void gh23473AppliesToRuntimeExceptionOnly() {
+  void appliesToRuntimeExceptionOnly() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Gh23473ConfigA.class);
     TestServiceWithRollback bean = ctx.getBean("testBean", TestServiceWithRollback.class);
     CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
@@ -343,6 +344,21 @@ class EnableTransactionManagementTests {
     assertThat(txManager.begun).isEqualTo(2);
     assertThat(txManager.commits).isEqualTo(2);
     assertThat(txManager.rollbacks).isEqualTo(0);
+
+    ctx.close();
+  }
+
+  @Test
+  void appliesRollbackOnAnyException() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Gh23473ConfigB.class);
+    TestServiceWithRollback bean = ctx.getBean("testBean", TestServiceWithRollback.class);
+    CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
+
+    assertThatException().isThrownBy(bean::methodOne);
+    assertThatException().isThrownBy(bean::methodTwo);
+    assertThat(txManager.begun).isEqualTo(2);
+    assertThat(txManager.commits).isEqualTo(0);
+    assertThat(txManager.rollbacks).isEqualTo(2);
 
     ctx.close();
   }
@@ -674,6 +690,21 @@ class EnableTransactionManagementTests {
   @Configuration
   @EnableTransactionManagement
   static class Gh23473ConfigA {
+
+    @Bean
+    public TestServiceWithRollback testBean() {
+      return new TestServiceWithRollback();
+    }
+
+    @Bean
+    public PlatformTransactionManager txManager() {
+      return new CallCountingTransactionManager();
+    }
+  }
+
+  @Configuration
+  @EnableTransactionManagement(rollbackOn = ALL_EXCEPTIONS)
+  static class Gh23473ConfigB {
 
     @Bean
     public TestServiceWithRollback testBean() {

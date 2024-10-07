@@ -59,6 +59,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class RollbackRuleAttribute implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -68,6 +69,15 @@ public class RollbackRuleAttribute implements Serializable {
    */
   public static final RollbackRuleAttribute ROLLBACK_ON_RUNTIME_EXCEPTIONS =
           new RollbackRuleAttribute(RuntimeException.class);
+
+  /**
+   * The {@linkplain RollbackRuleAttribute rollback rule} for all
+   * {@link Exception Exceptions}, including checked exceptions.
+   *
+   * @since 5.0
+   */
+  public static final RollbackRuleAttribute ROLLBACK_ON_ALL_EXCEPTIONS =
+          new RollbackRuleAttribute(Exception.class);
 
   /**
    * Exception pattern: used when searching for matches in a thrown exception's
@@ -103,7 +113,7 @@ public class RollbackRuleAttribute implements Serializable {
     Assert.notNull(exceptionType, "'exceptionType' cannot be null");
     if (!Throwable.class.isAssignableFrom(exceptionType)) {
       throw new IllegalArgumentException(
-              "Cannot construct rollback rule from [" + exceptionType.getName() + "]: it's not a Throwable");
+              "Cannot construct rollback rule from [%s]: it's not a Throwable".formatted(exceptionType.getName()));
     }
     this.exceptionPattern = exceptionType.getName();
     this.exceptionType = (Class<? extends Throwable>) exceptionType;

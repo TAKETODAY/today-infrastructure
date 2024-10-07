@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
@@ -155,6 +152,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see TransactionManagementConfigurer
  * @see TransactionManagementConfigurationSelector
  * @see ProxyTransactionManagementConfiguration
@@ -168,16 +166,16 @@ import cn.taketoday.transaction.PlatformTransactionManager;
 public @interface EnableTransactionManagement {
 
   /**
-   * Indicate whether subclass-based (CGLIB) proxies are to be created ({@code true}) as
-   * opposed to standard Java interface-based proxies ({@code false}). The default is
-   * {@code false}. <strong>Applicable only if {@link #mode()} is set to
-   * {@link AdviceMode#PROXY}</strong>.
+   * Indicate whether subclass-based (CGLIB) proxies are to be created ({@code true})
+   * as opposed to standard Java interface-based proxies ({@code false}).
+   * The default is {@code false}. <strong>Applicable only if {@link #mode()}
+   * is set to {@link AdviceMode#PROXY}</strong>.
    * <p>Note that setting this attribute to {@code true} will affect <em>all</em>
-   * Framework-managed beans requiring proxying, not just those marked with
-   * {@code @Transactional}. For example, other beans marked with Framework's
+   * Infra-managed beans requiring proxying, not just those marked with
+   * {@code @Transactional}. For example, other beans marked with Infra
    * {@code @Async} annotation will be upgraded to subclass proxying at the same
    * time. This approach has no negative impact in practice unless one is explicitly
-   * expecting one type of proxy vs another, e.g. in tests.
+   * expecting one type of proxy vs another, for example, in tests.
    */
   boolean proxyTargetClass() default false;
 
@@ -199,5 +197,27 @@ public @interface EnableTransactionManagement {
    * <p>The default is {@link Ordered#LOWEST_PRECEDENCE}.
    */
   int order() default Ordered.LOWEST_PRECEDENCE;
+
+  /**
+   * Indicate the rollback behavior for rule-based transactions without
+   * custom rollback rules: default is rollback on unchecked exception,
+   * this can be switched to rollback on any exception (including checked).
+   * <p>Note that transaction-specific rollback rules override the default
+   * behavior but retain the chosen default for unspecified exceptions.
+   * This is the case for Infra {@link Transactional} as well as JTA's
+   * {@link jakarta.transaction.Transactional} when used with Infra here.
+   * <p>Unless you rely on EJB-style business exceptions with commit behavior,
+   * it is advisable to switch to {@link RollbackOn#ALL_EXCEPTIONS} for a
+   * consistent rollback even in case of a (potentially accidental) checked
+   * exception. Also, it is advisable to make that switch for Kotlin-based
+   * applications where there is no enforcement of checked exceptions at all.
+   *
+   * @see Transactional#rollbackFor()
+   * @see Transactional#noRollbackFor()
+   * @see jakarta.transaction.Transactional#rollbackOn()
+   * @see jakarta.transaction.Transactional#dontRollbackOn()
+   * @since 5.0
+   */
+  RollbackOn rollbackOn() default RollbackOn.RUNTIME_EXCEPTIONS;
 
 }

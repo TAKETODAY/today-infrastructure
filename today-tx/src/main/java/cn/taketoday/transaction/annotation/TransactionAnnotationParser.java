@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
@@ -33,6 +30,7 @@ import cn.taketoday.transaction.interceptor.TransactionAttribute;
  * or EJB3's {@link jakarta.ejb.TransactionAttribute}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AnnotationTransactionAttributeSource
  * @see TransactionalAnnotationParser
  * @see Ejb3TransactionAnnotationParser
@@ -62,8 +60,10 @@ public interface TransactionAnnotationParser {
   /**
    * Parse the transaction attribute for the given method or class,
    * based on an annotation type understood by this parser.
-   * <p>This essentially parses a known transaction annotation into Framework's metadata
+   * <p>This essentially parses a known transaction annotation into Infra metadata
    * attribute class. Returns {@code null} if the method/class is not transactional.
+   * <p>The returned attribute will typically (but not necessarily) be of type
+   * {@link cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute}.
    *
    * @param element the annotated method or class
    * @return the configured transaction attribute, or {@code null} if none found

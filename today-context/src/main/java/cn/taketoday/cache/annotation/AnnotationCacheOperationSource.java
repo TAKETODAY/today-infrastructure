@@ -20,10 +20,8 @@ package cn.taketoday.cache.annotation;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.cache.interceptor.AbstractFallbackCacheOperationSource;
@@ -81,8 +79,8 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
    * @param annotationParser the CacheAnnotationParser to use
    */
   public AnnotationCacheOperationSource(CacheAnnotationParser annotationParser) {
-    this.publicMethodsOnly = true;
     Assert.notNull(annotationParser, "CacheAnnotationParser is required");
+    this.publicMethodsOnly = true;
     this.annotationParsers = Collections.singleton(annotationParser);
   }
 
@@ -92,9 +90,9 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
    * @param annotationParsers the CacheAnnotationParser to use
    */
   public AnnotationCacheOperationSource(CacheAnnotationParser... annotationParsers) {
-    this.publicMethodsOnly = true;
     Assert.notEmpty(annotationParsers, "At least one CacheAnnotationParser needs to be specified");
-    this.annotationParsers = new LinkedHashSet<>(Arrays.asList(annotationParsers));
+    this.publicMethodsOnly = true;
+    this.annotationParsers = Set.of(annotationParsers);
   }
 
   /**

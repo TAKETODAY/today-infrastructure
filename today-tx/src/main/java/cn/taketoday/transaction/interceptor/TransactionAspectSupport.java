@@ -363,7 +363,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
               future.get();
             }
             catch (ExecutionException ex) {
-              if (txAttr.rollbackOn(ex.getCause())) {
+              Throwable cause = ex.getCause();
+              Assert.state(cause != null, "Cause is required");
+              if (txAttr.rollbackOn(cause)) {
                 txInfo.transactionStatus.setRollbackOnly();
               }
             }
