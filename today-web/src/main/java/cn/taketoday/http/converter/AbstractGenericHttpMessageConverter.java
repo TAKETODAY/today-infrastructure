@@ -20,6 +20,7 @@ package cn.taketoday.http.converter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
@@ -47,21 +48,24 @@ public abstract class AbstractGenericHttpMessageConverter<T>
   protected AbstractGenericHttpMessageConverter() { }
 
   /**
-   * Construct an {@code AbstractGenericHttpMessageConverter} with one supported media type.
-   *
-   * @param supportedMediaType the supported media type
-   */
-  protected AbstractGenericHttpMessageConverter(MediaType supportedMediaType) {
-    super(supportedMediaType);
-  }
-
-  /**
    * Construct an {@code AbstractGenericHttpMessageConverter} with multiple supported media type.
    *
    * @param supportedMediaTypes the supported media types
    */
   protected AbstractGenericHttpMessageConverter(MediaType... supportedMediaTypes) {
-    super(supportedMediaTypes);
+    this(null, supportedMediaTypes);
+  }
+
+  /**
+   * Construct an {@code AbstractGenericHttpMessageConverter} with a default charset and
+   * multiple supported media types.
+   *
+   * @param defaultCharset the default character set
+   * @param supportedMediaTypes the supported media types
+   * @since 5.0
+   */
+  protected AbstractGenericHttpMessageConverter(@Nullable Charset defaultCharset, MediaType... supportedMediaTypes) {
+    super(defaultCharset, supportedMediaTypes);
   }
 
   @Override

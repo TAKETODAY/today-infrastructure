@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +12,57 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Interface to be implemented by objects used within a {@link BeanFactory}
- * which are themselves factories for individual objects. If a bean implements
- * this interface, it is used as a factory for an object to expose, not directly
- * as a bean instance that will be exposed itself.
+ * Interface to be implemented by objects used within a {@link BeanFactory} which
+ * are themselves factories for individual objects. If a bean implements this
+ * interface, it is used as a factory for an object to expose, not directly as a
+ * bean instance that will be exposed itself.
  *
- * <p>
- * <b>NB: A bean that implements this interface cannot be used as a normal
- * bean.</b> A FactoryBean is defined in a bean style, but the object exposed
- * for bean references ({@link #getObject()}) is always the object that it creates
- * ,and initialization by this factory.
+ * <p><b>NB: A bean that implements this interface cannot be used as a normal bean.</b>
+ * A FactoryBean is defined in a bean style, but the object exposed for bean
+ * references ({@link #getObject()}) is always the object that it creates.
  *
- * <p>
- * <b>NOTE:</b> The implementation of FactoryBean is a factory; its instance will cached in
- * {@link BeanFactory} as a singleton bean when its define as a singleton.
+ * <p>FactoryBeans can support singletons and prototypes, and can either create
+ * objects lazily on demand or eagerly on startup. The {@link SmartFactoryBean}
+ * interface allows for exposing more fine-grained behavioral metadata.
  *
- * @author TODAY 2018-08-03 17:38
+ * <p>This interface is heavily used within the framework itself, for example for
+ * the AOP {@link cn.taketoday.aop.framework.ProxyFactoryBean} or the
+ * {@link cn.taketoday.jndi.JndiObjectFactoryBean}. It can be used for
+ * custom components as well; however, this is only common for infrastructure code.
+ *
+ * <p><b>{@code FactoryBean} is a programmatic contract. Implementations are not
+ * supposed to rely on annotation-driven injection or other reflective facilities.</b>
+ * Invocations of {@link #getObjectType()} and {@link #getObject()} may arrive early
+ * in the bootstrap process, even ahead of any post-processor setup. If you need access
+ * to other beans, implement {@link BeanFactoryAware} and obtain them programmatically.
+ *
+ * <p><b>The container is only responsible for managing the lifecycle of the FactoryBean
+ * instance, not the lifecycle of the objects created by the FactoryBean.</b> Therefore,
+ * a destroy method on an exposed bean object (such as {@link java.io.Closeable#close()})
+ * will <i>not</i> be called automatically. Instead, a FactoryBean should implement
+ * {@link DisposableBean} and delegate any such close call to the underlying object.
+ *
+ * <p>Finally, FactoryBean objects participate in the containing BeanFactory's
+ * synchronization of bean creation. Thus, there is usually no need for internal
+ * synchronization other than for purposes of lazy initialization within the
+ * FactoryBean itself (or the like).
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see cn.taketoday.beans.factory.BeanFactory
+ * @see cn.taketoday.aop.framework.ProxyFactoryBean
+ * @see cn.taketoday.jndi.JndiObjectFactoryBean
+ * @since 2018-08-03 17:38
  */
 public interface FactoryBean<T> {
 
@@ -57,19 +81,15 @@ public interface FactoryBean<T> {
    * Return an instance (possibly shared or independent) of the object
    * managed by this factory.
    * <p>As with a {@link BeanFactory}, this allows support for both the
-   * Singleton and Prototype design pattern.
+   * Singleton and Prototype design patterns.
    * <p>If this FactoryBean is not fully initialized yet at the time of
    * the call (for example because it is involved in a circular reference),
    * throw a corresponding {@link FactoryBeanNotInitializedException}.
-   * <p>FactoryBeans are allowed to return {@code null}
-   * objects. The factory will consider this as normal value to be used; it
-   * will not throw a FactoryBeanNotInitializedException in this case anymore.
+   * <p>FactoryBeans are allowed to return {@code null} objects. The bean
+   * factory will consider this as a normal value to be used and will not throw
+   * a {@code FactoryBeanNotInitializedException} in this case. However,
    * FactoryBean implementations are encouraged to throw
-   * FactoryBeanNotInitializedException themselves now, as appropriate.
-   * <p>
-   * <b>NOTE:</b> is FactoryBean is a Prototype bean that {@code getObject()} will
-   * let {@link #isSingleton()} invalid
-   * </p>
+   * {@code FactoryBeanNotInitializedException} themselves, as appropriate.
    *
    * @return an instance of the bean (can be {@code null})
    * @throws Exception in case of creation errors
@@ -83,7 +103,7 @@ public interface FactoryBean<T> {
    * or {@code null} if not known in advance.
    * <p>This allows one to check for specific types of beans without
    * instantiating objects, for example on autowiring.
-   * <p>In the case of implementations that are creating a singleton object,
+   * <p>In the case of implementations that create a singleton object,
    * this method should try to avoid singleton creation as far as possible;
    * it should rather estimate the type in advance.
    * For prototypes, returning a meaningful type here is advisable too.
@@ -91,7 +111,7 @@ public interface FactoryBean<T> {
    * been fully initialized. It must not rely on state created during
    * initialization; of course, it can still use such state if available.
    * <p><b>NOTE:</b> Autowiring will simply ignore FactoryBeans that return
-   * {@code null} here. Therefore it is highly recommended to implement
+   * {@code null} here. Therefore, it is highly recommended to implement
    * this method properly, using the current state of the FactoryBean.
    *
    * @return the type of object that this FactoryBean creates,
@@ -106,8 +126,8 @@ public interface FactoryBean<T> {
    * Is the object managed by this factory a singleton? That is,
    * will {@link #getObject()} always return the same object
    * (a reference that can be cached)?
-   * <p><b>NOTE:</b> If a FactoryBean indicates to hold a singleton object,
-   * the object returned from {@code getObject()} might get cached
+   * <p><b>NOTE:</b> If a FactoryBean indicates that it holds a singleton
+   * object, the object returned from {@code getObject()} might get cached
    * by the owning BeanFactory. Hence, do not return {@code true}
    * unless the FactoryBean always exposes the same reference.
    * <p>The singleton status of the FactoryBean itself will generally

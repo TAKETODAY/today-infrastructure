@@ -38,6 +38,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -48,7 +49,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
  * @author Stephane Nicoll
  * @author Juergen Hoeller
  */
-public class ReactiveCachingTests {
+class ReactiveCachingTests {
 
   @ParameterizedTest
   @ValueSource(classes = { EarlyCacheHitDeterminationConfig.class,
@@ -146,6 +147,23 @@ public class ReactiveCachingTests {
   }
 
   @Test
+  void cacheErrorHandlerWithLoggingCacheErrorHandlerAndMethodError() {
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveFailureCacheableService.class, ErrorHandlerCachingConfiguration.class);
+    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
+
+    Object key = new Object();
+    StepVerifier.create(service.cacheMono(key))
+            .expectErrorMessage("mono service error")
+            .verify();
+
+    key = new Object();
+    StepVerifier.create(service.cacheFlux(key))
+            .expectErrorMessage("flux service error")
+            .verify();
+  }
+
+  @Test
   void cacheErrorHandlerWithSimpleCacheErrorHandler() {
     AnnotationConfigApplicationContext ctx =
             new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveCacheableService.class);
@@ -195,18 +213,36 @@ public class ReactiveCachingTests {
     private final AtomicLong counter = new AtomicLong();
 
     @Cacheable
-    public CompletableFuture<Long> cacheFuture(Object arg) {
+    CompletableFuture<Long> cacheFuture(Object arg) {
       return CompletableFuture.completedFuture(this.counter.getAndIncrement());
     }
 
     @Cacheable
-    public Mono<Long> cacheMono(Object arg) {
+    Mono<Long> cacheMono(Object arg) {
+      // here counter not only reflects invocations of cacheMono but subscriptions to
+      // the returned Mono as well. See https://github.com/spring-projects/spring-framework/issues/32370
       return Mono.defer(() -> Mono.just(this.counter.getAndIncrement()));
     }
 
     @Cacheable
-    public Flux<Long> cacheFlux(Object arg) {
+    Flux<Long> cacheFlux(Object arg) {
+      // here counter not only reflects invocations of cacheFlux but subscriptions to
+      // the returned Flux as well. See https://github.com/spring-projects/spring-framework/issues/32370
       return Flux.defer(() -> Flux.just(this.counter.getAndIncrement(), 0L, -1L, -2L, -3L));
+    }
+  }
+
+  @CacheConfig(cacheNames = "first")
+  static class ReactiveFailureCacheableService extends ReactiveCacheableService {
+
+    @Cacheable
+    Mono<Long> cacheMono(Object arg) {
+      return Mono.error(new IllegalStateException("mono service error"));
+    }
+
+    @Cacheable
+    Flux<Long> cacheFlux(Object arg) {
+      return Flux.error(new IllegalStateException("flux service error"));
     }
   }
 

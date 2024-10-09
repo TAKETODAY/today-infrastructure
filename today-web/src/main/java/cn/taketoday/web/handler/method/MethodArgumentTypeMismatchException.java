@@ -59,4 +59,9 @@ public class MethodArgumentTypeMismatchException extends TypeMismatchException {
     return this.parameter;
   }
 
+  @Override
+  public String getMessage() {
+    return "Method parameter '" + getName() + "': " + super.getMessage();
+  }
+
 }

@@ -66,15 +66,6 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   protected AbstractHttpMessageConverter() { }
 
   /**
-   * Construct an {@code AbstractHttpMessageConverter} with one supported media type.
-   *
-   * @param supportedMediaType the supported media type
-   */
-  protected AbstractHttpMessageConverter(MediaType supportedMediaType) {
-    setSupportedMediaTypes(Collections.singletonList(supportedMediaType));
-  }
-
-  /**
    * Construct an {@code AbstractHttpMessageConverter} with multiple supported media types.
    *
    * @param supportedMediaTypes the supported media types
@@ -90,7 +81,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * @param defaultCharset the default character set
    * @param supportedMediaTypes the supported media types
    */
-  protected AbstractHttpMessageConverter(Charset defaultCharset, MediaType... supportedMediaTypes) {
+  protected AbstractHttpMessageConverter(@Nullable Charset defaultCharset, MediaType... supportedMediaTypes) {
     this.defaultCharset = defaultCharset;
     setSupportedMediaTypes(Arrays.asList(supportedMediaTypes));
   }

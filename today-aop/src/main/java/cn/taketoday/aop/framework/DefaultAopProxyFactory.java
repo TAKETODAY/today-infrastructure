@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.framework;
@@ -44,6 +41,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AdvisedSupport#setOptimize
  * @see AdvisedSupport#setProxyTargetClass
  * @see AdvisedSupport#setInterfaces
@@ -61,7 +59,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
   @Override
   public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
-    if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
+    if (config.isOptimize() || config.isProxyTargetClass() || !config.hasUserSuppliedInterfaces()) {
       Class<?> targetClass = config.getTargetClass();
       if (targetClass == null) {
         throw new AopConfigException("TargetSource cannot determine target class: " +
@@ -75,16 +73,6 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
     else {
       return new JdkDynamicAopProxy(config);
     }
-  }
-
-  /**
-   * Determine whether the supplied {@link AdvisedSupport} has only the
-   * {@link StandardProxy} interface specified
-   * (or no proxy interfaces specified at all).
-   */
-  private boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
-    Class<?>[] ifcs = config.getProxiedInterfaces();
-    return ifcs.length == 0 || (ifcs.length == 1 && StandardProxy.class.isAssignableFrom(ifcs[0]));
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -24,18 +24,22 @@ import org.reactivestreams.Subscription;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
-import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Bridges between {@link OutputStream} and
- * {@link Publisher Publisher&lt;DataBuffer&gt;}.
+ * Bridges between {@link OutputStream} and {@link Publisher Publisher&lt;DataBuffer&gt;}.
+ *
+ * <p>When there is demand on the Reactive Streams subscription, any write to
+ * the OutputStream is mapped to a buffer and published to the subscriber.
+ * If there is no demand, writes block until demand materializes.
+ * If the subscription is cancelled, further writes raise {@code IOException}.
  *
  * <p>Note that this class has a near duplicate in
  * {@link cn.taketoday.http.client.OutputStreamPublisher}.
@@ -45,44 +49,85 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class OutputStreamPublisher implements Publisher<DataBuffer> {
+final class OutputStreamPublisher<T> implements Publisher<T> {
 
-  private final Consumer<OutputStream> outputStreamConsumer;
+  private static final int DEFAULT_CHUNK_SIZE = 1024;
 
-  private final DataBufferFactory bufferFactory;
+  private final OutputStreamHandler outputStreamHandler;
+
+  private final ByteMapper<T> byteMapper;
 
   private final Executor executor;
 
   private final int chunkSize;
 
-  public OutputStreamPublisher(Consumer<OutputStream> outputStreamConsumer,
-          DataBufferFactory bufferFactory, Executor executor, int chunkSize) {
-    this.outputStreamConsumer = outputStreamConsumer;
-    this.bufferFactory = bufferFactory;
+  /**
+   * Create an instance.
+   *
+   * @param outputStreamHandler invoked when the first buffer is requested
+   * @param byteMapper maps written bytes to {@code T}
+   * @param executor used to invoke the {@code outputStreamHandler}
+   * @param chunkSize the chunk sizes to be produced by the publisher
+   */
+  OutputStreamPublisher(OutputStreamHandler outputStreamHandler,
+          ByteMapper<T> byteMapper, Executor executor, @Nullable Integer chunkSize) {
+
+    Assert.notNull(outputStreamHandler, "OutputStreamHandler is required");
+    Assert.notNull(byteMapper, "ByteMapper is required");
+    Assert.notNull(executor, "Executor is required");
+    Assert.isTrue(chunkSize == null || chunkSize > 0, "ChunkSize must be larger than 0");
+
+    this.outputStreamHandler = outputStreamHandler;
+    this.byteMapper = byteMapper;
     this.executor = executor;
-    this.chunkSize = chunkSize;
+    this.chunkSize = (chunkSize != null ? chunkSize : DEFAULT_CHUNK_SIZE);
   }
 
   @Override
-  public void subscribe(Subscriber<? super DataBuffer> subscriber) {
-    Assert.notNull(subscriber, "Subscriber is required");
+  public void subscribe(Subscriber<? super T> subscriber) {
+    // We don't use Assert.notNull(), because a NullPointerException is required
+    // for Reactive Streams compliance.
+    Objects.requireNonNull(subscriber, "Subscriber is required");
 
-    var subscription = new OutputStreamSubscription(subscriber, this.outputStreamConsumer,
-            this.bufferFactory, this.chunkSize);
+    OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(
+            subscriber, this.outputStreamHandler, this.byteMapper, this.chunkSize);
 
     subscriber.onSubscribe(subscription);
     this.executor.execute(subscription::invokeHandler);
   }
 
-  private static final class OutputStreamSubscription extends OutputStream implements Subscription {
+  /**
+   * Contract to provide callback access to the {@link OutputStream}.
+   */
+  @FunctionalInterface
+  public interface OutputStreamHandler {
+
+    void handle(OutputStream outputStream) throws Exception;
+
+  }
+
+  /**
+   * Maps from bytes to byte buffers.
+   *
+   * @param <T> the type of byte buffer to map to
+   */
+  public interface ByteMapper<T> {
+
+    T map(int b);
+
+    T map(byte[] b, int off, int len);
+
+  }
+
+  private static final class OutputStreamSubscription<T> extends OutputStream implements Subscription {
 
     private static final Object READY = new Object();
 
-    private final Subscriber<? super DataBuffer> actual;
+    private final Subscriber<? super T> actual;
 
-    private final Consumer<OutputStream> outputStreamHandler;
+    private final OutputStreamHandler outputStreamHandler;
 
-    private final DataBufferFactory bufferFactory;
+    private final ByteMapper<T> byteMapper;
 
     private final int chunkSize;
 
@@ -95,24 +140,20 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
 
     private long produced;
 
-    public OutputStreamSubscription(Subscriber<? super DataBuffer> actual,
-            Consumer<OutputStream> outputStreamConsumer, DataBufferFactory bufferFactory, int chunkSize) {
+    OutputStreamSubscription(Subscriber<? super T> actual,
+            OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, int chunkSize) {
 
       this.actual = actual;
-      this.outputStreamHandler = outputStreamConsumer;
-      this.bufferFactory = bufferFactory;
+      this.outputStreamHandler = outputStreamHandler;
+      this.byteMapper = byteMapper;
       this.chunkSize = chunkSize;
     }
 
     @Override
     public void write(int b) throws IOException {
       checkDemandAndAwaitIfNeeded();
-
-      DataBuffer next = this.bufferFactory.allocateBuffer(1);
-      next.write((byte) b);
-
+      T next = this.byteMapper.map(b);
       this.actual.onNext(next);
-
       this.produced++;
     }
 
@@ -124,12 +165,8 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
       checkDemandAndAwaitIfNeeded();
-
-      DataBuffer next = this.bufferFactory.allocateBuffer(len);
-      next.write(b, off, len);
-
+      T next = this.byteMapper.map(b, off, len);
       this.actual.onNext(next);
-
       this.produced++;
     }
 
@@ -163,26 +200,27 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
       }
     }
 
-    public void invokeHandler() {
+    private void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered
       // before publishing as byte buffer
       try (OutputStream outputStream = new BufferedOutputStream(this, this.chunkSize)) {
-        this.outputStreamHandler.accept(outputStream);
+        this.outputStreamHandler.handle(outputStream);
       }
       catch (Exception ex) {
         long previousState = tryTerminate();
         if (isCancelled(previousState)) {
           return;
         }
-
         if (isTerminated(previousState)) {
           // failure due to illegal requestN
-          this.actual.onError(this.error);
-          return;
+          Throwable error = this.error;
+          if (error != null) {
+            this.actual.onError(error);
+            return;
+          }
         }
-
         this.actual.onError(ex);
         return;
       }
@@ -191,13 +229,14 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
       if (isCancelled(previousState)) {
         return;
       }
-
       if (isTerminated(previousState)) {
         // failure due to illegal requestN
-        this.actual.onError(this.error);
-        return;
+        Throwable error = this.error;
+        if (error != null) {
+          this.actual.onError(error);
+          return;
+        }
       }
-
       this.actual.onComplete();
     }
 
@@ -206,16 +245,13 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
       if (n <= 0) {
         this.error = new IllegalArgumentException("request should be a positive number");
         long previousState = tryTerminate();
-
         if (isTerminated(previousState) || isCancelled(previousState)) {
           return;
         }
-
         if (previousState > 0) {
           // error should eventually be observed and propagated
           return;
         }
-
         // resume parked thread, so it can observe error and propagate it
         resume();
         return;
@@ -273,11 +309,9 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
     private long tryCancel() {
       while (true) {
         long r = this.requested.get();
-
         if (isCancelled(r)) {
           return r;
         }
-
         if (this.requested.compareAndSet(r, Long.MIN_VALUE)) {
           return r;
         }
@@ -287,11 +321,9 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
     private long tryTerminate() {
       while (true) {
         long r = this.requested.get();
-
         if (isCancelled(r) || isTerminated(r)) {
           return r;
         }
-
         if (this.requested.compareAndSet(r, Long.MIN_VALUE | Long.MAX_VALUE)) {
           return r;
         }
@@ -346,4 +378,5 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
       return res;
     }
   }
+
 }

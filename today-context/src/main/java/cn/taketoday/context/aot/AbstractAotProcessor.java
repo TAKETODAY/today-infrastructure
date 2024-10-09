@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.aot;
@@ -54,7 +54,7 @@ public abstract class AbstractAotProcessor<T> {
    *
    * @see #doProcess()
    */
-  private static final String AOT_PROCESSING = "infra.aot.processing";
+  public static final String AOT_PROCESSING = "infra.aot.processing";
 
   private final Settings settings;
 
@@ -96,7 +96,7 @@ public abstract class AbstractAotProcessor<T> {
    */
   protected void deleteExistingOutput() {
     deleteExistingOutput(getSettings().getSourceOutput(),
-        getSettings().getResourceOutput(), getSettings().getClassOutput());
+            getSettings().getResourceOutput(), getSettings().getClassOutput());
   }
 
   private void deleteExistingOutput(Path... paths) {
@@ -124,7 +124,7 @@ public abstract class AbstractAotProcessor<T> {
 
   protected void writeHints(RuntimeHints hints) {
     FileNativeConfigurationWriter writer = new FileNativeConfigurationWriter(
-        getSettings().getResourceOutput(), getSettings().getGroupId(), getSettings().getArtifactId());
+            getSettings().getResourceOutput(), getSettings().getGroupId(), getSettings().getArtifactId());
     writer.write(hints);
   }
 
@@ -146,7 +146,7 @@ public abstract class AbstractAotProcessor<T> {
     private final String artifactId;
 
     private Settings(Path sourceOutput, Path resourceOutput,
-        Path classOutput, @Nullable String groupId, @Nullable String artifactId) {
+            Path classOutput, @Nullable String groupId, @Nullable String artifactId) {
       this.groupId = groupId;
       this.artifactId = artifactId;
       this.classOutput = classOutput;
@@ -289,7 +289,7 @@ public abstract class AbstractAotProcessor<T> {
         Assert.hasText(this.groupId, "'groupId' must not be null or empty");
         Assert.hasText(this.artifactId, "'artifactId' must not be null or empty");
         return new Settings(this.sourceOutput, this.resourceOutput, this.classOutput,
-            this.groupId, this.artifactId);
+                this.groupId, this.artifactId);
       }
 
     }

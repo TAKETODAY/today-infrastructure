@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
@@ -30,6 +30,8 @@ import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
+import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
+import cn.taketoday.transaction.interceptor.TransactionAttributeSource;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -58,7 +60,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
     this.enableTx = importMetadata.getAnnotation(EnableTransactionManagement.class);
     if (!enableTx.isPresent()) {
       throw new IllegalArgumentException(
-          "@EnableTransactionManagement is not present on importing class " + importMetadata.getClassName());
+              "@EnableTransactionManagement is not present on importing class " + importMetadata.getClassName());
     }
   }
 
@@ -72,6 +74,21 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
     }
     TransactionManagementConfigurer configurer = configurers.iterator().next();
     this.txManager = configurer.annotationDrivenTransactionManager();
+  }
+
+  /**
+   * @since 5.0
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public TransactionAttributeSource transactionAttributeSource() {
+    // Accept protected @Transactional methods on CGLIB proxies
+    AnnotationTransactionAttributeSource tas = new AnnotationTransactionAttributeSource(false);
+    // Apply default rollback rule
+    if (this.enableTx != null && this.enableTx.getEnum("rollbackOn", RollbackOn.class) == RollbackOn.ALL_EXCEPTIONS) {
+      tas.addDefaultRollbackRule(RollbackRuleAttribute.ROLLBACK_ON_ALL_EXCEPTIONS);
+    }
+    return tas;
   }
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

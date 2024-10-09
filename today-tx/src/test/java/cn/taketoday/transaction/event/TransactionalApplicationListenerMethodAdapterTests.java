@@ -44,22 +44,22 @@ import static org.assertj.core.api.Assertions.assertThatRuntimeException;
  * @author Juergen Hoeller
  * @author Oliver Drotbohm
  */
-public class TransactionalApplicationListenerMethodAdapterTests {
+class TransactionalApplicationListenerMethodAdapterTests {
 
   @Test
-  public void defaultPhase() {
+  void defaultPhase() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "defaultPhase", String.class);
     assertPhase(m, TransactionPhase.AFTER_COMMIT);
   }
 
   @Test
-  public void phaseSet() {
+  void phaseSet() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "phaseSet", String.class);
     assertPhase(m, TransactionPhase.AFTER_ROLLBACK);
   }
 
   @Test
-  public void phaseAndClassesSet() {
+  void phaseAndClassesSet() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "phaseAndClassesSet");
     assertPhase(m, TransactionPhase.AFTER_COMPLETION);
     supportsEventType(true, m, createGenericEventType(String.class));
@@ -68,7 +68,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
-  public void valueSet() {
+  void valueSet() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "valueSet");
     assertPhase(m, TransactionPhase.AFTER_COMMIT);
     supportsEventType(true, m, createGenericEventType(String.class));
@@ -76,7 +76,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
-  public void invokesCompletionCallbackOnSuccess() {
+  void invokesCompletionCallbackOnSuccess() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "defaultPhase", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
     PayloadApplicationEvent<Object> event = new PayloadApplicationEvent<>(this, new Object());
@@ -93,7 +93,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
-  public void invokesExceptionHandlerOnException() {
+  void invokesExceptionHandlerOnException() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "throwing", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
     PayloadApplicationEvent<String> event = new PayloadApplicationEvent<>(this, "event");
@@ -114,7 +114,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
-  public void usesAnnotatedIdentifier() {
+  void usesAnnotatedIdentifier() {
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "identified", String.class);
     CapturingSynchronizationCallback callback = new CapturingSynchronizationCallback();
     PayloadApplicationEvent<String> event = new PayloadApplicationEvent<>(this, "event");
@@ -131,35 +131,63 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
-  public void withTransactionalAnnotation() {
+  void withTransactionalAnnotation() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalAnnotation", String.class);
     assertThatIllegalStateException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
   @Test
-  public void withTransactionalRequiresNewAnnotation() {
+  void withTransactionalRequiresNewAnnotation() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalRequiresNewAnnotation", String.class);
     assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
   @Test
-  public void withTransactionalNotSupportedAnnotation() {
+  void withTransactionalNotSupportedAnnotation() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalNotSupportedAnnotation", String.class);
     assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
   @Test
-  public void withAsyncTransactionalAnnotation() {
+  void withAsyncTransactionalAnnotation() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withAsyncTransactionalAnnotation", String.class);
     assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
+  @Test
+  void withTransactionalAnnotationOnEnclosingClass() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.SampleEventsWithTransactionalAnnotation.class, "defaultPhase", String.class);
+    assertThatIllegalStateException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.SampleEventsWithTransactionalAnnotation.class, m));
+  }
+
+  @Test
+  void withTransactionalRequiresNewAnnotationAndTransactionalAnnotationOnEnclosingClass() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.SampleEventsWithTransactionalAnnotation.class, "withTransactionalRequiresNewAnnotation", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.SampleEventsWithTransactionalAnnotation.class, m));
+  }
+
+  @Test
+  void withTransactionalNotSupportedAnnotationAndTransactionalAnnotationOnEnclosingClass() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.SampleEventsWithTransactionalAnnotation.class, "withTransactionalNotSupportedAnnotation", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.SampleEventsWithTransactionalAnnotation.class, m));
+  }
+
+  @Test
+  void withAsyncTransactionalAnnotationAndTransactionalAnnotationOnEnclosingClass() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.SampleEventsWithTransactionalAnnotation.class, "withAsyncTransactionalAnnotation", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.SampleEventsWithTransactionalAnnotation.class, m));
+  }
+
   private static void assertPhase(Method method, TransactionPhase expected) {
-    assertThat(method).as("Method is required").isNotNull();
+    assertThat(method).as("Method must not be null").isNotNull();
     TransactionalEventListener annotation =
             AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
     assertThat(annotation.phase()).as("Wrong phase for '" + method + "'").isEqualTo(expected);
@@ -211,7 +239,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     }
 
     @TransactionalEventListener(event = { String.class, Integer.class },
-                                phase = TransactionPhase.AFTER_COMPLETION)
+            phase = TransactionPhase.AFTER_COMPLETION)
     public void phaseAndClassesSet() {
     }
 
@@ -247,6 +275,30 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void withAsyncTransactionalAnnotation(String data) {
+    }
+
+    @Transactional
+    static class SampleEventsWithTransactionalAnnotation {
+
+      @TransactionalEventListener
+      public void defaultPhase(String data) {
+      }
+
+      @TransactionalEventListener
+      @Transactional(propagation = Propagation.REQUIRES_NEW)
+      public void withTransactionalRequiresNewAnnotation(String data) {
+      }
+
+      @TransactionalEventListener
+      @Transactional(propagation = Propagation.NOT_SUPPORTED)
+      public void withTransactionalNotSupportedAnnotation(String data) {
+      }
+
+      @TransactionalEventListener
+      @Async
+      @Transactional(propagation = Propagation.REQUIRES_NEW)
+      public void withAsyncTransactionalAnnotation(String data) {
+      }
     }
   }
 

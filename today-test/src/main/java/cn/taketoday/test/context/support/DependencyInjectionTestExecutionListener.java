@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.support;
@@ -21,6 +21,7 @@ import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcesso
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.CommonAnnotationBeanPostProcessor;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.logging.Logger;
@@ -154,12 +155,16 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
     }
 
     Object bean = testContext.getTestInstance();
-    Class<?> clazz = testContext.getTestClass();
+    String beanName = testContext.getTestClass().getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX;
+
     ConfigurableBeanFactory beanFactory = gac.getBeanFactory();
-    AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
-    beanPostProcessor.setBeanFactory(beanFactory);
-    beanPostProcessor.processInjection(bean);
-    beanFactory.initializeBean(bean, clazz.getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX);
+    AutowiredAnnotationBeanPostProcessor autowiredAnnotationBpp = new AutowiredAnnotationBeanPostProcessor();
+    autowiredAnnotationBpp.setBeanFactory(beanFactory);
+    autowiredAnnotationBpp.processInjection(bean);
+    CommonAnnotationBeanPostProcessor commonAnnotationBpp = new CommonAnnotationBeanPostProcessor();
+    commonAnnotationBpp.setBeanFactory(beanFactory);
+    commonAnnotationBpp.processInjection(bean);
+    beanFactory.initializeBean(bean, beanName);
     testContext.removeAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE);
   }
 

@@ -52,6 +52,7 @@ dependencies {
   testImplementation("io.reactivex.rxjava3:rxjava")
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testImplementation("io.projectreactor:reactor-test")
   testRuntimeOnly("org.ehcache:jcache")
   testRuntimeOnly("org.ehcache:ehcache")
   testRuntimeOnly("com.sun.mail:jakarta.mail")

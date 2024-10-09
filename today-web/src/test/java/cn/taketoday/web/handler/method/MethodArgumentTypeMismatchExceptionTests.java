@@ -15,23 +15,26 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.testfixture.beans.factory.generator;
+package cn.taketoday.web.handler.method;
 
-import cn.taketoday.core.env.Environment;
+import org.junit.jupiter.api.Test;
 
-public class InnerComponentConfiguration {
+import static org.assertj.core.api.Assertions.*;
 
-  public static class NoDependencyComponent {
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2024/10/7 20:06
+ */
+class MethodArgumentTypeMismatchExceptionTests {
 
-    public NoDependencyComponent() {
+  @Test
+  void messageIncludesParameterName() {
+    @SuppressWarnings("DataFlowIssue")
+    MethodArgumentTypeMismatchException ex = new MethodArgumentTypeMismatchException(
+            "mismatched value", Integer.class, "paramOne", null, null);
 
-    }
+    assertThat(ex).hasMessage("Method parameter 'paramOne': Failed to convert value of type " +
+            "'java.lang.String' to required type 'java.lang.Integer'");
   }
 
-  public static class EnvironmentAwareComponent {
-
-    public EnvironmentAwareComponent(Environment environment) {
-
-    }
-  }
 }

@@ -18,6 +18,7 @@
 package cn.taketoday.jdbc.format;
 
 import java.sql.Statement;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.core.style.ToStringBuilder;
@@ -35,20 +36,28 @@ import cn.taketoday.util.LogFormatUtils;
  * @since 4.0 2022/9/12 19:19
  */
 public class SqlStatementLogger {
+
   private static final Logger sqlLogger = LoggerFactory.getLogger("today.SQL");
+
   private static final Logger slowLogger = LoggerFactory.getLogger("today.SQL_SLOW");
+
+  public static final String DEFAULT_LOG_PREFIX = "today-infrastructure";
 
   public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
           TodayStrategies.getFlag("sql.logToStdout", false),
           TodayStrategies.getFlag("sql.format", true),
           TodayStrategies.getFlag("sql.highlight", true),
           TodayStrategies.getFlag("sql.stdoutOnly", false),
-          TodayStrategies.getLong("sql.logSlowQuery", 0)
+          TodayStrategies.getLong("sql.logSlowQuery", 0),
+          TodayStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX)
   );
 
   private final boolean format;
+
   private final boolean logToStdout;
+
   private final boolean stdoutOnly;
+
   private final boolean highlight;
 
   /**
@@ -57,32 +66,9 @@ public class SqlStatementLogger {
   private final long logSlowQuery;
 
   /**
-   * Constructs a new SqlStatementLogger instance.
+   * @since 5.0
    */
-  public SqlStatementLogger() {
-    this(false, false, false);
-  }
-
-  /**
-   * Constructs a new SqlStatementLogger instance.
-   *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger.
-   * @param format Should we format the statements in the console and log
-   */
-  public SqlStatementLogger(boolean logToStdout, boolean format) {
-    this(logToStdout, format, false);
-  }
-
-  /**
-   * Constructs a new SqlStatementLogger instance.
-   *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger.
-   * @param format Should we format the statements in the console and log
-   * @param highlight Should we highlight the statements in the console
-   */
-  public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight) {
-    this(logToStdout, format, highlight, 0);
-  }
+  private final String stdoutOnlyPrefix;
 
   /**
    * Constructs a new SqlStatementLogger instance.
@@ -93,25 +79,27 @@ public class SqlStatementLogger {
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
    */
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, long logSlowQuery) {
-    this(logToStdout, format, highlight, false, logSlowQuery);
+    this(logToStdout, format, highlight, false, logSlowQuery, DEFAULT_LOG_PREFIX);
   }
 
   /**
    * Constructs a new SqlStatementLogger instance.
    *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger.
+   * @param logToStdout Should we log to STDOUT in addition to our internal logger
    * @param format Should we format the statements in the console and log
    * @param highlight Should we highlight the statements in the console
    * @param stdoutOnly just log to std out
-   * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
+   * @param logSlowQuery Should we logs query which executed slower than specified milliseconds, 0 - disabled
+   * @param stdoutOnlyPrefix stdout-only log prefix
    */
   public SqlStatementLogger(boolean logToStdout, boolean format,
-          boolean highlight, boolean stdoutOnly, long logSlowQuery) {
+          boolean highlight, boolean stdoutOnly, long logSlowQuery, @Nullable String stdoutOnlyPrefix) {
     this.logToStdout = logToStdout;
     this.format = format;
     this.highlight = highlight;
     this.stdoutOnly = stdoutOnly;
     this.logSlowQuery = logSlowQuery;
+    this.stdoutOnlyPrefix = Objects.requireNonNullElse(stdoutOnlyPrefix, DEFAULT_LOG_PREFIX);
   }
 
   /**
@@ -189,7 +177,7 @@ public class SqlStatementLogger {
     }
 
     if (stdoutOnly || logToStdout) {
-      String prefix = highlight ? "\u001b[35m[today-infrastructure]\u001b[0m " : "today-infrastructure: ";
+      String prefix = highlight ? "\u001b[35m[" + this.stdoutOnlyPrefix + "]\u001b[0m " : this.stdoutOnlyPrefix + ": ";
       System.out.println(prefix + statement);
     }
   }
@@ -218,13 +206,13 @@ public class SqlStatementLogger {
       return;
     }
     if (startTimeNanos <= 0) {
-      throw new IllegalArgumentException("startTimeNanos [" + startTimeNanos + "] should be greater than 0!");
+      throw new IllegalArgumentException("startTimeNanos [%d] should be greater than 0!".formatted(startTimeNanos));
     }
 
     long queryExecutionMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTimeNanos);
 
     if (queryExecutionMillis > logSlowQuery) {
-      String logData = "SlowQuery: " + queryExecutionMillis + " milliseconds. SQL: '" + sql + "'";
+      String logData = "SlowQuery: %d milliseconds. SQL: '%s'".formatted(queryExecutionMillis, sql);
       slowLogger.info(logData);
       if (logToStdout) {
         System.out.println(logData);

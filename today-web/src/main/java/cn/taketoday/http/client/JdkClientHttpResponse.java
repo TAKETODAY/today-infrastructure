@@ -28,6 +28,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
@@ -49,10 +50,16 @@ class JdkClientHttpResponse implements ClientHttpResponse {
   private final InputStream body;
 
   public JdkClientHttpResponse(HttpResponse<InputStream> response) {
+    this(response, response.body());
+  }
+
+  /**
+   * @since 5.0
+   */
+  public JdkClientHttpResponse(HttpResponse<InputStream> response, @Nullable InputStream body) {
     this.response = response;
     this.headers = adaptHeaders(response);
-    InputStream inputStream = response.body();
-    this.body = (inputStream != null) ? inputStream : InputStream.nullInputStream();
+    this.body = (body != null ? body : InputStream.nullInputStream());
   }
 
   private static HttpHeaders adaptHeaders(HttpResponse<?> response) {

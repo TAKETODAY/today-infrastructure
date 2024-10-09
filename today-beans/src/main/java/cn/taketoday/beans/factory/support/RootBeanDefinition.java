@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -375,7 +375,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     if (returnType != null) {
       return returnType;
     }
-    Method factoryMethod = this.factoryMethodToIntrospect;
+    Method factoryMethod = getResolvedFactoryMethod();
     if (factoryMethod != null) {
       return ResolvableType.forReturnType(factoryMethod);
     }
@@ -453,19 +453,12 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    */
   @Nullable
   public Method getResolvedFactoryMethod() {
-    return this.factoryMethodToIntrospect;
-  }
-
-  @Override
-  public void setInstanceSupplier(@Nullable Supplier<?> instanceSupplier) {
-    super.setInstanceSupplier(instanceSupplier);
-    Method factoryMethod = null;
-    if (instanceSupplier instanceof InstanceSupplier<?> supplier) {
-      factoryMethod = supplier.getFactoryMethod();
+    Method factoryMethod = this.factoryMethodToIntrospect;
+    if (factoryMethod == null
+            && getInstanceSupplier() instanceof InstanceSupplier<?> is) {
+      factoryMethod = is.getFactoryMethod();
     }
-    if (factoryMethod != null) {
-      setResolvedFactoryMethod(factoryMethod);
-    }
+    return factoryMethod;
   }
 
   /**

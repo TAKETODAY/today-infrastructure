@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -416,8 +416,9 @@ final class PostProcessorRegistrationDelegate {
           }
           log.warn("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
                           "(for example: not eligible for auto-proxying). Is this bean getting eagerly " +
-                          "injected into a currently created BeanPostProcessor {}? " +
-                          "Check the corresponding BeanPostProcessor declaration and its dependencies.",
+                          "injected/applied to a currently created BeanPostProcessor {}? " +
+                          "Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. " +
+                          "If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.",
                   beanName, bean.getClass().getName(), bppsInCreation);
         }
       }

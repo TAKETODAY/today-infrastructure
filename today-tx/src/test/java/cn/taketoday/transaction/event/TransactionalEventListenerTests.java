@@ -595,7 +595,7 @@ public class TransactionalEventListenerTests {
     void handleAfterCommit(String data);
   }
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Component
   static class TransactionalComponentTestListenerWithInterface extends BaseTransactionalTestListener implements
           TransactionalComponentTestInterface {

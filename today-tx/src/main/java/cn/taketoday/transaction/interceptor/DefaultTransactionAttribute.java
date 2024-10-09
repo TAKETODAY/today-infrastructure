@@ -20,12 +20,11 @@ package cn.taketoday.transaction.interceptor;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -55,7 +54,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
   private Collection<String> labels = Collections.emptyList();
 
   /**
-   * Create a new DefaultTransactionAttribute, with default settings.
+   * Create a new {@code DefaultTransactionAttribute} with default settings.
    * Can be modified through bean property setters.
    *
    * @see #setPropagationBehavior
@@ -65,7 +64,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
    * @see #setName
    */
   public DefaultTransactionAttribute() {
-    super();
+
   }
 
   /**
@@ -82,7 +81,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
   }
 
   /**
-   * Create a new DefaultTransactionAttribute with the given
+   * Create a new {@code DefaultTransactionAttribute} with the given
    * propagation behavior. Can be modified through bean property setters.
    *
    * @param propagationBehavior one of the propagation constants in the
@@ -97,7 +96,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 
   /**
    * Set a descriptor for this transaction attribute,
-   * e.g. indicating where the attribute is applying.
+   * for example, indicating where the attribute is applying.
    */
   public void setDescriptor(@Nullable String descriptor) {
     this.descriptor = descriptor;
@@ -173,7 +172,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 
   /**
    * The default behavior is as with EJB: rollback on unchecked exception
-   * ({@link RuntimeException}), assuming an unexpected outcome outside of any
+   * ({@link RuntimeException}), assuming an unexpected outcome outside any
    * business rules. Additionally, we also attempt to rollback on {@link Error} which
    * is clearly an unexpected outcome as well. By contrast, a checked exception is
    * considered a business exception and therefore a regular expected outcome of the
@@ -210,7 +209,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
         }
         catch (RuntimeException ex) {
           throw new IllegalArgumentException(
-                  "Invalid timeoutString value \"%s\" - cannot parse into int".formatted(timeoutString), ex);
+                  "Invalid timeoutString value \"%s\"; %s".formatted(timeoutString, ex));
         }
       }
     }
@@ -219,7 +218,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
       if (this.qualifier != null) {
         this.qualifier = resolver.resolveStringValue(this.qualifier);
       }
-      Set<String> resolvedLabels = new LinkedHashSet<>(this.labels.size());
+      var resolvedLabels = CollectionUtils.<String>newLinkedHashSet(this.labels.size());
       for (String label : this.labels) {
         resolvedLabels.add(resolver.resolveStringValue(label));
       }

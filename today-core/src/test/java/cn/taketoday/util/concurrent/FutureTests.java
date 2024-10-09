@@ -1264,6 +1264,36 @@ class FutureTests {
   }
 
   @Test
+  void forAdaption_cancel() throws InterruptedException {
+    AtomicBoolean interrupted = new AtomicBoolean(false);
+
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+
+      @Override
+      public void run() {
+        try {
+          latch.countDown();
+          Thread.sleep(10_000L);
+        }
+        catch (InterruptedException e) {
+          interrupted.set(true);
+        }
+      }
+    });
+
+    Thread.sleep(100L);
+    Future<Void> adaption = Future.forAdaption(future, directExecutor());
+    adaption.cancel();
+
+    assertThat(latch.getCount()).isEqualTo(0L);
+    assertThat(adaption).isCancelled();
+    Thread.sleep(1_000L);
+    assertThat(future).isCancelled();
+    assertThat(interrupted).isFalse();
+  }
+
+  @Test
   void forFutureTask() throws ExecutionException, InterruptedException {
     AtomicInteger counter = new AtomicInteger();
 

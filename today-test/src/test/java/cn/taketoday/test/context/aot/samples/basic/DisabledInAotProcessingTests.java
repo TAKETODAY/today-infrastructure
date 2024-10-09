@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.aot.samples.basic;
@@ -20,15 +20,20 @@ package cn.taketoday.test.context.aot.samples.basic;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aot.AotDetector;
+import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.test.context.TestExecutionListeners;
+import cn.taketoday.test.context.aot.AotTestExecutionListener;
 import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.aot.TestContextAotGenerator;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
+import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
+import static cn.taketoday.test.context.aot.samples.basic.DisabledInAotProcessingTests.BrokenAotTestExecutionListener;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -41,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @JUnitConfig
 @DisabledInAotMode
+@TestExecutionListeners(listeners = BrokenAotTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 public class DisabledInAotProcessingTests {
 
   @Test
@@ -63,6 +69,14 @@ public class DisabledInAotProcessingTests {
               stream.anyMatch(stackFrame -> stackFrame.getClassName().equals(TestContextAotGenerator.class.getName())));
 
       return beanFactory -> Assert.state(!runningDuringAotProcessing, "Should not be used during AOT processing");
+    }
+  }
+
+  static class BrokenAotTestExecutionListener implements AotTestExecutionListener {
+
+    @Override
+    public void processAheadOfTime(RuntimeHints runtimeHints, Class<?> testClass, ClassLoader classLoader) {
+      throw new UnsupportedOperationException("Broken AotTestExecutionListener");
     }
   }
 
