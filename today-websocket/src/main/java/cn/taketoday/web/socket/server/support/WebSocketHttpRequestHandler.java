@@ -44,6 +44,7 @@ import cn.taketoday.web.socket.server.HandshakeInterceptor;
  * @since 4.0
  */
 public class WebSocketHttpRequestHandler implements HttpRequestHandler {
+
   private static final Logger logger = LoggerFactory.getLogger(WebSocketHttpRequestHandler.class);
 
   private final WebSocketHandler wsHandler;
@@ -86,8 +87,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
       Map<String, Object> attributes = new HashMap<>();
       if (chain.applyBeforeHandshake(request, attributes)) {
         WebSocketSession session = handshakeHandler.doHandshake(request, wsHandler, attributes);
-        chain.applyAfterHandshake(request, null);
-        wsHandler.afterHandshake(request, session);
+        chain.applyAfterHandshake(request, session, null);
       }
     }
     catch (Throwable ex) {
@@ -95,8 +95,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
     }
     finally {
       if (failure != null) {
-        chain.applyAfterHandshake(request, failure);
-        wsHandler.afterHandshake(request, null);
+        chain.applyAfterHandshake(request, null, failure);
         throw failure;
       }
     }

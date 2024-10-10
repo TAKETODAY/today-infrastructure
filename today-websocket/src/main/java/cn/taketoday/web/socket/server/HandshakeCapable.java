@@ -22,40 +22,53 @@ import java.util.Map;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * Interceptor for WebSocket handshake requests. Can be used to inspect the
+ * An interface for WebSocket handlers that support handshake. Can be used to inspect the
  * handshake request and response as well as to pass attributes to the target
- * {@link WebSocketHandler}.
+ * {@link WebSocketSession}.
  *
- * @author Rossen Stoyanchev
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.web.socket.server.support.WebSocketHttpRequestHandler
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see WebSocketHandler
+ * @see HandshakeInterceptor
+ * @since 5.0 2024/10/10 10:08
  */
-public interface HandshakeInterceptor {
+public interface HandshakeCapable {
 
   /**
    * Invoked before the handshake is processed.
+   * <p>
+   * This method will invoke after all {@link
+   * HandshakeInterceptor#beforeHandshake(RequestContext, WebSocketHandler, Map)}
    *
    * @param request the current request
-   * @param wsHandler the target WebSocket handler
    * @param attributes the attributes from the HTTP handshake to associate with the WebSocket
    * session; the provided attributes are copied, the original map is not used.
    * @return whether to proceed with the handshake ({@code true}) or abort ({@code false})
-   * @throws Exception The error will handle by {@link cn.taketoday.web.HandlerExceptionHandler}
+   * @throws Throwable The error will handle by {@link cn.taketoday.web.HandlerExceptionHandler}
+   * @see HandshakeInterceptor#beforeHandshake(RequestContext, WebSocketHandler, Map)
    */
-  boolean beforeHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
-          throws Exception;
+  default boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
+    return true;
+  }
 
   /**
    * Invoked after the handshake is done. The response status and headers indicate
    * the results of the handshake, i.e. whether it was successful or not.
+   * <p>
+   * This method will invoke before all {@link
+   * HandshakeInterceptor#afterHandshake(RequestContext, WebSocketHandler, Throwable)}
    *
    * @param request the current request
-   * @param wsHandler the target WebSocket handler
-   * @param exception an exception raised during the handshake, or {@code null} if none
+   * @param session websocket session, or {@code null} if handshake failed
+   * @param failure an exception raised during the handshake, or {@code null} if none
+   * @throws Throwable The error will handle by {@link cn.taketoday.web.HandlerExceptionHandler}
+   * @see HandshakeInterceptor#afterHandshake(RequestContext, WebSocketHandler, Throwable)
    */
-  void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Throwable exception);
+  default void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure)
+          throws Throwable {
+
+  }
 
 }

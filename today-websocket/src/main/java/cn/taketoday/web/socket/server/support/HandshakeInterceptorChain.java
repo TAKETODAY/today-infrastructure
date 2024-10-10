@@ -26,6 +26,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.server.HandshakeCapable;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
 
 /**
@@ -50,22 +52,37 @@ public class HandshakeInterceptorChain {
     this.wsHandler = wsHandler;
   }
 
-  public boolean applyBeforeHandshake(RequestContext request, Map<String, Object> attributes) throws Exception {
+  public boolean applyBeforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
     for (int i = 0; i < this.interceptors.size(); i++) {
       HandshakeInterceptor interceptor = interceptors.get(i);
       if (!interceptor.beforeHandshake(request, this.wsHandler, attributes)) {
         if (logger.isDebugEnabled()) {
           logger.debug("{} returns false from beforeHandshake - precluding handshake", interceptor);
         }
-        applyAfterHandshake(request, null);
+        applyAfterHandshake(request, null, null);
         return false;
       }
       this.interceptorIndex = i;
     }
+
+    if (wsHandler instanceof HandshakeCapable hc) {
+      if (!hc.beforeHandshake(request, attributes)) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("{} returns false from beforeHandshake - precluding handshake", wsHandler);
+        }
+        applyAfterHandshake(request, null, null);
+        return false;
+      }
+    }
+
     return true;
   }
 
-  public void applyAfterHandshake(RequestContext request, @Nullable Throwable failure) {
+  public void applyAfterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+    if (wsHandler instanceof HandshakeCapable hc) {
+      hc.afterHandshake(request, session, failure);
+    }
+
     for (int i = this.interceptorIndex; i >= 0; i--) {
       HandshakeInterceptor interceptor = this.interceptors.get(i);
       try {

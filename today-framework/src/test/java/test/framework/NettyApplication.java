@@ -35,6 +35,7 @@ import cn.taketoday.framework.InfraApplication;
 import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -48,6 +49,7 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.client.support.NettyWebSocketClient;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.server.HandshakeCapable;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -160,7 +162,7 @@ public class NettyApplication {
     throwable.printStackTrace();
   }
 
-  static class WebSocket0 extends WebSocketHandler {
+  static class WebSocket0 extends WebSocketHandler implements HandshakeCapable {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
@@ -174,9 +176,9 @@ public class NettyApplication {
     }
 
     @Override
-    public void afterHandshake(RequestContext context, WebSocketSession session) throws IOException {
+    public void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) {
       System.out.println("afterHandshake");
-      context.addCookie("name", "demo");
+      request.addCookie("name", "demo");
     }
 
     @Override

@@ -19,6 +19,7 @@ package cn.taketoday.web.socket.client.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import cn.taketoday.framework.Application;
@@ -32,6 +33,7 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
+import cn.taketoday.web.socket.server.HandshakeCapable;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,10 +64,17 @@ class WsClientTests {
     latch.await();
   }
 
-  static class ServerWebSocketHandler extends WebSocketHandler {
+  static class ServerWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    public void afterHandshake(RequestContext request, @Nullable WebSocketSession session) throws Throwable {
+    public boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
+      log.info("server afterHandshake,{} {}", request, attributes);
+
+      return HandshakeCapable.super.beforeHandshake(request, attributes);
+    }
+
+    @Override
+    public void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) {
       log.info("server afterHandshake,{} {}", request, session);
     }
 

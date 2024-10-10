@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server.support;
@@ -70,7 +67,7 @@ public class HandshakeInterceptorChainTests extends AbstractHttpRequestTests {
   }
 
   @Test
-  public void success() throws Exception {
+  public void success() throws Throwable {
     given(i1.beforeHandshake(request, wsHandler, attributes)).willReturn(true);
     given(i2.beforeHandshake(request, wsHandler, attributes)).willReturn(true);
     given(i3.beforeHandshake(request, wsHandler, attributes)).willReturn(true);
@@ -85,7 +82,7 @@ public class HandshakeInterceptorChainTests extends AbstractHttpRequestTests {
   }
 
   @Test
-  public void applyBeforeHandshakeWithFalseReturnValue() throws Exception {
+  public void applyBeforeHandshakeWithFalseReturnValue() throws Throwable {
     given(i1.beforeHandshake(request, wsHandler, attributes)).willReturn(true);
     given(i2.beforeHandshake(request, wsHandler, attributes)).willReturn(false);
 
@@ -99,9 +96,9 @@ public class HandshakeInterceptorChainTests extends AbstractHttpRequestTests {
   }
 
   @Test
-  public void applyAfterHandshakeOnly() {
+  public void applyAfterHandshakeOnly() throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
-    chain.applyAfterHandshake(request, null);
+    chain.applyAfterHandshake(request, null, null);
 
     verifyNoMoreInteractions(i1, i2, i3);
   }

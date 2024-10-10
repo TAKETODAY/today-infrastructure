@@ -18,7 +18,6 @@
 package cn.taketoday.web.socket;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
 
 /**
  * The Web Socket Handler represents an object that can handle websocket conversations.
@@ -69,21 +68,6 @@ public abstract class WebSocketHandler {
       result = result.delegate;
     }
     return result;
-  }
-
-  /**
-   * called after server handshake
-   * <p>
-   * if session is {@code null} means handshake failed
-   * <p>
-   * websocket client handler never invoke this method
-   *
-   * @param session un-initialize session, cannot send message
-   */
-  public void afterHandshake(RequestContext request, @Nullable WebSocketSession session) throws Throwable {
-    if (delegate != null) {
-      delegate.afterHandshake(request, session);
-    }
   }
 
   /**
