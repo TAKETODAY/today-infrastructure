@@ -34,6 +34,7 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
+import cn.taketoday.http.client.ReactorClientHttpRequestFactory;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -67,7 +68,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean httpComponentsClientPresent;
 
-  private static final boolean jdkClientPresent;
+  private static final boolean reactorNettyClientPresent;
 
   // message factories
 
@@ -87,7 +88,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
     httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
-    jdkClientPresent = ClassUtils.isPresent("java.net.http.HttpClient", loader);
+    reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
 
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader) &&
             ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
@@ -421,6 +422,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     }
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpRequestFactory();
+    }
+    else if (reactorNettyClientPresent) {
+      return new ReactorClientHttpRequestFactory();
     }
     return new JdkClientHttpRequestFactory();
   }
