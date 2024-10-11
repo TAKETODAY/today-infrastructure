@@ -19,11 +19,15 @@ package cn.taketoday.format.datetime.standard;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+
+import cn.taketoday.format.annotation.DurationFormat;
 
 import static cn.taketoday.format.annotation.DurationFormat.Style.COMPOSITE;
 import static cn.taketoday.format.annotation.DurationFormat.Style.ISO8601;
@@ -38,6 +42,22 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @since 5.0 2024/8/11 16:17
  */
 class DurationFormatterUtilsTests {
+
+  @ParameterizedTest
+  @EnumSource(DurationFormat.Style.class)
+  void parseEmptyStringFailsWithDedicatedException(DurationFormat.Style style) {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> DurationFormatterUtils.parse("", style))
+            .withMessage("Value must not be empty");
+  }
+
+  @ParameterizedTest
+  @EnumSource(DurationFormat.Style.class)
+  void parseNullStringFailsWithDedicatedException(DurationFormat.Style style) {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> DurationFormatterUtils.parse(null, style))
+            .withMessage("Value must not be empty");
+  }
 
   @Test
   void parseSimpleWithUnits() {
