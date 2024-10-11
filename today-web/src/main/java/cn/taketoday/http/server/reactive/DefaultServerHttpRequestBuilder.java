@@ -69,8 +69,13 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     Assert.notNull(original, "ServerHttpRequest is required");
 
     this.uri = original.getURI();
-    this.headers = original.getHeaders().asWritable();
-    this.httpMethodValue = original.getMethodValue();
+    // Some containers (including Jetty and Netty4) can have an immutable
+    // representation of headers. Since mutability is always desirable here,
+    // we always create a mutable case-insensitive copy of the original
+    // headers by using the basic constructor and addAll.
+    this.headers = HttpHeaders.forWritable();
+    this.headers.addAll(original.getHeaders());
+    this.httpMethodValue = original.getMethod().name();
     this.contextPath = original.getPath().contextPath().value();
     this.remoteAddress = original.getRemoteAddress();
     this.body = original.getBody();
