@@ -47,6 +47,9 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
   @Nullable
   private final UriComponentsBuilder baseUri;
 
+  @Nullable
+  private UriComponentsBuilder.ParserType parserType;
+
   private EncodingMode encodingMode = EncodingMode.TEMPLATE_AND_VALUES;
 
   @Nullable
@@ -91,6 +94,30 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    */
   public final boolean hasBaseUri() {
     return (this.baseUri != null);
+  }
+
+  /**
+   * Set the {@link UriComponentsBuilder.ParserType} to use.
+   * <p>By default, {@link UriComponentsBuilder} uses the
+   * {@link UriComponentsBuilder.ParserType#RFC parser type}.
+   *
+   * @param parserType the parser type
+   * @see UriComponentsBuilder.ParserType
+   * @see UriComponentsBuilder#fromUriString(String, UriComponentsBuilder.ParserType)
+   * @since 5.0
+   */
+  public void setParserType(UriComponentsBuilder.ParserType parserType) {
+    this.parserType = parserType;
+  }
+
+  /**
+   * Return the configured parser type.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public UriComponentsBuilder.ParserType getParserType() {
+    return this.parserType;
   }
 
   /**
@@ -223,7 +250,6 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
      * if intentionally expanding URI variables with reserved characters.
      *
      * @see UriComponentsBuilder#encode()
-     * @since 5.0.8
      */
     TEMPLATE_AND_VALUES,
 
@@ -270,18 +296,24 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
         result = (baseUri != null ? baseUri.cloneBuilder() : UriComponentsBuilder.newInstance());
       }
       else if (baseUri != null) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uriTemplate);
+        UriComponentsBuilder builder = parseUri(uriTemplate);
         UriComponents uri = builder.build();
         result = (uri.getHost() == null ? baseUri.cloneBuilder().uriComponents(uri) : builder);
       }
       else {
-        result = UriComponentsBuilder.fromUriString(uriTemplate);
+        result = parseUri(uriTemplate);
       }
       if (encodingMode.equals(EncodingMode.TEMPLATE_AND_VALUES)) {
         result.encode();
       }
       parsePathIfNecessary(result);
       return result;
+    }
+
+    private UriComponentsBuilder parseUri(String uriTemplate) {
+      return (getParserType() != null ?
+              UriComponentsBuilder.fromUriString(uriTemplate, getParserType()) :
+              UriComponentsBuilder.fromUriString(uriTemplate));
     }
 
     private void parsePathIfNecessary(UriComponentsBuilder result) {

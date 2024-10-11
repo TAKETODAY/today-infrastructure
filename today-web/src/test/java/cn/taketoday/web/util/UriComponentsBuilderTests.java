@@ -18,6 +18,8 @@
 package cn.taketoday.web.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import java.util.function.BiConsumer;
 
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.util.UriComponentsBuilder.ParserType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -48,9 +51,9 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class UriComponentsBuilderTests {
 
-  @Test
-    // see gh-26453
-  void examplesInReferenceManual() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void examplesInReferenceManual(ParserType parserType) {
     final String expected = "/hotel%20list/New%20York?q=foo%2Bbar";
 
     URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
@@ -65,7 +68,7 @@ class UriComponentsBuilderTests {
             .build("New York", "foo+bar");
     assertThat(uri).asString().isEqualTo(expected);
 
-    uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}")
+    uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}", parserType)
             .build("New York", "foo+bar");
     assertThat(uri).asString().isEqualTo(expected);
   }
@@ -152,20 +155,21 @@ class UriComponentsBuilderTests {
     assertThat(result.toUri()).as("Invalid result URI").isEqualTo(uri);
   }
 
-  @Test
-    // SPR-9317
-  void fromUriEncodedQuery() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void fromUriEncodedQuery(ParserType parserType) {
     URI uri = URI.create("https://www.example.org/?param=aGVsbG9Xb3JsZA%3D%3D");
     String fromUri = UriComponentsBuilder.fromUri(uri).build().getQueryParams().get("param").get(0);
-    String fromUriString = UriComponentsBuilder.fromUriString(uri.toString())
+    String fromUriString = UriComponentsBuilder.fromUriString(uri.toString(), parserType)
             .build().getQueryParams().get("param").get(0);
 
     assertThat(fromUriString).isEqualTo(fromUri);
   }
 
-  @Test
-  void fromUriString() {
-    UriComponents result = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc3986.txt").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void fromUriString(ParserType parserType) {
+    UriComponents result = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc3986.txt", parserType).build();
     assertThat(result.getScheme()).isEqualTo("https");
     assertThat(result.getUserInfo()).isNull();
     assertThat(result.getHost()).isEqualTo("www.ietf.org");
@@ -177,7 +181,7 @@ class UriComponentsBuilderTests {
 
     String url = "https://arjen:foobar@java.sun.com:80" +
             "/javase/6/docs/api/java/util/BitSet.html?foo=bar#and(java.util.BitSet)";
-    result = UriComponentsBuilder.fromUriString(url).build();
+    result = UriComponentsBuilder.fromUriString(url, parserType).build();
     assertThat(result.getScheme()).isEqualTo("https");
     assertThat(result.getUserInfo()).isEqualTo("arjen:foobar");
     assertThat(result.getHost()).isEqualTo("java.sun.com");
@@ -189,7 +193,7 @@ class UriComponentsBuilderTests {
     assertThat(result.getQueryParams()).isEqualTo(expectedQueryParams);
     assertThat(result.getFragment()).isEqualTo("and(java.util.BitSet)");
 
-    result = UriComponentsBuilder.fromUriString("mailto:java-net@java.sun.com#baz").build();
+    result = UriComponentsBuilder.fromUriString("mailto:java-net@java.sun.com#baz", parserType).build();
     assertThat(result.getScheme()).isEqualTo("mailto");
     assertThat(result.getUserInfo()).isNull();
     assertThat(result.getHost()).isNull();
@@ -199,7 +203,7 @@ class UriComponentsBuilderTests {
     assertThat(result.getQuery()).isNull();
     assertThat(result.getFragment()).isEqualTo("baz");
 
-    result = UriComponentsBuilder.fromUriString("mailto:user@example.com?subject=foo").build();
+    result = UriComponentsBuilder.fromUriString("mailto:user@example.com?subject=foo", parserType).build();
     assertThat(result.getScheme()).isEqualTo("mailto");
     assertThat(result.getUserInfo()).isNull();
     assertThat(result.getHost()).isNull();
@@ -209,7 +213,7 @@ class UriComponentsBuilderTests {
     assertThat(result.getQuery()).isNull();
     assertThat(result.getFragment()).isNull();
 
-    result = UriComponentsBuilder.fromUriString("docs/guide/collections/designfaq.html#28").build();
+    result = UriComponentsBuilder.fromUriString("docs/guide/collections/designfaq.html#28", parserType).build();
     assertThat(result.getScheme()).isNull();
     assertThat(result.getUserInfo()).isNull();
     assertThat(result.getHost()).isNull();
@@ -219,80 +223,80 @@ class UriComponentsBuilderTests {
     assertThat(result.getFragment()).isEqualTo("28");
   }
 
-  @Test
-    // SPR-9832
-  void fromUriStringQueryParamWithReservedCharInValue() {
+  @ParameterizedTest // see SPR-9832
+  @EnumSource(value = ParserType.class)
+  void fromUriStringQueryParamWithReservedCharInValue(ParserType parserType) {
     String uri = "https://www.google.com/ig/calculator?q=1USD=?EUR";
-    UriComponents result = UriComponentsBuilder.fromUriString(uri).build();
+    UriComponents result = UriComponentsBuilder.fromUriString(uri, parserType).build();
 
     assertThat(result.getQuery()).isEqualTo("q=1USD=?EUR");
     assertThat(result.getQueryParams().getFirst("q")).isEqualTo("1USD=?EUR");
   }
 
-  @Test
-    // SPR-14828
-  void fromUriStringQueryParamEncodedAndContainingPlus() {
+  @ParameterizedTest // see SPR-14828
+  @EnumSource(value = ParserType.class)
+  void fromUriStringQueryParamEncodedAndContainingPlus(ParserType parserType) {
     String httpUrl = "http://localhost:8080/test/print?value=%EA%B0%80+%EB%82%98";
-    URI uri = UriComponentsBuilder.fromUriString(httpUrl).build(true).toUri();
+    URI uri = UriComponentsBuilder.fromUriString(httpUrl, parserType).build(true).toUri();
 
     assertThat(uri.toString()).isEqualTo(httpUrl);
   }
 
-  @Test
-    // SPR-10539
-  void fromUriStringIPv6Host() {
+  @ParameterizedTest // see SPR-10539
+  @EnumSource(value = ParserType.class)
+  void fromUriStringIPv6Host(ParserType parserType) {
     UriComponents result = UriComponentsBuilder
-            .fromUriString("http://[1abc:2abc:3abc::5ABC:6abc]:8080/resource").build().encode();
+            .fromUriString("http://[1abc:2abc:3abc::5ABC:6abc]:8080/resource", parserType).build().encode();
     assertThat(result.getHost()).isEqualToIgnoringCase("[1abc:2abc:3abc::5ABC:6abc]");
-
-    UriComponents resultIPv4compatible = UriComponentsBuilder
-            .fromUriString("http://[::192.168.1.1]:8080/resource").build().encode();
-    assertThat(resultIPv4compatible.getHost()).isEqualTo("[::c0a8:101]");
   }
 
-  @Test
-  void fromUriStringInvalidIPv6Host() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void fromUriStringInvalidIPv6Host(ParserType parserType) {
     assertThatIllegalArgumentException().isThrownBy(() ->
-            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
+            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource", parserType));
   }
 
-  @Test
-    // SPR-11970
-  void fromUriStringNoPathWithReservedCharInQuery() {
-    UriComponents result = UriComponentsBuilder.fromUriString("https://example.com?foo=bar@baz").build();
+  @ParameterizedTest // see SPR-11970
+  @EnumSource(value = ParserType.class)
+  void fromUriStringNoPathWithReservedCharInQuery(ParserType parserType) {
+    UriComponents result = UriComponentsBuilder.fromUriString("https://example.com?foo=bar@baz", parserType).build();
     assertThat(result.getUserInfo()).isNull();
     assertThat(result.getHost()).isEqualTo("example.com");
     assertThat(result.getQueryParams()).containsKey("foo");
     assertThat(result.getQueryParams().getFirst("foo")).isEqualTo("bar@baz");
   }
 
-  @Test
-    // SPR-14828
-  void fromHttpUrlQueryParamEncodedAndContainingPlus() {
+  @ParameterizedTest // see SPR-1428
+  @EnumSource(value = ParserType.class)
+  void fromHttpUrlQueryParamEncodedAndContainingPlus(ParserType parserType) {
     String httpUrl = "http://localhost:8080/test/print?value=%EA%B0%80+%EB%82%98";
-    URI uri = UriComponentsBuilder.fromUriString(httpUrl).build(true).toUri();
+    URI uri = UriComponentsBuilder.fromUriString(httpUrl, parserType).build(true).toUri();
 
     assertThat(uri.toString()).isEqualTo(httpUrl);
   }
 
-  @Test
-    // SPR-10779
-  void fromHttpUrlCaseInsensitiveScheme() {
-    assertThat(UriComponentsBuilder.fromUriString("HTTP://www.google.com").build().getScheme()).isEqualTo("http");
-    assertThat(UriComponentsBuilder.fromUriString("HTTPS://www.google.com").build().getScheme()).isEqualTo("https");
+  @ParameterizedTest // see SPR-10779
+  @EnumSource(value = ParserType.class)
+  void fromHttpUrlCaseInsensitiveScheme(ParserType parserType) {
+    assertThat(UriComponentsBuilder.fromUriString("HTTP://www.google.com", parserType).build().getScheme())
+            .isEqualTo("http");
+    assertThat(UriComponentsBuilder.fromUriString("HTTPS://www.google.com", parserType).build().getScheme())
+            .isEqualTo("https");
   }
 
-  @Test
-    // SPR-10539
-  void fromHttpUrlInvalidIPv6Host() {
+  @ParameterizedTest // see SPR-10539
+  @EnumSource(value = ParserType.class)
+  void fromHttpUrlInvalidIPv6Host(ParserType parserType) {
     assertThatIllegalArgumentException().isThrownBy(() ->
-            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource"));
+            UriComponentsBuilder.fromUriString("http://[1abc:2abc:3abc::5ABC:6abc:8080/resource", parserType));
   }
 
-  @Test
-  void fromHttpUrlWithoutFragment() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void fromHttpUrlWithoutFragment(ParserType parserType) {
     String httpUrl = "http://localhost:8080/test/print";
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("http");
     assertThat(uriComponents.getUserInfo()).isNull();
     assertThat(uriComponents.getHost()).isEqualTo("localhost");
@@ -304,7 +308,7 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.toUri().toString()).isEqualTo(httpUrl);
 
     httpUrl = "http://user:test@localhost:8080/test/print?foo=bar";
-    uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("http");
     assertThat(uriComponents.getUserInfo()).isEqualTo("user:test");
     assertThat(uriComponents.getHost()).isEqualTo("localhost");
@@ -316,7 +320,7 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.toUri().toString()).isEqualTo(httpUrl);
 
     httpUrl = "http://localhost:8080/test/print?foo=bar";
-    uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("http");
     assertThat(uriComponents.getUserInfo()).isNull();
     assertThat(uriComponents.getHost()).isEqualTo("localhost");
@@ -328,11 +332,11 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.toUri().toString()).isEqualTo(httpUrl);
   }
 
-  @Test
-    // gh-25300
-  void fromHttpUrlWithFragment() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void fromHttpUrlWithFragment(ParserType parserType) {
     String httpUrl = "https://example.com/#baz";
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("https");
     assertThat(uriComponents.getUserInfo()).isNull();
     assertThat(uriComponents.getHost()).isEqualTo("example.com");
@@ -344,7 +348,7 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.toUri().toString()).isEqualTo(httpUrl);
 
     httpUrl = "http://localhost:8080/test/print#baz";
-    uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("http");
     assertThat(uriComponents.getUserInfo()).isNull();
     assertThat(uriComponents.getHost()).isEqualTo("localhost");
@@ -356,7 +360,7 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.toUri().toString()).isEqualTo(httpUrl);
 
     httpUrl = "http://localhost:8080/test/print?foo=bar#baz";
-    uriComponents = UriComponentsBuilder.fromUriString(httpUrl).build();
+    uriComponents = UriComponentsBuilder.fromUriString(httpUrl, parserType).build();
     assertThat(uriComponents.getScheme()).isEqualTo("http");
     assertThat(uriComponents.getUserInfo()).isNull();
     assertThat(uriComponents.getHost()).isEqualTo("localhost");
@@ -446,30 +450,32 @@ class UriComponentsBuilderTests {
     assertThat(uriComponents.getPath()).isEqualTo("/foo/bar");
   }
 
-  @Test
-  void replacePath() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc2396.txt");
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void replacePath(ParserType parserType) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc2396.txt", parserType);
     builder.replacePath("/rfc/rfc3986.txt");
     UriComponents result = builder.build();
 
     assertThat(result.toUriString()).isEqualTo("https://www.ietf.org/rfc/rfc3986.txt");
 
-    builder = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc2396.txt");
+    builder = UriComponentsBuilder.fromUriString("https://www.ietf.org/rfc/rfc2396.txt", parserType);
     builder.replacePath(null);
     result = builder.build();
 
     assertThat(result.toUriString()).isEqualTo("https://www.ietf.org");
   }
 
-  @Test
-  void replaceQuery() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.com/foo?foo=bar&baz=qux");
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void replaceQuery(ParserType parserType) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.com/foo?foo=bar&baz=qux", parserType);
     builder.replaceQuery("baz=42");
     UriComponents result = builder.build();
 
     assertThat(result.toUriString()).isEqualTo("https://example.com/foo?baz=42");
 
-    builder = UriComponentsBuilder.fromUriString("https://example.com/foo?foo=bar&baz=qux");
+    builder = UriComponentsBuilder.fromUriString("https://example.com/foo?foo=bar&baz=qux", parserType);
     builder.replaceQuery(null);
     result = builder.build();
 
@@ -600,36 +606,52 @@ class UriComponentsBuilderTests {
     assertThat(result.toUriString()).isEqualTo("/fooValue/barValue");
   }
 
-  @Test
-  void buildAndExpandOpaque() {
-    UriComponents result = UriComponentsBuilder.fromUriString("mailto:{user}@{domain}")
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void parseBuildAndExpandHierarchical(ParserType parserType) {
+    URI uri = UriComponentsBuilder
+            .fromUriString("{scheme}://{host}:{port}/{segment}?{query}#{fragment}", parserType)
+            .buildAndExpand(Map.of(
+                    "scheme", "ws", "host", "example.org", "port", "7777", "segment", "path",
+                    "query", "q=1", "fragment", "foo"))
+            .toUri();
+    assertThat(uri.toString()).isEqualTo("ws://example.org:7777/path?q=1#foo");
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void buildAndExpandOpaque(ParserType parserType) {
+    UriComponents result = UriComponentsBuilder.fromUriString("mailto:{user}@{domain}", parserType)
             .buildAndExpand("foo", "example.com");
     assertThat(result.toUriString()).isEqualTo("mailto:foo@example.com");
 
     Map<String, String> values = new HashMap<>();
     values.put("user", "foo");
     values.put("domain", "example.com");
-    UriComponentsBuilder.fromUriString("mailto:{user}@{domain}").buildAndExpand(values);
+    UriComponentsBuilder.fromUriString("mailto:{user}@{domain}", parserType).buildAndExpand(values);
     assertThat(result.toUriString()).isEqualTo("mailto:foo@example.com");
   }
 
-  @Test
-  void queryParamWithValueWithEquals() {
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar=baz").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void queryParamWithValueWithEquals(ParserType parserType) {
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar=baz", parserType).build();
     assertThat(uriComponents.toUriString()).isEqualTo("https://example.com/foo?bar=baz");
     assertThat(uriComponents.getQueryParams().get("bar")).containsExactly("baz");
   }
 
-  @Test
-  void queryParamWithoutValueWithEquals() {
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar=").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void queryParamWithoutValueWithEquals(ParserType parserType) {
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar=", parserType).build();
     assertThat(uriComponents.toUriString()).isEqualTo("https://example.com/foo?bar=");
     assertThat(uriComponents.getQueryParams().get("bar")).element(0).asString().isEmpty();
   }
 
-  @Test
-  void queryParamWithoutValueWithoutEquals() {
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void queryParamWithoutValueWithoutEquals(ParserType parserType) {
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar", parserType).build();
     assertThat(uriComponents.toUriString()).isEqualTo("https://example.com/foo?bar");
 
     // TODO [SPR-13537] Change equalTo(null) to equalTo("").
@@ -637,7 +659,6 @@ class UriComponentsBuilderTests {
   }
 
   @Test
-    // gh-24444
   void opaqueUriDoesNotResetOnNullInput() {
     URI uri = URI.create("urn:ietf:wg:oauth:2.0:oob");
     UriComponents result = UriComponentsBuilder.fromUri(uri)
@@ -652,52 +673,54 @@ class UriComponentsBuilderTests {
     assertThat(result.toUri()).isEqualTo(uri);
   }
 
-  @Test
-  void relativeUrls() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void relativeUrls(ParserType parserType) {
     String baseUrl = "https://example.com";
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar").build().toString())
-            .isEqualTo(baseUrl + "/bar");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar").build().toUriString())
-            .isEqualTo(baseUrl + "/bar");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar").build().toUri().getPath())
-            .isEqualTo("/bar");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).path("foo/../bar").build().toString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar", parserType).build().toString())
+            .isEqualTo(baseUrl + (parserType == ParserType.WHAT_WG ? "/bar" : "/foo/../bar"));
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar", parserType).build().toUriString())
+            .isEqualTo(baseUrl + (parserType == ParserType.WHAT_WG ? "/bar" : "/foo/../bar"));
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl + "/foo/../bar", parserType).build().toUri().getPath())
+            .isEqualTo((parserType == ParserType.WHAT_WG ? "/bar" : "/foo/../bar"));
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).path("foo/../bar").build().toString())
             .isEqualTo(baseUrl + "/foo/../bar");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).path("foo/../bar").build().toUriString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).path("foo/../bar").build().toUriString())
             .isEqualTo(baseUrl + "/foo/../bar");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).path("foo/../bar").build().toUri().getPath())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).path("foo/../bar").build().toUri().getPath())
             .isEqualTo("/foo/../bar");
   }
 
-  @Test
-  void emptySegments() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void emptySegments(ParserType parserType) {
     String baseUrl = "https://example.com/abc/";
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).path("/x/y/z").build().toString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).path("/x/y/z").build().toString())
             .isEqualTo("https://example.com/abc/x/y/z");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).pathSegment("x", "y", "z").build().toString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).pathSegment("x", "y", "z").build().toString())
             .isEqualTo("https://example.com/abc/x/y/z");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).path("/x/").path("/y/z").build().toString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).path("/x/").path("/y/z").build().toString())
             .isEqualTo("https://example.com/abc/x/y/z");
-    assertThat(UriComponentsBuilder.fromUriString(baseUrl).pathSegment("x").path("y").build().toString())
+    assertThat(UriComponentsBuilder.fromUriString(baseUrl, parserType).pathSegment("x").path("y").build().toString())
             .isEqualTo("https://example.com/abc/x/y");
   }
 
-  @Test
-  void parsesEmptyFragment() {
-    UriComponents components = UriComponentsBuilder.fromUriString("/example#").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void parsesEmptyFragment(ParserType parserType) {
+    UriComponents components = UriComponentsBuilder.fromUriString("/example#", parserType).build();
     assertThat(components.getFragment()).isNull();
     assertThat(components.toString()).isEqualTo("/example");
   }
 
-  @Test
-    // SPR-13257
-  void parsesEmptyUri() {
-    UriComponents components = UriComponentsBuilder.fromUriString("").build();
+  @ParameterizedTest // SPR-13257
+  @EnumSource(value = ParserType.class)
+  void parsesEmptyUri(ParserType parserType) {
+    UriComponents components = UriComponentsBuilder.fromUriString("", parserType).build();
     assertThat(components.toString()).isEmpty();
   }
 
   @Test
-    // gh-25243
   void testCloneAndMerge() {
     UriComponentsBuilder builder1 = UriComponentsBuilder.newInstance();
     builder1.scheme("http").host("e1.com").path("/p1").pathSegment("ps1").queryParam("q1", "x").fragment("f1").encode();
@@ -723,7 +746,6 @@ class UriComponentsBuilderTests {
   }
 
   @Test
-    // gh-24772
   void testDeepClone() {
     HashMap<String, Object> vars = new HashMap<>();
     vars.put("ps1", "foo");
@@ -754,18 +776,18 @@ class UriComponentsBuilderTests {
     assertThat(result1.getSchemeSpecificPart()).isNull();
   }
 
-  @Test
-    // gh-26466
-  void encodeTemplateWithInvalidPlaceholderSyntax() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void encodeTemplateWithInvalidPlaceholderSyntax(ParserType parserType) {
 
     BiConsumer<String, String> tester = (in, out) ->
-            assertThat(UriComponentsBuilder.fromUriString(in).encode().toUriString()).isEqualTo(out);
+            assertThat(UriComponentsBuilder.fromUriString(in, parserType).encode().toUriString()).isEqualTo(out);
 
     // empty
     tester.accept("{}", "%7B%7D");
-    tester.accept("{ \t}", "%7B%20%7D");
+    tester.accept("{ \t}", (parserType == ParserType.WHAT_WG ? "%7B%20%7D" : "%7B%20%09%7D"));
     tester.accept("/a{}b", "/a%7B%7Db");
-    tester.accept("/a{ \t}b", "/a%7B%20%7Db");
+    tester.accept("/a{ \t}b", (parserType == ParserType.WHAT_WG ? "/a%7B%20%7Db" : "/a%7B%20%09%7Db"));
 
     // nested, matching
     tester.accept("{foo{}}", "%7Bfoo%7B%7D%7D");
@@ -784,69 +806,71 @@ class UriComponentsBuilderTests {
     tester.accept("/a{year:\\d{1,4}}b", "/a{year:\\d{1,4}}b");
   }
 
-  @Test
-    // SPR-16364
-  void uriComponentsNotEqualAfterNormalization() {
-    UriComponents uri1 = UriComponentsBuilder.fromUriString("http://test.com").build().normalize();
-    UriComponents uri2 = UriComponentsBuilder.fromUriString("http://test.com/").build();
+  @ParameterizedTest // SPR-16364
+  @EnumSource(value = ParserType.class)
+  void uriComponentsNotEqualAfterNormalization(ParserType parserType) {
+    UriComponents uri1 = UriComponentsBuilder.fromUriString("http://test.com", parserType).build().normalize();
+    UriComponents uri2 = UriComponentsBuilder.fromUriString("http://test.com/", parserType).build();
 
     assertThat(uri1.getPathSegments()).isEmpty();
     assertThat(uri2.getPathSegments()).isEmpty();
     assertThat(uri2).isNotEqualTo(uri1);
   }
 
-  @Test
-    // SPR-17256
-  void uriComponentsWithMergedQueryParams() {
-    String uri = UriComponentsBuilder.fromUriString("http://localhost:8081")
-            .uriComponents(UriComponentsBuilder.fromUriString("/{path}?sort={sort}").build())
+  @ParameterizedTest // SPR-17256
+  @EnumSource(value = ParserType.class)
+  void uriComponentsWithMergedQueryParams(ParserType parserType) {
+    String uri = UriComponentsBuilder.fromUriString("http://localhost:8081", parserType)
+            .uriComponents(UriComponentsBuilder.fromUriString("/{path}?sort={sort}", parserType).build())
             .queryParam("sort", "another_value").build().toString();
 
     assertThat(uri).isEqualTo("http://localhost:8081/{path}?sort={sort}&sort=another_value");
   }
 
-  @Test
-    // SPR-17630
-  void toUriStringWithCurlyBraces() {
-    assertThat(UriComponentsBuilder.fromUriString("/path?q={asa}asa").toUriString()).isEqualTo("/path?q=%7Basa%7Dasa");
+  @ParameterizedTest // SPR-17630
+  @EnumSource(value = ParserType.class)
+  void toUriStringWithCurlyBraces(ParserType parserType) {
+    assertThat(UriComponentsBuilder.fromUriString("/path?q={asa}asa", parserType).toUriString())
+            .isEqualTo("/path?q=%7Basa%7Dasa");
   }
 
   @Test
-    // gh-26012
   void verifyDoubleSlashReplacedWithSingleOne() {
     String path = UriComponentsBuilder.fromPath("/home/").path("/path").build().getPath();
     assertThat(path).isEqualTo("/home/path");
   }
 
-  @Test
-  void validPort() {
-    UriComponents uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567/path").build();
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void validPort(ParserType parserType) {
+    UriComponents uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567/path", parserType).build();
     assertThat(uriComponents.getPort()).isEqualTo(52567);
     assertThat(uriComponents.getPath()).isEqualTo("/path");
 
-    uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567?trace=false").build();
+    uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567?trace=false", parserType).build();
     assertThat(uriComponents.getPort()).isEqualTo(52567);
     assertThat(uriComponents.getQuery()).isEqualTo("trace=false");
 
-    uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567#fragment").build();
+    uriComponents = UriComponentsBuilder.fromUriString("http://localhost:52567#fragment", parserType).build();
     assertThat(uriComponents.getPort()).isEqualTo(52567);
     assertThat(uriComponents.getFragment()).isEqualTo("fragment");
   }
 
-  @Test
-  void verifyInvalidPort() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void verifyInvalidPort(ParserType parserType) {
     String url = "http://localhost:XXX/path";
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> UriComponentsBuilder.fromUriString(url).build().toUri());
+            .isThrownBy(() -> UriComponentsBuilder.fromUriString(url, parserType).build().toUri());
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> UriComponentsBuilder.fromUriString(url).build().toUri());
+            .isThrownBy(() -> UriComponentsBuilder.fromUriString(url, parserType).build().toUri());
   }
 
-  @Test
-    // gh-27039
-  void expandPortAndPathWithoutSeparator() {
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
+  void expandPortAndPathWithoutSeparator(ParserType parserType) {
     URI uri = UriComponentsBuilder
-            .fromUriString("ws://localhost:{port}/{path}")
+            .fromUriString("ws://localhost:{port}/{path}", parserType)
             .buildAndExpand(7777, "test")
             .toUri();
     assertThat(uri.toString()).isEqualTo("ws://localhost:7777/test");
