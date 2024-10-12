@@ -342,7 +342,7 @@ class ResponseEntityExceptionHandlerTests {
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
     MockRequestContext context = new MockRequestContext(null, this.mockRequest, this.mockResponse);
-    assertThat(resolver.handleException(context, ex, null)).isNotNull().isInstanceOf(ResponseEntity.class);
+    assertThat(resolver.handleException(context, ex, null)).isNull();
   }
 
   @Test
