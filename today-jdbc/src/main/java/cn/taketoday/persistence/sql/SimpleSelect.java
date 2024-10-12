@@ -160,12 +160,12 @@ public class SimpleSelect implements StatementSequence {
   }
 
   public SimpleSelect orderBy(String col) {
-    orderByClause().asc(col);
+    orderBy().asc(col);
     return this;
   }
 
   public SimpleSelect orderBy(String col, Order order) {
-    orderByClause().orderBy(col, order);
+    orderBy().orderBy(col, order);
     return this;
   }
 
@@ -174,7 +174,7 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public MutableOrderByClause orderByClause() {
+  public MutableOrderByClause orderBy() {
     if (orderByClause instanceof MutableOrderByClause mutable) {
       return mutable;
     }
