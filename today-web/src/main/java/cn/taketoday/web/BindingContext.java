@@ -353,7 +353,7 @@ public class BindingContext {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("BindingContext: model: ");
-    sb.append(getModel());
+    sb.append(model);
 
     RedirectModel redirectModel = getRedirectModel();
     if (redirectModel != null) {
