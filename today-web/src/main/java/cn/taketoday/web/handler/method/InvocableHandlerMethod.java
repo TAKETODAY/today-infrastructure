@@ -219,6 +219,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
         for (Object providedArg : providedArgs) {
           if (parameters[i].getParameterType().isInstance(providedArg)) {
             arg = providedArg;
+            break;
           }
         }
       }
