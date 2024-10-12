@@ -216,13 +216,16 @@ public class InvocableHandlerMethod extends HandlerMethod {
     for (int i = 0; i < length; i++) {
       Object arg = null;
       if (providedArgs != null) {
+        // type match
+        Class<?> parameterType = parameters[i].getParameterType();
         for (Object providedArg : providedArgs) {
-          if (parameters[i].getParameterType().isInstance(providedArg)) {
+          if (parameterType.isInstance(providedArg)) {
             arg = providedArg;
             break;
           }
         }
       }
+
       if (arg == null) {
         try {
           arg = parameters[i].resolveParameter(request);
