@@ -26,6 +26,7 @@ import cn.taketoday.persistence.PrefixLike;
 import cn.taketoday.persistence.PropertyConditionStrategy;
 import cn.taketoday.persistence.SuffixLike;
 import cn.taketoday.persistence.sql.Restriction;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,12 +39,6 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
   public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
     MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
     if (annotation.isPresent()) {
-      // get column name
-      String column = annotation.getStringValue();
-      if (Constant.DEFAULT_NONE.equals(column)) {
-        column = entityProperty.columnName;
-      }
-
       // handle string
 
       if (propertyValue instanceof String string) {
@@ -51,22 +46,28 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
         if (annotation.getBoolean("trim")) {
           string = string.trim();
         }
-        if (entityProperty.isPresent(PrefixLike.class)) {
-          string = string + '%';
-        }
-        else if (entityProperty.isPresent(SuffixLike.class)) {
-          string = '%' + string;
-        }
-        else {
-          string = '%' + string + '%';
-        }
+        if (StringUtils.hasText(string)) {
+          // get column name
+          String column = annotation.getStringValue();
+          if (Constant.DEFAULT_NONE.equals(column)) {
+            column = entityProperty.columnName;
+          }
 
-        propertyValue = string;
+          if (entityProperty.isPresent(PrefixLike.class)) {
+            string = string + '%';
+          }
+          else if (entityProperty.isPresent(SuffixLike.class)) {
+            string = '%' + string;
+          }
+          else {
+            string = '%' + string + '%';
+          }
+
+          propertyValue = string;
+          return new Condition(propertyValue, new LikeRestriction(column), entityProperty);
+        }
       }
-
-      return new Condition(propertyValue, new LikeRestriction(column), entityProperty);
     }
-
     return null;
   }
 
@@ -84,6 +85,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
               .append(columnName)
               .append("` like ?");
     }
+
   }
 
 }

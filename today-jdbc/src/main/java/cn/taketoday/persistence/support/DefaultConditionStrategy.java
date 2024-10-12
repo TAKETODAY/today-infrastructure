@@ -21,6 +21,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.persistence.EntityProperty;
 import cn.taketoday.persistence.PropertyConditionStrategy;
 import cn.taketoday.persistence.sql.Restriction;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -31,6 +32,9 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
   @Nullable
   @Override
   public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
+    if (propertyValue instanceof String string && StringUtils.isBlank(string)) {
+      return null;
+    }
     return new Condition(propertyValue, Restriction.equal(entityProperty.columnName), entityProperty);
   }
 
