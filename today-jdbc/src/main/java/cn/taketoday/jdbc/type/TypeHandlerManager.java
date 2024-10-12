@@ -17,8 +17,6 @@
 
 package cn.taketoday.jdbc.type;
 
-import java.io.InputStream;
-import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -332,6 +330,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
     registry.register(Character.class, new CharacterTypeHandler());
 
     registry.register(UUID.class, new UUIDTypeHandler());
+    // todo Duration 优化
     registry.register(Duration.class, new DurationTypeHandler());
 
     registry.register(LocalDate.class, new AnyTypeHandler<>(LocalDate.class));

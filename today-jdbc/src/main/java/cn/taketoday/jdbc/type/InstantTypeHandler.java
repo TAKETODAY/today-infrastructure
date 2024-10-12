@@ -18,15 +18,16 @@
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 import cn.taketoday.lang.Nullable;
 
 /**
+ * Config server time zone like: {@code serverTimezone=UTC}
+ *
  * @author Tomas Rohovsky
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
@@ -34,33 +35,26 @@ import cn.taketoday.lang.Nullable;
 public class InstantTypeHandler extends BaseTypeHandler<Instant> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Instant parameter) throws SQLException {
-    ps.setTimestamp(i, Timestamp.from(parameter));
-  }
-
-  @Override
   public Instant getResult(ResultSet rs, String columnName) throws SQLException {
-    Timestamp timestamp = rs.getTimestamp(columnName);
-    return getInstant(timestamp);
+    return getInstant(rs.getObject(columnName, OffsetDateTime.class));
   }
 
   @Override
   public Instant getResult(ResultSet rs, int columnIndex) throws SQLException {
-    Timestamp timestamp = rs.getTimestamp(columnIndex);
-    return getInstant(timestamp);
+    return getInstant(rs.getObject(columnIndex, OffsetDateTime.class));
   }
 
   @Override
   public Instant getResult(CallableStatement cs, int columnIndex) throws SQLException {
-    Timestamp timestamp = cs.getTimestamp(columnIndex);
-    return getInstant(timestamp);
+    return getInstant(cs.getObject(columnIndex, OffsetDateTime.class));
   }
 
   @Nullable
-  private static Instant getInstant(@Nullable Timestamp timestamp) {
+  private static Instant getInstant(@Nullable OffsetDateTime timestamp) {
     if (timestamp != null) {
       return timestamp.toInstant();
     }
     return null;
   }
+
 }

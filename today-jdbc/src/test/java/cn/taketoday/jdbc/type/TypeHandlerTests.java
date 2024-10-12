@@ -140,8 +140,8 @@ class TypeHandlerTests {
             call(new DurationTypeHandler(), CallableStatement::getLong, 0L, Duration.ZERO),
             call(new DurationTypeHandler(), CallableStatement::getLong, 0L, null, true),
 
-            call(new InstantTypeHandler(), CallableStatement::getTimestamp, null, null),
-            call(new InstantTypeHandler(), CallableStatement::getTimestamp, Timestamp.from(Instant.EPOCH), Instant.EPOCH),
+            call(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null, null),
+            call(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime, offsetDateTime.toInstant()),
 
             call(new DateTypeHandler(), CallableStatement::getTimestamp, new Timestamp(new Date(1).getTime()), new Date(1)),
             call(new DateTypeHandler(), CallableStatement::getTimestamp, null),
@@ -223,8 +223,8 @@ class TypeHandlerTests {
             stringArgs(new DurationTypeHandler(), ResultSet::getLong, 0L, Duration.ZERO),
             stringArgs(new DurationTypeHandler(), ResultSet::getLong, 0L, null, true),
 
-            stringArgs(new InstantTypeHandler(), ResultSet::getTimestamp, null, null),
-            stringArgs(new InstantTypeHandler(), ResultSet::getTimestamp, Timestamp.from(Instant.EPOCH), Instant.EPOCH),
+            stringArgs(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null, null),
+            stringArgs(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime, offsetDateTime.toInstant()),
 
             stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, new Timestamp(new Date(1).getTime()), new Date(1)),
             stringArgs(new DateTypeHandler(), ResultSet::getTimestamp, null),
@@ -305,8 +305,8 @@ class TypeHandlerTests {
             args(new DurationTypeHandler(), ResultSet::getLong, 0L, Duration.ZERO),
             args(new DurationTypeHandler(), ResultSet::getLong, 0L, null, true),
 
-            args(new InstantTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), null, null),
-            args(new InstantTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), Timestamp.from(Instant.EPOCH), Instant.EPOCH),
+            args(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), null, null),
+            args(new InstantTypeHandler(), (rs, idx) -> rs.getObject(idx, OffsetDateTime.class), offsetDateTime, offsetDateTime.toInstant()),
 
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), new Timestamp(new Date(1).getTime()), new Date(1)),
             args(new DateTypeHandler(), (rs, idx) -> rs.getTimestamp(idx), null),
@@ -366,6 +366,8 @@ class TypeHandlerTests {
   public static Stream<Arguments> setParameterArgumentSource() {
     UUID uuid = UUID.randomUUID();
     java.util.Date date = java.util.Date.from(Instant.now());
+
+    OffsetDateTime offsetDateTime = OffsetDateTime.now();
     return Stream.of(
             args(new LongTypeHandler(), PreparedStatement::setLong, 1L),
             args(new IntegerTypeHandler(), PreparedStatement::setInt, 1),
@@ -382,7 +384,7 @@ class TypeHandlerTests {
             args(new SqlTimestampTypeHandler(), PreparedStatement::setTimestamp, Timestamp.from(Instant.now())),
 
             args(new DurationTypeHandler(), PreparedStatement::setLong, Duration.ofDays(1).toNanos(), Duration.ofDays(1)),
-            args(new InstantTypeHandler(), PreparedStatement::setTimestamp, Timestamp.from(Instant.MIN), Instant.MIN),
+            args(new InstantTypeHandler(), PreparedStatement::setObject, offsetDateTime.toInstant(), offsetDateTime.toInstant()),
             args(new DateTypeHandler(), PreparedStatement::setTimestamp, new Timestamp(new Date(1).getTime()), new Date(1)),
             args(new CharacterTypeHandler(), PreparedStatement::setString, "1", '1'),
 
