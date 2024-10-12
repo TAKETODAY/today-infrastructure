@@ -71,7 +71,7 @@ public class ExceptionHandlerMethodResolver {
     }
   }
 
-  private final Map<ExceptionMapping, ExceptionHandlerMappingInfo> mappedMethods = new HashMap<>(16);
+  private final HashMap<ExceptionMapping, ExceptionHandlerMappingInfo> mappedMethods = new HashMap<>(16);
 
   private final ConcurrentLruCache<ExceptionMapping, ExceptionHandlerMappingInfo> lookupCache = new ConcurrentLruCache<>(24,
           cacheKey -> getMappedMethod(cacheKey.exceptionType(), cacheKey.mediaType()));
