@@ -572,6 +572,20 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
             .hasMessage("Updating an entity, There is no update by properties");
   }
 
+  @ParameterizedRepositoryManagerTest
+  void truncate(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(11);
+    assertThat(entityManager.findById(UserModel.class, 1)).isNotNull();
+
+    entityManager.truncate(UserModel.class);
+
+    assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(0);
+    assertThat(entityManager.findById(UserModel.class, 1)).isNull();
+  }
+
   public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 

@@ -19,9 +19,7 @@ package cn.taketoday.persistence.platform;
 
 import java.util.regex.Pattern;
 
-import cn.taketoday.persistence.sql.ANSICaseFragment;
 import cn.taketoday.persistence.sql.ANSIJoinFragment;
-import cn.taketoday.persistence.sql.CaseFragment;
 import cn.taketoday.persistence.sql.JoinFragment;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
@@ -88,17 +86,6 @@ public abstract class Platform {
     return new ANSIJoinFragment();
   }
 
-  /**
-   * Create a {@link CaseFragment} strategy responsible
-   * for handling this dialect's variations in how CASE statements are
-   * handled.
-   *
-   * @return This dialect's {@link CaseFragment} strategy.
-   */
-  public CaseFragment createCaseFragment() {
-    return new ANSICaseFragment();
-  }
-
   public static Platform forClasspath() {
     if (ClassUtils.isPresent("com.mysql.cj.jdbc.Driver")) {
       return new MySQLPlatform();
@@ -110,6 +97,16 @@ public abstract class Platform {
       return new PostgreSQLPlatform();
     }
     throw new IllegalStateException("Cannot determine database platform");
+  }
+
+  /**
+   * A SQL statement that truncates the given table.
+   *
+   * @param tableName the name of the table
+   * @since 5.0
+   */
+  public String getTruncateTableStatement(String tableName) {
+    return "TRUNCATE TABLE " + tableName;
   }
 
 }

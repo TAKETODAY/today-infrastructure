@@ -547,7 +547,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public int delete(Class<?> entityClass, Object id) {
+  public int delete(Class<?> entityClass, Object id) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     if (metadata.idProperty == null) {
@@ -581,7 +581,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public int delete(Object entityOrExample) {
+  public int delete(Object entityOrExample) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityOrExample.getClass());
 
     Object id = null;
@@ -624,6 +624,29 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (SQLException ex) {
       throw translateException("Deleting entity", sql.toString(), ex);
+    }
+    finally {
+      closeResource(con, statement);
+    }
+  }
+
+  @Override
+  public void truncate(Class<?> entityClass) throws DataAccessException {
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+
+    String sql = platform.getTruncateTableStatement(metadata.tableName);
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Truncate table: [{}]", entityClass), sql);
+    }
+
+    Statement statement = null;
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      statement = con.createStatement();
+      statement.executeUpdate(sql);
+    }
+    catch (SQLException ex) {
+      throw translateException("Truncate table", sql, ex);
     }
     finally {
       closeResource(con, statement);
@@ -1011,7 +1034,7 @@ public class DefaultEntityManager implements EntityManager {
     return Pair.of(insert.toStatementString(platform), properties);
   }
 
-  private void closeResource(@Nullable Connection connection, @Nullable PreparedStatement statement) {
+  private void closeResource(@Nullable Connection connection, @Nullable Statement stmt) {
     try {
       DataSourceUtils.doReleaseConnection(connection, dataSource);
     }
@@ -1024,9 +1047,9 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    if (statement != null) {
+    if (stmt != null) {
       try {
-        statement.close();
+        stmt.close();
       }
       catch (SQLException e) {
         if (repositoryManager.isCatchResourceCloseErrors()) {

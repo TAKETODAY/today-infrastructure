@@ -73,7 +73,7 @@ public abstract class DataSourceUtils {
    * @return a JDBC Connection from the given DataSource
    * @see #releaseConnection
    */
-  public static Connection getConnection(DataSource dataSource) {
+  public static Connection getConnection(DataSource dataSource) throws CannotGetJdbcConnectionException {
     return getConnection(TransactionSynchronizationManager.getSynchronizationInfo(), dataSource);
   }
 
@@ -84,7 +84,7 @@ public abstract class DataSourceUtils {
    * @return a JDBC Connection from the given DataSource
    * @see #releaseConnection
    */
-  public static Connection getConnection(SynchronizationInfo metaData, DataSource dataSource) {
+  public static Connection getConnection(SynchronizationInfo metaData, DataSource dataSource) throws CannotGetJdbcConnectionException {
     try {
       return doGetConnection(metaData, dataSource);
     }

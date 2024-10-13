@@ -288,6 +288,14 @@ public interface EntityManager {
   int delete(Object entityOrExample) throws DataAccessException;
 
   /**
+   * Truncate table
+   *
+   * @param entityClass table source
+   * @since 5.0
+   */
+  void truncate(Class<?> entityClass) throws DataAccessException;
+
+  /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
