@@ -61,20 +61,20 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   @Override
-  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+  public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
       Class<?> rawReturnType = handlerMethod.getRawReturnType();
-      if (CharSequence.class.isAssignableFrom(rawReturnType)) {
-        return !handlerMethod.isResponseBody();
+      if (returnValue == null) {
+        return ViewRef.class.isAssignableFrom(rawReturnType)
+                || View.class.isAssignableFrom(rawReturnType)
+                || ModelAndView.class.isAssignableFrom(rawReturnType);
       }
 
-      if (returnValue == null) {
-        if (ViewRef.class.isAssignableFrom(rawReturnType)
-                || View.class.isAssignableFrom(rawReturnType)
-                || ModelAndView.class.isAssignableFrom(rawReturnType)) {
-          return true;
-        }
+      // check return value
+      if (rawReturnType.isInstance(returnValue)
+              && CharSequence.class.isAssignableFrom(rawReturnType)) {
+        return !handlerMethod.isResponseBody();
       }
     }
     return supportsReturnValue(returnValue);
@@ -109,6 +109,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     }
     else if (returnValue instanceof ModelAndView mv) {
       renderView(context, mv);
+    }
+    else if (returnValue != null) {
+      throw new ViewRenderingException("Unsupported render result [%s] as view".formatted(returnValue));
     }
   }
 
@@ -179,8 +182,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @throws ViewRenderingException If view rendering failed
    */
   public void renderView(RequestContext context, ViewRef viewRef) {
-    View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
-    renderView(context, view);
+    renderView(context, viewRef, null);
   }
 
   /**
