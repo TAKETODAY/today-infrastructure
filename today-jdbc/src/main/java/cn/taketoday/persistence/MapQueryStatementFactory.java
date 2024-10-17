@@ -29,7 +29,7 @@ import cn.taketoday.persistence.sql.SimpleSelect;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 16:54
  */
-final class MapQueryHandlerFactory implements QueryHandlerFactory {
+final class MapQueryStatementFactory implements QueryStatementFactory {
 
   @Override
   public QueryStatement createQuery(Object example) {

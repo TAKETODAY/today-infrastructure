@@ -98,7 +98,7 @@ public class DefaultEntityManager implements EntityManager {
   @Nullable
   private TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private QueryHandlerFactories handlerFactories = new QueryHandlerFactories(entityMetadataFactory);
+  private QueryStatementFactories handlerFactories = new QueryStatementFactories(entityMetadataFactory);
 
   private final DataSource dataSource;
 
@@ -124,7 +124,7 @@ public class DefaultEntityManager implements EntityManager {
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
-    this.handlerFactories = new QueryHandlerFactories(entityMetadataFactory);
+    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory);
   }
 
   /**

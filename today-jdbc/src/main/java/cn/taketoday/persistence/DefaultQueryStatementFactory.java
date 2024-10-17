@@ -17,48 +17,26 @@
 
 package cn.taketoday.persistence;
 
-import java.util.List;
-
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/4/10 17:55
+ * @since 4.0 2024/4/10 16:53
  */
-final class QueryHandlerFactories implements QueryHandlerFactory {
+final class DefaultQueryStatementFactory implements QueryStatementFactory {
 
-  final List<QueryHandlerFactory> factories;
+  private final EntityMetadataFactory factory;
 
-  QueryHandlerFactories(EntityMetadataFactory entityMetadataFactory) {
-    List<QueryHandlerFactory> list = TodayStrategies.find(QueryHandlerFactory.class);
-    list.add(new MapQueryHandlerFactory());
-    list.add(new DefaultQueryHandlerFactory(entityMetadataFactory));
-    this.factories = List.copyOf(list);
+  public DefaultQueryStatementFactory(EntityMetadataFactory factory) {
+    this.factory = factory;
   }
 
-  @Nullable
   @Override
   public QueryStatement createQuery(Object example) {
-    for (QueryHandlerFactory factory : factories) {
-      QueryStatement query = factory.createQuery(example);
-      if (query != null) {
-        return query;
-      }
-    }
-    return null;
+    return new ExampleQuery(factory, example);
   }
 
-  @Nullable
   @Override
   public ConditionStatement createCondition(Object example) {
-    for (QueryHandlerFactory factory : factories) {
-      ConditionStatement condition = factory.createCondition(example);
-      if (condition != null) {
-        return condition;
-      }
-    }
-    return null;
+    return new ExampleQuery(factory, example);
   }
 
 }
