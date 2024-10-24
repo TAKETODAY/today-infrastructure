@@ -49,11 +49,11 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   protected final NettyRequestConfig requestConfig;
 
-  public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
+  public NettyChannelHandler(NettyRequestConfig config, ApplicationContext context) {
     super(context);
     Assert.notNull(context, "ApplicationContext is required");
-    Assert.notNull(requestConfig, "NettyRequestConfig is required");
-    this.requestConfig = requestConfig;
+    Assert.notNull(config, "NettyRequestConfig is required");
+    this.requestConfig = config;
   }
 
   @Override

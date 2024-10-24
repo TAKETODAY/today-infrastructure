@@ -22,10 +22,12 @@ import cn.taketoday.util.concurrent.Promise;
 import io.netty.util.concurrent.GenericFutureListener;
 
 /**
+ * Adapt netty Future to Promise
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
+public class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
 
   private final Promise<V> promise;
 
@@ -44,11 +46,11 @@ class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurren
     }
   }
 
-  public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future) {
+  public static <T> Promise<T> adapt(io.netty.util.concurrent.Future<T> future) {
     return adapt(future, Future.forPromise());
   }
 
-  public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future, Promise<T> settable) {
+  public static <T> Promise<T> adapt(io.netty.util.concurrent.Future<T> future, Promise<T> settable) {
     future.addListener(new PromiseAdapter<>(settable));
     return settable;
   }

@@ -27,6 +27,7 @@ import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -43,8 +44,8 @@ import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator
  */
 public class WsNettyChannelHandler extends NettyChannelHandler {
 
-  public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
-    super(requestConfig, context);
+  public WsNettyChannelHandler(NettyRequestConfig config, ApplicationContext context) {
+    super(config, context);
   }
 
   /**
@@ -140,6 +141,28 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
       return new BinaryMessage(frame.content().nioBuffer(), frame.isFinalFragment());
     }
     return null;
+  }
+
+  /**
+   * Adapt {@link Message} to {@link WebSocketFrame}
+   *
+   * @param message Message
+   * @return websocket message
+   */
+  static WebSocketFrame adaptFrame(Message<?> message) {
+    if (message instanceof PingMessage pm) {
+      return new PingWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload()));
+    }
+    else if (message instanceof PongMessage pm) {
+      return new PongWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload()));
+    }
+    else if (message instanceof TextMessage tm) {
+      return new TextWebSocketFrame(tm.getPayload());
+    }
+    else if (message instanceof BinaryMessage bm) {
+      return new BinaryWebSocketFrame(Unpooled.wrappedBuffer(bm.getPayload()));
+    }
+    throw new IllegalStateException("Unexpected WebSocket message type: " + message);
   }
 
 }

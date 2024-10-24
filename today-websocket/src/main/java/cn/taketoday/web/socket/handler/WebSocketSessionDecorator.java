@@ -27,6 +27,7 @@ import java.util.function.Function;
 
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -107,6 +108,11 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   @Override
   public void sendMessage(Message<?> message) throws IOException {
     delegate.sendMessage(message);
+  }
+
+  @Override
+  public Future<Void> send(Message<?> message) {
+    return delegate.send(message);
   }
 
   @Override

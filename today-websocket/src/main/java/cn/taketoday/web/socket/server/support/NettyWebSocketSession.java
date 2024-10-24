@@ -23,12 +23,9 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.socket.BinaryMessage;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.PingMessage;
-import cn.taketoday.web.socket.PongMessage;
-import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketSession;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -38,7 +35,10 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+
+import static cn.taketoday.web.socket.client.support.PromiseAdapter.adapt;
 
 /**
  * Netty websocket session
@@ -58,22 +58,15 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void sendMessage(Message<?> message) throws IOException {
-    if (message instanceof TextMessage) {
-      sendText((String) message.getPayload());
-    }
-    else if (message instanceof BinaryMessage bm) {
-      sendBinary(bm.getPayload());
-    }
-    else if (message instanceof PingMessage pm) {
-      channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
-    }
-    else if (message instanceof PongMessage pm) {
-      channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
-    }
-    else {
-      throw new IllegalStateException("Unexpected WebSocket message type: " + message);
-    }
+  public void sendMessage(Message<?> message) {
+    WebSocketFrame frame = WsNettyChannelHandler.adaptFrame(message);
+    channel.writeAndFlush(frame);
+  }
+
+  @Override
+  public Future<Void> send(Message<?> message) {
+    WebSocketFrame frame = WsNettyChannelHandler.adaptFrame(message);
+    return adapt(channel.writeAndFlush(frame));
   }
 
   @Override

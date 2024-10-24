@@ -25,6 +25,7 @@ import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AlternativeJdkIdGenerator;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * A WebSocket session abstraction. Allows sending messages over a WebSocket
@@ -95,6 +96,14 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    * @see Message#isLast()
    */
   public abstract void sendMessage(Message<?> message) throws IOException;
+
+  /**
+   * Send a message asynchronous
+   *
+   * @param message Message
+   * @since 5.0
+   */
+  public abstract Future<Void> send(Message<?> message);
 
   /**
    * is WSS ?
