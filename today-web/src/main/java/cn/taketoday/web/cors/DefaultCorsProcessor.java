@@ -47,19 +47,47 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY 2019-12-23 21:02
  */
 public class DefaultCorsProcessor implements CorsProcessor {
+
   private static final Logger log = LoggerFactory.getLogger(DefaultCorsProcessor.class);
+
+  /**
+   * The {@code Access-Control-Request-Private-Network} request header field name.
+   *
+   * @see <a href="https://wicg.github.io/private-network-access/">Private Network Access specification</a>
+   */
+  static final String ACCESS_CONTROL_REQUEST_PRIVATE_NETWORK = "Access-Control-Request-Private-Network";
+
+  /**
+   * The {@code Access-Control-Allow-Private-Network} response header field name.
+   *
+   * @see <a href="https://wicg.github.io/private-network-access/">Private Network Access specification</a>
+   */
+  static final String ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK = "Access-Control-Allow-Private-Network";
 
   @Override
   public boolean process(@Nullable CorsConfiguration config, RequestContext context) throws IOException {
     HttpHeaders responseHeaders = context.responseHeaders();
-    responseHeaders.setVary(
-            HttpHeaders.ORIGIN,
-            HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD,
-            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
-    );
 
-    if (!context.isCorsRequest()) {
-      return true;
+    List<String> varyHeaders = responseHeaders.getVary();
+    if (!varyHeaders.contains(HttpHeaders.ORIGIN)) {
+      responseHeaders.add(HttpHeaders.VARY, HttpHeaders.ORIGIN);
+    }
+    if (!varyHeaders.contains(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)) {
+      responseHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+    }
+    if (!varyHeaders.contains(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)) {
+      responseHeaders.add(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+    }
+
+    try {
+      if (!context.isCorsRequest()) {
+        return true;
+      }
+    }
+    catch (IllegalArgumentException ex) {
+      log.debug("Reject: origin is malformed");
+      rejectRequest(context);
+      return false;
     }
 
     if (responseHeaders.containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)) {
@@ -136,6 +164,11 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
     if (Boolean.TRUE.equals(config.getAllowCredentials())) {
       responseHeaders.setAccessControlAllowCredentials(Boolean.TRUE);
+    }
+
+    if (Boolean.TRUE.equals(config.getAllowPrivateNetwork())
+            && Boolean.parseBoolean(context.getHeaders().getFirst(ACCESS_CONTROL_REQUEST_PRIVATE_NETWORK))) {
+      responseHeaders.set(ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK, Boolean.toString(true));
     }
 
     if (preFlightRequest && config.getMaxAge() != null) {

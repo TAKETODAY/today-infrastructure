@@ -345,6 +345,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       }
       if (config != null) {
         config.validateAllowCredentials();
+        config.validateAllowPrivateNetwork();
       }
       chain = getCorsHandlerExecutionChain(request, handler, config);
     }

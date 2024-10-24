@@ -73,9 +73,6 @@ public class CorsConfiguration {
   private Long maxAge;
 
   @Nullable
-  private Boolean allowCredentials;
-
-  @Nullable
   private List<String> allowedOrigins;
 
   @Nullable
@@ -93,6 +90,12 @@ public class CorsConfiguration {
   /** @since 3.0 */
   @Nullable
   private List<OriginPattern> allowedOriginPatterns;
+
+  @Nullable
+  private Boolean allowCredentials;
+
+  @Nullable
+  private Boolean allowPrivateNetwork;
 
   /**
    * Construct a new {@code CorsConfiguration} instance with no cross-origin
@@ -115,6 +118,7 @@ public class CorsConfiguration {
     this.allowedHeaders = other.allowedHeaders;
     this.exposedHeaders = other.exposedHeaders;
     this.allowCredentials = other.allowCredentials;
+    this.allowPrivateNetwork = other.allowPrivateNetwork;
   }
 
   /**
@@ -474,6 +478,35 @@ public class CorsConfiguration {
   }
 
   /**
+   * Whether private network access is supported for user-agents restricting such access by default.
+   * <p>Private network requests are requests whose target server's IP address is more private than
+   * that from which the request initiator was fetched. For example, a request from a public website
+   * (https://example.com) to a private website (https://router.local), or a request from a private
+   * website to localhost.
+   * <p>Setting this property has an impact on how {@link #setAllowedOrigins(List)
+   * origins} and {@link #setAllowedOriginPatterns(List) originPatterns} are processed,
+   * see related API documentation for more details.
+   * <p>By default this is not set (i.e. private network access is not supported).
+   *
+   * @see <a href="https://wicg.github.io/private-network-access/">Private network access specifications</a>
+   * @since 5.0
+   */
+  public void setAllowPrivateNetwork(@Nullable Boolean allowPrivateNetwork) {
+    this.allowPrivateNetwork = allowPrivateNetwork;
+  }
+
+  /**
+   * Return the configured {@code allowPrivateNetwork} flag, or {@code null} if none.
+   *
+   * @see #setAllowPrivateNetwork(Boolean)
+   * @since 5.0
+   */
+  @Nullable
+  public Boolean getAllowPrivateNetwork() {
+    return this.allowPrivateNetwork;
+  }
+
+  /**
    * Configure how long, as a duration, the response from a pre-flight request can
    * be cached by clients.
    *
@@ -642,6 +675,7 @@ public class CorsConfiguration {
     if (CollectionUtils.isNotEmpty(allowedOrigins)) {
       if (allowedOrigins.contains(ALL)) {
         validateAllowCredentials();
+        validateAllowPrivateNetwork();
         return ALL;
       }
       for (String allowedOrigin : allowedOrigins) {
@@ -680,6 +714,26 @@ public class CorsConfiguration {
               "When allowCredentials is true, allowedOrigins cannot contain the special value \"*\" " +
                       "since that cannot be set on the \"Access-Control-Allow-Origin\" response header. " +
                       "To allow credentials to a set of origins, list them explicitly " +
+                      "or consider using \"allowedOriginPatterns\" instead.");
+    }
+  }
+
+  /**
+   * Validate that when {@link #setAllowPrivateNetwork allowPrivateNetwork} is {@code true},
+   * {@link #setAllowedOrigins allowedOrigins} does not contain the special
+   * value {@code "*"} since this is insecure.
+   *
+   * @throws IllegalArgumentException if the validation fails
+   * @since 5.0
+   */
+  public void validateAllowPrivateNetwork() {
+    if (this.allowPrivateNetwork == Boolean.TRUE &&
+            this.allowedOrigins != null && this.allowedOrigins.contains(ALL)) {
+
+      throw new IllegalArgumentException(
+              "When allowPrivateNetwork is true, allowedOrigins cannot contain the special value \"*\" " +
+                      "as it is not recommended from a security perspective. " +
+                      "To allow private network access to a set of origins, list them explicitly " +
                       "or consider using \"allowedOriginPatterns\" instead.");
     }
   }
