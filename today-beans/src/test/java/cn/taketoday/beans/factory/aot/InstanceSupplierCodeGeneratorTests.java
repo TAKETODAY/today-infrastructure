@@ -48,7 +48,9 @@ import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanContract;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.EnvironmentAwareComponent;
+import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.EnvironmentAwareComponentWithoutPublicConstructor;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.NoDependencyComponent;
+import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.NoDependencyComponentWithoutPublicConstructor;
 import cn.taketoday.beans.testfixture.beans.factory.generator.SimpleConfiguration;
 import cn.taketoday.beans.testfixture.beans.factory.generator.deprecation.DeprecatedBean;
 import cn.taketoday.beans.testfixture.beans.factory.generator.deprecation.DeprecatedConstructor;
@@ -118,10 +120,10 @@ class InstanceSupplierCodeGeneratorTests {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(NoDependencyComponent.class);
     this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
     compile(beanDefinition, (instanceSupplier, compiled) -> {
-      NoDependencyComponent bean = getBean(beanDefinition, instanceSupplier);
+      Object bean = getBean(beanDefinition, instanceSupplier);
       assertThat(bean).isInstanceOf(NoDependencyComponent.class);
       assertThat(compiled.getSourceFile()).contains(
-              "InstanceSupplier.using(InnerComponentConfiguration.NoDependencyComponent::new");
+              "getBeanFactory().getBean(InnerComponentConfiguration.class).new NoDependencyComponent()");
     });
     assertThat(getReflectionHints().getTypeHint(NoDependencyComponent.class))
             .satisfies(hasConstructorWithMode(ExecutableMode.INTROSPECT));
@@ -133,13 +135,42 @@ class InstanceSupplierCodeGeneratorTests {
     this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
     this.beanFactory.registerSingleton("environment", new StandardEnvironment());
     compile(beanDefinition, (instanceSupplier, compiled) -> {
-      EnvironmentAwareComponent bean = getBean(beanDefinition, instanceSupplier);
+      Object bean = getBean(beanDefinition, instanceSupplier);
       assertThat(bean).isInstanceOf(EnvironmentAwareComponent.class);
       assertThat(compiled.getSourceFile()).contains(
-              "new InnerComponentConfiguration.EnvironmentAwareComponent(");
+              "getBeanFactory().getBean(InnerComponentConfiguration.class).new EnvironmentAwareComponent(");
     });
     assertThat(getReflectionHints().getTypeHint(EnvironmentAwareComponent.class))
             .satisfies(hasConstructorWithMode(ExecutableMode.INTROSPECT));
+  }
+
+  @Test
+  void generateWhenHasNonPublicConstructorWithInnerClassAndDefaultConstructor() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(NoDependencyComponentWithoutPublicConstructor.class);
+    this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
+    compile(beanDefinition, (instanceSupplier, compiled) -> {
+      Object bean = getBean(beanDefinition, instanceSupplier);
+      assertThat(bean).isInstanceOf(NoDependencyComponentWithoutPublicConstructor.class);
+      assertThat(compiled.getSourceFile()).doesNotContain(
+              "getBeanFactory().getBean(InnerComponentConfiguration.class)");
+    });
+    assertThat(getReflectionHints().getTypeHint(NoDependencyComponentWithoutPublicConstructor.class))
+            .satisfies(hasConstructorWithMode(ExecutableMode.INVOKE));
+  }
+
+  @Test
+  void generateWhenHasNonPublicConstructorWithInnerClassAndParameter() {
+    BeanDefinition beanDefinition = new RootBeanDefinition(EnvironmentAwareComponentWithoutPublicConstructor.class);
+    this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
+    this.beanFactory.registerSingleton("environment", new StandardEnvironment());
+    compile(beanDefinition, (instanceSupplier, compiled) -> {
+      Object bean = getBean(beanDefinition, instanceSupplier);
+      assertThat(bean).isInstanceOf(EnvironmentAwareComponentWithoutPublicConstructor.class);
+      assertThat(compiled.getSourceFile()).doesNotContain(
+              "getBeanFactory().getBean(InnerComponentConfiguration.class)");
+    });
+    assertThat(getReflectionHints().getTypeHint(EnvironmentAwareComponentWithoutPublicConstructor.class))
+            .satisfies(hasConstructorWithMode(ExecutableMode.INVOKE));
   }
 
   @Test

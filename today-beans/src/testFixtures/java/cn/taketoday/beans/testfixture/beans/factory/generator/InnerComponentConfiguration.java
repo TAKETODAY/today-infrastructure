@@ -21,17 +21,28 @@ import cn.taketoday.core.env.Environment;
 
 public class InnerComponentConfiguration {
 
-  public static class NoDependencyComponent {
+  public class NoDependencyComponent {
 
     public NoDependencyComponent() {
-
     }
   }
 
-  public static class EnvironmentAwareComponent {
+  public class EnvironmentAwareComponent {
 
     public EnvironmentAwareComponent(Environment environment) {
-
     }
   }
+
+  public class NoDependencyComponentWithoutPublicConstructor {
+
+    NoDependencyComponentWithoutPublicConstructor() {
+    }
+  }
+
+  public class EnvironmentAwareComponentWithoutPublicConstructor {
+
+    EnvironmentAwareComponentWithoutPublicConstructor(Environment environment) {
+    }
+  }
+
 }
