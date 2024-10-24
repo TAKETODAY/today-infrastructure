@@ -41,6 +41,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import static cn.taketoday.util.CollectionUtils.createApproximateCollection;
 import static cn.taketoday.util.CollectionUtils.createApproximateMap;
@@ -562,6 +563,98 @@ public class CollectionUtilsTests {
     assertThat(asMultiValueMap).doesNotContainKeys("key");
     wrapped.put("key", new ArrayList<>());
     assertThat(asMultiValueMap).containsKey("key");
+  }
+
+  @Test
+  void findValueOfType() {
+    List<Integer> integerList = new ArrayList<>();
+    integerList.add(1);
+    assertThat(CollectionUtils.findValueOfType(integerList, Integer.class)).isEqualTo(1);
+
+    Set<Integer> integerSet = new HashSet<>();
+    integerSet.add(2);
+    assertThat(CollectionUtils.findValueOfType(integerSet, Integer.class)).isEqualTo(2);
+  }
+
+  @Test
+  void findValueOfTypeWithEmptyCollection() {
+    List<Integer> emptyList = new ArrayList<>();
+    assertThat(CollectionUtils.findValueOfType(emptyList, Integer.class)).isNull();
+  }
+
+  @Test
+  void findValueOfTypeWithMoreThanOneValue() {
+    List<Integer> integerList = new ArrayList<>();
+    integerList.add(1);
+    integerList.add(2);
+    assertThat(CollectionUtils.findValueOfType(integerList, Integer.class)).isNull();
+  }
+
+  @Test
+  void firstElementWithSet() {
+    Set<Integer> set = new HashSet<>();
+    set.add(17);
+    set.add(3);
+    set.add(2);
+    set.add(1);
+    assertThat(CollectionUtils.firstElement(set)).isEqualTo(17);
+  }
+
+  @Test
+  void firstElementWithSortedSet() {
+    SortedSet<Integer> sortedSet = new TreeSet<>();
+    sortedSet.add(17);
+    sortedSet.add(3);
+    sortedSet.add(2);
+    sortedSet.add(1);
+    assertThat(CollectionUtils.firstElement(sortedSet)).isEqualTo(1);
+  }
+
+  @Test
+  void firstElementWithList() {
+    List<Integer> list = new ArrayList<>();
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    assertThat(CollectionUtils.firstElement(list)).isEqualTo(1);
+  }
+
+  @Test
+  void lastElementWithSet() {
+    Set<Integer> set = new HashSet<>();
+    set.add(17);
+    set.add(3);
+    set.add(2);
+    set.add(1);
+    assertThat(CollectionUtils.lastElement(set)).isEqualTo(3);
+  }
+
+  @Test
+  void lastElementWithSortedSet() {
+    SortedSet<Integer> sortedSet = new TreeSet<>();
+    sortedSet.add(17);
+    sortedSet.add(3);
+    sortedSet.add(2);
+    sortedSet.add(1);
+    assertThat(CollectionUtils.lastElement(sortedSet)).isEqualTo(17);
+  }
+
+  @Test
+  void lastElementWithList() {
+    List<Integer> list = new ArrayList<>();
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    assertThat(CollectionUtils.lastElement(list)).isEqualTo(3);
+  }
+
+  @Test
+  void toArray() {
+    Vector<String> vector = new Vector<>();
+    vector.add("foo");
+    vector.add("bar");
+    Enumeration<String> enumeration = vector.elements();
+    assertThat(CollectionUtils.toArray(enumeration, new String[] {})).containsExactly("foo", "bar");
   }
 
   private static final class Instance {
