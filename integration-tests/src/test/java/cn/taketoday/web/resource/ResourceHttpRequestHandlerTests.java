@@ -31,6 +31,10 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -38,10 +42,6 @@ import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.handler.SimpleNotFoundHandler;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.mock.api.http.HttpMockResponse;
 import lombok.SneakyThrows;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -642,6 +642,7 @@ public class ResourceHttpRequestHandlerTests {
       testInvalidPath("../testsecret/secret.txt");
       testInvalidPath("test/../../testsecret/secret.txt");
       testInvalidPath(":/../../testsecret/secret.txt");
+      testInvalidPath("/testsecret/test/../secret.txt");
 
       Resource location = new UrlResource(ResourceHttpRequestHandlerTests.class.getResource("./test/"));
       this.handler.setLocations(List.of(location));
@@ -655,7 +656,6 @@ public class ResourceHttpRequestHandlerTests {
       testInvalidPath("/../.." + secretPath);
       testInvalidPath("/%2E%2E/testsecret/secret.txt");
       testInvalidPath("/%2E%2E/testsecret/secret.txt");
-      testInvalidPath("%2F%2F%2E%2E%2F%2F%2E%2E" + secretPath);
     }
 
     private void testInvalidPath(String requestPath) {
