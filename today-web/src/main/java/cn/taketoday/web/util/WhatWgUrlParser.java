@@ -232,7 +232,7 @@ final class WhatWgUrlParser {
       logger.trace("Changing state from %s to {} (cur: {})", this.state, newState, c);
     }
     this.state = newState;
-    this.openCurlyBracketCount = 0;
+    this.openCurlyBracketCount = (this.buffer.toString().equals("{") ? this.openCurlyBracketCount : 0);
   }
 
   private boolean processCurlyBrackets(int c) {
@@ -241,8 +241,11 @@ final class WhatWgUrlParser {
       return true;
     }
     if (c == '}') {
-      this.openCurlyBracketCount--;
-      return true;
+      if (this.openCurlyBracketCount > 0) {
+        this.openCurlyBracketCount--;
+        return true;
+      }
+      return false;
     }
     return (this.openCurlyBracketCount > 0 && c != EOF);
   }
@@ -748,7 +751,7 @@ final class WhatWgUrlParser {
       public void handle(int c, UrlRecord url, WhatWgUrlParser p) {
         // If c is an ASCII alpha, append c, lowercased, to buffer, and set state to scheme state.
         if (isAsciiAlpha(c)) {
-          p.append(Character.toLowerCase((char) c));
+          p.append(p.openCurlyBracketCount == 0 ? Character.toLowerCase((char) c) : c);
           p.setState(SCHEME);
         }
         // EXTRA: if c is '{', append to buffer and continue as SCHEME
@@ -774,7 +777,7 @@ final class WhatWgUrlParser {
       public void handle(int c, UrlRecord url, WhatWgUrlParser p) {
         // If c is an ASCII alphanumeric, U+002B (+), U+002D (-), or U+002E (.), append c, lowercased, to buffer.
         if (isAsciiAlphaNumeric(c) || (c == '+' || c == '-' || c == '.')) {
-          p.append(Character.toLowerCase((char) c));
+          p.append(p.openCurlyBracketCount == 0 ? Character.toLowerCase((char) c) : c);
         }
         // Otherwise, if c is U+003A (:), then:
         else if (c == ':') {

@@ -634,6 +634,22 @@ class UriComponentsBuilderTests {
 
   @ParameterizedTest
   @EnumSource(value = ParserType.class)
+  void schemeVariableMixedCase(ParserType parserType) {
+
+    BiConsumer<String, String> tester = (scheme, value) -> {
+      URI uri = UriComponentsBuilder.fromUriString(scheme + "://example.org", parserType)
+              .buildAndExpand(Map.of("TheScheme", value))
+              .toUri();
+      assertThat(uri.toString()).isEqualTo("wss://example.org");
+    };
+
+    tester.accept("{TheScheme}", "wss");
+    tester.accept("{TheScheme}s", "ws");
+    tester.accept("ws{TheScheme}", "s");
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ParserType.class)
   void queryParamWithValueWithEquals(ParserType parserType) {
     UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://example.com/foo?bar=baz", parserType).build();
     assertThat(uriComponents.toUriString()).isEqualTo("https://example.com/foo?bar=baz");

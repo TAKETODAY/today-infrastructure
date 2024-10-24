@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.util;
 
+import java.util.Locale;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
@@ -494,7 +495,8 @@ abstract class RfcUriParser {
     }
 
     public InternalParser captureScheme() {
-      this.scheme = captureComponent("scheme").toLowerCase();
+      String scheme = captureComponent("scheme");
+      this.scheme = (!scheme.contains("{") ? scheme.toLowerCase(Locale.ROOT) : scheme);
       return this;
     }
 
@@ -619,8 +621,11 @@ abstract class RfcUriParser {
         return true;
       }
       else if (c == '}') {
-        this.openCurlyBracketCount--;
-        return true;
+        if (this.openCurlyBracketCount > 0) {
+          this.openCurlyBracketCount--;
+          return true;
+        }
+        return false;
       }
       return (this.openCurlyBracketCount > 0);
     }
