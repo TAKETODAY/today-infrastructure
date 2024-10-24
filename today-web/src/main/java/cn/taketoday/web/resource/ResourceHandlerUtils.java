@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
@@ -41,6 +43,42 @@ import cn.taketoday.util.StringUtils;
 public abstract class ResourceHandlerUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(ResourceHandlerUtils.class);
+
+  private static final String FOLDER_SEPARATOR = "/";
+
+  private static final String WINDOWS_FOLDER_SEPARATOR = "\\";
+
+  /**
+   * Assert the given location is not null, and its path ends on slash.
+   */
+  public static void assertResourceLocation(@Nullable Resource location) {
+    Assert.notNull(location, "Resource location must not be null");
+    try {
+      String path;
+      if (location instanceof UrlResource) {
+        path = location.getURL().toExternalForm();
+      }
+      else if (location instanceof ClassPathResource classPathResource) {
+        path = classPathResource.getPath();
+      }
+      else {
+        path = location.getURL().getPath();
+      }
+      assertLocationPath(path);
+    }
+    catch (IOException ex) {
+      // ignore
+    }
+  }
+
+  /**
+   * Assert the given location path is a directory and ends on slash.
+   */
+  public static void assertLocationPath(@Nullable String path) {
+    Assert.notNull(path, "Resource location path must not be null");
+    Assert.isTrue(path.endsWith(FOLDER_SEPARATOR) || path.endsWith(WINDOWS_FOLDER_SEPARATOR),
+            "Resource location does not end with slash: " + path);
+  }
 
   /**
    * Normalize the given resource path replacing the following:
@@ -158,22 +196,26 @@ public abstract class ResourceHandlerUtils {
    */
   private static boolean isInvalidEncodedPath(String path) {
     if (path.contains("%")) {
-      try {
-        // Use URLDecoder (vs UriUtils) to preserve potentially decoded UTF-8 chars
-        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-        if (isInvalidPath(decodedPath)) {
-          return true;
-        }
-        decodedPath = normalizeInputPath(decodedPath);
-        if (isInvalidPath(decodedPath)) {
-          return true;
-        }
+      String decodedPath = decode(path);
+      if (decodedPath.contains("%")) {
+        decodedPath = decode(decodedPath);
       }
-      catch (IllegalArgumentException ex) {
-        // May not be possible to decode...
+      if (isInvalidPath(decodedPath)) {
+        return true;
       }
+      decodedPath = normalizeInputPath(decodedPath);
+      return isInvalidPath(decodedPath);
     }
     return false;
+  }
+
+  private static String decode(String path) {
+    try {
+      return URLDecoder.decode(path, StandardCharsets.UTF_8);
+    }
+    catch (Exception ex) {
+      return "";
+    }
   }
 
   /**

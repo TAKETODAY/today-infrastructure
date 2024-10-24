@@ -28,21 +28,21 @@ import java.util.Map;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.web.resource.CachingResourceResolver;
 import cn.taketoday.web.resource.CachingResourceTransformer;
 import cn.taketoday.web.resource.CssLinkResourceTransformer;
+import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
 import cn.taketoday.web.resource.PathResourceResolver;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
-import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
-import cn.taketoday.web.mock.MockRequestContext;
-import cn.taketoday.web.mock.support.GenericWebApplicationContext;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -217,7 +217,7 @@ class ResourceHandlerRegistryTests {
 
   @Test
   public void urlResourceWithCharset() {
-    this.registration.addResourceLocations("[charset=ISO-8859-1]file:///tmp");
+    this.registration.addResourceLocations("[charset=ISO-8859-1]file:///tmp/");
     this.registration.resourceChain(true);
 
     ResourceHttpRequestHandler handler = getHandler("/resources/**");

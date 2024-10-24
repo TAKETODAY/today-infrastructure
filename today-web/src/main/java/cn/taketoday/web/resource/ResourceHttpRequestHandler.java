@@ -175,7 +175,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   public void setLocations(List<Resource> locations) {
     Assert.notNull(locations, "Locations list is required");
     this.locationResources.clear();
-    this.locationResources.addAll(locations);
+    for (Resource location : locations) {
+      ResourceHandlerUtils.assertResourceLocation(location);
+      this.locationResources.add(location);
+    }
   }
 
   /**
