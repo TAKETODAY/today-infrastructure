@@ -301,7 +301,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    */
   public void setMediaTypes(Map<String, MediaType> mediaTypes) {
     for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
-      this.mediaTypes.put(entry.getKey().toLowerCase(Locale.ENGLISH), entry.getValue());
+      this.mediaTypes.put(entry.getKey().toLowerCase(Locale.ROOT), entry.getValue());
     }
   }
 
@@ -658,7 +658,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     String filename = resource.getName();
     String ext = StringUtils.getFilenameExtension(filename);
     if (ext != null) {
-      mediaType = mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
+      mediaType = mediaTypes.get(ext.toLowerCase(Locale.ROOT));
     }
     if (mediaType == null) {
       List<MediaType> mediaTypes = MediaTypeFactory.getMediaTypes(filename);

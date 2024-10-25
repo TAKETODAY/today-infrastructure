@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.util;
 
+import java.util.Locale;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
@@ -81,7 +82,7 @@ public class DisconnectedClientHelper {
   public static boolean isClientDisconnectedException(Throwable ex) {
     String message = ExceptionUtils.getMostSpecificCause(ex).getMessage();
     if (message != null) {
-      String text = message.toLowerCase();
+      String text = message.toLowerCase(Locale.ROOT);
       for (String phrase : EXCEPTION_PHRASES) {
         if (text.contains(phrase)) {
           return true;

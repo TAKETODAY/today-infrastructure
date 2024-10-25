@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -172,7 +173,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
       String headerName = entry.getKey();
-      if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase())) {
+      if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
         for (String headerValue : entry.getValue()) {
           builder.header(headerName, headerValue);
         }

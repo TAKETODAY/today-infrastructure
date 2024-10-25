@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import cn.taketoday.cache.Cache;
@@ -140,7 +141,7 @@ public class CachingResourceResolver extends AbstractResourceResolver {
       return Arrays.stream(StringUtils.tokenizeToStringArray(header, ","))
               .map(token -> {
                 int index = token.indexOf(';');
-                return (index >= 0 ? token.substring(0, index) : token).trim().toLowerCase();
+                return (index >= 0 ? token.substring(0, index) : token).trim().toLowerCase(Locale.ROOT);
               })
               .filter(this.contentCodings::contains)
               .sorted()

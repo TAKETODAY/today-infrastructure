@@ -17,6 +17,8 @@
 
 package cn.taketoday.web.handler.condition;
 
+import java.util.Locale;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
@@ -92,7 +94,7 @@ public abstract class NameValueExpression {
 
   @Override
   public int hashCode() {
-    int result = (isCaseSensitiveName() ? this.name.hashCode() : this.name.toLowerCase().hashCode());
+    int result = (isCaseSensitiveName() ? this.name.hashCode() : this.name.toLowerCase(Locale.ROOT).hashCode());
     result = 31 * result + (this.value != null ? this.value.hashCode() : 0);
     result = 31 * result + (this.negated ? 1 : 0);
     return result;

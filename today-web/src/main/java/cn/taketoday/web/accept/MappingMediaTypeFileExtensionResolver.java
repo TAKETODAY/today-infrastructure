@@ -58,7 +58,7 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
       for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
         String extension = entry.getKey();
         MediaType mediaType = entry.getValue();
-        String lowerCaseExtension = extension.toLowerCase(Locale.ENGLISH);
+        String lowerCaseExtension = extension.toLowerCase(Locale.ROOT);
         this.mediaTypes.put(lowerCaseExtension, mediaType);
         addFileExtension(mediaType, lowerCaseExtension);
         allFileExtensions.add(lowerCaseExtension);
@@ -109,7 +109,7 @@ public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExten
    */
   @Nullable
   protected MediaType lookupMediaType(String extension) {
-    return this.mediaTypes.get(extension.toLowerCase(Locale.ENGLISH));
+    return this.mediaTypes.get(extension.toLowerCase(Locale.ROOT));
   }
 
 }

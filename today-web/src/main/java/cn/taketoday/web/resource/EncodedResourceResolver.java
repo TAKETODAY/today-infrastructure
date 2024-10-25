@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.core.io.AbstractResource;
@@ -168,7 +169,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
   @Nullable
   private String getAcceptEncoding(RequestContext request) {
     String header = request.getHeaders().getFirst(HttpHeaders.ACCEPT_ENCODING);
-    return header != null ? header.toLowerCase() : null;
+    return header != null ? header.toLowerCase(Locale.ROOT) : null;
   }
 
   private String getExtension(String coding) {

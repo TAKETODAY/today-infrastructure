@@ -494,7 +494,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     if (StringUtils.isBlank(extension)) {
       return false;
     }
-    extension = extension.toLowerCase(Locale.ENGLISH);
+    extension = extension.toLowerCase(Locale.ROOT);
     if (safeExtensions.contains(extension)) {
       return false;
     }

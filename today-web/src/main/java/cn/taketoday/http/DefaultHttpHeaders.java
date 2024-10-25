@@ -49,7 +49,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    */
   public DefaultHttpHeaders() {
     this.headers = MultiValueMap.forSmartListAdaption(
-            new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+            new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
   }
 
   /**
@@ -69,7 +69,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
     Assert.notNull(headers, "MultiValueMap is required");
     if (headers == EMPTY) {
-      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
     }
     else if (headers instanceof ReadOnlyHttpHeaders readOnly) {
       this.headers = readOnly.headers;

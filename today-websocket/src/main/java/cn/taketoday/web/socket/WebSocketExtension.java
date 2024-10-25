@@ -75,7 +75,7 @@ public class WebSocketExtension {
     Assert.hasLength(name, "Extension name must not be empty");
     this.name = name;
     if (CollectionUtils.isNotEmpty(parameters)) {
-      var map = new LinkedCaseInsensitiveMap<String>(parameters.size(), Locale.ENGLISH);
+      var map = new LinkedCaseInsensitiveMap<String>(parameters.size(), Locale.ROOT);
       map.putAll(parameters);
       this.parameters = Collections.unmodifiableMap(map);
     }

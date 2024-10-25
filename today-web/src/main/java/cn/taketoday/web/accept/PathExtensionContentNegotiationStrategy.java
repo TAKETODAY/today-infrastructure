@@ -64,7 +64,7 @@ public class PathExtensionContentNegotiationStrategy extends AbstractMappingCont
   @Nullable
   protected String getMediaTypeKey(RequestContext request) {
     String extension = UriUtils.extractFileExtension(request.getRequestURI());
-    return StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ENGLISH) : null;
+    return StringUtils.hasText(extension) ? extension.toLowerCase(Locale.ROOT) : null;
   }
 
   /**

@@ -508,7 +508,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public static final String INLINE_FILE_NAME = "inline;filename=\"";
   public static final String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
 
-  public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
+  public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ROOT);
 
   public static final ZoneId GMT = ZoneId.of("GMT");
 
@@ -813,7 +813,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public void setAcceptCharset(Collection<Charset> acceptableCharsets) {
     StringJoiner joiner = new StringJoiner(", ");
     for (Charset charset : acceptableCharsets) {
-      joiner.add(charset.name().toLowerCase(Locale.ENGLISH));
+      joiner.add(charset.name().toLowerCase(Locale.ROOT));
     }
     setOrRemove(ACCEPT_CHARSET, joiner.toString());
   }

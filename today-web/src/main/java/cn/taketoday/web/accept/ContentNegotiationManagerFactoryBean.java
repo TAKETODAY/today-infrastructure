@@ -187,7 +187,7 @@ public class ContentNegotiationManagerFactoryBean
    * An alternative to {@link #setMediaTypes} for programmatic registrations.
    */
   public void addMediaType(String key, MediaType mediaType) {
-    this.mediaTypes.put(key.toLowerCase(Locale.ENGLISH), mediaType);
+    this.mediaTypes.put(key.toLowerCase(Locale.ROOT), mediaType);
   }
 
   /**

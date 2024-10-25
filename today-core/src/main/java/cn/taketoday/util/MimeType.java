@@ -315,11 +315,11 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     checkToken(type);
     checkToken(subtype);
 
-    this.type = type.toLowerCase(Locale.ENGLISH);
-    this.subtype = subtype.toLowerCase(Locale.ENGLISH);
+    this.type = type.toLowerCase(Locale.ROOT);
+    this.subtype = subtype.toLowerCase(Locale.ROOT);
 
     if (CollectionUtils.isNotEmpty(parameters)) {
-      var map = new LinkedCaseInsensitiveMap<String>(parameters.size(), Locale.ENGLISH);
+      var map = new LinkedCaseInsensitiveMap<String>(parameters.size(), Locale.ROOT);
       for (Map.Entry<String, String> entry : parameters.entrySet()) {
         String value = entry.getValue();
         String attribute = entry.getKey();

@@ -64,7 +64,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   private static HttpHeaders adaptHeaders(HttpResponse<?> response) {
     Map<String, List<String>> rawHeaders = response.headers().map();
-    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ENGLISH);
+    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ROOT);
     MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
     multiValueMap.putAll(rawHeaders);
     return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
