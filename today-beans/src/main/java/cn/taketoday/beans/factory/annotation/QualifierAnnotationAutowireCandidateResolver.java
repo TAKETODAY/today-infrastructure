@@ -28,7 +28,6 @@ import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
@@ -143,20 +142,24 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    */
   @Override
   public boolean isAutowireCandidate(BeanDefinitionHolder holder, DependencyDescriptor descriptor) {
-    boolean match = super.isAutowireCandidate(holder, descriptor);
-    if (match) {
-      match = checkQualifiers(holder, descriptor.getAnnotations());
-      if (match) {
-        MethodParameter methodParam = descriptor.getMethodParameter();
-        if (methodParam != null) {
-          Method method = methodParam.getMethod();
-          if (method == null || void.class == method.getReturnType()) {
-            match = checkQualifiers(holder, methodParam.getMethodAnnotations());
+    if (!super.isAutowireCandidate(holder, descriptor)) {
+      return false;
+    }
+    Boolean checked = checkQualifiers(holder, descriptor.getAnnotations());
+    if (checked != Boolean.FALSE) {
+      MethodParameter methodParam = descriptor.getMethodParameter();
+      if (methodParam != null) {
+        Method method = methodParam.getMethod();
+        if (method == null || void.class == method.getReturnType()) {
+          Boolean methodChecked = checkQualifiers(holder, methodParam.getMethodAnnotations());
+          if (methodChecked != null && checked == null) {
+            checked = methodChecked;
           }
         }
       }
     }
-    return match;
+    return checked == Boolean.TRUE
+            || (checked == null && ((RootBeanDefinition) holder.getBeanDefinition()).isDefaultCandidate());
   }
 
   /**
@@ -175,9 +178,14 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   }
 
   /**
-   * Match the given qualifier annotations against the candidate bean holder.
+   * Match the given qualifier annotations against the candidate bean definition.
+   *
+   * @return {@code false} if a qualifier has been found but not matched,
+   * {@code true} if a qualifier has been found and matched,
+   * {@code null} if no qualifier has been found at all
    */
-  protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
+  @Nullable
+  protected Boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
     boolean qualifierFound = false;
     if (ObjectUtils.isNotEmpty(annotationsToSearch)) {
       SimpleTypeConverter typeConverter = new SimpleTypeConverter();
@@ -221,7 +229,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         }
       }
     }
-    return qualifierFound || ((AbstractBeanDefinition) bdHolder.getBeanDefinition()).isDefaultCandidate();
+    return (qualifierFound ? true : null);
   }
 
   /**

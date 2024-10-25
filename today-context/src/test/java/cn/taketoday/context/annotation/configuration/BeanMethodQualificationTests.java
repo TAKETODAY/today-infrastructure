@@ -196,6 +196,28 @@ class BeanMethodQualificationTests {
   }
 
   @Test
+  void customWithConstructor() {
+    AnnotationConfigApplicationContext ctx = context(CustomConfig.class, CustomPojoWithConstructor.class);
+
+    CustomPojoWithConstructor pojo = ctx.getBean(CustomPojoWithConstructor.class);
+    assertThat(pojo.plainBean).isNull();
+    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+
+    ctx.close();
+  }
+
+  @Test
+  void customWithMethod() {
+    AnnotationConfigApplicationContext ctx = context(CustomConfig.class, CustomPojoWithMethod.class);
+
+    CustomPojoWithMethod pojo = ctx.getBean(CustomPojoWithMethod.class);
+    assertThat(pojo.plainBean).isNull();
+    assertThat(pojo.testBean.getName()).isEqualTo("interesting");
+
+    ctx.close();
+  }
+
+  @Test
   void beanNamesForAnnotation() {
     AnnotationConfigApplicationContext ctx = context(StandardConfig.class);
 
@@ -489,6 +511,33 @@ class BeanMethodQualificationTests {
 
   private static AnnotationConfigApplicationContext context(Class<?>... componentClasses) {
     return new AnnotationConfigApplicationContext(componentClasses);
+  }
+
+  @InterestingPojo
+  static class CustomPojoWithConstructor {
+
+    TestBean plainBean;
+
+    TestBean testBean;
+
+    public CustomPojoWithConstructor(Optional<TestBean> plainBean, @InterestingNeed TestBean testBean) {
+      this.plainBean = plainBean.orElse(null);
+      this.testBean = testBean;
+    }
+  }
+
+  @InterestingPojo
+  static class CustomPojoWithMethod {
+
+    TestBean plainBean;
+
+    TestBean testBean;
+
+    @Autowired
+    public void applyDependencies(Optional<TestBean> plainBean, @InterestingNeed TestBean testBean) {
+      this.plainBean = plainBean.orElse(null);
+      this.testBean = testBean;
+    }
   }
 
 }
