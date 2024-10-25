@@ -299,6 +299,14 @@ class PropertySourcesPropertyResolverTests {
   }
 
   @Test
+  void resolveNestedPlaceHolderIfValueShouldConvertToOtherTypes() {
+    PropertySources ps = new PropertySources();
+    ps.addFirst(new MockPropertySource().withProperty("new.enabled", "${old.enabled:true}"));
+    ConfigurablePropertyResolver pr = new PropertySourcesPropertyResolver(ps);
+    assertThat(pr.getProperty("new.enabled", Boolean.class, false)).isTrue();
+  }
+
+  @Test
   void ignoreUnresolvableNestedPlaceholdersIsConfigurable() {
     PropertySources ps = new PropertySources();
     ps.addFirst(new MockPropertySource()
