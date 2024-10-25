@@ -442,6 +442,32 @@ class BeanUtilsTests {
     assertThat(BeanUtils.resolveSignature(signature, MethodSignatureBean.class)).isEqualTo(desiredMethod);
   }
 
+  @Test
+  void resolveMultipleRecordPublicConstructor() throws NoSuchMethodException {
+    assertThat(BeanUtils.getConstructor(RecordWithMultiplePublicConstructors.class))
+            .isEqualTo(RecordWithMultiplePublicConstructors.class.getDeclaredConstructor(String.class, String.class));
+  }
+
+  @Test
+  void resolveMultipleRecordePackagePrivateConstructor() throws NoSuchMethodException {
+    assertThat(BeanUtils.getConstructor(RecordWithMultiplePackagePrivateConstructors.class))
+            .isEqualTo(RecordWithMultiplePackagePrivateConstructors.class.getDeclaredConstructor(String.class, String.class));
+  }
+
+  public record RecordWithMultiplePublicConstructors(String value, String name) {
+    @SuppressWarnings("unused")
+    public RecordWithMultiplePublicConstructors(String value) {
+      this(value, "default value");
+    }
+  }
+
+  record RecordWithMultiplePackagePrivateConstructors(String value, String name) {
+    @SuppressWarnings("unused")
+    RecordWithMultiplePackagePrivateConstructors(String value) {
+      this(value, "default value");
+    }
+  }
+
   @SuppressWarnings("unused")
   private static class IntegerListHolder1 {
 

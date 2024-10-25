@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.RecordComponent;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -215,22 +216,37 @@ public abstract class BeanUtils {
    * <p>
    *
    * @param <T> Target type
-   * @param beanClass target bean class
+   * @param clazz target bean class
    * @return Suitable constructor If there isn't a suitable {@link Constructor}
    * returns null
    * @since 2.1.7
    */
   @Nullable
   @SuppressWarnings("unchecked")
-  public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
-    Assert.notNull(beanClass, "bean-class is required");
-    Constructor<?>[] ctors = beanClass.getConstructors();
+  public static <T> Constructor<T> getConstructor(Class<T> clazz) {
+    Assert.notNull(clazz, "bean-class is required");
+
+    if (clazz.isRecord()) {
+      try {
+        // Use the canonical constructor which is always present
+        RecordComponent[] components = clazz.getRecordComponents();
+        Class<?>[] paramTypes = new Class<?>[components.length];
+        for (int i = 0; i < components.length; i++) {
+          paramTypes[i] = components[i].getType();
+        }
+        return clazz.getDeclaredConstructor(paramTypes);
+      }
+      catch (NoSuchMethodException ignored) {
+      }
+    }
+
+    Constructor<?>[] ctors = clazz.getConstructors();
     if (ctors.length == 1) {
       // A single public constructor
       return (Constructor<T>) ctors[0];
     }
     else if (ctors.length == 0) {
-      ctors = beanClass.getDeclaredConstructors();
+      ctors = clazz.getDeclaredConstructors();
       if (ctors.length == 1) {
         // A single non-public constructor, e.g. from a non-public record type
         return (Constructor<T>) ctors[0];
@@ -769,8 +785,8 @@ public abstract class BeanUtils {
     // Ignore generic types in assignable check if either ResolvableType has unresolvable generics.
     return (sourceResolvableType.hasUnresolvableGenerics()
             || targetResolvableType.hasUnresolvableGenerics())
-           ? ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType())
-           : targetResolvableType.isAssignableFrom(sourceResolvableType);
+            ? ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType())
+            : targetResolvableType.isAssignableFrom(sourceResolvableType);
   }
 
 }
