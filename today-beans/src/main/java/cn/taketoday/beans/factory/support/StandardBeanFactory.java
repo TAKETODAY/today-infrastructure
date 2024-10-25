@@ -2098,6 +2098,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   protected String determineHighestPriorityCandidate(Map<String, Object> candidates, Class<?> requiredType) {
     String highestPriorityBeanName = null;
     Integer highestPriority = null;
+    boolean highestPriorityConflictDetected = false;
     for (Map.Entry<String, Object> entry : candidates.entrySet()) {
       String candidateBeanName = entry.getKey();
       Object beanInstance = entry.getValue();
@@ -2106,13 +2107,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         if (candidatePriority != null) {
           if (highestPriority != null) {
             if (candidatePriority.equals(highestPriority)) {
-              throw new NoUniqueBeanDefinitionException(requiredType, candidates.size(),
-                      "Multiple beans found with the same priority ('%s') among candidates: %s"
-                              .formatted(highestPriority, candidates.keySet()));
+              highestPriorityConflictDetected = true;
             }
             else if (candidatePriority < highestPriority) {
               highestPriorityBeanName = candidateBeanName;
               highestPriority = candidatePriority;
+              highestPriorityConflictDetected = false;
             }
           }
           else {
@@ -2121,6 +2121,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           }
         }
       }
+    }
+
+    if (highestPriorityConflictDetected) {
+      throw new NoUniqueBeanDefinitionException(requiredType, candidates.size(),
+              "Multiple beans found with the same highest priority (%d) among candidates: %s"
+                      .formatted(highestPriority, candidates.keySet()));
+
     }
     return highestPriorityBeanName;
   }
