@@ -183,6 +183,9 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       SimpleTypeConverter typeConverter = new SimpleTypeConverter();
       for (Annotation annotation : annotationsToSearch) {
         Class<? extends Annotation> type = annotation.annotationType();
+        if (isPlainJavaAnnotation(type)) {
+          continue;
+        }
         boolean checkMeta = true;
         boolean fallbackToMeta = false;
         if (isQualifier(type)) {
@@ -198,6 +201,9 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
           boolean foundMeta = false;
           for (Annotation metaAnn : type.getAnnotations()) {
             Class<? extends Annotation> metaType = metaAnn.annotationType();
+            if (isPlainJavaAnnotation(metaType)) {
+              continue;
+            }
             if (isQualifier(metaType)) {
               qualifierFound = true;
               foundMeta = true;
@@ -216,6 +222,16 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
     }
     return qualifierFound || ((AbstractBeanDefinition) bdHolder.getBeanDefinition()).isDefaultCandidate();
+  }
+
+  /**
+   * Check whether the given annotation type is a plain "java." annotation,
+   * typically from {@code java.lang.annotation}.
+   * <p>Aligned with
+   * {@code org.springframework.core.annotation.AnnotationsScanner#hasPlainJavaAnnotationsOnly}.
+   */
+  private boolean isPlainJavaAnnotation(Class<? extends Annotation> annotationType) {
+    return annotationType.getName().startsWith("java.");
   }
 
   /**
