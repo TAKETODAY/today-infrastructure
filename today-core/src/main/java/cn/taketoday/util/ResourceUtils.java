@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
@@ -210,7 +211,7 @@ public abstract class ResourceUtils {
    */
   public static boolean isJarFileURL(URL url) {
     return URL_PROTOCOL_FILE.equals(url.getProtocol())
-            && url.getPath().toLowerCase().endsWith(JAR_FILE_EXTENSION);
+            && url.getPath().toLowerCase(Locale.ROOT).endsWith(JAR_FILE_EXTENSION);
   }
 
   /**

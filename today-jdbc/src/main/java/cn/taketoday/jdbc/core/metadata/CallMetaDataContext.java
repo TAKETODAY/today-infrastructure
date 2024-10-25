@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -385,7 +385,7 @@ public class CallMetaDataContext {
         if (meta.isReturnParameter()) {
           param = declaredParams.get(getFunctionReturnName());
           if (param == null && !getOutParameterNames().isEmpty()) {
-            param = declaredParams.get(getOutParameterNames().get(0).toLowerCase());
+            param = declaredParams.get(getOutParameterNames().get(0).toLowerCase(Locale.ROOT));
           }
           if (param == null) {
             throw new InvalidDataAccessApiUsageException(
@@ -489,7 +489,7 @@ public class CallMetaDataContext {
         String parameterName = parameter.getName();
         String parameterNameToMatch = obtainMetaDataProvider().parameterNameToUse(parameterName);
         if (parameterNameToMatch != null) {
-          callParameterNames.put(parameterNameToMatch.toLowerCase(), parameterName);
+          callParameterNames.put(parameterNameToMatch.toLowerCase(Locale.ROOT), parameterName);
         }
         if (parameterName != null) {
           if (parameterSource.hasValue(parameterName)) {
@@ -497,7 +497,7 @@ public class CallMetaDataContext {
                     SqlParameterSourceUtils.getTypedValue(parameterSource, parameterName));
           }
           else {
-            String lowerCaseName = parameterName.toLowerCase();
+            String lowerCaseName = parameterName.toLowerCase(Locale.ROOT);
             if (parameterSource.hasValue(lowerCaseName)) {
               matchedParameters.put(parameterName,
                       SqlParameterSourceUtils.getTypedValue(parameterSource, lowerCaseName));
@@ -558,7 +558,7 @@ public class CallMetaDataContext {
         String parameterName = parameter.getName();
         String parameterNameToMatch = provider.parameterNameToUse(parameterName);
         if (parameterNameToMatch != null) {
-          callParameterNames.put(parameterNameToMatch.toLowerCase(), parameterName);
+          callParameterNames.put(parameterNameToMatch.toLowerCase(Locale.ROOT), parameterName);
         }
       }
     }
@@ -685,7 +685,7 @@ public class CallMetaDataContext {
   }
 
   private static String lowerCase(@Nullable String paramName) {
-    return (paramName != null ? paramName.toLowerCase() : "");
+    return (paramName != null ? paramName.toLowerCase(Locale.ROOT) : "");
   }
 
 }

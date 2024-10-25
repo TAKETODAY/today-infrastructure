@@ -17,6 +17,8 @@
 
 package cn.taketoday.expression.spel;
 
+import java.util.Locale;
+
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -57,7 +59,7 @@ public class SpelParserConfiguration {
 
   static {
     String compilerMode = TodayStrategies.getProperty(SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
-    defaultCompilerMode = compilerMode != null ? SpelCompilerMode.valueOf(compilerMode.toUpperCase()) : SpelCompilerMode.OFF;
+    defaultCompilerMode = compilerMode != null ? SpelCompilerMode.valueOf(compilerMode.toUpperCase(Locale.ROOT)) : SpelCompilerMode.OFF;
     DEFAULT_MAX_EXPRESSION_LENGTH = TodayStrategies.getInt(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, 10_000);
   }
 

@@ -20,6 +20,7 @@ package cn.taketoday.expression.spel.standard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import cn.taketoday.expression.spel.InternalParseException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -409,7 +410,7 @@ final class Tokenizer {
     // Check if this is the alternative (textual) representation of an operator (see
     // alternativeOperatorNames)
     if (subarray.length == 2 || subarray.length == 3) {
-      String asString = new String(subarray).toUpperCase();
+      String asString = new String(subarray).toUpperCase(Locale.ROOT);
       int idx = Arrays.binarySearch(ALTERNATIVE_OPERATOR_NAMES, asString);
       if (idx >= 0) {
         pushOneCharOrTwoCharToken(TokenKind.valueOf(asString), start, subarray);

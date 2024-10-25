@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.core.SqlInOutParameter;
@@ -280,10 +281,10 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       return null;
     }
     else if (isStoresUpperCaseIdentifiers()) {
-      return identifierName.toUpperCase();
+      return identifierName.toUpperCase(Locale.ROOT);
     }
     else if (isStoresLowerCaseIdentifiers()) {
-      return identifierName.toLowerCase();
+      return identifierName.toLowerCase(Locale.ROOT);
     }
     else {
       return identifierName;

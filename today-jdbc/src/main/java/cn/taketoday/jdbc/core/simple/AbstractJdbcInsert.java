@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.simple;
@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -496,7 +497,7 @@ public abstract class AbstractJdbcInsert {
       // get generated keys feature. HSQL is one, PostgreSQL is another. Postgres uses a RETURNING
       // clause while HSQL uses a second query that has to be executed with the same connection.
 
-      if (keyQuery.toUpperCase().startsWith("RETURNING")) {
+      if (keyQuery.toUpperCase(Locale.ROOT).startsWith("RETURNING")) {
         Long key = getJdbcTemplate().queryForObject(
                 getInsertString() + " " + keyQuery, Long.class, values.toArray());
         Map<String, Object> keys = new HashMap<>(2);

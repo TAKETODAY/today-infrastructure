@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.namedparam;
@@ -23,6 +20,7 @@ package cn.taketoday.jdbc.core.namedparam;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.jdbc.core.SqlParameterValue;
@@ -34,6 +32,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class SqlParameterSourceUtils {
@@ -70,7 +69,7 @@ public abstract class SqlParameterSourceUtils {
     int i = 0;
     for (Object candidate : candidates) {
       batch[i] = (candidate instanceof Map ? new MapSqlParameterSource((Map<String, ?>) candidate) :
-                  new BeanPropertySqlParameterSource(candidate));
+              new BeanPropertySqlParameterSource(candidate));
       i++;
     }
     return batch;
@@ -123,7 +122,7 @@ public abstract class SqlParameterSourceUtils {
     String[] paramNames = parameterSource.getParameterNames();
     if (paramNames != null) {
       for (String name : paramNames) {
-        caseInsensitiveParameterNames.put(name.toLowerCase(), name);
+        caseInsensitiveParameterNames.put(name.toLowerCase(Locale.ROOT), name);
       }
     }
     return caseInsensitiveParameterNames;

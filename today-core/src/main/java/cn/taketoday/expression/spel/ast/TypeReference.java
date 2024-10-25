@@ -18,6 +18,7 @@
 package cn.taketoday.expression.spel.ast;
 
 import java.lang.reflect.Array;
+import java.util.Locale;
 
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Type;
@@ -57,7 +58,7 @@ public class TypeReference extends SpelNodeImpl {
     String typeName = (String) this.children[0].getValueInternal(state).getValue();
     Assert.state(typeName != null, "No type name");
     if (!typeName.contains(".") && Character.isLowerCase(typeName.charAt(0))) {
-      TypeCode tc = TypeCode.valueOf(typeName.toUpperCase());
+      TypeCode tc = TypeCode.valueOf(typeName.toUpperCase(Locale.ROOT));
       if (tc != TypeCode.OBJECT) {
         // It is a primitive type
         Class<?> clazz = makeArrayIfNecessary(tc.getType());

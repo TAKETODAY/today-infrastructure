@@ -22,6 +22,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.ValueRange;
+import java.util.Locale;
 import java.util.function.BiFunction;
 
 import cn.taketoday.lang.Assert;
@@ -145,7 +146,7 @@ abstract class CronField {
   }
 
   private static String replaceOrdinals(String value, String[] list) {
-    value = value.toUpperCase();
+    value = value.toUpperCase(Locale.ROOT);
     for (int i = 0; i < list.length; i++) {
       String replacement = Integer.toString(i + 1);
       value = StringUtils.replace(value, list[i], replacement);
