@@ -210,9 +210,7 @@ final class Tokenizer {
           // hit sentinel at end of value
           case 0 -> this.pos++;  // will take us to the end
           case '\\' -> raiseParseException(pos, SpelMessage.UNEXPECTED_ESCAPE_CHAR);
-          default -> throw new IllegalStateException(
-                  "Unsupported character '%s' (%d) encountered at position %d in expression."
-                          .formatted(ch, (int) ch, (this.pos + 1)));
+          default -> raiseParseException(this.pos + 1, SpelMessage.UNSUPPORTED_CHARACTER, ch, (int) ch);
         }
       }
     }
