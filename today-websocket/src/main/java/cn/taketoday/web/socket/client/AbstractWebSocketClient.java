@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
@@ -82,7 +83,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         String header = entry.getKey();
         List<String> values = entry.getValue();
-        if (values != null && !specialHeaders.contains(header.toLowerCase())) {
+        if (values != null && !specialHeaders.contains(header.toLowerCase(Locale.ROOT))) {
           headersToUse.put(header, values);
         }
       }

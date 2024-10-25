@@ -20,6 +20,7 @@ package cn.taketoday.jdbc;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -66,7 +67,7 @@ public class JdbcBeanMetadata {
   public BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
     if (columnMappings != null) {
       // find in columnMappings
-      String propertyName = columnMappings.get(caseSensitive ? colName : colName.toLowerCase());
+      String propertyName = columnMappings.get(caseSensitive ? colName : colName.toLowerCase(Locale.ROOT));
       if (propertyName != null) {
         // find
         BeanProperty beanProperty = getProperty(propertyName);
@@ -98,7 +99,7 @@ public class JdbcBeanMetadata {
       this.beanProperties = beanProperties;
     }
 
-    return beanProperties.get(caseSensitive ? propertyName : propertyName.toLowerCase());
+    return beanProperties.get(caseSensitive ? propertyName : propertyName.toLowerCase(Locale.ROOT));
   }
 
   //
@@ -170,7 +171,7 @@ public class JdbcBeanMetadata {
           beanPropertyMap.put(propertyName_, property);
         }
         else {
-          beanPropertyMap.put(propertyName_.toLowerCase(), property);
+          beanPropertyMap.put(propertyName_.toLowerCase(Locale.ROOT), property);
         }
       }
       return beanPropertyMap;

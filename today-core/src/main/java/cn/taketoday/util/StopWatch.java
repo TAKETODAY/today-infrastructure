@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -322,14 +322,14 @@ public class StopWatch {
     sb.append("StopWatch '").append(getId()).append("': ");
     String total = (timeUnit == TimeUnit.NANOSECONDS ?
                     nf.format(getTotalTimeNanos()) : nf.format(getTotalTime(timeUnit)));
-    sb.append(total).append(" ").append(timeUnit.name().toLowerCase(Locale.ENGLISH));
+    sb.append(total).append(" ").append(timeUnit.name().toLowerCase(Locale.ROOT));
     int width = Math.max(sb.length(), 40);
     sb.append("\n");
 
     if (this.taskList != null) {
       String line = "-".repeat(width) + "\n";
       String unitName = timeUnit.name();
-      unitName = unitName.charAt(0) + unitName.substring(1).toLowerCase(Locale.ENGLISH);
+      unitName = unitName.charAt(0) + unitName.substring(1).toLowerCase(Locale.ROOT);
       unitName = String.format("%-12s", unitName);
       sb.append(line);
       sb.append(unitName).append("  %       Task name\n");

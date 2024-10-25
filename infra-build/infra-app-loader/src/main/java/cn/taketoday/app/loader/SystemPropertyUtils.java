@@ -112,7 +112,7 @@ final class SystemPropertyUtils {
       String value = System.getProperty(key);
       value = (value != null) ? value : System.getenv(key);
       value = (value != null) ? value : System.getenv(key.replace('.', '_'));
-      value = (value != null) ? value : System.getenv(key.toUpperCase(Locale.ENGLISH).replace('.', '_'));
+      value = (value != null) ? value : System.getenv(key.toUpperCase(Locale.ROOT).replace('.', '_'));
       return (value != null) ? value : defaultValue;
     }
     catch (Throwable ex) {

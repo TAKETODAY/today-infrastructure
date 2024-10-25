@@ -946,7 +946,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     }
     if (t.kind != expectedKind) {
       throw internalException(t.startPos, SpelMessage.NOT_EXPECTED_TOKEN,
-              expectedKind.toString().toLowerCase(Locale.ROOT), t.kind.toString().toLowerCase());
+              expectedKind.toString().toLowerCase(Locale.ROOT), t.kind.toString().toLowerCase(Locale.ROOT));
     }
     return t;
   }

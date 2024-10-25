@@ -19,6 +19,7 @@ package cn.taketoday.app.loader.net.protocol.jar;
 
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,10 +59,10 @@ final class JarFileUrlKey {
     String host = url.getHost();
     int port = (url.getPort() != -1) ? url.getPort() : url.getDefaultPort();
     String file = url.getFile();
-    value.append(protocol.toLowerCase());
+    value.append(protocol.toLowerCase(Locale.ROOT));
     value.append(":");
     if (host != null && !host.isEmpty()) {
-      value.append(host.toLowerCase());
+      value.append(host.toLowerCase(Locale.ROOT));
       value.append((port != -1) ? ":" + port : "");
     }
     value.append((file != null) ? file : "");

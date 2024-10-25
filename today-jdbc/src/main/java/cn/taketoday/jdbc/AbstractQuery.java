@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Spliterator;
 
@@ -679,7 +680,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
       HashMap<String, String> caseSensitiveColumnMappings = new HashMap<>();
       for (Map.Entry<String, String> entry : mappings.entrySet()) {
         caseSensitiveColumnMappings.put(entry.getKey(), entry.getValue());
-        columnMappings.put(entry.getKey().toLowerCase(), entry.getValue().toLowerCase());
+        columnMappings.put(entry.getKey().toLowerCase(Locale.ROOT), entry.getValue().toLowerCase(Locale.ROOT));
       }
       this.columnMappings = columnMappings;
       this.caseSensitiveColumnMappings = caseSensitiveColumnMappings;
@@ -698,7 +699,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
       this.caseSensitiveColumnMappings = new HashMap<>();
     }
     caseSensitiveColumnMappings.put(columnName, propertyName);
-    columnMappings.put(columnName.toLowerCase(), propertyName.toLowerCase());
+    columnMappings.put(columnName.toLowerCase(Locale.ROOT), propertyName.toLowerCase(Locale.ROOT));
     return this;
   }
 
@@ -858,7 +859,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
           String colType = meta.getColumnTypeName(colIdx);
           columns.add(new Column(colName, colIdx - 1, colType));
 
-          String colMapName = isCaseSensitive ? colName : colName.toLowerCase();
+          String colMapName = isCaseSensitive ? colName : colName.toLowerCase(Locale.ROOT);
           columnNameToIdxMap.put(colMapName, colIdx - 1);
         }
         this.columns = columns;

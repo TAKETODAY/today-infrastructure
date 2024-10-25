@@ -114,10 +114,10 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
     String extension = StringUtils.getFilenameExtension(this.file.getName());
     name = name.substring(0, name.length() - extension.length() - 1);
     if (isUpperCase(name)) {
-      name = name + "-" + namespace.toUpperCase(Locale.ENGLISH);
+      name = name + "-" + namespace.toUpperCase(Locale.ROOT);
     }
     else {
-      name = name + "-" + namespace.toLowerCase(Locale.ENGLISH);
+      name = name + "-" + namespace.toLowerCase(Locale.ROOT);
     }
     if (StringUtils.isNotEmpty(extension)) {
       name = name + "." + extension;

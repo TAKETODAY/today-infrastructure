@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.process;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -44,7 +45,7 @@ class DisabledIfProcessUnavailableCondition implements ExecutionCondition {
 
   private static final String USR_LOCAL_BIN = "/usr/local/bin";
 
-  private static final boolean MAC_OS = System.getProperty("os.name").toLowerCase().contains("mac");
+  private static final boolean MAC_OS = System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("mac");
 
   @Override
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {

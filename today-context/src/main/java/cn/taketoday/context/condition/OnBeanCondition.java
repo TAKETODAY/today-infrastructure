@@ -704,7 +704,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
       if (strategy != null) {
         string.append("SearchStrategy: ");
-        string.append(strategy.toString().toLowerCase(Locale.ENGLISH));
+        string.append(strategy.toString().toLowerCase(Locale.ROOT));
         string.append(")");
       }
       return string.toString();

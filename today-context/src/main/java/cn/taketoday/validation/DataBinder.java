@@ -1243,7 +1243,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     String[] allowed = getAllowedFields();
     String[] disallowed = getDisallowedFields();
     return (ObjectUtils.isEmpty(allowed) || StringUtils.simpleMatch(allowed, field))
-            && (ObjectUtils.isEmpty(disallowed) || !StringUtils.simpleMatch(disallowed, field.toLowerCase()));
+            && (ObjectUtils.isEmpty(disallowed) || !StringUtils.simpleMatch(disallowed, field.toLowerCase(Locale.ROOT)));
   }
 
   /**

@@ -570,7 +570,7 @@ public class PropertiesLauncher extends Launcher {
   }
 
   private boolean isArchive(String name) {
-    name = name.toLowerCase(Locale.ENGLISH);
+    name = name.toLowerCase(Locale.ROOT);
     return name.endsWith(".jar") || name.endsWith(".zip");
   }
 

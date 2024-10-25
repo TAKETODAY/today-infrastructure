@@ -216,7 +216,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
         }
         catch (Exception ignored) {
           String value = this.contentType;
-          int charsetIndex = value.toLowerCase().indexOf(CHARSET_PREFIX);
+          int charsetIndex = value.toLowerCase(Locale.ROOT).indexOf(CHARSET_PREFIX);
           if (charsetIndex != -1) {
             value = value.substring(0, charsetIndex).trim();
             if (value.endsWith(";")) {
@@ -236,7 +236,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
   private void updateContentTypePropertyAndHeader() {
     if (this.contentType != null) {
       String value = this.contentType;
-      if (this.characterEncodingSet && !value.toLowerCase().contains(CHARSET_PREFIX)) {
+      if (this.characterEncodingSet && !value.toLowerCase(Locale.ROOT).contains(CHARSET_PREFIX)) {
         value += ';' + CHARSET_PREFIX + getCharacterEncoding();
         this.contentType = value;
       }
@@ -340,7 +340,7 @@ public class MockHttpResponseImpl implements HttpMockResponse {
       }
       catch (Exception ex) {
         // Try to get charset value anyway
-        int charsetIndex = contentType.toLowerCase().indexOf(CHARSET_PREFIX);
+        int charsetIndex = contentType.toLowerCase(Locale.ROOT).indexOf(CHARSET_PREFIX);
         if (charsetIndex != -1) {
           setExplicitCharacterEncoding(contentType.substring(charsetIndex + CHARSET_PREFIX.length()));
         }

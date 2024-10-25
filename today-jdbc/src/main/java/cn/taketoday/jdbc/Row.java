@@ -20,6 +20,7 @@ package cn.taketoday.jdbc;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.core.conversion.ConversionException;
@@ -57,7 +58,7 @@ public final class Row {
   public Object getObject(String columnName) {
     Integer index = columnNameToIdxMap.get(
             isCaseSensitive ? columnName
-                            : columnName.toLowerCase());
+                            : columnName.toLowerCase(Locale.ROOT));
     if (index != null) {
       return getObject(index);
     }

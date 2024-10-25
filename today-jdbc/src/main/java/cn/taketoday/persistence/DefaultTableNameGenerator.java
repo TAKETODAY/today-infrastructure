@@ -17,6 +17,8 @@
 
 package cn.taketoday.persistence;
 
+import java.util.Locale;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -97,7 +99,7 @@ public class DefaultTableNameGenerator implements TableNameGenerator {
     }
     else if (lowercase) {
       // User -> user
-      simpleName = simpleName.toLowerCase();
+      simpleName = simpleName.toLowerCase(Locale.ROOT);
     }
 
     tableName.append(simpleName);

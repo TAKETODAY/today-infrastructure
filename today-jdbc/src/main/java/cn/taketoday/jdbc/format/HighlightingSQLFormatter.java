@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
 package cn.taketoday.jdbc.format;
 
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -126,7 +127,7 @@ public final class HighlightingSQLFormatter implements SQLFormatter {
           }
         }
         default -> {
-          if (KEYWORDS.contains(token.toUpperCase())) {
+          if (KEYWORDS.contains(token.toUpperCase(Locale.ROOT))) {
             result.append(keywordEscape).append(token).append(normalEscape);
           }
           else {

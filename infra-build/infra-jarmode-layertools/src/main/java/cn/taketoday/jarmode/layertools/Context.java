@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jarmode.layertools;
@@ -26,6 +26,7 @@ import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Locale;
 import java.util.jar.JarFile;
 
 import cn.taketoday.lang.Assert;
@@ -71,7 +72,7 @@ class Context {
   }
 
   private boolean isJarOrWar(File jarFile) {
-    String name = jarFile.getName().toLowerCase();
+    String name = jarFile.getName().toLowerCase(Locale.ROOT);
     return name.endsWith(".jar") || name.endsWith(".war");
   }
 

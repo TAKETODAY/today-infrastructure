@@ -399,7 +399,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private void updateContentTypeHeader() {
     if (StringUtils.isNotEmpty(this.contentType)) {
       String value = this.contentType;
-      if (StringUtils.isNotEmpty(this.characterEncoding) && !this.contentType.toLowerCase().contains(CHARSET_PREFIX)) {
+      if (StringUtils.isNotEmpty(this.characterEncoding) && !this.contentType.toLowerCase(Locale.ROOT).contains(CHARSET_PREFIX)) {
         value += ';' + CHARSET_PREFIX + this.characterEncoding;
       }
       doAddHeaderValue(HttpHeaders.CONTENT_TYPE, value, true);
@@ -478,7 +478,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
       }
       catch (IllegalArgumentException ex) {
         // Try to get charset value anyway
-        int charsetIndex = contentType.toLowerCase().indexOf(CHARSET_PREFIX);
+        int charsetIndex = contentType.toLowerCase(Locale.ROOT).indexOf(CHARSET_PREFIX);
         if (charsetIndex != -1) {
           this.characterEncoding = contentType.substring(charsetIndex + CHARSET_PREFIX.length());
         }

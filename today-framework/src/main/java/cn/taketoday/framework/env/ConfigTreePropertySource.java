@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.env;
@@ -27,6 +27,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -195,8 +196,8 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
       this.origin = new TextResourceOrigin(this.resource, START_OF_FILE);
       this.autoTrimTrailingNewLine = options.contains(Option.AUTO_TRIM_TRAILING_NEW_LINE);
       this.cachedContent = options.contains(Option.ALWAYS_READ)
-                           ? null
-                           : new PropertyFileContent(path, this.resource, this.origin, true, this.autoTrimTrailingNewLine);
+              ? null
+              : new PropertyFileContent(path, this.resource, this.origin, true, this.autoTrimTrailingNewLine);
     }
 
     PropertyFileContent getContent() {
@@ -218,7 +219,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
                   String name = getName(sourceDirectory.relativize(path));
                   if (StringUtils.hasText(name)) {
                     if (options.contains(Option.USE_LOWERCASE_NAMES)) {
-                      name = name.toLowerCase();
+                      name = name.toLowerCase(Locale.ROOT);
                     }
                     propertyFiles.put(name, new PropertyFile(path, options));
                   }
@@ -330,7 +331,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
         return string;
       }
       return (string.endsWith("\r\n")) ? string.substring(0, string.length() - 2)
-                                       : string.substring(0, string.length() - 1);
+              : string.substring(0, string.length() - 1);
     }
 
     @Override

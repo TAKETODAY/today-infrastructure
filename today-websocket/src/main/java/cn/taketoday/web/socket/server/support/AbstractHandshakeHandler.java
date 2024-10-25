@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
@@ -111,7 +112,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   public void setSupportedProtocols(String... protocols) {
     this.supportedProtocols.clear();
     for (String protocol : protocols) {
-      this.supportedProtocols.add(protocol.toLowerCase());
+      this.supportedProtocols.add(protocol.toLowerCase(Locale.ROOT));
     }
   }
 
@@ -254,10 +255,10 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   protected String selectProtocol(List<String> requestedProtocols, WebSocketHandler webSocketHandler) {
     List<String> handlerProtocols = determineHandlerSupportedProtocols(webSocketHandler);
     for (String protocol : requestedProtocols) {
-      if (handlerProtocols.contains(protocol.toLowerCase())) {
+      if (handlerProtocols.contains(protocol.toLowerCase(Locale.ROOT))) {
         return protocol;
       }
-      if (this.supportedProtocols.contains(protocol.toLowerCase())) {
+      if (this.supportedProtocols.contains(protocol.toLowerCase(Locale.ROOT))) {
         return protocol;
       }
     }
