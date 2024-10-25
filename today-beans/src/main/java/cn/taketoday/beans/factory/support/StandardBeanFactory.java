@@ -1185,14 +1185,14 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   @Modifiable
-  public Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public Set<String> getBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
 
-    Class<?> resolved = requiredType.resolve();
-    if (resolved != null && !requiredType.hasGenerics()) {
+    Class<?> resolved = type.resolve();
+    if (resolved != null && !type.hasGenerics()) {
       return getBeanNamesForType(resolved, includeNonSingletons, allowEagerInit);
     }
     else {
-      return doGetBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
+      return doGetBeanNamesForType(type, includeNonSingletons, allowEagerInit);
     }
   }
 
