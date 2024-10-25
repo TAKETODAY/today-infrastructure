@@ -99,6 +99,7 @@ class ResponseEntityExceptionHandlerTests {
     Arrays.stream(SimpleHandlerExceptionHandler.class.getDeclaredMethods())
             .filter(method -> method.getName().startsWith("handle") && (method.getParameterCount() == 4))
             .filter(method -> !method.getName().equals("handleErrorResponse"))
+            .filter(method -> !method.getName().equals("handleDisconnectedClientException"))
             .map(method -> method.getParameterTypes()[0])
             .forEach(exceptionType -> assertThat(annotation.value())
                     .as("@ExceptionHandler is missing declaration for " + exceptionType.getName())

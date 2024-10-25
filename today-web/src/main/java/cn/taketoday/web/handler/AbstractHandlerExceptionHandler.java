@@ -31,6 +31,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.util.DisconnectedClientHelper;
 
 /**
  * Abstract base class for {@link HandlerExceptionHandler} implementations.
@@ -46,6 +47,16 @@ import cn.taketoday.web.RequestContext;
  * @since 4.0 2022/3/2 17:59
  */
 public abstract class AbstractHandlerExceptionHandler extends OrderedSupport implements HandlerExceptionHandler {
+
+  /**
+   * Log category to use for network failure after a client has gone away.
+   *
+   * @see DisconnectedClientHelper
+   */
+  protected static final String DISCONNECTED_CLIENT_LOG_CATEGORY = "cn.taketoday.web.handler.DisconnectedClient";
+
+  protected static final DisconnectedClientHelper disconnectedClientHelper =
+          new DisconnectedClientHelper(DISCONNECTED_CLIENT_LOG_CATEGORY);
 
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -158,7 +169,8 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
       Object result = handleInternal(context, handler, ex);
-      if (result != null && result != NONE_RETURN_VALUE) {
+      if (result != null && result != NONE_RETURN_VALUE
+              && !disconnectedClientHelper.checkAndLogClientDisconnectedException(ex)) {
         // Print debug message when warn logger is not enabled.
         if (logger.isDebugEnabled() && (warnLogger == null || !warnLogger.isWarnEnabled())) {
           logger.debug(buildLogMessage(ex, context) + " to " + result);

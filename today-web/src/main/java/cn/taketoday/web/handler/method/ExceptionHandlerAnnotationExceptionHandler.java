@@ -40,7 +40,6 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.AbstractHandlerMethodExceptionHandler;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
-import cn.taketoday.web.util.DisconnectedClientHelper;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -53,16 +52,6 @@ import cn.taketoday.web.util.DisconnectedClientHelper;
  */
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
-
-  /**
-   * Log category to use for network failure after a client has gone away.
-   *
-   * @see DisconnectedClientHelper
-   */
-  private static final String DISCONNECTED_CLIENT_LOG_CATEGORY = "cn.taketoday.web.handler.DisconnectedClient";
-
-  private static final DisconnectedClientHelper disconnectedClientHelper =
-          new DisconnectedClientHelper(DISCONNECTED_CLIENT_LOG_CATEGORY);
 
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
           new ConcurrentHashMap<>(64);

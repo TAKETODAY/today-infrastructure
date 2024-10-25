@@ -47,6 +47,7 @@ import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.util.DisconnectedClientHelper;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -194,6 +195,9 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
         else if (ex instanceof AsyncRequestTimeoutException) {
           view = handleAsyncRequestTimeoutException(
                   (AsyncRequestTimeoutException) ex, request, handler);
+        }
+        else if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
+          return handleDisconnectedClientException(ex, request, handler);
         }
 
         if (view == null) {
@@ -427,6 +431,26 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
           RequestContext request, @Nullable Object handler) throws IOException {
 
     return null;
+  }
+
+  /**
+   * Handle an Exception that indicates the client has gone away. This is
+   * typically an {@link IOException} of a specific subtype or with a message
+   * specific to the underlying Servlet container. Those are detected through
+   * {@link DisconnectedClientHelper#isClientDisconnectedException(Throwable)}
+   * <p>By default, do nothing since the response is not usable.
+   *
+   * @param ex the {@code Exception} to be handled
+   * @param request current HTTP request
+   * @param handler the executed handler, or {@code null} if none chosen
+   * at the time of the exception (for example, if multipart resolution failed)
+   * @return an empty ModelAndView indicating the exception was handled
+   * @since 5.0
+   */
+  protected Object handleDisconnectedClientException(
+          Throwable ex, RequestContext request, @Nullable Object handler) {
+
+    return NONE_RETURN_VALUE;
   }
 
   /**
