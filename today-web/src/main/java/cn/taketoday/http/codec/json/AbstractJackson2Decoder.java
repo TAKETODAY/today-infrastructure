@@ -162,7 +162,7 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
         catch (IOException ex) {
           sink.error(processException(ex));
         }
-      });
+      }).doOnDiscard(DataBuffer.class, DataBufferUtils::release);
     });
   }
 
