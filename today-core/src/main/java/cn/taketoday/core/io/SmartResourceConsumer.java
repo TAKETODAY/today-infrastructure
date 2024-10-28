@@ -19,6 +19,8 @@ package cn.taketoday.core.io;
 
 import java.util.Set;
 
+import cn.taketoday.lang.Modifiable;
+
 /**
  * Extended ResourceConsumer
  *
@@ -27,8 +29,18 @@ import java.util.Set;
  */
 public interface SmartResourceConsumer extends ResourceConsumer {
 
+  /**
+   * Check if the resource has been added
+   *
+   * @param resource resource to check
+   * @return Check if the resource has been added
+   */
   boolean contains(Resource resource);
 
+  /**
+   * All Resources
+   */
+  @Modifiable
   Set<Resource> getResources();
 
 }

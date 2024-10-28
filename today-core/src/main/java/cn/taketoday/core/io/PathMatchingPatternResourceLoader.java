@@ -40,9 +40,12 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -228,6 +231,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   private final ResourceLoader resourceLoader;
 
+  private final ConcurrentHashMap<String, Resource[]> rootDirCache = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<String, NavigableSet<String>> jarEntriesCache = new ConcurrentHashMap<>();
+
   @Nullable
   private volatile Set<ClassPathManifestEntry> manifestEntriesCache;
 
@@ -352,8 +359,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @since 5.0
    */
   public void clearCache() {
-//    this.rootDirCache.clear();
-//    this.jarEntriesCache.clear();
+    this.rootDirCache.clear();
+    this.jarEntriesCache.clear();
     this.manifestEntriesCache = null;
   }
 
@@ -557,20 +564,93 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected void findPathMatchingResources(String locationPattern, SmartResourceConsumer consumer) throws IOException {
     String rootDirPath = determineRootDir(locationPattern);
     String subPattern = locationPattern.substring(rootDirPath.length());
-    scan(rootDirPath, rootDirResource -> rootDirResource(subPattern, rootDirResource, consumer));
-  }
 
-  protected void rootDirResource(String subPattern, Resource rootDirResource, SmartResourceConsumer consumer) throws IOException {
-    if (rootDirResource instanceof ClassPathResource cpResource) {
-      rootDirResource = cpResource.getOriginalResource();
+    // Look for pre-cached root dir resources, either a direct match or
+    // a match for a parent directory in the same classpath locations.
+    Resource[] rootDirResources = this.rootDirCache.get(rootDirPath);
+    String actualRootPath = null;
+    if (rootDirResources == null) {
+      // No direct match -> search for a common parent directory match
+      // (cached based on repeated searches in the same base location,
+      // in particular for different root directories in the same jar).
+      String commonPrefix = null;
+      String existingPath = null;
+      boolean commonUnique = true;
+      for (String path : this.rootDirCache.keySet()) {
+        String currentPrefix = null;
+        for (int i = 0; i < path.length(); i++) {
+          if (i == rootDirPath.length() || path.charAt(i) != rootDirPath.charAt(i)) {
+            currentPrefix = path.substring(0, path.lastIndexOf('/', i - 1) + 1);
+            break;
+          }
+        }
+        if (currentPrefix != null) {
+          // A prefix match found, potentially to be turned into a common parent cache entry.
+          if (commonPrefix == null || !commonUnique || currentPrefix.length() > commonPrefix.length()) {
+            commonPrefix = currentPrefix;
+            existingPath = path;
+          }
+          else if (currentPrefix.equals(commonPrefix)) {
+            commonUnique = false;
+          }
+        }
+        else if (actualRootPath == null || path.length() > actualRootPath.length()) {
+          // A direct match found for a parent directory -> use it.
+          rootDirResources = this.rootDirCache.get(path);
+          actualRootPath = path;
+        }
+      }
+      if (rootDirResources == null && StringUtils.isNotEmpty(commonPrefix)) {
+        // Try common parent directory as long as it points to the same classpath locations.
+        rootDirResources = getResourcesArray(commonPrefix);
+        Resource[] existingResources = this.rootDirCache.get(existingPath);
+        if (existingResources != null && rootDirResources.length == existingResources.length) {
+          // Replace existing subdirectory cache entry with common parent directory,
+          // avoiding repeated determination of root directories in the same jar.
+          this.rootDirCache.remove(existingPath);
+          this.rootDirCache.put(commonPrefix, rootDirResources);
+          actualRootPath = commonPrefix;
+        }
+        else if (commonPrefix.equals(rootDirPath)) {
+          // The identified common directory is equal to the currently requested path ->
+          // worth caching specifically, even if it cannot replace the existing sub-entry.
+          this.rootDirCache.put(rootDirPath, rootDirResources);
+        }
+        else {
+          // Mismatch: parent directory points to more classpath locations.
+          rootDirResources = null;
+        }
+      }
+      if (rootDirResources == null) {
+        // Lookup for specific directory, creating a cache entry for it.
+        rootDirResources = getResourcesArray(rootDirPath);
+        this.rootDirCache.put(rootDirPath, rootDirResources);
+      }
     }
 
-    URL rootDirURL = rootDirResource.getURL();
-    if (ResourceUtils.isJarURL(rootDirURL) || isJarResource(rootDirResource)) {
-      doFindPathMatchingJarResources(rootDirResource, rootDirURL, subPattern, consumer);
+    for (Resource rootDirResource : rootDirResources) {
+      if (actualRootPath != null && actualRootPath.length() < rootDirPath.length()) {
+        // Create sub-resource for requested sub-location from cached common root directory.
+        rootDirResource = rootDirResource.createRelative(rootDirPath.substring(actualRootPath.length()));
+      }
+      rootDirResource = resolveRootDirResource(rootDirResource);
+      URL rootDirUrl = rootDirResource.getURL();
+
+      if (rootDirResource instanceof ClassPathResource cpResource) {
+        rootDirResource = cpResource.getOriginalResource();
+      }
+
+      if (ResourceUtils.isJarURL(rootDirUrl) || isJarResource(rootDirResource)) {
+        doFindPathMatchingJarResources(rootDirResource, rootDirUrl, subPattern, consumer);
+      }
+      else {
+        doFindPathMatchingFileResources(rootDirResource, subPattern, consumer);
+      }
     }
-    else {
-      doFindPathMatchingFileResources(rootDirResource, subPattern, consumer);
+
+    if (log.isTraceEnabled()) {
+      log.trace("Resolved location pattern [{}] to resources {}",
+              locationPattern, consumer.getResources());
     }
   }
 
@@ -596,6 +676,26 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       rootDirEnd = prefixEnd;
     }
     return location.substring(0, rootDirEnd);
+  }
+
+  /**
+   * Resolve the supplied root directory resource for path matching.
+   * <p>By default, {@link #findPathMatchingResources(String, SmartResourceConsumer)} resolves Equinox
+   * OSGi "bundleresource:" and "bundleentry:" URLs into standard jar file URLs
+   * that will be traversed using standard jar file traversal algorithm.
+   * <p>For any custom resolution, override this template method and replace the
+   * supplied resource handle accordingly.
+   * <p>The default implementation of this method returns the supplied resource
+   * unmodified.
+   *
+   * @param original the resource to resolve
+   * @return the resolved resource (may be identical to the supplied resource)
+   * @throws IOException in case of resolution failure
+   * @see #findPathMatchingResources(String, SmartResourceConsumer)
+   * @since 5.0
+   */
+  protected Resource resolveRootDirResource(Resource original) throws IOException {
+    return original;
   }
 
   /**
@@ -629,10 +729,37 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected void doFindPathMatchingJarResources(Resource rootDirResource,
           URL rootDirURL, String subPattern, SmartResourceConsumer consumer) throws IOException {
 
+    String jarFileUrl = null;
+    String rootEntryPath = "";
+
+    String urlFile = rootDirURL.getFile();
+    int separatorIndex = urlFile.indexOf(ResourceUtils.WAR_URL_SEPARATOR);
+    if (separatorIndex == -1) {
+      separatorIndex = urlFile.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
+    }
+    if (separatorIndex != -1) {
+      jarFileUrl = urlFile.substring(0, separatorIndex);
+      rootEntryPath = urlFile.substring(separatorIndex + 2);  // both separators are 2 chars
+      NavigableSet<String> entriesCache = this.jarEntriesCache.get(jarFileUrl);
+      if (entriesCache != null) {
+        PathMatcher pathMatcher = getPathMatcher();
+        // Search sorted entries from first entry with rootEntryPath prefix
+        for (String entryPath : entriesCache.tailSet(rootEntryPath, false)) {
+          if (!entryPath.startsWith(rootEntryPath)) {
+            // We are beyond the potential matches in the current TreeSet.
+            break;
+          }
+          String relativePath = entryPath.substring(rootEntryPath.length());
+          if (pathMatcher.match(subPattern, relativePath)) {
+            consumer.accept(rootDirResource.createRelative(relativePath));
+          }
+        }
+        return;
+      }
+    }
+
     URLConnection con = rootDirURL.openConnection();
     JarFile jarFile;
-    String jarFileUrl;
-    String rootEntryPath;
     boolean closeJarFile;
 
     if (con instanceof JarURLConnection jarCon) {
@@ -648,15 +775,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       // We'll assume URLs of the format "jar:path!/entry", with the protocol
       // being arbitrary as long as following the entry format.
       // We'll also handle paths with and without leading "file:" prefix.
-      String urlFile = rootDirURL.getFile();
       try {
-        int separatorIndex = urlFile.indexOf(ResourceUtils.WAR_URL_SEPARATOR);
-        if (separatorIndex == -1) {
-          separatorIndex = urlFile.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
-        }
-        if (separatorIndex != -1) {
-          jarFileUrl = urlFile.substring(0, separatorIndex);
-          rootEntryPath = urlFile.substring(separatorIndex + 2);  // both separators are 2 chars
+        if (jarFileUrl != null) {
           jarFile = getJarFile(jarFileUrl);
         }
         else {
@@ -668,7 +788,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       }
       catch (ZipException ex) {
         if (log.isDebugEnabled()) {
-          log.debug("Skipping invalid jar classpath entry [{}]", urlFile);
+          log.debug("Skipping invalid jar class path entry [{}]", urlFile);
         }
         return;
       }
@@ -685,18 +805,18 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       }
 
       PathMatcher pathMatcher = getPathMatcher();
-      Enumeration<JarEntry> entries = jarFile.entries();
-      while (entries.hasMoreElements()) {
-        JarEntry entry = entries.nextElement();
-        String entryPath = entry.getName();
+      TreeSet<String> entriesCache = new TreeSet<>();
+      for (String entryPath : jarFile.stream().map(JarEntry::getName).sorted().toList()) {
+        entriesCache.add(entryPath);
         if (entryPath.startsWith(rootEntryPath)) {
           String relativePath = entryPath.substring(rootEntryPath.length());
           if (pathMatcher.match(subPattern, relativePath)) {
-            consumer.accept(rootDirResource.createRelative(relativePath)); ;
+            consumer.accept(rootDirResource.createRelative(relativePath));
           }
         }
       }
-
+      // Cache jar entries in TreeSet for efficient searching on re-encounter.
+      this.jarEntriesCache.put(jarFileUrl, entriesCache);
     }
     finally {
       if (closeJarFile) {

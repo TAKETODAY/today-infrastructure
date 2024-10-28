@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -56,7 +56,10 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 
   private final String absolutePath;
 
+  @Nullable
   private Class<?> resourceClass;
+
+  @Nullable
   private ClassLoader classLoader;
 
   protected Resource delegate;
@@ -85,7 +88,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
    * @param classLoader the class loader to load the resource with
    * @see ClassUtils#getDefaultClassLoader()
    */
-  public ClassPathResource(String path, ClassLoader classLoader) {
+  public ClassPathResource(String path, @Nullable ClassLoader classLoader) {
     Assert.notNull(path, "Path is required");
     String pathToUse = StringUtils.cleanPath(path);
     if (pathToUse.startsWith("/")) {
@@ -111,7 +114,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
    * @see ClassUtils#getDefaultClassLoader()
    * @see ModuleResource
    */
-  public ClassPathResource(String path, Class<?> clazz) {
+  public ClassPathResource(String path, @Nullable Class<?> clazz) {
     Assert.notNull(path, "Path is required");
     this.path = StringUtils.cleanPath(path);
 
@@ -263,8 +266,8 @@ public class ClassPathResource extends AbstractFileResolvingResource {
   public Resource createRelative(String relativePath) {
     final String pathToUse = StringUtils.applyRelativePath(path, relativePath);
     return resourceClass != null
-           ? new ClassPathResource(pathToUse, resourceClass)
-           : new ClassPathResource(pathToUse, classLoader);
+            ? new ClassPathResource(pathToUse, resourceClass)
+            : new ClassPathResource(pathToUse, classLoader);
   }
 
   /**
