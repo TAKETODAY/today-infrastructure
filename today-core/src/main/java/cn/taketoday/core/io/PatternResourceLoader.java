@@ -96,6 +96,18 @@ public interface PatternResourceLoader extends ResourceLoader {
   void scan(String locationPattern, ResourceConsumer consumer) throws IOException;
 
   /**
+   * Scan the given location pattern into {@code Resource} objects.
+   * <p>Overlapping resource entries that point to the same physical
+   * resource should be avoided, as far as possible. The result should
+   * have set semantics.
+   *
+   * @param locationPattern the location pattern to resolve
+   * @throws IOException in case of I/O errors
+   * @since 5.0
+   */
+  void scan(String locationPattern, SmartResourceConsumer consumer) throws IOException;
+
+  /**
    * Resolve the given location pattern into {@code Resource} objects.
    * <p>Overlapping resource entries that point to the same physical
    * resource should be avoided, as far as possible. The result should

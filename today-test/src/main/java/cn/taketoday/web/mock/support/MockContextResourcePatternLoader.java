@@ -28,6 +28,7 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.io.SmartResourceConsumer;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -81,7 +82,7 @@ public class MockContextResourcePatternLoader extends PathMatchingPatternResourc
    */
   @Override
   protected void doFindPathMatchingFileResources(
-          Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
+          Resource rootDirResource, String subPattern, SmartResourceConsumer consumer) throws IOException {
     if (rootDirResource instanceof MockContextResource scResource) {
       MockContext sc = scResource.getMockContext();
       String fullPattern = scResource.getPath() + subPattern;

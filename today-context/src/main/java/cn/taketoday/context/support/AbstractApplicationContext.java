@@ -91,6 +91,7 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceConsumer;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.io.SmartResourceConsumer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -321,6 +322,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Override
   public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
+    patternResourceLoader.scan(locationPattern, consumer);
+  }
+
+  @Override
+  public void scan(String locationPattern, SmartResourceConsumer consumer) throws IOException {
     patternResourceLoader.scan(locationPattern, consumer);
   }
 
@@ -575,10 +581,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // Propagate exception to caller.
         throw ex;
       }
-      finally {
-        // Reset common introspection caches in core infrastructure.
-        resetCommonCaches();
-      }
     }
     finally {
       this.startupShutdownThread = null;
@@ -823,6 +825,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   protected void cancelRefresh(Throwable ex) {
     this.active.set(false);
+
+    // Reset common introspection caches in core infrastructure.
+    resetCommonCaches();
   }
 
   /**
@@ -1679,6 +1684,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    * onRefresh() method and publishing the {@link ContextRefreshedEvent}.
    */
   protected void finishRefresh() {
+    // Reset common introspection caches in core infrastructure.
+    resetCommonCaches();
+
     // Clear context-level resource caches (such as ASM metadata from scanning).
     clearResourceCaches();
 
@@ -1694,6 +1702,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     applyState(State.STARTED);
     Duration duration = Duration.between(getStartupDate(), Instant.now());
     logger.info("Application context startup in {} ms", duration.toMillis());
+  }
+
+  @Override
+  public void clearResourceCaches() {
+    super.clearResourceCaches();
+    if (patternResourceLoader instanceof PathMatchingPatternResourceLoader pmprl) {
+      pmprl.clearCache();
+    }
   }
 
   //---------------------------------------------------------------------

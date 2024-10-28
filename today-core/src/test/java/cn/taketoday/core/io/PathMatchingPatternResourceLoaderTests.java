@@ -18,19 +18,39 @@ package cn.taketoday.core.io;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.FileSystemUtils;
+import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -284,6 +304,103 @@ class PathMatchingPatternResourceLoaderTests {
     void classpathStarWithPatternInJar() {
       String pattern = "classpath*:reactor/util/annotation/*.class";
       assertExactFilenames(pattern, CLASSES_IN_REACTOR_UTIL_ANNOTATION);
+    }
+
+  }
+
+  @Nested
+  class ClassPathManifestEntries {
+
+    @TempDir
+    Path temp;
+
+    @Test
+    void javaDashJarFindsClassPathManifestEntries() throws Exception {
+      Path lib = this.temp.resolve("lib");
+      Files.createDirectories(lib);
+      writeAssetJar(lib.resolve("asset.jar"));
+      writeApplicationJar(this.temp.resolve("app.jar"));
+      String java = ProcessHandle.current().info().command().get();
+      Process process = new ProcessBuilder(java, "-jar", "app.jar")
+              .directory(this.temp.toFile())
+              .start();
+      assertThat(process.waitFor()).isZero();
+      String result = StreamUtils.copyToString(process.getInputStream(), StandardCharsets.UTF_8);
+      assertThat(result.replace("\\", "/")).contains("!!!!").contains("/lib/asset.jar!/assets/file.txt");
+    }
+
+    private void writeAssetJar(Path path) throws Exception {
+      try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(path.toFile()))) {
+        jar.putNextEntry(new ZipEntry("assets/"));
+        jar.closeEntry();
+        jar.putNextEntry(new ZipEntry("assets/file.txt"));
+        StreamUtils.copy("test", StandardCharsets.UTF_8, jar);
+        jar.closeEntry();
+      }
+    }
+
+    private void writeApplicationJar(Path path) throws Exception {
+      Manifest manifest = new Manifest();
+      Attributes mainAttributes = manifest.getMainAttributes();
+      mainAttributes.put(Attributes.Name.CLASS_PATH, buildSpringClassPath() + "lib/asset.jar");
+      mainAttributes.put(Attributes.Name.MAIN_CLASS, ClassPathManifestEntriesTestApplication.class.getName());
+      mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+      try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(path.toFile()), manifest)) {
+        String appClassResource = ClassUtils.convertClassNameToResourcePath(
+                ClassPathManifestEntriesTestApplication.class.getName())
+                + ClassUtils.CLASS_FILE_SUFFIX;
+        String folder = "";
+        for (String name : appClassResource.split("/")) {
+          if (!name.endsWith(ClassUtils.CLASS_FILE_SUFFIX)) {
+            folder += name + "/";
+            jar.putNextEntry(new ZipEntry(folder));
+            jar.closeEntry();
+          }
+          else {
+            jar.putNextEntry(new ZipEntry(folder + name));
+            try (InputStream in = getClass().getResourceAsStream(name)) {
+              in.transferTo(jar);
+            }
+            jar.closeEntry();
+          }
+        }
+      }
+    }
+
+    private String buildSpringClassPath() throws Exception {
+      return copyClasses(PathMatchingPatternResourceLoader.class, "today-core")
+              + copyClasses(LoggerFactory.class, "commons-logging");
+    }
+
+    private String copyClasses(Class<?> sourceClass, String destinationName)
+            throws URISyntaxException, IOException {
+      Path destination = this.temp.resolve(destinationName);
+      String resourcePath = ClassUtils.convertClassNameToResourcePath(sourceClass.getName())
+              + ClassUtils.CLASS_FILE_SUFFIX;
+      URL resource = getClass().getClassLoader().getResource(resourcePath);
+      URL url = new URL(resource.toString().replace(resourcePath, ""));
+      URLConnection connection = url.openConnection();
+      if (connection instanceof JarURLConnection jarUrlConnection) {
+        try (JarFile jarFile = jarUrlConnection.getJarFile()) {
+          Enumeration<JarEntry> entries = jarFile.entries();
+          while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            if (!entry.isDirectory()) {
+              Path entryPath = destination.resolve(entry.getName());
+              try (InputStream in = jarFile.getInputStream(entry)) {
+                Files.createDirectories(entryPath.getParent());
+                Files.copy(in, destination.resolve(entry.getName()));
+              }
+            }
+          }
+        }
+      }
+      else {
+        File source = new File(url.toURI());
+        Files.createDirectories(destination);
+        FileSystemUtils.copyRecursively(source, destination.toFile());
+      }
+      return destinationName + "/ ";
     }
 
   }

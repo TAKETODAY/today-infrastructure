@@ -37,13 +37,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.function.Predicate;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
@@ -52,7 +56,6 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -225,6 +228,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   private final ResourceLoader resourceLoader;
 
+  @Nullable
+  private volatile Set<ClassPathManifestEntry> manifestEntriesCache;
+
   /**
    * Create a new PathMatchingPatternResourceLoader with a DefaultResourceLoader.
    * <p>ClassLoader access will happen via the thread context class loader.
@@ -287,7 +293,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     return this.pathMatcher;
   }
 
-  @NonNull
   @Override
   public Resource getResource(String location) {
     return resourceLoader.getResource(location);
@@ -295,13 +300,18 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   @Override
   public Set<Resource> getResources(String locationPattern) throws IOException {
-    LinkedHashSet<Resource> result = new LinkedHashSet<>();
-    scan(locationPattern, result::add);
-    return result;
+    SeenResourceConsumer consumer = new SeenResourceConsumer(null);
+    scan(locationPattern, consumer);
+    return consumer.getResources();
   }
 
   @Override
   public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
+    scan(locationPattern, new SeenResourceConsumer(consumer));
+  }
+
+  @Override
+  public void scan(String locationPattern, SmartResourceConsumer consumer) throws IOException {
     Assert.notNull(locationPattern, "Location pattern is required");
 
     if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
@@ -337,8 +347,19 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   /**
+   * Clear the local resource cache, removing all cached classpath/jar structures.
+   *
+   * @since 5.0
+   */
+  public void clearCache() {
+//    this.rootDirCache.clear();
+//    this.jarEntriesCache.clear();
+    this.manifestEntriesCache = null;
+  }
+
+  /**
    * Find all class location resources with the given location via the
-   * ClassLoader. Delegates to {@link #doFindAllClassPathResources(String, ResourceConsumer)}.
+   * ClassLoader. Delegates to {@link #doFindAllClassPathResources(String, SmartResourceConsumer)}.
    *
    * @param location the absolute path within the classpath
    * @param consumer Resource consumer
@@ -346,19 +367,19 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see java.lang.ClassLoader#getResources
    * @see #convertClassLoaderURL
    */
-  protected void findAllClassPathResources(String location, ResourceConsumer consumer) throws IOException {
+  protected void findAllClassPathResources(String location, SmartResourceConsumer consumer) throws IOException {
     String path = stripLeadingSlash(location);
     doFindAllClassPathResources(path, consumer);
   }
 
   /**
    * Find all class location resources with the given path via the ClassLoader.
-   * Called by {@link #findAllClassPathResources(String, ResourceConsumer)}.
+   * Called by {@link #findAllClassPathResources(String, SmartResourceConsumer)}.
    *
    * @param path the absolute path within the classpath (never a leading slash)
    * @param consumer Resource consumer
    */
-  protected void doFindAllClassPathResources(String path, ResourceConsumer consumer) throws IOException {
+  protected void doFindAllClassPathResources(String path, SmartResourceConsumer consumer) throws IOException {
     ClassLoader cl = getClassLoader();
     if (StringUtils.isEmpty(path)) {
       // The above result is likely to be incomplete, i.e. only containing file system references.
@@ -397,7 +418,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @param classLoader the ClassLoader to search (including its ancestors)
    * @param consumer Resource consumer
    */
-  protected void addAllClassLoaderJarRoots(@Nullable ClassLoader classLoader, ResourceConsumer consumer) {
+  protected void addAllClassLoaderJarRoots(@Nullable ClassLoader classLoader, SmartResourceConsumer consumer) throws IOException {
     if (classLoader instanceof URLClassLoader urlClassLoader) {
       try {
         for (URL url : urlClassLoader.getURLs()) {
@@ -445,36 +466,80 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    *
    * @param consumer Resource consumer
    */
-  protected void addClassPathManifestEntries(ResourceConsumer consumer) {
+  protected void addClassPathManifestEntries(SmartResourceConsumer consumer) throws IOException {
+    Set<ClassPathManifestEntry> entries = this.manifestEntriesCache;
+    if (entries == null) {
+      entries = getClassPathManifestEntries();
+      this.manifestEntriesCache = entries;
+    }
+
+    for (ClassPathManifestEntry entry : entries) {
+      if (!consumer.contains(entry.resource()) &&
+              (entry.alternative() != null && !consumer.contains(entry.alternative()))) {
+        consumer.accept(entry.resource());
+      }
+    }
+  }
+
+  private Set<ClassPathManifestEntry> getClassPathManifestEntries() {
+    var manifestEntries = new LinkedHashSet<ClassPathManifestEntry>();
+    var seen = new HashSet<File>();
     try {
-      String javaClassPathProperty = System.getProperty("java.class.path");
-      for (String path : StringUtils.delimitedListToStringArray(javaClassPathProperty, File.pathSeparator)) {
+      String paths = System.getProperty("java.class.path");
+      for (String path : StringUtils.delimitedListToStringArray(paths, File.pathSeparator)) {
         try {
-          String filePath = new File(path).getAbsolutePath();
-          int prefixIndex = filePath.indexOf(':');
-          if (prefixIndex == 1) {
-            // Possibly a drive prefix on Windows (for example, "c:"), so we prepend a slash
-            // and convert the drive letter to uppercase for consistent duplicate detection.
-            filePath = "/" + StringUtils.capitalize(filePath);
-          }
-          // Since '#' can appear in directories/filenames, java.net.URL should not treat it as a fragment
-          filePath = StringUtils.replace(filePath, "#", "%23");
-          // Build URL that points to the root of the jar file
-          UrlResource jarResource = new UrlResource(ResourceUtils.JAR_URL_PREFIX +
-                  ResourceUtils.FILE_URL_PREFIX + filePath + ResourceUtils.JAR_URL_SEPARATOR);
-          // Potentially overlapping with URLClassLoader.getURLs() result above!
-          if (jarResource.exists()) {
-            consumer.accept(jarResource);
+          File jar = new File(path).getAbsoluteFile();
+          if (jar.isFile() && seen.add(jar)) {
+            manifestEntries.add(ClassPathManifestEntry.of(jar));
+            manifestEntries.addAll(getClassPathManifestEntriesFromJar(jar));
           }
         }
         catch (MalformedURLException ex) {
-          log.debug("Cannot search for matching files underneath" +
-                  " [{}] because it cannot be converted to a valid 'jar:' URL: {}", path, ex.getMessage());
+          if (log.isDebugEnabled()) {
+            log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
+                    path, ex.getMessage());
+          }
         }
       }
+      return Collections.unmodifiableSet(manifestEntries);
     }
     catch (Exception ex) {
-      log.debug("Failed to evaluate 'java.class.path' manifest entries: {}", ex);
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to evaluate 'java.class.path' manifest entries: " + ex);
+      }
+      return Collections.emptySet();
+    }
+  }
+
+  private Set<ClassPathManifestEntry> getClassPathManifestEntriesFromJar(File jar) throws IOException {
+    URL base = jar.toURI().toURL();
+    File parent = jar.getAbsoluteFile().getParentFile();
+    try (JarFile jarFile = new JarFile(jar)) {
+      Manifest manifest = jarFile.getManifest();
+      Attributes attributes = (manifest != null ? manifest.getMainAttributes() : null);
+      String classPath = (attributes != null ? attributes.getValue(Attributes.Name.CLASS_PATH) : null);
+      var manifestEntries = new LinkedHashSet<ClassPathManifestEntry>();
+      if (StringUtils.isNotEmpty(classPath)) {
+        StringTokenizer tokenizer = new StringTokenizer(classPath);
+        while (tokenizer.hasMoreTokens()) {
+          String path = tokenizer.nextToken();
+          if (path.indexOf(':') >= 0 && !"file".equalsIgnoreCase(new URL(base, path).getProtocol())) {
+            // See jdk.internal.loader.URLClassPath.JarLoader.tryResolveFile(URL, String)
+            continue;
+          }
+          File candidate = new File(parent, path);
+          if (candidate.isFile() && candidate.getCanonicalPath().contains(parent.getCanonicalPath())) {
+            manifestEntries.add(ClassPathManifestEntry.of(candidate));
+          }
+        }
+      }
+      return Collections.unmodifiableSet(manifestEntries);
+    }
+    catch (Exception ex) {
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to load manifest entries from jar file '{}': {}", jar, ex.toString());
+      }
+      return Collections.emptySet();
     }
   }
 
@@ -489,13 +554,13 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see #doFindPathMatchingFileResources
    * @see PathMatcher
    */
-  protected void findPathMatchingResources(String locationPattern, ResourceConsumer consumer) throws IOException {
+  protected void findPathMatchingResources(String locationPattern, SmartResourceConsumer consumer) throws IOException {
     String rootDirPath = determineRootDir(locationPattern);
     String subPattern = locationPattern.substring(rootDirPath.length());
     scan(rootDirPath, rootDirResource -> rootDirResource(subPattern, rootDirResource, consumer));
   }
 
-  protected void rootDirResource(String subPattern, Resource rootDirResource, ResourceConsumer consumer) throws IOException {
+  protected void rootDirResource(String subPattern, Resource rootDirResource, SmartResourceConsumer consumer) throws IOException {
     if (rootDirResource instanceof ClassPathResource cpResource) {
       rootDirResource = cpResource.getOriginalResource();
     }
@@ -562,7 +627,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @since 4.0
    */
   protected void doFindPathMatchingJarResources(Resource rootDirResource,
-          URL rootDirURL, String subPattern, ResourceConsumer consumer) throws IOException {
+          URL rootDirURL, String subPattern, SmartResourceConsumer consumer) throws IOException {
 
     URLConnection con = rootDirURL.openConnection();
     JarFile jarFile;
@@ -668,9 +733,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @throws IOException in case of I/O errors
    * @see PathMatcher
    */
-  protected void doFindPathMatchingFileResources(
-          Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
-
+  protected void doFindPathMatchingFileResources(Resource rootDirResource,
+          String subPattern, SmartResourceConsumer consumer) throws IOException {
     URI rootDirUri;
     try {
       rootDirUri = rootDirResource.getURI();
@@ -784,13 +848,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see PathMatcher#match(String, String)
    * @since 4.0
    */
-  protected void findAllModulePathResources(String locationPattern, ResourceConsumer consumer) throws IOException {
-    LinkedHashSet<Resource> result = null;
-    if (log.isDebugEnabled()) {
-      result = new LinkedHashSet<>(16);
-      consumer = consumer.andThen(result::add);
-    }
-
+  protected void findAllModulePathResources(String locationPattern, SmartResourceConsumer consumer) throws IOException {
     String resourcePattern = stripLeadingSlash(locationPattern);
     PathMatcher pathMatcher = getPathMatcher();
     boolean pattern = pathMatcher.isPattern(resourcePattern);
@@ -821,12 +879,12 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
 
     if (log.isDebugEnabled()) {
-      log.trace("Resolved module-path location pattern [{}] to resources {}", resourcePattern, result);
+      log.trace("Resolved module-path location pattern [{}] to resources {}", resourcePattern,
+              consumer.getResources());
     }
   }
 
-  private static void acceptResource(
-          ModuleReader moduleReader, String name, ResourceConsumer consumer) throws IOException {
+  private static void acceptResource(ModuleReader moduleReader, String name, SmartResourceConsumer consumer) throws IOException {
     Resource resource;
     try {
       Optional<URI> uriOptional = moduleReader.find(name);
@@ -851,6 +909,83 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   private static String stripLeadingSlash(String path) {
     return path.startsWith("/") ? path.substring(1) : path;
+  }
+
+  /**
+   * A single {@code Class-Path} manifest entry.
+   */
+  private record ClassPathManifestEntry(Resource resource, @Nullable Resource alternative) {
+
+    private static final String JARFILE_URL_PREFIX = ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX;
+
+    static ClassPathManifestEntry of(File file) throws MalformedURLException {
+      String path = fixPath(file.getAbsolutePath());
+      Resource resource = asJarFileResource(path);
+      Resource alternative = createAlternative(path);
+      return new ClassPathManifestEntry(resource, alternative);
+    }
+
+    private static String fixPath(String path) {
+      int prefixIndex = path.indexOf(':');
+      if (prefixIndex == 1) {
+        // Possibly a drive prefix on Windows (for example, "c:"), so we prepend a slash
+        // and convert the drive letter to uppercase for consistent duplicate detection.
+        path = "/" + StringUtils.capitalize(path);
+      }
+      // Since '#' can appear in directories/filenames, java.net.URL should not treat it as a fragment
+      return StringUtils.replace(path, "#", "%23");
+    }
+
+    /**
+     * Return a alternative form of the resource, i.e. with or without a leading slash.
+     *
+     * @param path the file path (with or without a leading slash)
+     * @return the alternative form or {@code null}
+     */
+    @Nullable
+    private static Resource createAlternative(String path) {
+      try {
+        String alternativePath = path.startsWith("/") ? path.substring(1) : "/" + path;
+        return asJarFileResource(alternativePath);
+      }
+      catch (MalformedURLException ex) {
+        return null;
+      }
+    }
+
+    private static Resource asJarFileResource(String path) throws MalformedURLException {
+      return new UrlResource(JARFILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR);
+    }
+  }
+
+  private final static class SeenResourceConsumer implements SmartResourceConsumer {
+
+    private final LinkedHashSet<Resource> seen = new LinkedHashSet<>();
+
+    @Nullable
+    private final ResourceConsumer delegate;
+
+    SeenResourceConsumer(@Nullable ResourceConsumer delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void accept(Resource resource) throws IOException {
+      if (seen.add(resource) && delegate != null) {
+        delegate.accept(resource);
+      }
+    }
+
+    @Override
+    public boolean contains(Resource resource) {
+      return seen.contains(resource);
+    }
+
+    @Override
+    public Set<Resource> getResources() {
+      return seen;
+    }
+
   }
 
 }
