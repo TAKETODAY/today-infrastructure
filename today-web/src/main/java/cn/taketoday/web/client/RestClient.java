@@ -602,6 +602,8 @@ public interface RestClient {
 
     /**
      * Add the given HttpHeaders.
+     * <p>
+     * Duplicate key-value pairs will be overwritten
      *
      * @param headers the headers
      * @return this builder
@@ -609,6 +611,36 @@ public interface RestClient {
      * @since 5.0
      */
     S headers(@Nullable HttpHeaders headers);
+
+    /**
+     * Add a cookie with the given name and value.
+     *
+     * @param name the cookie name
+     * @param value the cookie value
+     * @return this builder
+     * @since 5.0
+     */
+    S cookie(String name, String value);
+
+    /**
+     * Provides access to every cookie declared so far with the possibility
+     * to add, replace, or remove values.
+     *
+     * @param cookiesConsumer the consumer to provide access to
+     * @return this builder
+     * @since 5.0
+     */
+    S cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
+
+    /**
+     * Add cookies with the given map.
+     * <p>
+     * Duplicate key-value pairs will be overwritten
+     *
+     * @param cookies the cookies map
+     * @since 5.0
+     */
+    S cookies(MultiValueMap<String, String> cookies);
 
     /**
      * Set the attribute with the given name to the given value.

@@ -59,6 +59,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.util.UriBuilder;
@@ -257,6 +258,9 @@ final class DefaultRestClient implements RestClient {
     private HttpHeaders headers;
 
     @Nullable
+    private MultiValueMap<String, String> cookies;
+
+    @Nullable
     private InternalBody body;
 
     @Nullable
@@ -308,6 +312,13 @@ final class DefaultRestClient implements RestClient {
       return this.headers;
     }
 
+    private MultiValueMap<String, String> cookies() {
+      if (this.cookies == null) {
+        this.cookies = new LinkedMultiValueMap<>(3);
+      }
+      return this.cookies;
+    }
+
     @Override
     public DefaultRequestBodyUriSpec header(String headerName, String... headerValues) {
       httpHeaders().setOrRemove(headerName, headerValues);
@@ -323,6 +334,24 @@ final class DefaultRestClient implements RestClient {
     @Override
     public RequestBodySpec headers(@Nullable HttpHeaders headers) {
       httpHeaders().setAll(headers);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec cookie(String name, String value) {
+      cookies().add(name, value);
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec cookies(Consumer<MultiValueMap<String, String>> cookiesConsumer) {
+      cookiesConsumer.accept(cookies());
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec cookies(MultiValueMap<String, String> cookies) {
+      cookies().setAll(cookies);
       return this;
     }
 
@@ -548,6 +577,12 @@ final class DefaultRestClient implements RestClient {
         HttpHeaders headers = request.getHeaders();
         headers.setAll(defaultHeaders);
         headers.setAll(this.headers);
+
+        String serializedCookies = serializeCookies();
+        if (serializedCookies != null) {
+          headers.add(HttpHeaders.COOKIE, serializedCookies);
+        }
+
         request.setAttributes(attributes);
 
         if (initializers != null) {
@@ -568,6 +603,41 @@ final class DefaultRestClient implements RestClient {
       catch (IOException ex) {
         throw createResourceAccessException(uri, this.httpMethod, ex);
       }
+    }
+
+    @Nullable
+    private String serializeCookies() {
+      MultiValueMap<String, String> map;
+      MultiValueMap<String, String> defaultCookies = DefaultRestClient.this.defaultCookies;
+      if (CollectionUtils.isEmpty(this.cookies)) {
+        map = defaultCookies;
+      }
+      else if (CollectionUtils.isEmpty(defaultCookies)) {
+        map = this.cookies;
+      }
+      else {
+        map = new LinkedMultiValueMap<>(defaultCookies.size() + this.cookies.size());
+        map.putAll(defaultCookies);
+        map.putAll(this.cookies);
+      }
+      return CollectionUtils.isNotEmpty(map) ? serializeCookies(map) : null;
+    }
+
+    private static String serializeCookies(MultiValueMap<String, String> map) {
+      boolean first = true;
+      StringBuilder sb = new StringBuilder();
+      for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+        for (String value : entry.getValue()) {
+          if (!first) {
+            sb.append("; ");
+          }
+          else {
+            first = false;
+          }
+          sb.append(entry.getKey()).append('=').append(value);
+        }
+      }
+      return sb.toString();
     }
 
     private static ResourceAccessException createResourceAccessException(URI url, HttpMethod method, IOException ex) {

@@ -809,7 +809,7 @@ class RestClientIntegrationTests {
   void retrieveDefaultCookiesAsCookieHeader(ClientHttpRequestFactory requestFactory) {
     startServer(requestFactory);
     prepareResponse(response ->
-            response.setHeader("Content-Type", "text/plain").setBody("Hello Spring!"));
+            response.setHeader("Content-Type", "text/plain").setBody("Hello"));
 
     RestClient restClientWithCookies = this.restClient.mutate()
             .defaultCookie("testCookie", "firstValue", "secondValue")
