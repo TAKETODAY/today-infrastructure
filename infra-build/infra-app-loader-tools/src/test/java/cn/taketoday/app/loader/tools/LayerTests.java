@@ -66,8 +66,8 @@ class LayerTests {
 			.withMessage("Layer name 'ext' is reserved");
 		assertThatIllegalArgumentException().isThrownBy(() -> new Layer("ExT"))
 			.withMessage("Layer name 'ExT' is reserved");
-		assertThatIllegalArgumentException().isThrownBy(() -> new Layer("infra-app-loader"))
-			.withMessage("Layer name 'infra-app-loader' is reserved");
+		assertThatIllegalArgumentException().isThrownBy(() -> new Layer("infraapp-loader"))
+			.withMessage("Layer name 'infraapp-loader' is reserved");
 	}
 
 }
