@@ -310,8 +310,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
     exchange = filterExchangeFunction(exchange);
 
-    HttpHeaders defaultHeaders = copyDefaultHeaders();
-    MultiValueMap<String, String> defaultCookies = copyDefaultCookies();
+    var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
+    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
+
     return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
             this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this));
   }
@@ -367,26 +368,6 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
             : new DefaultUriBuilderFactory();
     factory.setDefaultUriVariables(this.defaultUriVariables);
     return factory;
-  }
-
-  @Nullable
-  private HttpHeaders copyDefaultHeaders() {
-    if (defaultHeaders != null) {
-      return HttpHeaders.copyOf(defaultHeaders).asReadOnly();
-    }
-    else {
-      return null;
-    }
-  }
-
-  @Nullable
-  private MultiValueMap<String, String> copyDefaultCookies() {
-    if (this.defaultCookies != null) {
-      return MultiValueMap.copyOf(defaultCookies).asReadOnly();
-    }
-    else {
-      return null;
-    }
   }
 
 }

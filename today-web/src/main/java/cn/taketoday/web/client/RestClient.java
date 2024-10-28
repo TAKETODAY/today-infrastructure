@@ -340,6 +340,34 @@ public interface RestClient {
     Builder defaultHeaders(HttpHeaders headers);
 
     /**
+     * Global option to specify a cookie to be added to every request,
+     * if the request does not already contain such a cookie.
+     *
+     * @param cookie the cookie name
+     * @param values the cookie values
+     * @since 5.0
+     */
+    Builder defaultCookie(String cookie, @Nullable String... values);
+
+    /**
+     * Provides access to every {@link #defaultCookie(String, String...)}
+     * declared so far with the possibility to add, replace, or remove.
+     *
+     * @param cookiesConsumer a function that consumes the cookies map
+     * @since 5.0
+     */
+    Builder defaultCookies(Consumer<MultiValueMap<String, String>> cookiesConsumer);
+
+    /**
+     * Global option to specify cookies to be added to every request,
+     * if the request does not already contain such a cookie.
+     *
+     * @param cookies the cookies map
+     * @since 5.0
+     */
+    Builder defaultCookies(MultiValueMap<String, String> cookies);
+
+    /**
      * Provide a consumer to customize every request being built.
      *
      * @param defaultRequest the consumer to use for modifying requests

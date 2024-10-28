@@ -806,6 +806,28 @@ class RestClientIntegrationTests {
   }
 
   @ParameterizedRestClientTest
+  void retrieveDefaultCookiesAsCookieHeader(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+    prepareResponse(response ->
+            response.setHeader("Content-Type", "text/plain").setBody("Hello Spring!"));
+
+    RestClient restClientWithCookies = this.restClient.mutate()
+            .defaultCookie("testCookie", "firstValue", "secondValue")
+            .build();
+
+    restClientWithCookies.get()
+            .uri("/greeting")
+            .header("X-Test-Header", "testvalue")
+            .retrieve()
+            .body(String.class);
+
+    expectRequest(request ->
+            assertThat(request.getHeader(HttpHeaders.COOKIE))
+                    .isEqualTo("testCookie=firstValue; testCookie=secondValue")
+    );
+  }
+
+  @ParameterizedRestClientTest
   void filterForErrorHandling(ClientHttpRequestFactory requestFactory) {
     startServer(requestFactory);
 

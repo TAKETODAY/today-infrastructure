@@ -50,6 +50,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -111,6 +113,10 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private HttpHeaders defaultHeaders;
 
+  /** @since 5.0 */
+  @Nullable
+  private MultiValueMap<String, String> defaultCookies;
+
   @Nullable
   private Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest;
 
@@ -129,33 +135,22 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private List<ClientHttpRequestInitializer> initializers;
 
-  public DefaultRestClientBuilder() {
-  }
+  public DefaultRestClientBuilder() { }
 
   public DefaultRestClientBuilder(DefaultRestClientBuilder other) {
     Assert.notNull(other, "Other is required");
-
     this.baseURI = other.baseURI;
-    this.defaultUriVariables = (other.defaultUriVariables != null ?
-            new LinkedHashMap<>(other.defaultUriVariables) : null);
+    this.defaultRequest = other.defaultRequest;
+    this.requestFactory = other.requestFactory;
     this.uriBuilderFactory = other.uriBuilderFactory;
 
-    if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.forWritable();
-      this.defaultHeaders.putAll(other.defaultHeaders);
-    }
-    else {
-      this.defaultHeaders = null;
-    }
-    this.defaultRequest = other.defaultRequest;
-    this.statusHandlers = (other.statusHandlers != null ? new ArrayList<>(other.statusHandlers) : null);
-
-    this.requestFactory = other.requestFactory;
-    this.messageConverters = (other.messageConverters != null ?
-            new ArrayList<>(other.messageConverters) : null);
-
-    this.interceptors = (other.interceptors != null) ? new ArrayList<>(other.interceptors) : null;
-    this.initializers = (other.initializers != null) ? new ArrayList<>(other.initializers) : null;
+    this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
+    this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
+    this.defaultHeaders = other.defaultHeaders != null ? HttpHeaders.copyOf(other.defaultHeaders) : null;
+    this.defaultCookies = other.defaultCookies != null ? MultiValueMap.copyOf(other.defaultCookies) : null;
+    this.statusHandlers = other.statusHandlers != null ? new ArrayList<>(other.statusHandlers) : null;
+    this.messageConverters = other.messageConverters != null ? new ArrayList<>(other.messageConverters) : null;
+    this.defaultUriVariables = other.defaultUriVariables != null ? new LinkedHashMap<>(other.defaultUriVariables) : null;
   }
 
   public DefaultRestClientBuilder(RestTemplate restTemplate) {
@@ -267,6 +262,31 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
       this.defaultHeaders = HttpHeaders.forWritable();
     }
     return this.defaultHeaders;
+  }
+
+  @Override
+  public RestClient.Builder defaultCookie(String cookie, @Nullable String... values) {
+    initCookies().setOrRemove(cookie, values);
+    return this;
+  }
+
+  @Override
+  public RestClient.Builder defaultCookies(Consumer<MultiValueMap<String, String>> cookiesConsumer) {
+    cookiesConsumer.accept(initCookies());
+    return this;
+  }
+
+  @Override
+  public RestClient.Builder defaultCookies(MultiValueMap<String, String> cookies) {
+    initCookies().setAll(cookies);
+    return this;
+  }
+
+  private MultiValueMap<String, String> initCookies() {
+    if (this.defaultCookies == null) {
+      this.defaultCookies = new LinkedMultiValueMap<>(3);
+    }
+    return this.defaultCookies;
   }
 
   @Override
@@ -404,14 +424,16 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   public RestClient build() {
     ClientHttpRequestFactory requestFactory = initRequestFactory();
     UriBuilderFactory uriBuilderFactory = initUriBuilderFactory();
-    HttpHeaders defaultHeaders = copyDefaultHeaders();
+
+    var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
+    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
 
     List<HttpMessageConverter<?>> messageConverters =
             this.messageConverters != null ? this.messageConverters : initMessageConverters();
 
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
-            defaultHeaders, this.defaultRequest, this.statusHandlers,
+            defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers,
             messageConverters, new DefaultRestClientBuilder(this)
     );
   }
@@ -439,16 +461,6 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
             : new DefaultUriBuilderFactory();
     factory.setDefaultUriVariables(this.defaultUriVariables);
     return factory;
-  }
-
-  @Nullable
-  private HttpHeaders copyDefaultHeaders() {
-    if (this.defaultHeaders != null) {
-      return HttpHeaders.copyOf(defaultHeaders).asReadOnly();
-    }
-    else {
-      return null;
-    }
   }
 
 }

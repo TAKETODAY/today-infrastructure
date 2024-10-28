@@ -59,6 +59,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
@@ -90,6 +91,9 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final HttpHeaders defaultHeaders;
 
+  @Nullable
+  private final MultiValueMap<String, String> defaultCookies;
+
   private final List<StatusHandler> defaultStatusHandlers;
 
   private final DefaultRestClientBuilder builder;
@@ -103,6 +107,7 @@ final class DefaultRestClient implements RestClient {
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
           UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
+          @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest, @Nullable List<StatusHandler> statusHandlers,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
 
@@ -111,6 +116,7 @@ final class DefaultRestClient implements RestClient {
     this.interceptors = interceptors;
     this.uriBuilderFactory = uriBuilderFactory;
     this.defaultHeaders = defaultHeaders;
+    this.defaultCookies = defaultCookies;
     this.defaultRequest = defaultRequest;
     this.defaultStatusHandlers = (statusHandlers != null) ? new ArrayList<>(statusHandlers) : new ArrayList<>();
     this.messageConverters = messageConverters;
