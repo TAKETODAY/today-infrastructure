@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.jackson;
@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.ClassPathScanningCandidateComponentProvid
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -68,15 +68,13 @@ public final class JsonMixinModuleEntries {
    * @return an instance with the result of the scanning
    */
   public static JsonMixinModuleEntries scan(ApplicationContext context, Collection<String> basePackages) {
-    return JsonMixinModuleEntries.create(builder -> {
-      if (ObjectUtils.isEmpty(basePackages)) {
-        return;
-      }
+    Builder builder = new Builder();
+    if (CollectionUtils.isNotEmpty(basePackages)) {
       var scanner = new ClassPathScanningCandidateComponentProvider();
       scanner.setEnvironment(context.getEnvironment());
       scanner.setResourceLoader(context);
       scanner.addIncludeFilter(new AnnotationTypeFilter(JsonMixin.class));
-      scanner.setCandidateComponentPredicate(annotationMetadata -> true);
+      scanner.setCandidateComponentPredicate(a -> true);
       for (String basePackage : basePackages) {
         if (StringUtils.hasText(basePackage)) {
           for (BeanDefinition candidate : scanner.findCandidateComponents(basePackage)) {
@@ -86,7 +84,8 @@ public final class JsonMixinModuleEntries {
           }
         }
       }
-    });
+    }
+    return builder.build();
   }
 
   private static void registerMixinClass(Builder builder, Class<?> mixinClass) {
@@ -95,7 +94,6 @@ public final class JsonMixinModuleEntries {
     for (Class<?> targetType : annotation.getClassArray("type")) {
       builder.and(targetType, mixinClass);
     }
-
   }
 
   /**
@@ -116,7 +114,7 @@ public final class JsonMixinModuleEntries {
 
   private Class<?> resolveClassNameIfNecessary(Object type, ClassLoader classLoader) {
     return type instanceof Class<?> clazz
-           ? clazz : ClassUtils.resolveClassName((String) type, classLoader);
+            ? clazz : ClassUtils.resolveClassName((String) type, classLoader);
   }
 
   /**

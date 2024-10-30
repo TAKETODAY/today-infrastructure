@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -38,10 +35,10 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
  * Enable auto-configuration of the Application Context, attempting to guess and
  * configure beans that you are likely to need. Auto-configuration classes are usually
  * applied based on your classpath and what beans you have defined. For example, if you
- * have {@code tomcat-embedded.jar} on your classpath you are likely to want a
- * {@link cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory}
+ * have {@code netty-http.jar} on your classpath you are likely to want a
+ * {@link cn.taketoday.web.server.support.NettyWebServerFactory}
  * (unless you have defined your own
- * {@link cn.taketoday.framework.web.servlet.server.ServletWebServerFactory} bean).
+ * {@link cn.taketoday.web.server.WebServerFactory} bean).
  * <p>
  * When using {@link cn.taketoday.framework.Application @Application}, the auto-configuration
  * of the context is automatically enabled and adding this annotation has therefore no
