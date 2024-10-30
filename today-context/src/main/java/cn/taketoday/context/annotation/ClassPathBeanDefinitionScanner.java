@@ -317,9 +317,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   public void scan(@Nullable UnaryOperator<BeanDefinitionHolder> operator, String... basePackages) {
     for (String basePackage : basePackages) {
       try {
-        scanCandidateComponents(basePackage, (metadataReader, factory) -> {
-          ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(metadataReader);
-          Resource resource = metadataReader.getResource();
+        scanCandidateComponents(basePackage, (reader, factory) -> {
+          ScannedGenericBeanDefinition candidate = new ScannedGenericBeanDefinition(reader);
+          Resource resource = reader.getResource();
           candidate.setSource(resource);
           candidate.setResource(resource);
 

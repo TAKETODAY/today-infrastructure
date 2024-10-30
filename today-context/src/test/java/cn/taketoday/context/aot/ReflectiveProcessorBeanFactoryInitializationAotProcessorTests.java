@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.aot;
@@ -25,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Constructor;
 
 import cn.taketoday.aot.generate.GenerationContext;
+import cn.taketoday.aot.hint.TypeHint;
+import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.aot.hint.predicate.ReflectionHintsPredicates;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
@@ -34,6 +33,10 @@ import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.annotation.ReflectiveScan;
+import cn.taketoday.context.testfixture.context.aot.scan.reflective2.Reflective2OnType;
+import cn.taketoday.context.testfixture.context.aot.scan.reflective2.reflective21.Reflective21OnType;
+import cn.taketoday.context.testfixture.context.aot.scan.reflective2.reflective22.Reflective22OnType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -72,6 +75,48 @@ class ReflectiveProcessorBeanFactoryInitializationAotProcessorTests {
             .accepts(this.generationContext.getRuntimeHints());
   }
 
+  @Test
+  void shouldTriggerScanningIfBeanUsesReflectiveScan() {
+    process(SampleBeanWithReflectiveScan.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints().map(TypeHint::getType))
+            .containsExactlyInAnyOrderElementsOf(TypeReference.listOf(
+                    Reflective2OnType.class, Reflective21OnType.class, Reflective22OnType.class));
+  }
+
+  @Test
+  void findBasePackagesToScanWhenNoCandidateIsEmpty() {
+    Class<?>[] candidates = { String.class };
+    assertThat(this.processor.findBasePackagesToScan(candidates)).isEmpty();
+  }
+
+  @Test
+  void findBasePackagesToScanWithBasePackageClasses() {
+    Class<?>[] candidates = { SampleBeanWithReflectiveScan.class };
+    assertThat(this.processor.findBasePackagesToScan(candidates))
+            .containsOnly(Reflective2OnType.class.getPackageName());
+  }
+
+  @Test
+  void findBasePackagesToScanWithBasePackages() {
+    Class<?>[] candidates = { SampleBeanWithReflectiveScanWithName.class };
+    assertThat(this.processor.findBasePackagesToScan(candidates))
+            .containsOnly(Reflective2OnType.class.getPackageName());
+  }
+
+  @Test
+  void findBasePackagesToScanWithBasePackagesAndClasses() {
+    Class<?>[] candidates = { SampleBeanWithMultipleReflectiveScan.class };
+    assertThat(this.processor.findBasePackagesToScan(candidates))
+            .containsOnly(Reflective21OnType.class.getPackageName(), Reflective22OnType.class.getPackageName());
+  }
+
+  @Test
+  void findBasePackagesToScanWithDuplicatesFiltersThem() {
+    Class<?>[] candidates = { SampleBeanWithReflectiveScan.class, SampleBeanWithReflectiveScanWithName.class };
+    assertThat(this.processor.findBasePackagesToScan(candidates))
+            .containsOnly(Reflective2OnType.class.getPackageName());
+  }
+
   private void process(Class<?>... beanClasses) {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     for (Class<?> beanClass : beanClasses) {
@@ -105,6 +150,19 @@ class ReflectiveProcessorBeanFactoryInitializationAotProcessorTests {
 
     }
 
+  }
+
+  @ReflectiveScan(basePackageClasses = Reflective2OnType.class)
+  static class SampleBeanWithReflectiveScan {
+  }
+
+  @ReflectiveScan("cn.taketoday.context.testfixture.context.aot.scan.reflective2")
+  static class SampleBeanWithReflectiveScanWithName {
+  }
+
+  @ReflectiveScan(basePackageClasses = Reflective22OnType.class,
+          basePackages = "cn.taketoday.context.testfixture.context.aot.scan.reflective2.reflective21")
+  static class SampleBeanWithMultipleReflectiveScan {
   }
 
 }

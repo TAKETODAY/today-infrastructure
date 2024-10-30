@@ -33,35 +33,38 @@ import cn.taketoday.core.annotation.AliasFor;
  * and record components. Hints are also registered for types transitively used
  * on properties and record components.
  *
- * <p>The annotated element can be a configuration class &mdash; for example:
+ * <p>You can use this annotation on any bean that is contributed to the context:
  * <pre>{@code
  * @Configuration
- * @RegisterReflectionForBinding({Foo.class, Bar.class})
- * public class MyConfig {
+ * @RegisterReflectionForBinding({Foo.class,Bar.class})
+ * class MyConfig {
  *     // ...
  * }
- * }</pre>
+ * }
+ * </pre>
+ *
+ * <p>If scanning of {@link Reflective} is enabled, any type in the configured
+ * packages can use this annotation as well.
  *
  * <p>When the annotated element is a type, the type itself is registered if no
  * candidates are provided:<pre>{@code
  * @Component
  * @RegisterReflectionForBinding
- * public class MyBean {
+ * class MyBean {
  *     // ...
  * }}</pre>
  *
  * The annotation can also be specified on a method. In that case, at least one
  * target class must be specified:<pre>{@code
  * @Component
- * public class MyService {
+ * class MyService {
  *
  *     @RegisterReflectionForBinding(Baz.class)
  *     public Baz process() {
  *         // ...
  *     }
  *
- * }
- * }</pre>
+ * }}</pre>
  *
  * <p>The annotated element can also be any test class that uses the <em>Spring
  * TestContext Framework</em> to load an {@code ApplicationContext}.

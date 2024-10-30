@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.hint.annotation;
@@ -28,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import cn.taketoday.aot.hint.ReflectionHints;
@@ -42,6 +40,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Stephane Nicoll
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ReflectiveRuntimeHintsRegistrar {
@@ -69,16 +68,36 @@ public class ReflectiveRuntimeHintsRegistrar {
     });
   }
 
+  /**
+   * Specify if the given {@code type} is a valid candidate.
+   *
+   * @param type the type to inspect
+   * @return {@code true} if the type uses {@link Reflective} in a way that
+   * is supported by this registrar
+   * @since 5.0
+   */
+  public boolean isCandidate(Class<?> type) {
+    if (isReflective(type)) {
+      return true;
+    }
+    AtomicBoolean candidate = new AtomicBoolean(false);
+    doWithReflectiveConstructors(type, constructor -> candidate.set(true));
+    if (!candidate.get()) {
+      ReflectionUtils.doWithFields(type, field -> candidate.set(true), this::isReflective);
+    }
+    if (!candidate.get()) {
+      ReflectionUtils.doWithMethods(type, method -> candidate.set(true), this::isReflective);
+    }
+    return candidate.get();
+  }
+
   private void processType(Set<Entry> entries, Class<?> typeToProcess) {
     if (isReflective(typeToProcess)) {
       entries.add(createEntry(typeToProcess));
     }
-    doWithReflectiveConstructors(typeToProcess, constructor ->
-            entries.add(createEntry(constructor)));
-    ReflectionUtils.doWithFields(typeToProcess, field ->
-            entries.add(createEntry(field)), this::isReflective);
-    ReflectionUtils.doWithMethods(typeToProcess, method ->
-            entries.add(createEntry(method)), this::isReflective);
+    doWithReflectiveConstructors(typeToProcess, constructor -> entries.add(createEntry(constructor)));
+    ReflectionUtils.doWithFields(typeToProcess, field -> entries.add(createEntry(field)), this::isReflective);
+    ReflectionUtils.doWithMethods(typeToProcess, method -> entries.add(createEntry(method)), this::isReflective);
   }
 
   private void doWithReflectiveConstructors(Class<?> typeToProcess, Consumer<Constructor<?>> consumer) {
@@ -102,7 +121,7 @@ public class ReflectiveRuntimeHintsRegistrar {
             .map(processorClass -> this.processors.computeIfAbsent(processorClass, this::instantiateClass))
             .toList();
     ReflectiveProcessor processorToUse = (processors.size() == 1 ? processors.get(0) :
-                                          new DelegatingReflectiveProcessor(processors));
+            new DelegatingReflectiveProcessor(processors));
     return new Entry(element, processorToUse);
   }
 

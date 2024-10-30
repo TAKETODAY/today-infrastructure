@@ -50,7 +50,6 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0 2021/12/18 13:50
  */
 public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
-  private static final Logger log = LoggerFactory.getLogger(ClassPathScanningComponentProvider.class);
 
   public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
 
@@ -63,8 +62,9 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    */
   public static final String IGNORE_CLASSFORMAT_PROPERTY_NAME = "infra.classformat.ignore";
 
-  private static final boolean shouldIgnoreClassFormatException =
-          TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
+  private static final boolean shouldIgnoreClassFormatException = TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
@@ -161,7 +161,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * @throws IOException sneaky throw from {@link PatternResourceLoader#getResources(String)}
    */
   public void scan(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
-    boolean traceEnabled = log.isTraceEnabled();
+    boolean traceEnabled = logger.isTraceEnabled();
     String packageSearchPath = getPatternLocation(basePackage);
     MetadataReaderFactory factory = getMetadataReaderFactory();
 
@@ -172,7 +172,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
         return;
       }
       if (traceEnabled) {
-        log.trace("Scanning {}", resource);
+        logger.trace("Scanning {}", resource);
       }
       try {
         MetadataReader metadataReader = factory.getMetadataReader(resource);
@@ -180,12 +180,12 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
       }
       catch (FileNotFoundException ex) {
         if (traceEnabled) {
-          log.trace("Ignored non-readable {}: {}", resource, ex.getMessage());
+          logger.trace("Ignored non-readable {}: {}", resource, ex.getMessage());
         }
       }
       catch (ClassFormatException ex) {
         if (shouldIgnoreClassFormatException) {
-          log.debug("Ignored incompatible class format in {}: {}", resource, ex.getMessage());
+          logger.debug("Ignored incompatible class format in {}: {}", resource, ex.getMessage());
         }
         else {
           throw new BeanDefinitionStoreException(

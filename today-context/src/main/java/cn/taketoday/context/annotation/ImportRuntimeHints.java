@@ -35,18 +35,18 @@ import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
  * method is actually registered in the bean factory. To illustrate this
  * behavior, consider the following example:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class MyConfiguration {
  *
- *     &#064;Bean
- *     &#064;ImportRuntimeHints(MyHints.class)
- *     &#064;Conditional(MyCondition.class)
+ *     @Bean
+ *     @ImportRuntimeHints(MyHints.class)
+ *     @Conditional(MyCondition.class)
  *     public MyService myService() {
  *         return new MyService();
  *     }
  *
- * }</pre>
+ * }}</pre>
  *
  * <p>If the configuration class above is processed, {@code MyHints} will be
  * contributed only if {@code MyCondition} matches. If the condition does not
@@ -64,8 +64,7 @@ import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.aot.hint.RuntimeHints
- * @see cn.taketoday.aot.hint.annotation.Reflective
- * @see cn.taketoday.aot.hint.annotation.RegisterReflection
+ * @see ReflectiveScan @ReflectiveScan
  * @since 4.0
  */
 @Documented

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.context;
@@ -48,6 +48,7 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.util.ReflectionUtils;
@@ -245,6 +246,7 @@ class ImportsContextCustomizer implements ContextCustomizer {
       return ANNOTATION_FILTERS.stream().anyMatch(filter -> filter.matches(typeName));
     }
 
+    @Nullable
     private Set<Object> determineImports(MergedAnnotations annotations, Class<?> testClass) {
       Set<Object> determinedImports = new LinkedHashSet<>();
       AnnotationMetadata metadata = AnnotationMetadata.introspect(testClass);
@@ -260,6 +262,7 @@ class ImportsContextCustomizer implements ContextCustomizer {
       return determinedImports;
     }
 
+    @Nullable
     private Set<Object> determineImports(Class<?> source, AnnotationMetadata metadata) {
       if (DeterminableImports.class.isAssignableFrom(source)) {
         // We can determine the imports

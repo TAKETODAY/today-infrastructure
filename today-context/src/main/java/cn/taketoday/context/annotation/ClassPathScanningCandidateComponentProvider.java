@@ -46,8 +46,6 @@ import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.stereotype.Indexed;
@@ -83,8 +81,6 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0 2021/12/9 21:33
  */
 public class ClassPathScanningCandidateComponentProvider extends ClassPathScanningComponentProvider implements EnvironmentCapable {
-
-  private static final Logger log = LoggerFactory.getLogger(ClassPathScanningCandidateComponentProvider.class);
 
   private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
 
@@ -182,7 +178,7 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
               ClassUtils.forName("jakarta.annotation.ManagedBean", cl), false));
-      log.trace("JSR-250 'jakarta.annotation.ManagedBean' found and supported for component scanning");
+      logger.trace("JSR-250 'jakarta.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-250 1.1 API (as included in Jakarta EE) not available - simply skip.
@@ -190,7 +186,7 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
               ClassUtils.forName("javax.annotation.ManagedBean", cl), false));
-      log.trace("JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning");
+      logger.trace("JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-250 1.1 API not available - simply skip.
@@ -198,7 +194,7 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
               ClassUtils.forName("jakarta.inject.Named", cl), false));
-      log.trace("JSR-330 'jakarta.inject.Named' annotation found and supported for component scanning");
+      logger.trace("JSR-330 'jakarta.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-330 API (as included in Jakarta EE) not available - simply skip.
@@ -206,7 +202,7 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
               ClassUtils.forName("javax.inject.Named", cl), false));
-      log.trace("JSR-330 'javax.inject.Named' annotation found and supported for component scanning");
+      logger.trace("JSR-330 'javax.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-330 API not available - simply skip.
@@ -273,9 +269,9 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
   public Set<AnnotatedBeanDefinition> findCandidateComponents(String basePackage) {
     try {
       LinkedHashSet<AnnotatedBeanDefinition> candidates = new LinkedHashSet<>();
-      scanCandidateComponents(basePackage, (metadataReader, metadataReaderFactory) -> {
-        ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
-        sbd.setSource(metadataReader.getResource());
+      scanCandidateComponents(basePackage, (reader, factory) -> {
+        ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(reader);
+        sbd.setSource(reader.getResource());
         candidates.add(sbd);
       });
       return candidates;
@@ -441,18 +437,20 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
   }
 
   // includeFilters excludeFilters Consumer
-  class FilteredMetadataReaderConsumer implements MetadataReaderConsumer {
-    final MetadataReaderConsumer metadataReaderConsumer;
 
-    FilteredMetadataReaderConsumer(MetadataReaderConsumer metadataReaderConsumer) {
-      this.metadataReaderConsumer = metadataReaderConsumer;
+  private final class FilteredMetadataReaderConsumer implements MetadataReaderConsumer {
+
+    final MetadataReaderConsumer delegate;
+
+    FilteredMetadataReaderConsumer(MetadataReaderConsumer delegate) {
+      this.delegate = delegate;
     }
 
     @Override
     public void accept(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
       if (isCandidateComponent(metadataReader, factory)
               && candidateComponentPredicate.test(metadataReader.getAnnotationMetadata())) {
-        metadataReaderConsumer.accept(metadataReader, factory);
+        delegate.accept(metadataReader, factory);
       }
     }
   }

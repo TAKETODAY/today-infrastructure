@@ -37,36 +37,39 @@ import cn.taketoday.aot.hint.MemberCategory;
  * <p>This annotation can be used as a meta-annotation to customize how hints
  * are registered against each target class.
  *
- * <p>The annotated element can be any bean:
+ * <p>You can use this annotation on any bean that is contributed to the context:
  * <pre>{@code
  * @Configuration
  * @RegisterReflection(classes = CustomerEntry.class, memberCategories = PUBLIC_FIELDS)
- * public class MyConfig {
+ * class MyConfig {
  *     // ...
  * }}</pre>
+ *
+ * <p>If scanning of {@link Reflective} is enabled, any type in the configured
+ * packages can use this annotation as well.
  *
  * <p>To register reflection hints for the type itself, only member categories
  * should be specified:<pre>{@code
  * @Component
  * @RegisterReflection(memberCategories = INVOKE_PUBLIC_METHODS)
- * public class MyComponent {
+ * class MyComponent {
  *     // ...
- * }
- * }</pre>
+ * }}</pre>
  *
  * <p>Reflection hints can be registered from a method. In this case, at least
  * one target class should be specified:<pre>{@code
- * @Component
- * public class MyComponent {
+ * class MyProcessor {
  *
  *     @RegisterReflection(classes = CustomerEntry.class, memberCategories = PUBLIC_FIELDS)
  *     CustomerEntry process() { ... }
  *     // ...
- * }
- * }</pre>
+ * }}</pre>
  *
  * <p>If the class is not available, {@link #classNames()} allows to specify the
  * fully qualified name, rather than the {@link Class} reference.
+ *
+ * <p>The annotated element can also be any test class that uses the <em>Spring
+ * TestContext Framework</em> to load an {@code ApplicationContext}.
  *
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
