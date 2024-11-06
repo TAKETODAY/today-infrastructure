@@ -56,16 +56,20 @@ import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
  * @since 4.0 2022/2/18 22:20
  */
 public class ViewControllerRegistry extends ApplicationObjectSupport {
-  public static final String webMvcConfigLocation = "classpath:web-mvc.xml";
+
+  public static final String webMvcConfigLocation = "web-mvc.xml";
 
   // the dtd
   public static final String DTD_NAME = "web-configuration";
 
   // config
   public static final String ATTR_RESOURCE = "resource";
+
   public static final String ATTR_NAME = "name";
+
   /** resource location @since 2.3.7 */
   public static final String ATTR_PREFIX = "prefix";
+
   public static final String ATTR_SUFFIX = "suffix";
 
   /**
@@ -182,7 +186,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
   public void registerWebViewXml() {
     ClassPathResource resource = new ClassPathResource(webMvcConfigLocation);
     if (resource.exists()) {
-      logger.info("Using default web mvc configuration resource: '{}'", webMvcConfigLocation);
+      logger.info("Using default web mvc configuration: '{}'", resource);
       registerWebViewXml(resource);
     }
     else {
@@ -193,13 +197,13 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
   public void registerWebViewXml(Resource resource) {
     if (!resource.exists()) {
       throw new InfraConfigurationException(
-              "Your provided configuration location: [" + resource + "], does not exist");
+              "Your provided configuration location: [%s], does not exist".formatted(resource));
     }
     try {
       configure(resource);
     }
     catch (Exception e) {
-      throw new InfraConfigurationException("web-mvc xml parsing error", e);
+      throw new InfraConfigurationException("%s xml parsing error".formatted(resource), e);
     }
   }
 

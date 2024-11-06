@@ -24,15 +24,18 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.mock.web.HttpMockRequestImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
 import cn.taketoday.web.mock.MockRequestContext;
-import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.view.RedirectView;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -132,8 +135,29 @@ class ViewControllerRegistryTests {
     assertThat(handlerMapping.getOrder()).isEqualTo(2);
   }
 
+  // web-mvc.xml
+
+  @Test
+  void registerWebViewXml() {
+    ClassPathResource resource = new ClassPathResource("not-found");
+    assertThatThrownBy(() -> registry.registerWebViewXml(resource))
+            .isInstanceOf(InfraConfigurationException.class)
+            .hasMessage("Your provided configuration location: [%s], does not exist".formatted(resource));
+
+    registry.registerWebViewXml();
+
+    var controller = getController("/test");
+
+    assertThat(controller.getViewName()).isEqualTo("/xml/test");
+    assertThat(controller.getStatusCode()).isNull();
+    assertThat(controller.isStatusOnly()).isFalse();
+    assertThat(controller.getApplicationContext()).isNotNull();
+  }
+
   private ParameterizableViewController getController(String path) {
-    Map<String, ?> urlMap = this.registry.buildHandlerMapping().getUrlMap();
+    SimpleUrlHandlerMapping handlerMapping = this.registry.buildHandlerMapping();
+    assertThat(handlerMapping).isNotNull();
+    Map<String, ?> urlMap = handlerMapping.getUrlMap();
     ParameterizableViewController controller = (ParameterizableViewController) urlMap.get(path);
     assertThat(controller).isNotNull();
     return controller;
