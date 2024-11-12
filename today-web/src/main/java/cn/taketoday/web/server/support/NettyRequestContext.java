@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URLDecoder;
@@ -232,6 +233,11 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public final String doGetMethod() {
     return request.method().name();
+  }
+
+  @Override
+  protected PrintWriter doGetWriter() throws IOException {
+    return new PrintWriter(getOutputStream(), true, config.writerCharset);
   }
 
   @Override

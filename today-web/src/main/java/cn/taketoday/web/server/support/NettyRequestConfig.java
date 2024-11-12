@@ -65,6 +65,11 @@ public class NettyRequestConfig {
    */
   public final Charset postRequestDecoderCharset;
 
+  /**
+   * @since 5.0
+   */
+  public final Charset writerCharset;
+
   public final HttpHeadersFactory httpHeadersFactory;
 
   public final HttpDataFactory httpDataFactory;
@@ -89,6 +94,7 @@ public class NettyRequestConfig {
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
     this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
             ? Constant.DEFAULT_CHARSET : builder.postRequestDecoderCharset;
+    this.writerCharset = builder.writerCharset == null ? Constant.DEFAULT_CHARSET : builder.writerCharset;
   }
 
   public static Builder forBuilder() {
@@ -116,6 +122,9 @@ public class NettyRequestConfig {
 
     @Nullable
     private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
+
+    @Nullable
+    private Charset writerCharset = Constant.DEFAULT_CHARSET;
 
     private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
@@ -194,6 +203,14 @@ public class NettyRequestConfig {
 
     public Builder postRequestDecoderCharset(@Nullable Charset charset) {
       this.postRequestDecoderCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
+      return this;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public Builder writerCharset(@Nullable Charset charset) {
+      this.writerCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
       return this;
     }
 
