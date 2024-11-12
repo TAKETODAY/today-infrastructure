@@ -404,7 +404,9 @@ public class NettyRequestContext extends RequestContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      // DefaultHttpContent
+      if (writer != null) {
+        writer.flush();
+      }
       channelContext.writeAndFlush(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {

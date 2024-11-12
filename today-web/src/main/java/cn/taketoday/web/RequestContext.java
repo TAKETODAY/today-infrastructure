@@ -1859,7 +1859,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public void flush() throws IOException {
     writeHeaders();
 
-    if (outputStream != null) {
+    if (writer != null) {
+      writer.flush();
+    }
+    else if (outputStream != null) {
       outputStream.flush();
     }
   }
