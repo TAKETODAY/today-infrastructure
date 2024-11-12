@@ -160,4 +160,24 @@ class NettyWebServerFactoryAutoConfigurationTests {
     });
   }
 
+  @Test
+  void poolName() {
+    contextRunner.withPropertyValues("server.netty.acceptorPoolName=acceptor",
+            "server.netty.workerPoolName=worker").run(context -> {
+      ServerProperties properties = context.getBean(ServerProperties.class);
+
+      var result = Binder.get(context.getEnvironment()).bind("server", ServerProperties.class);
+      assertThat(result.isBound()).isTrue();
+
+      assertThat(properties.netty.acceptorPoolName).isEqualTo(result.get().netty.acceptorPoolName).isEqualTo("acceptor");
+      assertThat(properties.netty.workerPoolName).isEqualTo(result.get().netty.workerPoolName).isEqualTo("worker");
+
+      NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);
+
+      assertThat(factory).extracting("workerPoolName").isEqualTo("worker");
+      assertThat(factory).extracting("acceptorPoolName").isEqualTo("acceptor");
+
+    });
+  }
+
 }

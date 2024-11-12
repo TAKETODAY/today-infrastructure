@@ -174,6 +174,20 @@ public class ServerProperties {
     public Integer acceptorThreads;
 
     /**
+     * The worker thread pool name
+     *
+     * @since 5.0
+     */
+    @Nullable
+    public String workerPoolName;
+
+    /**
+     * The acceptor thread pool name @since 5.0
+     */
+    @Nullable
+    public String acceptorPoolName;
+
+    /**
      * The SOMAXCONN value of the current machine. If failed to get the value, {@code 200} is used as a
      * default value for Windows and {@code 128} for others.
      */

@@ -109,6 +109,14 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   @Nullable
   private ChannelConfigurer channelConfigurer;
 
+  /** @since 5.0 */
+  @Nullable
+  private String workerPoolName;
+
+  /** @since 5.0 */
+  @Nullable
+  private String acceptorPoolName;
+
   /**
    * EventLoopGroup for acceptor
    *
@@ -223,6 +231,24 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
+   * Set the worker thread pool name
+   *
+   * @since 5.0
+   */
+  public void setWorkerPoolName(@Nullable String workerPoolName) {
+    this.workerPoolName = workerPoolName;
+  }
+
+  /**
+   * Set the acceptor thread pool name
+   *
+   * @since 5.0
+   */
+  public void setAcceptorPoolName(@Nullable String acceptorPoolName) {
+    this.acceptorPoolName = acceptorPoolName;
+  }
+
+  /**
    * Get {@link LoggingHandler} logging Level
    *
    * @see LogLevel
@@ -279,10 +305,12 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     }
     else {
       if (acceptorGroup == null) {
-        acceptorGroup = new NioEventLoopGroup(acceptorThreadCount, new DefaultThreadFactory("acceptor"));
+        acceptorGroup = new NioEventLoopGroup(acceptorThreadCount,
+                new DefaultThreadFactory(acceptorPoolName == null ? "acceptor" : acceptorPoolName));
       }
       if (workerGroup == null) {
-        workerGroup = new NioEventLoopGroup(workerThreadCount, new DefaultThreadFactory("workers"));
+        workerGroup = new NioEventLoopGroup(workerThreadCount,
+                new DefaultThreadFactory(workerPoolName == null ? "workers" : workerPoolName));
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
@@ -380,6 +408,9 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       setMaxConnection(netty.maxConnection);
     }
 
+    setWorkerPoolName(netty.workerPoolName);
+    setAcceptorPoolName(netty.acceptorPoolName);
+
     nettyConfig = netty;
   }
 
@@ -418,11 +449,13 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       }
       if (factory.getAcceptorGroup() == null) {
         factory.setAcceptorGroup(new EpollEventLoopGroup(
-                factory.acceptorThreadCount, new DefaultThreadFactory("epoll-acceptor")));
+                factory.acceptorThreadCount, new DefaultThreadFactory(
+                factory.acceptorPoolName == null ? "epoll-acceptor" : factory.acceptorPoolName)));
       }
       if (factory.getWorkerGroup() == null) {
         factory.setWorkerGroup(new EpollEventLoopGroup(
-                factory.workerThreadCount, new DefaultThreadFactory("epoll-workers")));
+                factory.workerThreadCount, new DefaultThreadFactory(
+                factory.workerPoolName == null ? "epoll-workers" : factory.workerPoolName)));
       }
     }
   }
@@ -434,11 +467,13 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       }
       if (factory.getAcceptorGroup() == null) {
         factory.setAcceptorGroup(new KQueueEventLoopGroup(
-                factory.workerThreadCount, new DefaultThreadFactory("kQueue-acceptor")));
+                factory.workerThreadCount, new DefaultThreadFactory(
+                factory.acceptorPoolName == null ? "kQueue-acceptor" : factory.acceptorPoolName)));
       }
       if (factory.getWorkerGroup() == null) {
         factory.setWorkerGroup(new KQueueEventLoopGroup(
-                factory.workerThreadCount, new DefaultThreadFactory("kQueue-workers")));
+                factory.workerThreadCount, new DefaultThreadFactory(
+                factory.workerPoolName == null ? "kQueue-workers" : factory.workerPoolName)));
       }
     }
   }
