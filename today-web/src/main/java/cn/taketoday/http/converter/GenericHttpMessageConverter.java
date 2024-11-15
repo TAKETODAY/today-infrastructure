@@ -35,6 +35,7 @@ import cn.taketoday.lang.Nullable;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ParameterizedTypeReference
  * @since 4.0
  */

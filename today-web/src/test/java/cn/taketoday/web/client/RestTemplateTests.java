@@ -70,7 +70,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -186,12 +185,21 @@ class RestTemplateTests {
     String url = "https://example.com";
     mockSentRequest(GET, url);
     mockResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
-            .given(errorHandler).handleError(new URI(url), GET, response);
+    ResponseErrorHandler errorHandler = new ResponseErrorHandler() {
 
-    assertThatExceptionOfType(HttpServerErrorException.class).isThrownBy(() ->
-            template.execute(url, GET, null, null));
+      @Override
+      public boolean hasError(ClientHttpResponse response) {
+        return true;
+      }
 
+      @Override
+      public void handleError(ClientHttpResponse response) {
+        throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    };
+    template.setErrorHandler(errorHandler);
+    assertThatExceptionOfType(HttpServerErrorException.class)
+            .isThrownBy(() -> template.execute(url, GET, null, null));
     verify(response).close();
   }
 

@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.client;
 
-import java.io.Serial;
 import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
@@ -34,9 +33,6 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HttpClientErrorException extends HttpStatusCodeException {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor with a status code only.

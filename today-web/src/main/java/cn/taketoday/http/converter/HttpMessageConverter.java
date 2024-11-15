@@ -33,6 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface HttpMessageConverter<T> {
@@ -80,7 +81,7 @@ public interface HttpMessageConverter<T> {
    */
   default List<MediaType> getSupportedMediaTypes(Class<?> clazz) {
     return canRead(clazz, null) || canWrite(clazz, null)
-           ? getSupportedMediaTypes() : Collections.emptyList();
+            ? getSupportedMediaTypes() : Collections.emptyList();
   }
 
   /**

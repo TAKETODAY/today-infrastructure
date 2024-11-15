@@ -491,7 +491,9 @@ public enum HttpStatus implements HttpStatusCode {
   private static final HttpStatus[] VALUES = values();
 
   private final int value;
+
   private final Series series;
+
   private final String reasonPhrase;
 
   HttpStatus(int value, Series series, String reasonPhrase) {
@@ -616,7 +618,7 @@ public enum HttpStatus implements HttpStatusCode {
   public static HttpStatus valueOf(int statusCode) {
     HttpStatus status = resolve(statusCode);
     if (status == null) {
-      throw new IllegalArgumentException("No matching constant for [" + statusCode + "]");
+      throw new IllegalArgumentException("No matching constant for [%d]".formatted(statusCode));
     }
     return status;
   }

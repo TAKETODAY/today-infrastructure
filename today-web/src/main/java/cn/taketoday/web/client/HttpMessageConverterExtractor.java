@@ -41,15 +41,19 @@ import cn.taketoday.util.FileCopyUtils;
  * @param <T> the data type
  * @author Arjen Poutsma
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see RestTemplate
  * @since 4.0
  */
 public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
+
   private final Logger logger;
+
   private final Type responseType;
 
   @Nullable
   private final Class<T> responseClass;
+
   private final List<HttpMessageConverter<?>> messageConverters;
 
   /**
@@ -69,15 +73,14 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public HttpMessageConverterExtractor(
-          Type responseType, List<HttpMessageConverter<?>> messageConverters, Logger logger) {
+  public HttpMessageConverterExtractor(Type responseType, List<HttpMessageConverter<?>> messageConverters, Logger logger) {
     Assert.notNull(responseType, "'responseType' is required");
     Assert.notEmpty(messageConverters, "'messageConverters' must not be empty");
     Assert.noNullElements(messageConverters, "'messageConverters' must not contain null elements");
     this.logger = logger;
     this.responseType = responseType;
-    this.responseClass = (responseType instanceof Class ? (Class<T>) responseType : null);
     this.messageConverters = messageConverters;
+    this.responseClass = (responseType instanceof Class ? (Class<T>) responseType : null);
   }
 
   @Override
@@ -99,13 +102,11 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
             return (T) genericConverter.read(responseType, null, responseWrapper);
           }
         }
-        if (responseClass != null) {
-          if (messageConverter.canRead(responseClass, contentType)) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Reading to [{}] as \"{}\"", responseClass.getName(), contentType);
-            }
-            return (T) messageConverter.read((Class) responseClass, responseWrapper);
+        else if (responseClass != null && messageConverter.canRead(responseClass, contentType)) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("Reading to [{}] as \"{}\"", responseClass.getName(), contentType);
           }
+          return (T) messageConverter.read((Class) responseClass, responseWrapper);
         }
       }
     }
@@ -114,8 +115,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
               .formatted(responseType, contentType), ex);
     }
 
-    throw new UnknownContentTypeException(
-            responseType, contentType,
+    throw new UnknownContentTypeException(responseType, contentType,
             responseWrapper.getRawStatusCode(), responseWrapper.getStatusText(),
             responseWrapper.getHeaders(), getResponseBody(responseWrapper));
   }

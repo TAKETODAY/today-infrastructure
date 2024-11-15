@@ -17,27 +17,15 @@
 
 package cn.taketoday.web.client;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
-import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Used by {@link DefaultRestClient} and {@link DefaultRestClientBuilder}.
@@ -48,104 +36,44 @@ import cn.taketoday.util.ObjectUtils;
  */
 final class StatusHandler {
 
-  private final ResponsePredicate predicate;
-
-  private final RestClient.ErrorHandler errorHandler;
-
-  private StatusHandler(ResponsePredicate predicate, RestClient.ErrorHandler errorHandler) {
-    this.predicate = predicate;
-    this.errorHandler = errorHandler;
-  }
-
-  public static StatusHandler of(Predicate<HttpStatusCode> predicate, RestClient.ErrorHandler errorHandler) {
+  public static ResponseErrorHandler of(Predicate<HttpStatusCode> predicate, RestClient.ErrorHandler errorHandler) {
     Assert.notNull(predicate, "Predicate is required");
     Assert.notNull(errorHandler, "ErrorHandler is required");
-
-    return new StatusHandler(response -> predicate.test(response.getStatusCode()), errorHandler);
+    return new FuncErrorHandler(predicate, errorHandler);
   }
 
-  public static StatusHandler fromErrorHandler(ResponseErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ResponseErrorHandler is required");
-
-    return new StatusHandler(errorHandler::hasError, (request, response) ->
-            errorHandler.handleError(request.getURI(), request.getMethod(), response));
+  public static ResponseErrorHandler defaultHandler(List<HttpMessageConverter<?>> messageConverters) {
+    DefaultResponseErrorHandler handler = new DefaultResponseErrorHandler();
+    handler.setMessageConverters(messageConverters);
+    return handler;
   }
 
-  public static StatusHandler defaultHandler(List<HttpMessageConverter<?>> messageConverters) {
-    return new StatusHandler(response -> response.getStatusCode().isError(), (request, response) -> {
-      HttpStatusCode statusCode = response.getStatusCode();
-      String statusText = response.getStatusText();
-      HttpHeaders headers = response.getHeaders();
-      byte[] body = RestClientUtils.getBody(response);
-      Charset charset = RestClientUtils.getCharset(response);
-      String message = getErrorMessage(statusCode.value(), statusText, body, charset);
-      RestClientResponseException ex;
+  static final class FuncErrorHandler implements ResponseErrorHandler {
 
-      if (statusCode.is4xxClientError()) {
-        ex = HttpClientErrorException.create(message, statusCode, statusText, headers, body, charset);
-      }
-      else if (statusCode.is5xxServerError()) {
-        ex = HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
-      }
-      else {
-        ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
-      }
-      if (CollectionUtils.isNotEmpty(messageConverters)) {
-        ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
-      }
-      throw ex;
-    });
-  }
+    private final Predicate<HttpStatusCode> predicate;
 
-  static Function<ResolvableType, ?> initBodyConvertFunction(
-          ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
-    return resolvableType -> {
-      try {
-        HttpMessageConverterExtractor<?> extractor =
-                new HttpMessageConverterExtractor<>(resolvableType.getType(), messageConverters);
+    private final RestClient.ErrorHandler errorHandler;
 
-        return extractor.extractData(new ClientHttpResponseDecorator(response) {
-          @Override
-          public InputStream getBody() {
-            return new ByteArrayInputStream(body);
-          }
-        });
-      }
-      catch (IOException ex) {
-        throw new RestClientException("Error while extracting response for type [%s]".formatted(resolvableType), ex);
-      }
-    };
-  }
-
-  private static String getErrorMessage(int rawStatusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset charset) {
-
-    String preface = "%d %s: ".formatted(rawStatusCode, statusText);
-
-    if (ObjectUtils.isEmpty(responseBody)) {
-      return preface + "[no body]";
+    FuncErrorHandler(Predicate<HttpStatusCode> predicate, RestClient.ErrorHandler errorHandler) {
+      this.predicate = predicate;
+      this.errorHandler = errorHandler;
     }
 
-    charset = (charset != null ? charset : StandardCharsets.UTF_8);
+    @Override
+    public boolean hasError(ClientHttpResponse response) throws IOException {
+      return predicate.test(response.getStatusCode());
+    }
 
-    String bodyText = new String(responseBody, charset);
-    bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
+    @Override
+    public void handleError(ClientHttpResponse response) throws IOException {
+      throw new UnsupportedOperationException();
+    }
 
-    return preface + bodyText;
-  }
+    @Override
+    public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
+      errorHandler.handle(request, response);
+    }
 
-  public boolean test(ClientHttpResponse response) throws IOException {
-    return this.predicate.test(response);
-  }
-
-  public void handle(HttpRequest request, ClientHttpResponse response) throws IOException {
-    this.errorHandler.handle(request, response);
-  }
-
-  @FunctionalInterface
-  private interface ResponsePredicate {
-
-    boolean test(ClientHttpResponse response) throws IOException;
   }
 
 }

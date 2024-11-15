@@ -32,6 +32,7 @@ import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
@@ -713,7 +714,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         requestCallback.doWithRequest(request);
       }
       response = request.execute();
-      handleResponse(url, method, response);
+      handleResponse(request, response);
       return responseExtractor != null ? responseExtractor.extractData(response) : null;
     }
     catch (IOException ex) {
@@ -735,20 +736,19 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * invoking the {@link ResponseErrorHandler} if necessary.
    * <p>Can be overridden in subclasses.
    *
-   * @param url the fully-expanded URL to connect to
-   * @param method the HTTP method to execute (GET, POST, etc.)
+   * @param request the request
    * @param response the resulting {@link ClientHttpResponse}
    * @throws IOException if propagated from {@link ResponseErrorHandler}
    * @see #setErrorHandler
    */
-  protected void handleResponse(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+  protected void handleResponse(HttpRequest request, ClientHttpResponse response) throws IOException {
     ResponseErrorHandler errorHandler = getErrorHandler();
     boolean hasError = errorHandler.hasError(response);
     if (logger.isDebugEnabled()) {
-      logger.debug("{} Response {}", url, response.getStatusCode());
+      logger.debug("{} Response {}", request.getURI(), response.getStatusCode());
     }
     if (hasError) {
-      errorHandler.handleError(url, method, response);
+      errorHandler.handleError(request, response);
     }
   }
 

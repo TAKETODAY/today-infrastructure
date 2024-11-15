@@ -26,11 +26,13 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,24 +85,29 @@ public class DefaultResponseErrorHandlerTests {
   @Test
   void handleErrorWithUrlAndMethod() throws Exception {
     setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.GET, URI.create("https://example.com"));
     assertThatExceptionOfType(HttpClientErrorException.class)
-            .isThrownBy(() -> handler.handleError(URI.create("https://example.com"), HttpMethod.GET, response))
+            .isThrownBy(() -> handler.handleError(request, response))
             .withMessage("404 Not Found on GET request for \"https://example.com\": \"Hello World\"");
   }
 
   @Test
   void handleErrorWithUrlAndQueryParameters() throws Exception {
     setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.GET,
+            URI.create("https://example.com/resource?access_token=123"));
+
     assertThatExceptionOfType(HttpClientErrorException.class)
-            .isThrownBy(() -> handler.handleError(URI.create("https://example.com/resource?access_token=123"), HttpMethod.GET, response))
+            .isThrownBy(() -> handler.handleError(request, response))
             .withMessage("404 Not Found on GET request for \"https://example.com/resource\": \"Hello World\"");
   }
 
   @Test
   void handleErrorWithUrlAndNoBody() throws Exception {
     setupClientHttpResponse(HttpStatus.NOT_FOUND, null);
+    HttpRequest request = new MockClientHttpRequest(HttpMethod.GET, URI.create("https://example.com"));
     assertThatExceptionOfType(HttpClientErrorException.class)
-            .isThrownBy(() -> handler.handleError(URI.create("https://example.com"), HttpMethod.GET, response))
+            .isThrownBy(() -> handler.handleError(request, response))
             .withMessage("404 Not Found on GET request for \"https://example.com\": [no body]");
   }
 
@@ -187,7 +194,7 @@ public class DefaultResponseErrorHandlerTests {
     headers.setContentType(MediaType.TEXT_PLAIN);
 
     String responseBody = "Hello World";
-    TestByteArrayInputStream body = new TestByteArrayInputStream(responseBody.getBytes(StandardCharsets.UTF_8));
+    var body = new TestByteArrayInputStream(responseBody.getBytes(StandardCharsets.UTF_8));
 
     given(response.getStatusCode()).willReturn(statusCode);
     given(response.getStatusText()).willReturn(statusText);

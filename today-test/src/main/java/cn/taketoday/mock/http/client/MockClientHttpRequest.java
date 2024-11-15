@@ -137,7 +137,7 @@ public class MockClientHttpRequest extends MockHttpOutputMessage implements Clie
     if (!getHeaders().isEmpty()) {
       sb.append(", headers: ").append(getHeaders());
     }
-    if (sb.length() == 0) {
+    if (sb.isEmpty()) {
       sb.append("Not yet initialized");
     }
     return sb.toString();

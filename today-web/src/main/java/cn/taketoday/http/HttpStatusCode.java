@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -107,7 +104,7 @@ public interface HttpStatusCode extends Serializable {
    */
   static HttpStatusCode valueOf(int code) {
     if (code < 100 || code > 999) {
-      throw new IllegalArgumentException("Code '" + code + "' should be a three-digit positive integer");
+      throw new IllegalArgumentException("Code '%d' should be a three-digit positive integer".formatted(code));
     }
 
     HttpStatus status = HttpStatus.resolve(code);

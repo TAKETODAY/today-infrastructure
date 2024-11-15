@@ -18,13 +18,12 @@
 package cn.taketoday.web.client;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
@@ -139,12 +138,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   }
 
   @Override
-  public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-    handleError(response, response.getStatusCode(), url, method);
-  }
-
-  @Override
-  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode, @Nullable URI url, @Nullable HttpMethod method) throws IOException {
+  protected void handleError(@Nullable HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     if (this.statusMapping.containsKey(statusCode)) {
       extract(this.statusMapping.get(statusCode), response);
     }
@@ -153,7 +147,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
       extract(this.seriesMapping.get(series), response);
     }
     else {
-      super.handleError(response, statusCode, url, method);
+      super.handleError(request, response, statusCode);
     }
   }
 

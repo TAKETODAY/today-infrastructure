@@ -71,7 +71,7 @@ class RestClientBuilderTests {
     assertThat(fieldValue("requestFactory", defaultBuilder)).isSameAs(requestFactory);
     assertThat(fieldValue("uriBuilderFactory", defaultBuilder)).isSameAs(uriBuilderFactory);
 
-    List<StatusHandler> statusHandlers = (List<StatusHandler>) fieldValue("statusHandlers", defaultBuilder);
+    List<ResponseErrorHandler> statusHandlers = (List<ResponseErrorHandler>) fieldValue("statusHandlers", defaultBuilder);
     assertThat(statusHandlers).hasSize(1);
 
     List<HttpMessageConverter<?>> restClientMessageConverters =

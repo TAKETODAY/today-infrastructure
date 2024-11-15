@@ -1146,8 +1146,7 @@ public interface RestClient {
      * {@link RestClientException}.
      *
      * @param statusPredicate to match responses with
-     * @param errorHandler handler that typically, though not necessarily,
-     * throws an exception
+     * @param errorHandler handler that typically, though not necessarily, throws an exception
      * @return this builder
      */
     AsyncSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler);

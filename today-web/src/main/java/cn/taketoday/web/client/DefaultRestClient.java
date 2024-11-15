@@ -95,7 +95,10 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final MultiValueMap<String, String> defaultCookies;
 
-  private final List<StatusHandler> defaultStatusHandlers;
+  @Nullable
+  private final List<ResponseErrorHandler> defaultStatusHandlers;
+
+  private final ResponseErrorHandler defaultStatusHandler;
 
   private final DefaultRestClientBuilder builder;
 
@@ -109,7 +112,7 @@ final class DefaultRestClient implements RestClient {
           @Nullable List<ClientHttpRequestInitializer> initializers,
           UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
           @Nullable MultiValueMap<String, String> defaultCookies,
-          @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest, @Nullable List<StatusHandler> statusHandlers,
+          @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest, @Nullable List<ResponseErrorHandler> statusHandlers,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
 
     this.clientRequestFactory = clientRequestFactory;
@@ -119,9 +122,10 @@ final class DefaultRestClient implements RestClient {
     this.defaultHeaders = defaultHeaders;
     this.defaultCookies = defaultCookies;
     this.defaultRequest = defaultRequest;
-    this.defaultStatusHandlers = (statusHandlers != null) ? new ArrayList<>(statusHandlers) : new ArrayList<>();
+    this.defaultStatusHandlers = statusHandlers;
     this.messageConverters = messageConverters;
     this.builder = builder;
+    this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
   }
 
   @Override
@@ -203,7 +207,7 @@ final class DefaultRestClient implements RestClient {
             return (T) ghmc.read(bodyType, null, responseWrapper);
           }
         }
-        if (hmc.canRead(bodyClass, contentType)) {
+        else if (hmc.canRead(bodyClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
           }
@@ -245,6 +249,39 @@ final class DefaultRestClient implements RestClient {
       return (Class<T>) rawType;
     }
     return (Class<T>) Object.class;
+  }
+
+  private void applyStatusHandlers(HttpRequest request, ClientHttpResponse response, @Nullable List<ResponseErrorHandler> statusHandlers) {
+    try {
+      if (response instanceof DefaultClientResponse cr) {
+        response = cr.delegate;
+      }
+
+      if (defaultStatusHandlers != null) {
+        for (ResponseErrorHandler handler : defaultStatusHandlers) {
+          if (handler.hasError(response)) {
+            handler.handleError(request, response);
+            return;
+          }
+        }
+      }
+
+      if (statusHandlers != null) {
+        for (ResponseErrorHandler handler : statusHandlers) {
+          if (handler.hasError(response)) {
+            handler.handleError(request, response);
+            return;
+          }
+        }
+      }
+
+      if (defaultStatusHandler.hasError(response)) {
+        defaultStatusHandler.handleError(request, response);
+      }
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 
   private class DefaultRequestBodyUriSpec implements RequestBodyUriSpec {
@@ -429,13 +466,13 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public RequestBodySpec body(Object body) {
-      this.body = clientHttpRequest -> writeWithMessageConverters(body, body.getClass(), clientHttpRequest);
+      this.body = request -> writeWithMessageConverters(body, body.getClass(), request);
       return this;
     }
 
     @Override
     public <T> RequestBodySpec body(T body, ParameterizedTypeReference<T> bodyType) {
-      this.body = clientHttpRequest -> writeWithMessageConverters(body, bodyType.getType(), clientHttpRequest);
+      this.body = request -> writeWithMessageConverters(body, bodyType.getType(), request);
       return this;
     }
 
@@ -670,36 +707,25 @@ final class DefaultRestClient implements RestClient {
 
     private final ClientHttpResponse clientResponse;
 
-    private final ArrayList<StatusHandler> statusHandlers = new ArrayList<>(1);
-
-    private final int defaultStatusHandlerCount;
+    private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
 
     DefaultResponseSpec(HttpRequest clientRequest, ClientHttpResponse clientResponse) {
       this.clientRequest = clientRequest;
       this.clientResponse = clientResponse;
-      this.statusHandlers.addAll(defaultStatusHandlers);
-      this.statusHandlers.add(StatusHandler.defaultHandler(messageConverters));
-      this.defaultStatusHandlerCount = this.statusHandlers.size();
     }
 
     @Override
     public ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
-      Assert.notNull(errorHandler, "ErrorHandler is required");
-      Assert.notNull(statusPredicate, "StatusPredicate is required");
       return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
     }
 
     @Override
     public ResponseSpec onStatus(ResponseErrorHandler errorHandler) {
-      Assert.notNull(errorHandler, "ResponseErrorHandler is required");
-      return onStatusInternal(StatusHandler.fromErrorHandler(errorHandler));
+      return onStatusInternal(errorHandler);
     }
 
-    private ResponseSpec onStatusInternal(StatusHandler statusHandler) {
-      Assert.notNull(statusHandler, "StatusHandler is required");
-
-      int index = statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
-      statusHandlers.add(index, statusHandler);
+    private ResponseSpec onStatusInternal(ResponseErrorHandler statusHandler) {
+      statusHandlers.add(statusHandler);
       return this;
     }
 
@@ -737,7 +763,7 @@ final class DefaultRestClient implements RestClient {
     @Override
     public ResponseEntity<Void> toBodilessEntity() {
       try (clientResponse) {
-        applyStatusHandlers(clientResponse);
+        applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
         return ResponseEntity.status(clientResponse.getStatusCode())
                 .headers(clientResponse.getHeaders())
                 .build();
@@ -749,25 +775,10 @@ final class DefaultRestClient implements RestClient {
 
     @Nullable
     private <T> T readBody(Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(clientResponse, this::applyStatusHandlers, bodyType, bodyClass);
+      return readWithMessageConverters(clientResponse, response ->
+              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
     }
 
-    private void applyStatusHandlers(ClientHttpResponse response) {
-      try {
-        if (response instanceof DefaultClientResponse convertibleResponse) {
-          response = convertibleResponse.delegate;
-        }
-        for (StatusHandler handler : this.statusHandlers) {
-          if (handler.test(response)) {
-            handler.handle(this.clientRequest, response);
-            return;
-          }
-        }
-      }
-      catch (IOException ex) {
-        throw new UncheckedIOException(ex);
-      }
-    }
   }
 
   private class DefaultAsyncSpec implements AsyncSpec {
@@ -776,36 +787,25 @@ final class DefaultRestClient implements RestClient {
 
     private final Future<ClientHttpResponse> clientResponse;
 
-    private final ArrayList<StatusHandler> statusHandlers = new ArrayList<>(1);
-
-    private final int defaultStatusHandlerCount;
+    private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
 
     DefaultAsyncSpec(HttpRequest clientRequest, Future<ClientHttpResponse> clientResponse) {
       this.clientRequest = clientRequest;
       this.clientResponse = clientResponse;
-      this.statusHandlers.addAll(defaultStatusHandlers);
-      this.statusHandlers.add(StatusHandler.defaultHandler(messageConverters));
-      this.defaultStatusHandlerCount = this.statusHandlers.size();
     }
 
     @Override
     public AsyncSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
-      Assert.notNull(errorHandler, "ErrorHandler is required");
-      Assert.notNull(statusPredicate, "StatusPredicate is required");
       return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
     }
 
     @Override
     public AsyncSpec onStatus(ResponseErrorHandler errorHandler) {
-      Assert.notNull(errorHandler, "ResponseErrorHandler is required");
-      return onStatusInternal(StatusHandler.fromErrorHandler(errorHandler));
+      return onStatusInternal(errorHandler);
     }
 
-    private AsyncSpec onStatusInternal(StatusHandler statusHandler) {
-      Assert.notNull(statusHandler, "StatusHandler is required");
-
-      int index = this.statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
-      this.statusHandlers.add(index, statusHandler);
+    private AsyncSpec onStatusInternal(ResponseErrorHandler statusHandler) {
+      this.statusHandlers.add(statusHandler);
       return this;
     }
 
@@ -848,7 +848,7 @@ final class DefaultRestClient implements RestClient {
     public Future<ResponseEntity<Void>> toBodilessEntity() {
       return clientResponse.map(response -> {
         try (response) {
-          applyStatusHandlers(response);
+          applyStatusHandlers(clientRequest, response, statusHandlers);
           return ResponseEntity.status(response.getStatusCode())
                   .headers(response.getHeaders())
                   .build();
@@ -861,27 +861,11 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Nullable
-    private <T> T readBody(ClientHttpResponse response, Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(response, this::applyStatusHandlers, bodyType, bodyClass);
+    private <T> T readBody(ClientHttpResponse clientResponse, Type bodyType, Class<T> bodyClass) {
+      return readWithMessageConverters(clientResponse, response ->
+              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
     }
 
-    private void applyStatusHandlers(ClientHttpResponse response) {
-      try {
-        if (response instanceof DefaultClientResponse cr) {
-          response = cr.delegate;
-        }
-
-        for (StatusHandler handler : statusHandlers) {
-          if (handler.test(response)) {
-            handler.handle(clientRequest, response);
-            return;
-          }
-        }
-      }
-      catch (IOException ex) {
-        throw new UncheckedIOException(ex);
-      }
-    }
   }
 
   private class DefaultClientResponse implements ClientResponse {

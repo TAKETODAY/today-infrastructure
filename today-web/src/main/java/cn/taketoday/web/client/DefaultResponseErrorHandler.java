@@ -17,8 +17,9 @@
 
 package cn.taketoday.web.client;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -27,10 +28,11 @@ import java.util.function.Function;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -109,12 +111,12 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </ul>
    *
    * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
-   * @see #handleError(ClientHttpResponse, HttpStatusCode, URI, HttpMethod)
+   * @see #handleError(HttpRequest, ClientHttpResponse, HttpStatusCode)
    */
   @Override
   public void handleError(ClientHttpResponse response) throws IOException {
     HttpStatusCode statusCode = response.getStatusCode();
-    handleError(response, statusCode, null, null);
+    handleError(null, response, statusCode);
   }
 
   /**
@@ -133,12 +135,11 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </ul>
    *
    * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
-   * @see #handleError(ClientHttpResponse, HttpStatusCode, URI, HttpMethod)
+   * @see #handleError(HttpRequest, ClientHttpResponse, HttpStatusCode)
    */
   @Override
-  public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-    HttpStatusCode statusCode = response.getStatusCode();
-    handleError(response, statusCode, url, method);
+  public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
+    handleError(request, response, response.getStatusCode());
   }
 
   /**
@@ -147,16 +148,14 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * 404 Not Found on GET request for "https://example.com": [{'id': 123, 'message': 'my message'}]
    * </pre>
    */
-  private String getErrorMessage(int rawStatusCode, String statusText, @Nullable byte[] responseBody,
-          @Nullable Charset charset, @Nullable URI url, @Nullable HttpMethod method) {
+  private String getErrorMessage(int rawStatusCode, String statusText,
+          @Nullable byte[] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
-    if (method != null) {
-      msg.append(" on ").append(method).append(" request");
-    }
-    if (url != null) {
+    if (request != null) {
+      msg.append(" on ").append(request.getMethod()).append(" request");
       msg.append(" for \"");
-      String urlString = url.toString();
+      String urlString = request.getURI().toString();
       int idx = urlString.indexOf('?');
       if (idx != -1) {
         msg.append(urlString, 0, idx);
@@ -189,15 +188,14 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    *
    * @see HttpClientErrorException#create
    * @see HttpServerErrorException#create
+   * @since 5.0
    */
-  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode,
-          @Nullable URI url, @Nullable HttpMethod method) throws IOException {
-
+  protected void handleError(@Nullable HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     String statusText = response.getStatusText();
     HttpHeaders headers = response.getHeaders();
     byte[] body = getResponseBody(response);
     Charset charset = getCharset(response);
-    String message = getErrorMessage(statusCode.value(), statusText, body, charset, url, method);
+    String message = getErrorMessage(statusCode.value(), statusText, body, charset, request);
 
     RestClientResponseException ex;
     if (statusCode.is4xxClientError()) {
@@ -210,7 +208,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
     }
 
-    if (CollectionUtils.isNotEmpty(this.messageConverters)) {
+    if (CollectionUtils.isNotEmpty(messageConverters)) {
       ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
     }
 
@@ -223,7 +221,22 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    */
   @SuppressWarnings("NullAway")
   protected Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
-    return StatusHandler.initBodyConvertFunction(response, body, messageConverters);
+    return resolvable -> {
+      try {
+        var extractor = new HttpMessageConverterExtractor<>(resolvable.getType(), messageConverters);
+        return extractor.extractData(new ClientHttpResponseDecorator(response) {
+
+          @Override
+          public InputStream getBody() {
+            return new ByteArrayInputStream(body);
+          }
+
+        });
+      }
+      catch (IOException ex) {
+        throw new RestClientException("Error while extracting response for type [%s]".formatted(resolvable), ex);
+      }
+    };
   }
 
   /**

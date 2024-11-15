@@ -89,11 +89,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   static {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
-    httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
     reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
+    httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
 
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader) &&
-            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
+    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader)
+            && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", loader);
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", loader);
@@ -121,7 +121,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   private Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest;
 
   @Nullable
-  private List<StatusHandler> statusHandlers;
+  private List<ResponseErrorHandler> statusHandlers;
 
   @Nullable
   private ClientHttpRequestFactory requestFactory;
@@ -158,7 +158,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     this.uriBuilderFactory = getUriBuilderFactory(restTemplate);
     this.statusHandlers = new ArrayList<>();
-    this.statusHandlers.add(StatusHandler.fromErrorHandler(restTemplate.getErrorHandler()));
+    this.statusHandlers.add(restTemplate.getErrorHandler());
 
     this.requestFactory = getRequestFactory(restTemplate);
     this.messageConverters = new ArrayList<>(restTemplate.getMessageConverters());
@@ -303,10 +303,10 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   @Override
   public RestClient.Builder defaultStatusHandler(ResponseErrorHandler errorHandler) {
-    return defaultStatusHandlerInternal(StatusHandler.fromErrorHandler(errorHandler));
+    return defaultStatusHandlerInternal(errorHandler);
   }
 
-  private RestClient.Builder defaultStatusHandlerInternal(StatusHandler statusHandler) {
+  private RestClient.Builder defaultStatusHandlerInternal(ResponseErrorHandler statusHandler) {
     if (this.statusHandlers == null) {
       this.statusHandlers = new ArrayList<>();
     }

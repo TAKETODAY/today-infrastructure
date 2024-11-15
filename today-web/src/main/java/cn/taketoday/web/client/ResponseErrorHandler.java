@@ -18,9 +18,8 @@
 package cn.taketoday.web.client;
 
 import java.io.IOException;
-import java.net.URI;
 
-import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 
 /**
@@ -58,12 +57,12 @@ public interface ResponseErrorHandler {
    * Alternative to {@link #handleError(ClientHttpResponse)} with extra
    * information providing access to the request URL and HTTP method.
    *
-   * @param url the request URL
-   * @param method the HTTP method
+   * @param request the request
    * @param response the response with the error
    * @throws IOException in case of I/O errors
+   * @since 5.0
    */
-  default void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+  default void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
     handleError(response);
   }
 
