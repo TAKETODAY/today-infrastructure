@@ -484,7 +484,8 @@ class RestClientIntegrationTests {
     }
     catch (HttpServerErrorException ex) {
       assumeFalse(requestFactory instanceof JdkClientHttpRequestFactory, "JDK HttpClient does not expose status text");
-      assertThat(ex.getMessage()).isEqualTo("555 Server Error: \"Something went wrong\"");
+      assertThat(ex.getMessage()).startsWith("555 Server Error on GET request for ");
+      assertThat(ex.getMessage()).endsWith("unknownPage\": \"Something went wrong\"");
       assertThat(ex.getStatusText()).isEqualTo("Server Error");
       assertThat(ex.getResponseHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
       assertThat(ex.getResponseBodyAsString()).isEqualTo(errorMessage);
