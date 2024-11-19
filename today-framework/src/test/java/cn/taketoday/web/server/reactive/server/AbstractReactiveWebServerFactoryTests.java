@@ -51,9 +51,9 @@ import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.util.DataSize;
-import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.client.reactive.WebClient;
 import cn.taketoday.web.client.reactive.WebClientRequestException;
+import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.server.Compression;
 import cn.taketoday.web.server.GracefulShutdownResult;
 import cn.taketoday.web.server.Http2;
@@ -582,7 +582,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(startedLogMessage()).matches(
-            "Netty started on port " + this.webServer.getPort());
+            "Netty started on port " + this.webServer.getPort() + " \\(http\\)");
   }
 
   @Test
