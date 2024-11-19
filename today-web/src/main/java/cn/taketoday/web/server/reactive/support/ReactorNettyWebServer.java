@@ -133,7 +133,8 @@ public class ReactorNettyWebServer implements WebServer {
 
   private String getStartedOnMessage(DisposableServer server) {
     StringBuilder message = new StringBuilder();
-    tryAppend(message, "port %s", server::port);
+    tryAppend(message, "port %s", () -> server.port()
+            + ((this.httpServer.configuration().sslProvider() != null) ? " (https)" : " (http)"));
     tryAppend(message, "path %s", server::path);
     return (!message.isEmpty()) ? "Netty started on " + message : "Netty started";
   }

@@ -43,6 +43,8 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private final EventLoopGroup childGroup;
 
+  private final boolean sslEnabled;
+
   private final EventLoopGroup parentGroup;
 
   private final Netty.Shutdown shutdownConfig;
@@ -53,13 +55,14 @@ final class NettyWebServer implements WebServer, IntSupplier {
 
   private InetSocketAddress listenAddress;
 
-  NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup,
-          ServerBootstrap serverBootstrap, InetSocketAddress listenAddress, Netty.Shutdown shutdownConfig) {
+  NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup, ServerBootstrap serverBootstrap,
+          InetSocketAddress listenAddress, Netty.Shutdown shutdownConfig, boolean sslEnabled) {
     this.serverBootstrap = serverBootstrap;
     this.shutdownConfig = shutdownConfig;
     this.listenAddress = listenAddress;
     this.parentGroup = parentGroup;
     this.childGroup = childGroup;
+    this.sslEnabled = sslEnabled;
   }
 
   @Override
@@ -68,7 +71,7 @@ final class NettyWebServer implements WebServer, IntSupplier {
       if (serverBootstrap.bind(listenAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress localAddress) {
         listenAddress = localAddress;
       }
-      log.info("Netty web server started on port: '{}'", getPort());
+      log.info("Netty started on port: {} {}", getPort(), sslEnabled ? "(https)" : "(http)");
     }
     catch (Exception ex) {
       PortInUseException.throwIfPortBindingException(ex, this);

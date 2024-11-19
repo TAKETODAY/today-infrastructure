@@ -339,7 +339,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     postBootstrap(bootstrap);
 
     InetSocketAddress listenAddress = getListenAddress();
-    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress, nettyConfig.shutdown);
+    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap,
+            listenAddress, nettyConfig.shutdown, Ssl.isEnabled(getSsl()));
   }
 
   /**
