@@ -22,7 +22,6 @@ import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.web.server.ChannelWebServerFactory;
 import cn.taketoday.web.server.ServerProperties.Netty;
@@ -419,19 +418,10 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     if (Ssl.isEnabled(ssl)) {
       SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler,
               channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
-      addBundleUpdateHandler(null, ssl.bundle, initializer);
-      for (var pair : ssl.serverNameBundles) {
-        addBundleUpdateHandler(pair.getServerName(), pair.getBundle(), initializer);
-      }
+      addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
     return new NettyChannelInitializer(channelHandler, channelConfigurer);
-  }
-
-  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SSLNettyChannelInitializer initializer) {
-    if (StringUtils.hasText(bundleName)) {
-      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> initializer.updateSSLBundle(serverName, sslBundle));
-    }
   }
 
   private InetSocketAddress getListenAddress() {

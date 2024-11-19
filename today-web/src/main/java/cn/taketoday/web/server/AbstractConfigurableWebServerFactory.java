@@ -21,12 +21,14 @@ import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Abstract base class for {@link ConfigurableWebServerFactory} implementations.
@@ -51,6 +53,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   @Nullable
   private Ssl ssl;
 
+  @Nullable
   private SslBundles sslBundles;
 
   @Nullable
@@ -124,12 +127,13 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    *
    * @return the {@link SslBundles} or {@code null}
    */
+  @Nullable
   public SslBundles getSslBundles() {
     return this.sslBundles;
   }
 
   @Override
-  public void setSslBundles(SslBundles sslBundles) {
+  public void setSslBundles(@Nullable SslBundles sslBundles) {
     this.sslBundles = sslBundles;
   }
 
@@ -192,13 +196,34 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   protected final Map<String, SslBundle> getServerNameSslBundles() {
     if (ssl != null && !ssl.serverNameBundles.isEmpty()) {
+      Assert.state(this.sslBundles != null, "sslBundles is required");
       HashMap<String, SslBundle> ret = new HashMap<>();
-      for (Ssl.ServerNameSslBundle pair : ssl.serverNameBundles) {
+      for (var pair : ssl.serverNameBundles) {
         ret.put(pair.getServerName(), sslBundles.getBundle(pair.getBundle()));
       }
       return ret;
     }
     return Collections.emptyMap();
+  }
+
+  /**
+   * @since 5.0
+   */
+  protected final void addBundleUpdateHandler(Ssl ssl, BiConsumer<String, SslBundle> updateHandler) {
+    if (sslBundles != null) {
+      addBundleUpdateHandler(sslBundles, null, ssl.bundle, updateHandler);
+      for (var pair : ssl.serverNameBundles) {
+        addBundleUpdateHandler(sslBundles, pair.getServerName(), pair.getBundle(), updateHandler);
+      }
+    }
+  }
+
+  private void addBundleUpdateHandler(SslBundles sslBundles, @Nullable String serverName,
+          @Nullable String bundleName, BiConsumer<String, SslBundle> updateHandler) {
+    if (StringUtils.hasText(bundleName)) {
+      sslBundles.addBundleUpdateHandler(bundleName, sslBundle ->
+              updateHandler.accept(serverName, sslBundle));
+    }
   }
 
 }

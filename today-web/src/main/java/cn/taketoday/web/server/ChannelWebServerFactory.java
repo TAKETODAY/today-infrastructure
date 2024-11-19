@@ -43,6 +43,7 @@ public interface ChannelWebServerFactory extends WebServerFactory {
    * @param channelHandler the HTTP handler in charge of processing requests
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
+   * @see #CHANNEL_HANDLER_BEAN_NAME
    */
   WebServer getWebServer(ChannelHandler channelHandler);
 

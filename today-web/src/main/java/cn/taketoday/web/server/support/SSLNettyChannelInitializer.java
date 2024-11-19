@@ -61,7 +61,7 @@ import static io.netty.handler.ssl.SslProvider.OPENSSL;
 final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   private static final Logger logger = LoggerFactory.getLogger(SSLNettyChannelInitializer.class);
-  
+
   @Nullable
   private final HashMap<String, SslContext> serverNameSslContexts;
 

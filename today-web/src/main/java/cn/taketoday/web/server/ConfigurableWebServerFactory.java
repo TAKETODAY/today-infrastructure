@@ -61,7 +61,7 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
    *
    * @param sslBundles the SSL bundles
    */
-  void setSslBundles(SslBundles sslBundles);
+  void setSslBundles(@Nullable SslBundles sslBundles);
 
   /**
    * Sets the HTTP/2 configuration that will be applied to the server.
@@ -83,7 +83,7 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
    *
    * @param shutdown the shutdown configuration
    */
-  default void setShutdown(Shutdown shutdown) { }
+  void setShutdown(Shutdown shutdown);
 
   /**
    * Sets the application temp. Provides access to an

@@ -31,7 +31,6 @@ import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.server.Compression;
 import cn.taketoday.web.server.Shutdown;
 import cn.taketoday.web.server.Ssl;
@@ -62,7 +61,9 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   @Nullable
   private ReactorResourceFactory resourceFactory;
 
-  public ReactorNettyReactiveWebServerFactory() { }
+  public ReactorNettyReactiveWebServerFactory() {
+
+  }
 
   public ReactorNettyReactiveWebServerFactory(int port) {
     super(port);
@@ -72,7 +73,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   public WebServer getWebServer(HttpHandler httpHandler) {
     HttpServer httpServer = createHttpServer();
     var handlerAdapter = new ReactorHttpHandlerAdapter(httpHandler);
-    ReactorNettyWebServer webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
+    var webServer = createNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, getShutdown());
     webServer.setRouteProviders(this.routeProviders);
     return webServer;
   }
@@ -166,18 +167,8 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
     SslServerCustomizer customizer = new SslServerCustomizer(
             isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
-
-    addBundleUpdateHandler(null, ssl.bundle, customizer);
-    for (var pair : ssl.serverNameBundles) {
-      addBundleUpdateHandler(pair.getServerName(), pair.getBundle(), customizer);
-    }
+    addBundleUpdateHandler(ssl, customizer::updateSslBundle);
     return customizer.apply(httpServer);
-  }
-
-  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SslServerCustomizer customizer) {
-    if (StringUtils.hasText(bundleName)) {
-      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> customizer.updateSslBundle(serverName, sslBundle));
-    }
   }
 
   private HttpProtocol[] listProtocols() {
