@@ -87,6 +87,38 @@ public interface RestClient {
   RequestHeadersUriSpec<?> get();
 
   /**
+   * Start building an HTTP GET request.
+   * <p> Specify the URI using a fully constructed {@link URI}.
+   * <p>If the given URI is absolute, it is used as given. If it is
+   * a relative URI, the {@link UriBuilderFactory} configured for
+   * the client (e.g. with a base URI) will be used to
+   * {@linkplain URI#resolve(URI) resolve} the given URI against.
+   *
+   * @param uri fully constructed {@link URI}.
+   * @return a spec for specifying the target URL
+   * @since 5.0
+   */
+  default RequestHeadersSpec<?> get(URI uri) {
+    return get().uri(uri);
+  }
+
+  /**
+   * Start building an HTTP GET request.
+   *
+   * <p> Specify the URI for the request using a URI template and URI variables.
+   * <p>If a {@link UriBuilderFactory} was configured for the client (e.g.
+   * with a base URI) it will be used to expand the URI template.
+   *
+   * @param uri URI template.
+   * @param uriVariables URI variables
+   * @return a spec for specifying the target URL
+   * @since 5.0
+   */
+  default RequestHeadersSpec<?> get(String uri, Object... uriVariables) {
+    return get().uri(uri, uriVariables);
+  }
+
+  /**
    * Start building an HTTP HEAD request.
    *
    * @return a spec for specifying the target URL

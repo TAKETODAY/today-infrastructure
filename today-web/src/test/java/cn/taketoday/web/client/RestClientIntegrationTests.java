@@ -386,8 +386,7 @@ class RestClientIntegrationTests {
             .setHeader("Content-Type", "text/plain").setBody("Not Found"));
 
     assertThatExceptionOfType(HttpClientErrorException.NotFound.class).isThrownBy(() ->
-            this.restClient.get()
-                    .uri("/greeting")
+            this.restClient.get("/greeting")
                     .retrieve()
                     .body(String.class)
     );
@@ -452,8 +451,8 @@ class RestClientIntegrationTests {
             .setHeader("Content-Type", "text/plain").setBody("Internal Server error"));
 
     assertThatExceptionOfType(HttpServerErrorException.InternalServerError.class).isThrownBy(() ->
-            this.restClient.get()
-                    .uri("/").accept(MediaType.APPLICATION_JSON)
+            this.restClient.get("/")
+                    .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .toBodilessEntity()
     );
@@ -959,8 +958,7 @@ class RestClientIntegrationTests {
     URI uri = new URI(null, null, "/foo bar", null);
 
     String result = this.restClient
-            .get()
-            .uri(uri)
+            .get(uri)
             .accept(MediaType.TEXT_PLAIN)
             .retrieve()
             .body(String.class);
@@ -983,8 +981,7 @@ class RestClientIntegrationTests {
     URI uri = new URI(null, null, "/foo bar", null);
 
     Future<String> result = this.restClient
-            .get()
-            .uri(uri)
+            .get(uri)
             .accept(MediaType.TEXT_PLAIN)
             .async()
             .body(String.class);
