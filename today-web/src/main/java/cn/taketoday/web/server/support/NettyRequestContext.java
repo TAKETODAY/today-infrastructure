@@ -811,7 +811,7 @@ public class NettyRequestContext extends RequestContext {
 
     @Override
     public boolean supportsZeroCopy() {
-      return true;
+      return !config.secure;
     }
 
     @Override

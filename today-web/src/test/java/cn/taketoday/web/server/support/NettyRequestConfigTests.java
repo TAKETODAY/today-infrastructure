@@ -39,21 +39,21 @@ class NettyRequestConfigTests {
 
   @Test
   void charset() {
-    assertThatThrownBy(() -> NettyRequestConfig.forBuilder()
+    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
             .build()).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("SendErrorHandler is required");
 
-    assertThatThrownBy(() -> NettyRequestConfig.forBuilder()
+    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
             .build()).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("HttpDataFactory is required");
 
-    assertThat(NettyRequestConfig.forBuilder()
+    assertThat(NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(new SendErrorHandler0())
             .httpDataFactory(new DefaultHttpDataFactory())
             .build().writerCharset).isSameAs(Constant.DEFAULT_CHARSET);
 
-    NettyRequestConfig config = NettyRequestConfig.forBuilder()
+    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .writerCharset(StandardCharsets.US_ASCII)
             .sendErrorHandler(new SendErrorHandler0())
             .httpDataFactory(new DefaultHttpDataFactory())
@@ -61,7 +61,7 @@ class NettyRequestConfigTests {
     assertThat(config.writerCharset).isEqualTo(StandardCharsets.US_ASCII);
     assertThat(config.postRequestDecoderCharset).isSameAs(Constant.DEFAULT_CHARSET);
 
-    assertThat(NettyRequestConfig.forBuilder()
+    assertThat(NettyRequestConfig.forBuilder(false)
             .postRequestDecoderCharset(StandardCharsets.US_ASCII)
             .sendErrorHandler(new SendErrorHandler0())
             .httpDataFactory(new DefaultHttpDataFactory())

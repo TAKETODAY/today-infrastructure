@@ -76,6 +76,9 @@ public class NettyRequestConfig {
 
   public final SendErrorHandler sendErrorHandler;
 
+  /**
+   * SSL enabled status
+   */
   public final boolean secure;
 
   private NettyRequestConfig(Builder builder) {
@@ -97,8 +100,8 @@ public class NettyRequestConfig {
     this.writerCharset = builder.writerCharset == null ? Constant.DEFAULT_CHARSET : builder.writerCharset;
   }
 
-  public static Builder forBuilder() {
-    return new Builder();
+  public static Builder forBuilder(boolean secure) {
+    return new Builder(secure);
   }
 
   public static class Builder {
@@ -132,11 +135,10 @@ public class NettyRequestConfig {
 
     private SendErrorHandler sendErrorHandler;
 
-    private boolean secure;
+    private final boolean secure;
 
-    public Builder secure(boolean secure) {
+    Builder(boolean secure) {
       this.secure = secure;
-      return this;
     }
 
     public Builder sendErrorHandler(SendErrorHandler sendErrorHandler) {

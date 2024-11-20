@@ -119,10 +119,9 @@ public class NettyWebServerFactoryAutoConfiguration {
       factory.setBaseDir(multipart.baseDir);
     }
     factory.setDeleteOnExit(multipart.deleteOnExit);
-    return NettyRequestConfig.forBuilder()
+    return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(Ssl.isEnabled(server.ssl))
             .build();
   }
 

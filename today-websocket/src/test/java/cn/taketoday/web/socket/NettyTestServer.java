@@ -36,7 +36,7 @@ public class NettyTestServer implements WebSocketTestServer {
 
   @Override
   public void setup(AnnotationConfigApplicationContext wac) {
-    NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder()
+    NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder(false)
             .httpDataFactory(new DefaultHttpDataFactory())
             .sendErrorHandler((request, message) -> {
 
