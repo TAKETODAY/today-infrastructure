@@ -35,6 +35,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.util.StreamUtils;
 
+import static cn.taketoday.web.client.DefaultResponseErrorHandlerHttpStatusTests.mockRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -77,8 +78,8 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getBody()).willReturn(new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8)));
 
     assertThatExceptionOfType(HttpClientErrorException.class)
-            .isThrownBy(() -> handler.handleError(response))
-            .withMessage("404 Not Found: \"Hello World\"")
+            .isThrownBy(() -> handler.handleError(mockRequest(), response))
+            .withMessage("404 Not Found on GET request for \"/\": \"Hello World\"")
             .satisfies(ex -> assertThat(ex.getResponseHeaders()).isEqualTo(headers));
   }
 
@@ -132,7 +133,8 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willThrow(new IOException());
 
-    assertThatExceptionOfType(HttpClientErrorException.class).isThrownBy(() -> handler.handleError(response));
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> handler.handleError(mockRequest(), response));
   }
 
   @Test
@@ -145,10 +147,10 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
 
     assertThatExceptionOfType(HttpClientErrorException.class).isThrownBy(() ->
-            handler.handleError(response));
+            handler.handleError(mockRequest(), response));
   }
 
-  @Test  // SPR-16108
+  @Test
   public void hasErrorForUnknownStatusCode() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
@@ -160,7 +162,7 @@ public class DefaultResponseErrorHandlerTests {
     assertThat(handler.hasError(response)).isFalse();
   }
 
-  @Test // SPR-9406
+  @Test
   public void handleErrorUnknownStatusCode() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
@@ -170,7 +172,7 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
 
     assertThatExceptionOfType(UnknownHttpStatusCodeException.class).isThrownBy(() ->
-            handler.handleError(response));
+            handler.handleError(mockRequest(), response));
   }
 
   @Test  // SPR-17461
@@ -201,7 +203,7 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(body);
 
-    Throwable throwable = catchThrowable(() -> handler.handleError(response));
+    Throwable throwable = catchThrowable(() -> handler.handleError(mockRequest(), response));
 
     // validate exception
     assertThat(throwable).isInstanceOf(HttpClientErrorException.class);
@@ -241,7 +243,7 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(body);
 
-    Throwable throwable = catchThrowable(() -> handler.handleError(response));
+    Throwable throwable = catchThrowable(() -> handler.handleError(mockRequest(), response));
 
     // validate exception
     assertThat(throwable).isInstanceOf(HttpServerErrorException.class);

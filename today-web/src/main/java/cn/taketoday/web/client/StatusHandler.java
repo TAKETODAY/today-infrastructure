@@ -64,11 +64,6 @@ final class StatusHandler {
     }
 
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
       errorHandler.handle(request, response);
     }

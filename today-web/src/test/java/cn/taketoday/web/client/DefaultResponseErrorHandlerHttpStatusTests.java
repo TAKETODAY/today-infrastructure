@@ -21,7 +21,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
@@ -77,8 +83,19 @@ class DefaultResponseErrorHandlerHttpStatusTests {
     given(this.response.getStatusCode()).willReturn(httpStatus);
     given(this.response.getHeaders()).willReturn(headers);
 
+    HttpRequest request = mockRequest();
+
     assertThatExceptionOfType(expectedExceptionClass)
-            .isThrownBy(() -> this.handler.handleError(this.response));
+            .isThrownBy(() -> this.handler.handleError(request, this.response));
+  }
+
+  static HttpRequest mockRequest() throws URISyntaxException {
+    HttpRequest request = mock();
+    given(request.getURI()).willReturn(new URI("/"));
+    given(request.getMethod()).willReturn(HttpMethod.GET);
+    given(request.getHeaders()).willReturn(HttpHeaders.forWritable());
+    given(request.getAttributes()).willReturn(new HashMap<>());
+    return request;
   }
 
   static Object[][] errorCodes() {

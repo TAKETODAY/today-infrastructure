@@ -20,6 +20,7 @@ package cn.taketoday.web.client;
 import java.io.IOException;
 import java.util.function.Predicate;
 
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.web.client.RestClient.ErrorHandler;
 
@@ -45,7 +46,7 @@ public final class NoOpResponseErrorHandler implements ResponseErrorHandler {
   }
 
   @Override
-  public void handleError(ClientHttpResponse response) throws IOException {
+  public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
 
   }
 

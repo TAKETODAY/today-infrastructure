@@ -41,7 +41,7 @@ import cn.taketoday.util.CollectionUtils;
  * {@linkplain #setSeriesMapping(Map) series mapping}. If either of these mappings has a match
  * for the {@linkplain ClientHttpResponse#getStatusCode() status code} of a given
  * {@code ClientHttpResponse}, {@link #hasError(ClientHttpResponse)} will return
- * {@code true}, and {@link #handleError(ClientHttpResponse)} will attempt to use the
+ * {@code true}, and {@link #handleError(HttpRequest, ClientHttpResponse)} will attempt to use the
  * {@linkplain #setMessageConverters(List) configured message converters} to convert the response
  * into the mapped subclass of {@link RestClientException}. Note that the
  * {@linkplain #setStatusMapping(Map) status mapping} takes precedence over
@@ -98,7 +98,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * If this mapping has a match
    * for the {@linkplain ClientHttpResponse#getStatusCode() status code} of a given
    * {@code ClientHttpResponse}, {@link #hasError(ClientHttpResponse)} will return
-   * {@code true} and {@link #handleError(ClientHttpResponse)} will attempt to use the
+   * {@code true} and {@link #handleError(HttpRequest, ClientHttpResponse)} will attempt to use the
    * {@linkplain #setMessageConverters(List) configured message converters} to convert the
    * response into the mapped subclass of {@link RestClientException}.
    */
@@ -113,7 +113,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * If this mapping has a match
    * for the {@linkplain ClientHttpResponse#getStatusCode() status code} of a given
    * {@code ClientHttpResponse}, {@link #hasError(ClientHttpResponse)} will return
-   * {@code true} and {@link #handleError(ClientHttpResponse)} will attempt to use the
+   * {@code true} and {@link #handleError(HttpRequest, ClientHttpResponse)} will attempt to use the
    * {@linkplain #setMessageConverters(List) configured message converters} to convert the
    * response into the mapped subclass of {@link RestClientException}.
    */
@@ -138,7 +138,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   }
 
   @Override
-  protected void handleError(@Nullable HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
+  protected void handleError(HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     if (this.statusMapping.containsKey(statusCode)) {
       extract(this.statusMapping.get(statusCode), response);
     }

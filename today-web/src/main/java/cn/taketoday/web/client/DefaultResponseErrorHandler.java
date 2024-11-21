@@ -48,7 +48,7 @@ import cn.taketoday.util.ObjectUtils;
  * {@link #hasError(HttpStatusCode)}. Unknown status codes will be ignored by
  * {@link #hasError(ClientHttpResponse)}.
  *
- * <p>See {@link #handleError(ClientHttpResponse)} for more details on specific
+ * <p>See {@link #handleError(HttpRequest, ClientHttpResponse)} for more details on specific
  * exception types.
  *
  * @author Arjen Poutsma
@@ -97,29 +97,6 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   }
 
   /**
-   * Handle the error in the given response with the given resolved status code.
-   * <p>The default implementation throws:
-   * <ul>
-   * <li>{@link HttpClientErrorException} if the status code is in the 4xx
-   * series, or one of its sub-classes such as
-   * {@link HttpClientErrorException.BadRequest} and others.
-   * <li>{@link HttpServerErrorException} if the status code is in the 5xx
-   * series, or one of its sub-classes such as
-   * {@link HttpServerErrorException.InternalServerError} and others.
-   * <li>{@link UnknownHttpStatusCodeException} for error status codes not in the
-   * {@link HttpStatus} enum range.
-   * </ul>
-   *
-   * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
-   * @see #handleError(HttpRequest, ClientHttpResponse, HttpStatusCode)
-   */
-  @Override
-  public void handleError(ClientHttpResponse response) throws IOException {
-    HttpStatusCode statusCode = response.getStatusCode();
-    handleError(null, response, statusCode);
-  }
-
-  /**
    * Handle the error in the given response with the given resolved status code
    * and extra information providing access to the request URL and HTTP method.
    * <p>The default implementation throws:
@@ -149,23 +126,22 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </pre>
    */
   private String getErrorMessage(int rawStatusCode, String statusText,
-          @Nullable byte[] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
+          @Nullable byte[] responseBody, @Nullable Charset charset, HttpRequest request) {
 
     StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
-    if (request != null) {
-      msg.append(" on ").append(request.getMethod()).append(" request");
-      msg.append(" for \"");
-      String urlString = request.getURI().toString();
-      int idx = urlString.indexOf('?');
-      if (idx != -1) {
-        msg.append(urlString, 0, idx);
-      }
-      else {
-        msg.append(urlString);
-      }
-      msg.append("\"");
+
+    msg.append(" on ").append(request.getMethod()).append(" request");
+    msg.append(" for \"");
+    String urlString = request.getURI().toString();
+    int idx = urlString.indexOf('?');
+    if (idx != -1) {
+      msg.append(urlString, 0, idx);
     }
-    msg.append(": ");
+    else {
+      msg.append(urlString);
+    }
+
+    msg.append("\": ");
     if (ObjectUtils.isEmpty(responseBody)) {
       msg.append("[no body]");
     }
@@ -190,7 +166,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * @see HttpServerErrorException#create
    * @since 5.0
    */
-  protected void handleError(@Nullable HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
+  protected void handleError(HttpRequest request, ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
     String statusText = response.getStatusText();
     HttpHeaders headers = response.getHeaders();
     byte[] body = getResponseBody(response);

@@ -32,6 +32,7 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import static cn.taketoday.web.client.DefaultResponseErrorHandlerHttpStatusTests.mockRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -103,7 +104,7 @@ public class ExtractingResponseErrorHandlerTests {
     given(response.getBody()).willReturn(new ByteArrayInputStream(body));
 
     assertThatExceptionOfType(MyRestClientException.class)
-            .isThrownBy(() -> errorHandler.handleError(response))
+            .isThrownBy(() -> errorHandler.handleError(mockRequest(), response))
             .satisfies(ex -> assertThat(ex.getFoo()).isEqualTo("bar"));
   }
 
@@ -120,7 +121,7 @@ public class ExtractingResponseErrorHandlerTests {
     given(response.getBody()).willReturn(new ByteArrayInputStream(body));
 
     assertThatExceptionOfType(MyRestClientException.class)
-            .isThrownBy(() -> errorHandler.handleError(response))
+            .isThrownBy(() -> errorHandler.handleError(mockRequest(), response))
             .satisfies(ex -> Assertions.assertThat(ex.getFoo()).isEqualTo("bar"));
   }
 
@@ -137,7 +138,7 @@ public class ExtractingResponseErrorHandlerTests {
     given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
     assertThatExceptionOfType(HttpClientErrorException.class)
-            .isThrownBy(() -> this.errorHandler.handleError(this.response))
+            .isThrownBy(() -> this.errorHandler.handleError(mockRequest(), this.response))
             .satisfies(ex -> {
               assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
               assertThat(ex.getResponseBodyAsByteArray()).isEqualTo(body);
@@ -158,7 +159,7 @@ public class ExtractingResponseErrorHandlerTests {
     responseHeaders.setContentLength(body.length);
     given(this.response.getBody()).willReturn(new ByteArrayInputStream(body));
 
-    this.errorHandler.handleError(this.response);
+    this.errorHandler.handleError(mockRequest(), this.response);
   }
 
   @SuppressWarnings("serial")
