@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import cn.taketoday.core.Pair;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
@@ -666,7 +667,7 @@ class RestClientIntegrationTests {
               }
 
               @Override
-              public void handleError(ClientHttpResponse response) throws IOException {
+              public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
 
               }
             })

@@ -40,6 +40,7 @@ import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
@@ -193,9 +194,10 @@ class RestTemplateTests {
       }
 
       @Override
-      public void handleError(ClientHttpResponse response) {
+      public void handleError(HttpRequest request, ClientHttpResponse response) throws IOException {
         throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
       }
+
     };
     template.setErrorHandler(errorHandler);
     assertThatExceptionOfType(HttpServerErrorException.class)
