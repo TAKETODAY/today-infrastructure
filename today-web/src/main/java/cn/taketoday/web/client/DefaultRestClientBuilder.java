@@ -135,11 +135,16 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private List<ClientHttpRequestInitializer> initializers;
 
-  public DefaultRestClientBuilder() { }
+  private boolean ignoreStatus = false;
+
+  public DefaultRestClientBuilder() {
+
+  }
 
   public DefaultRestClientBuilder(DefaultRestClientBuilder other) {
     Assert.notNull(other, "Other is required");
     this.baseURI = other.baseURI;
+    this.ignoreStatus = other.ignoreStatus;
     this.defaultRequest = other.defaultRequest;
     this.requestFactory = other.requestFactory;
     this.uriBuilderFactory = other.uriBuilderFactory;
@@ -306,6 +311,12 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return defaultStatusHandlerInternal(errorHandler);
   }
 
+  @Override
+  public RestClient.Builder ignoreStatus(boolean ignoreStatus) {
+    this.ignoreStatus = ignoreStatus;
+    return this;
+  }
+
   private RestClient.Builder defaultStatusHandlerInternal(ResponseErrorHandler statusHandler) {
     if (this.statusHandlers == null) {
       this.statusHandlers = new ArrayList<>();
@@ -434,8 +445,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers,
-            messageConverters, new DefaultRestClientBuilder(this)
-    );
+            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus);
   }
 
   private ClientHttpRequestFactory initRequestFactory() {

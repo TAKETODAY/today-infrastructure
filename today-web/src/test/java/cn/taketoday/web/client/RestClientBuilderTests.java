@@ -256,6 +256,25 @@ class RestClientBuilderTests {
             );
   }
 
+  @Test
+  void ignoreStatus() {
+    RestClient restClient = RestClient.builder()
+            .ignoreStatus()
+            .build();
+
+    assertThat(fieldValue("ignoreStatusHandlers", restClient))
+            .asInstanceOf(InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+    restClient = RestClient.builder()
+            .ignoreStatus(false)
+            .build();
+
+    assertThat(fieldValue("ignoreStatusHandlers", restClient))
+            .asInstanceOf(InstanceOfAssertFactories.BOOLEAN)
+            .isFalse();
+  }
+
   @Nullable
   private static Object fieldValue(String name, DefaultRestClientBuilder instance) {
     try {

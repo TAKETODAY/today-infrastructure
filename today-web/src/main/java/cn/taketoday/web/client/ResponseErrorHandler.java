@@ -51,6 +51,7 @@ public interface ResponseErrorHandler {
    * @param response the response with the error
    * @throws IOException in case of I/O errors
    */
+  @Deprecated
   void handleError(ClientHttpResponse response) throws IOException;
 
   /**

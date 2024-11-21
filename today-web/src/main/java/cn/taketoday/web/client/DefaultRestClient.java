@@ -19,7 +19,6 @@ package cn.taketoday.web.client;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -107,13 +106,17 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final Consumer<RequestHeadersSpec<?>> defaultRequest;
 
+  private final boolean ignoreStatusHandlers;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
           UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
           @Nullable MultiValueMap<String, String> defaultCookies,
-          @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest, @Nullable List<ResponseErrorHandler> statusHandlers,
-          List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
+          @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
+          @Nullable List<ResponseErrorHandler> statusHandlers,
+          List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder,
+          boolean ignoreStatusHandlers) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -126,6 +129,7 @@ final class DefaultRestClient implements RestClient {
     this.messageConverters = messageConverters;
     this.builder = builder;
     this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
+    this.ignoreStatusHandlers = ignoreStatusHandlers;
   }
 
   @Override
@@ -184,12 +188,10 @@ final class DefaultRestClient implements RestClient {
 
   @Nullable
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable Consumer<ClientHttpResponse> callback, Type bodyType, Class<T> bodyClass) {
+  private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback, Type bodyType, Class<T> bodyClass) {
     MediaType contentType = getContentType(clientResponse);
 
-    // todo callback
-
-    try (IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
+    try (var responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
       if (callback != null) {
         callback.accept(clientResponse);
       }
@@ -218,16 +220,9 @@ final class DefaultRestClient implements RestClient {
               responseWrapper.getStatusCode(), responseWrapper.getStatusText(),
               responseWrapper.getHeaders(), RestClientUtils.getBody(responseWrapper));
     }
-    catch (UncheckedIOException | IOException | HttpMessageNotReadableException ex) {
-      Throwable cause;
-      if (ex instanceof UncheckedIOException uncheckedIOException) {
-        cause = uncheckedIOException.getCause();
-      }
-      else {
-        cause = ex;
-      }
+    catch (IOException | HttpMessageNotReadableException ex) {
       throw new RestClientException("Error while extracting response for type [%s] and content type [%s]"
-              .formatted(ResolvableType.forType(bodyType), contentType), cause);
+              .formatted(ResolvableType.forType(bodyType), contentType), ex);
     }
   }
 
@@ -251,36 +246,33 @@ final class DefaultRestClient implements RestClient {
     return (Class<T>) Object.class;
   }
 
-  private void applyStatusHandlers(HttpRequest request, ClientHttpResponse response, @Nullable List<ResponseErrorHandler> statusHandlers) {
-    try {
-      if (response instanceof DefaultClientResponse cr) {
-        response = cr.delegate;
-      }
+  private void applyStatusHandlers(HttpRequest request, ClientHttpResponse response,
+          @Nullable List<ResponseErrorHandler> statusHandlers) throws IOException {
 
-      if (defaultStatusHandlers != null) {
-        for (ResponseErrorHandler handler : defaultStatusHandlers) {
-          if (handler.hasError(response)) {
-            handler.handleError(request, response);
-            return;
-          }
+    if (response instanceof DefaultClientResponse cr) {
+      response = cr.delegate;
+    }
+
+    if (defaultStatusHandlers != null) {
+      for (ResponseErrorHandler handler : defaultStatusHandlers) {
+        if (handler.hasError(response)) {
+          handler.handleError(request, response);
+          return;
         }
-      }
-
-      if (statusHandlers != null) {
-        for (ResponseErrorHandler handler : statusHandlers) {
-          if (handler.hasError(response)) {
-            handler.handleError(request, response);
-            return;
-          }
-        }
-      }
-
-      if (defaultStatusHandler.hasError(response)) {
-        defaultStatusHandler.handleError(request, response);
       }
     }
-    catch (IOException ex) {
-      throw new UncheckedIOException(ex);
+
+    if (statusHandlers != null) {
+      for (ResponseErrorHandler handler : statusHandlers) {
+        if (handler.hasError(response)) {
+          handler.handleError(request, response);
+          return;
+        }
+      }
+    }
+
+    if (defaultStatusHandler.hasError(response)) {
+      defaultStatusHandler.handleError(request, response);
     }
   }
 
@@ -497,7 +489,7 @@ final class DefaultRestClient implements RestClient {
             return;
           }
         }
-        if (hmc.canWrite(bodyClass, contentType)) {
+        else if (hmc.canWrite(bodyClass, contentType)) {
           logBody(body, contentType, hmc);
           hmc.write(body, contentType, clientRequest);
           return;
@@ -701,117 +693,121 @@ final class DefaultRestClient implements RestClient {
     }
   }
 
-  private class DefaultResponseSpec implements ResponseSpec {
+  private abstract class AbstractResponseSpec<T extends AbstractResponseSpec<T>> {
 
     private final HttpRequest clientRequest;
 
-    private final ClientHttpResponse clientResponse;
-
     private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
 
-    DefaultResponseSpec(HttpRequest clientRequest, ClientHttpResponse clientResponse) {
+    private boolean ignoreStatus;
+
+    private AbstractResponseSpec(HttpRequest clientRequest) {
       this.clientRequest = clientRequest;
+      this.ignoreStatus = DefaultRestClient.this.ignoreStatusHandlers;
+    }
+
+    public T onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
+      return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
+    }
+
+    public T onStatus(ResponseErrorHandler errorHandler) {
+      return onStatusInternal(errorHandler);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T ignoreStatus(boolean ignoreStatus) {
+      this.ignoreStatus = ignoreStatus;
+      return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    private T onStatusInternal(ResponseErrorHandler statusHandler) {
+      statusHandlers.add(statusHandler);
+      return (T) this;
+    }
+
+    final ResponseEntity<Void> toBodilessEntity(ClientHttpResponse response) throws ResourceAccessException {
+      try (response) {
+        if (!ignoreStatus) {
+          applyStatusHandlers(clientRequest, response, statusHandlers);
+        }
+        return ResponseEntity.status(response.getStatusCode())
+                .headers(response.getHeaders())
+                .build();
+      }
+      catch (IOException ex) {
+        throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
+      }
+    }
+
+    final <R> ResponseEntity<R> toEntityInternal(ClientHttpResponse response, Type bodyType, Class<R> bodyClass) {
+      R body = readBody(response, bodyType, bodyClass);
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .body(body);
+    }
+
+    @Nullable
+    final <R> R readBody(ClientHttpResponse clientResponse, Type bodyType, Class<R> bodyClass) {
+      return readWithMessageConverters(clientResponse, ignoreStatus ? null : response ->
+              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
+    }
+
+  }
+
+  private class DefaultResponseSpec extends AbstractResponseSpec<DefaultResponseSpec> implements ResponseSpec {
+
+    private final ClientHttpResponse clientResponse;
+
+    DefaultResponseSpec(HttpRequest clientRequest, ClientHttpResponse clientResponse) {
+      super(clientRequest);
       this.clientResponse = clientResponse;
     }
 
     @Override
-    public ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
-      return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
-    }
-
-    @Override
-    public ResponseSpec onStatus(ResponseErrorHandler errorHandler) {
-      return onStatusInternal(errorHandler);
-    }
-
-    private ResponseSpec onStatusInternal(ResponseErrorHandler statusHandler) {
-      statusHandlers.add(statusHandler);
-      return this;
-    }
-
-    @Override
     public <T> T body(Class<T> bodyType) {
-      return readBody(bodyType, bodyType);
+      return ignoreStatus(false).readBody(clientResponse, bodyType, bodyType);
     }
 
     @Override
     public <T> T body(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
-      return readBody(type, bodyClass);
+      return ignoreStatus(false).readBody(clientResponse, type, bodyClass);
     }
 
     @Override
     public <T> ResponseEntity<T> toEntity(Class<T> bodyType) {
-      return toEntityInternal(bodyType, bodyType);
+      return toEntityInternal(clientResponse, bodyType, bodyType);
     }
 
     @Override
     public <T> ResponseEntity<T> toEntity(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
-      return toEntityInternal(type, bodyClass);
-    }
-
-    private <T> ResponseEntity<T> toEntityInternal(Type bodyType, Class<T> bodyClass) {
-      T body = readBody(bodyType, bodyClass);
-      return ResponseEntity.status(clientResponse.getStatusCode())
-              .headers(clientResponse.getHeaders())
-              .body(body);
+      return toEntityInternal(clientResponse, type, bodyClass);
     }
 
     @Override
     public ResponseEntity<Void> toBodilessEntity() {
-      try (clientResponse) {
-        applyStatusHandlers(clientRequest, clientResponse, statusHandlers);
-        return ResponseEntity.status(clientResponse.getStatusCode())
-                .headers(clientResponse.getHeaders())
-                .build();
-      }
-      catch (UncheckedIOException ex) {
-        throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex.getCause());
-      }
-    }
-
-    @Nullable
-    private <T> T readBody(Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(clientResponse, response ->
-              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
+      return toBodilessEntity(clientResponse);
     }
 
   }
 
-  private class DefaultAsyncSpec implements AsyncSpec {
-
-    private final HttpRequest clientRequest;
+  private class DefaultAsyncSpec extends AbstractResponseSpec<DefaultAsyncSpec> implements AsyncSpec {
 
     private final Future<ClientHttpResponse> clientResponse;
 
-    private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
-
     DefaultAsyncSpec(HttpRequest clientRequest, Future<ClientHttpResponse> clientResponse) {
-      this.clientRequest = clientRequest;
+      super(clientRequest);
       this.clientResponse = clientResponse;
     }
 
     @Override
-    public AsyncSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
-      return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
-    }
-
-    @Override
-    public AsyncSpec onStatus(ResponseErrorHandler errorHandler) {
-      return onStatusInternal(errorHandler);
-    }
-
-    private AsyncSpec onStatusInternal(ResponseErrorHandler statusHandler) {
-      this.statusHandlers.add(statusHandler);
-      return this;
-    }
-
-    @Override
     public <T> Future<T> body(Class<T> bodyType) {
-      return clientResponse.map(response -> readBody(response, bodyType, bodyType));
+      return clientResponse.map(response ->
+              ignoreStatus(false).readBody(response, bodyType, bodyType));
     }
 
     @Override
@@ -819,7 +815,7 @@ final class DefaultRestClient implements RestClient {
       return clientResponse.map(response -> {
         Type type = bodyType.getType();
         Class<T> bodyClass = bodyClass(type);
-        return readBody(response, type, bodyClass);
+        return ignoreStatus(false).readBody(response, type, bodyClass);
       });
     }
 
@@ -835,35 +831,13 @@ final class DefaultRestClient implements RestClient {
       return toEntityInternal(type, bodyClass);
     }
 
-    private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {
-      return clientResponse.map(response -> {
-        T body = readBody(response, bodyType, bodyClass);
-        return ResponseEntity.status(response.getStatusCode())
-                .headers(response.getHeaders())
-                .body(body);
-      });
-    }
-
     @Override
     public Future<ResponseEntity<Void>> toBodilessEntity() {
-      return clientResponse.map(response -> {
-        try (response) {
-          applyStatusHandlers(clientRequest, response, statusHandlers);
-          return ResponseEntity.status(response.getStatusCode())
-                  .headers(response.getHeaders())
-                  .build();
-        }
-        catch (UncheckedIOException ex) {
-          throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex.getCause());
-        }
-      });
-
+      return clientResponse.map(this::toBodilessEntity);
     }
 
-    @Nullable
-    private <T> T readBody(ClientHttpResponse clientResponse, Type bodyType, Class<T> bodyClass) {
-      return readWithMessageConverters(clientResponse, response ->
-              DefaultRestClient.this.applyStatusHandlers(clientRequest, response, statusHandlers), bodyType, bodyClass);
+    private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {
+      return clientResponse.map(response -> toEntityInternal(response, bodyType, bodyClass));
     }
 
   }
@@ -922,4 +896,11 @@ final class DefaultRestClient implements RestClient {
 
   }
 
+  /**
+   * @since 5.0
+   */
+  interface ResponseConsumer {
+
+    void accept(ClientHttpResponse response) throws IOException;
+  }
 }

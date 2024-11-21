@@ -439,6 +439,35 @@ public interface RestClient {
     Builder defaultStatusHandler(ResponseErrorHandler errorHandler);
 
     /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link ResponseSpec#toEntity(Class) ResponseEntity result}
+     *
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see ResponseSpec#toEntity(Class)
+     * @see ResponseSpec#toEntity(ParameterizedTypeReference)
+     * @since 5.0
+     */
+    default Builder ignoreStatus() {
+      return ignoreStatus(true);
+    }
+
+    /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link ResponseSpec#toEntity(Class) ResponseEntity result}
+     *
+     * @param ignoreStatus ignore or not
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see ResponseSpec#toEntity(Class)
+     * @see ResponseSpec#toEntity(ParameterizedTypeReference)
+     * @since 5.0
+     */
+    Builder ignoreStatus(boolean ignoreStatus);
+
+    /**
      * Add the given request interceptor to the end of the interceptor chain.
      *
      * @param interceptor the interceptor to be added to the chain
@@ -1094,6 +1123,37 @@ public interface RestClient {
     ResponseSpec onStatus(ResponseErrorHandler errorHandler);
 
     /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link #toEntity(Class) ResponseEntity result}
+     *
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see #toEntity(Class)
+     * @see #toEntity(ParameterizedTypeReference)
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    default ResponseSpec ignoreStatus() {
+      return ignoreStatus(true);
+    }
+
+    /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link #toEntity(Class) ResponseEntity result}
+     *
+     * @param ignoreStatus ignore or not
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see #toEntity(Class)
+     * @see #toEntity(ParameterizedTypeReference)
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    ResponseSpec ignoreStatus(boolean ignoreStatus);
+
+    /**
      * Extract the body as an object of the given type.
      *
      * @param bodyType the type of return value
@@ -1199,6 +1259,37 @@ public interface RestClient {
     AsyncSpec onStatus(ResponseErrorHandler errorHandler);
 
     /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link #toEntity(Class) ResponseEntity result}
+     *
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see #toEntity(Class)
+     * @see #toEntity(ParameterizedTypeReference)
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    default AsyncSpec ignoreStatus() {
+      return ignoreStatus(true);
+    }
+
+    /**
+     * Ignore {@link ResponseErrorHandler status handler} throws exception when
+     * using {@link #toEntity(Class) ResponseEntity result}
+     *
+     * @param ignoreStatus ignore or not
+     * @return this builder
+     * @see HttpStatusCodeException
+     * @see ResponseErrorHandler#hasError(ClientHttpResponse)
+     * @see #toEntity(Class)
+     * @see #toEntity(ParameterizedTypeReference)
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    AsyncSpec ignoreStatus(boolean ignoreStatus);
+
+    /**
      * Extract the body as an object of the given type.
      *
      * <p> The returned future completes exceptionally with:
@@ -1257,6 +1348,7 @@ public interface RestClient {
      * @param bodyType the expected response body type
      * @param <T> response body type
      * @return the {@code Future<ResponseEntity>} with the decoded body
+     * @see #onStatus(ResponseErrorHandler)
      */
     <T> Future<ResponseEntity<T>> toEntity(Class<T> bodyType);
 
@@ -1276,6 +1368,7 @@ public interface RestClient {
      * @param bodyType the expected response body type
      * @param <T> response body type
      * @return the {@code Future<ResponseEntity>} with the decoded body
+     * @see #onStatus(ResponseErrorHandler)
      */
     <T> Future<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyType);
 

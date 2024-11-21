@@ -30,7 +30,6 @@ import cn.taketoday.lang.Assert;
 /**
  * Used by {@link DefaultRestClient} and {@link DefaultRestClientBuilder}.
  *
- * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */

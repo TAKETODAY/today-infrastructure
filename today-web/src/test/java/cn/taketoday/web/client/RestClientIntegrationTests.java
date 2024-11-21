@@ -656,10 +656,20 @@ class RestClientIntegrationTests {
     prepareResponse(response -> response.setResponseCode(500)
             .setHeader("Content-Type", "text/plain").setBody(content));
 
-    ResponseEntity<String> result = this.restClient.get()
-            .uri("/").accept(MediaType.APPLICATION_JSON)
+    ResponseEntity<String> result = this.restClient.get("/")
+            .accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> { })
+            .onStatus(new ResponseErrorHandler() {
+              @Override
+              public boolean hasError(ClientHttpResponse response) throws IOException {
+                return response.getStatusCode().is5xxServerError();
+              }
+
+              @Override
+              public void handleError(ClientHttpResponse response) throws IOException {
+
+              }
+            })
             .toEntity(String.class);
 
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -984,6 +994,7 @@ class RestClientIntegrationTests {
             .get(uri)
             .accept(MediaType.TEXT_PLAIN)
             .async()
+            .ignoreStatus(false)
             .body(String.class);
 
     assertThat(result).succeedsWithin(Duration.ofSeconds(1))
@@ -1060,6 +1071,7 @@ class RestClientIntegrationTests {
     Future<ResponseEntity<String>> future = this.restClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .async()
+            .ignoreStatus()
             .toEntity(String.class);
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
@@ -1164,6 +1176,52 @@ class RestClientIntegrationTests {
         assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
       });
     }
+  }
+
+  @ParameterizedRestClientTest
+  void retrieveJsonAsResponseEntityFutureIgnoreStatus(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    String content = "{\"bar\":\"barbar\",\"foo\":\"foofoo\"}";
+    prepareResponse(response -> response
+            .setResponseCode(400)
+            .setHeader("Content-Type", "application/json").setBody(content));
+
+    Future<ResponseEntity<String>> future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .ignoreStatus()
+            .toEntity(String.class);
+
+    assertThat(future).succeedsWithin(Duration.ofSeconds(1));
+    ResponseEntity<String> result = future.getNow();
+    assertThat(result).isNotNull();
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(result.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(result.getHeaders().getContentLength()).isEqualTo(31);
+    assertThat(result.getBody()).isEqualTo(content);
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/json");
+      assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
+    });
+
+    // ignoreStatus = false
+
+    prepareResponse(response -> response
+            .setResponseCode(400)
+            .setHeader("Content-Type", "application/json").setBody(content));
+
+    future = this.restClient.get()
+            .uri("/json").accept(MediaType.APPLICATION_JSON)
+            .async()
+            .ignoreStatus(false)
+            .toEntity(String.class);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1));
+    assertThat(future.getCause()).isInstanceOf(HttpStatusCodeException.class)
+            .isInstanceOf(HttpClientErrorException.BadRequest.class);
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {
