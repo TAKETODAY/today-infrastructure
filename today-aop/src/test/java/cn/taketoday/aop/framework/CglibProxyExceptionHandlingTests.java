@@ -15,31 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.bytecode.core;
+package cn.taketoday.aop.framework;
 
-import cn.taketoday.bytecode.ClassWriter;
+import org.junit.jupiter.api.BeforeEach;
 
-public class DefaultGeneratorStrategy implements GeneratorStrategy {
+import cn.taketoday.bytecode.proxy.Enhancer;
 
-  public static final DefaultGeneratorStrategy INSTANCE = new DefaultGeneratorStrategy();
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author Mikaël Francoeur
+ * @see JdkProxyExceptionHandlingTests
+ */
+class CglibProxyExceptionHandlingTests extends AbstractProxyExceptionHandlingTests {
+
+  @BeforeEach
+  void setup() {
+    proxyFactory.setProxyTargetClass(true);
+  }
 
   @Override
-  public byte[] generate(ClassGenerator cg) throws Exception {
-    ClassWriter cw = createClassVisitor();
-    transform(cg).generateClass(cw);
-    return transform(cw.toByteArray());
+  protected void assertProxyType(Object proxy) {
+    assertThat(Enhancer.isEnhanced(proxy.getClass())).isTrue();
   }
 
-  protected ClassWriter createClassVisitor() {
-    return new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-  }
-
-  protected byte[] transform(byte[] b) throws Exception {
-    return b;
-  }
-
-  protected ClassGenerator transform(ClassGenerator cg) throws Exception {
-    return cg;
-  }
-  
 }

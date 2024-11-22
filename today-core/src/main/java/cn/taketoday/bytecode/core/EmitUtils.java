@@ -38,7 +38,7 @@ import cn.taketoday.util.StringUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class EmitUtils {
 
-  private static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
+  public static final MethodSignature CSTRUCT_THROWABLE = MethodSignature.forConstructor("Throwable");
 
   private static final MethodSignature LENGTH = MethodSignature.from("int length()");
   private static final MethodSignature GET_NAME = MethodSignature.from("String getName()");

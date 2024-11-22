@@ -213,8 +213,8 @@ public abstract class AopUtils {
       Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
       for (Method method : methods) {
         if (introductionAwareMethodMatcher != null ?
-            introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
-            methodMatcher.matches(method, targetClass)) {
+                introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
+                methodMatcher.matches(method, targetClass)) {
           return true;
         }
       }
@@ -317,11 +317,10 @@ public abstract class AopUtils {
     }
     catch (IllegalArgumentException ex) {
       throw new AopInvocationException(
-              "AOP configuration seems to be invalid: tried calling method [" +
-                      method + "] on target [" + target + "]", ex);
+              "AOP configuration seems to be invalid: tried calling method [%s] on target [%s]".formatted(method, target), ex);
     }
     catch (IllegalAccessException ex) {
-      throw new AopInvocationException("Could not access method [" + method + "]", ex);
+      throw new AopInvocationException("Could not access method [%s]".formatted(method), ex);
     }
   }
 

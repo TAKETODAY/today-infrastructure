@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.core;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * GeneratorStrategy variant which exposes the application ClassLoader
@@ -27,21 +26,40 @@ package cn.taketoday.bytecode.core;
  * common superclass resolution.
  *
  * @author Juergen Hoeller
- * @author TODAY 2021/10/30 17:59
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 4.0 2021/10/30 17:59
  */
 public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy {
 
   private final ClassLoader classLoader;
 
+  @Nullable
+  private final GeneratorStrategy delegate;
+
+  /**
+   * Create a default GeneratorStrategy, exposing the given ClassLoader.
+   *
+   * @param classLoader the ClassLoader to expose as current thread context ClassLoader
+   */
   public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader) {
+    this(classLoader, null);
+  }
+
+  /**
+   * Create a decorator for the given GeneratorStrategy delegate, exposing the given ClassLoader.
+   *
+   * @param classLoader the ClassLoader to expose as current thread context ClassLoader
+   * @since 5.0
+   */
+  public ClassLoaderAwareGeneratorStrategy(ClassLoader classLoader, @Nullable GeneratorStrategy delegate) {
     this.classLoader = classLoader;
+    this.delegate = delegate;
   }
 
   @Override
   public byte[] generate(ClassGenerator cg) throws Exception {
     if (this.classLoader == null) {
-      return super.generate(cg);
+      return generateInternal(cg);
     }
 
     Thread currentThread = Thread.currentThread();
@@ -51,7 +69,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
     }
     catch (Throwable ex) {
       // Cannot access thread context ClassLoader - falling back...
-      return super.generate(cg);
+      return generateInternal(cg);
     }
 
     boolean overrideClassLoader = !this.classLoader.equals(threadContextClassLoader);
@@ -59,7 +77,7 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
       currentThread.setContextClassLoader(this.classLoader);
     }
     try {
-      return super.generate(cg);
+      return generateInternal(cg);
     }
     finally {
       if (overrideClassLoader) {
@@ -67,6 +85,13 @@ public class ClassLoaderAwareGeneratorStrategy extends DefaultGeneratorStrategy 
         currentThread.setContextClassLoader(threadContextClassLoader);
       }
     }
+  }
+
+  private byte[] generateInternal(ClassGenerator cg) throws Exception {
+    if (delegate != null) {
+      return delegate.generate(cg);
+    }
+    return super.generate(cg);
   }
 
 }

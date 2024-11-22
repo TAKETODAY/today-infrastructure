@@ -34,6 +34,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.CodeGenerationException;
+import cn.taketoday.bytecode.core.GeneratorStrategy;
 import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
@@ -43,6 +44,7 @@ import cn.taketoday.bytecode.proxy.Factory;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
+import cn.taketoday.bytecode.transform.UndeclaredThrowableStrategy;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -89,6 +91,9 @@ class CglibAopProxy implements AopProxy, Serializable {
 
   /** Keeps track of the Classes that we have validated for final methods. */
   private static final Map<Class<?>, Boolean> validatedClasses = new WeakHashMap<>();
+
+  private static final GeneratorStrategy undeclaredThrowableStrategy =
+          new UndeclaredThrowableStrategy(UndeclaredThrowableException.class);
 
   // Constants for CGLIB callback array indices
   private static final int AOP_PROXY = 0;
@@ -194,7 +199,7 @@ class CglibAopProxy implements AopProxy, Serializable {
       enhancer.setSuperclass(proxySuperClass);
       enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
       enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
-      enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
+      enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader, undeclaredThrowableStrategy));
 
       Callback[] callbacks = getCallbacks(rootClass);
       Class<?>[] types = new Class<?>[callbacks.length];
@@ -565,6 +570,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Interceptor used specifically for advised methods on a frozen, static proxy.
    */
   static class FixedChainStaticTargetInterceptor implements MethodInterceptor, Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -584,7 +590,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      Object retVal = new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, adviceChain)
+      Object retVal = createInvocation(proxy, method, args, methodProxy, target, targetClass, adviceChain)
               .proceed();
       return processReturnValue(proxy, target, method, retVal);
     }
@@ -631,7 +637,7 @@ class CglibAopProxy implements AopProxy, Serializable {
         }
         else {
           // We need to create a CglibMethodInvocation...
-          retVal = new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain)
+          retVal = createInvocation(proxy, method, args, methodProxy, target, targetClass, chain)
                   .proceed();
         }
         return processReturnValue(proxy, target, method, retVal);
@@ -660,7 +666,7 @@ class CglibAopProxy implements AopProxy, Serializable {
       return methodProxy.invoke(target, args);
     }
     catch (CodeGenerationException ex) {
-      logFastClassGenerationFailure(method);
+      logClassGenerationFailure(method);
       return AopUtils.invokeJoinpointUsingReflection(target, method, args);
     }
   }
@@ -687,21 +693,28 @@ class CglibAopProxy implements AopProxy, Serializable {
     return retVal;
   }
 
+  private static DefaultMethodInvocation createInvocation(Object proxy, Method method, Object[] args,
+          MethodProxy methodProxy, @Nullable Object target, @Nullable Class<?> targetClass, org.aopalliance.intercept.MethodInterceptor[] chain) {
+
+    if (isMethodProxyCompatible(method)) {
+      return new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain);
+    }
+    return new DefaultMethodInvocation(proxy, target, method, targetClass, args, chain);
+  }
+
   /**
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
 
-    @Nullable
-    final MethodProxy methodProxy;
+    private final MethodProxy methodProxy;
 
     public CglibMethodInvocation(Object proxyObject, @Nullable Object target,
             Method method, @Nullable Class<?> targetClass,
             MethodProxy methodProxy, Object[] arguments,
             org.aopalliance.intercept.MethodInterceptor[] advices) {
       super(proxyObject, target, method, targetClass, arguments, advices);
-
-      this.methodProxy = isMethodProxyCompatible(method) ? methodProxy : null;
+      this.methodProxy = methodProxy;
     }
 
     /**
@@ -710,35 +723,14 @@ class CglibAopProxy implements AopProxy, Serializable {
      */
     @Override
     protected Object invokeJoinPoint() throws Throwable {
-      if (methodProxy != null) {
-        try {
-          return methodProxy.invoke(target, args);
-        }
-        catch (CodeGenerationException ex) {
-          logFastClassGenerationFailure(method);
-        }
+      try {
+        return methodProxy.invoke(target, args);
+      }
+      catch (CodeGenerationException ex) {
+        logClassGenerationFailure(method);
       }
       return super.invokeJoinPoint();
     }
-
-    @Override
-    public Object proceed() throws Throwable {
-      try {
-        return super.proceed();
-      }
-      catch (RuntimeException ex) {
-        throw ex;
-      }
-      catch (Exception ex) {
-        if (ReflectionUtils.declaresException(getMethod(), ex.getClass())) {
-          throw ex;
-        }
-        else {
-          throw new UndeclaredThrowableException(ex);
-        }
-      }
-    }
-
   }
 
   static boolean isMethodProxyCompatible(Method method) {
@@ -749,7 +741,7 @@ class CglibAopProxy implements AopProxy, Serializable {
             && !ReflectionUtils.isToStringMethod(method);
   }
 
-  static void logFastClassGenerationFailure(Method method) {
+  static void logClassGenerationFailure(Method method) {
     log.debug("Failed to generate CGLIB fast class for method: {}", method);
   }
 
