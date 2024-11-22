@@ -71,8 +71,11 @@ public class DefaultHttpHeaders extends HttpHeaders {
     if (headers == EMPTY) {
       this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ROOT));
     }
-    else if (headers instanceof ReadOnlyHttpHeaders readOnly) {
-      this.headers = readOnly.headers;
+    else if (headers instanceof DefaultHttpHeaders httpHeaders) {
+      while (httpHeaders.headers instanceof DefaultHttpHeaders wrapped) {
+        httpHeaders = wrapped;
+      }
+      this.headers = httpHeaders.headers;
     }
     else {
       this.headers = headers;

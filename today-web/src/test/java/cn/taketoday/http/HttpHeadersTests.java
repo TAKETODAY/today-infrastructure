@@ -72,6 +72,14 @@ public class HttpHeadersTests {
   }
 
   @Test
+  void writableHttpHeadersUnwrapsMultiple() {
+    HttpHeaders originalExchangeHeaders = HttpHeaders.readOnlyHttpHeaders(HttpHeaders.forWritable());
+    HttpHeaders firewallHeaders = HttpHeaders.forWritable(originalExchangeHeaders);
+    HttpHeaders writeable = HttpHeaders.forWritable(firewallHeaders);
+    writeable.setContentType(MediaType.APPLICATION_JSON);
+  }
+
+  @Test
   void getOrEmpty() {
     String key = "FOO";
 
