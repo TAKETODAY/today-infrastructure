@@ -21,7 +21,10 @@ import com.example.PublicInterface;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +35,8 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.util.ClassUtils;
@@ -368,6 +373,14 @@ class TestCompilerTests {
     });
   }
 
+  @Test
+  void getUpdatedResourceAsStream() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestCompiler.forSystem().withResources(ResourceFile.of("com/example/resource", new byte[] { 'a' }))
+            .withProcessors(new ResourceModifyingProcessor()).compile(sourceFile, compiled -> assertThat(
+                    compiled.getClassLoader().getResourceAsStream("com/example/resource")).hasContent("b"));
+  }
+
   private void assertSuppliesHelloWorld(Compiled compiled) {
     assertThat(compiled.getInstance(Supplier.class).get()).isEqualTo("Hello World!");
   }
@@ -391,6 +404,28 @@ class TestCompilerTests {
     public List<TypeElement> getProcessedAnnotations() {
       return this.processedAnnotations;
     }
+  }
+
+  @SupportedAnnotationTypes("java.lang.Deprecated")
+  static class ResourceModifyingProcessor extends AbstractProcessor {
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+      if (roundEnv.processingOver()) {
+        try {
+          FileObject resource = this.processingEnv.getFiler()
+                  .createResource(StandardLocation.CLASS_OUTPUT, "", "com/example/resource");
+          try (OutputStream output = resource.openOutputStream()) {
+            output.write('b');
+          }
+        }
+        catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+      }
+      return true;
+    }
+
   }
 
 }

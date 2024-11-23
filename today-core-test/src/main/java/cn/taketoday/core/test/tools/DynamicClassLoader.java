@@ -121,13 +121,13 @@ public class DynamicClassLoader extends ClassLoader {
         return createResourceUrl(name, () -> classBytes);
       }
     }
-    ResourceFile resourceFile = this.resourceFiles.get(name);
-    if (resourceFile != null) {
-      return createResourceUrl(resourceFile.getPath(), resourceFile::getBytes);
-    }
     DynamicResourceFileObject dynamicResourceFile = this.dynamicResourceFiles.get(name);
     if (dynamicResourceFile != null && dynamicResourceFile.getBytes() != null) {
       return createResourceUrl(dynamicResourceFile.getName(), dynamicResourceFile::getBytes);
+    }
+    ResourceFile resourceFile = this.resourceFiles.get(name);
+    if (resourceFile != null) {
+      return createResourceUrl(resourceFile.getPath(), resourceFile::getBytes);
     }
     return super.findResource(name);
   }

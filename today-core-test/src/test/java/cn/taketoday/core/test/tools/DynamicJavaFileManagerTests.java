@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.test.tools;
@@ -26,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.EnumSet;
 
@@ -156,6 +154,23 @@ class DynamicJavaFileManagerTests {
     writeDummyResource(this.fileManager.getFileForOutput(this.location, "", "META-INF/second.properties", null));
     assertThat(this.fileManager.getDynamicResourceFiles()).containsKeys("META-INF/first.properties",
             "META-INF/second.properties");
+  }
+
+  @Test
+  void existingResourceFileCanBeUpdated() throws IOException {
+    try (InputStream input = getResourceOne().openInputStream()) {
+      assertThat(input).hasContent("a");
+    }
+    try (OutputStream output = getResourceOne().openOutputStream()) {
+      output.write('b');
+    }
+    try (InputStream input = getResourceOne().openInputStream()) {
+      assertThat(input).hasContent("b");
+    }
+  }
+
+  private FileObject getResourceOne() {
+    return this.fileManager.getFileForOutput(this.location, "", "com/example/one/resource.one", null);
   }
 
   private void writeDummyBytecode(JavaFileObject fileObject) throws IOException {
