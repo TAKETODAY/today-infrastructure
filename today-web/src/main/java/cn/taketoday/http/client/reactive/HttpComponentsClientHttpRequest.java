@@ -17,8 +17,6 @@
 
 package cn.taketoday.http.client.reactive;
 
-import org.apache.hc.client5.http.cookie.CookieStore;
-import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpRequest;
@@ -145,18 +143,39 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected void applyCookies() {
-    if (getCookies().isEmpty()) {
-      return;
+    if (!getCookies().isEmpty()) {
+      this.httpRequest.setHeader(HttpHeaders.COOKIE, serializeCookies());
     }
+  }
 
-    CookieStore cookieStore = context.getCookieStore();
-    for (Map.Entry<String, List<HttpCookie>> entry : getCookies().entrySet()) {
-      for (HttpCookie cookie : entry.getValue()) {
-        BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
-        clientCookie.setDomain(getURI().getHost());
-        clientCookie.setPath(getURI().getPath());
-        cookieStore.addCookie(clientCookie);
+  private String serializeCookies() {
+    boolean first = true;
+    StringBuilder sb = new StringBuilder();
+    for (List<HttpCookie> cookies : getCookies().values()) {
+      for (HttpCookie cookie : cookies) {
+        if (!first) {
+          sb.append("; ");
+        }
+        else {
+          first = false;
+        }
+        sb.append(cookie.getName()).append("=").append(cookie.getValue());
       }
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Applies the attributes to the {@link HttpClientContext}.
+   */
+  @Override
+  protected void applyAttributes() {
+    if (hasAttributes()) {
+      getAttributes().forEach((key, value) -> {
+        if (this.context.getAttribute(key) == null) {
+          this.context.setAttribute(key, value);
+        }
+      });
     }
   }
 

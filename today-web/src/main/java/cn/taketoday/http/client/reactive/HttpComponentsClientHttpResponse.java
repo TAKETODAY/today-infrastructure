@@ -18,7 +18,11 @@
 package cn.taketoday.http.client.reactive;
 
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.cookie.CookieOrigin;
+import org.apache.hc.client5.http.cookie.CookieSpec;
+import org.apache.hc.client5.http.cookie.MalformedCookieException;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.reactivestreams.Publisher;
@@ -28,8 +32,11 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Iterator;
+import java.util.List;
 
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -51,12 +58,24 @@ class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse {
 
     super(HttpStatusCode.valueOf(message.getHead().getCode()),
             new HttpComponentsHeaders(message.getHead()).asReadOnly(),
-            adaptCookies(context), Flux.from(message.getBody()).map(dataBufferFactory::wrap));
+            adaptCookies(message.getHead(), context),
+            Flux.from(message.getBody()).map(dataBufferFactory::wrap));
   }
 
-  private static MultiValueMap<String, ResponseCookie> adaptCookies(HttpClientContext context) {
+  private static MultiValueMap<String, ResponseCookie> adaptCookies(HttpResponse response, HttpClientContext context) {
     LinkedMultiValueMap<String, ResponseCookie> result = new LinkedMultiValueMap<>();
-    context.getCookieStore().getCookies().forEach(cookie ->
+
+    CookieSpec cookieSpec = context.getCookieSpec();
+    CookieOrigin cookieOrigin = context.getCookieOrigin();
+
+    Iterator<Header> itr = response.headerIterator(HttpHeaders.SET_COOKIE);
+    while (itr.hasNext()) {
+      Header header = itr.next();
+      try {
+        List<Cookie> cookies = cookieSpec.parse(header, cookieOrigin);
+        for (Cookie cookie : cookies) {
+          try {
+            cookieSpec.validate(cookie, cookieOrigin);
             result.add(cookie.getName(),
                     ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
                             .domain(cookie.getDomain())
@@ -65,7 +84,18 @@ class HttpComponentsClientHttpResponse extends AbstractClientHttpResponse {
                             .secure(cookie.isSecure())
                             .httpOnly(cookie.containsAttribute("httponly"))
                             .sameSite(cookie.getAttribute("samesite"))
-                            .build()));
+                            .build());
+          }
+          catch (final MalformedCookieException ex) {
+            // ignore invalid cookie
+          }
+        }
+      }
+      catch (final MalformedCookieException ex) {
+        // ignore invalid cookie
+      }
+    }
+
     return result;
   }
 
