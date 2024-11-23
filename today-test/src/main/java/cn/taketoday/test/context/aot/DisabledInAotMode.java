@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,5 +61,20 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @ExtendWith(DisabledInAotModeCondition.class)
 public @interface DisabledInAotMode {
+
+  /**
+   * Custom reason to document why the test class or test method is disabled in
+   * AOT mode.
+   * <p>If a custom reason is not supplied, the default reason will be used:
+   * {@code "Disabled in Infra AOT mode"}.
+   * <p>If a custom reason is supplied, it will be combined with the default
+   * reason. For example,
+   * {@code @DisabledInAotMode("@ContextHierarchy is not supported")} will result
+   * in a combined reason like the following:
+   * {@code "Disabled in Spring AOT mode ==> @ContextHierarchy is not supported"}.
+   *
+   * @since 5.0
+   */
+  String value() default "";
 
 }

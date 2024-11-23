@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,12 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.Optional;
+
 import cn.taketoday.aot.AotDetector;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 
 /**
  * {@link ExecutionCondition} implementation for {@link DisabledInAotMode}.
@@ -36,9 +41,18 @@ class DisabledInAotModeCondition implements ExecutionCondition {
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
     boolean aotEnabled = AotDetector.useGeneratedArtifacts();
     if (aotEnabled) {
-      return ConditionEvaluationResult.disabled("Disabled in Infra AOT mode");
+      AnnotatedElement element = context.getElement().orElseThrow(() -> new IllegalStateException("No AnnotatedElement"));
+      String customReason = findMergedAnnotation(element, DisabledInAotMode.class)
+              .map(DisabledInAotMode::value).orElse(null);
+      return ConditionEvaluationResult.disabled("Disabled in Infra AOT mode", customReason);
     }
-    return ConditionEvaluationResult.enabled("Infra AOT mode disabled");
+    return ConditionEvaluationResult.enabled("Infra AOT mode is not enabled");
+  }
+
+  private static <A extends Annotation> Optional<A> findMergedAnnotation(
+          AnnotatedElement element, Class<A> annotationType) {
+
+    return Optional.ofNullable(AnnotatedElementUtils.findMergedAnnotation(element, annotationType));
   }
 
 }
