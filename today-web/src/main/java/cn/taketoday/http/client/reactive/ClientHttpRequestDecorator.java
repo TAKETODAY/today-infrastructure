@@ -20,7 +20,6 @@ package cn.taketoday.http.client.reactive;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -120,7 +119,7 @@ public class ClientHttpRequestDecorator implements ClientHttpRequest {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     return delegate.attributeNames();
   }
 

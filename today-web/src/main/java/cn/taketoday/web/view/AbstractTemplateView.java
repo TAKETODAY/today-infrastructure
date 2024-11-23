@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.view;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -95,9 +94,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   protected final void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
-      Iterator<String> en = request.attributeNames();
-      while (en.hasNext()) {
-        String attribute = en.next();
+      for (String attribute : request.attributeNames()) {
         if (model.containsKey(attribute) && !allowRequestOverride) {
           throw new ViewRenderingException("Cannot expose request attribute '%s' because of an existing model object of the same name"
                   .formatted(attribute));

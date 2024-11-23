@@ -580,7 +580,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     return getDelegate().attributeNames();
   }
 

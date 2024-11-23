@@ -19,12 +19,11 @@ package cn.taketoday.session;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Map;
 
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ArrayIterator;
 
 /**
  * Main contract for using a server-side session that provides access to session
@@ -210,8 +209,8 @@ public interface WebSession extends AttributeAccessor {
    * @since 4.0
    */
   @Override
-  default Iterator<String> attributeNames() {
-    return new ArrayIterator<>(getAttributeNames());
+  default Iterable<String> attributeNames() {
+    return Arrays.asList(getAttributeNames());
   }
 
   /**

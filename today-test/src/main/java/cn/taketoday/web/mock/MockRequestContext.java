@@ -26,7 +26,6 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +47,6 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
@@ -499,16 +497,17 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
+    Enumeration<String> attributeNames = request.getAttributeNames();
+    ArrayList<String> names = new ArrayList<>(8);
+    while (attributeNames.hasMoreElements()) {
+      names.add(attributeNames.nextElement());
+    }
+
     if (super.hasAttributes()) {
-      CompositeIterator<String> iterator = new CompositeIterator<>();
-      iterator.add(super.attributeNames());
-      iterator.add(request.getAttributeNames().asIterator());
-      return iterator;
+      CollectionUtils.addAll(names, getAttributeNames());
     }
-    else {
-      return request.getAttributeNames().asIterator();
-    }
+    return names;
   }
 
   public void setAsyncRequest(@Nullable AsyncWebRequest asyncWebRequest) {

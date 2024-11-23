@@ -20,7 +20,6 @@ package cn.taketoday.web.socket.handler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -196,7 +195,7 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     return delegate.attributeNames();
   }
 

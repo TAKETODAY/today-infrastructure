@@ -17,13 +17,12 @@
 
 package cn.taketoday.core;
 
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ArrayIterator;
 
 /**
  * Interface defining a generic contract for attaching and accessing metadata
@@ -95,8 +94,8 @@ public interface AttributeAccessor {
    *
    * @since 4.0
    */
-  default Iterator<String> attributeNames() {
-    return new ArrayIterator<>(getAttributeNames());
+  default Iterable<String> attributeNames() {
+    return Arrays.asList(getAttributeNames());
   }
 
   /**

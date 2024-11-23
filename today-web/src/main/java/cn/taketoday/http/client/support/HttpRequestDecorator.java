@@ -18,7 +18,6 @@
 package cn.taketoday.http.client.support;
 
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -105,7 +104,7 @@ public class HttpRequestDecorator implements HttpRequest {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     return request.attributeNames();
   }
 

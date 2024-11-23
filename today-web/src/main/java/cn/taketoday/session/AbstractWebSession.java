@@ -19,7 +19,6 @@ package cn.taketoday.session;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.core.AttributeAccessor;
@@ -171,12 +170,12 @@ public abstract class AbstractWebSession implements WebSession {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     var attributes = this.attributes;
     if (attributes != null) {
-      return attributes.keySet().iterator();
+      return attributes.keySet();
     }
-    return Collections.emptyIterator();
+    return Collections.emptyList();
   }
 
   /**

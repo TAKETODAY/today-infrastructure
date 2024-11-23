@@ -19,7 +19,6 @@ package cn.taketoday.http.server.reactive;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -131,7 +130,7 @@ public class ServerHttpRequestDecorator implements ServerHttpRequest {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
+  public Iterable<String> attributeNames() {
     return getDelegate().attributeNames();
   }
 

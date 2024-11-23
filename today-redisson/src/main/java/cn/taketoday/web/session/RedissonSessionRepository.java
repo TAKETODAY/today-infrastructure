@@ -32,7 +32,6 @@ import org.redisson.codec.CompositeCodec;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -473,7 +472,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     @Override
-    public Iterator<String> attributeNames() {
+    public Iterable<String> attributeNames() {
       return delegate.attributeNames();
     }
 
