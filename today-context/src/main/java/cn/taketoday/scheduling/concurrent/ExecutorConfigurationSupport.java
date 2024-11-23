@@ -34,6 +34,8 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.context.event.ContextClosedEvent;
+import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
+import cn.taketoday.core.task.VirtualThreadTaskExecutor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -102,6 +104,28 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
 
   private volatile boolean lateShutdown;
 
+  private boolean virtualThreads = false;
+
+  /**
+   * Specify whether to use virtual threads instead of platform threads.
+   * This is off by default, setting up a traditional platform thread pool.
+   * <p>Set this flag to {@code true} on Java 21 or higher for a tightly
+   * managed thread pool setup with virtual threads. In contrast to
+   * {@link SimpleAsyncTaskExecutor}, this is integrated with Infra
+   * lifecycle management for stopping and restarting execution threads,
+   * including an early stop signal for a graceful shutdown arrangement.
+   * <p>Specify either this or {@link #setThreadFactory}, not both.
+   *
+   * @see #setThreadFactory
+   * @see VirtualThreadTaskExecutor#getVirtualThreadFactory()
+   * @see SimpleAsyncTaskExecutor#setVirtualThreads
+   * @since 5.0
+   */
+  public void setVirtualThreads(boolean virtualThreads) {
+    this.virtualThreads = virtualThreads;
+    this.threadFactory = this;
+  }
+
   /**
    * Set the ThreadFactory to use for the ExecutorService's thread pool.
    * Default is the underlying ExecutorService's default thread factory.
@@ -119,6 +143,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   public void setThreadFactory(@Nullable ThreadFactory threadFactory) {
     this.threadFactory = (threadFactory != null ? threadFactory : this);
+    this.virtualThreads = false;
   }
 
   @Override
@@ -283,7 +308,9 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
     if (!this.threadNamePrefixSet && this.beanName != null) {
       setThreadNamePrefix(this.beanName + "-");
     }
-    this.executor = initializeExecutor(this.threadFactory, this.rejectedExecutionHandler);
+    ThreadFactory factory = this.virtualThreads ?
+            new VirtualThreadTaskExecutor(getThreadNamePrefix()).getVirtualThreadFactory() : this.threadFactory;
+    this.executor = initializeExecutor(factory, this.rejectedExecutionHandler);
     this.lifecycleDelegate = new ExecutorLifecycleDelegate(this.executor);
   }
 
