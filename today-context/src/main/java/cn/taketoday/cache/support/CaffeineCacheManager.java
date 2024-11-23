@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -311,6 +311,18 @@ public class CaffeineCacheManager implements CacheManager {
   public void registerCustomCache(String name, AsyncCache<Object, Object> cache) {
     this.customCacheNames.add(name);
     this.cacheMap.put(name, adaptCaffeineCache(name, cache));
+  }
+
+  /**
+   * Remove the specified cache from this cache manager, applying to
+   * custom caches as well as dynamically registered caches at runtime.
+   *
+   * @param name the name of the cache
+   * @since 5.0
+   */
+  public void removeCache(String name) {
+    this.customCacheNames.remove(name);
+    this.cacheMap.remove(name);
   }
 
   /**
