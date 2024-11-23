@@ -201,7 +201,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
       Assert.state(this.resourceFactory != null && this.mapper != null, "Illegal configuration");
       httpClient = createHttpClient(this.resourceFactory, this.mapper);
     }
-    return new ReactorClientHttpRequest(httpClient, uri, httpMethod, this.exchangeTimeout, this.readTimeout);
+    return new ReactorClientHttpRequest(httpClient, httpMethod, uri, this.exchangeTimeout);
   }
 
   @Override

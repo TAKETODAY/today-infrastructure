@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -451,6 +452,33 @@ public abstract class DataBufferUtils {
     return new OutputStreamPublisher<>(
             consumer::accept, new DataBufferMapper(bufferFactory), executor, chunkSize);
   }
+
+  /**
+   * Subscribe to given {@link Publisher} of {@code DataBuffer}s, and return an
+   * {@link InputStream} to consume the byte content with.
+   * <p>Byte buffers are stored in a queue. The {@code demand} constructor value
+   * determines the number of buffers requested initially. When storage falls
+   * below a {@code (demand - (demand >> 2))} limit, a request is made to refill
+   * the queue.
+   * <p>The {@code InputStream} terminates after an onError or onComplete signal,
+   * and stored buffers are read. If the {@code InputStream} is closed,
+   * the {@link Flow.Subscription} is cancelled, and stored buffers released.
+   *
+   * @param publisher the source of {@code DataBuffer}s
+   * @param demand the number of buffers to request initially, and buffer
+   * internally on an ongoing basis.
+   * @return an {@link InputStream} backed by the {@link Publisher}
+   * @since 5.0
+   */
+  public static <T extends DataBuffer> InputStream subscriberInputStream(Publisher<T> publisher, int demand) {
+    Assert.notNull(publisher, "Publisher is required");
+    Assert.isTrue(demand > 0, "maxBufferCount must be > 0");
+
+    SubscriberInputStream subscriber = new SubscriberInputStream(demand);
+    publisher.subscribe(subscriber);
+    return subscriber;
+  }
+
   //---------------------------------------------------------------------
   // Various
   //---------------------------------------------------------------------

@@ -17,15 +17,18 @@
 
 package cn.taketoday.http.client;
 
+import org.reactivestreams.FlowAdapters;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
+import java.util.function.Function;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.support.Netty4HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
+import io.netty.buffer.ByteBuf;
 import reactor.netty.Connection;
 import reactor.netty.http.client.HttpClientResponse;
 
@@ -36,7 +39,7 @@ import reactor.netty.http.client.HttpClientResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class ReactorClientHttpResponse implements ClientHttpResponse {
+final class ReactorClientHttpResponse implements ClientHttpResponse, Function<ByteBuf, byte[]> {
 
   private final HttpClientResponse response;
 
@@ -44,15 +47,18 @@ final class ReactorClientHttpResponse implements ClientHttpResponse {
 
   private final HttpHeaders headers;
 
-  private final Duration readTimeout;
-
   @Nullable
   private volatile InputStream body;
 
-  public ReactorClientHttpResponse(HttpClientResponse response, Connection connection, Duration readTimeout) {
+  /**
+   * Create a response instance.
+   *
+   * @param response the Reactor Netty response
+   * @param connection the connection for the exchange
+   */
+  public ReactorClientHttpResponse(HttpClientResponse response, Connection connection) {
     this.response = response;
     this.connection = connection;
-    this.readTimeout = readTimeout;
     this.headers = new Netty4HttpHeaders(response.responseHeaders()).asReadOnly();
   }
 
@@ -72,6 +78,14 @@ final class ReactorClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
+  public byte[] apply(ByteBuf byteBuf) {
+    byte[] bytes = new byte[byteBuf.readableBytes()];
+    byteBuf.readBytes(bytes);
+    byteBuf.release();
+    return bytes;
+  }
+
+  @Override
   public InputStream getBody() throws IOException {
     InputStream body = this.body;
     if (body != null) {
@@ -79,17 +93,14 @@ final class ReactorClientHttpResponse implements ClientHttpResponse {
     }
 
     try {
-      body = this.connection.inbound().receive().aggregate().asInputStream().block(this.readTimeout);
+      var sis = new SubscriberInputStream<>(this, ByteBuf::release, 16);
+      this.connection.inbound().receive().retain().subscribe(FlowAdapters.toSubscriber(sis));
+      this.body = sis;
+      return sis;
     }
     catch (RuntimeException ex) {
       throw ReactorClientHttpRequest.convertException(ex);
     }
-
-    if (body == null) {
-      body = InputStream.nullInputStream();
-    }
-    this.body = body;
-    return body;
   }
 
   @Override

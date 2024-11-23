@@ -69,10 +69,9 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
    */
   OutputStreamPublisher(OutputStreamHandler outputStreamHandler,
           ByteMapper<T> byteMapper, Executor executor, @Nullable Integer chunkSize) {
-
-    Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
-    Assert.notNull(byteMapper, "ByteMapper must not be null");
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(outputStreamHandler, "OutputStreamHandler is required");
+    Assert.notNull(byteMapper, "ByteMapper is required");
+    Assert.notNull(executor, "Executor is required");
     Assert.isTrue(chunkSize == null || chunkSize > 0, "ChunkSize must be larger than 0");
 
     this.outputStreamHandler = outputStreamHandler;
@@ -85,7 +84,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
   public void subscribe(Flow.Subscriber<? super T> subscriber) {
     // We don't use Assert.notNull(), because a NullPointerException is required
     // for Reactive Streams compliance.
-    Objects.requireNonNull(subscriber, "Subscriber must not be null");
+    Objects.requireNonNull(subscriber, "Subscriber is required");
 
     OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(
             subscriber, this.outputStreamHandler, this.byteMapper, this.chunkSize);
@@ -138,9 +137,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
     private long produced;
 
-    OutputStreamSubscription(
-            Flow.Subscriber<? super T> actual, OutputStreamHandler outputStreamHandler,
-            ByteMapper<T> byteMapper, int chunkSize) {
+    OutputStreamSubscription(Flow.Subscriber<? super T> actual,
+            OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, int chunkSize) {
 
       this.actual = actual;
       this.byteMapper = byteMapper;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -23,6 +23,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
@@ -39,9 +40,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ByteArrayResource;
@@ -984,7 +987,6 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
   }
 
   @Test
-    // gh-26060
   void joinWithLimitDoesNotOverRelease() {
     NettyDataBufferFactory bufferFactory = new NettyDataBufferFactory(PooledByteBufAllocator.DEFAULT);
     byte[] bytes = "foo-bar-baz".getBytes(StandardCharsets.UTF_8);
@@ -1153,6 +1155,199 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
 
     StepVerifier.create(result)
             .verifyComplete();
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 3, 3, 64, List.of("foo", "bar", "baz"), List.of("foo", "bar", "baz"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize2(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 3, 3, 1, List.of("foo", "bar", "baz"), List.of("foo", "bar", "baz"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize3(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(factory, 3, 12, 1, List.of("foo", "bar", "baz"), List.of("foobarbaz"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize4(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 3, 1, 1, List.of("foo", "bar", "baz"), List.of("f", "o", "o", "b", "a", "r", "b", "a", "z"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize5(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 3, 2, 1, List.of("foo", "bar", "baz"), List.of("fo", "ob", "ar", "ba", "z"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize6(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 1, 3, 1, List.of("foo", "bar", "baz"), List.of("foo", "bar", "baz"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberChunkSize7(DataBufferFactory factory) {
+    genericInputStreamSubscriberTest(
+            factory, 1, 3, 64, List.of("foo", "bar", "baz"), List.of("foo", "bar", "baz"));
+  }
+
+  void genericInputStreamSubscriberTest(
+          DataBufferFactory factory, int writeChunkSize, int readChunkSize, int bufferSize,
+          List<String> input, List<String> expectedOutput) {
+
+    super.bufferFactory = factory;
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(
+            out -> {
+              try {
+                for (String word : input) {
+                  out.write(word.getBytes(StandardCharsets.UTF_8));
+                }
+              }
+              catch (IOException ex) {
+                fail(ex.getMessage(), ex);
+              }
+            },
+            super.bufferFactory, Executors.newSingleThreadExecutor(), writeChunkSize);
+
+    byte[] chunk = new byte[readChunkSize];
+    List<String> words = new ArrayList<>();
+
+    try (InputStream in = DataBufferUtils.subscriberInputStream(publisher, bufferSize)) {
+      int read;
+      while ((read = in.read(chunk)) > -1) {
+        words.add(new String(chunk, 0, read, StandardCharsets.UTF_8));
+      }
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(words).containsExactlyElementsOf(expectedOutput);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberError(DataBufferFactory factory) {
+    super.bufferFactory = factory;
+
+    var input = List.of("foo ", "bar ", "baz");
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(
+            out -> {
+              try {
+                for (String word : input) {
+                  out.write(word.getBytes(StandardCharsets.UTF_8));
+                }
+                throw new RuntimeException("boom");
+              }
+              catch (IOException ex) {
+                fail(ex.getMessage(), ex);
+              }
+            },
+            super.bufferFactory, Executors.newSingleThreadExecutor(), 1);
+
+    RuntimeException error = null;
+    byte[] chunk = new byte[4];
+    List<String> words = new ArrayList<>();
+
+    try (InputStream in = DataBufferUtils.subscriberInputStream(publisher, 1)) {
+      int read;
+      while ((read = in.read(chunk)) > -1) {
+        words.add(new String(chunk, 0, read, StandardCharsets.UTF_8));
+      }
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    catch (RuntimeException e) {
+      error = e;
+    }
+    assertThat(words).containsExactlyElementsOf(List.of("foo ", "bar ", "baz"));
+    assertThat(error).hasMessage("boom");
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberMixedReadMode(DataBufferFactory factory) {
+    super.bufferFactory = factory;
+
+    var input = List.of("foo ", "bar ", "baz");
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(
+            out -> {
+              try {
+                for (String word : input) {
+                  out.write(word.getBytes(StandardCharsets.UTF_8));
+                }
+              }
+              catch (IOException ex) {
+                fail(ex.getMessage(), ex);
+              }
+            },
+            super.bufferFactory, Executors.newSingleThreadExecutor(), 1);
+
+    byte[] chunk = new byte[3];
+    ArrayList<String> words = new ArrayList<>();
+
+    try (InputStream inputStream = DataBufferUtils.subscriberInputStream(publisher, 1)) {
+      words.add(new String(chunk, 0, inputStream.read(chunk), StandardCharsets.UTF_8));
+      assertThat(inputStream.read()).isEqualTo(' ' & 0xFF);
+      words.add(new String(chunk, 0, inputStream.read(chunk), StandardCharsets.UTF_8));
+      assertThat(inputStream.read()).isEqualTo(' ' & 0xFF);
+      words.add(new String(chunk, 0, inputStream.read(chunk), StandardCharsets.UTF_8));
+      assertThat(inputStream.read()).isEqualTo(-1);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(words).containsExactlyElementsOf(List.of("foo", "bar", "baz"));
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void inputStreamSubscriberClose(DataBufferFactory bufferFactory) throws InterruptedException {
+    for (int i = 1; i < 100; i++) {
+      CountDownLatch latch = new CountDownLatch(1);
+      super.bufferFactory = bufferFactory;
+
+      var input = List.of("foo", "bar", "baz");
+
+      Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(
+              out -> {
+                try {
+                  assertThatIOException()
+                          .isThrownBy(() -> {
+                            for (String word : input) {
+                              out.write(word.getBytes(StandardCharsets.UTF_8));
+                              out.flush();
+                            }
+                          })
+                          .withMessage("Subscription has been terminated");
+                }
+                finally {
+                  latch.countDown();
+                }
+              },
+              super.bufferFactory, Executors.newSingleThreadExecutor(), 1);
+
+      byte[] chunk = new byte[3];
+      ArrayList<String> words = new ArrayList<>();
+
+      try (InputStream in = DataBufferUtils.subscriberInputStream(publisher, ThreadLocalRandom.current().nextInt(1, 4))) {
+        in.read(chunk);
+        String word = new String(chunk, StandardCharsets.UTF_8);
+        words.add(word);
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      assertThat(words).containsExactlyElementsOf(List.of("foo"));
+      latch.await();
+    }
   }
 
   private static class ZeroDemandSubscriber extends BaseSubscriber<DataBuffer> {

@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -58,18 +60,31 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
 
   private final URI uri;
 
+  @Nullable
   private final Duration exchangeTimeout;
 
-  private final Duration readTimeout;
+  /**
+   * Create an instance.
+   *
+   * @param httpClient the client to perform the request with
+   * @param method the HTTP method
+   * @param uri the URI for the request
+   */
+  public ReactorClientHttpRequest(HttpClient httpClient, HttpMethod method, URI uri) {
+    this.httpClient = httpClient;
+    this.method = method;
+    this.uri = uri;
+    this.exchangeTimeout = null;
+  }
 
-  public ReactorClientHttpRequest(HttpClient httpClient, URI uri, HttpMethod method,
-          Duration exchangeTimeout, Duration readTimeout) {
-
+  /**
+   * Package private constructor for use until exchangeTimeout is removed.
+   */
+  ReactorClientHttpRequest(HttpClient httpClient, HttpMethod method, URI uri, @Nullable Duration exchangeTimeout) {
     this.httpClient = httpClient;
     this.method = method;
     this.uri = uri;
     this.exchangeTimeout = exchangeTimeout;
-    this.readTimeout = readTimeout;
   }
 
   @Override
@@ -84,25 +99,23 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
-    HttpClient.RequestSender requestSender = httpClient
+    HttpClient.RequestSender sender = httpClient
             .request(io.netty.handler.codec.http.HttpMethod.valueOf(method.name()));
 
-    requestSender = uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString());
+    sender = uri.isAbsolute() ? sender.uri(uri) : sender.uri(uri.toString());
 
     try {
-      ReactorClientHttpResponse result = requestSender.send((reactorRequest, nettyOutbound) ->
-                      send(headers, body, reactorRequest, nettyOutbound))
-              .responseConnection((reactorResponse, connection) ->
-                      Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, readTimeout)))
-              .next()
-              .block(exchangeTimeout);
+      Mono<ReactorClientHttpResponse> mono = sender.send((request, outbound) -> send(headers, body, request, outbound))
+              .responseConnection((response, conn) -> Mono.just(new ReactorClientHttpResponse(response, conn)))
+              .next();
 
-      if (result == null) {
+      ReactorClientHttpResponse clientResponse =
+              exchangeTimeout != null ? mono.block(exchangeTimeout) : mono.block();
+
+      if (clientResponse == null) {
         throw new IOException("HTTP exchange resulted in no result");
       }
-      else {
-        return result;
-      }
+      return clientResponse;
     }
     catch (RuntimeException ex) {
       throw convertException(ex);
@@ -112,7 +125,10 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
   private Publisher<Void> send(HttpHeaders headers, @Nullable Body body,
           HttpClientRequest reactorRequest, NettyOutbound nettyOutbound) {
 
-    headers.forEach((key, value) -> reactorRequest.requestHeaders().set(key, value));
+    var entries = reactorRequest.requestHeaders();
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      entries.set(entry.getKey(), entry.getValue());
+    }
 
     if (body != null) {
       ByteBufMapper byteMapper = new ByteBufMapper(nettyOutbound.alloc());
@@ -130,8 +146,7 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
   }
 
   static IOException convertException(RuntimeException ex) {
-    // Exceptions.ReactiveException is package private
-    Throwable cause = ex.getCause();
+    Throwable cause = ex.getCause(); // Exceptions.ReactiveException is private
 
     if (cause instanceof IOException ioEx) {
       return ioEx;
@@ -153,8 +168,8 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
     requestSender = uri.isAbsolute() ? requestSender.uri(uri) : requestSender.uri(uri.toString());
 
     Promise<ClientHttpResponse> promise = Future.forPromise(executor);
-    requestSender.send((reactorRequest, nettyOutbound) -> send(headers, body, reactorRequest, nettyOutbound))
-            .responseConnection((reactorResponse, connection) -> Mono.just(new ReactorClientHttpResponse(reactorResponse, connection, readTimeout)))
+    requestSender.send((request, nettyOutbound) -> send(headers, body, request, nettyOutbound))
+            .responseConnection((reactorResponse, connection) -> Mono.just(new ReactorClientHttpResponse(reactorResponse, connection)))
             .next()
             .subscribe(new CoreSubscriber<>() {
 
@@ -182,6 +197,9 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
 
               }
             });
+    if (exchangeTimeout != null) {
+      return promise.timeout(exchangeTimeout);
+    }
     return promise;
   }
 
