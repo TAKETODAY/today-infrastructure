@@ -43,6 +43,7 @@ import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.CheckReturnValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.concurrent.Future;
@@ -770,6 +771,7 @@ public interface RestClient {
      *
      * @return {@code ResponseSpec} to specify how to decode the body
      */
+    @CheckReturnValue
     ResponseSpec retrieve();
 
     /**
