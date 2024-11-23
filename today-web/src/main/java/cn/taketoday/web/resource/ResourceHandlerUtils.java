@@ -52,7 +52,7 @@ public abstract class ResourceHandlerUtils {
    * Assert the given location is not null, and its path ends on slash.
    */
   public static void assertResourceLocation(@Nullable Resource location) {
-    Assert.notNull(location, "Resource location must not be null");
+    Assert.notNull(location, "Resource location is required");
     try {
       String path;
       if (location instanceof UrlResource) {
@@ -75,7 +75,7 @@ public abstract class ResourceHandlerUtils {
    * Assert the given location path is a directory and ends on slash.
    */
   public static void assertLocationPath(@Nullable String path) {
-    Assert.notNull(path, "Resource location path must not be null");
+    Assert.notNull(path, "Resource location path is required");
     Assert.isTrue(path.endsWith(FOLDER_SEPARATOR) || path.endsWith(WINDOWS_FOLDER_SEPARATOR),
             "Resource location does not end with slash: " + path);
   }
