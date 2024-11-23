@@ -43,6 +43,11 @@ import cn.taketoday.util.concurrent.Future;
  * executing a large number of short-lived tasks. Alternatively, on JDK 21,
  * consider setting {@link #setVirtualThreads} to {@code true}.
  *
+ * <p><b>NOTE: This executor does not participate in context-level lifecycle
+ * management.</b> Tasks on handed-off execution threads cannot be centrally
+ * stopped and restarted; if such tight lifecycle management is necessary,
+ * consider a common {@code ThreadPoolTaskExecutor} setup instead.
+ *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setVirtualThreads
