@@ -114,6 +114,10 @@ public class DefaultHttpHeaders extends HttpHeaders {
     return headers.remove(name);
   }
 
+  /**
+   * Return the number of headers in the collection. This can be inflated,
+   * see {@link HttpHeaders class level javadoc}.
+   */
   @Override
   public int size() {
     return headers.size();
@@ -154,16 +158,33 @@ public class DefaultHttpHeaders extends HttpHeaders {
     headers.clear();
   }
 
+  /**
+   * Return a {@link Set} view of header names. This can include multiple
+   * casing variants of a given header name, see
+   * {@link HttpHeaders class level javadoc}.
+   */
   @Override
   public Set<String> keySet() {
     return headers.keySet();
   }
 
+  /**
+   * Return a {@link Collection} view of all the header values, reconstructed
+   * from iterating over the {@link #keySet()}. This can include duplicates if
+   * multiple casing variants of a given header name are tracked, see
+   * {@link HttpHeaders class level javadoc}.
+   */
   @Override
   public Collection<List<String>> values() {
     return headers.values();
   }
 
+  /**
+   * Return a {@link Set} views of header entries, reconstructed from
+   * iterating over the {@link #keySet()}. This can include duplicate entries
+   * if multiple casing variants of a given header name are tracked, see
+   * {@link HttpHeaders class level javadoc}.
+   */
   @Override
   public Set<Entry<String, List<String>>> entrySet() {
     return headers.entrySet();
@@ -184,6 +205,14 @@ public class DefaultHttpHeaders extends HttpHeaders {
     headers.copyToArrayMap(newMap, function);
   }
 
+  /**
+   * Perform an action over each header, as when iterated via
+   * {@link #entrySet()}. This can include duplicate entries
+   * if multiple casing variants of a given header name are tracked, see
+   * {@link HttpHeaders class level javadoc}.
+   *
+   * @param action the action to be performed for each entry
+   */
   @Override
   public void forEach(BiConsumer<? super String, ? super List<String>> action) {
     this.headers.forEach(action);
