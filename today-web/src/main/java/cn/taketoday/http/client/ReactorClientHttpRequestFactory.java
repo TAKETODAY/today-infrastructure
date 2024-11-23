@@ -17,6 +17,7 @@
 
 package cn.taketoday.http.client;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.function.Function;
@@ -47,7 +48,8 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpRequestFactory.class);
 
-  private static final Function<HttpClient, HttpClient> defaultInitializer = client -> client.compress(true);
+  private static final Function<HttpClient, HttpClient> defaultInitializer =
+          client -> client.compress(true).responseTimeout(Duration.ofSeconds(10));
 
   @Nullable
   private final ReactorResourceFactory resourceFactory;
@@ -58,9 +60,11 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   @Nullable
   private Integer connectTimeout;
 
-  private Duration readTimeout = Duration.ofSeconds(10);
+  @Nullable
+  private Duration readTimeout;
 
-  private Duration exchangeTimeout = Duration.ofSeconds(5);
+  @Nullable
+  private Duration exchangeTimeout;
 
   @Nullable
   private volatile HttpClient httpClient;
@@ -68,45 +72,39 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   private final Object lifecycleMonitor = new Object();
 
   /**
-   * Create a new instance of the {@code ReactorNettyClientRequestFactory}
-   * with a default {@link HttpClient} that has compression enabled.
+   * Constructor with default client, created via {@link HttpClient#create()},
+   * and with {@link HttpClient#compress compression} enabled.
    */
   public ReactorClientHttpRequestFactory() {
-    this.httpClient = defaultInitializer.apply(HttpClient.create());
-    this.resourceFactory = null;
-    this.mapper = null;
+    this(defaultInitializer.apply(HttpClient.create()));
   }
 
   /**
-   * Create a new instance of the {@code ReactorNettyClientRequestFactory}
-   * based on the given {@link HttpClient}.
+   * Constructor with a given {@link HttpClient} instance.
    *
-   * @param httpClient the client to base on
+   * @param client the client to use
    */
-  public ReactorClientHttpRequestFactory(HttpClient httpClient) {
-    Assert.notNull(httpClient, "HttpClient is required");
-    this.httpClient = httpClient;
+  public ReactorClientHttpRequestFactory(HttpClient client) {
+    Assert.notNull(client, "HttpClient is required");
     this.resourceFactory = null;
     this.mapper = null;
+    this.httpClient = client;
   }
 
   /**
    * Constructor with externally managed Reactor Netty resources, including
    * {@link LoopResources} for event loop threads, and {@link ConnectionProvider}
-   * for the connection pool.
-   * <p>This constructor should be used only when you don't want the client
-   * to participate in the Reactor Netty global resources. By default the
-   * client participates in the Reactor Netty global resources held in
-   * {@link reactor.netty.http.HttpResources}, which is recommended since
-   * fixed, shared resources are favored for event loop concurrency. However,
-   * consider declaring a {@link ReactorResourceFactory} bean with
-   * {@code globalResources=true} in order to ensure the Reactor Netty global
-   * resources are shut down when the Spring ApplicationContext is stopped or closed
-   * and restarted properly when the Spring ApplicationContext is
-   * (with JVM Checkpoint Restore for example).
+   * for connection pooling.
+   * <p>Generally, it is recommended to share resources for event loop
+   * concurrency. This can be achieved either by participating in the JVM-wide,
+   * global resources held in {@link reactor.netty.http.HttpResources}, or by
+   * using a specific, shared set of resources through a
+   * {@link ReactorResourceFactory} bean. The latter can ensure that resources
+   * are shut down when the Spring ApplicationContext is stopped/closed and
+   * restarted again (e.g. JVM checkpoint restore).
    *
-   * @param resourceFactory the resource factory to obtain the resources from
-   * @param mapper a mapper for further initialization of the created client
+   * @param resourceFactory the resource factory to get resources from
+   * @param mapper for further initialization of the client
    */
   public ReactorClientHttpRequestFactory(ReactorResourceFactory resourceFactory, Function<HttpClient, HttpClient> mapper) {
     this.resourceFactory = resourceFactory;
@@ -116,13 +114,29 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
     }
   }
 
+  private HttpClient createHttpClient(ReactorResourceFactory factory, Function<HttpClient, HttpClient> mapper) {
+    HttpClient client = HttpClient.create(factory.getConnectionProvider());
+    client = defaultInitializer.andThen(mapper).apply(client);
+    client = client.runOn(factory.getLoopResources());
+    if (this.connectTimeout != null) {
+      client = client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
+    }
+    if (this.readTimeout != null) {
+      client = client.responseTimeout(this.readTimeout);
+    }
+    return client;
+  }
+
   /**
-   * Set the underlying connect timeout in milliseconds.
-   * A value of 0 specifies an infinite timeout.
-   * <p>Default is 30 seconds.
+   * Set the connect timeout value on the underlying client.
+   * Effectively, a shortcut for
+   * {@code httpClient.option(CONNECT_TIMEOUT_MILLIS, timeout)}.
+   * <p>By default, set to 30 seconds.
    *
+   * @param connectTimeout the timeout value in millis; use 0 to never time out.
    * @see HttpClient#option(ChannelOption, Object)
    * @see ChannelOption#CONNECT_TIMEOUT_MILLIS
+   * @see <a href="https://projectreactor.io/docs/netty/release/reference/index.html#connection-timeout">Connection Timeout</a>
    */
   public void setConnectTimeout(int connectTimeout) {
     Assert.isTrue(connectTimeout >= 0, "Timeout must be a non-negative value");
@@ -134,12 +148,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   /**
-   * Set the underlying connect timeout in milliseconds.
-   * A value of 0 specifies an infinite timeout.
-   * <p>Default is 30 seconds.
-   *
-   * @see HttpClient#option(ChannelOption, Object)
-   * @see ChannelOption#CONNECT_TIMEOUT_MILLIS
+   * Variant of {@link #setConnectTimeout(int)} with a {@link Duration} value.
    */
   public void setConnectTimeout(Duration connectTimeout) {
     Assert.notNull(connectTimeout, "ConnectTimeout is required");
@@ -147,61 +156,60 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   /**
-   * Set the underlying read timeout in milliseconds.
-   * <p>Default is 10 seconds.
+   * Set the read timeout value on the underlying client.
+   * Effectively, a shortcut for {@link HttpClient#responseTimeout(Duration)}.
+   * <p>By default, set to 10 seconds.
+   *
+   * @param timeout the read timeout value in millis; must be > 0.
    */
-  public void setReadTimeout(long readTimeout) {
-    Assert.isTrue(readTimeout > 0, "Timeout must be a positive value");
-    this.readTimeout = Duration.ofMillis(readTimeout);
+  public void setReadTimeout(Duration timeout) {
+    Assert.notNull(timeout, "ReadTimeout is required");
+    Assert.isTrue(timeout.toMillis() > 0, "Timeout must be a positive value");
+    this.readTimeout = timeout;
+    HttpClient httpClient = this.httpClient;
+    if (httpClient != null) {
+      this.httpClient = httpClient.responseTimeout(timeout);
+    }
   }
 
   /**
-   * Set the underlying read timeout as {@code Duration}.
-   * <p>Default is 10 seconds.
+   * Variant of {@link #setReadTimeout(Duration)} with a long value.
    */
-  public void setReadTimeout(Duration readTimeout) {
-    Assert.notNull(readTimeout, "ReadTimeout is required");
-    Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
-    this.readTimeout = readTimeout;
+  public void setReadTimeout(long readTimeout) {
+    setReadTimeout(Duration.ofMillis(readTimeout));
   }
 
   /**
    * Set the timeout for the HTTP exchange in milliseconds.
-   * <p>Default is 5 seconds.
+   *
+   * @see #setConnectTimeout(int)
+   * @see #setReadTimeout(Duration)
    */
   public void setExchangeTimeout(long exchangeTimeout) {
     Assert.isTrue(exchangeTimeout > 0, "Timeout must be a positive value");
-    this.exchangeTimeout = Duration.ofMillis(exchangeTimeout);
+    setExchangeTimeout(Duration.ofMillis(exchangeTimeout));
   }
 
   /**
-   * Set the timeout for the HTTP exchange.
-   * <p>Default is 5 seconds.
+   * Variant of {@link #setExchangeTimeout(long)} with a Duration value.
+   *
+   * @see #setConnectTimeout(int)
+   * @see #setReadTimeout(Duration)
    */
   public void setExchangeTimeout(Duration exchangeTimeout) {
     Assert.notNull(exchangeTimeout, "ExchangeTimeout is required");
-    Assert.isTrue(!exchangeTimeout.isNegative(), "Timeout must be a non-negative value");
     this.exchangeTimeout = exchangeTimeout;
   }
 
-  private HttpClient createHttpClient(ReactorResourceFactory factory, Function<HttpClient, HttpClient> mapper) {
-    HttpClient httpClient = defaultInitializer.andThen(mapper)
-            .apply(HttpClient.create(factory.getConnectionProvider()));
-    httpClient = httpClient.runOn(factory.getLoopResources());
-    if (this.connectTimeout != null) {
-      httpClient = httpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
-    }
-    return httpClient;
-  }
-
   @Override
-  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
-    HttpClient httpClient = this.httpClient;
-    if (httpClient == null) {
-      Assert.state(this.resourceFactory != null && this.mapper != null, "Illegal configuration");
-      httpClient = createHttpClient(this.resourceFactory, this.mapper);
+  public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
+    HttpClient client = this.httpClient;
+    if (client == null) {
+      Assert.state(this.resourceFactory != null && this.mapper != null,
+              "Expected HttpClient or ResourceFactory and mapper");
+      client = createHttpClient(this.resourceFactory, this.mapper);
     }
-    return new ReactorClientHttpRequest(httpClient, httpMethod, uri, this.exchangeTimeout);
+    return new ReactorClientHttpRequest(client, httpMethod, uri, this.exchangeTimeout);
   }
 
   @Override
@@ -214,7 +222,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
       }
     }
     else {
-      logger.warn("Restarting a ReactorNettyClientRequestFactory bean is only supported " +
+      logger.warn("Restarting a ReactorClientHttpRequestFactory bean is only supported " +
               "with externally managed Reactor Netty resources");
     }
   }
@@ -235,8 +243,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
 
   @Override
   public int getPhase() {
-    // Start after ReactorResourceFactory
-    return 1;
+    return 1; // start after ReactorResourceFactory (0)
   }
 
 }

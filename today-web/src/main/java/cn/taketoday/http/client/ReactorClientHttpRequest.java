@@ -64,20 +64,6 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
   private final Duration exchangeTimeout;
 
   /**
-   * Create an instance.
-   *
-   * @param httpClient the client to perform the request with
-   * @param method the HTTP method
-   * @param uri the URI for the request
-   */
-  public ReactorClientHttpRequest(HttpClient httpClient, HttpMethod method, URI uri) {
-    this.httpClient = httpClient;
-    this.method = method;
-    this.uri = uri;
-    this.exchangeTimeout = null;
-  }
-
-  /**
    * Package private constructor for use until exchangeTimeout is removed.
    */
   ReactorClientHttpRequest(HttpClient httpClient, HttpMethod method, URI uri, @Nullable Duration exchangeTimeout) {
