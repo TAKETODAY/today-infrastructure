@@ -30,6 +30,7 @@ import org.aspectj.lang.reflect.PerClauseKind;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -39,6 +40,7 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -61,6 +63,24 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
           Pointcut.class, Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class
   };
 
+  private static final String AJC_MAGIC = "ajc$";
+
+  /**
+   * System property that instructs Spring to ignore ajc-compiled aspects
+   * for Spring AOP proxying, restoring traditional Spring behavior for
+   * scenarios where both weaving and AspectJ auto-proxying are enabled.
+   * <p>The default is "false". Consider switching this to "true" if you
+   * encounter double execution of your aspects in a given build setup.
+   * Note that we recommend restructuring your AspectJ configuration to
+   * avoid such double exposure of an AspectJ aspect to begin with.
+   *
+   * @since 5.0
+   */
+  public static final String IGNORE_AJC_PROPERTY_NAME = "infra.aop.ajc.ignore";
+
+  private static final boolean shouldIgnoreAjcCompiledAspects =
+          TodayStrategies.getFlag(IGNORE_AJC_PROPERTY_NAME);
+
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -68,7 +88,8 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
   @Override
   public boolean isAspect(Class<?> clazz) {
-    return (AnnotationUtils.findAnnotation(clazz, Aspect.class) != null);
+    return (AnnotationUtils.findAnnotation(clazz, Aspect.class) != null
+            && (!shouldIgnoreAjcCompiledAspects || !compiledByAjc(clazz)));
   }
 
   @Override
@@ -112,6 +133,15 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
     else {
       return null;
     }
+  }
+
+  private static boolean compiledByAjc(Class<?> clazz) {
+    for (Field field : clazz.getDeclaredFields()) {
+      if (field.getName().startsWith(AJC_MAGIC)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
