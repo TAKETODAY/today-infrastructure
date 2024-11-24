@@ -20,14 +20,14 @@ package infra.app.test.mock.mockito;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import infra.beans.factory.annotation.Autowired;
-import infra.context.annotation.Bean;
-import infra.context.annotation.Configuration;
-import infra.context.annotation.Import;
 import infra.app.test.mock.mockito.example.ExampleGenericService;
 import infra.app.test.mock.mockito.example.ExampleGenericServiceCaller;
 import infra.app.test.mock.mockito.example.SimpleExampleIntegerGenericService;
 import infra.app.test.mock.mockito.example.SimpleExampleStringGenericService;
+import infra.beans.factory.annotation.Autowired;
+import infra.context.annotation.Bean;
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 import infra.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;

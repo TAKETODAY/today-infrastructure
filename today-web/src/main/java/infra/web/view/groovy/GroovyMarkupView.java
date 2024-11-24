@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
+import groovy.text.Template;
+import groovy.text.markup.MarkupTemplateEngine;
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
@@ -32,8 +34,6 @@ import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.view.AbstractTemplateView;
 import infra.web.view.ViewRenderingException;
-import groovy.text.Template;
-import groovy.text.markup.MarkupTemplateEngine;
 
 /**
  * An {@link AbstractTemplateView} subclass based on Groovy XML/XHTML markup templates.

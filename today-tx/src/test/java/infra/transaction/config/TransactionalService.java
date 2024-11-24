@@ -20,9 +20,9 @@
 
 package infra.transaction.config;
 
-import infra.transaction.annotation.Transactional;
-
 import java.io.Serializable;
+
+import infra.transaction.annotation.Transactional;
 
 /**
  * @author Rob Harrop

@@ -17,9 +17,9 @@
 
 package infra.app.test.context.filter;
 
+import infra.app.Application;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
-import infra.app.Application;
 
 /**
  * {@link ApplicationContextInitializer} to register the {@link TestTypeExcludeFilter} for

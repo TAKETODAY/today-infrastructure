@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import infra.app.test.context.InfraTest;
+import infra.app.test.context.InfraTestContextBootstrapper;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.app.test.context.InfraTest;
-import infra.app.test.context.InfraTestContextBootstrapper;
 import infra.test.context.BootstrapContext;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContext;

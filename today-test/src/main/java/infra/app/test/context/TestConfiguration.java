@@ -23,10 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.InfraConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AliasFor;
-import infra.InfraConfiguration;
 
 /**
  * {@link Configuration @Configuration} that can be used to define additional beans or

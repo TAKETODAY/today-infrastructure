@@ -27,6 +27,9 @@ import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Nullable;
+import infra.mock.api.http.Cookie;
+import infra.mock.api.http.HttpMockRequest;
+import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.test.web.mock.MvcResult;
@@ -41,9 +44,6 @@ import infra.web.RedirectModel;
 import infra.web.RequestContextUtils;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.view.ModelAndView;
-import infra.mock.api.http.Cookie;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpSession;
 
 /**
  * Result handler that prints {@link MvcResult} details to a given output

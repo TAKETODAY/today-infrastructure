@@ -31,12 +31,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
 
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.lang.Assert;
 import infra.util.StringUtils;
 

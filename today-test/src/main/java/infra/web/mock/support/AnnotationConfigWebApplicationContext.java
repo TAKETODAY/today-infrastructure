@@ -32,14 +32,14 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.AnnotationScopeMetadataResolver;
 import infra.context.annotation.ClassPathBeanDefinitionScanner;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.ScopeMetadataResolver;
+import infra.context.support.GenericApplicationContext;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
-import infra.context.annotation.Configuration;
-import infra.context.support.GenericApplicationContext;
-import infra.stereotype.Component;
 import infra.web.mock.ContextLoader;
 import infra.web.mock.WebApplicationContext;
 

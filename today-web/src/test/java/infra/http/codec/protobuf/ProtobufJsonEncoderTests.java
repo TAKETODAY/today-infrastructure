@@ -17,11 +17,12 @@
 
 package infra.http.codec.protobuf;
 
-import java.nio.charset.StandardCharsets;
-
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
+
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;

@@ -20,9 +20,9 @@ package infra.app.test.context.assertj;
 import java.util.function.Supplier;
 
 import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
 import infra.web.server.context.WebServerApplicationContext;
-import infra.web.mock.ConfigurableWebApplicationContext;
 
 /**
  * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.

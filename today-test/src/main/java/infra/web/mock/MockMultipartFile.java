@@ -27,10 +27,10 @@ import java.util.Objects;
 
 import infra.http.DefaultHttpHeaders;
 import infra.lang.Nullable;
+import infra.mock.api.http.Part;
 import infra.util.FileCopyUtils;
 import infra.web.multipart.MultipartFile;
 import infra.web.multipart.support.AbstractMultipartFile;
-import infra.mock.api.http.Part;
 
 /**
  * MultipartFile adapter, wrapping a Servlet Part object.

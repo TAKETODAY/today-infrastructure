@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.mock.api.http.HttpSessionBindingEvent;
 import infra.mock.api.http.HttpSessionBindingListener;
-import infra.mock.web.MockHttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

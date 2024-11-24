@@ -26,12 +26,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.context.annotation.Scope;
 import infra.context.annotation.Bean;
+import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
 import infra.core.annotation.AliasFor;
-import infra.web.RequestContext;
 import infra.stereotype.Component;
+import infra.web.RequestContext;
 
 /**
  * {@code @SessionScope} is a specialization of {@link Scope @Scope} for a

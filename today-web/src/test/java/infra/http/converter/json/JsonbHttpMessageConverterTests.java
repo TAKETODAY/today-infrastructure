@@ -42,7 +42,6 @@ import infra.http.converter.HttpMessageNotReadableException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.within;
 
 /**
  * Integration tests for the JSON Binding API, running against Apache Johnzon.

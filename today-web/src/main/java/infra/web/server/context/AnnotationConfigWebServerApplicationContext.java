@@ -30,13 +30,13 @@ import infra.context.annotation.AnnotationBeanNameGenerator;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.annotation.AnnotationScopeMetadataResolver;
 import infra.context.annotation.ClassPathBeanDefinitionScanner;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.ScopeMetadataResolver;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Assert;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
-import infra.context.annotation.Configuration;
 
 /**
  * {@link WebServerApplicationContext} that accepts annotated classes as input -

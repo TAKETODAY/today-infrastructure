@@ -20,6 +20,8 @@ package infra.app.test.web.client;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Supplier;
+
 import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.test.web.client.RequestExpectationManager;
@@ -28,13 +30,11 @@ import infra.test.web.client.UnorderedRequestExpectationManager;
 import infra.web.client.RestTemplate;
 import infra.web.client.config.RestTemplateBuilder;
 
-import java.util.function.Supplier;
-
+import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
  * Tests for {@link MockServerRestTemplateCustomizer}.

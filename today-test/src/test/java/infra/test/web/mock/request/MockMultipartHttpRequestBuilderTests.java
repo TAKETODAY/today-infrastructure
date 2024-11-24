@@ -21,14 +21,12 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.mock.web.MockContextImpl;
+import infra.mock.api.http.Part;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockMultipartFile;
 import infra.mock.web.MockMultipartHttpMockRequest;
 import infra.mock.web.MockPart;
-import infra.mock.api.http.Part;
-import infra.test.web.mock.request.MockHttpRequestBuilder;
-import infra.test.web.mock.request.MockMultipartHttpRequestBuilder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -23,11 +23,11 @@ import org.mockito.Answers;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.beans.factory.annotation.Qualifier;
 import infra.app.test.mock.mockito.example.ExampleExtraInterface;
 import infra.app.test.mock.mockito.example.ExampleService;
 import infra.app.test.mock.mockito.example.ExampleServiceCaller;
 import infra.app.test.mock.mockito.example.RealExampleService;
+import infra.beans.factory.annotation.Qualifier;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

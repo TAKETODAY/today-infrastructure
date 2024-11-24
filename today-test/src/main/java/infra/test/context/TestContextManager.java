@@ -28,10 +28,10 @@ import java.util.Set;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
-import infra.util.ReflectionUtils;
 import infra.test.context.junit4.rules.InfraMethodRule;
 import infra.test.context.support.DefaultTestContextBootstrapper;
+import infra.util.ClassUtils;
+import infra.util.ReflectionUtils;
 
 /**
  * {@code TestContextManager} is the main entry point into the <em>Infra

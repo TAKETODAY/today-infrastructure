@@ -26,10 +26,10 @@ import java.lang.annotation.Target;
 
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;
-import infra.core.Ordered;
-import infra.core.annotation.AliasFor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.core.Ordered;
+import infra.core.annotation.AliasFor;
 import infra.core.annotation.Order;
 import infra.stereotype.Component;
 import infra.stereotype.Repository;

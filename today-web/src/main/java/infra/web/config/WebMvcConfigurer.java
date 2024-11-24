@@ -27,6 +27,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.lang.Nullable;
 import infra.validation.Validator;
+import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMapping;
@@ -38,7 +39,6 @@ import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.view.View;
-import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
 
 /**
  * Defines callback methods to customize the Java-based configuration for

@@ -19,13 +19,13 @@ package infra.web.view.freemarker;
 
 import java.util.Locale;
 
+import freemarker.template.Configuration;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.view.AbstractTemplateViewResolver;
 import infra.web.view.AbstractUrlBasedView;
 import infra.web.view.UrlBasedViewResolver;
 import infra.web.view.View;
-import freemarker.template.Configuration;
 
 /**
  * Convenience subclass of {@link infra.web.view.UrlBasedViewResolver}

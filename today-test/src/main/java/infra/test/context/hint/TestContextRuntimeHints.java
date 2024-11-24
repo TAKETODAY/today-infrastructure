@@ -27,10 +27,10 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
-import infra.util.ClassUtils;
 import infra.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 import infra.test.context.support.DefaultBootstrapContext;
 import infra.test.context.web.WebAppConfiguration;
+import infra.util.ClassUtils;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that makes types and annotations

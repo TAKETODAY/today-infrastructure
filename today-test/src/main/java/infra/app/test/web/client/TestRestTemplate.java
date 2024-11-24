@@ -46,8 +46,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
-import infra.core.ParameterizedTypeReference;
 import infra.app.test.context.InfraTest;
+import infra.core.ParameterizedTypeReference;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;

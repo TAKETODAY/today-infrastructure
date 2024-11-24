@@ -29,12 +29,12 @@ import infra.core.AttributeAccessor;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.test.annotation.DirtiesContext;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.MergedContextConfiguration;
 import infra.test.context.TestContext;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-import infra.test.annotation.DirtiesContext;
 
 /**
  * Default implementation of the {@link TestContext} interface.

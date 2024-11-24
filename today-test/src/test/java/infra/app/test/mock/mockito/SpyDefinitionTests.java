@@ -22,10 +22,10 @@ import org.mockito.Answers;
 import org.mockito.Mockito;
 import org.mockito.mock.MockCreationSettings;
 
-import infra.core.ResolvableType;
 import infra.app.test.mock.mockito.example.ExampleService;
 import infra.app.test.mock.mockito.example.ExampleServiceCaller;
 import infra.app.test.mock.mockito.example.RealExampleService;
+import infra.core.ResolvableType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -19,7 +19,6 @@ package infra.web;
 
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
-import infra.web.RequestContext;
 
 /**
  * Interface to indicate {@link RequestContext} running in servlet

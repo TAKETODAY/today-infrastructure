@@ -33,6 +33,7 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.test.context.ApplicationContextFailureProcessor;
 import infra.test.context.BootstrapContext;
 import infra.test.context.CacheAwareContextLoaderDelegate;
 import infra.test.context.ContextConfiguration;
@@ -52,7 +53,6 @@ import infra.test.context.cache.ContextCache;
 import infra.test.context.util.TestContextFactoriesUtils;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
-import infra.test.context.ApplicationContextFailureProcessor;
 
 /**
  * Abstract implementation of the {@link TestContextBootstrapper} interface which

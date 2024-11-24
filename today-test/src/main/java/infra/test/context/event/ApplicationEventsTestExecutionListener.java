@@ -20,8 +20,8 @@ package infra.test.context.event;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
-import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.support.AbstractApplicationContext;
 import infra.core.Conventions;

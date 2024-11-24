@@ -19,9 +19,9 @@ package infra.app.test.context.runner;
 
 import java.util.function.Supplier;
 
+import infra.app.test.context.assertj.AssertableApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.app.test.context.assertj.AssertableApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a standard,

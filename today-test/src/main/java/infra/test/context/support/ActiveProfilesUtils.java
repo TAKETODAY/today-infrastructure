@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.Set;
 
 import infra.beans.BeanUtils;
+import infra.context.annotation.Profile;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.context.annotation.Profile;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.ActiveProfilesResolver;
+import infra.test.context.TestContextAnnotationUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.test.context.TestContextAnnotationUtils;
 
 /**
  * Utility methods for working with {@link ActiveProfiles @ActiveProfiles} and

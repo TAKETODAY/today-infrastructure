@@ -17,10 +17,10 @@
 
 package infra.transaction.config;
 
-import infra.beans.factory.annotation.Qualifier;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import infra.beans.factory.annotation.Qualifier;
 
 /**
  * @author Juergen Hoeller

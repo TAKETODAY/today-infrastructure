@@ -20,13 +20,13 @@ package infra.app.test.mock.mockito;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import infra.app.test.mock.mockito.example.ExampleService;
+import infra.app.test.mock.mockito.example.ExampleServiceCaller;
+import infra.app.test.mock.mockito.example.SimpleExampleService;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.annotation.Configuration;
-import infra.app.test.mock.mockito.example.ExampleService;
-import infra.app.test.mock.mockito.example.ExampleServiceCaller;
-import infra.app.test.mock.mockito.example.SimpleExampleService;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.junit.jupiter.InfraExtension;

@@ -24,6 +24,7 @@ import java.util.List;
 import infra.core.MethodParameter;
 import infra.http.converter.HttpMessageConverter;
 import infra.lang.Nullable;
+import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.RequestContext;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
@@ -33,7 +34,6 @@ import infra.web.bind.MultipartException;
 import infra.web.handler.method.NamedValueInfo;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.multipart.MultipartFile;
-import infra.validation.annotation.ValidationAnnotationUtils;
 
 /**
  * Resolves the following method arguments:

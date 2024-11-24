@@ -20,9 +20,9 @@ package infra.test.web.mock.samples.client.standalone;
 import org.junit.jupiter.api.Test;
 
 import infra.test.web.Person;
+import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.reactive.server.FluxExchangeResult;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 import reactor.core.publisher.Flux;

@@ -26,8 +26,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import infra.context.annotation.Configuration;
 import infra.app.test.context.InfraApplicationContextLoader;
+import infra.context.annotation.Configuration;
 import infra.mock.api.MockContext;
 import infra.test.annotation.DirtiesContext;
 import infra.test.context.ContextConfiguration;

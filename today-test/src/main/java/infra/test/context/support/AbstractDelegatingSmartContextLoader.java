@@ -19,10 +19,10 @@ package infra.test.context.support;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
+import infra.context.annotation.Configuration;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextLoader;

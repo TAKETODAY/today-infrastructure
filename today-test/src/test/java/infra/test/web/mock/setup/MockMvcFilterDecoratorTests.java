@@ -33,7 +33,6 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockFilterConfig;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.test.web.mock.setup.MockMvcFilterDecorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

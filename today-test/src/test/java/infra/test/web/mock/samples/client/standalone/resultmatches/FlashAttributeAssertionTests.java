@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 
 import infra.stereotype.Controller;
-import infra.test.web.reactive.server.EntityExchangeResult;
-import infra.test.web.reactive.server.WebTestClient;
 import infra.test.web.mock.ResultActions;
 import infra.test.web.mock.client.MockMvcWebTestClient;
-import infra.web.annotation.PostMapping;
+import infra.test.web.reactive.server.EntityExchangeResult;
+import infra.test.web.reactive.server.WebTestClient;
 import infra.web.RedirectModel;
+import infra.web.annotation.PostMapping;
 
 import static infra.test.web.mock.result.MockMvcResultMatchers.flash;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;

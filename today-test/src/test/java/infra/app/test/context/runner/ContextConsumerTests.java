@@ -20,9 +20,9 @@ package infra.app.test.context.runner;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import infra.context.ApplicationContext;
-
 import java.util.function.IntPredicate;
+
+import infra.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

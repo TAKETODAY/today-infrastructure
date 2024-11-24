@@ -49,6 +49,7 @@ import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
+import infra.validation.annotation.Validated;
 import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.BindingContext;
 import infra.web.HttpMediaTypeNotSupportedException;
@@ -56,7 +57,6 @@ import infra.web.RequestContext;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.RequestBodyAdvice;
-import infra.validation.annotation.Validated;
 
 /**
  * A base class for resolving method argument values by reading from the body of

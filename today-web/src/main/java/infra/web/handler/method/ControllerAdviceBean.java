@@ -31,6 +31,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.Bean;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.core.annotation.AnnotatedElementUtils;
@@ -40,7 +41,6 @@ import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.web.annotation.ControllerAdvice;
-import infra.context.annotation.Bean;
 
 /**
  * Encapsulates information about an {@link ControllerAdvice @ControllerAdvice}

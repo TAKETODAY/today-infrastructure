@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import infra.core.ResolvableType;
 import infra.app.test.mock.mockito.example.ExampleService;
 import infra.app.test.mock.mockito.example.ExampleServiceCaller;
+import infra.core.ResolvableType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

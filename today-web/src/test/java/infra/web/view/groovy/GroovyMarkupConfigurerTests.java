@@ -27,11 +27,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 
-import infra.context.support.StaticApplicationContext;
-import infra.core.i18n.LocaleContextHolder;
 import groovy.text.TemplateEngine;
 import groovy.text.markup.MarkupTemplateEngine;
 import groovy.text.markup.TemplateConfiguration;
+import infra.context.support.StaticApplicationContext;
+import infra.core.i18n.LocaleContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;

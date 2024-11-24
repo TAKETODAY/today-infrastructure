@@ -19,9 +19,9 @@ package infra.app.test.context.assertj;
 
 import java.util.function.Supplier;
 
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
 
 /**
  * An {@link ApplicationContext} that additionally supports AssertJ style assertions. Can

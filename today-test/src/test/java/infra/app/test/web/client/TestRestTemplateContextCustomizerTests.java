@@ -20,14 +20,13 @@ package infra.app.test.web.client;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import infra.app.test.context.InfraTest;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.support.AbstractApplicationContext;
-import infra.app.test.context.InfraTest;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.test.context.MergedContextConfiguration;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

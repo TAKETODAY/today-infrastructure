@@ -19,11 +19,11 @@ package infra.app.test.context.filter;
 
 import java.io.IOException;
 
+import infra.app.test.context.TestComponent;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.annotation.config.TypeExcludeFilter;
 import infra.core.type.classreading.MetadataReader;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.app.test.context.TestComponent;
 
 /**
  * {@link TypeExcludeFilter} to exclude classes annotated with

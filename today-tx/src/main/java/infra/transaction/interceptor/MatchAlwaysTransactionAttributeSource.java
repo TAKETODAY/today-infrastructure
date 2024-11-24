@@ -23,10 +23,10 @@ package infra.transaction.interceptor;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import infra.aop.framework.autoproxy.BeanNameAutoProxyCreator;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
-import infra.aop.framework.autoproxy.BeanNameAutoProxyCreator;
 
 /**
  * Very simple implementation of TransactionAttributeSource which will always return

@@ -25,17 +25,17 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.comparator.DefaultComparator;
 import org.skyscreamer.jsonassert.comparator.JSONComparator;
 
-import infra.core.io.ByteArrayResource;
-import infra.core.io.ClassPathResource;
-import infra.core.io.Resource;
-import infra.test.util.JsonPathExpectationsHelper;
-import infra.util.FileCopyUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+
+import infra.core.io.ByteArrayResource;
+import infra.core.io.ClassPathResource;
+import infra.core.io.Resource;
+import infra.test.util.JsonPathExpectationsHelper;
+import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

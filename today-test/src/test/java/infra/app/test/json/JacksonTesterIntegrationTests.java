@@ -23,13 +23,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.io.ByteArrayResource;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import infra.core.io.ByteArrayResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -59,10 +59,10 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.TestContextAnnotationUtils;
 import infra.test.context.TestContextBootstrapper;
+import infra.test.context.TestContextManager;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.test.context.TestContextManager;
 
 import static infra.aot.hint.MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
 import static infra.aot.hint.MemberCategory.INVOKE_PUBLIC_METHODS;

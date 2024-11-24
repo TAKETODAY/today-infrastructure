@@ -36,6 +36,7 @@ import infra.validation.BindingResult;
 import infra.validation.DataBinder;
 import infra.validation.Errors;
 import infra.validation.SmartValidator;
+import infra.validation.annotation.Validated;
 import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
@@ -45,7 +46,6 @@ import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
-import infra.validation.annotation.Validated;
 
 /**
  * Resolve {@code @ModelAttribute} annotated method arguments and handle

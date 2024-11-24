@@ -21,9 +21,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import infra.context.annotation.Configuration;
 import infra.context.event.EventListener;
 import infra.core.annotation.AliasFor;
-import infra.context.annotation.Configuration;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.TestExecutionListeners;
 import infra.test.context.event.EventPublishingTestExecutionListener;

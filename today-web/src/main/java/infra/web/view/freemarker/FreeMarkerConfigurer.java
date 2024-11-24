@@ -20,16 +20,16 @@ package infra.web.view.freemarker;
 import java.io.IOException;
 import java.util.List;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
 import infra.beans.factory.InitializingBean;
 import infra.context.ResourceLoaderAware;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.TemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
 
 /**
  * Bean to configure FreeMarker for web usage, via the "configLocation",

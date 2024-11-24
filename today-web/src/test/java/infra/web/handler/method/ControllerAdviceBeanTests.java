@@ -25,9 +25,9 @@ import java.util.List;
 
 import infra.beans.BeanUtils;
 import infra.beans.factory.BeanFactory;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Ordered;
 import infra.core.PriorityOrdered;
 import infra.core.annotation.Order;

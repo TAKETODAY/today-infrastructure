@@ -34,9 +34,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.http.HttpHeaders;
+import infra.mock.api.http.Cookie;
 import infra.util.FileCopyUtils;
 import infra.util.StreamUtils;
-import infra.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

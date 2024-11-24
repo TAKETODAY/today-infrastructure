@@ -18,16 +18,16 @@
 package infra.test.jdbc;
 
 import infra.jdbc.core.JdbcOperations;
-import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.core.JdbcTemplate;
+import infra.jdbc.core.SqlParameterValue;
 import infra.jdbc.core.simple.JdbcClient;
+import infra.jdbc.datasource.init.DatabasePopulator;
+import infra.jdbc.datasource.init.ResourceDatabasePopulator;
+import infra.jdbc.datasource.init.ScriptUtils;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
-import infra.jdbc.datasource.init.DatabasePopulator;
-import infra.jdbc.datasource.init.ResourceDatabasePopulator;
-import infra.jdbc.datasource.init.ScriptUtils;
 
 /**
  * {@code JdbcTestUtils} is a collection of JDBC related utility functions

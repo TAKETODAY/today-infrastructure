@@ -20,11 +20,11 @@ package infra.app.test.context.bootstrap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import infra.app.test.context.InfraTestContextBootstrapper;
+import infra.app.test.context.TestConfiguration;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
-import infra.app.test.context.InfraTestContextBootstrapper;
-import infra.app.test.context.TestConfiguration;
 import infra.test.context.BootstrapWith;
 import infra.test.context.junit.jupiter.InfraExtension;
 

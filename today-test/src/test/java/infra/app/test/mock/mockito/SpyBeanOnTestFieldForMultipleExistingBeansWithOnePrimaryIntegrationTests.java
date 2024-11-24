@@ -21,13 +21,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
+import infra.app.test.mock.mockito.example.ExampleGenericStringServiceCaller;
+import infra.app.test.mock.mockito.example.SimpleExampleStringGenericService;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Primary;
-import infra.app.test.mock.mockito.example.ExampleGenericStringServiceCaller;
-import infra.app.test.mock.mockito.example.SimpleExampleStringGenericService;
 import infra.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;

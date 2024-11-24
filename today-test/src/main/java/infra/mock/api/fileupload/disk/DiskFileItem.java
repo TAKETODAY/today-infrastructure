@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.mock.api.fileupload.DeferredFileOutputStream;
 import infra.mock.api.fileupload.FileItem;
 import infra.mock.api.fileupload.FileItemHeaders;
+import infra.mock.api.fileupload.FileUpload;
 import infra.mock.api.fileupload.FileUploadException;
 import infra.mock.api.fileupload.IOUtils;
-import infra.mock.api.fileupload.ParameterParser;
-import infra.mock.api.fileupload.FileUpload;
 import infra.mock.api.fileupload.InvalidFileNameException;
+import infra.mock.api.fileupload.ParameterParser;
 import infra.mock.api.fileupload.util.Streams;
 
 /**

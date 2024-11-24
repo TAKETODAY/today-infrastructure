@@ -20,8 +20,8 @@ package infra.http.client;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
-import infra.core.ResolvableType;
 import infra.core.ParameterizedTypeReference;
+import infra.core.ResolvableType;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;

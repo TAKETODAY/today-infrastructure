@@ -19,9 +19,9 @@ package infra.transaction.annotation;
 
 import java.lang.reflect.Method;
 
+import infra.context.ApplicationListener;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.transaction.event.TransactionalEventListenerFactory;
-import infra.context.ApplicationListener;
 
 /**
  * Extension of {@link TransactionalEventListenerFactory},

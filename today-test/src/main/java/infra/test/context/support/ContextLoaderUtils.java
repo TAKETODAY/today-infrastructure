@@ -31,8 +31,8 @@ import infra.test.context.ContextConfiguration;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextHierarchy;
 import infra.test.context.SmartContextLoader;
-import infra.util.StringUtils;
 import infra.test.context.TestContextAnnotationUtils;
+import infra.util.StringUtils;
 
 import static infra.core.annotation.AnnotationUtils.getAnnotation;
 import static infra.core.annotation.AnnotationUtils.isAnnotationDeclaredLocally;

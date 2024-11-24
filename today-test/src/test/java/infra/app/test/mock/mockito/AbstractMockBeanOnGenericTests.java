@@ -19,10 +19,10 @@ package infra.app.test.mock.mockito;
 
 import org.junit.jupiter.api.Test;
 
+import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.app.test.context.InfraTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

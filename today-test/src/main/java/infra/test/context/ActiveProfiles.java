@@ -24,8 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.core.annotation.AliasFor;
 import infra.context.annotation.Profile;
+import infra.core.annotation.AliasFor;
 
 /**
  * {@code ActiveProfiles} is a class-level annotation that is used to declare

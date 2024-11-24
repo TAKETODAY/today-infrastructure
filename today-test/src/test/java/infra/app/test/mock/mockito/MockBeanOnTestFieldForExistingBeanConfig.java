@@ -17,10 +17,10 @@
 
 package infra.app.test.mock.mockito;
 
-import infra.context.annotation.Configuration;
-import infra.context.annotation.Import;
 import infra.app.test.mock.mockito.example.ExampleServiceCaller;
 import infra.app.test.mock.mockito.example.FailingExampleService;
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
 
 /**
  * Config for {@link MockBeanOnTestFieldForExistingBeanIntegrationTests} and

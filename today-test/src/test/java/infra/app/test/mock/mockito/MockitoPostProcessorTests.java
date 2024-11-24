@@ -22,6 +22,9 @@ import org.mockito.Mockito;
 
 import java.util.Map;
 
+import infra.app.test.mock.mockito.example.ExampleService;
+import infra.app.test.mock.mockito.example.FailingExampleService;
+import infra.app.test.mock.mockito.example.RealExampleService;
 import infra.beans.BeanWrapper;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.annotation.Qualifier;
@@ -35,9 +38,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
 import infra.core.Ordered;
 import infra.core.ResolvableType;
-import infra.app.test.mock.mockito.example.ExampleService;
-import infra.app.test.mock.mockito.example.FailingExampleService;
-import infra.app.test.mock.mockito.example.RealExampleService;
 import infra.lang.Assert;
 import infra.test.util.ReflectionTestUtils;
 

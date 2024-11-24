@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
 import infra.aop.framework.Advised;
 import infra.aop.framework.ProxyFactory;
 import infra.core.annotation.AliasFor;
@@ -41,8 +43,6 @@ import infra.transaction.interceptor.TransactionAttribute;
 import infra.transaction.interceptor.TransactionInterceptor;
 import infra.transaction.testfixture.CallCountingTransactionManager;
 import infra.util.ReflectionUtils;
-import groovy.lang.GroovyObject;
-import groovy.lang.MetaClass;
 import jakarta.ejb.TransactionAttributeType;
 
 import static org.assertj.core.api.Assertions.assertThat;

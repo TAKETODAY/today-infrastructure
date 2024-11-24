@@ -17,8 +17,8 @@
 
 package infra.app.test.context.filter;
 
-import infra.context.annotation.Configuration;
 import infra.app.test.context.TestComponent;
+import infra.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 @TestComponent

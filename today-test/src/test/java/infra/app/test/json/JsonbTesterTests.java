@@ -19,10 +19,9 @@ package infra.app.test.json;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.ResolvableType;
-
 import java.util.List;
 
+import infra.core.ResolvableType;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 

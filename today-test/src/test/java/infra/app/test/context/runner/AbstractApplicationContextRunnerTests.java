@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import infra.app.test.context.FilteredClassLoader;
+import infra.app.test.context.assertj.ApplicationContextAssertProvider;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.ObjectProvider;
@@ -42,8 +44,6 @@ import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.app.test.context.FilteredClassLoader;
-import infra.app.test.context.assertj.ApplicationContextAssertProvider;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

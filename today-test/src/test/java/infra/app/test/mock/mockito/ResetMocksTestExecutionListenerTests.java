@@ -23,16 +23,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import infra.app.test.mock.mockito.example.ExampleService;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
-import infra.app.test.mock.mockito.example.ExampleService;
 import infra.test.context.junit.jupiter.InfraExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

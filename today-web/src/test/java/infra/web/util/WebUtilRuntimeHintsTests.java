@@ -31,7 +31,7 @@ import infra.http.MediaTypeEditor;
 import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

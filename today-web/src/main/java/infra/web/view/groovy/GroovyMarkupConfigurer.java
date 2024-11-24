@@ -24,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Set;
 
+import groovy.text.markup.MarkupTemplateEngine;
+import groovy.text.markup.MarkupTemplateEngine.TemplateResource;
+import groovy.text.markup.TemplateConfiguration;
+import groovy.text.markup.TemplateResolver;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
@@ -33,10 +37,6 @@ import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
-import groovy.text.markup.MarkupTemplateEngine;
-import groovy.text.markup.MarkupTemplateEngine.TemplateResource;
-import groovy.text.markup.TemplateConfiguration;
-import groovy.text.markup.TemplateResolver;
 
 /**
  * An extension of Groovy's {@link groovy.text.markup.TemplateConfiguration} and

@@ -25,16 +25,16 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Properties;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.ui.freemarker.FreeMarkerTemplateUtils;
 import infra.ui.freemarker.InfraTemplateLoader;
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;

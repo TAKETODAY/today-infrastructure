@@ -25,11 +25,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.core.annotation.AliasFor;
-import infra.core.io.PropertySourceFactory;
 import infra.context.annotation.PropertySource;
+import infra.core.annotation.AliasFor;
 import infra.core.env.Environment;
 import infra.core.io.DefaultPropertySourceFactory;
+import infra.core.io.PropertySourceFactory;
 import infra.core.io.Resource;
 import infra.core.io.ResourcePropertySource;
 import infra.test.context.support.AbstractGenericContextLoader;

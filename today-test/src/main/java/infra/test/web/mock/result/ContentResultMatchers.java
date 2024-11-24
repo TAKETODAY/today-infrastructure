@@ -28,10 +28,10 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
 import infra.http.MediaType;
+import infra.mock.api.http.HttpMockResponse;
 import infra.test.util.JsonExpectationsHelper;
 import infra.test.util.XmlExpectationsHelper;
 import infra.test.web.mock.ResultMatcher;
-import infra.mock.api.http.HttpMockResponse;
 
 import static infra.test.util.AssertionErrors.assertEquals;
 import static infra.test.util.AssertionErrors.assertNotNull;

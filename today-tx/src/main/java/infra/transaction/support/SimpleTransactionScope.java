@@ -25,9 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import infra.beans.factory.config.Scope;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.CustomScopeConfigurer;
+import infra.beans.factory.config.Scope;
 import infra.context.support.SimpleThreadScope;
 import infra.lang.Nullable;
 
