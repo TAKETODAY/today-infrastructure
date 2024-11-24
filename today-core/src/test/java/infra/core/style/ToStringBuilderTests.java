@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import infra.core.style.ToStringBuilder;
 import infra.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

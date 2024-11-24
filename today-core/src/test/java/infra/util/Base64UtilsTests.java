@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import infra.util.Base64Utils;
 import jakarta.xml.bind.DatatypeConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;

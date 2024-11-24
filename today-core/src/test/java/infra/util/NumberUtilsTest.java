@@ -24,7 +24,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import infra.core.conversion.ConversionException;
-import infra.util.NumberUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

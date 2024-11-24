@@ -24,8 +24,6 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
-import infra.core.ssl.pem.PemSslStore;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;

@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 
 import javax.annotation.Nonnull;
 
-import infra.core.annotation.AnnotationFilter;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 

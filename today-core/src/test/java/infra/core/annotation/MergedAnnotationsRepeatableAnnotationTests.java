@@ -32,14 +32,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import infra.core.annotation.AliasFor;
-import infra.core.annotation.AnnotationConfigurationException;
-import infra.core.annotation.AnnotationFilter;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotationCollectors;
-import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.core.annotation.RepeatableContainers;
 
 import static infra.core.annotation.MergedAnnotations.SearchStrategy.TYPE_HIERARCHY;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -39,11 +39,11 @@ import javax.xml.transform.stream.StreamSource;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockUtils;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;

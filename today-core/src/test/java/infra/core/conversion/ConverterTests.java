@@ -19,8 +19,6 @@ package infra.core.conversion;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.conversion.Converter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

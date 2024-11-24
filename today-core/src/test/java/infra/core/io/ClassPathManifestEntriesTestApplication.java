@@ -20,8 +20,6 @@ package infra.core.io;
 import java.io.IOException;
 import java.util.List;
 
-import infra.core.io.PathMatchingPatternResourceLoader;
-
 /**
  * Class packaged into a temporary jar to test
  * {@link PathMatchingPatternResourceLoader} detection of classpath manifest

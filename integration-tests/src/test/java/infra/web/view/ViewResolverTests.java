@@ -25,11 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.web.view.AbstractCachingViewResolver;
-import infra.web.view.AbstractUrlBasedView;
-import infra.web.view.BeanNameViewResolver;
-import infra.web.view.UrlBasedViewResolver;
-import infra.web.view.View;
 import infra.mock.web.MockContextImpl;
 import infra.web.RequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;

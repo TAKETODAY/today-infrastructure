@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import infra.util.ObjectUtils;
-import infra.reflect.PropertyAccessor;
-import infra.reflect.ReflectionException;
 
 import static infra.reflect.ReadOnlyPropertyAccessor.classToString;
 

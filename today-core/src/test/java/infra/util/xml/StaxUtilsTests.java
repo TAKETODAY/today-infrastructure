@@ -37,8 +37,6 @@ import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import infra.util.xml.StaxUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

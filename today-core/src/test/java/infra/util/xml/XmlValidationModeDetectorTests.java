@@ -23,8 +23,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.io.InputStream;
 
-import infra.util.xml.XmlValidationModeDetector;
-
 import static infra.util.xml.XmlValidationModeDetector.VALIDATION_DTD;
 import static infra.util.xml.XmlValidationModeDetector.VALIDATION_XSD;
 import static org.assertj.core.api.Assertions.assertThat;

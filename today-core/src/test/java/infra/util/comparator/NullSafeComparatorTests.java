@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 
-import infra.util.comparator.NullSafeComparator;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

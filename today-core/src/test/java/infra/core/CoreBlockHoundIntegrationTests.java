@@ -24,7 +24,6 @@ import org.junit.jupiter.api.condition.DisabledForJreRange;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import infra.core.ReactiveAdapterRegistry;
 import infra.util.ConcurrentReferenceHashMap;
 import reactor.blockhound.BlockHound;
 import reactor.core.scheduler.ReactorBlockHoundIntegration;

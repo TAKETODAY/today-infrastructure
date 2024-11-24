@@ -19,9 +19,8 @@ package infra.web.handler.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.handler.condition.PathPatternsRequestCondition;
-import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.api.http.HttpMockRequest;
+import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 

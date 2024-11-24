@@ -21,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.web.RequestContext;
-import infra.web.view.DefaultRequestToViewNameTranslator;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

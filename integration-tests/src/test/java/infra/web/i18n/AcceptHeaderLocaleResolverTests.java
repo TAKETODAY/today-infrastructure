@@ -23,10 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
-import infra.web.RequestContext;
-import infra.web.i18n.AcceptHeaderLocaleResolver;
-import infra.web.mock.MockRequestContext;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.web.RequestContext;
+import infra.web.mock.MockRequestContext;
 
 import static java.util.Locale.CANADA;
 import static java.util.Locale.ENGLISH;

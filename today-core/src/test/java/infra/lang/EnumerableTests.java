@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import infra.lang.Enumerable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

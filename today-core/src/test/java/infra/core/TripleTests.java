@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import infra.core.Pair;
-import infra.core.Triple;
 import infra.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

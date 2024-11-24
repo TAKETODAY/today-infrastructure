@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.http.MediaType;
-import infra.web.accept.HeaderContentNegotiationStrategy;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.RequestContext;

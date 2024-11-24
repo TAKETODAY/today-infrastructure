@@ -19,11 +19,11 @@ package infra.cache.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.transaction.annotation.EnableTransactionManagement;
-import infra.transaction.annotation.Transactional;
 import infra.aop.support.AopUtils;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.transaction.annotation.EnableTransactionManagement;
+import infra.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -23,9 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.core.env.PropertySource;
-import infra.core.env.SystemEnvironmentPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -25,7 +25,6 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import infra.core.io.ClassPathResource;
-import infra.core.ssl.pem.PemCertificateParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

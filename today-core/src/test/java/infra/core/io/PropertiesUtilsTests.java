@@ -19,8 +19,6 @@ package infra.core.io;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.io.PropertiesUtils;
-
 /**
  * @author Harry Yang 2021/10/9 10:12
  */

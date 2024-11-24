@@ -19,12 +19,6 @@ package infra.core.ssl;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.ssl.SslBundle;
-import infra.core.ssl.SslBundleKey;
-import infra.core.ssl.SslManagerBundle;
-import infra.core.ssl.SslOptions;
-import infra.core.ssl.SslStoreBundle;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;

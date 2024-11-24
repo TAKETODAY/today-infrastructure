@@ -22,8 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.core.Ordered;
 import infra.core.OrderComparator;
+import infra.core.Ordered;
 
 /**
  * {@code @Order} defines the sort order for an annotated component.

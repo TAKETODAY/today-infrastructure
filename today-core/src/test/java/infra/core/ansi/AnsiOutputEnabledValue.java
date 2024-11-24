@@ -17,8 +17,6 @@
 
 package infra.core.ansi;
 
-import infra.core.ansi.AnsiOutput;
-
 /**
  * Public access to {@link AnsiOutput#getEnabled()} for other tests to use.
  *

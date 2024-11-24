@@ -22,10 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import infra.core.env.CompositePropertySource;
-import infra.core.env.MapPropertySource;
-import infra.core.env.PropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

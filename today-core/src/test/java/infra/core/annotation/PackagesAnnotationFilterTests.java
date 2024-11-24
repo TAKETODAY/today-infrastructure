@@ -19,8 +19,6 @@ package infra.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.annotation.PackagesAnnotationFilter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

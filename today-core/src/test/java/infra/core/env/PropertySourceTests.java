@@ -25,10 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import infra.core.env.MapPropertySource;
-import infra.core.env.PropertiesPropertySource;
-import infra.core.env.PropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

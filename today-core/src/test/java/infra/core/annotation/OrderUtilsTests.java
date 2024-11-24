@@ -19,8 +19,6 @@ package infra.core.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.annotation.Order;
-import infra.core.annotation.OrderUtils;
 import jakarta.annotation.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import infra.util.comparator.ExceptionDepthComparator;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

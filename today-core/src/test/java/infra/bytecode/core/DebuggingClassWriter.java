@@ -24,7 +24,6 @@ import java.io.OutputStream;
 
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.ClassWriter;
-import infra.bytecode.core.CodeGenerationException;
 import infra.lang.TodayStrategies;
 
 public class DebuggingClassWriter extends ClassVisitor {

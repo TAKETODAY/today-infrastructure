@@ -19,7 +19,6 @@ package infra.bytecode.tree.analysis;
 import org.junit.jupiter.api.Test;
 
 import infra.bytecode.Type;
-import infra.bytecode.tree.analysis.BasicValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

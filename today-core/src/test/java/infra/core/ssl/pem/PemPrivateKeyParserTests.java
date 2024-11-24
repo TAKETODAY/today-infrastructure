@@ -28,7 +28,6 @@ import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 
 import infra.core.io.ClassPathResource;
-import infra.core.ssl.pem.PemPrivateKeyParser;
 
 import static infra.core.ssl.pem.PemPrivateKeyParser.parse;
 import static org.assertj.core.api.Assertions.assertThat;

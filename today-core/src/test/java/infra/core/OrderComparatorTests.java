@@ -21,11 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 
-import infra.core.OrderComparator;
-import infra.core.OrderSourceProvider;
-import infra.core.Ordered;
-import infra.core.PriorityOrdered;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

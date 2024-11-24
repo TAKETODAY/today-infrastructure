@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.core.annotation.Order;
 import jakarta.annotation.Priority;
 
 import static org.assertj.core.api.Assertions.assertThat;

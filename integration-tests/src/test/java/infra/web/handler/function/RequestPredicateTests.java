@@ -22,9 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import infra.web.handler.function.DefaultServerRequest;
-import infra.web.handler.function.RequestPredicate;
-import infra.web.handler.function.ServerRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;

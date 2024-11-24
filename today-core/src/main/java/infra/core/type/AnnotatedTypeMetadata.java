@@ -27,11 +27,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import infra.core.annotation.AliasFor;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotation.Adapt;
 import infra.core.annotation.MergedAnnotationCollectors;
-import infra.core.annotation.AliasFor;
 import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotationSelectors;
 import infra.core.annotation.MergedAnnotations;

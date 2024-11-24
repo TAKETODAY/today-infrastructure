@@ -25,10 +25,10 @@ import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import infra.core.annotation.MergedAnnotation;
 import infra.bytecode.AnnotationVisitor;
 import infra.bytecode.ClassReader;
 import infra.bytecode.ClassVisitor;
+import infra.core.annotation.MergedAnnotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

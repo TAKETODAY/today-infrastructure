@@ -19,8 +19,6 @@ package infra.util.comparator;
 
 import org.junit.jupiter.api.Test;
 
-import infra.util.comparator.Comparators;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

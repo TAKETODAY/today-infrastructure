@@ -27,7 +27,6 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import infra.core.io.ClassPathResource;
-import infra.core.ssl.pem.PemContent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

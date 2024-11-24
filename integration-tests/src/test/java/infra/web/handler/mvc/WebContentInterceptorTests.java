@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import infra.web.handler.mvc.WebContentInterceptor;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;

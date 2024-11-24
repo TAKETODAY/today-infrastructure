@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import infra.bytecode.core.NamingPolicy;
 import infra.bytecode.reflect.MethodAccess;
 
 import static org.assertj.core.api.Assertions.assertThat;

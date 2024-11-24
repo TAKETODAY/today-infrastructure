@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.bytecode.Opcodes;
 import infra.bytecode.tree.InsnNode;
-import infra.bytecode.tree.analysis.SourceValue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

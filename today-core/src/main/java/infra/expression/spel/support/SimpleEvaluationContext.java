@@ -29,6 +29,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.expression.BeanResolver;
 import infra.expression.EvaluationContext;
+import infra.expression.Expression;
 import infra.expression.IndexAccessor;
 import infra.expression.MethodResolver;
 import infra.expression.OperatorOverloader;
@@ -39,7 +40,6 @@ import infra.expression.TypeLocator;
 import infra.expression.TypedValue;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
-import infra.expression.Expression;
 import infra.lang.Nullable;
 
 /**

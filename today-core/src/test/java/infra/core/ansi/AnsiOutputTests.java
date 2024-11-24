@@ -21,10 +21,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import infra.core.ansi.AnsiColor;
-import infra.core.ansi.AnsiOutput;
 import infra.core.ansi.AnsiOutput.Enabled;
-import infra.core.ansi.AnsiStyle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

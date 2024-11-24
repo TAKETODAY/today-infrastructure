@@ -20,18 +20,16 @@ package infra.web.resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.web.resource.ResourceUrlProvider;
-import infra.web.resource.VersionResourceResolver;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.mock.web.MockFilterChain;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
-import infra.web.config.ResourceHandlerRegistry;
-import infra.web.config.WebMvcConfigurationSupport;
 import infra.mock.api.http.HttpMock;
 import infra.mock.api.http.HttpMockRequest;
 import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockFilterChain;
+import infra.mock.web.MockHttpResponseImpl;
+import infra.web.config.ResourceHandlerRegistry;
+import infra.web.config.WebMvcConfigurationSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import infra.core.Ordered;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.core.annotation.Order;
 

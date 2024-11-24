@@ -26,8 +26,6 @@ import java.io.NotSerializableException;
 import java.io.Serializable;
 
 import infra.core.ConfigurableObjectInputStream;
-import infra.core.serializer.DefaultDeserializer;
-import infra.core.serializer.DefaultSerializer;
 import infra.core.serializer.support.DeserializingConverter;
 import infra.core.serializer.support.SerializationFailedException;
 import infra.core.serializer.support.SerializingConverter;

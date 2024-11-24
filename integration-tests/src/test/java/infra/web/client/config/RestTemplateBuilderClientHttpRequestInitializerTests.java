@@ -30,9 +30,6 @@ import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.http.client.ClientHttpRequest;
-import infra.web.client.config.BasicAuthentication;
-import infra.web.client.config.RestTemplateBuilderClientHttpRequestInitializer;
-import infra.web.client.config.RestTemplateRequestCustomizer;
 import infra.mock.http.client.MockClientHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

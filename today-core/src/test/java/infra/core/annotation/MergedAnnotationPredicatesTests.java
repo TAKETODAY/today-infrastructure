@@ -27,10 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotationPredicates;
-import infra.core.annotation.MergedAnnotations;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

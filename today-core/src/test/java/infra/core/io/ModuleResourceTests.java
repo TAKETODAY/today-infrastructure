@@ -23,10 +23,6 @@ import java.beans.Introspector;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import infra.core.io.ClassPathResource;
-import infra.core.io.ModuleResource;
-import infra.core.io.Resource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

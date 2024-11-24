@@ -20,13 +20,7 @@ package infra.core.ansi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import infra.core.ansi.Ansi8BitColor;
-import infra.core.ansi.AnsiBackground;
-import infra.core.ansi.AnsiColor;
-import infra.core.ansi.AnsiOutput;
 import infra.core.ansi.AnsiOutput.Enabled;
-import infra.core.ansi.AnsiPropertySource;
-import infra.core.ansi.AnsiStyle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

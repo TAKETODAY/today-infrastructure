@@ -26,8 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Properties;
 
-import infra.util.SortedProperties;
-
 import static infra.util.CollectionUtils.createSortedProperties;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;

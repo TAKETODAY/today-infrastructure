@@ -23,9 +23,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.ParameterizedTypeReference;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

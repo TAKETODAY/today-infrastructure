@@ -22,12 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import infra.core.annotation.AliasFor;
-import infra.core.annotation.AnnotatedElementUtils;
-import infra.core.annotation.AnnotationUtils;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

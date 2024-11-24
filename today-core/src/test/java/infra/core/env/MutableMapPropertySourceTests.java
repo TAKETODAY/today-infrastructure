@@ -19,8 +19,6 @@ package infra.core.env;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.env.MutableMapPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

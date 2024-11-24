@@ -21,19 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
-import infra.logging.JavaLoggingFactory;
-import infra.logging.JavaLoggingLogger;
-import infra.logging.Level;
-import infra.logging.LocationAwareSlf4jLogger;
-import infra.logging.Log4j2Logger;
-import infra.logging.Log4j2LoggerFactory;
-import infra.logging.LogMessage;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
-import infra.logging.NoOpLogger;
-import infra.logging.Slf4jLogger;
-import infra.logging.Slf4jLoggerFactory;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

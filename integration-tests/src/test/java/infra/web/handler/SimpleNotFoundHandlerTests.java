@@ -20,7 +20,6 @@ package infra.web.handler;
 import org.junit.jupiter.api.Test;
 
 import infra.http.HttpStatus;
-import infra.web.handler.SimpleNotFoundHandler;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HttpRequestHandler;

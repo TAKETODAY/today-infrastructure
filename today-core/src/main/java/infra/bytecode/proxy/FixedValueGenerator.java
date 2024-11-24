@@ -19,10 +19,10 @@ package infra.bytecode.proxy;
 import java.util.List;
 
 import infra.bytecode.Type;
+import infra.bytecode.commons.MethodSignature;
 import infra.bytecode.core.ClassEmitter;
 import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.MethodInfo;
-import infra.bytecode.commons.MethodSignature;
 
 /**
  * @author TODAY <br>

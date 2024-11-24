@@ -34,10 +34,10 @@ import infra.beans.factory.InitializingBean;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.lang.Nullable;
+import infra.mock.api.MockException;
 import infra.transaction.NoTransactionException;
 import infra.transaction.interceptor.TransactionInterceptor;
 import infra.transaction.testfixture.CallCountingTransactionManager;
-import infra.mock.api.MockException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

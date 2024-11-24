@@ -22,8 +22,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 
-import infra.core.ApplicationPid;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.contentOf;

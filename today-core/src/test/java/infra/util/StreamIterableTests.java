@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
-import infra.util.StreamIterable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

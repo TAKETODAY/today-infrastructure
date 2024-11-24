@@ -24,8 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import infra.util.DigestUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

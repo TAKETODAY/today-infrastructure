@@ -25,10 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
 import infra.core.OverridingClassLoader;
-import infra.core.annotation.AliasFor;
-import infra.core.annotation.AnnotatedElementUtils;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

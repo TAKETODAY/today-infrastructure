@@ -17,12 +17,12 @@
 
 package infra.core;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.FileCopyUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * {@code ClassLoader} that does <i>not</i> always delegate to the parent loader

@@ -23,7 +23,6 @@ import org.mockito.InOrder;
 import java.util.List;
 
 import infra.core.task.TaskDecorator;
-import infra.core.task.support.CompositeTaskDecorator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

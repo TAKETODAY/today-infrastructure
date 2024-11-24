@@ -23,12 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.web.view.RedirectView;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HandlerMatchingMetadata;
-import infra.web.RequestContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

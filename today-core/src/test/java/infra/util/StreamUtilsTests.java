@@ -30,8 +30,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
 
-import infra.util.StreamUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;

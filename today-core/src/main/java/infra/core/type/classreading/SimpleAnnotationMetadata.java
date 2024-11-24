@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import infra.core.annotation.MergedAnnotations;
 import infra.bytecode.Opcodes;
+import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.lang.Constant;

@@ -19,9 +19,6 @@ package infra.util.backoff;
 
 import org.junit.jupiter.api.Test;
 
-import infra.util.backoff.BackOffExecution;
-import infra.util.backoff.FixedBackOff;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

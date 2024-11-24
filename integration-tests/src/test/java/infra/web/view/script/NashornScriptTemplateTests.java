@@ -26,21 +26,18 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.web.view.script.ScriptTemplateConfigurer;
-import infra.web.view.script.ScriptTemplateView;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.mock.api.MockContext;
+import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for pure JavaScript templates running on Nashorn engine.

@@ -30,18 +30,13 @@ import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RequestContext;
-import infra.web.view.document.AbstractXlsView;
-import infra.web.view.document.AbstractXlsxStreamingView;
-import infra.web.view.document.AbstractXlsxView;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockContextImpl;
 import infra.web.view.View;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for AbstractXlsView and its subclasses.

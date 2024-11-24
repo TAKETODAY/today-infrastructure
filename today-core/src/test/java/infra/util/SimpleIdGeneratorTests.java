@@ -19,8 +19,6 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
-import infra.util.SimpleIdGenerator;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -29,6 +29,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.http.MediaType;
+import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
@@ -38,12 +41,6 @@ import infra.web.accept.HeaderContentNegotiationStrategy;
 import infra.web.accept.MappingMediaTypeFileExtensionResolver;
 import infra.web.accept.ParameterContentNegotiationStrategy;
 import infra.web.accept.PathExtensionContentNegotiationStrategy;
-import infra.web.view.ContentNegotiatingViewResolver;
-import infra.web.view.View;
-import infra.web.view.ViewResolver;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockContextImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 

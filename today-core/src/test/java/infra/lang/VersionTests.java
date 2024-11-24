@@ -19,8 +19,6 @@ package infra.lang;
 
 import org.junit.jupiter.api.Test;
 
-import infra.lang.Version;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

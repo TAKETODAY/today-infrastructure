@@ -48,7 +48,6 @@ import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.tests.MockitoUtils;
 import infra.tests.MockitoUtils.InvocationArgumentsAdapter;
-import infra.util.xml.AbstractStaxXMLReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

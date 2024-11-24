@@ -28,9 +28,6 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.server.MockServerHttpRequest;
-import infra.web.util.ForwardedHeaderUtils;
-import infra.web.util.UriComponents;
-import infra.web.util.UriComponentsBuilder;
 import infra.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -17,8 +17,8 @@
 
 package infra.demo;
 
-import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.app.Application;
+import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
 import infra.web.config.EnableWebMvc;

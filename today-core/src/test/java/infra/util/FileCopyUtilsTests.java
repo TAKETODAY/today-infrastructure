@@ -26,8 +26,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
 
-import infra.util.FileCopyUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

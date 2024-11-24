@@ -30,7 +30,6 @@ import java.net.URLClassLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import infra.core.ApplicationHome;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

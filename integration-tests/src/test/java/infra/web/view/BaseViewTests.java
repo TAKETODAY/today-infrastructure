@@ -26,22 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import infra.web.view.AbstractView;
 import infra.context.ApplicationContextException;
+import infra.mock.api.http.HttpMockRequest;
+import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.RequestContext;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.api.http.HttpMockRequest;
-import infra.mock.api.http.HttpMockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * Base tests for {@link AbstractView}.

@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
-import infra.scheduling.annotation.EnableScheduling;
-import infra.scheduling.annotation.Scheduled;
 import infra.aop.support.AopUtils;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.annotation.Autowired;
@@ -35,6 +33,8 @@ import infra.context.annotation.Configuration;
 import infra.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import infra.dao.support.PersistenceExceptionTranslator;
 import infra.lang.Nullable;
+import infra.scheduling.annotation.EnableScheduling;
+import infra.scheduling.annotation.Scheduled;
 import infra.stereotype.Repository;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.annotation.EnableTransactionManagement;

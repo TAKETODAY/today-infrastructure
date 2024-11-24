@@ -20,8 +20,8 @@ package infra.expression.spel;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.core.CodeFlow;
-import infra.expression.IndexAccessor;
 import infra.expression.EvaluationContext;
+import infra.expression.IndexAccessor;
 
 /**
  * A compilable {@link IndexAccessor} is able to generate bytecode that represents

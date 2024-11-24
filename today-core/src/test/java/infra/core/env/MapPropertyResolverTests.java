@@ -24,10 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Spliterators;
 
-import infra.core.env.MapPropertyResolver;
-import infra.core.env.PropertiesPropertyResolver;
-import infra.core.env.PropertyResolver;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;

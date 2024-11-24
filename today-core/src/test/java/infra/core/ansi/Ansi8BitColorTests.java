@@ -19,8 +19,6 @@ package infra.core.ansi;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.ansi.Ansi8BitColor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

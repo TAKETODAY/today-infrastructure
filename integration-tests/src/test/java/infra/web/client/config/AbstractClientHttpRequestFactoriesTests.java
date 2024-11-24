@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 
 import infra.http.client.ClientHttpRequestFactory;
-import infra.web.client.config.ClientHttpRequestFactories;
-import infra.web.client.config.ClientHttpRequestFactorySettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -21,12 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.core.env.CommandLinePropertySource;
-import infra.core.env.EnumerablePropertySource;
-import infra.core.env.PropertySource;
-import infra.core.env.SimpleCommandLinePropertySource;
-import infra.core.env.StandardEnvironment;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

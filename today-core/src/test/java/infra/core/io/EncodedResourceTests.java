@@ -21,10 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 
-import infra.core.io.DescriptiveResource;
-import infra.core.io.EncodedResource;
-import infra.core.io.Resource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

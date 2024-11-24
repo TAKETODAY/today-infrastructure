@@ -21,11 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 
-import infra.core.ansi.Ansi8BitColor;
-import infra.core.ansi.AnsiColor;
-import infra.core.ansi.AnsiColors;
 import infra.core.ansi.AnsiColors.BitDepth;
-import infra.core.ansi.AnsiElement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

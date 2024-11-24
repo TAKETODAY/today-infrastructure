@@ -26,9 +26,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import infra.core.annotation.AnnotationAttributes;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MissingMergedAnnotation;
 import infra.util.ConcurrentReferenceHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;

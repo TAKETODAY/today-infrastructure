@@ -16,8 +16,8 @@
  */
 package infra.core;
 
-import infra.core.annotation.Order;
 import infra.core.annotation.AnnotationAwareOrderComparator;
+import infra.core.annotation.Order;
 
 /**
  * {@code Ordered} is an interface that can be implemented by objects that

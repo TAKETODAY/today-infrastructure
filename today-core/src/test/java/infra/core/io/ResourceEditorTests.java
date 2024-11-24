@@ -22,9 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.beans.PropertyEditor;
 
 import infra.core.env.StandardEnvironment;
-import infra.core.io.DefaultResourceLoader;
-import infra.core.io.Resource;
-import infra.core.io.ResourceEditor;
 import infra.util.PlaceholderResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;

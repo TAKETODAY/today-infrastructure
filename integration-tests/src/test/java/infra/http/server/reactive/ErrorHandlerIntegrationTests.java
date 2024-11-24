@@ -24,9 +24,6 @@ import java.net.URI;
 
 import infra.http.HttpStatus;
 import infra.http.ResponseEntity;
-import infra.http.server.reactive.HttpHandler;
-import infra.http.server.reactive.ServerHttpRequest;
-import infra.http.server.reactive.ServerHttpResponse;
 import infra.web.client.NoOpResponseErrorHandler;
 import infra.web.client.ResponseErrorHandler;
 import infra.web.client.RestTemplate;

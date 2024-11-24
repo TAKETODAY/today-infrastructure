@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import infra.lang.Constant;
-import infra.util.SmartList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

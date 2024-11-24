@@ -23,11 +23,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import infra.core.ssl.DefaultSslManagerBundle;
-import infra.core.ssl.SslBundleKey;
-import infra.core.ssl.SslManagerBundle;
-import infra.core.ssl.SslStoreBundle;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.then;

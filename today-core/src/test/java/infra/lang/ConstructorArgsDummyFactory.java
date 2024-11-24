@@ -17,8 +17,6 @@
 
 package infra.lang;
 
-import infra.lang.DummyFactory;
-
 /**
  * @author Andy Wilkinson
  */

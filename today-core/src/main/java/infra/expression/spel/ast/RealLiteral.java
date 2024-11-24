@@ -18,8 +18,8 @@
 package infra.expression.spel.ast;
 
 import infra.bytecode.MethodVisitor;
-import infra.expression.TypedValue;
 import infra.bytecode.core.CodeFlow;
+import infra.expression.TypedValue;
 
 /**
  * Expression language AST node that represents a real literal.

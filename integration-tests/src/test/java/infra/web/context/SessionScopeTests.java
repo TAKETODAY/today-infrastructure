@@ -39,6 +39,8 @@ import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.config.DestructionAwareBeanPostProcessor;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
+import infra.beans.testfixture.beans.DerivedTestBean;
+import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotatedBeanDefinitionReader;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.Conventions;
@@ -55,8 +57,6 @@ import infra.web.RequestContextHolder;
 import infra.web.RequestContextUtils;
 import infra.web.context.support.SessionScope;
 import infra.web.mock.MockRequestContext;
-import infra.beans.testfixture.beans.DerivedTestBean;
-import infra.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

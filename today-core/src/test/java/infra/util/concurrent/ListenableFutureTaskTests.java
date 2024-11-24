@@ -23,12 +23,6 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
-import infra.util.concurrent.FailureCallback;
-import infra.util.concurrent.Future;
-import infra.util.concurrent.ListenableFutureTask;
-import infra.util.concurrent.Promise;
-import infra.util.concurrent.SuccessCallback;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;

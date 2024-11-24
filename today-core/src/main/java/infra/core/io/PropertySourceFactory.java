@@ -18,8 +18,8 @@ package infra.core.io;
 
 import java.io.IOException;
 
-import infra.core.env.PropertySource;
 import infra.core.env.CompositePropertySource;
+import infra.core.env.PropertySource;
 import infra.lang.Nullable;
 
 /**

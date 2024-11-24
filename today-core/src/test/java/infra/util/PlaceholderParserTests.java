@@ -26,11 +26,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import infra.util.PlaceholderParser;
 import infra.util.PlaceholderParser.ParsedValue;
 import infra.util.PlaceholderParser.TextPart;
-import infra.util.PlaceholderResolutionException;
-import infra.util.PlaceholderResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

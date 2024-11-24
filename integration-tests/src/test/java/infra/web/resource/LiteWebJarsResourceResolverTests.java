@@ -23,10 +23,10 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.web.mock.MockRequestContext;
+import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.api.http.HttpMockRequest;
+import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

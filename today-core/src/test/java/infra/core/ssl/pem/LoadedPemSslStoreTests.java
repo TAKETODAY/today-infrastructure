@@ -21,10 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.UncheckedIOException;
 
-import infra.core.ssl.pem.LoadedPemSslStore;
-import infra.core.ssl.pem.PemSslStore;
-import infra.core.ssl.pem.PemSslStoreDetails;
-
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**

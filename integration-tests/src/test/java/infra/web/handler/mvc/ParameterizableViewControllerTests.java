@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.web.handler.mvc.ParameterizableViewController;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RedirectModel;

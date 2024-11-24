@@ -23,8 +23,6 @@ import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import infra.util.SerializationUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

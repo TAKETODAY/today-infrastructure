@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import infra.core.ssl.SslOptions;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

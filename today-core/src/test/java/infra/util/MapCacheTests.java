@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 import infra.core.Pair;
 import infra.lang.NullValue;
-import infra.util.MapCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

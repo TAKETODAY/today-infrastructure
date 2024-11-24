@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import infra.core.MethodIntrospector;
 import infra.core.annotation.MergedAnnotations;
 import infra.util.ReflectionUtils;
 

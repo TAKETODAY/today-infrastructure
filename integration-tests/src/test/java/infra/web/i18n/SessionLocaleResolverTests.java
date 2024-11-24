@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-import infra.web.i18n.SessionLocaleResolver;
 import infra.context.annotation.Configuration;
+import infra.mock.api.http.HttpSession;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.session.config.EnableWebSession;
@@ -30,7 +30,6 @@ import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
-import infra.mock.api.http.HttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

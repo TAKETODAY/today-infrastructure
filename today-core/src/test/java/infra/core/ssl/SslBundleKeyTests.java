@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 
-import infra.core.ssl.SslBundleKey;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;

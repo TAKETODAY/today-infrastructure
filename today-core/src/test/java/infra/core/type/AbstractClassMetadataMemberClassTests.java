@@ -19,8 +19,6 @@ package infra.core.type;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.type.ClassMetadata;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

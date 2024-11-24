@@ -27,8 +27,6 @@ import java.net.URLStreamHandler;
 import java.nio.file.InvalidPathException;
 
 import infra.core.io.Resource;
-import infra.util.ResourceUtils;
-import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

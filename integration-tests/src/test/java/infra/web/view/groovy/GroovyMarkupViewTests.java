@@ -27,26 +27,25 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import groovy.text.Template;
+import groovy.text.TemplateEngine;
+import groovy.text.markup.MarkupTemplateEngine;
+import groovy.text.markup.TemplateConfiguration;
 import infra.beans.DirectFieldAccessor;
 import infra.context.ApplicationContextException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.i18n.LocaleContextHolder;
+import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
 import infra.web.mock.MockUtils;
 import infra.web.mock.WebApplicationContext;
-import infra.mock.web.HttpMockRequestImpl;
-import infra.mock.web.MockHttpResponseImpl;
-import infra.mock.web.MockContextImpl;
-import groovy.text.Template;
-import groovy.text.TemplateEngine;
-import groovy.text.markup.MarkupTemplateEngine;
-import groovy.text.markup.TemplateConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Brian Clozel

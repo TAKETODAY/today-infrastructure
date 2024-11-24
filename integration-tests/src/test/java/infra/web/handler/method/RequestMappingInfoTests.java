@@ -27,12 +27,11 @@ import java.util.stream.Stream;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.web.handler.method.RequestMappingInfo;
+import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.PathPatternsParameterizedTest;
-import infra.mock.api.http.HttpMockRequest;
 
 import static infra.http.HttpMethod.GET;
 import static infra.http.HttpMethod.HEAD;

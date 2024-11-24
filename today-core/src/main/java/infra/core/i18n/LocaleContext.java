@@ -17,9 +17,9 @@
 
 package infra.core.i18n;
 
-import infra.lang.Nullable;
-
 import java.util.Locale;
+
+import infra.lang.Nullable;
 
 /**
  * Strategy interface for determining the current Locale.

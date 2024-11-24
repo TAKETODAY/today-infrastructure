@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import infra.web.handler.mvc.UrlFilenameViewController;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.RedirectModel;

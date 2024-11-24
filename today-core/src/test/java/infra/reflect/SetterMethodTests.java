@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-import infra.reflect.SetterMethod;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -24,12 +24,12 @@ import java.util.Collection;
 
 import infra.http.MediaType;
 import infra.lang.NonNull;
+import infra.mock.api.http.HttpMockRequest;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;
 import infra.web.mock.MockRequestContext;
-import infra.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

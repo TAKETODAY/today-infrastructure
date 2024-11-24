@@ -25,15 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import infra.core.env.AbstractEnvironment;
-import infra.core.env.ConfigurableEnvironment;
-import infra.core.env.ConfigurablePropertyResolver;
-import infra.core.env.Environment;
-import infra.core.env.MapPropertySource;
-import infra.core.env.Profiles;
-import infra.core.env.PropertySource;
-import infra.core.env.PropertySources;
-import infra.core.env.PropertySourcesPropertyResolver;
 import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;

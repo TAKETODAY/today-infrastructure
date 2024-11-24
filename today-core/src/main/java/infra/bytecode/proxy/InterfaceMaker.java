@@ -23,9 +23,9 @@ import java.util.Map;
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
+import infra.bytecode.commons.MethodSignature;
 import infra.bytecode.core.AbstractClassGenerator;
 import infra.bytecode.core.ClassEmitter;
-import infra.bytecode.commons.MethodSignature;
 import infra.lang.Constant;
 
 /**

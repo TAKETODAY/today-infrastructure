@@ -28,12 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import infra.core.annotation.AliasFor;
-import infra.core.annotation.AnnotationUtils;
-import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotation.Adapt;
-import infra.core.annotation.MergedAnnotationCollectors;
-import infra.core.annotation.MergedAnnotations;
 import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;

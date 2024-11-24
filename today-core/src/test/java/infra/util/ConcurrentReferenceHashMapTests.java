@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.lang.Nullable;
-import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ConcurrentReferenceHashMap.Entry;
 import infra.util.ConcurrentReferenceHashMap.Reference;
 import infra.util.ConcurrentReferenceHashMap.Restructure;

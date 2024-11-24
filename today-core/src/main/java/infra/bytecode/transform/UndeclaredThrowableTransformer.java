@@ -26,8 +26,8 @@ import infra.bytecode.commons.MethodSignature;
 import infra.bytecode.core.Block;
 import infra.bytecode.core.ClassEmitter;
 import infra.bytecode.core.CodeEmitter;
-import infra.util.CollectionUtils;
 import infra.bytecode.core.EmitUtils;
+import infra.util.CollectionUtils;
 
 final class UndeclaredThrowableTransformer extends ClassEmitter {
 

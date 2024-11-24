@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.JRE;
 
-import infra.core.JavaVersion;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

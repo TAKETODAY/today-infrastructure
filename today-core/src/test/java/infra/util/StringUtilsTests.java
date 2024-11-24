@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.Properties;
 
 import infra.lang.Constant;
-import infra.util.StringUtils;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

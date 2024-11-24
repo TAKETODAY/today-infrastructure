@@ -19,8 +19,6 @@ package infra.core.ssl;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.ssl.NoSuchSslBundleException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

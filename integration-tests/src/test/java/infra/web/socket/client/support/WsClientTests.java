@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import infra.app.Application;
-import infra.InfraApplication;
+import infra.app.InfraApplication;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;

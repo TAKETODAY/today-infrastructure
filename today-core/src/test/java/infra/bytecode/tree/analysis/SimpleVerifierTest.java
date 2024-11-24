@@ -21,8 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import infra.bytecode.Type;
-import infra.bytecode.tree.analysis.BasicValue;
-import infra.bytecode.tree.analysis.SimpleVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

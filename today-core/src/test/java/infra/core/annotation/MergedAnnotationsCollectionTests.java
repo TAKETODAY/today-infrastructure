@@ -27,13 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Spliterator;
 
-import infra.core.annotation.AliasFor;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotationSelector;
-import infra.core.annotation.MergedAnnotations;
-import infra.core.annotation.MergedAnnotationsCollection;
-import infra.core.annotation.TypeMappedAnnotations;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;

@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import infra.http.HttpHeaders;
-import infra.web.handler.condition.ConsumesRequestCondition;
-import infra.web.handler.condition.MediaTypeExpression;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.web.mock.MockRequestContext;
 

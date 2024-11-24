@@ -30,7 +30,6 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 
-import infra.core.ApplicationTemp;
 import infra.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

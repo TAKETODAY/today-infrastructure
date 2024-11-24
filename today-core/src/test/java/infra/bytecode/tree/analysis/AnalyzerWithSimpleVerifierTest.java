@@ -28,8 +28,8 @@ import infra.bytecode.ClassReader;
 import infra.bytecode.Label;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
-import infra.bytecode.tree.MethodNode;
 import infra.bytecode.tree.ClassNode;
+import infra.bytecode.tree.MethodNode;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

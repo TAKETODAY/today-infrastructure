@@ -23,7 +23,6 @@ import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.io.SocketConfig;
 
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
-import infra.web.client.config.ClientHttpRequestFactories;
 import infra.test.util.ReflectionTestUtils;
 
 /**
