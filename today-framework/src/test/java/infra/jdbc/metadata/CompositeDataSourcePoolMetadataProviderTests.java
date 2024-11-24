@@ -27,10 +27,6 @@ import java.util.Arrays;
 
 import javax.sql.DataSource;
 
-import infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
-import infra.jdbc.metadata.DataSourcePoolMetadata;
-import infra.jdbc.metadata.DataSourcePoolMetadataProvider;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 

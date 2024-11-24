@@ -20,6 +20,7 @@ package infra.annotation.config.web;
 import java.util.List;
 import java.util.Map;
 
+import infra.annotation.ConditionalOnWebApplication;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
@@ -57,7 +58,6 @@ import infra.web.server.error.ErrorViewResolver;
 import infra.web.util.HtmlUtils;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
-import infra.annotation.ConditionalOnWebApplication;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error

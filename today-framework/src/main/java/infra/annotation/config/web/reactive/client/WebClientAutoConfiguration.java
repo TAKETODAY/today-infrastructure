@@ -19,6 +19,7 @@ package infra.annotation.config.web.reactive.client;
 
 import java.util.List;
 
+import infra.annotation.config.http.CodecsAutoConfiguration;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -32,7 +33,6 @@ import infra.http.codec.CodecCustomizer;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.web.client.reactive.WebClient;
-import infra.annotation.config.http.CodecsAutoConfiguration;
 import reactor.core.publisher.Mono;
 
 /**

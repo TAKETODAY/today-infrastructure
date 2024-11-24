@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.NoSuchBeanDefinitionException;
@@ -45,7 +46,6 @@ import infra.core.type.classreading.MetadataReaderFactory;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.ClassUtils;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} that performs analysis of failures caused

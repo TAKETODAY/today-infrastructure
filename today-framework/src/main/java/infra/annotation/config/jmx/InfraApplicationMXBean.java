@@ -19,8 +19,8 @@ package infra.annotation.config.jmx;
 
 import javax.management.MXBean;
 
-import infra.core.env.Environment;
 import infra.app.context.event.ApplicationReadyEvent;
+import infra.core.env.Environment;
 
 /**
  * An MBean contract to control and monitor a running {@code Application} via JMX.

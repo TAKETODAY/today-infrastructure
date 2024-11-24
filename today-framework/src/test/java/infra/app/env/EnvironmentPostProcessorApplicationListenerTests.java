@@ -19,8 +19,6 @@ package infra.app.env;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.env.EnvironmentPostProcessorApplicationListener;
-import infra.context.ConfigurableApplicationContext;
 import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.app.DefaultBootstrapContext;
@@ -28,6 +26,7 @@ import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.context.event.ApplicationPreparedEvent;
 import infra.app.context.event.ApplicationStartingEvent;
+import infra.context.ConfigurableApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

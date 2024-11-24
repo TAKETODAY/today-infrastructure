@@ -26,11 +26,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.app.availability.ApplicationAvailabilityBean;
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.AvailabilityState;
-import infra.app.availability.LivenessState;
-import infra.app.availability.ReadinessState;
 import infra.bytecode.proxy.Enhancer;
 import infra.bytecode.proxy.MethodInterceptor;
 import infra.bytecode.proxy.MethodProxy;

@@ -26,14 +26,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 import infra.app.ApplicationType;
-import infra.app.context.logging.LoggingApplicationListener;
+import infra.app.builder.ApplicationBuilder;
+import infra.app.context.event.ApplicationStartingEvent;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.ObjectProvider;
-import infra.app.builder.ApplicationBuilder;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
-import infra.app.context.event.ApplicationStartingEvent;
 import infra.logging.LogFile;
 import infra.logging.LoggingSystem;
 import infra.logging.LoggingSystemProperty;

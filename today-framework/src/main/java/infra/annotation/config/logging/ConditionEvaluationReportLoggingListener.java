@@ -17,6 +17,7 @@
 
 package infra.annotation.config.logging;
 
+import infra.app.context.event.ApplicationFailedEvent;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ApplicationEvent;
 import infra.context.ConfigurableApplicationContext;
@@ -24,7 +25,6 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.lang.Assert;
-import infra.app.context.event.ApplicationFailedEvent;
 import infra.logging.LogLevel;
 
 /**

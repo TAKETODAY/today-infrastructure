@@ -21,8 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import infra.lang.Assert;
 import infra.app.env.ConfigTreePropertySource;
+import infra.lang.Assert;
 
 /**
  * {@link ConfigDataResource} backed by a config tree directory.

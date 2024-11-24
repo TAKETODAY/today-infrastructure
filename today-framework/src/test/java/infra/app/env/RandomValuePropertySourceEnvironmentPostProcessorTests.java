@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.app.Application;
 import infra.app.context.config.ConfigDataEnvironmentPostProcessor;
-import infra.app.env.RandomValuePropertySourceEnvironmentPostProcessor;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;

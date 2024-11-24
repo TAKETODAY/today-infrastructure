@@ -19,6 +19,7 @@ package infra.app.builder;
 
 import java.lang.ref.WeakReference;
 
+import infra.app.builder.ParentContextApplicationContextInitializer.ParentContextAvailableEvent;
 import infra.beans.BeansException;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
@@ -28,7 +29,6 @@ import infra.context.event.ContextClosedEvent;
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
 import infra.util.ObjectUtils;
-import infra.app.builder.ParentContextApplicationContextInitializer.ParentContextAvailableEvent;
 
 /**
  * Listener that closes the application context if its parent is closed. It listens for

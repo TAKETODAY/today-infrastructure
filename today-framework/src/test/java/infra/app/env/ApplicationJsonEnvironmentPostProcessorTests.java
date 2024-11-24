@@ -21,11 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import infra.app.env.ApplicationJsonEnvironmentPostProcessor;
+import infra.app.json.JsonParseException;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
-import infra.app.json.JsonParseException;
 import infra.mock.env.MockPropertySource;
 import infra.origin.PropertySourceOrigin;
 import infra.test.context.support.TestPropertySourceUtils;

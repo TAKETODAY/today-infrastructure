@@ -23,6 +23,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import infra.app.context.event.ApplicationReadyEvent;
 import infra.beans.BeansException;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
@@ -41,7 +42,6 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.web.server.context.WebServerApplicationContext;
-import infra.app.context.event.ApplicationReadyEvent;
 
 /**
  * Register a {@link InfraApplicationMXBean} implementation to the platform

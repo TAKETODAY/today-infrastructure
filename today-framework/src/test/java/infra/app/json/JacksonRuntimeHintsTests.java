@@ -31,7 +31,6 @@ import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeHint;
-import infra.app.json.JacksonRuntimeHints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

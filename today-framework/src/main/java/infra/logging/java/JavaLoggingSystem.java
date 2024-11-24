@@ -28,15 +28,12 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import infra.app.io.ApplicationResourceLoader;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.ClassUtils;
-import infra.util.StreamUtils;
-import infra.util.StringUtils;
-import infra.app.io.ApplicationResourceLoader;
 import infra.logging.AbstractLoggingSystem;
 import infra.logging.LogFile;
 import infra.logging.LogLevel;
@@ -44,6 +41,9 @@ import infra.logging.LoggerConfiguration;
 import infra.logging.LoggingStartupContext;
 import infra.logging.LoggingSystem;
 import infra.logging.LoggingSystemFactory;
+import infra.util.ClassUtils;
+import infra.util.StreamUtils;
+import infra.util.StringUtils;
 
 /**
  * {@link LoggingSystem} for {@link Logger java.util.logging}.

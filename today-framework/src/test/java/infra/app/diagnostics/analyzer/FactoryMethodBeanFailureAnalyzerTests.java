@@ -19,7 +19,8 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.diagnostics.analyzer.FactoryMethodBeanFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 import infra.beans.FatalBeanException;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -27,8 +28,6 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 import infra.lang.Nullable;
 import infra.test.util.TestPropertyValues;
 

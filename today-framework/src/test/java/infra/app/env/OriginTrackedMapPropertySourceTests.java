@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.app.env.OriginTrackedMapPropertySource;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 

@@ -17,6 +17,7 @@
 
 package infra.annotation.config.transaction.jta;
 
+import infra.annotation.config.transaction.TransactionManagerCustomizers;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnJndi;
@@ -25,7 +26,6 @@ import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
 import infra.transaction.jta.JtaTransactionManager;
-import infra.annotation.config.transaction.TransactionManagerCustomizers;
 
 /**
  * JTA Configuration for a JNDI-managed {@link JtaTransactionManager}.

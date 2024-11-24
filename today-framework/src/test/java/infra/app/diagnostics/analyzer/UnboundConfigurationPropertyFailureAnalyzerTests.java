@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import infra.app.diagnostics.analyzer.UnboundConfigurationPropertyFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
@@ -34,7 +34,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
 import infra.core.i18n.LocaleContextHolder;
-import infra.app.diagnostics.FailureAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

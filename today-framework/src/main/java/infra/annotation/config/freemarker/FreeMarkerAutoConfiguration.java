@@ -17,6 +17,10 @@
 
 package infra.annotation.config.freemarker;
 
+import infra.annotation.ConditionalOnNotWebApplication;
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.annotation.config.web.WebMvcProperties;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.AutoConfigureAfter;
@@ -32,10 +36,6 @@ import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 import infra.web.view.freemarker.FreeMarkerConfig;
 import infra.web.view.freemarker.FreeMarkerConfigurer;
 import infra.web.view.freemarker.FreeMarkerViewResolver;
-import infra.annotation.ConditionalOnNotWebApplication;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.web.WebMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcProperties;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for FreeMarker.

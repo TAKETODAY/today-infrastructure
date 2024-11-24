@@ -23,9 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.FailureAnalyzer;
-import infra.app.diagnostics.FailureAnalyzers;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.BeanFactory;

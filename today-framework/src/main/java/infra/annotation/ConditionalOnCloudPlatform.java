@@ -23,8 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.context.annotation.Conditional;
 import infra.app.cloud.CloudPlatform;
+import infra.context.annotation.Conditional;
 
 /**
  * {@link Conditional @Conditional} that matches when the specified cloud platform is

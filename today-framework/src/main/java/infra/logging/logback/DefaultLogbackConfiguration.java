@@ -36,8 +36,8 @@ import infra.core.ansi.AnsiColor;
 import infra.core.ansi.AnsiElement;
 import infra.core.ansi.AnsiStyle;
 import infra.lang.Nullable;
-import infra.util.StringUtils;
 import infra.logging.LogFile;
+import infra.util.StringUtils;
 
 /**
  * Default logback configuration used by Infra. Uses {@link LogbackConfigurator} to

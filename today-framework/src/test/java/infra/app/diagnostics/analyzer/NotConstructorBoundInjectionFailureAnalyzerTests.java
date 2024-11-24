@@ -19,7 +19,8 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.diagnostics.analyzer.NotConstructorBoundInjectionFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 import infra.beans.FatalBeanException;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -29,8 +30,6 @@ import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.ConfigurationPropertiesScan;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.context.properties.bind.ConstructorBinding;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

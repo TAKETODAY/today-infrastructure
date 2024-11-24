@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import infra.app.context.config.LocationResourceLoader.ResourceType;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import infra.app.context.config.LocationResourceLoader.ResourceType;
 
 /**
  * {@link ConfigDataLocationResolver} for config tree locations.

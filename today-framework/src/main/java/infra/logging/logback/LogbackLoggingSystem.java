@@ -47,6 +47,7 @@ import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusListenerConfigHelper;
 import ch.qos.logback.core.util.StatusPrinter2;
 import infra.aot.AotDetector;
+import infra.app.io.ApplicationResourceLoader;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -57,10 +58,6 @@ import infra.core.env.Environment;
 import infra.core.io.Resource;
 import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
-import infra.logging.SLF4JBridgeHandler;
-import infra.util.ClassUtils;
-import infra.util.StringUtils;
-import infra.app.io.ApplicationResourceLoader;
 import infra.logging.AbstractLoggingSystem;
 import infra.logging.LogFile;
 import infra.logging.LogLevel;
@@ -69,6 +66,9 @@ import infra.logging.LoggingStartupContext;
 import infra.logging.LoggingSystem;
 import infra.logging.LoggingSystemFactory;
 import infra.logging.LoggingSystemProperties;
+import infra.logging.SLF4JBridgeHandler;
+import infra.util.ClassUtils;
+import infra.util.StringUtils;
 
 /**
  * {@link LoggingSystem} for <a href="https://logback.qos.ch">logback</a>.

@@ -22,7 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.app.diagnostics.analyzer.NoSuchBeanDefinitionFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 import infra.beans.FatalBeanException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
@@ -37,8 +38,6 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnProperty;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.LoggingFailureAnalysisReporter;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.util.TestPropertyValues;
 import infra.util.ClassUtils;

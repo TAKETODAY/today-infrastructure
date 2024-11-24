@@ -19,6 +19,7 @@ package infra.app.diagnostics.analyzer;
 
 import java.lang.reflect.Constructor;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.UnsatisfiedDependencyException;
@@ -32,7 +33,6 @@ import infra.core.Ordered;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.Nullable;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} for

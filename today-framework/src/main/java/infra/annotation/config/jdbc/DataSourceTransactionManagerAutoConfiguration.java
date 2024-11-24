@@ -19,6 +19,8 @@ package infra.annotation.config.jdbc;
 
 import javax.sql.DataSource;
 
+import infra.annotation.config.transaction.TransactionAutoConfiguration;
+import infra.annotation.config.transaction.TransactionManagerCustomizers;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigureOrder;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -35,8 +37,6 @@ import infra.jdbc.support.JdbcTransactionManager;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.transaction.TransactionManager;
-import infra.annotation.config.transaction.TransactionAutoConfiguration;
-import infra.annotation.config.transaction.TransactionManagerCustomizers;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link JdbcTransactionManager}.

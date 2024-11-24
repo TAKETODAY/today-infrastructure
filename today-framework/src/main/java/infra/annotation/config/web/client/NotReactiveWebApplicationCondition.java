@@ -17,9 +17,9 @@
 
 package infra.annotation.config.web.client;
 
+import infra.annotation.ConditionalOnWebApplication;
 import infra.context.condition.InfraCondition;
 import infra.context.condition.NoneNestedConditions;
-import infra.annotation.ConditionalOnWebApplication;
 
 /**
  * {@link InfraCondition} that applies only when running in a non-reactive web

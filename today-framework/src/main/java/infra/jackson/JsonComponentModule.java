@@ -48,9 +48,9 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
+import infra.jackson.JsonComponent.Scope;
 import infra.lang.Assert;
 import infra.util.ObjectUtils;
-import infra.jackson.JsonComponent.Scope;
 
 /**
  * Bean and Jackson {@link Module} to register {@link JsonComponent @JsonComponent}

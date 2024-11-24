@@ -55,13 +55,13 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
+import infra.jackson.JsonComponentModule;
+import infra.jackson.JsonMixinModule;
+import infra.jackson.JsonMixinModuleEntries;
 import infra.stereotype.Component;
 import infra.stereotype.Prototype;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
-import infra.jackson.JsonComponentModule;
-import infra.jackson.JsonMixinModule;
-import infra.jackson.JsonMixinModuleEntries;
 
 /**
  * Auto configuration for Jackson. The following auto-configuration will get applied:

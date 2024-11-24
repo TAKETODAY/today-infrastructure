@@ -22,13 +22,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor;
+import infra.app.Application;
+import infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor.OriginAwareSystemEnvironmentPropertySource;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.app.Application;
-import infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor.OriginAwareSystemEnvironmentPropertySource;
 import infra.origin.SystemEnvironmentOrigin;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -21,11 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataLocationResolver;
-import infra.app.context.config.ConfigDataLocationResolverContext;
-import infra.app.context.config.ConfigDataResource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 

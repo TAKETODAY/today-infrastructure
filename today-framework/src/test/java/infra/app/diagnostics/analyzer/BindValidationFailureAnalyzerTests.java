@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import infra.app.diagnostics.analyzer.BindValidationFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
@@ -33,7 +33,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
 import infra.core.i18n.LocaleContextHolder;
-import infra.app.diagnostics.FailureAnalysis;
 import infra.validation.BindException;
 import infra.validation.Errors;
 import infra.validation.FieldError;

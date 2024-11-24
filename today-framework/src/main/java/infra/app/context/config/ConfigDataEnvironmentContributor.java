@@ -27,6 +27,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import infra.app.context.config.ConfigData.Options;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.bind.PlaceholdersResolver;
 import infra.context.properties.source.ConfigurationPropertySource;
@@ -35,7 +36,6 @@ import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
-import infra.app.context.config.ConfigData.Options;
 
 /**
  * A single element that may directly or indirectly contribute configuration data to the

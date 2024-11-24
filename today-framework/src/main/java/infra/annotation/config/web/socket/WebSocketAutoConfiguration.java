@@ -17,13 +17,13 @@
 
 package infra.annotation.config.web.socket;
 
+import infra.annotation.ConditionalOnWebApplication;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.server.support.WebSocketHandlerMapping;
-import infra.annotation.ConditionalOnWebApplication;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} WebSocket

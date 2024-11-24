@@ -19,9 +19,6 @@ package infra.app.context.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.UnsupportedConfigDataLocationException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

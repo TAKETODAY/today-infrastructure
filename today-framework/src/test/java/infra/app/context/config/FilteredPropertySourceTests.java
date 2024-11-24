@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.app.context.config.FilteredPropertySource;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;

@@ -19,6 +19,7 @@ package infra.annotation.config.web.client;
 
 import java.util.List;
 
+import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -37,7 +38,6 @@ import infra.web.client.RestClient;
 import infra.web.client.config.ClientHttpRequestFactories;
 import infra.web.client.config.ClientHttpRequestFactorySettings;
 import infra.web.client.config.RestClientCustomizer;
-import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link RestClient}.

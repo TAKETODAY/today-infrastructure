@@ -39,6 +39,8 @@ import java.util.stream.Stream;
 
 import infra.aot.AotDetector;
 import infra.app.BootstrapRegistry.InstanceSupplier;
+import infra.app.builder.ApplicationBuilder;
+import infra.app.diagnostics.ApplicationExceptionReporter;
 import infra.beans.BeansException;
 import infra.beans.CachedIntrospectionResults;
 import infra.beans.factory.config.BeanDefinition;
@@ -85,6 +87,7 @@ import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.logging.LoggingSystemProperty;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.Instantiator;
@@ -92,9 +95,6 @@ import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.util.function.ThrowingConsumer;
 import infra.util.function.ThrowingSupplier;
-import infra.app.builder.ApplicationBuilder;
-import infra.app.diagnostics.ApplicationExceptionReporter;
-import infra.logging.LoggingSystemProperty;
 
 /**
  * Class that can be used to bootstrap and launch a application from a Java main

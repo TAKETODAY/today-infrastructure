@@ -21,9 +21,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Proxy;
 
-import infra.beans.factory.BeanNotOfRequiredTypeException;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.beans.factory.BeanNotOfRequiredTypeException;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by a

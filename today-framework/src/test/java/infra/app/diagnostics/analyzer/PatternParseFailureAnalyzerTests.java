@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.util.pattern.PatternParseException;
-import infra.app.diagnostics.analyzer.PatternParseFailureAnalyzer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

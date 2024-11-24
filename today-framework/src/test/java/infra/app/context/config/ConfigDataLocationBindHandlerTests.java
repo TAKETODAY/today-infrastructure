@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataLocationBindHandler;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.MapConfigurationPropertySource;

@@ -26,8 +26,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import infra.jdbc.HikariCheckpointRestoreLifecycle;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;

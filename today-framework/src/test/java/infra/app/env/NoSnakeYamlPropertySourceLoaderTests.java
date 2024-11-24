@@ -19,7 +19,6 @@ package infra.app.env;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.env.YamlPropertySourceLoader;
 import infra.core.io.ByteArrayResource;
 import infra.test.classpath.ClassPathExclusions;
 

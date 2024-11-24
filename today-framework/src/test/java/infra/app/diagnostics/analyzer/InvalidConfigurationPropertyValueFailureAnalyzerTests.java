@@ -21,11 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import infra.app.diagnostics.analyzer.InvalidConfigurationPropertyValueFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.source.InvalidConfigurationPropertyValueException;
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.MapPropertySource;
-import infra.app.diagnostics.FailureAnalysis;
 import infra.mock.env.MockEnvironment;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;

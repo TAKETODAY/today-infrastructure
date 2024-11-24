@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import infra.app.env.PropertySourceLoader;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.Resource;
-import infra.app.env.PropertySourceLoader;
 
 /**
  * {@link PropertySourceLoader} for tests.

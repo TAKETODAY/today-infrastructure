@@ -26,9 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataResource;
-import infra.app.context.config.ConfigDataResourceNotFoundException;
 import infra.core.io.FileSystemResource;
 
 import static org.assertj.core.api.Assertions.assertThat;

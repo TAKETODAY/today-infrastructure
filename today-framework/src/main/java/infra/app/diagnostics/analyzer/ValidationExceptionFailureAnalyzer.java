@@ -18,9 +18,9 @@
 package infra.app.diagnostics.analyzer;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
 import infra.lang.Nullable;
-import infra.app.diagnostics.FailureAnalysis;
 import jakarta.validation.ValidationException;
 
 /**

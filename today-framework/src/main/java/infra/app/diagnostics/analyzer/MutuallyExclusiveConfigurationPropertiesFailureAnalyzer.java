@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
@@ -36,7 +37,6 @@ import infra.core.env.PropertySource;
 import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by an

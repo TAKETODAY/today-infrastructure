@@ -19,7 +19,6 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.diagnostics.analyzer.ValidationExceptionFailureAnalyzer;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;

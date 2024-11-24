@@ -20,8 +20,6 @@ package infra.context.condition.scan;
 import infra.beans.factory.FactoryBean;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.scan.ScanBean;
-import infra.context.condition.scan.ScanFactoryBean;
 
 /**
  * Configuration for a factory bean produced by a bean method on a configuration class

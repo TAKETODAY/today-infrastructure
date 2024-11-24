@@ -17,9 +17,9 @@
 
 package infra.app.diagnostics.analyzer;
 
-import infra.web.util.pattern.PatternParseException;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.web.util.pattern.PatternParseException;
 
 /**
  * A {@code FailureAnalyzer} that performs analysis of failures caused by a

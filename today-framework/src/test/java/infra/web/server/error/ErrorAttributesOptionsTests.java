@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import infra.web.server.error.ErrorAttributeOptions;
 import infra.web.server.error.ErrorAttributeOptions.Include;
 
 import static org.assertj.core.api.Assertions.assertThat;

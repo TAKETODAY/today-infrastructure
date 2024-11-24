@@ -23,10 +23,9 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import infra.app.ApplicationType;
-import infra.app.diagnostics.FailureAnalyzers;
+import infra.app.builder.ApplicationBuilder;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
-import infra.app.builder.ApplicationBuilder;
 import infra.context.annotation.Configuration;
 import infra.web.server.PortInUseException;
 import jakarta.annotation.PostConstruct;

@@ -64,12 +64,12 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
 import infra.lang.Nullable;
+import infra.logging.LoggingStartupContext;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.ThrowingConsumer;
-import infra.logging.LoggingStartupContext;
 
 /**
  * Extended version of the Logback {@link JoranConfigurator} that adds additional Infra

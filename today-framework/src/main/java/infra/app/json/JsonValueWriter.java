@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import infra.app.json.JsonWriter.WritableJson;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.function.ThrowingConsumer;
-import infra.app.json.JsonWriter.WritableJson;
 
 /**
  * Internal class used by {@link JsonWriter} to handle the lower-level concerns of writing

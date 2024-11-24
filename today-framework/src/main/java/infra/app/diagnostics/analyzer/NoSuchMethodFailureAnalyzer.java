@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import infra.lang.Nullable;
-import infra.util.ClassUtils;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.lang.Nullable;
+import infra.util.ClassUtils;
 
 /**
  * An {@link AbstractFailureAnalyzer} that analyzes {@link NoSuchMethodError

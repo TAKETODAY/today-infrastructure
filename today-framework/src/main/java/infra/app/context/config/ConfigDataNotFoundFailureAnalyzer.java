@@ -17,10 +17,10 @@
 
 package infra.app.context.config;
 
-import infra.lang.Nullable;
-import infra.origin.Origin;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.lang.Nullable;
+import infra.origin.Origin;
 
 /**
  * An implementation of {@link AbstractFailureAnalyzer} to analyze failures caused by

@@ -20,6 +20,8 @@ package infra.app.diagnostics.analyzer;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.InjectionPoint;
@@ -27,8 +29,6 @@ import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by a

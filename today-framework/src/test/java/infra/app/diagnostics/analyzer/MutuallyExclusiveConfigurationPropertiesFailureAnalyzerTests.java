@@ -26,11 +26,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.app.diagnostics.analyzer.MutuallyExclusiveConfigurationPropertiesFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.source.MutuallyExclusiveConfigurationPropertiesException;
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.MapPropertySource;
-import infra.app.diagnostics.FailureAnalysis;
 import infra.mock.env.MockEnvironment;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;

@@ -17,6 +17,7 @@
 
 package infra.annotation.config.web.reactive.client;
 
+import infra.annotation.config.ssl.SslAutoConfiguration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.AutoConfigureAfter;
@@ -29,7 +30,6 @@ import infra.core.annotation.Order;
 import infra.http.client.reactive.ClientHttpConnector;
 import infra.stereotype.Component;
 import infra.web.client.reactive.WebClient;
-import infra.annotation.config.ssl.SslAutoConfiguration;
 import reactor.core.publisher.Mono;
 
 /**

@@ -22,6 +22,11 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import java.util.List;
 
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.annotation.config.gson.GsonAutoConfiguration;
+import infra.annotation.config.jackson.JacksonAutoConfiguration;
+import infra.annotation.config.jsonb.JsonbAutoConfiguration;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
@@ -43,11 +48,6 @@ import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.stereotype.Component;
 import infra.web.server.EncodingProperties;
 import infra.web.server.ServerProperties;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.annotation.config.gson.GsonAutoConfiguration;
-import infra.annotation.config.jackson.JacksonAutoConfiguration;
-import infra.annotation.config.jsonb.JsonbAutoConfiguration;
 
 /**
  * Auto-configuration for {@link HttpMessageConverter}s.

@@ -25,21 +25,14 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
-import infra.app.context.event.ApplicationContextInitializedEvent;
-import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
-import infra.app.context.event.ApplicationPreparedEvent;
-import infra.app.context.event.ApplicationReadyEvent;
-import infra.app.context.event.ApplicationStartedEvent;
-import infra.app.context.event.ApplicationStartingEvent;
-import infra.app.context.event.EventPublishingStartupListener;
+import infra.app.Application;
+import infra.app.DefaultBootstrapContext;
+import infra.app.availability.AvailabilityChangeEvent;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.context.support.StaticApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.StandardEnvironment;
-import infra.app.Application;
-import infra.app.DefaultBootstrapContext;
-import infra.app.availability.AvailabilityChangeEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

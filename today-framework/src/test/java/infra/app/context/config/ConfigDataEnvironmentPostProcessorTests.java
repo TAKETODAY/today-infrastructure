@@ -28,11 +28,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.Set;
 
+import infra.app.Application;
+import infra.app.DefaultBootstrapContext;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.app.Application;
-import infra.app.DefaultBootstrapContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import infra.app.context.config.Profiles;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.ConfigurationPropertySources;

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.app.env.YamlPropertySourceLoader;
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.ByteArrayResource;

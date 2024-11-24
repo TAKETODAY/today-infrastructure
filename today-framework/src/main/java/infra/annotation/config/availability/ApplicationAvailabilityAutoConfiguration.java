@@ -17,13 +17,13 @@
 
 package infra.annotation.config.availability;
 
+import infra.app.availability.ApplicationAvailability;
+import infra.app.availability.ApplicationAvailabilityBean;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.stereotype.Component;
-import infra.app.availability.ApplicationAvailability;
-import infra.app.availability.ApplicationAvailabilityBean;
 
 /**
  * {@link EnableAutoConfiguration} for {@link ApplicationAvailabilityBean}.

@@ -23,14 +23,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import infra.app.context.config.ConfigDataActivationContext;
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataProperties;
-import infra.app.context.config.Profiles;
-import infra.context.properties.bind.Binder;
-import infra.context.properties.source.MapConfigurationPropertySource;
 import infra.app.cloud.CloudPlatform;
 import infra.app.context.config.ConfigDataProperties.Activate;
+import infra.context.properties.bind.Binder;
+import infra.context.properties.source.MapConfigurationPropertySource;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -17,9 +17,9 @@
 
 package infra.app.diagnostics.analyzer;
 
-import infra.web.server.PortInUseException;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.web.server.PortInUseException;
 
 /**
  * A {@code FailureAnalyzer} that performs analysis of failures caused by a

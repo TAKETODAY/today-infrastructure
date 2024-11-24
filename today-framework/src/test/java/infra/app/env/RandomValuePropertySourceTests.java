@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.UUID;
 
-import infra.app.env.RandomValuePropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;

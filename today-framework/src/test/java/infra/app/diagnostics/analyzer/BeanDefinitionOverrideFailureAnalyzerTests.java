@@ -21,14 +21,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import infra.app.diagnostics.analyzer.BeanDefinitionOverrideFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.context.ApplicationContextInitializer;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.app.diagnostics.FailureAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

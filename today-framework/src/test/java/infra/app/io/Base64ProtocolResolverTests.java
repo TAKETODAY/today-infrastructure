@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import infra.app.io.Base64ProtocolResolver;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 

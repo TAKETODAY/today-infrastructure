@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.web.client.RestTemplate;
 import infra.web.client.config.RootUriTemplateHandler;
 import infra.web.util.UriTemplateHandler;
 

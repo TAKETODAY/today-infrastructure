@@ -17,11 +17,11 @@
 
 package infra.app.diagnostics.analyzer;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.FactoryMethodBeanException;
 import infra.lang.Nullable;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} that performs analysis of failures caused

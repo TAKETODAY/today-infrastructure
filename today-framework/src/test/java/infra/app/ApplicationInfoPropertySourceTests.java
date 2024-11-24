@@ -27,7 +27,7 @@ import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.mock.env.MockEnvironment;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

@@ -17,9 +17,9 @@
 
 package infra.annotation.config.jdbc;
 
-import infra.jdbc.CannotGetJdbcConnectionException;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.jdbc.CannotGetJdbcConnectionException;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of a Hikari configuration

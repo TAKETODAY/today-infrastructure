@@ -21,10 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataProperties;
 import infra.app.context.config.ConfigDataProperties.Activate;
-import infra.app.context.config.ConfigDataPropertiesRuntimeHints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

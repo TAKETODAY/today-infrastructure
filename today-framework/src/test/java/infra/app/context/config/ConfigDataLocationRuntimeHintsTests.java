@@ -26,11 +26,10 @@ import java.util.function.Consumer;
 import infra.aot.hint.ResourcePatternHint;
 import infra.aot.hint.ResourcePatternHints;
 import infra.aot.hint.RuntimeHints;
-import infra.app.context.config.ConfigDataLocationRuntimeHints;
-import infra.core.test.io.support.MockTodayStrategies;
 import infra.app.env.PropertiesPropertySourceLoader;
 import infra.app.env.PropertySourceLoader;
 import infra.app.env.YamlPropertySourceLoader;
+import infra.core.test.io.support.MockTodayStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -19,14 +19,13 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.diagnostics.analyzer.BeanNotOfRequiredTypeFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.FailureAnalyzer;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.FailureAnalyzer;
 import infra.scheduling.annotation.Async;
 import infra.scheduling.annotation.EnableAsync;
 

@@ -17,12 +17,12 @@
 
 package infra.app.context;
 
+import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 import infra.context.ApplicationListener;
 import infra.context.properties.bind.Binder;
 import infra.core.ansi.AnsiOutput;
 import infra.core.ansi.AnsiOutput.Enabled;
 import infra.core.env.ConfigurableEnvironment;
-import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
 
 /**
  * An {@link ApplicationListener} that configures {@link AnsiOutput} depending on the

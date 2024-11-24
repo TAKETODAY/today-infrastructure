@@ -21,11 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.app.context.config.ConfigData;
-import infra.app.context.config.ConfigDataLoader;
-import infra.app.context.config.ConfigDataLoaderContext;
-import infra.app.context.config.ConfigDataResource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 

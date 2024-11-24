@@ -17,9 +17,9 @@
 
 package infra.app.context.config;
 
+import infra.app.env.PropertySourceLoader;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
-import infra.app.env.PropertySourceLoader;
 
 /**
  * A reference expanded from the original {@link ConfigDataLocation} that can ultimately

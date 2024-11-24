@@ -24,8 +24,6 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionOutcome;
-import infra.context.condition.InfraCondition;
 import infra.core.type.AnnotatedTypeMetadata;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

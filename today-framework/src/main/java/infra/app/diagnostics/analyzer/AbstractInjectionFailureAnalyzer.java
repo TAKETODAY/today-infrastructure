@@ -17,15 +17,15 @@
 
 package infra.app.diagnostics.analyzer;
 
+import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.FailureAnalyzer;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.core.MethodParameter;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.FailureAnalyzer;
 
 /**
  * Abstract base class for a {@link FailureAnalyzer} that handles some kind of injection

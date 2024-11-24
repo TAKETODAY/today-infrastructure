@@ -19,8 +19,6 @@ package infra.app.context.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.context.config.StandardConfigDataReference;
-import infra.app.context.config.StandardConfigDataResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 

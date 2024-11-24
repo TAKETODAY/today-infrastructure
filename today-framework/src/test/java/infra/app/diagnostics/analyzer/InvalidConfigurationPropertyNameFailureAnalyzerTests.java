@@ -19,14 +19,13 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.diagnostics.analyzer.InvalidConfigurationPropertyNameFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
-import infra.app.diagnostics.FailureAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

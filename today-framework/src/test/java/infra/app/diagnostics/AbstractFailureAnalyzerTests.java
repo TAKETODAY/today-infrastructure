@@ -21,9 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

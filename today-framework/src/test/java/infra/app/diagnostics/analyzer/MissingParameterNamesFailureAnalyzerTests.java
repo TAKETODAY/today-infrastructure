@@ -21,9 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import infra.app.diagnostics.analyzer.MissingParameterNamesFailureAnalyzer;
-import infra.core.MethodParameter;
 import infra.app.diagnostics.FailureAnalysis;
+import infra.core.MethodParameter;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;

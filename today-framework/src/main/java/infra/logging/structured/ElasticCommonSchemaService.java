@@ -17,11 +17,11 @@
 
 package infra.logging.structured;
 
+import infra.app.json.JsonWriter;
 import infra.context.properties.bind.Binder;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.util.StringUtils;
-import infra.app.json.JsonWriter;
 
 /**
  * Service details for Elastic Common Schema structured logging.

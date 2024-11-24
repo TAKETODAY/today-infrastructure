@@ -28,12 +28,12 @@ import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.Instantiator;
-import infra.util.Instantiator.AvailableParameters;
 import infra.logging.structured.CommonStructuredLogFormat;
 import infra.logging.structured.StructuredLogFormatter;
 import infra.logging.structured.StructuredLogFormatterFactory;
 import infra.logging.structured.StructuredLogFormatterFactory.CommonFormatters;
+import infra.util.Instantiator;
+import infra.util.Instantiator.AvailableParameters;
 
 /**
  * {@link Encoder Logback encoder} for structured logging.

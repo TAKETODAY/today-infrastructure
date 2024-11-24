@@ -23,10 +23,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.util.List;
 
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.ConfigDataLocationResolverContext;
-import infra.app.context.config.ConfigTreeConfigDataLocationResolver;
-import infra.app.context.config.ConfigTreeConfigDataResource;
 import infra.core.io.DefaultResourceLoader;
 import infra.util.FileCopyUtils;
 

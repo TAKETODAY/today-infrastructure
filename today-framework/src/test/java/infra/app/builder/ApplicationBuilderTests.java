@@ -25,6 +25,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
 
+import infra.app.Application;
+import infra.app.ApplicationArguments;
+import infra.app.ApplicationContextFactory;
+import infra.app.ApplicationShutdownHookInstance;
+import infra.app.ApplicationType;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -35,11 +40,6 @@ import infra.core.env.Profiles;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
-import infra.app.Application;
-import infra.app.ApplicationArguments;
-import infra.app.ApplicationContextFactory;
-import infra.app.ApplicationShutdownHookInstance;
-import infra.app.ApplicationType;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

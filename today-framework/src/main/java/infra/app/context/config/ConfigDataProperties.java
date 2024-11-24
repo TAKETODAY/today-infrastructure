@@ -21,13 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+import infra.app.cloud.CloudPlatform;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.bind.Name;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
-import infra.app.cloud.CloudPlatform;
 
 /**
  * Bound properties used when working with {@link ConfigData}.

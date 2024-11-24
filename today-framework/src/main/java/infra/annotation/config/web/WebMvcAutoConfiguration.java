@@ -21,6 +21,12 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.config.task.TaskExecutionAutoConfiguration;
+import infra.annotation.config.validation.ValidationAutoConfiguration;
+import infra.annotation.config.web.WebMvcProperties.Format;
+import infra.annotation.config.web.WebProperties.Resources;
+import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
@@ -78,12 +84,6 @@ import infra.web.resource.ResourceResolver;
 import infra.web.resource.VersionResourceResolver;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.config.task.TaskExecutionAutoConfiguration;
-import infra.annotation.config.validation.ValidationAutoConfiguration;
-import infra.annotation.config.web.WebMvcProperties.Format;
-import infra.annotation.config.web.WebProperties.Resources;
-import infra.annotation.config.web.WebProperties.Resources.Chain.Strategy;
 
 import static infra.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 

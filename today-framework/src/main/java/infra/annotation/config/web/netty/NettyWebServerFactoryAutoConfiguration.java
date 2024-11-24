@@ -19,6 +19,10 @@ package infra.annotation.config.web.netty;
 
 import java.util.List;
 
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.ConditionalOnWebApplication.Type;
+import infra.annotation.config.web.ErrorMvcAutoConfiguration;
+import infra.annotation.config.web.WebMvcProperties;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.annotation.Lazy;
@@ -47,10 +51,6 @@ import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
 import infra.web.socket.server.support.WsNettyChannelHandler;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.annotation.config.web.ErrorMvcAutoConfiguration;
-import infra.annotation.config.web.WebMvcProperties;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 import static infra.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;

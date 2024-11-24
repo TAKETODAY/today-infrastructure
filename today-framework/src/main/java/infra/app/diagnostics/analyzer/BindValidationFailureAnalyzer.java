@@ -19,14 +19,14 @@ package infra.app.diagnostics.analyzer;
 
 import java.util.List;
 
+import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.validation.BindValidationException;
 import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.validation.FieldError;
 import infra.validation.ObjectError;
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of any bind validation

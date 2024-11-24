@@ -19,6 +19,7 @@ package infra.annotation.config.web.embedded;
 
 import java.time.Duration;
 
+import infra.app.cloud.CloudPlatform;
 import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.util.PropertyMapper;
@@ -26,7 +27,6 @@ import infra.web.server.Http2;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
-import infra.app.cloud.CloudPlatform;
 import io.netty.channel.ChannelOption;
 
 /**

@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.FailureAnalyzer;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.context.properties.source.InvalidConfigurationPropertyValueException;
 import infra.core.env.ConfigurableEnvironment;
@@ -29,9 +32,6 @@ import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.util.StringUtils;
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.FailureAnalyzer;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by an

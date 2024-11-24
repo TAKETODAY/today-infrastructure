@@ -17,13 +17,13 @@
 
 package infra.annotation.config.transaction.jta;
 
+import infra.annotation.config.transaction.TransactionAutoConfiguration;
 import infra.context.annotation.Import;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnProperty;
-import infra.annotation.config.transaction.TransactionAutoConfiguration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for JTA.

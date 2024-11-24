@@ -17,6 +17,7 @@
 
 package infra.app.context.config;
 
+import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
 import infra.context.properties.bind.PlaceholdersResolver;
 import infra.core.conversion.ConversionService;
 import infra.core.env.PropertySource;
@@ -24,7 +25,6 @@ import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.util.PropertyPlaceholderHandler;
-import infra.app.context.config.ConfigDataEnvironmentContributor.Kind;
 
 /**
  * {@link PlaceholdersResolver} backed by one or more

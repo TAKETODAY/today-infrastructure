@@ -17,12 +17,12 @@
 
 package infra.app.diagnostics.analyzer;
 
-import infra.core.Ordered;
-import infra.web.server.context.MissingWebServerFactoryBeanException;
-import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
+import infra.core.Ordered;
+import infra.web.server.context.MissingWebServerFactoryBeanException;
+import infra.web.server.reactive.ReactiveWebServerFactory;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by an

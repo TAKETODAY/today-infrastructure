@@ -19,10 +19,6 @@ package infra.app.availability;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import infra.app.availability.AvailabilityChangeEvent;
-import infra.app.availability.AvailabilityState;
-import infra.app.availability.LivenessState;
-import infra.app.availability.ReadinessState;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationEvent;
 import infra.context.annotation.AnnotationConfigApplicationContext;

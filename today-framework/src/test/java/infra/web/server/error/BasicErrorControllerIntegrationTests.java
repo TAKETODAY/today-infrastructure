@@ -28,13 +28,13 @@ import java.lang.annotation.Target;
 import java.net.URI;
 import java.util.Map;
 
-import infra.app.Application;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.freemarker.FreeMarkerAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.app.Application;
 import infra.app.test.web.client.TestRestTemplate;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;

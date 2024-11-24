@@ -25,10 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import infra.app.context.config.ConfigDataActivationContext;
-import infra.app.context.config.ConfigDataEnvironmentContributor;
-import infra.app.context.config.ConfigDataEnvironmentContributorPlaceholdersResolver;
-import infra.app.context.config.InactiveConfigDataAccessException;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.conversion.support.GenericConversionService;

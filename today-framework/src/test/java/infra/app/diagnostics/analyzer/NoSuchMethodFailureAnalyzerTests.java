@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 import java.util.List;
 
-import infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer;
 import infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer.ClassDescriptor;
 import infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer.NoSuchMethodDescriptor;
 import infra.util.MimeType;

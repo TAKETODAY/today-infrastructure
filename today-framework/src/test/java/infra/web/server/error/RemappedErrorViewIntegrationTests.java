@@ -19,7 +19,6 @@ package infra.web.server.error;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.annotation.RequestMapping;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
@@ -33,6 +32,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.stereotype.Controller;
 import infra.test.annotation.DirtiesContext;
+import infra.web.annotation.RequestMapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.app.env.PropertiesPropertySourceLoader;
 import infra.core.env.PropertySource;
 import infra.core.io.ClassPathResource;
 

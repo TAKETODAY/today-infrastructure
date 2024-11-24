@@ -24,11 +24,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import infra.app.env.OriginTrackedPropertiesLoader;
+import infra.app.env.OriginTrackedPropertiesLoader.Document;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
-import infra.app.env.OriginTrackedPropertiesLoader.Document;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;
 

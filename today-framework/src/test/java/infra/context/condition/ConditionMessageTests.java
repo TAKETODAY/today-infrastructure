@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import infra.context.condition.ConditionMessage;
 import infra.context.condition.ConditionMessage.Style;
 
 import static org.assertj.core.api.Assertions.assertThat;

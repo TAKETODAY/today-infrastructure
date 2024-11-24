@@ -31,14 +31,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URL;
 
-import infra.app.Application;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
-import infra.app.test.util.ApplicationContextTestUtils;
+import infra.app.Application;
 import infra.app.builder.ApplicationBuilder;
+import infra.app.test.util.ApplicationContextTestUtils;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.EnableAspectJAutoProxy;

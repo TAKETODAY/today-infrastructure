@@ -17,6 +17,7 @@
 
 package infra.annotation.config.web.reactive;
 
+import infra.annotation.ConditionalOnWebApplication;
 import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.RootBeanDefinition;
@@ -42,7 +43,6 @@ import infra.stereotype.Component;
 import infra.util.CollectionUtils;
 import infra.web.server.ServerProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import infra.annotation.ConditionalOnWebApplication;
 
 import static infra.annotation.ConditionalOnWebApplication.Type;
 import static infra.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar;

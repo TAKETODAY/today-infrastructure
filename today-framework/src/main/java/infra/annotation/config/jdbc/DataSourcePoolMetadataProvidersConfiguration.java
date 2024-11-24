@@ -28,11 +28,11 @@ import infra.beans.factory.annotation.DisableDependencyInjection;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.jdbc.config.DataSourceUnwrapper;
-import infra.stereotype.Component;
 import infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata;
 import infra.jdbc.metadata.DataSourcePoolMetadataProvider;
 import infra.jdbc.metadata.HikariDataSourcePoolMetadata;
 import infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata;
+import infra.stereotype.Component;
 import oracle.jdbc.OracleConnection;
 import oracle.ucp.jdbc.PoolDataSource;
 

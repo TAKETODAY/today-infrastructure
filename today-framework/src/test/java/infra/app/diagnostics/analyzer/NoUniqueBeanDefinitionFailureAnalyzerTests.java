@@ -19,6 +19,7 @@ package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.analyzer.nounique.TestBean;
 import infra.app.diagnostics.analyzer.nounique.TestBeanConsumer;
 import infra.beans.factory.BeanCreationException;
@@ -29,7 +30,6 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.ComponentScan;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.ImportResource;
-import infra.app.diagnostics.FailureAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

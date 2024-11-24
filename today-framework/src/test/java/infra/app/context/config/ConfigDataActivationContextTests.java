@@ -23,15 +23,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.app.context.config.ConfigDataActivationContext;
-import infra.app.context.config.Profiles;
+import infra.app.cloud.CloudPlatform;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.MapConfigurationPropertySource;
 import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
-import infra.app.cloud.CloudPlatform;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;

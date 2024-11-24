@@ -20,12 +20,12 @@ package infra.app.diagnostics.analyzer;
 import java.util.HashSet;
 import java.util.Set;
 
+import infra.app.diagnostics.FailureAnalysis;
+import infra.app.diagnostics.FailureAnalyzer;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.app.diagnostics.FailureAnalyzer;
 
 /**
  * {@link FailureAnalyzer} for exceptions caused by missing parameter names. This analyzer

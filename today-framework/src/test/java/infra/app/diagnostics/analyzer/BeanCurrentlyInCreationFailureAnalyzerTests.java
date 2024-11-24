@@ -25,14 +25,13 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.app.diagnostics.analyzer.BeanCurrentlyInCreationFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.app.diagnostics.FailureAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;

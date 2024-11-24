@@ -19,11 +19,11 @@ package infra.app.diagnostics.analyzer;
 
 import java.util.stream.Collectors;
 
+import infra.app.diagnostics.AbstractFailureAnalyzer;
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.properties.source.InvalidConfigurationPropertyNameException;
 import infra.lang.Nullable;
-import infra.app.diagnostics.AbstractFailureAnalyzer;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by

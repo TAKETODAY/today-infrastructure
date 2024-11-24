@@ -19,6 +19,7 @@ package infra.annotation;
 
 import java.util.Map;
 
+import infra.app.cloud.CloudPlatform;
 import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.condition.ConditionMessage;
@@ -26,7 +27,6 @@ import infra.context.condition.ConditionOutcome;
 import infra.context.condition.InfraCondition;
 import infra.core.env.Environment;
 import infra.core.type.AnnotatedTypeMetadata;
-import infra.app.cloud.CloudPlatform;
 
 /**
  * {@link Condition} that checks for a required {@link CloudPlatform}.

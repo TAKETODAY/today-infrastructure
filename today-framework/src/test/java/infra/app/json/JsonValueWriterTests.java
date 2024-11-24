@@ -26,9 +26,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
-import infra.app.json.JsonValueWriter;
 import infra.app.json.JsonValueWriter.Series;
-import infra.app.json.JsonWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

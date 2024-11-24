@@ -24,12 +24,12 @@ import java.util.List;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.support.FilePatternResourceHintsRegistrar;
+import infra.app.env.PropertySourceLoader;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;
-import infra.app.env.PropertySourceLoader;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation for application configuration.

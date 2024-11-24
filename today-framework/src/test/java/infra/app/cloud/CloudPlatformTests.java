@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.context.properties.bind.Binder;
+import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;

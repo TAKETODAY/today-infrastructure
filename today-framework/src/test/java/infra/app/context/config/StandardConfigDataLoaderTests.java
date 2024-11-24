@@ -21,16 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import infra.app.context.config.ConfigData;
-import infra.app.context.config.ConfigDataLoaderContext;
-import infra.app.context.config.ConfigDataLocation;
-import infra.app.context.config.StandardConfigDataLoader;
-import infra.app.context.config.StandardConfigDataReference;
-import infra.app.context.config.StandardConfigDataResource;
-import infra.core.env.PropertySource;
-import infra.core.io.ClassPathResource;
 import infra.app.env.PropertiesPropertySourceLoader;
 import infra.app.env.YamlPropertySourceLoader;
+import infra.core.env.PropertySource;
+import infra.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

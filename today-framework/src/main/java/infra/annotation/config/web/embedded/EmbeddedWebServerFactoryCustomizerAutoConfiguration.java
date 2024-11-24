@@ -17,6 +17,8 @@
 
 package infra.annotation.config.web.embedded;
 
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -26,8 +28,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
 import infra.stereotype.Component;
 import infra.web.server.ServerProperties;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
 import reactor.netty.http.server.HttpServer;
 
 /**

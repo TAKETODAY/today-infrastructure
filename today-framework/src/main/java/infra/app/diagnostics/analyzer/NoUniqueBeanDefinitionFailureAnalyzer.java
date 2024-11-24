@@ -17,13 +17,13 @@
 
 package infra.app.diagnostics.analyzer;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
-import infra.app.diagnostics.FailureAnalysis;
 
 /**
  * An {@link AbstractInjectionFailureAnalyzer} that performs analysis of failures caused

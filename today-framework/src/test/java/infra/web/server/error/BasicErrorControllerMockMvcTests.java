@@ -27,11 +27,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import infra.app.Application;
 import infra.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.annotation.config.web.ErrorMvcAutoConfiguration;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.app.Application;
 import infra.app.test.context.InfraTest;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;

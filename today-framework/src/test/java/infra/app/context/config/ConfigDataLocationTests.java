@@ -19,7 +19,6 @@ package infra.app.context.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.context.config.ConfigDataLocation;
 import infra.origin.Origin;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -19,9 +19,6 @@ package infra.app.context.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.context.config.ConfigDataEnvironmentContributor;
-import infra.app.context.config.ConfigDataResource;
-import infra.app.context.config.InactiveConfigDataAccessException;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.mock.env.MockPropertySource;

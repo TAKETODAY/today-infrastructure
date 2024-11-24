@@ -24,10 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import infra.app.context.config.LocationResourceLoader;
+import infra.app.context.config.LocationResourceLoader.ResourceType;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
-import infra.app.context.config.LocationResourceLoader.ResourceType;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

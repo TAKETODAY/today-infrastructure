@@ -19,7 +19,6 @@ package infra.app.context.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.context.config.DelegatingApplicationContextInitializer;
 import infra.context.ApplicationContextException;
 import infra.context.ApplicationContextInitializer;
 import infra.context.ConfigurableApplicationContext;

@@ -17,11 +17,11 @@
 
 package infra.app.context.config;
 
+import infra.app.cloud.CloudPlatform;
 import infra.context.properties.bind.Binder;
 import infra.core.env.Environment;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Nullable;
-import infra.app.cloud.CloudPlatform;
 
 /**
  * Context information used when determining when to activate

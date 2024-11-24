@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
-import infra.app.diagnostics.FailureAnalysis;
-import infra.logging.LogLevel;
 import infra.lang.Nullable;
+import infra.logging.LogLevel;
 import infra.validation.annotation.Validated;
 import jakarta.validation.constraints.Min;
 
