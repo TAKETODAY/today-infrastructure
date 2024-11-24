@@ -18,8 +18,8 @@ package infra.context;
 
 import infra.beans.BeansException;
 import infra.beans.factory.Aware;
-import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanInitializationException;
 import infra.beans.factory.InitializingBean;
 import infra.context.support.ApplicationObjectSupport;

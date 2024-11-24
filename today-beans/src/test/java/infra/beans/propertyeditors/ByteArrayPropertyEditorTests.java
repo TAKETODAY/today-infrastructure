@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditor;
 
-import infra.beans.propertyeditors.ByteArrayPropertyEditor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

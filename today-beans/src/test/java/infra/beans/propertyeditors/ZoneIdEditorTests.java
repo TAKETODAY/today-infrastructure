@@ -23,8 +23,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.ZoneId;
 
-import infra.beans.propertyeditors.ZoneIdEditor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

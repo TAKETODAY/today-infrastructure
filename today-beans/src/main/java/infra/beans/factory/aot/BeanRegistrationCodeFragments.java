@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import infra.javapoet.ClassName;
-import infra.javapoet.CodeBlock;
 import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.beans.factory.support.InstanceSupplier;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ResolvableType;
+import infra.javapoet.ClassName;
+import infra.javapoet.CodeBlock;
 
 /**
  * Generate the various fragments of code needed to register a bean.

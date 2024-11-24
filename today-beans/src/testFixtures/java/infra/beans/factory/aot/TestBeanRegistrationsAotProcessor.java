@@ -17,9 +17,6 @@
 
 package infra.beans.factory.aot;
 
-import infra.beans.factory.aot.BeanRegistrationAotProcessor;
-import infra.beans.factory.aot.BeanRegistrationsAotProcessor;
-
 /**
  * Public variant of {@link BeanRegistrationAotProcessor} for use in tests.
  *

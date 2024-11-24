@@ -23,10 +23,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
-import infra.jndi.JndiLocatorDelegate;
-import infra.jndi.JndiTemplate;
 import infra.jndi.JndiAccessor;
+import infra.jndi.JndiLocatorDelegate;
 import infra.jndi.JndiLocatorSupport;
+import infra.jndi.JndiTemplate;
 
 /**
  * JNDI-based variant of {@link ConcurrentTaskScheduler}, performing a default lookup for

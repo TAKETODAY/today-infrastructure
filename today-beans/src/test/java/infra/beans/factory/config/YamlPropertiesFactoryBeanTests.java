@@ -25,7 +25,6 @@ import org.yaml.snakeyaml.scanner.ScannerException;
 import java.util.Map;
 import java.util.Properties;
 
-import infra.beans.factory.config.YamlPropertiesFactoryBean;
 import infra.core.YamlProcessor.MatchStatus;
 import infra.core.YamlProcessor.ResolutionMethod;
 import infra.core.io.ByteArrayResource;

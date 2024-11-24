@@ -21,8 +21,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-import infra.lang.Nullable;
 import infra.cache.annotation.Cacheable;
+import infra.lang.Nullable;
 
 /**
  * Interface that defines common cache operations.

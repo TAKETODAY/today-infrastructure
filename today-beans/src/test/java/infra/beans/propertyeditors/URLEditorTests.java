@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.beans.PropertyEditor;
 import java.net.URL;
 
-import infra.beans.propertyeditors.URLEditor;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

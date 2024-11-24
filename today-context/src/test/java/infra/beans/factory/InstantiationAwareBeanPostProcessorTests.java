@@ -19,14 +19,13 @@ package infra.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import infra.beans.factory.support.AbstractBeanDefinition;
-import infra.context.annotation.Configuration;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.annotation.Configuration;
 import infra.core.type.MethodMetadata;
 import infra.stereotype.Singleton;
 

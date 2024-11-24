@@ -23,9 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.instrument.classloading.LoadTimeWeaver;
 import infra.context.weaving.DefaultContextLoadTimeWeaver;
 import infra.context.weaving.LoadTimeWeaverAware;
+import infra.instrument.classloading.LoadTimeWeaver;
 
 /**
  * Activates a Framework {@link LoadTimeWeaver} for this application context, available as

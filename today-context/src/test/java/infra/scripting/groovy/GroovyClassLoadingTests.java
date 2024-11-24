@@ -20,10 +20,10 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import groovy.lang.GroovyClassLoader;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.support.StaticApplicationContext;
 import infra.util.ReflectionUtils;
-import groovy.lang.GroovyClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -25,7 +25,6 @@ import infra.beans.FatalBeanException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ServiceLocatorFactoryBean;
-import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.NestedCheckedException;
 import infra.core.NestedRuntimeException;
 

@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import infra.beans.factory.config.Scope;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.CustomScopeConfigurer;
+import infra.beans.factory.config.Scope;
 import infra.core.NamedThreadLocal;
 import infra.lang.Nullable;
 import infra.logging.Logger;

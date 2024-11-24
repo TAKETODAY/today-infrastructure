@@ -19,8 +19,8 @@ package infra.aop.config;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanReference;
-import infra.beans.factory.parsing.CompositeComponentDefinition;
 import infra.beans.factory.parsing.ComponentDefinition;
+import infra.beans.factory.parsing.CompositeComponentDefinition;
 import infra.lang.Nullable;
 
 /**

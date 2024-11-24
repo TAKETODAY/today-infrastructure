@@ -19,8 +19,8 @@ package infra.aop;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import infra.lang.Nullable;
 import infra.aop.support.DelegatingIntroductionInterceptor;
+import infra.lang.Nullable;
 
 /**
  * Extension of the AOP Alliance {@link org.aopalliance.intercept.MethodInvocation}

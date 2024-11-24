@@ -18,8 +18,8 @@
 package infra.aop;
 
 import infra.aop.framework.Advised;
-import infra.lang.Nullable;
 import infra.aop.support.AopUtils;
+import infra.lang.Nullable;
 
 /**
  * Minimal interface for exposing the target class behind a proxy.

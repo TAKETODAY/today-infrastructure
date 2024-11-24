@@ -22,15 +22,15 @@ import org.codehaus.groovy.control.customizers.CompilationCustomizer;
 import java.io.IOException;
 import java.util.Map;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyRuntimeException;
+import groovy.lang.GroovyShell;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptEvaluator;
 import infra.scripting.ScriptSource;
 import infra.scripting.support.ResourceScriptSource;
-import groovy.lang.Binding;
-import groovy.lang.GroovyRuntimeException;
-import groovy.lang.GroovyShell;
 
 /**
  * Groovy-based implementation of Framework's {@link ScriptEvaluator} strategy interface.

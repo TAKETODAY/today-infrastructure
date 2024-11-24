@@ -19,14 +19,6 @@ package infra.beans.factory.aot;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.aot.AotServices;
-import infra.beans.factory.aot.BeanDefinitionMethodGenerator;
-import infra.beans.factory.aot.BeanDefinitionMethodGeneratorFactory;
-import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
-import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
-import infra.beans.factory.aot.BeanRegistrationAotContribution;
-import infra.beans.factory.aot.BeanRegistrationAotProcessor;
-import infra.beans.factory.aot.BeanRegistrationExcludeFilter;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionBuilder;
 import infra.beans.factory.support.RegisteredBean;

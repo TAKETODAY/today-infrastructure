@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
-import infra.beans.factory.xml.DelegatingEntityResolver;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**

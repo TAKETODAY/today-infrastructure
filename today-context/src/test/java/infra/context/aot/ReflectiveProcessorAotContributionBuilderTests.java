@@ -38,7 +38,7 @@ import infra.context.testfixture.context.aot.scan.reflective2.reflective21.Refle
 import infra.context.testfixture.context.aot.scan.reflective2.reflective22.Reflective22OnType;
 import infra.lang.Nullable;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

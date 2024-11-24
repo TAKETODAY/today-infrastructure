@@ -23,11 +23,11 @@ import java.util.concurrent.Executor;
 import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
+import infra.jndi.JndiAccessor;
 import infra.jndi.JndiLocatorDelegate;
+import infra.jndi.JndiLocatorSupport;
 import infra.jndi.JndiTemplate;
 import infra.lang.Nullable;
-import infra.jndi.JndiAccessor;
-import infra.jndi.JndiLocatorSupport;
 
 /**
  * JNDI-based variant of {@link ConcurrentTaskExecutor}, performing a default lookup for

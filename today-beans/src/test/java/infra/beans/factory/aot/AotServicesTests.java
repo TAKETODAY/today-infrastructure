@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
-import infra.beans.factory.aot.AotServices;
-import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.Ordered;

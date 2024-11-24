@@ -19,8 +19,6 @@ package infra.origin;
 
 import org.junit.jupiter.api.Test;
 
-import infra.origin.JarUri;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

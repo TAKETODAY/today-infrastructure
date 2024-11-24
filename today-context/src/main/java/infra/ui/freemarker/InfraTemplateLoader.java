@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import freemarker.cache.TemplateLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import freemarker.cache.TemplateLoader;
 
 /**
  * FreeMarker {@link TemplateLoader} adapter that loads via a Framework {@link ResourceLoader}.

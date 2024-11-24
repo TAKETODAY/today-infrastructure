@@ -33,10 +33,10 @@ import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
+import infra.cache.interceptor.CacheAspectSupport;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
-import infra.cache.interceptor.CacheAspectSupport;
 
 /**
  * {@link CacheManager} implementation that lazily builds {@link CaffeineCache}

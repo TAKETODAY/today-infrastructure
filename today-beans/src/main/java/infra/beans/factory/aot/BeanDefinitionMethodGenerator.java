@@ -21,7 +21,6 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
-import infra.javapoet.ClassName;
 import infra.aot.generate.GeneratedClass;
 import infra.aot.generate.GeneratedMethod;
 import infra.aot.generate.GeneratedMethods;
@@ -29,6 +28,7 @@ import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RegisteredBean;
+import infra.javapoet.ClassName;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
 

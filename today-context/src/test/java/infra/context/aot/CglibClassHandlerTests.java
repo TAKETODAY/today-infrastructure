@@ -22,6 +22,9 @@ package infra.context.aot;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import infra.aot.generate.GeneratedFiles.Kind;
 import infra.aot.generate.InMemoryGeneratedFiles;
 import infra.aot.hint.MemberCategory;
@@ -29,9 +32,6 @@ import infra.aot.hint.TypeReference;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.core.io.InputStreamSource;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

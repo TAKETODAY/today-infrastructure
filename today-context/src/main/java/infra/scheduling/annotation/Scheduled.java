@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit;
 import infra.aot.hint.annotation.Reflective;
 import infra.scheduling.SchedulingAwareRunnable;
 import infra.scheduling.TaskScheduler;
-import infra.scheduling.config.ScheduledTaskRegistrar;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
+import infra.scheduling.config.ScheduledTaskRegistrar;
 import infra.scheduling.support.CronExpression;
 import infra.scheduling.support.CronTrigger;
 

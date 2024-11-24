@@ -18,10 +18,10 @@
 package infra.context.support;
 
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Convenient application context with built-in XML support.

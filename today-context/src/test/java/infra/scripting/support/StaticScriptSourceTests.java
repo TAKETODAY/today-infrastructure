@@ -18,8 +18,6 @@ package infra.scripting.support;
 
 import org.junit.jupiter.api.Test;
 
-import infra.scripting.support.StaticScriptSource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

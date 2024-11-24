@@ -22,8 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import infra.validation.beanvalidation.MethodValidationExcludeFilter;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

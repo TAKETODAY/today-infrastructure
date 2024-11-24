@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-import infra.scheduling.config.TaskExecutionOutcome;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 

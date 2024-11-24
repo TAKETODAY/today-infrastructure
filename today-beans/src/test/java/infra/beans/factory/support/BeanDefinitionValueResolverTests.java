@@ -19,11 +19,6 @@ package infra.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.support.BeanDefinitionValueResolver;
-import infra.beans.factory.support.GenericBeanDefinition;
-import infra.beans.factory.support.RootBeanDefinition;
-import infra.beans.factory.support.StandardBeanFactory;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

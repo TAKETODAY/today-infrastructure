@@ -17,9 +17,6 @@
 
 package infra.jmx.export.annotation;
 
-import infra.jmx.export.annotation.ManagedAttribute;
-import infra.jmx.export.annotation.ManagedOperation;
-
 /**
  * @author Rob Harrop
  */

@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.aot.ContextAotProcessor;
 import infra.context.support.GenericApplicationContext;
 import infra.javapoet.ClassName;
 

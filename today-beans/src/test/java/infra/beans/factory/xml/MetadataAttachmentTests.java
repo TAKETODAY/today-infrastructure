@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.beans.PropertyValue;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.core.io.ClassPathResource;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

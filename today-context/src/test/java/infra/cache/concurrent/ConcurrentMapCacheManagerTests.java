@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
-import infra.cache.concurrent.ConcurrentMapCache;
-import infra.cache.concurrent.ConcurrentMapCacheManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

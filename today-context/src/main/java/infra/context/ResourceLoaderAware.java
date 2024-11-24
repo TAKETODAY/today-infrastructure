@@ -18,11 +18,11 @@
 package infra.context;
 
 import infra.beans.factory.Aware;
+import infra.core.io.DefaultResourceLoader;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.PatternResourceLoader;
-import infra.core.io.ResourceLoader;
-import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the

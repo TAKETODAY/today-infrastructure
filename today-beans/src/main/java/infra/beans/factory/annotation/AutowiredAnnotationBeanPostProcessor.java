@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.javapoet.ClassName;
-import infra.javapoet.CodeBlock;
 import infra.aot.generate.AccessControl;
 import infra.aot.generate.GeneratedClass;
 import infra.aot.generate.GeneratedMethod;
@@ -86,6 +84,8 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.core.type.classreading.SimpleMetadataReaderFactory;
+import infra.javapoet.ClassName;
+import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.logging.Logger;

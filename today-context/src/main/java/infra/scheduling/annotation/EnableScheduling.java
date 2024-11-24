@@ -26,8 +26,8 @@ import java.util.concurrent.Executor;
 
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
-import infra.scheduling.Trigger;
 import infra.scheduling.TaskScheduler;
+import infra.scheduling.Trigger;
 import infra.scheduling.config.ScheduledTaskRegistrar;
 
 /**

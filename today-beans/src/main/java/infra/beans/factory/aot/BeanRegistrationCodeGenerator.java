@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import infra.javapoet.ClassName;
-import infra.javapoet.CodeBlock;
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.beans.factory.support.RegisteredBean;
+import infra.javapoet.ClassName;
+import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
 
 /**

@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.management.ObjectName;
 
-import infra.jmx.export.naming.ObjectNamingStrategy;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -21,9 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import infra.beans.factory.support.AbstractBeanDefinition;
-import infra.beans.factory.support.InstanceSupplier;
-import infra.beans.factory.support.RootBeanDefinition;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

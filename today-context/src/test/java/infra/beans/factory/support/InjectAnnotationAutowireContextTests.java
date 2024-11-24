@@ -30,8 +30,6 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.ConstructorArgumentValues;
-import infra.beans.factory.support.AutowireCandidateQualifier;
-import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.annotation.AnnotationConfigUtils;
 import infra.context.support.GenericApplicationContext;
 import jakarta.inject.Inject;

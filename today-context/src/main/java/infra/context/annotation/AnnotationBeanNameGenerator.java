@@ -32,19 +32,19 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanNameHolder;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanNameGenerator;
+import infra.core.annotation.AliasFor;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotationMetadata;
-import infra.core.annotation.AliasFor;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ClassUtils;
-import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 import infra.stereotype.Component;
 import infra.stereotype.Repository;
 import infra.stereotype.Service;
+import infra.util.ClassUtils;
+import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 
 /**
  * {@link BeanNameGenerator} implementation for bean classes annotated with the

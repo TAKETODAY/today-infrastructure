@@ -26,7 +26,6 @@ import java.beans.SimpleBeanInfo;
 import infra.beans.BeanWrapper;
 import infra.beans.BeanWrapperImpl;
 import infra.beans.FatalBeanException;
-import infra.beans.propertyeditors.CustomNumberEditor;
 import infra.lang.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;

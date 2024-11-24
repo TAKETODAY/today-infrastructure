@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
 
-import infra.beans.propertyeditors.ReaderEditor;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

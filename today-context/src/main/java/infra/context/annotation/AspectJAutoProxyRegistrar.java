@@ -17,9 +17,9 @@
 
 package infra.context.annotation;
 
+import infra.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import infra.aop.config.AopConfigUtils;
 import infra.beans.factory.support.BeanDefinitionRegistry;
-import infra.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import infra.context.BootstrapContext;
 import infra.core.annotation.AnnotationAttributes;
 import infra.core.type.AnnotationMetadata;

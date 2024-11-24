@@ -28,9 +28,9 @@ import java.util.function.Supplier;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
+import infra.cache.support.CaffeineCacheManager;
 import infra.core.serializer.support.SerializationDelegate;
 import infra.lang.Nullable;
-import infra.cache.support.CaffeineCacheManager;
 
 /**
  * {@link CacheManager} implementation that lazily builds {@link ConcurrentMapCache}

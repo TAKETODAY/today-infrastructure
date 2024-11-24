@@ -34,8 +34,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import infra.javapoet.CodeBlock;
-import infra.javapoet.CodeBlock.Builder;
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.ValueCodeGenerator;
 import infra.aot.generate.ValueCodeGenerator.Delegate;
@@ -56,6 +54,8 @@ import infra.beans.factory.support.AutowireCandidateQualifier;
 import infra.beans.factory.support.InstanceSupplier;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ReactiveStreams;
+import infra.javapoet.CodeBlock;
+import infra.javapoet.CodeBlock.Builder;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;

@@ -27,12 +27,12 @@ import infra.aop.Advisor;
 import infra.aop.aspectj.AspectJProxyUtils;
 import infra.aop.aspectj.SimpleAspectInstanceFactory;
 import infra.aop.framework.ProxyCreatorSupport;
+import infra.aop.framework.ProxyFactory;
 import infra.aop.support.AopUtils;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
-import infra.aop.framework.ProxyFactory;
 
 /**
  * AspectJ-based proxy factory, allowing for programmatic building

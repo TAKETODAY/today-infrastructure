@@ -17,9 +17,9 @@
 
 package infra.scheduling.config;
 
-import infra.scheduling.support.CronTrigger;
 import infra.scheduling.annotation.Scheduled;
 import infra.scheduling.support.CronExpression;
+import infra.scheduling.support.CronTrigger;
 
 /**
  * {@link TriggerTask} implementation defining a {@code Runnable} to be executed according

@@ -17,9 +17,9 @@
 
 package infra.app.loader.tools;
 
-import java.io.File;
-
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

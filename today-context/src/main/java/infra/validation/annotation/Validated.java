@@ -23,9 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.validation.Errors;
 import infra.validation.SmartValidator;
 import infra.validation.beanvalidation.InfraValidatorAdapter;
-import infra.validation.Errors;
 import infra.validation.beanvalidation.MethodValidationPostProcessor;
 
 /**

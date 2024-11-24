@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import infra.context.ConfigurableApplicationContext;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.Converter;
@@ -32,7 +33,6 @@ import infra.core.conversion.GenericConverter;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.lang.Nullable;
-import infra.context.ConfigurableApplicationContext;
 import infra.tests.sample.beans.ResourceTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;

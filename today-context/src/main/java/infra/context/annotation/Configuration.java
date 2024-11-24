@@ -23,12 +23,12 @@ import java.lang.annotation.Target;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Value;
+import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.annotation.AliasFor;
 import infra.core.env.Environment;
-import infra.stereotype.Component;
-import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.scheduling.annotation.EnableAsync;
 import infra.scheduling.annotation.EnableScheduling;
+import infra.stereotype.Component;
 
 /**
  * Indicates that a class declares one or more {@link Component @Component} methods and

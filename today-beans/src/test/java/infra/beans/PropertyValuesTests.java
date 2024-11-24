@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import infra.beans.PropertyValue;
-import infra.beans.PropertyValues;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

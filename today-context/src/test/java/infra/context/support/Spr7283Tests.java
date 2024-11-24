@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.context.support.ClassPathXmlApplicationContext;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -19,15 +19,10 @@ package infra.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.parsing.BeanDefinitionParsingException;
-import infra.beans.factory.parsing.FailFastProblemReporter;
-import infra.beans.factory.parsing.Location;
-import infra.beans.factory.parsing.Problem;
 import infra.core.io.DescriptiveResource;
 import infra.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;

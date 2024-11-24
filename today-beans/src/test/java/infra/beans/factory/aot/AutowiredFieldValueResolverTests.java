@@ -19,17 +19,16 @@ package infra.beans.factory.aot;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.UnsatisfiedDependencyException;
-import infra.beans.factory.aot.AutowiredFieldValueResolver;
-import infra.beans.factory.config.DependencyDescriptor;
-import infra.beans.factory.support.StandardBeanFactory;
-import infra.beans.factory.support.RegisteredBean;
-import infra.beans.factory.support.RootBeanDefinition;
-import infra.util.function.ThrowingConsumer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import infra.beans.factory.UnsatisfiedDependencyException;
+import infra.beans.factory.config.DependencyDescriptor;
+import infra.beans.factory.support.RegisteredBean;
+import infra.beans.factory.support.RootBeanDefinition;
+import infra.beans.factory.support.StandardBeanFactory;
+import infra.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

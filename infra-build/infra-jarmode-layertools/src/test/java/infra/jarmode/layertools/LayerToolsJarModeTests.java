@@ -38,7 +38,6 @@ import infra.core.io.ClassPathResource;
 import infra.util.FileCopyUtils;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link LayerToolsJarMode}.

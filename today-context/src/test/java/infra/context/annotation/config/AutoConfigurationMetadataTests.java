@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import infra.context.annotation.config.AutoConfigurationMetadata;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -20,7 +20,6 @@ package infra.beans.factory.xml;
 import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.StandardEnvironment;
 import infra.core.io.ClassPathResource;

@@ -26,13 +26,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
-import infra.scheduling.config.FixedDelayTask;
-import infra.scheduling.config.OneTimeTask;
-import infra.scheduling.config.ScheduledTask;
-import infra.scheduling.config.ScheduledTaskRegistrar;
-import infra.scheduling.config.Task;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

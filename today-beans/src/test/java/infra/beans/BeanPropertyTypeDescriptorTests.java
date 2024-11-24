@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.beans.BeanProperty;
 import infra.core.TypeDescriptor;
 import infra.reflect.PropertyAccessor;
 import infra.util.LinkedMultiValueMap;

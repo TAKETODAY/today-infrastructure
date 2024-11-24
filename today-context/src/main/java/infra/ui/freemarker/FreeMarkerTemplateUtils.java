@@ -20,9 +20,9 @@ package infra.ui.freemarker;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import infra.mail.MailPreparationException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import infra.mail.MailPreparationException;
 
 /**
  * Utility class for working with FreeMarker.

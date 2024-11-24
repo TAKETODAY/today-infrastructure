@@ -19,12 +19,12 @@ package infra.ui.freemarker;
 
 import java.io.IOException;
 
-import infra.beans.factory.FactoryBean;
-import infra.beans.factory.InitializingBean;
-import infra.lang.Nullable;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
+import infra.beans.factory.FactoryBean;
+import infra.beans.factory.InitializingBean;
 import infra.context.ResourceLoaderAware;
+import infra.lang.Nullable;
 
 /**
  * Factory bean that creates a FreeMarker Configuration and provides it as

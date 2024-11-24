@@ -39,12 +39,12 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 import infra.stereotype.Component;
 import infra.stereotype.Controller;
 import infra.stereotype.Repository;
 import infra.stereotype.Service;
+import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 
 /**
  * A bean definition scanner that detects bean candidates on the classpath,

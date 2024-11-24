@@ -19,8 +19,6 @@ package infra.beans.propertyeditors;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.propertyeditors.StringArrayPropertyEditor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

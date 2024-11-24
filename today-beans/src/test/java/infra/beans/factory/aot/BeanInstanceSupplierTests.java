@@ -42,8 +42,6 @@ import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import infra.beans.factory.aot.AutowiredArguments;
-import infra.beans.factory.aot.BeanInstanceSupplier;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import infra.beans.factory.config.DependencyDescriptor;

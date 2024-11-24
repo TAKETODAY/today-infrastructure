@@ -26,12 +26,12 @@ import java.lang.annotation.Target;
 import java.util.concurrent.Callable;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
-import infra.core.annotation.AliasFor;
-import infra.cache.Cache;
 import infra.cache.interceptor.SimpleCacheResolver;
+import infra.core.annotation.AliasFor;
 
 /**
  * Annotation indicating that the result of invoking a method (or all methods

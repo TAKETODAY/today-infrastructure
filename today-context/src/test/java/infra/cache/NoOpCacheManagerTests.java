@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import infra.cache.Cache;
-import infra.cache.CacheManager;
 import infra.cache.support.NoOpCacheManager;
 
 import static org.assertj.core.api.Assertions.assertThat;

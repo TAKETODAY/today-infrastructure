@@ -26,6 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.SimpleHash;
+import freemarker.template.TemplateException;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
@@ -34,12 +40,6 @@ import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.SimpleHash;
-import freemarker.template.TemplateException;
 
 /**
  * Factory that configures a FreeMarker Configuration. Can be used standalone, but

@@ -1,7 +1,5 @@
 package infra.scripting.config
 
-import infra.scripting.config.ITestBean
-
 class TestBean implements ITestBean {
 
 	ITestBean otherBean

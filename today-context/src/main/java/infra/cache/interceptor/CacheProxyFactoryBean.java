@@ -19,6 +19,7 @@ package infra.cache.interceptor;
 
 import infra.aop.Pointcut;
 import infra.aop.framework.AbstractSingletonProxyFactoryBean;
+import infra.aop.framework.ProxyFactoryBean;
 import infra.aop.support.DefaultPointcutAdvisor;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
@@ -26,7 +27,6 @@ import infra.beans.factory.SmartInitializingSingleton;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.cache.CacheManager;
 import infra.cache.annotation.Cacheable;
-import infra.aop.framework.ProxyFactoryBean;
 
 /**
  * Proxy factory bean for simplified declarative caching handling.

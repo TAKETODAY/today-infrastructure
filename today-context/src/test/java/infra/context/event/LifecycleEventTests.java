@@ -26,8 +26,6 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationEvent;
 import infra.context.ApplicationListener;
 import infra.context.Lifecycle;
-import infra.context.event.ContextStartedEvent;
-import infra.context.event.ContextStoppedEvent;
 import infra.context.support.StaticApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

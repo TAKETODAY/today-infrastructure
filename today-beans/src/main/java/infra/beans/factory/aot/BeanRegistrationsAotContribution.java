@@ -21,10 +21,6 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
-import infra.javapoet.ClassName;
-import infra.javapoet.CodeBlock;
-import infra.javapoet.CodeBlock.Builder;
-import infra.javapoet.MethodSpec;
 import infra.aot.generate.GeneratedClass;
 import infra.aot.generate.GeneratedMethod;
 import infra.aot.generate.GeneratedMethods;
@@ -36,6 +32,10 @@ import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.javapoet.ClassName;
+import infra.javapoet.CodeBlock;
+import infra.javapoet.CodeBlock.Builder;
+import infra.javapoet.MethodSpec;
 
 /**
  * AOT contribution from a {@link BeanRegistrationsAotProcessor} used to

@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import infra.app.loader.zip.AssertFileChannelDataBlocksClosed;
-import infra.test.system.CapturedOutput;
-import infra.test.system.OutputCaptureExtension;
+import infra.app.test.system.CapturedOutput;
+import infra.app.test.system.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -31,8 +31,8 @@ import infra.core.task.TaskExecutor;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ErrorHandler;
 import infra.scheduling.support.TaskUtils;
+import infra.util.ErrorHandler;
 
 /**
  * Simple implementation of the {@link ApplicationEventMulticaster} interface.

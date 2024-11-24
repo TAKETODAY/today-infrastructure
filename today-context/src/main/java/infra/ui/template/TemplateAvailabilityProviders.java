@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import infra.context.ApplicationContext;
 import infra.core.env.Environment;
 import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.lang.VisibleForTesting;
-import infra.context.ApplicationContext;
 
 /**
  * Collection of {@link TemplateAvailabilityProvider} beans that can be used to check

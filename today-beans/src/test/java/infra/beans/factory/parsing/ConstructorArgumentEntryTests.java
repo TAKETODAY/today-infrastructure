@@ -19,8 +19,6 @@ package infra.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.parsing.ConstructorArgumentEntry;
-
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**

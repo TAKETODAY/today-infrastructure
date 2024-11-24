@@ -19,7 +19,6 @@ package infra.beans.factory;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConstructorArgumentValues;
 import infra.beans.factory.support.RootBeanDefinition;

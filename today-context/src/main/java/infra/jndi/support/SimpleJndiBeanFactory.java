@@ -36,12 +36,12 @@ import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.context.annotation.CommonAnnotationBeanPostProcessor;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.jndi.JndiLocatorSupport;
 import infra.jndi.TypeMismatchNamingException;
 import infra.lang.Nullable;
-import infra.context.annotation.CommonAnnotationBeanPostProcessor;
 
 /**
  * Simple JNDI-based implementation of Framework's

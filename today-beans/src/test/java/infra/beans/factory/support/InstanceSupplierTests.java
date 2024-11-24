@@ -21,9 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import infra.beans.factory.support.InstanceSupplier;
-import infra.beans.factory.support.RegisteredBean;
-import infra.beans.factory.support.StandardBeanFactory;
 import infra.util.function.ThrowingBiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;

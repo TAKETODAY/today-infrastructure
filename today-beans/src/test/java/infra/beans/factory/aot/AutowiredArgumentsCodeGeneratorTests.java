@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import infra.beans.factory.aot.AutowiredArgumentsCodeGenerator;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -23,8 +23,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 import infra.lang.Nullable;
 import infra.scheduling.SchedulingAwareRunnable;
-import infra.util.ReflectionUtils;
 import infra.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
+import infra.util.ReflectionUtils;
 
 /**
  * Variant of {@link MethodInvokingRunnable} meant to be used for processing

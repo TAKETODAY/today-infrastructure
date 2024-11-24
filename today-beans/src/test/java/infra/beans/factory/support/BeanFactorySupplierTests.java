@@ -22,10 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import infra.beans.factory.BeanCreationException;
-import infra.beans.factory.support.AbstractAutowireCapableBeanFactory;
-import infra.beans.factory.support.InstanceSupplier;
-import infra.beans.factory.support.RootBeanDefinition;
-import infra.beans.factory.support.StandardBeanFactory;
 import infra.util.function.ThrowingSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;

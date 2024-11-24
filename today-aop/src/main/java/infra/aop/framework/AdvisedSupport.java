@@ -31,10 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.lang.Assert;
-import infra.lang.Nullable;
-import infra.util.ClassUtils;
-import infra.util.CollectionUtils;
 import infra.aop.Advisor;
 import infra.aop.DefaultInterceptorChainFactory;
 import infra.aop.DynamicIntroductionAdvice;
@@ -49,6 +45,10 @@ import infra.aop.support.DefaultPointcutAdvisor;
 import infra.aop.support.RuntimeMethodInterceptor;
 import infra.aop.target.EmptyTargetSource;
 import infra.aop.target.SingletonTargetSource;
+import infra.lang.Assert;
+import infra.lang.Nullable;
+import infra.util.ClassUtils;
+import infra.util.CollectionUtils;
 
 /**
  * Base class for AOP proxy configuration managers.

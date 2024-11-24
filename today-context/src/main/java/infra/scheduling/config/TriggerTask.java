@@ -18,8 +18,8 @@
 package infra.scheduling.config;
 
 import infra.lang.Assert;
-import infra.scheduling.Trigger;
 import infra.scheduling.TaskScheduler;
+import infra.scheduling.Trigger;
 
 /**
  * {@link Task} implementation defining a {@code Runnable} to be executed

@@ -17,10 +17,10 @@
 
 package infra.beans.factory.aot;
 
-import infra.javapoet.ClassName;
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.MethodReference;
 import infra.beans.factory.support.InstanceSupplier;
+import infra.javapoet.ClassName;
 import infra.util.function.ThrowingBiFunction;
 
 /**

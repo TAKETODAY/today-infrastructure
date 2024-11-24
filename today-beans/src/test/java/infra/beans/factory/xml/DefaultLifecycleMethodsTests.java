@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.support.StandardBeanFactory;
-import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;

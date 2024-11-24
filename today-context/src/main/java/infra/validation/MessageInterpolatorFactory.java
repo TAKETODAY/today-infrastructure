@@ -22,8 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import infra.beans.BeansException;
 import infra.beans.BeanUtils;
+import infra.beans.BeansException;
 import infra.context.MessageSource;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;

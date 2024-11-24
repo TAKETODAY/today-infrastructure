@@ -19,8 +19,6 @@ package infra.validation.method;
 
 import org.junit.jupiter.api.Test;
 
-import infra.validation.method.EmptyMethodValidationResult;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

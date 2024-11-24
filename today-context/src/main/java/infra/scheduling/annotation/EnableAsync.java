@@ -26,9 +26,9 @@ import java.lang.annotation.Target;
 
 import infra.aop.interceptor.AsyncUncaughtExceptionHandler;
 import infra.context.annotation.AdviceMode;
+import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.core.Ordered;
-import infra.context.annotation.Configuration;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskExecutor;
 

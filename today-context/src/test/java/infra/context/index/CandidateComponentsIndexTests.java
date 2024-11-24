@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 
-import infra.context.index.CandidateComponentsIndex;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

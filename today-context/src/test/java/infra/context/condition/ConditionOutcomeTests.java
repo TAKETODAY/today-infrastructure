@@ -19,8 +19,6 @@ package infra.context.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.condition.ConditionOutcome;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

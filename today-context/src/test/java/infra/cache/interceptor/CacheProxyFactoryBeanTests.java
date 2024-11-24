@@ -27,11 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.cache.annotation.EnableCaching;
 import infra.cache.concurrent.ConcurrentMapCacheManager;
-import infra.cache.interceptor.CacheOperation;
-import infra.cache.interceptor.CacheOperationSource;
-import infra.cache.interceptor.CacheProxyFactoryBean;
-import infra.cache.interceptor.CacheableOperation;
-import infra.cache.interceptor.NameMatchCacheOperationSource;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;

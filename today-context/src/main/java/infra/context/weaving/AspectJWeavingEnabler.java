@@ -27,11 +27,11 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
+import infra.context.annotation.LoadTimeWeavingConfiguration;
 import infra.core.Ordered;
 import infra.instrument.classloading.InstrumentationLoadTimeWeaver;
 import infra.instrument.classloading.LoadTimeWeaver;
 import infra.lang.Nullable;
-import infra.context.annotation.LoadTimeWeavingConfiguration;
 
 /**
  * Post-processor that registers AspectJ's

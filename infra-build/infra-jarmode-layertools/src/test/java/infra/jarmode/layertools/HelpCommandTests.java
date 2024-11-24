@@ -37,7 +37,6 @@ import java.util.zip.ZipOutputStream;
 import infra.core.io.ClassPathResource;
 import infra.util.FileCopyUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**

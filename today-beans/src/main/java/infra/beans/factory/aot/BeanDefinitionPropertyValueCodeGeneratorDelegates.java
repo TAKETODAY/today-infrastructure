@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import infra.javapoet.AnnotationSpec;
-import infra.javapoet.CodeBlock;
 import infra.aot.generate.GeneratedMethod;
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.ValueCodeGenerator;
@@ -38,6 +36,8 @@ import infra.beans.factory.config.TypedStringValue;
 import infra.beans.factory.support.ManagedList;
 import infra.beans.factory.support.ManagedMap;
 import infra.beans.factory.support.ManagedSet;
+import infra.javapoet.AnnotationSpec;
+import infra.javapoet.CodeBlock;
 
 /**
  * Code generator {@link Delegate} for common bean definition property values.

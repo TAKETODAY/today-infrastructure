@@ -22,9 +22,6 @@ import org.junit.jupiter.api.Test;
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 
-import infra.jndi.JndiTemplate;
-import infra.jndi.TypeMismatchNamingException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;

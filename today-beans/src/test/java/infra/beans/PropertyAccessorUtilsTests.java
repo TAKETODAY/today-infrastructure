@@ -19,8 +19,6 @@ package infra.beans;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.PropertyAccessorUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

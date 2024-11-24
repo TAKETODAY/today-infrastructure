@@ -27,8 +27,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.context.annotation.config.ImportCandidates;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

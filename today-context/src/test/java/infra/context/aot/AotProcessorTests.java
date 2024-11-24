@@ -23,10 +23,9 @@ package infra.context.aot;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import infra.context.aot.AbstractAotProcessor;
-import infra.context.aot.AbstractAotProcessor.Settings;
-
 import java.nio.file.Path;
+
+import infra.context.aot.AbstractAotProcessor.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

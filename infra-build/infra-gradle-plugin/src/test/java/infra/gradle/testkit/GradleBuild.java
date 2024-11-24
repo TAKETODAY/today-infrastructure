@@ -47,9 +47,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 
+import infra.app.ApplicationAotProcessor;
 import infra.app.loader.tools.LaunchScript;
 import infra.core.ApplicationTemp;
-import infra.app.ApplicationAotProcessor;
 import infra.lang.VersionExtractor;
 import infra.util.ClassUtils;
 import infra.util.FileCopyUtils;

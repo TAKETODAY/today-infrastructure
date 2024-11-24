@@ -58,7 +58,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * Abstract class for {@link Packager} based tests.
@@ -282,7 +281,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     expectedLayers.add("  - 'APP-INF/classpath.idx'");
     expectedLayers.add("  - 'APP-INF/layers.idx'");
     expectedLayers.add("  - 'META-INF/'");
-    expectedLayers.add("  - 'cn/'");
+    expectedLayers.add("  - 'infra/'");
     expectedLayers.add("- '0001':");
     expectedLayers.add("  - 'APP-INF/lib/" + libJarFile1.getName() + "'");
     expectedLayers.add("- '0002':");
@@ -310,7 +309,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     expectedLayers.add("- 'default':");
     expectedLayers.add("  - 'APP-INF/'");
     expectedLayers.add("  - 'META-INF/'");
-    expectedLayers.add("  - 'cn/'");
+    expectedLayers.add("  - 'infra/'");
     assertThat(layersIndex.split("\\n"))
             .containsExactly(expectedLayers.stream().map((s) -> s.replace('\'', '"')).toArray(String[]::new));
   }

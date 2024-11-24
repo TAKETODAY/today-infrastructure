@@ -17,6 +17,10 @@
 
 package infra.app.loader.tools;
 
+import org.zeroturnaround.zip.FileSource;
+import org.zeroturnaround.zip.ZipEntrySource;
+import org.zeroturnaround.zip.ZipUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,10 +32,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import org.zeroturnaround.zip.FileSource;
-import org.zeroturnaround.zip.ZipEntrySource;
-import org.zeroturnaround.zip.ZipUtil;
 
 /**
  * @author Phillip Webb

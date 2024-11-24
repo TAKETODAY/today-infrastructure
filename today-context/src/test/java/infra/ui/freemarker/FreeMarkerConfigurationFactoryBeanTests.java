@@ -25,6 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.io.ByteArrayResource;
@@ -32,11 +37,6 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;

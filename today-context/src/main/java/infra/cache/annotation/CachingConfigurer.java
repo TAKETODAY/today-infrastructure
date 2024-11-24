@@ -22,9 +22,9 @@ import infra.cache.interceptor.CacheErrorHandler;
 import infra.cache.interceptor.CacheResolver;
 import infra.cache.interceptor.KeyGenerator;
 import infra.cache.interceptor.SimpleCacheErrorHandler;
-import infra.lang.Nullable;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.lang.Nullable;
 
 /**
  * Interface to be implemented by @{@link Configuration

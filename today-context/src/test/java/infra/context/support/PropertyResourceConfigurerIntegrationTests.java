@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 
+import infra.aop.framework.ProxyFactoryBean;
 import infra.beans.PropertyValues;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.BeanInitializationException;
@@ -30,7 +31,6 @@ import infra.beans.factory.config.RuntimeBeanReference;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
 import infra.util.StringUtils;
-import infra.aop.framework.ProxyFactoryBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

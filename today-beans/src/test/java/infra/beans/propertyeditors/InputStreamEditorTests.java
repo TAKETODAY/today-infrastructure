@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import infra.beans.propertyeditors.InputStreamEditor;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -24,7 +24,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import infra.beans.propertyeditors.PathEditor;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

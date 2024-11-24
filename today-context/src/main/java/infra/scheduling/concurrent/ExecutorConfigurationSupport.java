@@ -34,13 +34,13 @@ import infra.context.ApplicationListener;
 import infra.context.Lifecycle;
 import infra.context.SmartLifecycle;
 import infra.context.event.ContextClosedEvent;
+import infra.context.support.DefaultLifecycleProcessor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.VirtualThreadTaskExecutor;
+import infra.jndi.JndiLocatorDelegate;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.context.support.DefaultLifecycleProcessor;
-import infra.jndi.JndiLocatorDelegate;
 import infra.util.CustomizableThreadCreator;
 
 /**

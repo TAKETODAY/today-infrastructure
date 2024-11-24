@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
-import infra.instrument.classloading.ReflectiveLoadTimeWeaver;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

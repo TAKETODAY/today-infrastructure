@@ -17,8 +17,8 @@
 
 package infra.beans.factory.aot;
 
-import infra.javapoet.ClassName;
 import infra.aot.generate.GeneratedMethods;
+import infra.javapoet.ClassName;
 
 /**
  * Interface that can be used to configure the code that will be generated to

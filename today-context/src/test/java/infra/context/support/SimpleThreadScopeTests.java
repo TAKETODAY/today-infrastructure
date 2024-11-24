@@ -22,10 +22,11 @@ package infra.context.support;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
-import infra.beans.testfixture.beans.TestBean;
-import infra.context.ApplicationContext;
 
 import java.util.concurrent.TimeUnit;
+
+import infra.beans.testfixture.beans.TestBean;
+import infra.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

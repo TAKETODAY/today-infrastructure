@@ -27,8 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import infra.context.annotation.config.AutoConfigurationReplacements;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

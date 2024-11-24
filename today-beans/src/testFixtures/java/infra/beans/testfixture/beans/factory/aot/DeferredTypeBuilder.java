@@ -20,8 +20,8 @@ package infra.beans.testfixture.beans.factory.aot;
 import java.util.function.Consumer;
 
 import infra.javapoet.TypeSpec;
-import infra.lang.Nullable;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * {@link TypeSpec.Builder} {@link Consumer} that can be used to defer the to

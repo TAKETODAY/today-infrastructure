@@ -24,10 +24,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import infra.beans.factory.annotation.Autowired;
-import infra.beans.factory.annotation.ParameterResolutionDelegate;
-import infra.beans.factory.annotation.Qualifier;
-import infra.beans.factory.annotation.Value;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.util.ClassUtils;

@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import infra.beans.PropertyValues;
-import infra.beans.testfixture.beans.TestBean;
 import infra.beans.factory.support.PropertiesBeanDefinitionReader;
+import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.testfixture.AbstractApplicationContextTests;
 import infra.context.testfixture.beans.ACATester;

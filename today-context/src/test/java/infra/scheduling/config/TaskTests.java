@@ -19,9 +19,6 @@ package infra.scheduling.config;
 
 import org.junit.jupiter.api.Test;
 
-import infra.scheduling.config.Task;
-import infra.scheduling.config.TaskExecutionOutcome;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

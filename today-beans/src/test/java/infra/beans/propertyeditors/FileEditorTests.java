@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.beans.PropertyEditor;
 import java.io.File;
 
-import infra.beans.propertyeditors.FileEditor;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

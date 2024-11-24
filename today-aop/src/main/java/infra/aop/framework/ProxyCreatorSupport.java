@@ -20,9 +20,9 @@ package infra.aop.framework;
 import java.io.Serial;
 import java.util.ArrayList;
 
+import infra.aop.AdvisedSupportListener;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.aop.AdvisedSupportListener;
 
 /**
  * Base class for proxy factories.

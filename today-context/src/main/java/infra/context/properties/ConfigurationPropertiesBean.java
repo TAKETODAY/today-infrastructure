@@ -35,6 +35,7 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
+import infra.context.properties.bind.BindConstructorProvider;
 import infra.context.properties.bind.BindMethod;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
@@ -47,7 +48,6 @@ import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 import infra.validation.annotation.Validated;
-import infra.context.properties.bind.BindConstructorProvider;
 
 /**
  * Provides access to {@link ConfigurationProperties @ConfigurationProperties} bean

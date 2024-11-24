@@ -36,12 +36,12 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.Trigger;
-import infra.scheduling.concurrent.ConcurrentTaskScheduler;
-import infra.scheduling.support.CronTrigger;
-import infra.util.CollectionUtils;
 import infra.scheduling.annotation.EnableAsync;
 import infra.scheduling.annotation.Scheduled;
 import infra.scheduling.annotation.SchedulingConfigurer;
+import infra.scheduling.concurrent.ConcurrentTaskScheduler;
+import infra.scheduling.support.CronTrigger;
+import infra.util.CollectionUtils;
 
 /**
  * Helper bean for registering tasks with a {@link TaskScheduler}, typically using cron

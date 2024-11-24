@@ -20,9 +20,9 @@
 
 package infra.context.event.test;
 
-import infra.context.ApplicationEvent;
-
 import java.util.UUID;
+
+import infra.context.ApplicationEvent;
 
 /**
  * A basic test event that can be uniquely identified easily.

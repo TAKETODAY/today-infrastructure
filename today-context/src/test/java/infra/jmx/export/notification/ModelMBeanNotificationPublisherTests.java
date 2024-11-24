@@ -27,8 +27,6 @@ import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
 
 import infra.jmx.export.InfraModelMBean;
-import infra.jmx.export.notification.ModelMBeanNotificationPublisher;
-import infra.jmx.export.notification.NotificationPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

@@ -19,8 +19,6 @@ package infra.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
-import infra.beans.factory.parsing.NullSourceExtractor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -1,8 +1,8 @@
 package infra.scripting.groovy
 
-import TestBean
 import ApplicationContext
 import ApplicationContextAware
+import TestBean
 import infra.scripting.ContextScriptBean
 
 class GroovyScriptBean implements ContextScriptBean, ApplicationContextAware {

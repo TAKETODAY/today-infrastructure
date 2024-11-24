@@ -19,11 +19,11 @@ package infra.validation;
 
 import java.beans.PropertyEditor;
 
+import infra.beans.BeanUtils;
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.PropertyAccessor;
 import infra.beans.PropertyAccessorUtils;
 import infra.beans.PropertyEditorRegistry;
-import infra.beans.BeanUtils;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.ConvertingPropertyEditorAdapter;

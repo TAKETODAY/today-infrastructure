@@ -23,13 +23,13 @@ import java.util.concurrent.ThreadFactory;
 import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
+import infra.jndi.JndiAccessor;
 import infra.jndi.JndiLocatorDelegate;
+import infra.jndi.JndiLocatorSupport;
 import infra.jndi.JndiTemplate;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jndi.JndiAccessor;
-import infra.jndi.JndiLocatorSupport;
 
 /**
  * JNDI-based variant of {@link CustomizableThreadFactory}, performing a default lookup

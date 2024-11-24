@@ -17,10 +17,6 @@
 
 package infra.jmx.export.annotation;
 
-import infra.jmx.export.annotation.ManagedAttribute;
-import infra.jmx.export.annotation.ManagedMetric;
-import infra.jmx.export.annotation.ManagedOperation;
-import infra.jmx.export.annotation.ManagedResource;
 import infra.jmx.support.MetricType;
 
 /**

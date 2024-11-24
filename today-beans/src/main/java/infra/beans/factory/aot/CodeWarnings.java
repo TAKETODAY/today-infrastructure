@@ -24,13 +24,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import infra.core.ResolvableType;
 import infra.javapoet.AnnotationSpec;
 import infra.javapoet.AnnotationSpec.Builder;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.FieldSpec;
 import infra.javapoet.MethodSpec;
 import infra.javapoet.TypeSpec;
-import infra.core.ResolvableType;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 

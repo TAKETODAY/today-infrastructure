@@ -23,6 +23,10 @@ import org.codehaus.groovy.control.customizers.CompilationCustomizer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
+import groovy.lang.Script;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
@@ -33,14 +37,10 @@ import infra.lang.Nullable;
 import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptFactory;
 import infra.scripting.ScriptSource;
+import infra.scripting.support.ScriptFactoryPostProcessor;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyObject;
-import groovy.lang.MetaClass;
-import groovy.lang.Script;
-import infra.scripting.support.ScriptFactoryPostProcessor;
 
 /**
  * {@link ScriptFactory} implementation

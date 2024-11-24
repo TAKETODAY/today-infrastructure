@@ -17,6 +17,8 @@
 
 package infra.app.loader.tools;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,8 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 
 /**
  * Tests for {@link ImagePackager}

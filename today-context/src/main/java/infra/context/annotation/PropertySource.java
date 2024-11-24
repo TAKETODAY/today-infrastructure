@@ -25,11 +25,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.core.io.PropertySourceFactory;
-import infra.core.io.DefaultPropertySourceFactory;
-import infra.core.io.Resource;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
+import infra.core.io.DefaultPropertySourceFactory;
+import infra.core.io.PropertySourceFactory;
+import infra.core.io.Resource;
 import infra.core.io.ResourcePropertySource;
 
 /**
