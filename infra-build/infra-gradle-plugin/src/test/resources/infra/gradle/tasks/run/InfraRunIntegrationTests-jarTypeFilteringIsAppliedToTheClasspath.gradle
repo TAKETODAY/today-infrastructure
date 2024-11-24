@@ -1,0 +1,17 @@
+package infra.gradle.tasks.run
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+repositories {
+	flatDir {
+		dirs 'repository'
+	}
+}
+
+dependencies {
+	implementation(name: "standard")
+	implementation(name: "starter")
+}

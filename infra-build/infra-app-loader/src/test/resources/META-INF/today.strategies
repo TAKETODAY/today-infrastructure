@@ -16,5 +16,5 @@
 #
 
 # Jar Modes
-cn.taketoday.app.loader.jarmode.JarMode=\
-cn.taketoday.app.loader.jarmode.TestJarMode
+infra.app.loader.jarmode.JarMode=\
+infra.app.loader.jarmode.TestJarMode

@@ -17,7 +17,7 @@
 
 <configuration>
   <contextName>Netty App Demo</contextName>
-  <include resource="cn/taketoday/framework/logging/logback/base.xml" />
+  <include resource="infra/logging/logback/base.xml" />
 
   <infra-profile name="dev">
 

@@ -20,17 +20,17 @@
 
 package demo.config;
 
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.web.HandlerInterceptor;
-import cn.taketoday.web.config.InterceptorRegistry;
-import cn.taketoday.web.config.WebMvcConfigurer;
+import infra.context.annotation.ComponentScan;
+import infra.context.annotation.Configuration;
+import infra.web.HandlerInterceptor;
+import infra.web.config.InterceptorRegistry;
+import infra.web.config.WebMvcConfigurer;
 
 /**
  * @author TODAY 2021/8/29 22:20
  */
 @Configuration
-@ComponentScan("cn.taketoday.web.demo")
+@ComponentScan("infra.web.demo")
 public class AppConfig implements WebMvcConfigurer {
 
   HandlerInterceptor interceptor;

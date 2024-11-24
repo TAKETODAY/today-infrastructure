@@ -8,8 +8,8 @@ defining your own global format.
 To do that, ensure that Infra does not register default formatters. Instead, register
 formatters manually with the help of:
 
-* `cn.taketoday.format.datetime.standard.DateTimeFormatterRegistrar`
-* `cn.taketoday.format.datetime.DateFormatterRegistrar`
+* `infra.format.datetime.standard.DateTimeFormatterRegistrar`
+* `infra.format.datetime.DateFormatterRegistrar`
 
 For example, the following configuration registers a global `yyyyMMdd` format:
 

@@ -7,9 +7,9 @@
     <setting name="mapUnderscoreToCamelCase" value="true" />
   </settings>
   <typeAliases>
-    <package name="cn.taketoday.orm.mybatis.auto.domain" />
+    <package name="infra.orm.mybatis.auto.domain" />
   </typeAliases>
   <mappers>
-    <mapper resource="cn/taketoday/orm/mybatis/CityMapper.xml" />
+    <mapper resource="infra/orm/mybatis/CityMapper.xml" />
   </mappers>
 </configuration>

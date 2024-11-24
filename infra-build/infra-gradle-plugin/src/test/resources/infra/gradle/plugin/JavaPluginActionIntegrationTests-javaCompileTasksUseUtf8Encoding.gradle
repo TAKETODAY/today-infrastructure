@@ -1,0 +1,18 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application' version '{version}'
+	id 'java'
+}
+
+infraApplication {
+	mainClass = "com.example.Main"
+}
+
+gradle.taskGraph.whenReady {
+	gradle.taskGraph.allTasks.each {
+		if (it instanceof JavaCompile) {
+			println "${it.name} = ${it.options.encoding}"
+		}
+	}
+}

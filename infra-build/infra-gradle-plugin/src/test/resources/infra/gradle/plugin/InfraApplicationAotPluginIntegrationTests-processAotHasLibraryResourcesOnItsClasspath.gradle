@@ -1,0 +1,17 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application'
+	id 'infra.application.aot'
+	id 'java'
+}
+
+dependencies {
+	implementation project(":library")
+}
+
+task('processAotClasspath') {
+	doFirst {
+		tasks.findByName('processAot').classpath.files.each { println it }
+	}
+}

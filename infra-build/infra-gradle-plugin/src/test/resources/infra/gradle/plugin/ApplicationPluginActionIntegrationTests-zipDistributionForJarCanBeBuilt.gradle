@@ -1,0 +1,11 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'java'
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.ExampleApplication'
+}

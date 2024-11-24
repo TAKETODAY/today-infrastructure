@@ -1,0 +1,11 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application' version '{version}'
+	id 'java'
+	id 'application'
+}
+
+tasks.configureEach {
+	println "Configuring ${it.path}"
+}

@@ -1,7 +1,7 @@
 [[jdbc-object]]
 = Modeling JDBC Operations as Java Objects
 
-The `cn.taketoday.jdbc.object` package contains classes that let you access
+The `infra.jdbc.object` package contains classes that let you access
 the database in a more object-oriented manner. As an example, you can run queries
 and get the results back as a list that contains business objects with the relational
 column data mapped to the properties of the business object. You can also run stored
@@ -140,8 +140,8 @@ Java::
 ----
 import java.sql.Types;
 import javax.sql.DataSource;
-import cn.taketoday.jdbc.core.SqlParameter;
-import cn.taketoday.jdbc.object.SqlUpdate;
+import infra.jdbc.core.SqlParameter;
+import infra.jdbc.object.SqlUpdate;
 
 public class UpdateCreditRating extends SqlUpdate {
 
@@ -228,9 +228,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.jdbc.core.SqlOutParameter;
-import cn.taketoday.jdbc.object.StoredProcedure;
+import infra.beans.factory.annotation.Autowired;
+import infra.jdbc.core.SqlOutParameter;
+import infra.jdbc.object.StoredProcedure;
 
 public class StoredProcedureDao {
 
@@ -283,8 +283,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import cn.taketoday.jdbc.core.SqlOutParameter;
-import cn.taketoday.jdbc.object.StoredProcedure;
+import infra.jdbc.core.SqlOutParameter;
+import infra.jdbc.object.StoredProcedure;
 
 public class TitlesAndGenresStoredProcedure extends StoredProcedure {
 
@@ -323,7 +323,7 @@ Java::
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.foo.domain.Title;
-import cn.taketoday.jdbc.core.RowMapper;
+import infra.jdbc.core.RowMapper;
 
 public final class TitleMapper implements RowMapper<Title> {
 
@@ -350,7 +350,7 @@ Java::
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.foo.domain.Genre;
-import cn.taketoday.jdbc.core.RowMapper;
+import infra.jdbc.core.RowMapper;
 
 public final class GenreMapper implements RowMapper<Genre> {
 
@@ -378,9 +378,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import oracle.jdbc.OracleTypes;
-import cn.taketoday.jdbc.core.SqlOutParameter;
-import cn.taketoday.jdbc.core.SqlParameter;
-import cn.taketoday.jdbc.object.StoredProcedure;
+import infra.jdbc.core.SqlOutParameter;
+import infra.jdbc.core.SqlParameter;
+import infra.jdbc.object.StoredProcedure;
 
 public class TitlesAfterDateStoredProcedure extends StoredProcedure {
 

@@ -65,7 +65,7 @@ xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
 [[codecs]]
 == 编解码器
 
-`cn.taketoday.core.codec` 包提供了以下策略接口：
+`infra.core.codec` 包提供了以下策略接口：
 
 . `Encoder` 用于将 `Publisher<T>` 编码为数据缓冲区流。
 . `Decoder` 用于将 `Publisher<DataBuffer>` 解码为更高级别对象流。

@@ -19,10 +19,10 @@
  */
 package test.demo.config;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.stereotype.Singleton;
+import infra.context.annotation.Configuration;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.stereotype.Singleton;
 import jakarta.annotation.PostConstruct;
 
 /**

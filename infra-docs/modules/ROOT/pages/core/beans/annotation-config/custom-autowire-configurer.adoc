@@ -9,7 +9,7 @@ The following example shows how to use `CustomAutowireConfigurer`:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="customAutowireConfigurer"
-    class="cn.taketoday.beans.factory.annotation.CustomAutowireConfigurer">
+    class="infra.beans.factory.annotation.CustomAutowireConfigurer">
   <property name="customQualifierTypes">
     <set>
       <value>example.CustomQualifier</value>

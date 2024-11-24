@@ -22,36 +22,36 @@ dependencies {
 gradlePlugin {
   plugins {
     apiDiffPlugin {
-      id = "cn.taketoday.build.api-diff"
-      implementationClass = "cn.taketoday.build.api.ApiDiffPlugin"
+      id = "infra.building.api-diff"
+      implementationClass = "infra.building.api.ApiDiffPlugin"
     }
     bomPlugin {
-      id = "cn.taketoday.bom"
-      implementationClass = "cn.taketoday.build.bom.BomPlugin"
+      id = "infra.bom"
+      implementationClass = "infra.building.bom.BomPlugin"
     }
     conventionsPlugin {
-      id = "cn.taketoday.build.conventions"
-      implementationClass = "cn.taketoday.build.ConventionsPlugin"
+      id = "infra.building.conventions"
+      implementationClass = "infra.building.ConventionsPlugin"
     }
     optionalDependenciesPlugin {
-      id = "cn.taketoday.build.optional-dependencies"
-      implementationClass = "cn.taketoday.build.optional.OptionalDependenciesPlugin"
+      id = "infra.building.optional-dependencies"
+      implementationClass = "infra.building.optional.OptionalDependenciesPlugin"
     }
     runtimeHintsAgentPlugin {
-      id = "cn.taketoday.build.runtimehints-agent"
-      implementationClass = "cn.taketoday.build.hint.RuntimeHintsAgentPlugin"
+      id = "infra.building.runtimehints-agent"
+      implementationClass = "infra.building.hint.RuntimeHintsAgentPlugin"
     }
     integrationTestPlugin {
-      id = "cn.taketoday.integration-test"
-      implementationClass = "cn.taketoday.build.IntegrationTestPlugin"
+      id = "infra.integration-test"
+      implementationClass = "infra.building.IntegrationTestPlugin"
     }
     mavenPluginPlugin {
-      id = "cn.taketoday.maven-plugin"
-      implementationClass = "cn.taketoday.build.maven.MavenPluginPlugin"
+      id = "infra.maven-plugin"
+      implementationClass = "infra.building.maven.MavenPluginPlugin"
     }
     generateAntoraYml {
-      id = 'cn.taketoday.generate-antora-yml'
-      implementationClass = 'cn.taketoday.build.antora.GenerateAntoraYmlPlugin'
+      id = 'infra.generate-antora-yml'
+      implementationClass = 'infra.building.antora.GenerateAntoraYmlPlugin'
     }
   }
 }

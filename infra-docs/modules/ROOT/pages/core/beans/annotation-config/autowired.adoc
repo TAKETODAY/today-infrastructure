@@ -180,7 +180,7 @@ public class MovieRecommender {
 [[beans-factory-ordered]]
 [TIP]
 ====
-Your target beans can implement the `cn.taketoday.core.Ordered` interface or use
+Your target beans can implement the `infra.core.Ordered` interface or use
 the `@Order` or standard `@Priority` annotation if you want items in the array or list
 to be sorted in a specific order. Otherwise, their order follows the registration
 order of the corresponding target bean definitions in the container.

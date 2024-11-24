@@ -1,0 +1,14 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+repositories {
+	flatDir { dirs 'libs' }
+}
+
+dependencies {
+	implementation('cn.taketoday:today-starter')
+}

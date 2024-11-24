@@ -20,9 +20,9 @@
 
 package example.scannable_implicitbasepackage;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ComponentScan;
-import cn.taketoday.context.annotation.Configuration;
+import infra.context.annotation.Bean;
+import infra.context.annotation.ComponentScan;
+import infra.context.annotation.Configuration;
 
 /**
  * @author Phillip Webb

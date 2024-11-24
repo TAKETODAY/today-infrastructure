@@ -20,8 +20,8 @@
 
 package example.scannable;
 
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.stereotype.Component;
+import infra.context.annotation.Lazy;
+import infra.stereotype.Component;
 
 /**
  * @author Mark Fisher

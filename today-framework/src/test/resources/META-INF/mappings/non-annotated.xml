@@ -3,7 +3,7 @@
 				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm https://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/orm_2_1.xsd"
 				 version="2.1">
-	<entity class="cn.taketoday.annotation.config.jpa.mapping.NonAnnotatedEntity">
+	<entity class="infra.annotation.config.jpa.mapping.NonAnnotatedEntity">
 		<table name="NON_ANNOTATED"/>
 		<attributes>
 			<id name="id">

@@ -1,0 +1,10 @@
+package infra.gradle.tasks.run
+
+plugins {
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+infraTestRun {
+	optimizedLaunch = false
+}

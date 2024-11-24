@@ -187,8 +187,8 @@ function render(template, model) {
 ----
 
 Check out the TODAY Framework unit tests,
-{today-framework-code}/today-web/src/test/java/cn/taketoday/web/mockApi/view/script[Java], and
-{today-framework-code}/today-web/src/test/resources/cn/taketoday/web/mockApi/view/script[resources],
+{today-framework-code}/today-web/src/test/java/infra/web/mockApi/view/script[Java], and
+{today-framework-code}/today-web/src/test/resources/infra/web/mockApi/view/script[resources],
 for more configuration examples.
 
 

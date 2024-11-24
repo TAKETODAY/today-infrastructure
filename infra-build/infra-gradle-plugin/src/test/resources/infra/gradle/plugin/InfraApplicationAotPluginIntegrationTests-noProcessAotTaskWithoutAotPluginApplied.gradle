@@ -1,0 +1,12 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application'
+	id 'java'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

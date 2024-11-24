@@ -70,7 +70,7 @@ issue is addressed through support for automatic discovery of default
 `TestExecutionListener` implementations through the `InfraFactoriesLoader` mechanism.
 
 For example, the `today-test` module declares all core default `TestExecutionListener`
-implementations under the `cn.taketoday.test.context.TestExecutionListener` key in
+implementations under the `infra.test.context.TestExecutionListener` key in
 its {today-framework-code}/today-test/src/main/resources/META-INF/spring.factories[`META-INF/spring.factories`
 properties file]. Third-party frameworks and developers can contribute their own
 `TestExecutionListener` implementations to the list of default listeners in the same

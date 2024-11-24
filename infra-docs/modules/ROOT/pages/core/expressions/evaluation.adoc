@@ -22,7 +22,7 @@ String message = (String) exp.getValue();
 ======
 
 The SpEL classes and interfaces you are most likely to use are located in the
-`cn.taketoday.expression` package and its sub-packages, such as `spel.support`.
+`infra.expression` package and its sub-packages, such as `spel.support`.
 
 The `ExpressionParser` interface is responsible for parsing an expression string. In the
 preceding example, the expression string is a string literal denoted by the surrounding
@@ -179,7 +179,7 @@ one or some combination of the following.
 === Type Conversion
 
 By default, SpEL uses the conversion service available in Infra core
-(`cn.taketoday.core.convert.ConversionService`). This conversion service comes
+(`infra.core.convert.ConversionService`). This conversion service comes
 with many built-in converters for common conversions, but is also fully extensible so
 that you can add custom conversions between types. Additionally, it is generics-aware.
 This means that, when you work with generic types in expressions, SpEL attempts
@@ -220,7 +220,7 @@ Boolean b = simple.booleanList.get(0);
 == Parser Configuration
 
 It is possible to configure the SpEL expression parser by using a parser configuration
-object (`cn.taketoday.expression.spel.SpelParserConfiguration`). The configuration
+object (`infra.expression.spel.SpelParserConfiguration`). The configuration
 object controls the behavior of some of the expression components. For example, if you
 index into an array or collection and the element at the specified index is `null`, SpEL
 can automatically create the element. This is useful when using expressions made up of a
@@ -317,7 +317,7 @@ earlier]) or by using a Infra property when SpEL usage is embedded inside anothe
 component. This section discusses both of these options.
 
 The compiler can operate in one of three modes, which are captured in the
-`cn.taketoday.expression.spel.SpelCompilerMode` enum. The modes are as follows.
+`infra.expression.spel.SpelCompilerMode` enum. The modes are as follows.
 
 * `OFF` (default): The compiler is switched off.
 * `IMMEDIATE`: In immediate mode, the expressions are compiled as soon as possible. This

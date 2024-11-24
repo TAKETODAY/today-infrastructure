@@ -22,7 +22,7 @@ package test.mixin;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
+import infra.aop.support.DelegatingIntroductionInterceptor;
 
 /**
  * Mixin to provide stateful locking functionality.

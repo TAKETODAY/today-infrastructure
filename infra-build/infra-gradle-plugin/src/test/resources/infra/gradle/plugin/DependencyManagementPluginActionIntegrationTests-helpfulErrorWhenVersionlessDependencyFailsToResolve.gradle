@@ -1,0 +1,10 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+dependencies {
+	implementation('cn.taketoday:today-starter-web')
+}

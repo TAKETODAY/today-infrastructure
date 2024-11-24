@@ -1,0 +1,17 @@
+package infra.gradle.tasks.bundling
+
+plugins {
+	id 'war'
+	id 'infra.application' version '{version}'
+}
+
+sourceSets {
+	secondary
+	main {
+		runtimeClasspath += secondary.output
+	}
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}

@@ -1,0 +1,24 @@
+package infra.gradle.dsl
+
+import org.gradle.util.GradleVersion
+
+plugins {
+	id 'war'
+	id 'infra.application' version '{version}'
+}
+
+group = 'com.example'
+version = '1.0'
+
+infraWar {
+	if (GradleVersion.current().compareTo(GradleVersion.version('6.0.0')) < 0) {
+		baseName = 'foo'
+	}
+	else {
+		archiveBaseName = 'foo'	
+	}
+}
+
+infraApplication {
+	buildInfo()
+}

@@ -1,6 +1,6 @@
 plugins {
   id 'war'
-  id 'cn.taketoday.application' version '{gradle-project-version}'
+  id 'infra.application' version '{gradle-project-version}'
 }
 
 tasks.named("infraWar") {
@@ -10,7 +10,7 @@ tasks.named("infraWar") {
 // tag::properties-launcher[]
 tasks.named("infraWar") {
   manifest {
-    attributes 'Main-Class': 'cn.taketoday.app.loader.PropertiesLauncher'
+    attributes 'Main-Class': 'infra.app.loader.PropertiesLauncher'
   }
 }
 // end::properties-launcher[]

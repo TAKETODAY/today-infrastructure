@@ -7,7 +7,7 @@ For example, consider the following class:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages",chomp="-packages"]
 ----
-package cn.taketoday.jmx;
+package infra.jmx;
 
 public class JmxTestBean implements IJmxTestBean {
 
@@ -49,14 +49,14 @@ configuration file and pass in the bean, as the following example shows:
 ----
 <beans>
   <!-- this bean must not be lazily initialized if the exporting is to happen -->
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter" lazy-init="false">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter" lazy-init="false">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
       </map>
     </property>
   </bean>
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -93,7 +93,7 @@ own `MBeanServer`.
 However, this approach is of no use in a standalone environment or when running inside
 a container that does not provide an `MBeanServer`. To address this, you can create an
 `MBeanServer` instance declaratively by adding an instance of the
-`cn.taketoday.jmx.support.MBeanServerFactoryBean` class to your configuration.
+`infra.jmx.support.MBeanServerFactoryBean` class to your configuration.
 You can also ensure that a specific `MBeanServer` is used by setting the value of the
 `MBeanExporter` instance's `server` property to the `MBeanServer` value returned by an
 `MBeanServerFactoryBean`, as the following example shows:
@@ -102,13 +102,13 @@ You can also ensure that a specific `MBeanServer` is used by setting the value o
 ----
 <beans>
 
-  <bean id="mbeanServer" class="cn.taketoday.jmx.support.MBeanServerFactoryBean"/>
+  <bean id="mbeanServer" class="infra.jmx.support.MBeanServerFactoryBean"/>
 
   <!--
   this bean needs to be eagerly pre-instantiated in order for the exporting to occur;
   this means that it must not be marked as lazily initialized
   -->
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
@@ -117,7 +117,7 @@ You can also ensure that a specific `MBeanServer` is used by setting the value o
     <property name="server" ref="mbeanServer"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -144,13 +144,13 @@ be used, as the following example shows:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="mbeanServer" class="cn.taketoday.jmx.support.MBeanServerFactoryBean">
+  <bean id="mbeanServer" class="infra.jmx.support.MBeanServerFactoryBean">
     <!-- indicate to first look for a server -->
     <property name="locateExistingServerIfPossible" value="true"/>
     <!-- search for the MBeanServer instance with the given agentId -->
     <property name="agentId" value="MBeanServer_instance_agentId>"/>
   </bean>
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="server" ref="mbeanServer"/>
     ...
   </bean>
@@ -165,7 +165,7 @@ as the following example shows:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="server">
       <!-- Custom MBeanServerLocator -->
       <bean class="platform.package.MBeanServerLocator" factory-method="locateMBeanServer"/>
@@ -201,11 +201,11 @@ the `autodetect` property to `true`, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+<bean id="exporter" class="infra.jmx.export.MBeanExporter">
   <property name="autodetect" value="true"/>
 </bean>
 
-<bean name="spring:mbean=true" class="cn.taketoday.jmx.export.TestDynamicMBean"/>
+<bean name="spring:mbean=true" class="infra.jmx.export.TestDynamicMBean"/>
 ----
 
 In the preceding example, the bean called `spring:mbean=true` is already a valid JMX MBean
@@ -265,7 +265,7 @@ behavior to the `REPLACE_EXISTING` behavior:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
@@ -274,7 +274,7 @@ behavior to the `REPLACE_EXISTING` behavior:
     <property name="registrationPolicy" value="REPLACE_EXISTING"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>

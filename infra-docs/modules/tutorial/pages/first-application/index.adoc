@@ -50,7 +50,7 @@ OS:           Mac OS X 14.4.1 aarch64
 ----
 plugins {
   id 'java'
-  id 'cn.taketoday.application' version '{infra-version}'
+  id 'infra.application' version '{infra-version}'
 }
 
 apply plugin: 'io.spring.dependency-management'  // 有了该插件可以自动导入 infra-dependencies
@@ -86,10 +86,10 @@ dependencies {
 ----
 package demo;
 
-import cn.taketoday.framework.Application;
-import cn.taketoday.framework.InfraApplication;
-import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.annotation.GET;
+import infra.app.Application;
+import infra.InfraApplication;
+import infra.web.annotation.RestController;
+import infra.web.annotation.GET;
 
 @RestController
 @InfraApplication
@@ -147,11 +147,11 @@ $ gradle infraRun
 
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: Starting DemoApplication using Java 17.0.9 on xxx with PID 80362 (build/classes/java/main started by xx )
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: No active profile set, falling back to 1 default profile: "default"
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext: Starting application context at '1111-11-11 11:11:11.111'
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.web.bind.resolver.ParameterResolvingRegistry: RedirectModel disabled
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.netty.NettyChannelHandler: Completed initialization in 1 ms
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.netty.NettyWebServer: Netty web server started on port: '8080'
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext: Application context startup in 366 ms
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.context.AnnotationConfigWebServerApplicationContext: Starting application context at '1111-11-11 11:11:11.111'
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.bind.resolver.ParameterResolvingRegistry: RedirectModel disabled
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.netty.NettyChannelHandler: Completed initialization in 1 ms
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.netty.NettyWebServer: Netty web server started on port: '8080'
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.context.AnnotationConfigWebServerApplicationContext: Application context startup in 366 ms
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: Started DemoApplication in 5.544 seconds (process running for 5.621)
 ----
 

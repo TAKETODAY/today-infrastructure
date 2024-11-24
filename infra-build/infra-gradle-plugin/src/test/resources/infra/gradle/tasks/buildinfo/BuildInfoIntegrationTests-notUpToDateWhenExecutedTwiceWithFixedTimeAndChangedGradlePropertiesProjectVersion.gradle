@@ -1,0 +1,15 @@
+package infra.gradle.tasks.buildinfo
+
+plugins {
+  id 'infra.application' version '{version}' apply false
+}
+
+task buildInfo(type: infra.gradle.tasks.buildinfo.BuildInfo) {
+  excludes = ["time"]
+  properties {
+    artifact = 'example'
+    group = 'com.example'
+    name = 'example'
+    additional = ['additional': 'alpha']
+  }
+}

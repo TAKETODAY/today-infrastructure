@@ -69,7 +69,7 @@ When Gradle's {application-plugin}[`application` plugin] is applied to a project
 == Reacting to the GraalVM Native Image Plugin
 When the {nbt-gradle-plugin}[GraalVM Native Image plugin] is applied to a project, the Infra plugin:
 
-. Applies the `cn.taketoday.application.aot` plugin that:
+. Applies the `infra.application.aot` plugin that:
 .. Registers `aot` and `aotTest` source sets.
 .. Registers a `ProcessAot` task named `processAot` that will generate AOT-optimized source for the application in the `aot` source set.
 .. Configures the Java compilation and process resources tasks for the `aot` source set to depend upon `processAot`.

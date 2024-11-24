@@ -1,7 +1,7 @@
 [[jdbc-embedded-database-support]]
 = Embedded Database Support
 
-The `cn.taketoday.jdbc.datasource.embedded` package provides support for embedded
+The `infra.jdbc.datasource.embedded` package provides support for embedded
 Java database engines. Support for https://www.hsqldb.org[HSQL],
 https://www.h2database.com[H2], and https://db.apache.org/derby[Derby] is provided
 natively. You can also use an extensible API to plug in new embedded database types and

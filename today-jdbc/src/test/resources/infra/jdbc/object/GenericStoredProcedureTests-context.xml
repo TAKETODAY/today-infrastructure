@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	                      http://www.springframework.org/schema/util
+	                      https://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+  <bean id="dataSource" class="infra.jdbc.datasource.TestDataSourceWrapper" />
+
+  <bean id="genericProcedure" class="infra.jdbc.object.GenericStoredProcedure">
+    <property name="dataSource" ref="dataSource" />
+    <property name="sql" value="add_invoice" />
+    <property name="parameters">
+      <list>
+        <bean class="infra.jdbc.core.SqlParameter">
+          <constructor-arg index="0" value="amount" />
+          <constructor-arg index="1">
+            <util:constant static-field="java.sql.Types.INTEGER" />
+          </constructor-arg>
+        </bean>
+        <bean class="infra.jdbc.core.SqlParameter">
+          <constructor-arg index="0" value="custid" />
+          <constructor-arg index="1">
+            <util:constant static-field="java.sql.Types.INTEGER" />
+          </constructor-arg>
+        </bean>
+        <bean class="infra.jdbc.core.SqlOutParameter">
+          <constructor-arg index="0" value="newid" />
+          <constructor-arg index="1">
+            <util:constant static-field="java.sql.Types.INTEGER" />
+          </constructor-arg>
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+</beans>

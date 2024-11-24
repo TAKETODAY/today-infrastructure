@@ -1,1 +1,1 @@
-http\://www.springframework.org/schema/tx=cn.taketoday.transaction.config.TxNamespaceHandler
+http\://www.springframework.org/schema/tx=infra.transaction.config.TxNamespaceHandler

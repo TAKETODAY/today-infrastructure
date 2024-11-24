@@ -40,7 +40,7 @@ Consider the following bean definition:
  <bean id="..." class="...">
    <property name="isolation">
      <bean id="java.sql.Connection.TRANSACTION_SERIALIZABLE"
-         class="cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean" />
+         class="infra.beans.factory.config.FieldRetrievingFactoryBean" />
    </property>
  </bean>
 ----
@@ -78,7 +78,7 @@ property:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="myField"
-    class="cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean">
+    class="infra.beans.factory.config.FieldRetrievingFactoryBean">
   <property name="staticField" value="java.sql.Connection.TRANSACTION_SERIALIZABLE"/>
 </bean>
 ----
@@ -89,7 +89,7 @@ name, as the following example shows:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="java.sql.Connection.TRANSACTION_SERIALIZABLE"
-    class="cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean"/>
+    class="infra.beans.factory.config.FieldRetrievingFactoryBean"/>
 ----
 
 This does mean that there is no longer any choice in what the bean `id` is (so any other
@@ -102,7 +102,7 @@ to be specified for the bean reference, as the following example shows:
 <bean id="..." class="...">
   <property name="isolation">
     <bean id="java.sql.Connection.TRANSACTION_SERIALIZABLE"
-        class="cn.taketoday.beans.factory.config.FieldRetrievingFactoryBean" />
+        class="infra.beans.factory.config.FieldRetrievingFactoryBean" />
   </property>
 </bean>
 ----
@@ -172,17 +172,17 @@ Consider the following example:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- target bean to be referenced by name -->
-<bean id="testBean" class="cn.taketoday.beans.TestBean" scope="prototype">
+<bean id="testBean" class="infra.beans.TestBean" scope="prototype">
   <property name="age" value="10"/>
   <property name="spouse">
-    <bean class="cn.taketoday.beans.TestBean">
+    <bean class="infra.beans.TestBean">
       <property name="age" value="11"/>
     </bean>
   </property>
 </bean>
 
 <!-- results in 10, which is the value of property 'age' of bean 'testBean' -->
-<bean id="testBean.age" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
+<bean id="testBean.age" class="infra.beans.factory.config.PropertyPathFactoryBean"/>
 ----
 
 The preceding configuration uses a Infra `FactoryBean` implementation (the
@@ -194,10 +194,10 @@ Now consider the following example, which adds a `<util:property-path/>` element
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- target bean to be referenced by name -->
-<bean id="testBean" class="cn.taketoday.beans.TestBean" scope="prototype">
+<bean id="testBean" class="infra.beans.TestBean" scope="prototype">
   <property name="age" value="10"/>
   <property name="spouse">
-    <bean class="cn.taketoday.beans.TestBean">
+    <bean class="infra.beans.TestBean">
       <property name="age" value="11"/>
     </bean>
   </property>
@@ -224,10 +224,10 @@ The following example shows a path being used against another bean, by name:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- target bean to be referenced by name -->
-<bean id="person" class="cn.taketoday.beans.TestBean" scope="prototype">
+<bean id="person" class="infra.beans.TestBean" scope="prototype">
   <property name="age" value="10"/>
   <property name="spouse">
-    <bean class="cn.taketoday.beans.TestBean">
+    <bean class="infra.beans.TestBean">
       <property name="age" value="11"/>
     </bean>
   </property>
@@ -235,7 +235,7 @@ The following example shows a path being used against another bean, by name:
 
 <!-- results in 11, which is the value of property 'spouse.age' of bean 'person' -->
 <bean id="theAge"
-    class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
+    class="infra.beans.factory.config.PropertyPathFactoryBean">
   <property name="targetBeanName" value="person"/>
   <property name="propertyPath" value="spouse.age"/>
 </bean>
@@ -247,9 +247,9 @@ In the following example, a path is evaluated against an inner bean:
 ----
 <!-- results in 12, which is the value of property 'age' of the inner bean -->
 <bean id="theAge"
-    class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean">
+    class="infra.beans.factory.config.PropertyPathFactoryBean">
   <property name="targetObject">
-    <bean class="cn.taketoday.beans.TestBean">
+    <bean class="infra.beans.TestBean">
       <property name="age" value="12"/>
     </bean>
   </property>
@@ -264,7 +264,7 @@ The following example shows the shortcut form:
 ----
 <!-- results in 10, which is the value of property 'age' of bean 'person' -->
 <bean id="person.age"
-    class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
+    class="infra.beans.factory.config.PropertyPathFactoryBean"/>
 ----
 
 This form does mean that there is no choice in the name of the bean. Any reference to it
@@ -276,7 +276,7 @@ bean, there is no need to refer to it at all, as the following example shows:
 <bean id="..." class="...">
   <property name="age">
     <bean id="person.age"
-        class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
+        class="infra.beans.factory.config.PropertyPathFactoryBean"/>
   </property>
 </bean>
 ----
@@ -294,7 +294,7 @@ Consider the following example:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- creates a java.util.Properties instance with values loaded from the supplied location -->
-<bean id="jdbcConfiguration" class="cn.taketoday.beans.factory.config.PropertiesFactoryBean">
+<bean id="jdbcConfiguration" class="infra.beans.factory.config.PropertiesFactoryBean">
   <property name="location" value="classpath:com/foo/jdbc-production.properties"/>
 </bean>
 ----
@@ -320,7 +320,7 @@ Consider the following example:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- creates a java.util.List instance with values loaded from the supplied 'sourceList' -->
-<bean id="emails" class="cn.taketoday.beans.factory.config.ListFactoryBean">
+<bean id="emails" class="infra.beans.factory.config.ListFactoryBean">
   <property name="sourceList">
     <list>
       <value>pechorin@hero.org</value>
@@ -375,7 +375,7 @@ Consider the following example:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- creates a java.util.Map instance with values loaded from the supplied 'sourceMap' -->
-<bean id="emails" class="cn.taketoday.beans.factory.config.MapFactoryBean">
+<bean id="emails" class="infra.beans.factory.config.MapFactoryBean">
   <property name="sourceMap">
     <map>
       <entry key="pechorin" value="pechorin@hero.org"/>
@@ -430,7 +430,7 @@ Consider the following example:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- creates a java.util.Set instance with values loaded from the supplied 'sourceSet' -->
-<bean id="emails" class="cn.taketoday.beans.factory.config.SetFactoryBean">
+<bean id="emails" class="infra.beans.factory.config.SetFactoryBean">
   <property name="sourceSet">
     <set>
       <value>pechorin@hero.org</value>

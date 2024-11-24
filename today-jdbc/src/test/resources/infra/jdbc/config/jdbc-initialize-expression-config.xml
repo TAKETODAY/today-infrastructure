@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc https://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<jdbc:embedded-database id="dataSource" type="HSQL" />
+
+	<jdbc:initialize-database data-source="dataSource" enabled="#{properties['data.source.init']}">
+		<jdbc:script location="#{properties['schema.scripts']}" />
+		<jdbc:script location="#{properties['insert.scripts']}" />
+	</jdbc:initialize-database>
+
+	<util:properties id="properties">
+		<prop key="schema.scripts">classpath:infra/jdbc/config/db-schema.sql</prop>
+		<prop key="insert.scripts">classpath*:infra/jdbc/config/*-data.sql</prop>
+		<prop key="data.source.init">true</prop>
+	</util:properties>
+
+</beans>

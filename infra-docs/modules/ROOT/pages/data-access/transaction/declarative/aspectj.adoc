@@ -5,7 +5,7 @@ You can also use the TODAY Framework's `@Transactional` support outside of a Inf
 container by means of an AspectJ aspect. To do so, first annotate your classes
 (and optionally your classes' methods) with the `@Transactional` annotation,
 and then link (weave) your application with the
-`cn.taketoday.transaction.aspectj.AnnotationTransactionAspect` defined in the
+`infra.transaction.aspectj.AnnotationTransactionAspect` defined in the
 `today-aspects.jar` file. You must also configure the aspect with a transaction
 manager. You can use the TODAY Framework's IoC container to take care of
 dependency-injecting the aspect. The simplest way to configure the transaction

@@ -1,0 +1,6 @@
+package infra.gradle.tasks.run
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}

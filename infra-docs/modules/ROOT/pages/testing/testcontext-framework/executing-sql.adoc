@@ -20,10 +20,10 @@ scripts programmatically and declaratively during integration tests.
 Infra provides the following options for executing SQL scripts programmatically within
 integration test methods.
 
-* `cn.taketoday.jdbc.datasource.init.ScriptUtils`
-* `cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator`
-* `cn.taketoday.test.context.junit4.AbstractTransactionalJUnit4InfraContextTests`
-* `cn.taketoday.test.context.testng.AbstractTransactionalTestNGInfraContextTests`
+* `infra.jdbc.datasource.init.ScriptUtils`
+* `infra.jdbc.datasource.init.ResourceDatabasePopulator`
+* `infra.test.context.junit4.AbstractTransactionalJUnit4InfraContextTests`
+* `infra.test.context.testng.AbstractTransactionalTestNGInfraContextTests`
 
 `ScriptUtils` provides a collection of static utility methods for working with SQL
 scripts and is mainly intended for internal use within the framework. However, if you
@@ -152,10 +152,10 @@ script, depending on where `@Sql` is declared. If a default cannot be detected, 
 === Logging SQL Scripts and Statements
 
 If you want to see which SQL scripts are being executed, set the
-`cn.taketoday.test.context.jdbc` logging category to `DEBUG`.
+`infra.test.context.jdbc` logging category to `DEBUG`.
 
 If you want to see which SQL statements are being executed, set the
-`cn.taketoday.jdbc.datasource.init` logging category to `DEBUG`.
+`infra.jdbc.datasource.init` logging category to `DEBUG`.
 
 [[testcontext-executing-sql-declaratively-multiple-annotations]]
 === Declaring Multiple `@Sql` Sets

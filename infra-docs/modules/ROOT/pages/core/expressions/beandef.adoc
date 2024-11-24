@@ -6,7 +6,7 @@ cases, the syntax to define the expression is of the form `#{ <expression string
 
 All beans in the application context are available as predefined variables with their
 common bean name. This includes standard context beans such as `environment` (of type
-`cn.taketoday.core.env.Environment`) as well as `systemProperties` and
+`infra.core.env.Environment`) as well as `systemProperties` and
 `systemEnvironment` (of type `Map<String, Object>`) for access to the runtime environment.
 
 To specify a default value, you can place the `@Value` annotation on fields, methods,

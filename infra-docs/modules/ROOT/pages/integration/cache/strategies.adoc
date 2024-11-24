@@ -43,7 +43,7 @@ As with other services in the TODAY Framework, the caching service is an abstrac
 (not a cache implementation) and requires the use of actual storage to store the cache data --
 that is, the abstraction frees you from having to write the caching logic but does not
 provide the actual data store. This abstraction is materialized by the
-`cn.taketoday.cache.Cache` and `cn.taketoday.cache.CacheManager` interfaces.
+`infra.cache.Cache` and `infra.cache.CacheManager` interfaces.
 
 Infra provides xref:integration/cache/store-configuration.adoc[a few implementations] of that abstraction:
 JDK `java.util.concurrent.ConcurrentMap` based caches, Gemfire cache,

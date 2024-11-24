@@ -1,1 +1,1 @@
-cn.taketoday.annotation.config.processor.AutoConfigureAnnotationProcessor,aggregating
+infra.annotation.config.processor.AutoConfigureAnnotationProcessor,aggregating

@@ -1,0 +1,7 @@
+package infra.gradle.tasks.buildinfo
+
+plugins {
+	id 'infra.application' version '{version}' apply false
+}
+
+task buildInfo(type: infra.gradle.tasks.buildinfo.BuildInfo)

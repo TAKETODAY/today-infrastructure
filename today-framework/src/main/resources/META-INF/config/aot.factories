@@ -1,19 +1,19 @@
-cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
-cn.taketoday.framework.Application.ApplicationRuntimeHints,\
-cn.taketoday.framework.InfraBannerPrinter.Hints,\
-cn.taketoday.framework.ApplicationType.Hints,\
-cn.taketoday.framework.context.config.ConfigDataLocationRuntimeHints,\
-cn.taketoday.framework.context.config.ConfigDataPropertiesRuntimeHints,\
-cn.taketoday.framework.env.PropertySourceRuntimeHints,\
-cn.taketoday.framework.jdbc.DataSourceBuilderRuntimeHints,\
-cn.taketoday.framework.json.JacksonRuntimeHints,\
-cn.taketoday.framework.logging.java.JavaLoggingSystemRuntimeHints,\
-cn.taketoday.framework.logging.logback.LogbackRuntimeHints,\
-cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration.Hints
+infra.aot.hint.RuntimeHintsRegistrar=\
+infra.app.Application.ApplicationRuntimeHints,\
+infra.app.InfraBannerPrinter.Hints,\
+infra.app.ApplicationType.Hints,\
+infra.app.context.config.ConfigDataLocationRuntimeHints,\
+infra.app.context.config.ConfigDataPropertiesRuntimeHints,\
+infra.app.env.PropertySourceRuntimeHints,\
+infra.jdbc.DataSourceBuilderRuntimeHints,\
+infra.app.json.JacksonRuntimeHints,\
+infra.logging.java.JavaLoggingSystemRuntimeHints,\
+infra.logging.logback.LogbackRuntimeHints,\
+infra.annotation.config.jackson.JacksonAutoConfiguration.Hints
 
-cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
-cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingProcessor,\
-cn.taketoday.framework.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor
+infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+infra.annotation.config.logging.ConditionEvaluationReportLoggingProcessor,\
+infra.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor
 
-cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
-cn.taketoday.framework.jackson.JsonMixinModuleEntriesBeanRegistrationAotProcessor
+infra.beans.factory.aot.BeanRegistrationAotProcessor=\
+infra.jackson.JsonMixinModuleEntriesBeanRegistrationAotProcessor

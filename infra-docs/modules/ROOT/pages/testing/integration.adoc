@@ -11,9 +11,9 @@ Doing so lets you test things such as:
 
 The TODAY Framework provides first-class support for integration testing in the
 `today-test` module. The name of the actual JAR file might include the release version
-and might also be in the long `cn.taketoday.test` form, depending on where you get
+and might also be in the long `infra.test` form, depending on where you get
 it from (see the xref:core/beans/dependencies.adoc[section on Dependency Management]
-for an explanation). This library includes the `cn.taketoday.test` package, which
+for an explanation). This library includes the `infra.test` package, which
 contains valuable classes for integration testing with a Infra container. This testing
 does not rely on an application server or other deployment environment. Such tests are
 slower to run than unit tests but much faster than the equivalent Selenium tests or

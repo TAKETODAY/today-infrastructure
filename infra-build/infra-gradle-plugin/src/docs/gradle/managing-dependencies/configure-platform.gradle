@@ -1,11 +1,11 @@
 plugins {
   id 'java'
-  id 'cn.taketoday.application' version '{gradle-project-version}'
+  id 'infra.application' version '{gradle-project-version}'
 }
 
 // tag::configure-platform[]
 dependencies {
-  implementation platform(cn.taketoday.gradle.plugin.InfraApplicationPlugin.BOM_COORDINATES)
+  implementation platform(infra.gradle.plugin.InfraApplicationPlugin.BOM_COORDINATES)
 }
 // end::configure-platform[]
 

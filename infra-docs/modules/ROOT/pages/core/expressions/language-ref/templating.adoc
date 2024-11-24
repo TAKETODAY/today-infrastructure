@@ -27,7 +27,7 @@ result of calling that `random()` method). The second argument to the `parseExpr
 method is of the type `ParserContext`. The `ParserContext` interface is used to influence
 how the expression is parsed in order to support the expression templating functionality.
 The `TemplateParserContext` used in the previous example resides in the
-`cn.taketoday.expression.common` package and is an implementation of the
+`infra.expression.common` package and is an implementation of the
 `ParserContext` which by default configures the prefix and suffix to `#{` and `}`,
 respectively.
 

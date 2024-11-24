@@ -62,7 +62,7 @@ and others) and is equivalent to `required=false`.
 | For access to a part in a `multipart/form-data` request, converting the part's body
   with an `HttpMessageConverter`. See xref:web/webmvc/mvc-controller/ann-methods/multipart-forms.adoc[Multipart].
 
-| `java.util.Map`, `cn.taketoday.ui.Model`, `cn.taketoday.ui.ModelMap`
+| `java.util.Map`, `infra.ui.Model`, `infra.ui.ModelMap`
 | For access to the model that is used in HTML controllers and exposed to templates as
   part of view rendering.
 

@@ -1,0 +1,10 @@
+package infra.gradle.dsl
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+infraApplication {
+	buildInfo()
+}

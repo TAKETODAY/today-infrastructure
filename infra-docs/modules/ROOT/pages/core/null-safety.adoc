@@ -1,7 +1,7 @@
 [[null-safety]]
 = Null-safety
 
-我们在 `cn.taketoday.lang` 包下提供了一些注解，能够帮助你声明 API 和字段的可为空性，可以在一定程度上减少 BUG ：
+我们在 `infra.lang` 包下提供了一些注解，能够帮助你声明 API 和字段的可为空性，可以在一定程度上减少 BUG ：
 
 * {today-framework-api}/lang/Nullable.html[`@Nullable`]: 在特定参数、返回值或字段可以为 `null`。
 * {today-framework-api}/lang/NonNull.html[`@NonNull`]:

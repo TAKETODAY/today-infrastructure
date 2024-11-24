@@ -1,0 +1,15 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application' version '{version}'
+}
+
+if (project.hasProperty('applyWarPlugin')) {
+	apply plugin: 'war'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

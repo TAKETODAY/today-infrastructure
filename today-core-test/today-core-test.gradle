@@ -14,7 +14,7 @@ dependencies {
 jar {
   manifest {
     attributes(
-            'Premain-Class': 'cn.taketoday.aot.agent.RuntimeHintsAgent',
+            'Premain-Class': 'infra.aot.agent.RuntimeHintsAgent',
             'Can-Redefine-Classes': 'true'
     )
   }

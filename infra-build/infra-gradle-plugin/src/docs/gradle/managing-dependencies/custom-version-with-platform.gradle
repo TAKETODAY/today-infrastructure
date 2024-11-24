@@ -1,10 +1,10 @@
 plugins {
   id 'java'
-  id 'cn.taketoday.application' version '{gradle-project-version}'
+  id 'infra.application' version '{gradle-project-version}'
 }
 
 dependencies {
-  implementation platform(cn.taketoday.gradle.plugin.InfraApplicationPlugin.BOM_COORDINATES)
+  implementation platform(infra.gradle.plugin.InfraApplicationPlugin.BOM_COORDINATES)
   implementation "org.slf4j:slf4j-api"
 }
 

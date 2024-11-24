@@ -4,7 +4,7 @@
 [[integration-testing-support-jdbc-test-utils]]
 == JdbcTestUtils
 
-The `cn.taketoday.test.jdbc` package contains `JdbcTestUtils`, which is a
+The `infra.test.jdbc` package contains `JdbcTestUtils`, which is a
 collection of JDBC-related utility functions intended to simplify standard database
 testing scenarios. Specifically, `JdbcTestUtils` provides the following static utility
 methods.

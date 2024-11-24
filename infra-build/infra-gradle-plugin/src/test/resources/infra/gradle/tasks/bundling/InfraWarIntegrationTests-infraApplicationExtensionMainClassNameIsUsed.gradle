@@ -1,0 +1,11 @@
+package infra.gradle.tasks.bundling
+
+plugins {
+	id 'war'
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+infraApplication {
+	mainClass = 'com.example.CustomMain'
+}

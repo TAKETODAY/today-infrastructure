@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2023 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<import resource="import1.xml"/>
+
+	<import resource="classpath:infra/context/support/test/*/import2.xml"/>
+
+	<context:property-override location="infra/context/support/override.properties"/>
+
+	<bean id="messageSource" class="infra.context.support.StaticMessageSource"/>
+
+	<bean class="infra.context.support.FactoryBeanAndApplicationListener"/>
+
+	<bean name="service" class="infra.context.support.Service">
+		<property name="resources" value="/infra/context/support/test/context*.xml"/>
+		<property name="resourceSet" value="/infra/context/support/test/context*.xml"/>
+	</bean>
+
+	<bean name="service2" class="infra.context.support.Service" autowire="byName" depends-on="service">
+		<property name="resources" value="/infra/context/support/test/context*.xml"/>
+	</bean>
+
+	<bean name="service3" class="infra.context.support.Service">
+		<property name="resources" value="/infra/context/support/test/contextA.xml"/>
+		<property name="resourceSet" value="/infra/context/support/test/contextA.xml"/>
+	</bean>
+
+	<bean name="autowiredService" class="infra.context.support.AutowiredService" autowire="byName"/>
+
+	<bean name="autowiredService2" class="infra.context.support.AutowiredService" autowire="byType"/>
+
+	<bean name="wrappedAssemblerOne" class="infra.context.support.TestProxyFactoryBean">
+		<property name="target" ref="assemblerOne"/>
+	</bean>
+
+	<bean name="wrappedAssemblerTwo" class="infra.context.support.TestProxyFactoryBean">
+	    <property name="target" ref="assemblerTwo"/>
+	</bean>
+
+</beans>

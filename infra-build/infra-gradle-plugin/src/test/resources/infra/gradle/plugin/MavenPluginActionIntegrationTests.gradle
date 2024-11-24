@@ -1,0 +1,22 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'java'
+	id 'maven'
+	id 'infra.application' version '{version}'
+}
+
+task('conf2ScopeMappings') {
+	doFirst {
+		tasks.getByName('uploadInfraArchives').repositories.withType(MavenResolver) {
+			println "Conf2ScopeMappings = ${pom.scopeMappings.mappings.size()}"
+		}
+	}
+}
+
+uploadInfraArchives {
+	repositories {
+		mavenDeployer {
+		}
+	}
+}

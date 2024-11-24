@@ -22,10 +22,10 @@ package test.demo.config;
 import java.io.File;
 import java.io.Serializable;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.stereotype.Prototype;
-import cn.taketoday.stereotype.Singleton;
+import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.annotation.Value;
+import infra.stereotype.Prototype;
+import infra.stereotype.Singleton;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;

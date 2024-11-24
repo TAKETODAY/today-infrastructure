@@ -1,1 +1,1 @@
-http\://www.foo.example/schema/component=cn.taketoday.beans.factory.xml.ComponentNamespaceHandler
+http\://www.foo.example/schema/component=infra.beans.factory.xml.ComponentNamespaceHandler

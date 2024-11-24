@@ -41,7 +41,7 @@ supported for all return values.
   programmatically enrich the model by declaring a `Model` argument
   (see xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-registration[Explicit Registrations]).
 
-| `java.util.Map`, `cn.taketoday.ui.Model`
+| `java.util.Map`, `infra.ui.Model`
 | Attributes to be added to the implicit model, with the view name implicitly determined
   through a `RequestToViewNameTranslator`.
 

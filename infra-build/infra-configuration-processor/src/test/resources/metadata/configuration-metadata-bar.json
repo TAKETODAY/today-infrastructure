@@ -9,7 +9,7 @@
     },
     {
       "name": "spring.bar",
-      "type": "cn.taketoday.boot.BarProperties"
+      "type": "infra.boot.BarProperties"
     }
   ],
   "properties": [
@@ -28,12 +28,12 @@
     {
       "name": "spring.bar.name",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.boot.BarProperties"
+      "sourceType": "infra.boot.BarProperties"
     },
     {
       "name": "spring.bar.counter",
       "type": "java.lang.Integer",
-      "sourceType": "cn.taketoday.boot.BarProperties",
+      "sourceType": "infra.boot.BarProperties",
       "defaultValue": 0
     }
   ],

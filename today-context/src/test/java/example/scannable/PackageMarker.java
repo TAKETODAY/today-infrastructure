@@ -20,10 +20,12 @@
 
 package example.scannable;
 
+import infra.context.annotation.ComponentScan;
+
 /**
  * Marker class for {@code example.scannable} package.
  *
- * @see cn.taketoday.context.annotation.ComponentScan#basePackageClasses()
+ * @see ComponentScan#basePackageClasses()
  */
 public class PackageMarker {
 }

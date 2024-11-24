@@ -1,6 +1,6 @@
-cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
-cn.taketoday.beans.factory.annotation.JakartaAnnotationsRuntimeHints,\
-cn.taketoday.beans.BeanUtilsRuntimeHints
+infra.aot.hint.RuntimeHintsRegistrar=\
+infra.beans.factory.annotation.JakartaAnnotationsRuntimeHints,\
+infra.beans.BeanUtilsRuntimeHints
 
-cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
-cn.taketoday.beans.factory.aot.BeanRegistrationsAotProcessor
+infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+infra.beans.factory.aot.BeanRegistrationsAotProcessor

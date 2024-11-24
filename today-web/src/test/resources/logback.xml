@@ -31,12 +31,12 @@
   </appender>
 
   <!-- for LoggerTest -->
-  <logger name="cn.taketoday.logging" level="TRACE">
+  <logger name="infra.logging" level="TRACE">
     <appender-ref ref="STDOUT" />
   </logger>
 
   <!--
-    <logger name="cn.taketoday.web" level="TRACE">
+    <logger name="infra.web" level="TRACE">
       <appender-ref ref="STDOUT" />
     </logger>
   -->

@@ -80,8 +80,8 @@ configure(allprojects) {
 configure([rootProject] + javaProjects) {
   apply plugin: "java"
   apply plugin: 'jacoco'
-  apply plugin: 'cn.taketoday.build.conventions'
-  apply plugin: 'cn.taketoday.build.optional-dependencies'
+  apply plugin: 'infra.building.conventions'
+  apply plugin: 'infra.building.optional-dependencies'
   apply from: "${rootDir}/gradle/toolchains.gradle"
 
   if (testFixturesProjects.contains(it)) {
@@ -136,7 +136,7 @@ configure(moduleProjects) {
 
 configure(rootProject) {
   description = "TODAY Infrastructure"
-  apply plugin: 'cn.taketoday.build.api-diff'
+  apply plugin: 'infra.building.api-diff'
 }
 
 if (isReleaseVersion) {

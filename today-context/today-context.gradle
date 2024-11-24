@@ -1,5 +1,5 @@
 plugins {
-  id 'cn.taketoday.build.runtimehints-agent'
+  id 'infra.building.runtimehints-agent'
 }
 
 description = "Infra Context"

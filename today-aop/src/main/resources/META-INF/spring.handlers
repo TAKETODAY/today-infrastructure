@@ -1,2 +1,2 @@
-http\://www.springframework.org/schema/aop=cn.taketoday.aop.config.AopNamespaceHandler
+http\://www.springframework.org/schema/aop=infra.aop.config.AopNamespaceHandler
 

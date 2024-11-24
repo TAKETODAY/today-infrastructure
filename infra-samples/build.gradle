@@ -5,12 +5,12 @@ plugins {
 }
 
 configure(subprojects) {
-  group = "cn.taketoday.samples"
+  group = "infra.samples"
 
   apply plugin: 'java'
   apply plugin: 'application'
-  apply plugin: "cn.taketoday.application"
-  apply plugin: "cn.taketoday.application.aot"
+  apply plugin: "infra.application"
+  apply plugin: "infra.application.aot"
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'org.graalvm.buildtools.native'
 

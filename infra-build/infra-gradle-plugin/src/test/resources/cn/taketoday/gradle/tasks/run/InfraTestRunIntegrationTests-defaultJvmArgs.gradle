@@ -1,6 +1,0 @@
-
-
-plugins {
-	id 'application'
-	id 'cn.taketoday.application' version '{version}'
-}

@@ -8,9 +8,9 @@ proxy for an MBean running in a local `MBeanServer`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="proxy" class="cn.taketoday.jmx.access.MBeanProxyFactoryBean">
+<bean id="proxy" class="infra.jmx.access.MBeanProxyFactoryBean">
   <property name="objectName" value="bean:name=testBean"/>
-  <property name="proxyInterface" value="cn.taketoday.jmx.IJmxTestBean"/>
+  <property name="proxyInterface" value="infra.jmx.IJmxTestBean"/>
 </bean>
 ----
 
@@ -28,13 +28,13 @@ you can override this and provide an `MBeanServerConnection` that points to a re
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="clientConnector"
-    class="cn.taketoday.jmx.support.MBeanServerConnectionFactoryBean">
+    class="infra.jmx.support.MBeanServerConnectionFactoryBean">
   <property name="serviceUrl" value="service:jmx:rmi://remotehost:9875"/>
 </bean>
 
-<bean id="proxy" class="cn.taketoday.jmx.access.MBeanProxyFactoryBean">
+<bean id="proxy" class="infra.jmx.access.MBeanProxyFactoryBean">
   <property name="objectName" value="bean:name=testBean"/>
-  <property name="proxyInterface" value="cn.taketoday.jmx.IJmxTestBean"/>
+  <property name="proxyInterface" value="infra.jmx.IJmxTestBean"/>
   <property name="server" ref="clientConnector"/>
 </bean>
 ----

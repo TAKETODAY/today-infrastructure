@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+  <bean id="rod1" class="infra.beans.testfixture.beans.DependenciesBean" autowire="byType">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod1a" class="infra.beans.testfixture.beans.DependenciesBean" autowire="autodetect">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod2" class="infra.beans.testfixture.beans.DependenciesBean" autowire="byName">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod2a" class="infra.beans.testfixture.beans.DependenciesBean" autowire="byName">
+    <property name="spouse" ref="spouse" />
+  </bean>
+
+  <bean id="rod3" class="infra.beans.factory.xml.ConstructorDependenciesBean" autowire="constructor">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod3a" class="infra.beans.factory.xml.ConstructorDependenciesBean" autowire="autodetect">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod4" class="infra.beans.factory.xml.ConstructorDependenciesBean" scope="prototype">
+    <!-- Should not pick up spouse automatically -->
+  </bean>
+
+  <bean id="rod5" class="infra.beans.testfixture.beans.DependenciesBean"
+      scope="prototype" autowire="constructor">
+    <!-- Should pick up spouse automatically -->
+  </bean>
+
+  <bean id="other" class="infra.beans.testfixture.beans.IndexedTestBean" />
+
+  <bean id="parentAppCtx" class="infra.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <value>/infra/beans/factory/xml/XmlBeanFactoryTests-collections.xml</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="childAppCtx" class="infra.context.support.ClassPathXmlApplicationContext">
+    <constructor-arg>
+      <list>
+        <value>/infra/beans/factory/xml/XmlBeanFactoryTests-constructorArg.xml</value>
+        <value>/infra/beans/factory/xml/XmlBeanFactoryTests-initializers.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <ref bean="parentAppCtx" />
+    </constructor-arg>
+  </bean>
+
+</beans>

@@ -173,7 +173,7 @@ processed by the Infra `MockDispatcher`, no special setup is necessary.
 
 If you use a Servlet web container, with requests processed outside of Infra
 `MockDispatcher` (for example, when using JSF), you need to register the
-`cn.taketoday.web.context.request.RequestContextListener` `MockRequestListener`.
+`infra.web.context.request.RequestContextListener` `MockRequestListener`.
 This can be done programmatically by using the `WebApplicationInitializer` interface.
 Alternatively, add the following declaration to your web application's `web.xml` file:
 
@@ -183,7 +183,7 @@ Alternatively, add the following declaration to your web application's `web.xml`
   ...
   <listener>
     <listener-class>
-      cn.taketoday.web.context.request.RequestContextListener
+      infra.web.context.request.RequestContextListener
     </listener-class>
   </listener>
   ...
@@ -201,7 +201,7 @@ shows the filter part of a web application:
   ...
   <filter>
     <filter-name>requestContextFilter</filter-name>
-    <filter-class>cn.taketoday.web.filter.RequestContextFilter</filter-class>
+    <filter-class>infra.web.filter.RequestContextFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>requestContextFilter</filter-name>
@@ -519,7 +519,7 @@ and you cannot override the built-in `singleton` and `prototype` scopes.
 === Creating a Custom Scope
 
 To integrate your custom scopes into the Infra container, you need to implement the
-`cn.taketoday.beans.factory.config.Scope` interface, which is described in this
+`infra.beans.factory.config.Scope` interface, which is described in this
 section. For an idea of how to implement your own scopes, see the `Scope`
 implementations that are supplied with the TODAY Framework itself and the
 {today-framework-api}/beans/factory/config/Scope.html[`Scope`] javadoc,
@@ -664,11 +664,11 @@ of the scope. You can also do the `Scope` registration declaratively, by using t
     http://www.springframework.org/schema/aop
     https://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <bean class="cn.taketoday.beans.factory.config.CustomScopeConfigurer">
+  <bean class="infra.beans.factory.config.CustomScopeConfigurer">
     <property name="scopes">
       <map>
         <entry key="thread">
-          <bean class="cn.taketoday.context.support.SimpleThreadScope"/>
+          <bean class="infra.context.support.SimpleThreadScope"/>
         </entry>
       </map>
     </property>

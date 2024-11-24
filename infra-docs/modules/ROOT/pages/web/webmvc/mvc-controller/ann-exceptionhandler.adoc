@@ -104,7 +104,7 @@ xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionHandler] 机制�
 | `java.io.OutputStream`, `java.io.Writer`
 | 原始响应流
 
-| `java.util.Map`, `cn.taketoday.ui.Model`, `cn.taketoday.ui.ModelMap`
+| `java.util.Map`, `infra.ui.Model`, `infra.ui.ModelMap`
 | 用于访问错误响应的模型。始终为空。
 
 | `RedirectModel`
@@ -146,7 +146,7 @@ xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionHandler] 机制�
 | `View`
 | 一个 `View` 实例，用于渲染并与隐式模型一起使用 -- 通过命令对象和 `@ModelAttribute` 方法确定。处理器方法也可以通过声明 `Model` 参数（前面描述过）以编程方式丰富模型。
 
-| `java.util.Map`, `cn.taketoday.ui.Model`
+| `java.util.Map`, `infra.ui.Model`
 | 要添加到隐式模型中的属性，视图名称通过 `RequestToViewNameTranslator` 隐式确定。
 
 | `@ModelAttribute`

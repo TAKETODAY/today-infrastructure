@@ -1,0 +1,5 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application' version '{version}'
+}

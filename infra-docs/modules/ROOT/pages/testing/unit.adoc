@@ -34,7 +34,7 @@ Infra includes a number of packages dedicated to mocking:
 [[mock-objects-env]]
 === Environment
 
-The `cn.taketoday.mock.env` package contains mock implementations of the
+The `infra.mock.env` package contains mock implementations of the
 `Environment` and `PropertySource` abstractions (see
 xref:core/beans/environment.adoc#beans-definition-profiles[Bean Definition Profiles]
 and xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` Abstraction]).
@@ -45,13 +45,13 @@ out-of-container tests for code that depends on environment-specific properties.
 [[mock-objects-jndi]]
 === JNDI
 
-The `cn.taketoday.mock.jndi` package contains a partial implementation of the JNDI
+The `infra.mock.jndi` package contains a partial implementation of the JNDI
 SPI, which you can use to set up a simple JNDI environment for test suites or stand-alone
 applications. If, for example, JDBC `DataSource` instances get bound to the same JNDI
 names in test code as they do in a Jakarta EE container, you can reuse both application code
 and configuration in testing scenarios without modification.
 
-WARNING: The mock JNDI support in the `cn.taketoday.mock.jndi` package is
+WARNING: The mock JNDI support in the `infra.mock.jndi` package is
 officially deprecated as of TODAY Framework 5.2 in favor of complete solutions from third
 parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
 
@@ -59,14 +59,12 @@ parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
 [[mock-objects-mockApi]]
 === Mock API
 
-The `cn.taketoday.mock.web` package contains a comprehensive set of Servlet API
+The `infra.mock.web` package contains a comprehensive set of Servlet API
 mock objects that are useful for testing web contexts, controllers, and filters. These
 mock objects are targeted at usage with Infra Web MVC framework and are generally more
 convenient to use than dynamic mock objects (such as https://easymock.org/[EasyMock])
 or alternative Servlet API mock objects (such as http://www.mockobjects.com[MockObjects]).
 
-TIP: Since TODAY Framework 6.0, the mock objects in `cn.taketoday.mock.web` are
-based on the Servlet 6.0 API.
 
 The Web MVC Test framework builds on the mock Servlet API objects to provide an
 integration testing framework for Web MVC. See xref:testing/mvc-test-framework.adoc[MockMvc].
@@ -75,9 +73,9 @@ integration testing framework for Web MVC. See xref:testing/mvc-test-framework.a
 [[mock-objects-web-reactive]]
 === Infra Web Reactive
 
-The `cn.taketoday.mock.http.server.reactive` package contains mock implementations
+The `infra.mock.http.server.reactive` package contains mock implementations
 of `ServerHttpRequest` and `ServerHttpResponse` for use in WebFlux applications. The
-`cn.taketoday.mock.web.server` package contains a mock `ServerWebExchange` that
+`infra.mock.web.server` package contains a mock `ServerWebExchange` that
 depends on those mock request and response objects.
 
 Both `MockServerHttpRequest` and `MockServerHttpResponse` extend from the same abstract
@@ -109,7 +107,7 @@ categories:
 [[unit-testing-utilities]]
 === General Testing Utilities
 
-The `cn.taketoday.test.util` package contains several general purpose utilities
+The `infra.test.util` package contains several general purpose utilities
 for use in unit and integration testing.
 
 {today-framework-api}/test/util/AopTestUtils.html[`AopTestUtils`] is a collection of
@@ -154,7 +152,7 @@ server for the port it is currently using.
 [[unit-testing-mvc]]
 === Web MVC Testing Utilities
 
-The `cn.taketoday.test.web` package contains
+The `infra.test.web` package contains
 {today-framework-api}/test/web/ModelAndViewAssert.html[`ModelAndViewAssert`], which you
 can use in combination with JUnit, TestNG, or any other testing framework for unit tests
 that deal with Web MVC `ModelAndView` objects.

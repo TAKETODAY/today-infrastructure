@@ -7,7 +7,7 @@
 与Bean自身通过直接实例化类或使用如服务定位器模式等方式来控制其依赖项的创建或定位相反，
 IoC容器负责管理和注入依赖项，从而实现了控制反转的概念。
 
-实现 IoC 容器的包主要是 `cn.taketoday.beans` 和 `cn.taketoday.context`
+实现 IoC 容器的包主要是 `infra.beans` 和 `infra.context`
 {today-framework-api}/beans/factory/BeanFactory.html[`BeanFactory`]
 接口提供了能够管理任何类型对象的高级配置机制。
 {today-framework-api}/context/ApplicationContext.html[`ApplicationContext`] 继承自 `BeanFactory`。

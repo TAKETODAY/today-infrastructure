@@ -9,7 +9,7 @@ it create objects of a different type.)
 NOTE: The Infra AOP support also uses factory beans under the covers.
 
 The basic way to create an AOP proxy in Infra is to use the
-`cn.taketoday.aop.framework.ProxyFactoryBean`. This gives complete control over
+`infra.aop.framework.ProxyFactoryBean`. This gives complete control over
 the pointcuts, any advice that applies, and their ordering. However, there are simpler
 options that are preferable if you do not need such control.
 
@@ -42,7 +42,7 @@ In common with most `FactoryBean` implementations provided with Infra-, the
 * Specify the target you want to proxy.
 * Specify whether to use CGLIB (described later and see also xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[JDK- and CGLIB-based proxies]).
 
-Some key properties are inherited from `cn.taketoday.aop.framework.ProxyConfig`
+Some key properties are inherited from `infra.aop.framework.ProxyConfig`
 (the superclass for all AOP proxy factories in Infra). These key properties include
 the following:
 
@@ -162,11 +162,11 @@ The following listing shows the example:
   <property name="someProperty" value="Custom string property value"/>
 </bean>
 
-<bean id="debugInterceptor" class="cn.taketoday.aop.interceptor.DebugInterceptor">
+<bean id="debugInterceptor" class="infra.aop.interceptor.DebugInterceptor">
 </bean>
 
 <bean id="person"
-  class="cn.taketoday.aop.framework.ProxyFactoryBean">
+  class="infra.aop.framework.ProxyFactoryBean">
   <property name="proxyInterfaces" value="com.mycompany.Person"/>
 
   <property name="target" ref="personTarget"/>
@@ -229,9 +229,9 @@ anonymous inner bean:
   <property name="someProperty" value="Custom string property value"/>
 </bean>
 
-<bean id="debugInterceptor" class="cn.taketoday.aop.interceptor.DebugInterceptor"/>
+<bean id="debugInterceptor" class="infra.aop.interceptor.DebugInterceptor"/>
 
-<bean id="person" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+<bean id="person" class="infra.aop.framework.ProxyFactoryBean">
   <property name="proxyInterfaces" value="com.mycompany.Person"/>
   <!-- Use inner bean, not local reference to target -->
   <property name="target">
@@ -307,7 +307,7 @@ two global advisors:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="proxy" class="cn.taketoday.aop.framework.ProxyFactoryBean">
+<bean id="proxy" class="infra.aop.framework.ProxyFactoryBean">
   <property name="target" ref="service"/>
   <property name="interceptorNames">
     <list>
@@ -316,8 +316,8 @@ two global advisors:
   </property>
 </bean>
 
-<bean id="global_debug" class="cn.taketoday.aop.interceptor.DebugInterceptor"/>
-<bean id="global_performance" class="cn.taketoday.aop.interceptor.PerformanceMonitorInterceptor"/>
+<bean id="global_debug" class="infra.aop.interceptor.DebugInterceptor"/>
+<bean id="global_performance" class="infra.aop.interceptor.PerformanceMonitorInterceptor"/>
 ----
 
 

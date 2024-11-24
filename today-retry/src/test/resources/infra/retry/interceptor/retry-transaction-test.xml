@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                        http://www.springframework.org/schema/aop
+                        https://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+                        http://www.springframework.org/schema/tx
+                        https://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+  <aop:config>
+    <aop:pointcut id="transactional"
+        expression="execution(* infra..RetryOperationsInterceptorTests.Service.doTansactional(..))" />
+    <aop:advisor pointcut-ref="transactional"
+        advice-ref="retryAdvice" order="-1" />
+    <aop:advisor pointcut-ref="transactional" advice-ref="txAdvice" order="0" />
+  </aop:config>
+
+  <bean id="bean"
+      class="infra.retry.interceptor.RetryOperationsInterceptorTests$ServiceImpl" />
+
+  <bean id="retryAdvice"
+      class="infra.retry.interceptor.RetryOperationsInterceptor" />
+
+  <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+      <tx:method name="*" />
+    </tx:attributes>
+  </tx:advice>
+
+  <bean id="transactionManager"
+      class="infra.retry.ResourcelessTransactionManager" />
+
+</beans>

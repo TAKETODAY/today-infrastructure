@@ -27,7 +27,7 @@ The following code shows a sample configuration for the `KeyNamingStrategy`:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="testBean" value-ref="testBean"/>
@@ -36,12 +36,12 @@ The following code shows a sample configuration for the `KeyNamingStrategy`:
     <property name="namingStrategy" ref="namingStrategy"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
 
-  <bean id="namingStrategy" class="cn.taketoday.jmx.export.naming.KeyNamingStrategy">
+  <bean id="namingStrategy" class="infra.jmx.export.naming.KeyNamingStrategy">
     <property name="mappings">
       <props>
         <prop key="testBean">bean:name=testBean1</prop>
@@ -77,7 +77,7 @@ configuration for the `MetadataNamingStrategy`:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="testBean" value-ref="testBean"/>
@@ -86,17 +86,17 @@ configuration for the `MetadataNamingStrategy`:
     <property name="namingStrategy" ref="namingStrategy"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
 
-  <bean id="namingStrategy" class="cn.taketoday.jmx.export.naming.MetadataNamingStrategy">
+  <bean id="namingStrategy" class="infra.jmx.export.naming.MetadataNamingStrategy">
     <property name="attributeSource" ref="attributeSource"/>
   </bean>
 
   <bean id="attributeSource"
-      class="cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+      class="infra.jmx.export.annotation.AnnotationJmxAttributeSource"/>
 
 </beans>
 ----

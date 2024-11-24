@@ -6,7 +6,7 @@ In Infra-, an Advisor is an aspect that contains only a single advice object ass
 with a pointcut expression.
 
 Apart from the special case of introductions, any advisor can be used with any advice.
-`cn.taketoday.aop.support.DefaultPointcutAdvisor` is the most commonly used
+`infra.aop.support.DefaultPointcutAdvisor` is the most commonly used
 advisor class. It can be used with a `MethodInterceptor`, `BeforeAdvice`, or
 `ThrowsAdvice`.
 

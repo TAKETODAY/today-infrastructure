@@ -1,5 +1,5 @@
-http\://www.springframework.org/schema/context=cn.taketoday.context.config.ContextNamespaceHandler
-http\://www.springframework.org/schema/jee=cn.taketoday.ejb.config.JeeNamespaceHandler
-http\://www.springframework.org/schema/task=cn.taketoday.scheduling.config.TaskNamespaceHandler
-http\://www.springframework.org/schema/cache=cn.taketoday.cache.config.CacheNamespaceHandler
+http\://www.springframework.org/schema/context=infra.context.config.ContextNamespaceHandler
+http\://www.springframework.org/schema/jee=infra.ejb.config.JeeNamespaceHandler
+http\://www.springframework.org/schema/task=infra.scheduling.config.TaskNamespaceHandler
+http\://www.springframework.org/schema/cache=infra.cache.config.CacheNamespaceHandler
 

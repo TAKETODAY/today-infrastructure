@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="overrideOneMethod"  class="infra.beans.factory.xml.OverrideOneMethod">
+		<lookup-method name="getPrototypeDependency" bean="jenny"/>
+		<lookup-method name="protectedOverrideSingleton" bean="david"/>
+	</bean>
+
+	<!--
+		Test that overrides work on an inherited method
+	-->
+	<bean id="overrideInheritedMethod" class="infra.beans.factory.xml.OverrideOneMethodSubclass">
+		<lookup-method name="getPrototypeDependency" bean="jenny"/>
+		<lookup-method name="protectedOverrideSingleton" bean="david"/>
+	</bean>
+
+	<!--
+		We can use this to test the construction cost of beans with method overrides
+	-->
+	<bean id="overrideOnPrototype" scope="prototype"
+			class="infra.beans.factory.xml.OverrideOneMethod">
+		<lookup-method name="getPrototypeDependency" bean="jenny"/>
+		<lookup-method name="protectedOverrideSingleton" bean="david"/>
+	</bean>
+
+	<!--
+		Effect of overrides is swapped
+	-->
+	<bean id="overrideOneMethodSwappedReturnValues"
+			class="infra.beans.factory.xml.OverrideOneMethod">
+		<lookup-method name="getPrototypeDependency" bean="david"/>
+		<lookup-method name="protectedOverrideSingleton" bean="jenny"/>
+	</bean>
+
+
+	<bean id="jenny" class="infra.beans.testfixture.beans.TestBean" scope="prototype">
+		<property name="name"><value>Jenny</value></property>
+		<property name="age"><value>30</value></property>
+		<property name="spouse">
+			<ref bean="david"/>
+		</property>
+		<property name="friends">
+			<bean class="infra.beans.testfixture.beans.TestBean"/>
+		</property>
+	</bean>
+
+	<bean id="jennyParent" class="infra.beans.testfixture.beans.TestBean">
+		<property name="name"><value>Jenny</value></property>
+		<property name="age"><value>30</value></property>
+		<property name="friends">
+			<bean class="infra.beans.testfixture.beans.TestBean"/>
+		</property>
+	</bean>
+
+	<bean id="jennyChild" class="infra.beans.testfixture.beans.TestBean" parent="jennyParent" scope="prototype">
+		<property name="spouse">
+			<ref bean="david"/>
+		</property>
+	</bean>
+
+	<bean id="david" class="infra.beans.testfixture.beans.TestBean">
+		<description>
+			Simple bean, without any collections.
+		</description>
+		<property name="name">
+			<description>The name of the user</description>
+			<value>David</value>
+		</property>
+		<property name="age"><value>27</value></property>
+	</bean>
+
+	<bean id="magicDavid" class="infra.beans.testfixture.beans.TestBean" autowire="byName"/>
+
+	<!--  this should be autowired as well! -->
+	<bean id="magicDavidDerived" parent="magicDavid" />
+
+	<bean id="spouse" class="infra.beans.testfixture.beans.TestBean">
+		<property name="name" value="Linda"/>
+	</bean>
+
+
+</beans>

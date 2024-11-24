@@ -1,0 +1,3 @@
+infra.context.index.Sample1=foo
+infra.context.index.Sample2=bar,foo
+infra.context.index.Sample3=biz

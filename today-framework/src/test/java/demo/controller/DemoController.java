@@ -25,15 +25,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import cn.taketoday.http.converter.HttpMessageNotReadableException;
-import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
-import cn.taketoday.web.annotation.ControllerAdvice;
-import cn.taketoday.web.annotation.ExceptionHandler;
-import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.annotation.POST;
-import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.annotation.RestController;
+import infra.http.converter.HttpMessageNotReadableException;
+import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.annotation.ControllerAdvice;
+import infra.web.annotation.ExceptionHandler;
+import infra.web.annotation.GET;
+import infra.web.annotation.POST;
+import infra.web.annotation.PathVariable;
+import infra.web.annotation.RequestBody;
+import infra.web.annotation.RestController;
 import lombok.Data;
 
 /**

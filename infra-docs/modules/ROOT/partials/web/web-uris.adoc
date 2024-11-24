@@ -64,7 +64,7 @@ URI uri = UriComponentsBuilder
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
+// import infra.web.util.DefaultUriBuilderFactory.EncodingMode;
 
 String baseUrl = "https://example.org";
 DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
@@ -78,7 +78,7 @@ restTemplate.setUriTemplateHandler(factory);
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
+// import infra.web.util.DefaultUriBuilderFactory.EncodingMode;
 
 String baseUrl = "https://example.org";
 DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);

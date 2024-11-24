@@ -20,7 +20,7 @@
 
 package example.scannable;
 
-import cn.taketoday.stereotype.Repository;
+import infra.stereotype.Repository;
 
 /**
  * @author Juergen Hoeller

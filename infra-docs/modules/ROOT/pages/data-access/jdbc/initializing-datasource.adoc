@@ -1,7 +1,7 @@
 [[jdbc-initializing-datasource]]
 = Initializing a `DataSource`
 
-The `cn.taketoday.jdbc.datasource.init` package provides support for initializing
+The `infra.jdbc.datasource.init` package provides support for initializing
 an existing `DataSource`. The embedded database support provides one option for creating
 and initializing a `DataSource` for an application. However, you may sometimes need to initialize
 an instance that runs on a server somewhere.

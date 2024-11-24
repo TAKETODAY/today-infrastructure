@@ -19,10 +19,10 @@
  */
 package test.demo.service.impl;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.stereotype.Service;
+import infra.beans.factory.annotation.Autowired;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.stereotype.Service;
 import jakarta.annotation.Resource;
 import test.demo.config.Config;
 import test.demo.config.User;

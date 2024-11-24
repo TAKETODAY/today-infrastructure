@@ -203,7 +203,7 @@ allowing for one thread-bound `Connection` per `DataSource`.
 
 Application code is required to retrieve the JDBC `Connection` through
 `DataSourceUtils.getConnection(DataSource)` instead of Java EE's standard
-`DataSource.getConnection`. It throws unchecked `cn.taketoday.dao` exceptions
+`DataSource.getConnection`. It throws unchecked `infra.dao` exceptions
 instead of checked `SQLExceptions`. All framework classes (such as `JdbcTemplate`) use
 this strategy implicitly. If not used with a transaction manager, the lookup strategy
 behaves exactly like `DataSource.getConnection` and can therefore be used in any case.

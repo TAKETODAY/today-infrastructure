@@ -10,7 +10,7 @@ xjc {
 
 sourceSets {
   test {
-    xjcTargetPackage = 'cn.taketoday.oxm.jaxb.test'
+    xjcTargetPackage = 'infra.oxm.jaxb.test'
   }
 }
 

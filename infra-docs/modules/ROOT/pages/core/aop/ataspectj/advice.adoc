@@ -650,7 +650,7 @@ advice, the one with the highest precedence will run second).
 When two pieces of advice defined in different aspects both need to run at the same
 join point, unless you specify otherwise, the order of execution is undefined. You can
 control the order of execution by specifying precedence. This is done in the normal
-Infra way by either implementing the `cn.taketoday.core.Ordered` interface in
+Infra way by either implementing the `infra.core.Ordered` interface in
 the aspect class or annotating it with the `@Order` annotation. Given two aspects, the
 aspect returning the lower value from `Ordered.getOrder()` (or the annotation value) has
 the higher precedence.

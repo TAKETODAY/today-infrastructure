@@ -14,10 +14,10 @@ controlling the management interfaces of your beans.
 == Using the `MBeanInfoAssembler` Interface
 
 Behind the scenes, the `MBeanExporter` delegates to an implementation of the
-`cn.taketoday.jmx.export.assembler.MBeanInfoAssembler` interface, which is
+`infra.jmx.export.assembler.MBeanInfoAssembler` interface, which is
 responsible for defining the management interface of each bean that is exposed.
 The default implementation,
-`cn.taketoday.jmx.export.assembler.SimpleReflectiveMBeanInfoAssembler`,
+`infra.jmx.export.assembler.SimpleReflectiveMBeanInfoAssembler`,
 defines a management interface that exposes all public properties and methods
 (as you saw in the examples in the preceding sections). Infra provides two
 additional implementations of the `MBeanInfoAssembler` interface that let you
@@ -30,9 +30,9 @@ or any arbitrary interface.
 
 By using the `MetadataMBeanInfoAssembler`, you can define the management interfaces
 for your beans by using source-level metadata. The reading of metadata is encapsulated
-by the `cn.taketoday.jmx.export.metadata.JmxAttributeSource` interface.
+by the `infra.jmx.export.metadata.JmxAttributeSource` interface.
 Infra JMX provides a default implementation that uses Java annotations, namely
-`cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource`.
+`infra.jmx.export.annotation.AnnotationJmxAttributeSource`.
 You must configure the `MetadataMBeanInfoAssembler` with an implementation instance of
 the `JmxAttributeSource` interface for it to function correctly (there is no default).
 
@@ -51,11 +51,11 @@ used in xref:integration/jmx/exporting.adoc#jmx-exporting-mbeanserver[Creating a
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.jmx;
+package infra.jmx;
 
-import cn.taketoday.jmx.export.annotation.ManagedResource;
-import cn.taketoday.jmx.export.annotation.ManagedOperation;
-import cn.taketoday.jmx.export.annotation.ManagedAttribute;
+import infra.jmx.export.annotation.ManagedResource;
+import infra.jmx.export.annotation.ManagedOperation;
+import infra.jmx.export.annotation.ManagedAttribute;
 
 @ManagedResource(
     objectName="bean:name=testBean4",
@@ -130,28 +130,28 @@ The following configuration shows how you can configure the `MBeanExporter` to u
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="assembler" ref="assembler"/>
     <property name="namingStrategy" ref="namingStrategy"/>
     <property name="autodetect" value="true"/>
   </bean>
 
   <bean id="jmxAttributeSource"
-      class="cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+      class="infra.jmx.export.annotation.AnnotationJmxAttributeSource"/>
 
   <!-- will create management interface using annotation metadata -->
   <bean id="assembler"
-      class="cn.taketoday.jmx.export.assembler.MetadataMBeanInfoAssembler">
+      class="infra.jmx.export.assembler.MetadataMBeanInfoAssembler">
     <property name="attributeSource" ref="jmxAttributeSource"/>
   </bean>
 
   <!-- will pick up the ObjectName from the annotation -->
   <bean id="namingStrategy"
-      class="cn.taketoday.jmx.export.naming.MetadataNamingStrategy">
+      class="infra.jmx.export.naming.MetadataNamingStrategy">
     <property name="attributeSource" ref="jmxAttributeSource"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.AnnotationTestBean">
+  <bean id="testBean" class="infra.jmx.AnnotationTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -268,20 +268,20 @@ bean name as the `ObjectName`, which results in a configuration similar to the f
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <!-- notice how no 'beans' are explicitly configured here -->
     <property name="autodetect" value="true"/>
     <property name="assembler" ref="assembler"/>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
 
-  <bean id="assembler" class="cn.taketoday.jmx.export.assembler.MetadataMBeanInfoAssembler">
+  <bean id="assembler" class="infra.jmx.export.assembler.MetadataMBeanInfoAssembler">
     <property name="attributeSource">
-      <bean class="cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+      <bean class="infra.jmx.export.annotation.AnnotationJmxAttributeSource"/>
     </property>
   </bean>
 
@@ -339,22 +339,22 @@ this interface as the definition for the management interface:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean5" value-ref="testBean"/>
       </map>
     </property>
     <property name="assembler">
-      <bean class="cn.taketoday.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
+      <bean class="infra.jmx.export.assembler.InterfaceBasedMBeanInfoAssembler">
         <property name="managedInterfaces">
-          <value>cn.taketoday.jmx.IJmxTestBean</value>
+          <value>infra.jmx.IJmxTestBean</value>
         </property>
       </bean>
     </property>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -390,14 +390,14 @@ configuration:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+<bean id="exporter" class="infra.jmx.export.MBeanExporter">
   <property name="beans">
     <map>
       <entry key="bean:name=testBean5" value-ref="testBean"/>
     </map>
   </property>
   <property name="assembler">
-    <bean class="cn.taketoday.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+    <bean class="infra.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
       <property name="managedMethods">
         <value>add,myOperation,getName,setName,getAge</value>
       </property>

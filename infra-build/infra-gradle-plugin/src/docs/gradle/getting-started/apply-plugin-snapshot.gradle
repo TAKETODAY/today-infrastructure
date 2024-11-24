@@ -8,4 +8,4 @@ buildscript {
   }
 }
 
-apply plugin: 'cn.taketoday'
+apply plugin: 'infra'

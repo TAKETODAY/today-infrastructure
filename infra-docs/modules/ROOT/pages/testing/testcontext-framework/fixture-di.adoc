@@ -128,7 +128,7 @@ shows this configuration:
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="sessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean">
+  <bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
     <!-- configuration elided for brevity -->
   </bean>
 

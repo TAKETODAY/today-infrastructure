@@ -1,0 +1,21 @@
+package infra.gradle.plugin
+
+plugins {
+	id 'infra.application'
+	id 'infra.application.aot'
+	id 'java'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation "org.hibernate.orm:hibernate-core:6.1.1.Final"
+}
+
+task('processAotClasspath') {
+	doFirst {
+		tasks.findByName('processAot').classpath.files.each { println it }
+	}
+}

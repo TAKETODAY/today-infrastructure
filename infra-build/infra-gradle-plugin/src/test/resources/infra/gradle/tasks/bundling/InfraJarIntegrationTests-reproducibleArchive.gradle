@@ -1,0 +1,12 @@
+package infra.gradle.tasks.bundling
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+	preserveFileTimestamps = false
+	reproducibleFileOrder = true
+}

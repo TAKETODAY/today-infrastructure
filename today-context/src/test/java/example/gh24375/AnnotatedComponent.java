@@ -20,7 +20,7 @@
 
 package example.gh24375;
 
-import cn.taketoday.stereotype.Component;
+import infra.stereotype.Component;
 
 @Component
 @EnclosingAnnotation(nested2 = @NestedAnnotation)

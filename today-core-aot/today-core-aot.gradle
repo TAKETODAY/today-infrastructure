@@ -1,4 +1,4 @@
-import cn.taketoday.build.shadow.ShadowSource
+import infra.building.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Core for AOT infrastructure."
@@ -14,12 +14,12 @@ tasks.register('javapoetRepackJar', ShadowJar) {
   archiveBaseName = 'today-javapoet-repack'
   archiveVersion = javapoetVersion
   configurations = [project.configurations.javapoet]
-  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+  relocate('com.squareup.javapoet', 'infra.javapoet')
 }
 
 tasks.register('javapoetSource', ShadowSource) {
   configurations = [project.configurations.javapoet]
-  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+  relocate('com.squareup.javapoet', 'infra.javapoet')
   outputDirectory.set file("build/shadow-source/javapoet")
 }
 
@@ -82,7 +82,7 @@ jar {
 
   dependsOn javapoetRepackJar
   from(zipTree(javapoetRepackJar.archiveFile)) {
-    include "cn/taketoday/javapoet/**"
+    include "infra/javapoet/**"
   }
 
 }

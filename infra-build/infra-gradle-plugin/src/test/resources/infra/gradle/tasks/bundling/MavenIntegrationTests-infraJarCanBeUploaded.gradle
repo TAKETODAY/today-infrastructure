@@ -1,0 +1,22 @@
+package infra.gradle.tasks.bundling
+
+plugins {
+	id 'java'
+	id 'maven'
+	id 'infra.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+uploadInfraArchives {
+	repositories {
+		mavenDeployer {
+		 	repository(url: "file:${buildDir}/repo")
+		}
+	}
+}

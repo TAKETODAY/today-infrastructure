@@ -371,7 +371,7 @@ for details).
 The `@Profile` annotation is actually implemented by using a much more flexible annotation
 called {today-framework-api}/context/annotation/Conditional.html[`@Conditional`].
 The `@Conditional` annotation indicates specific
-`cn.taketoday.context.annotation.Condition` implementations that should be
+`infra.context.annotation.Condition` implementations that should be
 consulted before a `@Bean` is registered.
 
 Implementations of the `Condition` interface provide a `matches(...)`
@@ -474,7 +474,7 @@ The following example shows part of a sample `system-test-config.xml` file:
 
   <bean class="com.acme.AppConfig"/>
 
-  <bean class="cn.taketoday.jdbc.datasource.DriverManagerDataSource">
+  <bean class="infra.jdbc.datasource.DriverManagerDataSource">
     <property name="url" value="${jdbc.url}"/>
     <property name="username" value="${jdbc.username}"/>
     <property name="password" value="${jdbc.password}"/>
@@ -532,7 +532,7 @@ The following example shows the modified `system-test-config.xml` file:
   <context:component-scan base-package="com.acme"/>
   <context:property-placeholder location="classpath:/com/acme/jdbc.properties"/>
 
-  <bean class="cn.taketoday.jdbc.datasource.DriverManagerDataSource">
+  <bean class="infra.jdbc.datasource.DriverManagerDataSource">
     <property name="url" value="${jdbc.url}"/>
     <property name="username" value="${jdbc.username}"/>
     <property name="password" value="${jdbc.password}"/>
