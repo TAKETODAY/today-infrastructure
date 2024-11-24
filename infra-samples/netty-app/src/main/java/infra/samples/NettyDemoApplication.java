@@ -17,8 +17,8 @@
 
 package infra.samples;
 
-import infra.InfraApplication;
-import infra.builder.ApplicationBuilder;
+import infra.app.InfraApplication;
+import infra.app.builder.ApplicationBuilder;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
