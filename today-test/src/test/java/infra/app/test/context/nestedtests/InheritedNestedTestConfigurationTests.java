@@ -20,7 +20,7 @@ package infra.app.test.context.nestedtests;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import infra.InfraConfiguration;
+import infra.app.InfraConfiguration;
 import infra.app.test.context.InfraTest;
 import infra.app.test.mock.mockito.MockBean;
 import infra.beans.factory.annotation.Autowired;

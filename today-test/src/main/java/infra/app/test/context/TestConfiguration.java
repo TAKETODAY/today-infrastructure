@@ -23,7 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.InfraConfiguration;
+import infra.app.InfraConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.core.annotation.AliasFor;

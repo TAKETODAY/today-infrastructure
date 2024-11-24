@@ -19,7 +19,7 @@ package infra.app.test.context;
 
 import org.junit.jupiter.api.Test;
 
-import infra.InfraConfiguration;
+import infra.app.InfraConfiguration;
 import infra.app.test.context.example.ExampleConfig;
 import infra.app.test.context.example.scan.Example;
 

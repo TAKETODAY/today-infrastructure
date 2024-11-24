@@ -17,7 +17,7 @@
 
 package infra.app.test.context.bootstrap;
 
-import infra.InfraConfiguration;
+import infra.app.InfraConfiguration;
 
 /**
  * Example configuration used in

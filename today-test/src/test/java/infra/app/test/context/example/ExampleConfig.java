@@ -17,7 +17,7 @@
 
 package infra.app.test.context.example;
 
-import infra.InfraConfiguration;
+import infra.app.InfraConfiguration;
 
 /**
  * Example config used in {@code AnnotatedClassFinderTests}.
