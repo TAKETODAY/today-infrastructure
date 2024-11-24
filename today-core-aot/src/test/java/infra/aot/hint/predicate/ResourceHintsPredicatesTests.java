@@ -25,8 +25,6 @@ import java.util.function.Predicate;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Tests for {@link ReflectionHintsPredicates}.
  *

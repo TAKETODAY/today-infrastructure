@@ -1,5 +1,5 @@
-import infra.building.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import infra.building.shadow.ShadowSource
 
 description = "Core for AOT infrastructure."
 

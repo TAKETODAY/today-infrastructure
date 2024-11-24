@@ -33,7 +33,6 @@ import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

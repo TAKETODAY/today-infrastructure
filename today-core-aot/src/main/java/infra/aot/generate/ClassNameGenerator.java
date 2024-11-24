@@ -17,12 +17,11 @@
 
 package infra.aot.generate;
 
-import infra.javapoet.ClassName;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import infra.javapoet.ClassName;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
