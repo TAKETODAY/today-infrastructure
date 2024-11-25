@@ -1,4 +1,4 @@
-package infra.gradle.plugin
+
 
 plugins {
 	id 'war'

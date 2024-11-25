@@ -1,4 +1,4 @@
-package infra.gradle.tasks.run
+
 
 plugins {
 	id 'application'

@@ -1,4 +1,4 @@
-package infra.gradle.plugin
+
 
 def collectAttributes(String configurationName) {
   def attributes = configurations.findByName(configurationName).attributes
