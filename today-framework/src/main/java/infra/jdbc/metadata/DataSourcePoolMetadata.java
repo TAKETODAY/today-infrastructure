@@ -19,6 +19,8 @@ package infra.jdbc.metadata;
 
 import javax.sql.DataSource;
 
+import infra.lang.Nullable;
+
 /**
  * Provides access meta-data that is commonly available from most pooled
  * {@link DataSource} implementations.
@@ -44,6 +46,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the usage value or {@code null}
    */
+  @Nullable
   Float getUsage();
 
   /**
@@ -52,6 +55,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the number of active connections or {@code null}
    */
+  @Nullable
   Integer getActive();
 
   /**
@@ -61,6 +65,7 @@ public interface DataSourcePoolMetadata {
    * @return the number of established but idle connections or {@code null}
    * @see #getActive()
    */
+  @Nullable
   default Integer getIdle() {
     return null;
   }
@@ -72,6 +77,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the maximum number of active connections or {@code null}
    */
+  @Nullable
   Integer getMax();
 
   /**
@@ -80,6 +86,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the minimum number of active connections or {@code null}
    */
+  @Nullable
   Integer getMin();
 
   /**
@@ -88,6 +95,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the validation query or {@code null}
    */
+  @Nullable
   String getValidationQuery();
 
   /**
@@ -97,6 +105,7 @@ public interface DataSourcePoolMetadata {
    *
    * @return the default auto-commit state or {@code null}
    */
+  @Nullable
   Boolean getDefaultAutoCommit();
 
 }

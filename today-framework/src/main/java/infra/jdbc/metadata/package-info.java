@@ -18,4 +18,9 @@
 /**
  * Support for accessing JDBC {@link javax.sql.DataSource} metadata.
  */
+@NonNullApi
+@NonNullFields
 package infra.jdbc.metadata;
+
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;
