@@ -36,6 +36,7 @@ import infra.util.StringUtils;
  * @param <T> the type of object returned by the callback
  * @param <E> the type of exception it declares may be thrown
  * @author Marius Grama
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see StatefulRetryOperationsInterceptor
  * @see RetryOperationsInterceptor
  * @see MethodInvocationRetryListenerSupport

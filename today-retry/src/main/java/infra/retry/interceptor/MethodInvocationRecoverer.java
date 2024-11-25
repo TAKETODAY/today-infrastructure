@@ -22,6 +22,7 @@ package infra.retry.interceptor;
  *
  * @param <T> the return type
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface MethodInvocationRecoverer<T> {
