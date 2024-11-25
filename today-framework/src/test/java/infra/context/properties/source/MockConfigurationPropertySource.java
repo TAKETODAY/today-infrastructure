@@ -22,10 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import infra.context.properties.source.ConfigurationProperty;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.IterableConfigurationPropertySource;
 import infra.context.testfixture.origin.MockOrigin;
 import infra.lang.Nullable;
 import infra.origin.OriginTrackedValue;

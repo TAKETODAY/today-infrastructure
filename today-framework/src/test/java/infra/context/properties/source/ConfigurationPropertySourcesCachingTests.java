@@ -24,11 +24,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.context.properties.source.CachingConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyCaching;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertySourcesCaching;
-
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;

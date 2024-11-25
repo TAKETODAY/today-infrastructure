@@ -22,8 +22,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 
-import infra.annotation.config.ssl.BundleContentProperty;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 

@@ -20,10 +20,10 @@ package infra.annotation.config.web.reactive.client;
 import org.junit.jupiter.api.Test;
 
 import infra.annotation.config.ssl.SslAutoConfiguration;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
 import infra.web.client.reactive.WebClient;

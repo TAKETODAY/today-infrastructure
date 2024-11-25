@@ -19,9 +19,6 @@ package infra.context.properties.source;
 
 import java.util.List;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.PropertyMapper;
-
 /**
  * Abstract base class for {@link PropertyMapper} tests.
  *

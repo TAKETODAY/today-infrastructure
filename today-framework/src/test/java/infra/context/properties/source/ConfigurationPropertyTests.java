@@ -19,9 +19,6 @@ package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.ConfigurationProperty;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
 import infra.core.env.PropertySource;
 import infra.origin.Origin;
 import infra.origin.OriginProvider;

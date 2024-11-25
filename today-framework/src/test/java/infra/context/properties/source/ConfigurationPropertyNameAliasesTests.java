@@ -19,9 +19,6 @@ package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertyNameAliases;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 

@@ -29,8 +29,6 @@ import infra.context.BootstrapContext;
 import infra.context.annotation.Primary;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.context.properties.ConfigurationProperties;
-import infra.context.properties.ConfigurationPropertiesBeanRegistrar;
 import infra.context.properties.bind.BindMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;

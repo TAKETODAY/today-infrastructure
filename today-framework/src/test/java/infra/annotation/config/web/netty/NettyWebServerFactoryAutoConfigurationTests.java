@@ -24,9 +24,9 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
 
 import infra.annotation.config.web.RandomPortWebServerConfig;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.properties.bind.Binder;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.test.classpath.ClassPathExclusions;
 import infra.util.DataSize;
 import infra.web.server.ServerProperties;

@@ -26,7 +26,6 @@ import java.util.Objects;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.config.TypeExcludeFilter;
-import infra.context.properties.ConfigurationPropertiesScan;
 import infra.context.properties.scan.valid.a.AScanConfiguration;
 import infra.context.properties.scan.valid.b.BScanConfiguration.BFirstProperties;
 import infra.context.properties.scan.valid.b.BScanConfiguration.BProperties;

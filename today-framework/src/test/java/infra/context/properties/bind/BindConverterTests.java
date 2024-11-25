@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import infra.beans.PropertyEditorRegistry;
-import infra.context.properties.bind.BindConverter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionFailedException;

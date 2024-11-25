@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
@@ -30,7 +31,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleRegistry;
 import infra.core.ssl.SslBundles;
-import infra.app.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

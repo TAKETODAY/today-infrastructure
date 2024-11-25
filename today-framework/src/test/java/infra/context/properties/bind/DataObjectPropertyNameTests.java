@@ -19,8 +19,6 @@ package infra.context.properties.bind;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.bind.DataObjectPropertyName;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -23,15 +23,13 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import infra.context.properties.scan.combined.d.OtherCombinedConfiguration;
-import infra.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
-import infra.context.properties.ConfigurationPropertiesScan;
-import infra.context.properties.ConfigurationPropertiesScanRegistrar;
 import infra.context.properties.bind.BindMethod;
 import infra.context.properties.scan.combined.c.CombinedConfiguration;
+import infra.context.properties.scan.combined.d.OtherCombinedConfiguration;
+import infra.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.classreading.SimpleMetadataReaderFactory;
 import infra.mock.env.MockEnvironment;

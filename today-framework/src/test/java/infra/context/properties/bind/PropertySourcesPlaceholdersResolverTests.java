@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.context.properties.bind.PropertySourcesPlaceholdersResolver;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;

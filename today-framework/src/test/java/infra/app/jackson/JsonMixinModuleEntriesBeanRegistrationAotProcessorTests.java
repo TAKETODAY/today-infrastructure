@@ -86,7 +86,7 @@ class JsonMixinModuleEntriesBeanRegistrationAotProcessorTests {
   @Test
   void processAheadOfTimeWhenNonAccessibleClassShouldRegisterClassName() {
     Class<?> privateMixinClass = ClassUtils
-            .resolveClassName("infra.jackson.scan.e.PrivateMixInClass", null);
+            .resolveClassName("infra.app.jackson.scan.e.PrivateMixInClass", null);
     registerEntries(privateMixinClass);
     compile((freshContext, compiled) -> {
       assertThat(freshContext.getBean(TestConfiguration.class).scanningInvoked).isFalse();

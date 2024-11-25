@@ -19,12 +19,6 @@ package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.FilteredIterableConfigurationPropertiesSource;
-import infra.context.properties.source.IterableConfigurationPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

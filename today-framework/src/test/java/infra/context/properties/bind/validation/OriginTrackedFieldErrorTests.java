@@ -19,7 +19,6 @@ package infra.context.properties.bind.validation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.bind.validation.OriginTrackedFieldError;
 import infra.context.testfixture.origin.MockOrigin;
 import infra.origin.Origin;
 import infra.validation.FieldError;

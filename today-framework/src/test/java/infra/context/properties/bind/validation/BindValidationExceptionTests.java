@@ -19,9 +19,6 @@ package infra.context.properties.bind.validation;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.bind.validation.BindValidationException;
-import infra.context.properties.bind.validation.ValidationErrors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;

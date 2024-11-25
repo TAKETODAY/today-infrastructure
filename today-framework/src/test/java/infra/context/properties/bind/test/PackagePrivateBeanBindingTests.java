@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
+import infra.context.properties.source.MockConfigurationPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

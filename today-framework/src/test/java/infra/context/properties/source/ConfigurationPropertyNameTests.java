@@ -24,9 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertyName.Form;
-import infra.context.properties.source.InvalidConfigurationPropertyNameException;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

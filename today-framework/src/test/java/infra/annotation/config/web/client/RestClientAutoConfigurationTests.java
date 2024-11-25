@@ -22,11 +22,11 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.ssl.SslBundles;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.codec.CodecCustomizer;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;

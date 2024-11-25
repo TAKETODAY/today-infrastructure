@@ -24,12 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.context.properties.bind.BindException;
 import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
-import infra.context.properties.bind.handler.IgnoreTopLevelConverterNotFoundBindHandler;
 import infra.context.properties.source.ConfigurationPropertySource;
+import infra.context.properties.source.MockConfigurationPropertySource;
 import infra.core.conversion.ConverterNotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

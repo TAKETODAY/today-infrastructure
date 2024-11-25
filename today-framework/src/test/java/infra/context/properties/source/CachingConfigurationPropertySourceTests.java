@@ -19,10 +19,6 @@ package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.CachingConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyCaching;
-import infra.context.properties.source.ConfigurationPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

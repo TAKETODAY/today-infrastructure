@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnCheckpointRestore;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.classpath.ClassPathOverrides;
 

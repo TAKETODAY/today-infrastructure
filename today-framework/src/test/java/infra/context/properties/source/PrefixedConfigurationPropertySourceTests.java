@@ -21,12 +21,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
-import infra.context.properties.source.ConfigurationProperty;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.PrefixedConfigurationPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

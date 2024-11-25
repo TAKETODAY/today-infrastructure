@@ -20,8 +20,8 @@ package infra.context.condition;
 import org.junit.jupiter.api.Test;
 
 import infra.annotation.ConditionalOnCloudPlatform;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.cloud.CloudPlatform;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 

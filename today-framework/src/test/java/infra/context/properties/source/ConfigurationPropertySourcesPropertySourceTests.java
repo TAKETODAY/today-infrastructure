@@ -22,9 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertySourcesPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

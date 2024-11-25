@@ -24,8 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import infra.context.annotation.Bean;
-import infra.context.properties.bind.BindMethod;
-import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Bindable.BindRestriction;
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationUtils;

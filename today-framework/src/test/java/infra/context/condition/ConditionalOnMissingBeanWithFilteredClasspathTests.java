@@ -23,7 +23,6 @@ import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.cache.support.CaffeineCacheManager;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnMissingBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

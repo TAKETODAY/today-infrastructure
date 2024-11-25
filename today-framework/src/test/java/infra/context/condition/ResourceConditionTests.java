@@ -25,7 +25,6 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ResourceCondition;
 import infra.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;

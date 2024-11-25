@@ -27,12 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.context.properties.source.MockConfigurationPropertySource;
-import infra.context.properties.bind.Bindable;
-import infra.context.properties.bind.Binder;
-import infra.context.properties.bind.BoundPropertiesTrackingBindHandler;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertySource;
+import infra.context.properties.source.MockConfigurationPropertySource;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;

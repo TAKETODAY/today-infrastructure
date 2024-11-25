@@ -19,10 +19,10 @@ package infra.context.condition;
 
 import java.util.Map;
 
+import infra.http.server.reactive.HttpHandler;
+import infra.web.server.WebServer;
 import infra.web.server.reactive.AbstractReactiveWebServerFactory;
 import infra.web.server.reactive.ReactiveWebServerFactory;
-import infra.web.server.WebServer;
-import infra.http.server.reactive.HttpHandler;
 
 import static org.mockito.Mockito.spy;
 

@@ -25,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import infra.context.properties.bind.validation.ValidationErrors;
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.testfixture.origin.MockOrigin;

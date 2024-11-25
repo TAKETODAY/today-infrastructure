@@ -26,12 +26,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import infra.context.properties.source.ConfigurationPropertyCaching;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertySources;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.DefaultConfigurationPropertySource;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;

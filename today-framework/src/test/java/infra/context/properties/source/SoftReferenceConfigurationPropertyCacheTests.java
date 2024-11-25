@@ -25,8 +25,6 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.context.properties.source.SoftReferenceConfigurationPropertyCache;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

@@ -27,8 +27,6 @@ import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
-import infra.context.condition.AllNestedConditions;
-import infra.context.condition.ConditionalOnProperty;
 import infra.core.type.AnnotatedTypeMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;

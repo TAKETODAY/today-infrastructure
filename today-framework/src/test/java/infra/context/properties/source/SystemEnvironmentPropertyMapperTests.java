@@ -21,10 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.BiPredicate;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.PropertyMapper;
-import infra.context.properties.source.SystemEnvironmentPropertyMapper;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

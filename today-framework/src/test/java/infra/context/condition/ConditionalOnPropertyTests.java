@@ -26,15 +26,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Consumer;
 
+import infra.app.ApplicationType;
+import infra.app.builder.ApplicationBuilder;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnProperty;
 import infra.core.annotation.AliasFor;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.StandardEnvironment;
-import infra.app.ApplicationType;
-import infra.app.builder.ApplicationBuilder;
 import infra.test.util.TestPropertyValues;
 
 import static org.assertj.core.api.Assertions.assertThat;

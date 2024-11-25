@@ -23,9 +23,6 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import infra.aot.test.generate.TestGenerationContext;
-import infra.context.properties.scan.valid.b.BScanConfiguration;
-import infra.context.properties.scan.valid.b.BScanConfiguration.BFirstProperties;
-import infra.context.properties.scan.valid.b.BScanConfiguration.BSecondProperties;
 import infra.beans.factory.aot.AotServices;
 import infra.beans.factory.aot.BeanRegistrationAotContribution;
 import infra.beans.factory.aot.BeanRegistrationAotProcessor;
@@ -37,6 +34,8 @@ import infra.context.BootstrapContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.aot.ApplicationContextAotGenerator;
+import infra.context.properties.scan.valid.b.BScanConfiguration.BFirstProperties;
+import infra.context.properties.scan.valid.b.BScanConfiguration.BSecondProperties;
 import infra.context.support.GenericApplicationContext;
 import infra.core.test.tools.CompileWithForkedClassLoader;
 import infra.core.test.tools.TestCompiler;

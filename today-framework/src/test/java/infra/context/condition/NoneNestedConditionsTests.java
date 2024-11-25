@@ -25,8 +25,6 @@ import infra.context.annotation.Condition;
 import infra.context.annotation.ConditionContext;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnProperty;
-import infra.context.condition.NoneNestedConditions;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.test.util.TestPropertyValues;
 

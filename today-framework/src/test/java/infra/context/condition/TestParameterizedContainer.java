@@ -17,9 +17,6 @@
 
 package infra.context.condition;
 
-import infra.context.condition.ConditionalOnBean;
-import infra.context.condition.ConditionalOnMissingBean;
-
 /**
  * Simple parameterized container for testing {@link ConditionalOnBean @ConditionalOnBean}
  * and {@link ConditionalOnMissingBean @ConditionalOnMissingBean}.

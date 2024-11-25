@@ -25,7 +25,6 @@ import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.properties.PropertySourcesDeducer;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;

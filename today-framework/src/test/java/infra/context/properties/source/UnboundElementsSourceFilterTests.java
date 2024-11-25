@@ -20,8 +20,6 @@ package infra.context.properties.source;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.UnboundElementsSourceFilter;
 import infra.core.env.StandardEnvironment;
 import infra.mock.env.MockPropertySource;
 

@@ -17,8 +17,6 @@
 
 package infra.context.properties;
 
-import infra.context.properties.ConfigurationProperties;
-
 /**
  * A {@link ConfigurationProperties @ConfigurationProperties} with an additional
  * single-arg public constructor. Used in {@link ConfigurationPropertiesTests}.

@@ -20,15 +20,15 @@ package infra.context.condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import infra.annotation.ConditionalOnWebApplication;
+import infra.annotation.ConditionalOnWebApplication.Type;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.annotation.ConditionalOnWebApplication;
-import infra.annotation.ConditionalOnWebApplication.Type;
-import infra.web.server.reactive.context.AnnotationConfigReactiveWebApplicationContext;
-import infra.web.server.reactive.ReactiveWebServerFactory;
 import infra.http.server.reactive.HttpHandler;
+import infra.web.server.reactive.ReactiveWebServerFactory;
+import infra.web.server.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

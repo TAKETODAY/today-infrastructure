@@ -22,14 +22,6 @@ import org.mockito.Answers;
 
 import java.util.Collections;
 
-import infra.context.properties.source.AliasedConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationProperty;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertyNameAliases;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.MapConfigurationPropertySource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

@@ -23,22 +23,14 @@ import org.mockito.Mockito;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.context.properties.source.ConfigurationProperty;
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.DefaultConfigurationPropertySource;
-import infra.context.properties.source.DefaultPropertyMapper;
-import infra.context.properties.source.IterableConfigurationPropertySource;
-import infra.context.properties.source.PropertyMapper;
+import infra.app.env.RandomValuePropertySource;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
-import infra.app.env.RandomValuePropertySource;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link DefaultConfigurationPropertySource}.

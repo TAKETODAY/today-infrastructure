@@ -17,8 +17,6 @@
 
 package infra.context.properties;
 
-import infra.context.properties.ConfigurationProperties;
-import infra.context.properties.EnableConfigurationProperties;
 import infra.validation.Errors;
 import infra.validation.ValidationUtils;
 import infra.validation.Validator;

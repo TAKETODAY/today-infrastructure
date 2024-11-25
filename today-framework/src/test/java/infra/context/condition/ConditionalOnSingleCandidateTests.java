@@ -26,8 +26,6 @@ import infra.context.annotation.Fallback;
 import infra.context.annotation.Primary;
 import infra.context.annotation.Scope;
 import infra.context.annotation.ScopedProxyMode;
-import infra.context.condition.ConditionalOnSingleCandidate;
-import infra.context.condition.SearchStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

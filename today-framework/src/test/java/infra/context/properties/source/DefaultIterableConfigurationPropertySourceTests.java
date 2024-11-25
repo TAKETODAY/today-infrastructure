@@ -27,24 +27,17 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.DefaultIterableConfigurationPropertySource;
-import infra.context.properties.source.DefaultPropertyMapper;
-import infra.context.properties.source.PropertyMapper;
-import infra.context.properties.source.SystemEnvironmentPropertyMapper;
+import infra.app.env.OriginTrackedMapPropertySource;
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.app.env.OriginTrackedMapPropertySource;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link DefaultIterableConfigurationPropertySource}.

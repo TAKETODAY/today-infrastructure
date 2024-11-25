@@ -28,8 +28,6 @@ import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.properties.ConfigurationPropertiesBinding;
-import infra.context.properties.ConversionServiceDeducer;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.Converter;
 import infra.format.support.ApplicationConversionService;

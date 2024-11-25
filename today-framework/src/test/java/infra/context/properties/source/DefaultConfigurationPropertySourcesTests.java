@@ -22,16 +22,13 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Iterator;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.DefaultConfigurationPropertySources;
+import infra.app.env.RandomValuePropertySource;
 import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
-import infra.app.env.RandomValuePropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

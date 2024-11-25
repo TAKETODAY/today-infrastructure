@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import infra.context.annotation.Bean;
-import infra.context.annotation.Configuration;
-import infra.context.annotation.config.AutoConfigurations;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.app.test.context.runner.ReactiveWebApplicationContextRunner;
 import infra.app.test.context.runner.WebApplicationContextRunner;
+import infra.context.annotation.Bean;
+import infra.context.annotation.Configuration;
+import infra.context.annotation.config.AutoConfigurations;
 import infra.http.HttpStatus;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;

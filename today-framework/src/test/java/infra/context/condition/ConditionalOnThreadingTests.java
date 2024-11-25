@@ -24,8 +24,6 @@ import org.junit.jupiter.api.condition.JRE;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionalOnThreading;
-import infra.context.condition.Threading;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

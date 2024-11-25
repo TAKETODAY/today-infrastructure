@@ -22,12 +22,6 @@ import org.mockito.Answers;
 
 import java.util.Objects;
 
-import infra.context.properties.source.ConfigurationPropertyName;
-import infra.context.properties.source.ConfigurationPropertySource;
-import infra.context.properties.source.ConfigurationPropertyState;
-import infra.context.properties.source.FilteredConfigurationPropertiesSource;
-import infra.context.properties.source.FilteredIterableConfigurationPropertiesSource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;

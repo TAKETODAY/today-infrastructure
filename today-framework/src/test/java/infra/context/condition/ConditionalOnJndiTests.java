@@ -29,9 +29,6 @@ import javax.naming.Context;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.context.condition.ConditionOutcome;
-import infra.context.condition.ConditionalOnJndi;
-import infra.context.condition.OnJndiCondition;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.type.AnnotatedTypeMetadata;
 

@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import infra.context.properties.source.ConfigurationPropertySources;
-import infra.context.properties.source.ConfigurationPropertySourcesPropertyResolver;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.PropertySources;
 import infra.core.env.StandardEnvironment;

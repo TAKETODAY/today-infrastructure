@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import infra.context.properties.bind.Bindable;
-import infra.context.properties.bind.Binder;
 import infra.core.env.StandardEnvironment;
 import infra.core.env.SystemEnvironmentPropertySource;
 import infra.mock.env.MockEnvironment;

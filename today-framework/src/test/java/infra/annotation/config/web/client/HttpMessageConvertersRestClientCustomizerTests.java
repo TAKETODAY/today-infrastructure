@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.web.client.RestClient;
-import infra.annotation.config.web.client.HttpMessageConvertersRestClientCustomizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

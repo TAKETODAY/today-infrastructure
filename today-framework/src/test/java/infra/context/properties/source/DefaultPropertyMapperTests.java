@@ -19,9 +19,6 @@ package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
 
-import infra.context.properties.source.DefaultPropertyMapper;
-import infra.context.properties.source.PropertyMapper;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

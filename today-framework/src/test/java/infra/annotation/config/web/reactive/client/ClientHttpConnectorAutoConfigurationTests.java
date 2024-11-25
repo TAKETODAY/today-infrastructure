@@ -20,12 +20,12 @@ package infra.annotation.config.web.reactive.client;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.junit.jupiter.api.Test;
 
+import infra.app.test.context.FilteredClassLoader;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.FilteredClassLoader;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.client.ReactorResourceFactory;
 import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.client.reactive.ReactorClientHttpConnector;

@@ -21,9 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.properties.ConfigurationProperties;
-import infra.context.properties.ConfigurationPropertiesBean;
-import infra.context.properties.ConfigurationPropertiesBindException;
 import infra.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;

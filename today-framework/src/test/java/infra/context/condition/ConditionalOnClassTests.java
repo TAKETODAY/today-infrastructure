@@ -27,8 +27,6 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.annotation.ImportResource;
-import infra.context.condition.ConditionEvaluationReport;
-import infra.context.condition.ConditionalOnClass;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

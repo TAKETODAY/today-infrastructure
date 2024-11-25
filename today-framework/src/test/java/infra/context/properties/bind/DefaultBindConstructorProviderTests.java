@@ -24,9 +24,6 @@ import java.lang.reflect.Constructor;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.context.properties.bind.Bindable;
-import infra.context.properties.bind.ConstructorBinding;
-import infra.context.properties.bind.DefaultBindConstructorProvider;
 import infra.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;

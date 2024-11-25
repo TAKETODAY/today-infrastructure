@@ -20,9 +20,9 @@ package infra.annotation.config.web.socket;
 import org.junit.jupiter.api.Test;
 
 import infra.annotation.config.web.RandomPortWebServerConfig;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.stereotype.Component;
 import infra.web.server.context.AnnotationConfigWebServerApplicationContext;
 import infra.web.socket.WebSocketHandler;

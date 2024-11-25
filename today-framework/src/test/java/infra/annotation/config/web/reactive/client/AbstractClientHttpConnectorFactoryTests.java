@@ -20,10 +20,10 @@ package infra.annotation.config.web.reactive.client;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import infra.app.Application;
-import infra.app.ApplicationType;
 import infra.annotation.config.web.RandomPortWebServerConfig;
 import infra.annotation.config.web.WebMvcAutoConfiguration;
+import infra.app.Application;
+import infra.app.ApplicationType;
 import infra.context.ConfigurableApplicationContext;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleKey;

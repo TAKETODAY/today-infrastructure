@@ -26,9 +26,6 @@ import java.util.function.Consumer;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
-import infra.context.properties.ConfigurationProperties;
-import infra.context.properties.EnableConfigurationProperties;
-import infra.context.properties.EnableConfigurationPropertiesRegistrar;
 import infra.context.properties.bind.BindMethod;
 import infra.core.type.AnnotationMetadata;
 

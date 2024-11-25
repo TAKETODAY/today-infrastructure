@@ -20,10 +20,10 @@ package infra.annotation.config.web;
 import infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Import;
-import infra.web.server.support.NettyWebServerFactory;
+import infra.stereotype.Component;
 import infra.web.server.WebServerFactoryCustomizer;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import infra.stereotype.Component;
+import infra.web.server.support.NettyWebServerFactory;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
