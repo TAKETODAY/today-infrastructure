@@ -117,14 +117,14 @@ class ConditionalOnClassTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportResource("infra/context/condition/foo.xml")
+  @ImportResource("infra/app/context/condition/foo.xml")
   static class XmlConfiguration {
 
   }
 
   @Configuration(proxyBeanMethods = false)
   @Import(BasicConfiguration.class)
-  @ImportResource("infra/context/condition/foo.xml")
+  @ImportResource("infra/app/context/condition/foo.xml")
   static class CombinedXmlConfiguration {
 
   }
