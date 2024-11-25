@@ -320,7 +320,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
     assertThat(indexedLayers.get("dependencies")).containsExactlyElementsOf(expectedDependencies);
-    assertThat(indexedLayers.get("infra-app-loader")).containsExactly("cn/");
+    assertThat(indexedLayers.get("infra-app-loader")).containsExactly("infra/");
     assertThat(indexedLayers.get("snapshot-dependencies")).containsExactlyElementsOf(expectedSnapshotDependencies);
     assertThat(indexedLayers.get("application"))
             .containsExactly(getExpectedApplicationLayerContents(this.classesPath));
@@ -366,7 +366,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     expectedSnapshotDependencies.add(this.libPath + "library-1.0-SNAPSHOT.jar");
     (layerToolsJar.contains("SNAPSHOT") ? expectedSnapshotDependencies : expectedDependencies).add(layerToolsJar);
     assertThat(indexedLayers.get("dependencies")).containsExactlyElementsOf(expectedDependencies);
-    assertThat(indexedLayers.get("infra-app-loader")).containsExactly("cn/");
+    assertThat(indexedLayers.get("infra-app-loader")).containsExactly("infra/");
     assertThat(indexedLayers.get("snapshot-dependencies")).containsExactlyElementsOf(expectedSnapshotDependencies);
     assertThat(indexedLayers.get("application"))
             .containsExactly(getExpectedApplicationLayerContents(this.classesPath, this.libPath + "alpha-1.2.3.jar",
@@ -414,7 +414,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     String[] appLayerContents = getExpectedApplicationLayerContents(this.classesPath + "example/");
     assertThat(appLayer).containsSubsequence(appLayerContents);
     appLayer.removeAll(Arrays.asList(appLayerContents));
-    assertThat(appLayer).containsExactly("cn/");
+    assertThat(appLayer).containsExactly("infra/");
     BuildResult listLayers = this.gradleBuild.build("listLayers");
     assertThat(listLayers.task(":listLayers").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     String listLayersOutput = listLayers.getOutput();
@@ -468,7 +468,7 @@ abstract class AbstractInfraArchiveIntegrationTests {
     String[] appLayerContents = getExpectedApplicationLayerContents(this.classesPath + "example/");
     assertThat(appLayer).containsSubsequence(appLayerContents);
     appLayer.removeAll(Arrays.asList(appLayerContents));
-    assertThat(appLayer).containsExactly("cn/");
+    assertThat(appLayer).containsExactly("infra/");
     BuildResult listLayers = this.gradleBuild.build("listLayers");
     assertThat(listLayers.task(":listLayers").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     String listLayersOutput = listLayers.getOutput();

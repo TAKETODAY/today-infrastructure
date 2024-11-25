@@ -128,7 +128,7 @@ class InfraApplicationAotPluginIntegrationTests {
 
   @TestTemplate
   void processAotRunsWhenProjectHasMainSource() throws IOException {
-    writeMainClass("infra", "ApplicationAotProcessor");
+    writeMainClass("infra.app", "ApplicationAotProcessor");
     writeMainClass("com.example", "Main");
     assertThat(this.gradleBuild.build("processAot").task(":processAot").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
