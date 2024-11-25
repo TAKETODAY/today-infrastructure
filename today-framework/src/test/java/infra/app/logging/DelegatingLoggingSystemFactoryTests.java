@@ -22,10 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.app.logging.DelegatingLoggingSystemFactory;
-import infra.app.logging.LoggingSystem;
-import infra.app.logging.LoggingSystemFactory;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;

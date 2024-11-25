@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import infra.app.logging.LoggingSystemProperties;
-import infra.app.logging.LoggingSystemProperty;
 import infra.core.env.Environment;
 import infra.core.env.MapPropertySource;
 import infra.core.env.StandardEnvironment;

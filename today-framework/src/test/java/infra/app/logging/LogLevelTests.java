@@ -19,7 +19,6 @@ package infra.app.logging;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.LogLevel;
 import infra.logging.Logger;
 
 import static org.mockito.BDDMockito.then;

@@ -33,7 +33,6 @@ import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeHint;
-import infra.app.logging.logback.LogbackRuntimeHints;
 import infra.core.io.PathMatchingPatternResourceLoader;
 import infra.core.io.Resource;
 import infra.logging.SLF4JBridgeHandler;

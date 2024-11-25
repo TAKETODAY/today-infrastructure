@@ -30,13 +30,13 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import infra.app.test.system.CapturedOutput;
-import infra.app.test.system.OutputCaptureExtension;
 import infra.app.logging.AbstractLoggingSystemTests;
 import infra.app.logging.LogLevel;
 import infra.app.logging.LoggerConfiguration;
 import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemProperty;
+import infra.app.test.system.CapturedOutput;
+import infra.app.test.system.OutputCaptureExtension;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
 

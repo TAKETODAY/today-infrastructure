@@ -19,11 +19,8 @@ package infra.app.logging.structured;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.structured.CommonStructuredLogFormat;
-import infra.app.logging.structured.StructuredLogFormatter;
-import infra.app.logging.structured.StructuredLogFormatterFactory;
-import infra.core.env.Environment;
 import infra.app.logging.structured.StructuredLogFormatterFactory.CommonFormatters;
+import infra.core.env.Environment;
 import infra.mock.env.MockEnvironment;
 import infra.util.Instantiator.AvailableParameters;
 

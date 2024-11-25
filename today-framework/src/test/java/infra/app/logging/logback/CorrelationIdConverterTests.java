@@ -17,14 +17,13 @@
 
 package infra.app.logging.logback;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.LoggingEvent;
-import infra.app.logging.logback.CorrelationIdConverter;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

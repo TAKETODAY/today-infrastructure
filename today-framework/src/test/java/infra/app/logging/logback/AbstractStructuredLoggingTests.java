@@ -17,6 +17,17 @@
 
 package infra.app.logging.logback;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Marker;
+import org.slf4j.event.KeyValuePair;
+import org.slf4j.helpers.BasicMarkerFactory;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,15 +37,6 @@ import java.util.Map;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.LoggingEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.slf4j.Marker;
-import org.slf4j.event.KeyValuePair;
-import org.slf4j.helpers.BasicMarkerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

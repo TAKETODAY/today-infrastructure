@@ -64,11 +64,11 @@ import infra.context.annotation.Import;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.AutoConfigurationPackage;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.jackson.JsonComponent;
-import infra.jackson.JsonMixin;
-import infra.jackson.JsonMixinModule;
-import infra.jackson.JsonMixinModuleEntries;
-import infra.jackson.JsonObjectSerializer;
+import infra.app.jackson.JsonComponent;
+import infra.app.jackson.JsonMixin;
+import infra.app.jackson.JsonMixinModule;
+import infra.app.jackson.JsonMixinModuleEntries;
+import infra.app.jackson.JsonObjectSerializer;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
 

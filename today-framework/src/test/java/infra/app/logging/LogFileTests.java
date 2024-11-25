@@ -25,8 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import infra.app.logging.LogFile;
-import infra.app.logging.LoggingSystemProperty;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;

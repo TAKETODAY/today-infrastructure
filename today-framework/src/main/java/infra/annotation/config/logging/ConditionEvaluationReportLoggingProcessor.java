@@ -17,11 +17,11 @@
 
 package infra.annotation.config.logging;
 
+import infra.app.logging.LogLevel;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.condition.ConditionEvaluationReport;
-import infra.app.logging.LogLevel;
 
 /**
  * {@link BeanFactoryInitializationAotProcessor} that logs the

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import infra.app.logging.logback.DefaultLogbackConfiguration;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -19,7 +19,6 @@ package infra.app.logging;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.LoggingSystem;
 import infra.app.logging.java.JavaLoggingSystem;
 import infra.test.classpath.ClassPathExclusions;
 

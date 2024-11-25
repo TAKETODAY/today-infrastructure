@@ -23,13 +23,13 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnCheckpointRestore;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.properties.ConfigurationProperties;
-import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
 import infra.stereotype.Component;
 import infra.util.StringUtils;
 import oracle.jdbc.OracleConnection;

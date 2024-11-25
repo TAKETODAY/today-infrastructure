@@ -19,10 +19,6 @@ package infra.app.logging;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.LogLevel;
-import infra.app.logging.LoggerConfiguration;
-import infra.app.logging.LoggerConfigurationComparator;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

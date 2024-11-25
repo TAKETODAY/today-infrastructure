@@ -28,8 +28,6 @@ import ch.qos.logback.core.Context;
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.model.processor.ModelHandlerException;
 import ch.qos.logback.core.model.processor.ModelInterpretationContext;
-import infra.app.logging.logback.InfraProfileModel;
-import infra.app.logging.logback.InfraProfileModelHandler;
 import infra.core.env.Environment;
 import infra.core.env.Profiles;
 

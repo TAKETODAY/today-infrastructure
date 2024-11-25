@@ -20,7 +20,6 @@ package infra.app.logging.structured;
 import org.junit.jupiter.api.Test;
 
 import infra.app.json.JsonWriter;
-import infra.app.logging.structured.ElasticCommonSchemaService;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;

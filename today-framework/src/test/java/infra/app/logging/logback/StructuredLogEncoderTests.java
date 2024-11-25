@@ -30,8 +30,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Context;
 import ch.qos.logback.core.ContextBase;
-import infra.core.env.Environment;
 import infra.app.logging.structured.StructuredLogFormatter;
+import infra.core.env.Environment;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;

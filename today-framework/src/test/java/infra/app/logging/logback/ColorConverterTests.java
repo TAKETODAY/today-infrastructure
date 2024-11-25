@@ -25,7 +25,6 @@ import java.util.Collections;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
-import infra.app.logging.logback.ColorConverter;
 import infra.core.ansi.AnsiOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;

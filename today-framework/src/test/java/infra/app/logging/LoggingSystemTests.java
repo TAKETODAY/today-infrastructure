@@ -20,8 +20,6 @@ package infra.app.logging;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.LogLevel;
-import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystem.NoOpLoggingSystem;
 import infra.app.logging.logback.LogbackLoggingSystem;
 

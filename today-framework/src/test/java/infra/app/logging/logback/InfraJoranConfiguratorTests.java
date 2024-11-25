@@ -28,12 +28,11 @@ import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import infra.app.logging.logback.InfraJoranConfigurator;
+import infra.app.logging.LoggingStartupContext;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.context.properties.source.ConfigurationPropertySources;
-import infra.app.logging.LoggingStartupContext;
 import infra.mock.env.MockEnvironment;
 import infra.test.context.support.TestPropertySourceUtils;
 

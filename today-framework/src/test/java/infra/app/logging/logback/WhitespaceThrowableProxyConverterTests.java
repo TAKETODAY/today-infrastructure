@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import infra.app.logging.logback.WhitespaceThrowableProxyConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

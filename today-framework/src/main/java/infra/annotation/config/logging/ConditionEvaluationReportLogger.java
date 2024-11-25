@@ -17,11 +17,11 @@
 
 package infra.annotation.config.logging;
 
+import infra.app.logging.LogLevel;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.context.condition.ConditionEvaluationReportMessage;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.app.logging.LogLevel;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

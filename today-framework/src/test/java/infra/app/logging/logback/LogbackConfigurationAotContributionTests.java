@@ -57,10 +57,9 @@ import infra.aot.hint.SerializationHints;
 import infra.aot.hint.TypeReference;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
-import infra.app.logging.logback.InfraJoranConfigurator;
+import infra.app.logging.logback.InfraJoranConfigurator.LogbackConfigurationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.core.io.InputStreamSource;
-import infra.app.logging.logback.InfraJoranConfigurator.LogbackConfigurationAotContribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

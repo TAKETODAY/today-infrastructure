@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import infra.app.diagnostics.FailureAnalysis;
+import infra.app.logging.LogLevel;
 import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
@@ -33,7 +34,6 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Nullable;
-import infra.app.logging.LogLevel;
 import infra.validation.annotation.Validated;
 import jakarta.validation.constraints.Min;
 

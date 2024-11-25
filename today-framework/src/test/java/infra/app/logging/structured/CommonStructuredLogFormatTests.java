@@ -19,8 +19,6 @@ package infra.app.logging.structured;
 
 import org.junit.jupiter.api.Test;
 
-import infra.app.logging.structured.CommonStructuredLogFormat;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
