@@ -123,7 +123,7 @@ class BindFailureAnalyzerTests {
   private FailureAnalysis performAnalysis(Class<?> configuration, String... environment) {
     BeanCreationException failure = createFailure(configuration, environment);
     assertThat(failure).isNotNull();
-    return Objects.requireNonNull(new BindFailureAnalyzer().analyze(failure));
+    return new BindFailureAnalyzer().analyze(failure);
   }
 
   @Nullable
