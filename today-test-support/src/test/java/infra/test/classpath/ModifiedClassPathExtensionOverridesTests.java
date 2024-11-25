@@ -17,9 +17,8 @@
 
 package infra.test.classpath;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import infra.context.ApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,13 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Christoph Dreis
  */
-@ClassPathOverrides("cn.taketoday:today-context:3.0.5.RELEASE")
+@ClassPathOverrides("org.assertj:assertj-core:3.25.0")
 class ModifiedClassPathExtensionOverridesTests {
 
   @Test
   void classesAreLoadedFromOverride() {
-    assertThat(ApplicationContext.class.getProtectionDomain().getCodeSource().getLocation().toString())
-            .endsWith("today-context-3.0.5.RELEASE.jar");
+    assertThat(Assertions.class.getProtectionDomain().getCodeSource().getLocation().toString())
+             .endsWith("assertj-core-3.25.0.jar");
   }
 
 }
