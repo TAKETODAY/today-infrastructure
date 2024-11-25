@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import infra.app.diagnostics.FailureAnalysis;
@@ -32,7 +33,7 @@ import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Nullable;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 import infra.validation.annotation.Validated;
 import jakarta.validation.constraints.Min;
 
@@ -98,7 +99,7 @@ class BindFailureAnalyzerTests {
             "\"logging.level\" from property source \"test\"",
             "infra.core.conversion.ConverterNotFoundException: No converter found capable of converting "
                     + "from type [java.lang.String] to type [java.util.Map<java.lang.String, "
-                    + "infra.logging.LogLevel>]"));
+                    + "infra.app.logging.LogLevel>]"));
   }
 
   @Test
@@ -122,7 +123,7 @@ class BindFailureAnalyzerTests {
   private FailureAnalysis performAnalysis(Class<?> configuration, String... environment) {
     BeanCreationException failure = createFailure(configuration, environment);
     assertThat(failure).isNotNull();
-    return new BindFailureAnalyzer().analyze(failure);
+    return Objects.requireNonNull(new BindFailureAnalyzer().analyze(failure));
   }
 
   @Nullable

@@ -29,7 +29,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.context.properties.ConfigurationProperties;
-import infra.jdbc.HikariCheckpointRestoreLifecycle;
+import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
 import infra.stereotype.Component;
 import infra.util.StringUtils;
 import oracle.jdbc.OracleConnection;

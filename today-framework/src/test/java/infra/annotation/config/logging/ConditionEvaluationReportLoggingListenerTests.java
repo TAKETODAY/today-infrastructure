@@ -39,7 +39,7 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.app.context.event.ApplicationFailedEvent;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;

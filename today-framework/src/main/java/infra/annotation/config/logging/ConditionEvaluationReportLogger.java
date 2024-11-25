@@ -21,7 +21,7 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.condition.ConditionEvaluationReportMessage;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 

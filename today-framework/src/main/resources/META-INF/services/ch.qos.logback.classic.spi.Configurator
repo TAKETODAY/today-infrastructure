@@ -18,4 +18,4 @@
 # along with this program.  If not, see [http://www.gnu.org/licenses/]
 #
 
-infra.logging.logback.RootLogLevelConfigurator
+infra.app.logging.logback.RootLogLevelConfigurator

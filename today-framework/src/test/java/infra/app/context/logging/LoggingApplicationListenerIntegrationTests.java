@@ -33,9 +33,9 @@ import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.factory.ObjectProvider;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
-import infra.logging.LogFile;
-import infra.logging.LoggingSystem;
-import infra.logging.LoggingSystemProperty;
+import infra.app.logging.LogFile;
+import infra.app.logging.LoggingSystem;
+import infra.app.logging.LoggingSystemProperty;
 import infra.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;

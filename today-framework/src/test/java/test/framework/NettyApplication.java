@@ -35,7 +35,7 @@ import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Nullable;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 import infra.util.ResourceUtils;
 import infra.web.RequestContext;
 import infra.web.annotation.ExceptionHandler;

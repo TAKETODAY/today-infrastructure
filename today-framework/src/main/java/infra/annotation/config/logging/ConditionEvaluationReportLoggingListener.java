@@ -25,7 +25,7 @@ import infra.context.condition.ConditionEvaluationReport;
 import infra.context.event.ContextRefreshedEvent;
 import infra.context.event.SmartApplicationListener;
 import infra.lang.Assert;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 
 /**
  * {@link ApplicationContextInitializer} that writes the {@link ConditionEvaluationReport}

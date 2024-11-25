@@ -29,7 +29,7 @@ import infra.beans.factory.config.BeanPostProcessor;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.jdbc.HikariCheckpointRestoreLifecycle;
+import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
 import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.datasource.DelegatingDataSource;
 import infra.test.classpath.ClassPathExclusions;

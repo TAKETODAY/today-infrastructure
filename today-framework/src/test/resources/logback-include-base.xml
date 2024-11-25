@@ -17,5 +17,5 @@
   -->
 
 <configuration>
-	<include resource="infra/logging/logback/base.xml"/>
+	<include resource="infra/app/logging/logback/base.xml"/>
 </configuration>

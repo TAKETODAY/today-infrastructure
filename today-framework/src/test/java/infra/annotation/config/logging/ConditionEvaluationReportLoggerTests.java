@@ -29,7 +29,7 @@ import ch.qos.logback.classic.LoggerContext;
 import infra.annotation.config.logging.ConditionEvaluationReportLoggingListenerTests.Config;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.condition.ConditionEvaluationReport;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 import infra.app.test.system.CapturedOutput;
 import infra.app.test.system.OutputCaptureExtension;
 

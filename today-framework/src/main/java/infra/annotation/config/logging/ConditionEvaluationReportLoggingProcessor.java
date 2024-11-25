@@ -21,7 +21,7 @@ import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.condition.ConditionEvaluationReport;
-import infra.logging.LogLevel;
+import infra.app.logging.LogLevel;
 
 /**
  * {@link BeanFactoryInitializationAotProcessor} that logs the

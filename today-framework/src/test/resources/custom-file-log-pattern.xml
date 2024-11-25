@@ -17,5 +17,5 @@
 
 <configuration>
 	<property name="FILE_LOG_PATTERN" value="bar" />
-	<include resource="infra/logging/logback/base.xml" />
+	<include resource="infra/app/logging/logback/base.xml" />
 </configuration>

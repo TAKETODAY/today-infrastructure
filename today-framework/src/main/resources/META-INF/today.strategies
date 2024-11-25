@@ -106,9 +106,9 @@ infra.context.ApplicationListener=\
   infra.app.env.EnvironmentPostProcessorApplicationListener,\
   infra.app.availability.ApplicationRefusingTrafficListener
 
-infra.logging.LoggingSystemFactory=\
-  infra.logging.logback.LogbackLoggingSystem.Factory,\
-  infra.logging.java.JavaLoggingSystem.Factory
+infra.app.logging.LoggingSystemFactory=\
+  infra.app.logging.logback.LogbackLoggingSystem.Factory,\
+  infra.app.logging.java.JavaLoggingSystem.Factory
 
 infra.core.io.ProtocolResolver=\
   infra.app.io.Base64ProtocolResolver
