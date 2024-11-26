@@ -10,5 +10,6 @@ exclude_paths:
   - "**.adoc"
   - "**.gradle"
   - "**/test/**/*"
+  - "**/buildSrc/**/*"
   - "**/testFixtures/**/*"
   - "today-test/src/main/java/infra/mock/**/*"
