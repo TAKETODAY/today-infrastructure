@@ -176,30 +176,31 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     else {
       body = value;
       valueType = getReturnValueType(body, returnType);
-      if (returnType == null) {
+      if (returnType == null || (body != null && !returnType.getParameterType().isInstance(value))) {
+        // value can not-assignable to returnType, value maybe from HandlerInterceptor
         targetType = ResolvableType.forInstance(body).getType();
       }
       else {
         targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
       }
-    }
 
-    if (isResourceType(value, returnType)) {
-      context.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-      if (value != null) {
-        String headerRange = context.requestHeaders().getFirst(HttpHeaders.RANGE);
-        if (headerRange != null && context.getStatus() == 200) {
-          Resource resource = (Resource) value;
-          try {
-            List<HttpRange> httpRanges = HttpRange.parseRanges(headerRange);
-            context.setStatus(HttpStatus.PARTIAL_CONTENT);
-            body = HttpRange.toResourceRegions(httpRanges, resource);
-            valueType = body.getClass();
-            targetType = RESOURCE_REGION_LIST_TYPE;
-          }
-          catch (IllegalArgumentException ex) {
-            context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-            context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+      if (isResourceType(valueType)) {
+        context.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        if (value != null) {
+          String headerRange = context.requestHeaders().getFirst(HttpHeaders.RANGE);
+          if (headerRange != null && context.getStatus() == 200) {
+            Resource resource = (Resource) value;
+            try {
+              List<HttpRange> httpRanges = HttpRange.parseRanges(headerRange);
+              context.setStatus(HttpStatus.PARTIAL_CONTENT);
+              body = HttpRange.toResourceRegions(httpRanges, resource);
+              valueType = body.getClass();
+              targetType = RESOURCE_REGION_LIST_TYPE;
+            }
+            catch (IllegalArgumentException ex) {
+              context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+              context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            }
           }
         }
       }
@@ -339,8 +340,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
   /**
    * Return whether the returned value or the declared return type extends {@link Resource}.
    */
-  protected boolean isResourceType(@Nullable Object value, @Nullable MethodParameter returnType) {
-    Class<?> clazz = getReturnValueType(value, returnType);
+  protected boolean isResourceType(Class<?> clazz) {
     return clazz != InputStreamResource.class && Resource.class.isAssignableFrom(clazz);
   }
 
