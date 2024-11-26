@@ -47,6 +47,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Random;
 
+import infra.aot.hint.TypeReference;
 import infra.app.ApplicationAotProcessor;
 import infra.app.loader.tools.LaunchScript;
 import infra.core.ApplicationTemp;
@@ -117,6 +118,7 @@ public class GradleBuild {
             new File("build/classes/java/main"),
             new File("build/resources/main"),
             new File(pathOfJarContaining(ClassUtils.class)),
+            new File(pathOfJarContaining(TypeReference.class)),
             new File(pathOfJarContaining(ApplicationAotProcessor.class)),
             new File(pathOfJarContaining(LaunchScript.class)),
             new File(pathOfJarContaining(DependencyManagementPlugin.class)),

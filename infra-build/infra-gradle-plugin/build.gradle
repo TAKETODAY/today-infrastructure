@@ -56,6 +56,7 @@ dependencies {
   optional "org.graalvm.buildtools:native-gradle-plugin:$nativeBuildToolsVersion"
 
   testImplementation(project(":today-aop"))
+  testImplementation(project(":today-core-aot"))
   testImplementation(project(":today-framework"))
   testImplementation("com.tngtech.archunit:archunit-junit5:0.22.0")
   testImplementation("org.assertj:assertj-core")

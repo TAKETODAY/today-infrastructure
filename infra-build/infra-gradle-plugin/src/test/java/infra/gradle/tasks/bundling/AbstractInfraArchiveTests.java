@@ -526,7 +526,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
         expected.add("  - \"" + layerToolsJar + "\"");
       }
       expected.add("- \"infra-app-loader\":");
-      expected.add("  - \"cn/\"");
+      expected.add("  - \"infra/\"");
       expected.add("- \"snapshot-dependencies\":");
       if (layerToolsJar.contains("SNAPSHOT")) {
         expected.add("  - \"" + layerToolsJar + "\"");
@@ -590,7 +590,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
       applicationContents.add("  - \"" + this.indexPath + "classpath.idx\"");
       applicationContents.add("  - \"" + this.indexPath + "layers.idx\"");
       applicationContents.add("  - \"META-INF/\"");
-      applicationContents.add("  - \"cn/\"");
+      applicationContents.add("  - \"infra/\"");
       expected.addAll(applicationContents);
       assertThat(index).containsExactlyElementsOf(expected);
     }
