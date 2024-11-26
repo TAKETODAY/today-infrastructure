@@ -20,7 +20,7 @@
 
 package test.mixin;
 
-import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
+import infra.aop.support.DefaultIntroductionAdvisor;
 
 /**
  * Advisor for use with a LockMixin. Applies to all classes.

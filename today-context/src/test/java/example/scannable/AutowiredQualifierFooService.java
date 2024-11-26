@@ -18,10 +18,10 @@
 package example.scannable;
 
 
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.util.concurrent.Future;
+import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.annotation.Qualifier;
+import infra.context.annotation.Lazy;
+import infra.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 
 /**

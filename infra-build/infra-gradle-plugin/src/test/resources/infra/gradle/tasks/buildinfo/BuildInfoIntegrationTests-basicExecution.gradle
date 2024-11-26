@@ -1,0 +1,16 @@
+
+
+plugins {
+	id 'infra.application' version '{version}' apply false
+}
+
+version = '0.1.0'
+
+task buildInfo(type: infra.gradle.tasks.buildinfo.BuildInfo) {
+	properties {
+		artifact = 'foo'
+		group = 'foo'
+		name = 'foo'
+		additional = ['additional': 'foo']
+	}
+}

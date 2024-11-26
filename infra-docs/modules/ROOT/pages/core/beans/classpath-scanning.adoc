@@ -203,7 +203,7 @@ NOTE: 您可以通过包含值为 false 的 `annotation-config` 属性来禁用
 
 | custom
 | `org.example.MyTypeFilter`
-| `cn.taketoday.core.type.TypeFilter` 接口的自定义实现。
+| `infra.core.type.TypeFilter` 接口的自定义实现。
 |===
 
 下面的示例显示了忽略所有 `@Repository` 注解而使用 "`stub`" 版本库的配置
@@ -227,7 +227,7 @@ public class AppConfig {
 <beans>
   <context:component-scan base-package="org.example">
     <context:include-filter type="regex" expression=".*Stub.*Repository"/>
-    <context:exclude-filter type="annotation" expression="cn.taketoday.stereotype.Repository"/>
+    <context:exclude-filter type="annotation" expression="infra.stereotype.Repository"/>
   </context:component-scan>
 </beans>
 ----
@@ -406,7 +406,7 @@ public class MovieFinderImpl implements MovieFinder {
 
 TIP: 如果因多个自动检测到的组件具有相同的非限定类名（即，具有相同名称但位于不同包中的类）
 而遇到命名冲突，您可能需要配置一个默认为生成的 bean 名称使用完全限定类名的 `BeanNameGenerator`。
-位于 `cn.taketoday.context.annotation` 包中的 `FullyQualifiedAnnotationBeanNameGenerator` 可用于此类目的。
+位于 `infra.context.annotation` 包中的 `FullyQualifiedAnnotationBeanNameGenerator` 可用于此类目的。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----

@@ -127,14 +127,14 @@
 ## v2.3.1
 ![LOGO](https://taketoday.cn/display.action?userId=666)
 - 修复@Application 空指针
-- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/mockApi/ViewDispatcher.java)
-- [重构 `DispatcherServlet`](/cn/taketoday/web/mockApi/DispatcherServlet.java)
-- [优化 path variable 参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L337)
-- [修复exception resolver InvocationTargetException](/cn/taketoday/web/bind/resolver/DefaultExceptionResolver.java#L49)
-- [优化requestBody注解参数注入](/cn/taketoday/web/bind/resolver/DefaultParameterResolver.java#L304)
-- [优化MultipartResolver](/src/main/java/cn/taketoday/web/multipart/CommonsMultipartResolver.java#L80)
+- [重构 `ViewDispatcher`](/src/main/java/infra/web/mockApi/ViewDispatcher.java)
+- [重构 `DispatcherServlet`](/infra/web/mockApi/DispatcherServlet.java)
+- [优化 path variable 参数注入](/infra/web/bind/resolver/DefaultParameterResolver.java#L337)
+- [修复exception resolver InvocationTargetException](/infra/web/bind/resolver/DefaultExceptionResolver.java#L49)
+- [优化requestBody注解参数注入](/infra/web/bind/resolver/DefaultParameterResolver.java#L304)
+- [优化MultipartResolver](/src/main/java/infra/web/multipart/CommonsMultipartResolver.java#L80)
 - [update web-configuration-2.3.0.dtd](/src/main/resources/web-configuration-2.3.0.dtd)
-- [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/cn/taketoday/web/Constant.java#L51)
+- [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/infra/web/Constant.java#L51)
 - 去掉Optional类型参数
 
 ## v2.3.0
@@ -164,7 +164,7 @@
 > ### 启用defaultValue
 > ### 优化参数转换器
 > ### @ActionProcessor @RestProcessor 改名 @Controller @RestController @RequestMapping
-> ### 更改包名cn.taketoday.web.core -> cn.taketoday.web
+> ### 更改包名infra.web.core -> infra.web
 
 ## v2.2.1 加入`@PathVariable` `Optional<T>`
     
@@ -323,8 +323,8 @@ public final BufferedImage captcha(HttpServletRequest request, HttpServletRespon
     <!-- Servlet mapping -->
     <static-resources mapping="/assets/*" />
     
-    <!-- <multipart class="cn.taketoday.web.multipart.DefaultMultipartResolver"> 或者自定义-->
-    <multipart class="cn.taketoday.web.multipart.CommonsMultipartResolver">
+    <!-- <multipart class="infra.web.multipart.DefaultMultipartResolver"> 或者自定义-->
+    <multipart class="infra.web.multipart.CommonsMultipartResolver">
         <upload-encoding>UTF-8</upload-encoding>
         <!-- <upload-location>D:/upload</upload-location> -->
         <upload-maxFileSize>10240000</upload-maxFileSize>
@@ -332,8 +332,8 @@ public final BufferedImage captcha(HttpServletRequest request, HttpServletRespon
         <upload-fileSizeThreshold>1000000000</upload-fileSizeThreshold>
     </multipart>
 
-    <!-- 默认-> <view-resolver class="cn.taketoday.web.view.JstlViewResolver"> 可以自定义-->
-    <view-resolver class="cn.taketoday.web.view.FreeMarkerViewResolver">
+    <!-- 默认-> <view-resolver class="infra.web.view.JstlViewResolver"> 可以自定义-->
+    <view-resolver class="infra.web.view.FreeMarkerViewResolver">
         <view-suffix>.ftl</view-suffix>
         <view-encoding>UTF-8</view-encoding>
         <view-prefix>/WEB-INF/view</view-prefix>

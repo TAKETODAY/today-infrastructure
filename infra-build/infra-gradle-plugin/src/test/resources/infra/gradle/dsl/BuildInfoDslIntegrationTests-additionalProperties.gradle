@@ -1,0 +1,18 @@
+plugins {
+  id 'java'
+  id 'infra.application' version '{version}'
+}
+
+group = 'com.example'
+version = '1.0'
+
+infraApplication {
+  buildInfo {
+    properties {
+      additional = [
+          'a': 'alpha',
+          'b': providers.provider({ 'bravo' })
+      ]
+    }
+  }
+}

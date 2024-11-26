@@ -1,10 +1,10 @@
-cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
-cn.taketoday.http.HttpMimeTypesRuntimeHints,\
-cn.taketoday.http.codec.CodecConfigurerRuntimeHints,\
-cn.taketoday.http.converter.json.JacksonModulesRuntimeHints,\
-cn.taketoday.http.converter.json.ProblemDetailRuntimeHints,\
-cn.taketoday.web.client.config.ClientHttpRequestFactoriesRuntimeHints,\
-cn.taketoday.web.util.WebUtilRuntimeHints
+infra.aot.hint.RuntimeHintsRegistrar= \
+infra.http.HttpMimeTypesRuntimeHints,\
+infra.http.codec.CodecConfigurerRuntimeHints,\
+infra.http.converter.json.JacksonModulesRuntimeHints,\
+infra.http.converter.json.ProblemDetailRuntimeHints,\
+infra.web.client.config.ClientHttpRequestFactoriesRuntimeHints,\
+infra.web.util.WebUtilRuntimeHints
 
-cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
-cn.taketoday.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor
+infra.beans.factory.aot.BeanRegistrationAotProcessor=\
+infra.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor

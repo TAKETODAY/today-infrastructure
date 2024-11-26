@@ -20,21 +20,21 @@ package example.scannable;
 import java.util.Comparator;
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.beans.factory.annotation.Lookup;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationEventPublisher;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.MessageSource;
-import cn.taketoday.context.annotation.DependsOn;
-import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.support.AbstractApplicationContext;
-import cn.taketoday.core.io.PatternResourceLoader;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Service;
-import cn.taketoday.util.concurrent.Future;
+import infra.beans.factory.BeanFactory;
+import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.annotation.Lookup;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationEventPublisher;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.MessageSource;
+import infra.context.annotation.DependsOn;
+import infra.context.annotation.Lazy;
+import infra.context.support.AbstractApplicationContext;
+import infra.core.io.PatternResourceLoader;
+import infra.core.io.ResourceLoader;
+import infra.lang.Assert;
+import infra.stereotype.Service;
+import infra.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 
 /**

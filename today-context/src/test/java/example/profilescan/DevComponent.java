@@ -22,9 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.stereotype.Component;
+import infra.context.annotation.Profile;
+import infra.core.annotation.AliasFor;
+import infra.stereotype.Component;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

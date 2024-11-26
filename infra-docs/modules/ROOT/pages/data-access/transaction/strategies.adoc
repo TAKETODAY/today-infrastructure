@@ -3,9 +3,9 @@
 
 The key to the Infra transaction abstraction is the notion of a transaction strategy. A
 transaction strategy is defined by a `TransactionManager`, specifically the
-`cn.taketoday.transaction.PlatformTransactionManager` interface for imperative
+`infra.transaction.PlatformTransactionManager` interface for imperative
 transaction management and the
-`cn.taketoday.transaction.ReactiveTransactionManager` interface for reactive
+`infra.transaction.ReactiveTransactionManager` interface for reactive
 transaction management. The following listing shows the definition of the
 `PlatformTransactionManager` API:
 
@@ -48,7 +48,7 @@ execution.
 As of TODAY Framework 5.2, Infra also provides a transaction management abstraction for
 reactive applications that make use of reactive types or Kotlin Coroutines. The following
 listing shows the transaction strategy defined by
-`cn.taketoday.transaction.ReactiveTransactionManager`:
+`infra.transaction.ReactiveTransactionManager`:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -143,7 +143,7 @@ The related `PlatformTransactionManager` bean definition then has a reference to
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="txManager" class="cn.taketoday.jdbc.datasource.DataSourceTransactionManager">
+<bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
   <property name="dataSource" ref="dataSource"/>
 </bean>
 ----
@@ -166,7 +166,7 @@ shows what the JTA and JNDI lookup version would look like:
 
   <jee:jndi-lookup id="dataSource" jndi-name="jdbc/jpetstore"/>
 
-  <bean id="txManager" class="cn.taketoday.transaction.jta.JtaTransactionManager" />
+  <bean id="txManager" class="infra.transaction.jta.JtaTransactionManager" />
 
   <!-- other <bean/> definitions here -->
 
@@ -212,11 +212,11 @@ example declares `sessionFactory` and `txManager` beans:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="sessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean">
+<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
   <property name="dataSource" ref="dataSource"/>
   <property name="mappingResources">
     <list>
-      <value>cn/taketoday/samples/petclinic/hibernate/petclinic.hbm.xml</value>
+      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
     </list>
   </property>
   <property name="hibernateProperties">
@@ -226,7 +226,7 @@ example declares `sessionFactory` and `txManager` beans:
   </property>
 </bean>
 
-<bean id="txManager" class="cn.taketoday.orm.hibernate5.HibernateTransactionManager">
+<bean id="txManager" class="infra.orm.hibernate5.HibernateTransactionManager">
   <property name="sessionFactory" ref="sessionFactory"/>
 </bean>
 ----
@@ -238,11 +238,11 @@ transaction coordinator and possibly also its connection release mode configurat
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="sessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean">
+<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
   <property name="dataSource" ref="dataSource"/>
   <property name="mappingResources">
     <list>
-      <value>cn/taketoday/samples/petclinic/hibernate/petclinic.hbm.xml</value>
+      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
     </list>
   </property>
   <property name="hibernateProperties">
@@ -254,7 +254,7 @@ transaction coordinator and possibly also its connection release mode configurat
   </property>
 </bean>
 
-<bean id="txManager" class="cn.taketoday.transaction.jta.JtaTransactionManager"/>
+<bean id="txManager" class="infra.transaction.jta.JtaTransactionManager"/>
 ----
 
 Or alternatively, you may pass the `JtaTransactionManager` into your `LocalSessionFactoryBean`
@@ -262,11 +262,11 @@ for enforcing the same defaults:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="sessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean">
+<bean id="sessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
   <property name="dataSource" ref="dataSource"/>
   <property name="mappingResources">
     <list>
-      <value>cn/taketoday/samples/petclinic/hibernate/petclinic.hbm.xml</value>
+      <value>infra/samples/petclinic/hibernate/petclinic.hbm.xml</value>
     </list>
   </property>
   <property name="hibernateProperties">
@@ -277,7 +277,7 @@ for enforcing the same defaults:
   <property name="jtaTransactionManager" ref="txManager"/>
 </bean>
 
-<bean id="txManager" class="cn.taketoday.transaction.jta.JtaTransactionManager"/>
+<bean id="txManager" class="infra.transaction.jta.JtaTransactionManager"/>
 ----
 
 

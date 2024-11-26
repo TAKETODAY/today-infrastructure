@@ -47,7 +47,7 @@ The following example shows how to use JNDI to look up a data source without the
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="dataSource" class="cn.taketoday.jndi.JndiObjectFactoryBean">
+<bean id="dataSource" class="infra.jndi.JndiObjectFactoryBean">
   <property name="jndiName" value="jdbc/MyDataSource"/>
 </bean>
 <bean id="userDao" class="com.foo.JdbcUserDao">
@@ -79,7 +79,7 @@ The following example shows how to use JNDI to look up an environment variable w
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="simple" class="cn.taketoday.jndi.JndiObjectFactoryBean">
+<bean id="simple" class="infra.jndi.JndiObjectFactoryBean">
   <property name="jndiName" value="jdbc/MyDataSource"/>
   <property name="jndiEnvironment">
     <props>
@@ -107,7 +107,7 @@ without `jee`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="simple" class="cn.taketoday.jndi.JndiObjectFactoryBean">
+<bean id="simple" class="infra.jndi.JndiObjectFactoryBean">
   <property name="jndiName" value="jdbc/MyDataSource"/>
   <property name="jndiEnvironment">
     <props>
@@ -141,7 +141,7 @@ different properties without `jee`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="simple" class="cn.taketoday.jndi.JndiObjectFactoryBean">
+<bean id="simple" class="infra.jndi.JndiObjectFactoryBean">
   <property name="jndiName" value="jdbc/MyDataSource"/>
   <property name="cache" value="true"/>
   <property name="resourceRef" value="true"/>
@@ -178,7 +178,7 @@ without `jee`:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="simple"
-    class="cn.taketoday.ejb.access.LocalStatelessSessionProxyFactoryBean">
+    class="infra.ejb.access.LocalStatelessSessionProxyFactoryBean">
   <property name="jndiName" value="ejb/RentalServiceBean"/>
   <property name="businessInterface" value="com.foo.service.RentalService"/>
 </bean>
@@ -206,7 +206,7 @@ and a number of properties without `jee`:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="complexLocalEjb"
-    class="cn.taketoday.ejb.access.LocalStatelessSessionProxyFactoryBean">
+    class="infra.ejb.access.LocalStatelessSessionProxyFactoryBean">
   <property name="jndiName" value="ejb/RentalServiceBean"/>
   <property name="businessInterface" value="com.example.service.RentalService"/>
   <property name="cacheHome" value="true"/>
@@ -240,7 +240,7 @@ without `jee`:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="complexRemoteEjb"
-    class="cn.taketoday.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
+    class="infra.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
   <property name="jndiName" value="ejb/MyRemoteBean"/>
   <property name="businessInterface" value="com.foo.service.RentalService"/>
   <property name="cacheHome" value="true"/>

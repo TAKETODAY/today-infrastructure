@@ -88,7 +88,7 @@ In XML configuration, the `<tx:annotation-driven/>` tag provides similar conveni
   <!-- a TransactionManager is still required -->
   <tx:annotation-driven transaction-manager="txManager"/> <1>
 
-  <bean id="txManager" class="cn.taketoday.jdbc.datasource.DataSourceTransactionManager">
+  <bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
     <!-- (this dependency is defined somewhere else) -->
     <property name="dataSource" ref="dataSource"/>
   </bean>
@@ -438,17 +438,17 @@ The following listing shows the bean declarations:
 ----
 <tx:annotation-driven/>
 
-  <bean id="transactionManager1" class="cn.taketoday.jdbc.support.JdbcTransactionManager">
+  <bean id="transactionManager1" class="infra.jdbc.support.JdbcTransactionManager">
     ...
     <qualifier value="order"/>
   </bean>
 
-  <bean id="transactionManager2" class="cn.taketoday.jdbc.support.JdbcTransactionManager">
+  <bean id="transactionManager2" class="infra.jdbc.support.JdbcTransactionManager">
     ...
     <qualifier value="account"/>
   </bean>
 
-  <bean id="transactionManager3" class="cn.taketoday.data.r2dbc.connection.R2dbcTransactionManager">
+  <bean id="transactionManager3" class="infra.data.r2dbc.connection.R2dbcTransactionManager">
     ...
     <qualifier value="reactive-account"/>
   </bean>
@@ -462,7 +462,7 @@ is still used if no specifically qualified `TransactionManager` bean is found.
 [TIP]
 ====
 If all transactional methods on the same class share the same qualifier, consider
-declaring a type-level `cn.taketoday.beans.factory.annotation.Qualifier`
+declaring a type-level `infra.beans.factory.annotation.Qualifier`
 annotation instead. If its value matches the qualifier value (or bean name) of a
 specific transaction manager, that transaction manager is going to be used for
 transaction definitions without a specific qualifier on `@Transactional` itself.

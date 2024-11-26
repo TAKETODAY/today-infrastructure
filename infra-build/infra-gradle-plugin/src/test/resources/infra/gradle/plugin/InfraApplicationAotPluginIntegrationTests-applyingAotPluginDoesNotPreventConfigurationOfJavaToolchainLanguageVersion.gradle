@@ -1,0 +1,13 @@
+
+
+plugins {
+  id 'infra.application'
+  id 'infra.application.aot'
+  id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}

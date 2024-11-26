@@ -1,3 +1,0 @@
-optional:cn.taketoday.annotation.config.freemarker.FreeMarkerAutoConfiguration
-optional:cn.taketoday.annotation.config.missing.MissingAutoConfiguration
-cn.taketoday.annotation.config.thymeleaf.ThymeleafAutoConfiguration

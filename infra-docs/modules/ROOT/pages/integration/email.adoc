@@ -20,7 +20,7 @@ The TODAY Framework provides a helpful utility library for sending email that sh
 you from the specifics of the underlying mailing system and is responsible for
 low-level resource handling on behalf of the client.
 
-The `cn.taketoday.mail` package is the root level package for the Infra
+The `infra.mail` package is the root level package for the Infra
 Framework's email support. The central interface for sending emails is the `MailSender`
 interface. A simple value object that encapsulates the properties of a simple mail such
 as `from` and `to` (plus many others) is the `SimpleMailMessage` class. This package
@@ -29,10 +29,10 @@ abstraction over the lower level mail system exceptions, with the root exception
 `MailException`. See the {today-framework-api}/mail/MailException.html[javadoc]
 for more information on the rich mail exception hierarchy.
 
-The `cn.taketoday.mail.javamail.JavaMailSender` interface adds specialized
+The `infra.mail.javamail.JavaMailSender` interface adds specialized
 JavaMail features, such as MIME message support to the `MailSender` interface
 (from which it inherits). `JavaMailSender` also provides a callback interface called
-`cn.taketoday.mail.javamail.MimeMessagePreparator` for preparing a `MimeMessage`.
+`infra.mail.javamail.MimeMessagePreparator` for preparing a `MimeMessage`.
 
 
 
@@ -62,9 +62,9 @@ email when someone places an order:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-import cn.taketoday.mail.MailException;
-import cn.taketoday.mail.MailSender;
-import cn.taketoday.mail.SimpleMailMessage;
+import infra.mail.MailException;
+import infra.mail.MailSender;
+import infra.mail.SimpleMailMessage;
 
 public class SimpleOrderManager implements OrderManager {
 
@@ -109,12 +109,12 @@ The following example shows the bean definitions for the preceding code:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="mailSender" class="cn.taketoday.mail.javamail.JavaMailSenderImpl">
+<bean id="mailSender" class="infra.mail.javamail.JavaMailSenderImpl">
   <property name="host" value="mail.mycompany.example"/>
 </bean>
 
 <!-- this is a template message that we can pre-load with default state -->
-<bean id="templateMessage" class="cn.taketoday.mail.SimpleMailMessage">
+<bean id="templateMessage" class="infra.mail.SimpleMailMessage">
   <property name="from" value="customerservice@mycompany.example"/>
   <property name="subject" value="Your order"/>
 </bean>
@@ -140,10 +140,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
-import jakarta.mail.internet.MimeMessage;
-import cn.taketoday.mail.MailException;
-import cn.taketoday.mail.javamail.JavaMailSender;
-import cn.taketoday.mail.javamail.MimeMessagePreparator;
+import infra.mail.MailException;
+import infra.mail.javamail.JavaMailSender;
+import infra.mail.javamail.MimeMessagePreparator;
 
 public class SimpleOrderManager implements OrderManager {
 
@@ -193,7 +192,7 @@ See the relevant javadoc for more information.
 == Using the JavaMail `MimeMessageHelper`
 
 A class that comes in pretty handy when dealing with JavaMail messages is
-`cn.taketoday.mail.javamail.MimeMessageHelper`, which shields you from
+`infra.mail.javamail.MimeMessageHelper`, which shields you from
 having to use the verbose JavaMail API. Using the `MimeMessageHelper`, it is
 pretty easy to create a `MimeMessage`, as the following example shows:
 

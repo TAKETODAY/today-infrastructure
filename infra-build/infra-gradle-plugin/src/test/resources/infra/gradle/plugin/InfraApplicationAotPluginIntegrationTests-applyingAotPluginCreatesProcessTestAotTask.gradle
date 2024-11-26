@@ -1,0 +1,13 @@
+
+
+plugins {
+	id 'infra.application'
+	id 'infra.application.aot'
+	id 'java'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

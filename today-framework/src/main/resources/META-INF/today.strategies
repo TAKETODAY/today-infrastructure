@@ -17,98 +17,99 @@
 
 #
 # Failure Analyzers
-cn.taketoday.framework.diagnostics.FailureAnalyzer=\
-cn.taketoday.framework.context.config.ConfigDataNotFoundFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.AotInitializerNotFoundFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.IncompatibleConfigurationFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.NotConstructorBoundInjectionFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.BeanCurrentlyInCreationFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.BeanDefinitionOverrideFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.BeanNotOfRequiredTypeFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.BindFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.BindValidationFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.UnboundConfigurationPropertyFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.MissingParameterNamesFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.MutuallyExclusiveConfigurationPropertiesFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.NoSuchMethodFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.NoUniqueBeanDefinitionFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.PortInUseFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.ValidationExceptionFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.InvalidConfigurationPropertyNameFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.InvalidConfigurationPropertyValueFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.PatternParseFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.NoSuchBeanDefinitionFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.FactoryMethodBeanFailureAnalyzer,\
-cn.taketoday.framework.diagnostics.analyzer.MissingWebServerFactoryBeanFailureAnalyzer,\
-cn.taketoday.annotation.config.jdbc.DataSourceBeanCreationFailureAnalyzer,\
-cn.taketoday.annotation.config.jdbc.HikariDriverConfigurationFailureAnalyzer
+infra.app.diagnostics.FailureAnalyzer=\
+infra.app.context.config.ConfigDataNotFoundFailureAnalyzer,\
+infra.app.diagnostics.analyzer.AotInitializerNotFoundFailureAnalyzer,\
+infra.app.diagnostics.analyzer.IncompatibleConfigurationFailureAnalyzer,\
+infra.app.diagnostics.analyzer.NotConstructorBoundInjectionFailureAnalyzer,\
+infra.app.diagnostics.analyzer.BeanCurrentlyInCreationFailureAnalyzer,\
+infra.app.diagnostics.analyzer.BeanDefinitionOverrideFailureAnalyzer,\
+infra.app.diagnostics.analyzer.BeanNotOfRequiredTypeFailureAnalyzer,\
+infra.app.diagnostics.analyzer.BindFailureAnalyzer,\
+infra.app.diagnostics.analyzer.BindValidationFailureAnalyzer,\
+infra.app.diagnostics.analyzer.UnboundConfigurationPropertyFailureAnalyzer,\
+infra.app.diagnostics.analyzer.MissingParameterNamesFailureAnalyzer,\
+infra.app.diagnostics.analyzer.MutuallyExclusiveConfigurationPropertiesFailureAnalyzer,\
+infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer,\
+infra.app.diagnostics.analyzer.NoUniqueBeanDefinitionFailureAnalyzer,\
+infra.app.diagnostics.analyzer.PortInUseFailureAnalyzer,\
+infra.app.diagnostics.analyzer.ValidationExceptionFailureAnalyzer,\
+infra.app.diagnostics.analyzer.InvalidConfigurationPropertyNameFailureAnalyzer,\
+infra.app.diagnostics.analyzer.InvalidConfigurationPropertyValueFailureAnalyzer,\
+infra.app.diagnostics.analyzer.PatternParseFailureAnalyzer,\
+infra.app.diagnostics.analyzer.NoSuchBeanDefinitionFailureAnalyzer,\
+infra.app.diagnostics.analyzer.FactoryMethodBeanFailureAnalyzer,\
+infra.app.diagnostics.analyzer.MissingWebServerFactoryBeanFailureAnalyzer,\
+infra.annotation.config.jdbc.DataSourceBeanCreationFailureAnalyzer,\
+infra.annotation.config.jdbc.HikariDriverConfigurationFailureAnalyzer
 
 #
 #
 # Failure Analysis Reporters
-cn.taketoday.framework.diagnostics.FailureAnalysisReporter=\
-cn.taketoday.framework.diagnostics.LoggingFailureAnalysisReporter
+infra.app.diagnostics.FailureAnalysisReporter=\
+infra.app.diagnostics.LoggingFailureAnalysisReporter
 # Auto Configuration Import Listeners
-cn.taketoday.context.annotation.config.AutoConfigurationImportListener=\
-cn.taketoday.context.condition.ConditionEvaluationReportAutoConfigurationImportListener
+infra.context.annotation.config.AutoConfigurationImportListener=\
+infra.context.condition.ConditionEvaluationReportAutoConfigurationImportListener
 #
 #
 # for EnvironmentPostProcessor processing environment
-cn.taketoday.framework.env.EnvironmentPostProcessor=\
-cn.taketoday.framework.context.config.ConfigDataEnvironmentPostProcessor,\
-cn.taketoday.framework.env.RandomValuePropertySourceEnvironmentPostProcessor,\
-cn.taketoday.framework.env.ApplicationJsonEnvironmentPostProcessor,\
-cn.taketoday.framework.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
+infra.app.env.EnvironmentPostProcessor=\
+infra.app.context.config.ConfigDataEnvironmentPostProcessor,\
+infra.app.env.RandomValuePropertySourceEnvironmentPostProcessor,\
+infra.app.env.ApplicationJsonEnvironmentPostProcessor,\
+infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
 #
 #
 # ApplicationStartupListener
-cn.taketoday.framework.ApplicationStartupListener=\
-cn.taketoday.framework.context.event.EventPublishingStartupListener
+infra.app.ApplicationStartupListener=\
+infra.app.context.ClearCachesStartupListener,\
+infra.app.context.event.EventPublishingStartupListener
 #
 
 # PropertySource Loaders
-cn.taketoday.framework.env.PropertySourceLoader=\
-cn.taketoday.framework.env.PropertiesPropertySourceLoader,\
-cn.taketoday.framework.env.YamlPropertySourceLoader
+infra.app.env.PropertySourceLoader=\
+infra.app.env.PropertiesPropertySourceLoader,\
+infra.app.env.YamlPropertySourceLoader
 
 # ConfigData Location Resolvers
-cn.taketoday.framework.context.config.ConfigDataLocationResolver=\
-cn.taketoday.framework.context.config.ConfigTreeConfigDataLocationResolver,\
-cn.taketoday.framework.context.config.StandardConfigDataLocationResolver
+infra.app.context.config.ConfigDataLocationResolver=\
+infra.app.context.config.ConfigTreeConfigDataLocationResolver,\
+infra.app.context.config.StandardConfigDataLocationResolver
 
 # ConfigData Loaders
-cn.taketoday.framework.context.config.ConfigDataLoader=\
-cn.taketoday.framework.context.config.ConfigTreeConfigDataLoader,\
-cn.taketoday.framework.context.config.StandardConfigDataLoader
+infra.app.context.config.ConfigDataLoader=\
+infra.app.context.config.ConfigTreeConfigDataLoader,\
+infra.app.context.config.StandardConfigDataLoader
 
 # Error Reporters
-cn.taketoday.framework.diagnostics.ApplicationExceptionReporter=\
-cn.taketoday.framework.diagnostics.FailureAnalyzers
+infra.app.diagnostics.ApplicationExceptionReporter=\
+infra.app.diagnostics.FailureAnalyzers
 
 # Auto Configuration Import Filters
-cn.taketoday.context.annotation.config.AutoConfigurationImportFilter=\
-cn.taketoday.context.condition.OnBeanCondition,\
-cn.taketoday.context.condition.OnClassCondition,\
-cn.taketoday.framework.annotation.OnWebApplicationCondition
+infra.context.annotation.config.AutoConfigurationImportFilter=\
+infra.context.condition.OnBeanCondition,\
+infra.context.condition.OnClassCondition,\
+infra.annotation.OnWebApplicationCondition
 
 #
 # ApplicationContextInitializer
-cn.taketoday.context.ApplicationContextInitializer=\
-cn.taketoday.framework.context.ContextIdApplicationContextInitializer,\
-cn.taketoday.framework.context.config.DelegatingApplicationContextInitializer,\
-cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingListener
+infra.context.ApplicationContextInitializer=\
+infra.app.context.ContextIdApplicationContextInitializer,\
+infra.app.context.config.DelegatingApplicationContextInitializer,\
+infra.annotation.config.logging.ConditionEvaluationReportLoggingListener
 
 #
-cn.taketoday.context.ApplicationListener=\
-  cn.taketoday.framework.context.AnsiOutputApplicationListener,\
-  cn.taketoday.framework.context.logging.LoggingApplicationListener,\
-  cn.taketoday.framework.builder.ParentContextCloserApplicationListener,\
-  cn.taketoday.framework.env.EnvironmentPostProcessorApplicationListener,\
-  cn.taketoday.framework.availability.ApplicationRefusingTrafficListener
+infra.context.ApplicationListener=\
+  infra.app.context.AnsiOutputApplicationListener,\
+  infra.app.context.logging.LoggingApplicationListener,\
+  infra.app.builder.ParentContextCloserApplicationListener,\
+  infra.app.env.EnvironmentPostProcessorApplicationListener,\
+  infra.app.availability.ApplicationRefusingTrafficListener
 
-cn.taketoday.framework.logging.LoggingSystemFactory=\
-  cn.taketoday.framework.logging.logback.LogbackLoggingSystem.Factory,\
-  cn.taketoday.framework.logging.java.JavaLoggingSystem.Factory
+infra.app.logging.LoggingSystemFactory=\
+  infra.app.logging.logback.LogbackLoggingSystem.Factory,\
+  infra.app.logging.java.JavaLoggingSystem.Factory
 
-cn.taketoday.core.io.ProtocolResolver=\
-  cn.taketoday.framework.io.Base64ProtocolResolver
+infra.core.io.ProtocolResolver=\
+  infra.app.io.Base64ProtocolResolver

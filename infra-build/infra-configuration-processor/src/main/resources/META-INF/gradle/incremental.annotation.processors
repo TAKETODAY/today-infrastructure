@@ -1,1 +1,1 @@
-cn.taketoday.context.properties.processor.ConfigurationMetadataAnnotationProcessor,aggregating
+infra.context.properties.processor.ConfigurationMetadataAnnotationProcessor,aggregating

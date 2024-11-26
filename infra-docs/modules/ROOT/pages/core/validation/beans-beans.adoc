@@ -46,7 +46,7 @@ after the call to `construct`.
 [[beans-beans]]
 == Property Binding with `BeanWrapper`
 
-The `cn.taketoday.beans` package adheres to the JavaBeans standard.
+The `infra.beans` package adheres to the JavaBeans standard.
 A JavaBean is a class with a default no-argument constructor and that follows
 a naming convention where (for example) a property named `bingoMadness` would
 have a setter method `setBingoMadness(..)` and a getter method `getBingoMadness()`. For
@@ -223,7 +223,7 @@ A couple of examples where property editing is used in Infra:
   `CommandController`.
 
 Infra has a number of built-in `PropertyEditor` implementations to make life easy.
-They are all located in the `cn.taketoday.beans.propertyeditors`
+They are all located in the `infra.beans.propertyeditors`
 package. Most, (but not all, as indicated in the following table) are, by default, registered by
 `BeanWrapperImpl`. Where the property editor is configurable in some fashion, you can
 still register your own variant to override the default one. The following table describes
@@ -464,7 +464,7 @@ Finally, the following example shows how to use `CustomEditorConfigurer` to regi
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.beans.factory.config.CustomEditorConfigurer">
+<bean class="infra.beans.factory.config.CustomEditorConfigurer">
   <property name="customEditors">
     <map>
       <entry key="example.ExoticType" value="example.ExoticTypeEditor"/>
@@ -515,7 +515,7 @@ public final class CustomPropertyEditorRegistrar implements PropertyEditorRegist
 
 ======
 
-See also the `cn.taketoday.beans.support.ResourceEditorRegistrar` for an example
+See also the `infra.beans.support.ResourceEditorRegistrar` for an example
 `PropertyEditorRegistrar` implementation. Notice how in its implementation of the
 `registerCustomEditors(..)` method, it creates new instances of each property editor.
 
@@ -524,7 +524,7 @@ of our `CustomPropertyEditorRegistrar` into it:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.beans.factory.config.CustomEditorConfigurer">
+<bean class="infra.beans.factory.config.CustomEditorConfigurer">
   <property name="propertyEditorRegistrars">
     <list>
       <ref bean="customPropertyEditorRegistrar"/>

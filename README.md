@@ -66,7 +66,7 @@ buildscript {
 
 ```groovy
 apply plugin: "java"
-apply plugin: 'cn.taketoday.application'
+apply plugin: 'infra.application'
 apply plugin: 'io.spring.dependency-management' // 有了该插件可以自动导入 infra-dependencies
 
 repositories {

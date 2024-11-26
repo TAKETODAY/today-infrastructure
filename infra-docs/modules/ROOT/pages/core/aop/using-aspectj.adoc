@@ -40,7 +40,7 @@ Java::
 ----
 package com.xyz.domain;
 
-import cn.taketoday.beans.factory.annotation.Configurable;
+import infra.beans.factory.annotation.Configurable;
 
 @Configurable
 public class Account {
@@ -75,7 +75,7 @@ Java::
 ----
 package com.xyz.domain;
 
-import cn.taketoday.beans.factory.annotation.Configurable;
+import infra.beans.factory.annotation.Configurable;
 
 @Configurable("account")
 public class Account {
@@ -161,7 +161,7 @@ configuration aspect. The following example shows how to use the `depends-on` at
 ----
 <bean id="myService"
     class="com.xyz.service.MyService"
-    depends-on="cn.taketoday.beans.factory.aspectj.AnnotationBeanConfigurerAspect">
+    depends-on="infra.beans.factory.aspectj.AnnotationBeanConfigurerAspect">
 
   <!-- ... -->
 
@@ -359,8 +359,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import cn.taketoday.util.StopWatch;
-import cn.taketoday.core.annotation.Order;
+import infra.util.StopWatch;
+import infra.core.annotation.Order;
 
 @Aspect
 public class ProfilingAspect {
@@ -606,7 +606,7 @@ If you use the xref:core/aop/using-aspectj.adoc#aop-aj-ltw-environments-generic[
 === Infra Configuration
 
 The key component in Infra's LTW support is the `LoadTimeWeaver` interface (in the
-`cn.taketoday.instrument.classloading` package), and the numerous implementations
+`infra.instrument.classloading` package), and the numerous implementations
 of it that ship with the Infra distribution. A `LoadTimeWeaver` is responsible for
 adding one or more `java.lang.instrument.ClassFileTransformers` to a `ClassLoader` at
 runtime, which opens the door to all manner of interesting applications, one of which

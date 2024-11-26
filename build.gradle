@@ -3,7 +3,7 @@ plugins {
   id 'de.undercouch.download' version '5.4.0'
   id 'io.freefair.aspectj' version '8.4' apply false
   id 'me.champeau.mrjar' version '0.1.1'
-  id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
+  id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
 }
 
 ext {
@@ -80,8 +80,8 @@ configure(allprojects) {
 configure([rootProject] + javaProjects) {
   apply plugin: "java"
   apply plugin: 'jacoco'
-  apply plugin: 'cn.taketoday.build.conventions'
-  apply plugin: 'cn.taketoday.build.optional-dependencies'
+  apply plugin: 'infra.building.conventions'
+  apply plugin: 'infra.building.optional-dependencies'
   apply from: "${rootDir}/gradle/toolchains.gradle"
 
   if (testFixturesProjects.contains(it)) {
@@ -136,7 +136,7 @@ configure(moduleProjects) {
 
 configure(rootProject) {
   description = "TODAY Infrastructure"
-  apply plugin: 'cn.taketoday.build.api-diff'
+  apply plugin: 'infra.building.api-diff'
 }
 
 if (isReleaseVersion) {

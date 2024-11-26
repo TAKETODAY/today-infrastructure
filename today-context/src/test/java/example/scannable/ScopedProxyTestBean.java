@@ -17,8 +17,8 @@
 
 package example.scannable;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.util.concurrent.Future;
+import infra.context.annotation.Scope;
+import infra.util.concurrent.Future;
 
 /**
  * @author Mark Fisher

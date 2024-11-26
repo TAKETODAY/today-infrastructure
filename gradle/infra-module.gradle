@@ -1,5 +1,6 @@
 //file:noinspection ConfigurationAvoidance
-import java.time.LocalDateTime
+
+import java.time.OffsetDateTime
 
 apply plugin: "signing"
 apply plugin: 'java-library'
@@ -11,7 +12,7 @@ apply from: "$rootDir/gradle/publications.gradle"
 jar {
   manifest.attributes["Implementation-Title"] = project.name
   manifest.attributes["Implementation-Version"] = project.version
-  manifest.attributes["Implementation-Build"] = LocalDateTime.now()
+  manifest.attributes["Implementation-Build"] = OffsetDateTime.now()
   manifest.attributes["Implementation-Vendor"] = 'TODAY Tech'
   manifest.attributes["Implementation-Vendor-Id"] = 'cn.taketoday'
   manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')  // for Jigsaw

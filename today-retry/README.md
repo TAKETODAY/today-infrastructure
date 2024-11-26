@@ -754,7 +754,7 @@ The following example of declarative iteration uses Infra AOP to repeat a servic
   <aop:advisor pointcut-ref="transactional" advice-ref="retryAdvice" order="-1" />
 </aop:config>
 
-<bean id="retryAdvice" class="cn.taketoday.retry.interceptor.RetryOperationsInterceptor" />
+<bean id="retryAdvice" class="infra.retry.interceptor.RetryOperationsInterceptor" />
 ```
 
 The preceding example uses a default `RetryTemplate` inside the interceptor. To change the

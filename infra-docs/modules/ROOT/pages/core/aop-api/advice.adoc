@@ -151,7 +151,7 @@ TIP: Before advice can be used with any pointcut.
 
 Throws advice is invoked after the return of the join point if the join point threw
 an exception. Infra offers typed throws advice. Note that this means that the
-`cn.taketoday.aop.ThrowsAdvice` interface does not contain any methods. It is a
+`infra.aop.ThrowsAdvice` interface does not contain any methods. It is a
 tag interface identifying that the given object implements one or more typed throws
 advice methods. These should be in the following form:
 
@@ -241,7 +241,7 @@ TIP: Throws advice can be used with any pointcut.
 === After Returning Advice
 
 An after returning advice in Infra must implement the
-`cn.taketoday.aop.AfterReturningAdvice` interface, which the following listing shows:
+`infra.aop.AfterReturningAdvice` interface, which the following listing shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -359,7 +359,7 @@ provides the ability to make objects immutable without them having any knowledge
 a good example of AOP.
 
 First, we need an `IntroductionInterceptor` that does the heavy lifting. In this
-case, we extend the `cn.taketoday.aop.support.DelegatingIntroductionInterceptor`
+case, we extend the `infra.aop.support.DelegatingIntroductionInterceptor`
 convenience class. We could implement `IntroductionInterceptor` directly, but using
 `DelegatingIntroductionInterceptor` is best for most cases.
 

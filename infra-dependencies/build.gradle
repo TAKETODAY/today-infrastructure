@@ -18,7 +18,7 @@
 description = 'Infrastructure Dependencies'
 
 apply plugin: 'java-platform'
-apply plugin: "cn.taketoday.bom"
+apply plugin: "infra.bom"
 apply from: "$rootDir/gradle/publications.gradle"
 
 javaPlatform {
@@ -570,8 +570,8 @@ dependencies {
     api("com.google.code.findbugs:findbugs:3.0.1")
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.google.code.gson:gson:2.10.1")
-    api("com.google.protobuf:protobuf-java-util:4.26.1")
-    api("com.google.protobuf:protobuf-java:4.26.1")
+    api("com.google.protobuf:protobuf-java-util:4.28.1")
+    api("com.google.protobuf:protobuf-java:4.28.2")
     api("com.h2database:h2:1.4.199")
     api("com.jayway.jsonpath:json-path:2.8.0")
     api("com.rometools:rome:1.19.0")

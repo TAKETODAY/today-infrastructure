@@ -7,7 +7,7 @@ that advise target objects. For the full details of Infra AOP API, see the
 xref:core/aop-api.adoc[next chapter]. Here, we want to focus on the ability to automatically
 create proxies by using @AspectJ aspects.
 
-You can use the `cn.taketoday.aop.aspectj.annotation.AspectJProxyFactory` class
+You can use the `infra.aop.aspectj.annotation.AspectJProxyFactory` class
 to create a proxy for a target object that is advised by one or more @AspectJ aspects.
 The basic usage for this class is very simple, as the following example shows:
 

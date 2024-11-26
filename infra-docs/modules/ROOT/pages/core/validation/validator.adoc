@@ -25,10 +25,10 @@ public class Person {
 ======
 
 The next example provides validation behavior for the `Person` class by implementing the
-following two methods of the `cn.taketoday.validation.Validator` interface:
+following two methods of the `infra.validation.Validator` interface:
 
 * `supports(Class)`: Can this `Validator` validate instances of the supplied `Class`?
-* `validate(Object, cn.taketoday.validation.Errors)`: Validates the given object
+* `validate(Object, infra.validation.Errors)`: Validates the given object
   and, in case of validation errors, registers those with the given `Errors` object.
 
 Implementing a `Validator` is fairly straightforward, especially when you know of the

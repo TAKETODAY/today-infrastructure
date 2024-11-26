@@ -22,8 +22,8 @@ package example.scannable;
 
 import java.util.concurrent.Future;
 
-import cn.taketoday.scheduling.annotation.Async;
-import cn.taketoday.stereotype.Indexed;
+import infra.scheduling.annotation.Async;
+import infra.stereotype.Indexed;
 
 /**
  * @author Mark Fisher

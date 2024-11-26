@@ -10,17 +10,17 @@ instances and that can be used to retrieve these for storage).
 == JDK `ConcurrentMap`-based Cache
 
 The JDK-based `Cache` implementation resides under
-`cn.taketoday.cache.concurrent` package. It lets you use `ConcurrentHashMap`
+`infra.cache.concurrent` package. It lets you use `ConcurrentHashMap`
 as a backing `Cache` store. The following example shows how to configure two caches:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <!-- simple cache manager -->
-<bean id="cacheManager" class="cn.taketoday.cache.support.SimpleCacheManager">
+<bean id="cacheManager" class="infra.cache.support.SimpleCacheManager">
   <property name="caches">
     <set>
-      <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
-      <bean class="cn.taketoday.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="books"/>
+      <bean class="infra.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
+      <bean class="infra.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="books"/>
     </set>
   </property>
 </bean>
@@ -47,7 +47,7 @@ xref:integration/cache/store-configuration.adoc#cache-store-configuration-jsr107
 == Caffeine Cache
 
 Caffeine is a Java 8 rewrite of Guava's cache, and its implementation is located in the
-`cn.taketoday.cache.caffeine` package and provides access to several features
+`infra.cache.caffeine` package and provides access to several features
 of Caffeine.
 
 The following example configures a `CacheManager` that creates the cache on demand:
@@ -55,7 +55,7 @@ The following example configures a `CacheManager` that creates the cache on dema
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="cacheManager"
-    class="cn.taketoday.cache.caffeine.CaffeineCacheManager"/>
+    class="infra.cache.caffeine.CaffeineCacheManager"/>
 ----
 
 You can also provide the caches to use explicitly. In that case, only those
@@ -63,7 +63,7 @@ are made available by the manager. The following example shows how to do so:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="cacheManager" class="cn.taketoday.cache.caffeine.CaffeineCacheManager">
+<bean id="cacheManager" class="infra.cache.caffeine.CaffeineCacheManager">
   <property name="cacheNames">
     <set>
       <value>default</value>
@@ -91,7 +91,7 @@ use GemFire as a `CacheManager` (and more).
 == JSR-107 Cache
 
 Infra caching abstraction can also use JSR-107-compliant caches. The JCache
-implementation is located in the `cn.taketoday.cache.jcache` package.
+implementation is located in the `infra.cache.jcache` package.
 
 Again, to use it, you need to declare the appropriate `CacheManager`.
 The following example shows how to do so:
@@ -99,7 +99,7 @@ The following example shows how to do so:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="cacheManager"
-    class="cn.taketoday.cache.jcache.JCacheCacheManager"
+    class="infra.cache.jcache.JCacheCacheManager"
     p:cache-manager-ref="jCacheManager"/>
 
 <!-- JSR-107 cache manager setup  -->
@@ -120,7 +120,7 @@ The following example shows how to do so:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="cacheManager" class="cn.taketoday.cache.support.CompositeCacheManager">
+<bean id="cacheManager" class="infra.cache.support.CompositeCacheManager">
   <property name="cacheManagers">
     <list>
       <ref bean="jdkCache"/>

@@ -2,7 +2,7 @@
 = Using JSR-160 Connectors
 
 For remote access, Infra JMX module offers two `FactoryBean` implementations inside the
-`cn.taketoday.jmx.support` package for creating both server- and client-side
+`infra.jmx.support` package for creating both server- and client-side
 connectors.
 
 
@@ -14,7 +14,7 @@ following configuration:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-	<bean id="serverConnector" class="cn.taketoday.jmx.support.ConnectorServerFactoryBean"/>
+	<bean id="serverConnector" class="infra.jmx.support.ConnectorServerFactoryBean"/>
 ----
 
 By default, `ConnectorServerFactoryBean` creates a `JMXConnectorServer` bound to
@@ -31,7 +31,7 @@ as the following example shows:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="serverConnector"
-    class="cn.taketoday.jmx.support.ConnectorServerFactoryBean">
+    class="infra.jmx.support.ConnectorServerFactoryBean">
   <property name="objectName" value="connector:name=rmi"/>
   <property name="serviceUrl"
       value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/myconnector"/>
@@ -46,7 +46,7 @@ parameters that you can pass to the `ConnectorServerFactoryBean` when creating a
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="serverConnector"
-    class="cn.taketoday.jmx.support.ConnectorServerFactoryBean">
+    class="infra.jmx.support.ConnectorServerFactoryBean">
   <property name="objectName" value="connector:name=iiop"/>
   <property name="serviceUrl"
     value="service:jmx:iiop://localhost/jndi/iiop://localhost:900/myconnector"/>
@@ -72,7 +72,7 @@ To create an `MBeanServerConnection` to a remote JSR-160-enabled `MBeanServer`, 
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="clientConnector" class="cn.taketoday.jmx.support.MBeanServerConnectionFactoryBean">
+<bean id="clientConnector" class="infra.jmx.support.MBeanServerConnectionFactoryBean">
   <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmxrmi"/>
 </bean>
 ----
@@ -90,7 +90,7 @@ as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="serverConnector" class="cn.taketoday.jmx.support.ConnectorServerFactoryBean">
+<bean id="serverConnector" class="infra.jmx.support.ConnectorServerFactoryBean">
   <property name="objectName" value="connector:name=burlap"/>
   <property name="serviceUrl" value="service:jmx:burlap://localhost:9874"/>
 </bean>

@@ -2,7 +2,7 @@
 = Infra TestContext Framework
 :page-section-summary-toc: 1
 
-The Infra TestContext Framework (located in the `cn.taketoday.test.context`
+The Infra TestContext Framework (located in the `infra.test.context`
 package) provides generic, annotation-driven unit and integration testing support that is
 agnostic of the testing framework in use. The TestContext framework also places a great
 deal of importance on convention over configuration, with reasonable defaults that you

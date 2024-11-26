@@ -35,7 +35,7 @@ implementation is a Groovy script. The following listing shows the `Messenger` i
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting;
+package infra.scripting;
 
 public interface Messenger {
 
@@ -47,7 +47,7 @@ The following example defines a class that has a dependency on the `Messenger` i
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting;
+package infra.scripting;
 
 public class DefaultBookingService implements BookingService {
 
@@ -67,10 +67,10 @@ The following example implements the `Messenger` interface in Groovy:
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages",fold="none"]
 ----
-package cn.taketoday.scripting.groovy
+package infra.scripting.groovy
 
 // Import the Messenger interface (written in Java) that is to be implemented
-import cn.taketoday.scripting.Messenger
+import infra.scripting.Messenger
 
 // Define the implementation in Groovy in file 'Messenger.groovy'
 class GroovyMessenger implements Messenger {
@@ -252,9 +252,9 @@ The following listing shows this sample application:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.scripting.Messenger;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
+import infra.scripting.Messenger;
 
 public final class Boot {
 
@@ -277,7 +277,7 @@ execution of the program is paused:
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting
+package infra.scripting
 
 class GroovyMessenger implements Messenger {
 
@@ -330,9 +330,9 @@ feature works:
 <lang:groovy id="messenger">
   <lang:inline-script>
 
-    package cn.taketoday.scripting.groovy
+    package infra.scripting.groovy
 
-    import cn.taketoday.scripting.Messenger
+    import infra.scripting.Messenger
 
     class GroovyMessenger implements Messenger {
       String message
@@ -364,9 +364,9 @@ does not work:
 .An approach that cannot work
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting.groovy
+package infra.scripting.groovy
 
-import cn.taketoday.scripting.Messenger
+import infra.scripting.Messenger
 
 // from the file 'Messenger.groovy'
 class GroovyMessenger implements Messenger {
@@ -421,7 +421,7 @@ bean. Now consider another example (again using an example from the Infra test s
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting;
+package infra.scripting;
 
 public interface Calculator {
 
@@ -433,7 +433,7 @@ The following example implements the `Calculator` interface in Groovy:
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting.groovy
+package infra.scripting.groovy
 
 // from the file 'calculator.groovy'
 class GroovyCalculator implements Calculator {
@@ -458,10 +458,10 @@ Finally, the following small application exercises the preceding configuration:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting;
+package infra.scripting;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
 
 public class Main {
 
@@ -538,7 +538,7 @@ following example shows:
 
   <!-- ... and plug it into the desired Groovy bean via the 'customizer-ref' attribute -->
   <lang:groovy id="calculator"
-    script-source="classpath:cn/taketoday/scripting/groovy/Calculator.groovy"
+    script-source="classpath:infra/scripting/groovy/Calculator.groovy"
     customizer-ref="tracingCustomizer"/>
 ----
 
@@ -547,15 +547,15 @@ If you do not use the Infra namespace support, you can still use the
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="calculator" class="cn.taketoday.scripting.groovy.GroovyScriptFactory">
-  <constructor-arg value="classpath:cn/taketoday/scripting/groovy/Calculator.groovy"/>
+<bean id="calculator" class="infra.scripting.groovy.GroovyScriptFactory">
+  <constructor-arg value="classpath:infra/scripting/groovy/Calculator.groovy"/>
   <!-- define the GroovyObjectCustomizer (as an inner bean) -->
   <constructor-arg>
     <bean id="tracingCustomizer" class="example.SimpleMethodTracingCustomizer"/>
   </constructor-arg>
 </bean>
 
-<bean class="cn.taketoday.scripting.support.ScriptFactoryPostProcessor"/>
+<bean class="infra.scripting.support.ScriptFactoryPostProcessor"/>
 ----
 
 NOTE: You may also specify a Groovy `CompilationCustomizer` (such as an `ImportCustomizer`)
@@ -597,7 +597,7 @@ definition of the `Messenger` interface:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.scripting;
+package infra.scripting;
 
 public interface Messenger {
 
@@ -627,7 +627,7 @@ The following example shows the Infra XML that defines an "`instance`" of the ab
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <lang:bsh id="messageService" script-source="classpath:BshMessenger.bsh"
-  script-interfaces="cn.taketoday.scripting.Messenger">
+  script-interfaces="infra.scripting.Messenger">
 
   <lang:property name="message" value="Hello World!" />
 </lang:bsh>
@@ -672,17 +672,17 @@ NOTE: To effect this automatic "`pickup`" of any changes to dynamic-language-bac
 beans, you have to enable the "`refreshable beans`" functionality. See
 xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[Refreshable Beans] for a full treatment of this feature.
 
-The following example shows an `cn.taketoday.web.hanler.mvc.Controller` implemented
+The following example shows an `infra.web.hanler.mvc.Controller` implemented
 by using the Groovy dynamic language:
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.showcase.fortune.web
+package infra.showcase.fortune.web
 
-import cn.taketoday.showcase.fortune.service.FortuneService
-import cn.taketoday.showcase.fortune.domain.Fortune
-import cn.taketoday.web.mock.ModelAndView
-import cn.taketoday.web.mock.mvc.Controller
+import infra.showcase.fortune.service.FortuneService
+import infra.showcase.fortune.domain.Fortune
+import infra.web.mock.ModelAndView
+import infra.web.mock.mvc.Controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -727,16 +727,16 @@ NOTE: To effect the automatic "`pickup`" of any changes to dynamic-language-back
 beans, you have to enable the 'refreshable beans' feature. See
 xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[Refreshable Beans] for a full and detailed treatment of this feature.
 
-The following example shows a Infra `cn.taketoday.validation.Validator`
+The following example shows a Infra `infra.validation.Validator`
 implemented by using the Groovy dynamic language (see xref:core/validation/validator.adoc[Validation using Infra’s Validator interface]
  for a discussion of the
 `Validator` interface):
 
 [source,groovy,indent=0,subs="verbatim,quotes"]
 ----
-import cn.taketoday.validation.Validator
-import cn.taketoday.validation.Errors
-import cn.taketoday.beans.TestBean
+import infra.validation.Validator
+import infra.validation.Errors
+import infra.beans.TestBean
 
 class TestBeanValidator implements Validator {
 

@@ -17,7 +17,7 @@
   -->
 
 <configuration>
-	<include resource="cn/taketoday/framework/logging/logback/defaults.xml"/>
+	<include resource="infra/app/logging/logback/defaults.xml"/>
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>[%p] - %m%n</pattern>

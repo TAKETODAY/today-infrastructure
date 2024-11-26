@@ -14,10 +14,10 @@ and without any special support on the server side.
 == Defining a theme
 
 To use themes in your web application, you must set up an implementation of the
-`cn.taketoday.ui.context.ThemeSource` interface. The `WebApplicationContext`
+`infra.ui.context.ThemeSource` interface. The `WebApplicationContext`
 interface extends `ThemeSource` but delegates its responsibilities to a dedicated
 implementation. By default, the delegate is an
-`cn.taketoday.ui.context.support.ResourceBundleThemeSource` implementation that
+`infra.ui.context.support.ResourceBundleThemeSource` implementation that
 loads properties files from the root of the classpath. To use a custom `ThemeSource`
 implementation or to configure the base name prefix of the `ResourceBundleThemeSource`,
 you can register a bean in the application context with the reserved name, `themeSource`.

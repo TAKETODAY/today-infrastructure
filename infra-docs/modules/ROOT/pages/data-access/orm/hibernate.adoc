@@ -43,7 +43,7 @@ JDBC `DataSource` and a Hibernate `SessionFactory` on top of it:
     <property name="password" value=""/>
   </bean>
 
-  <bean id="mySessionFactory" class="cn.taketoday.orm.hibernate5.LocalSessionFactoryBean">
+  <bean id="mySessionFactory" class="infra.orm.hibernate5.LocalSessionFactoryBean">
     <property name="dataSource" ref="myDataSource"/>
     <property name="mappingResources">
       <list>
@@ -240,7 +240,7 @@ processing at runtime. The following example shows how to do so:
   <!-- SessionFactory, DataSource, etc. omitted -->
 
   <bean id="transactionManager"
-      class="cn.taketoday.orm.hibernate5.HibernateTransactionManager">
+      class="infra.orm.hibernate5.HibernateTransactionManager">
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
@@ -270,7 +270,7 @@ and an example for a business method implementation:
 ----
 <beans>
 
-  <bean id="myTxManager" class="cn.taketoday.orm.hibernate5.HibernateTransactionManager">
+  <bean id="myTxManager" class="infra.orm.hibernate5.HibernateTransactionManager">
     <property name="sessionFactory" ref="mySessionFactory"/>
   </bean>
 

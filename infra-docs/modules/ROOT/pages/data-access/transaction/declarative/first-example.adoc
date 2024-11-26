@@ -123,7 +123,7 @@ configuration is explained in detail in the next few paragraphs:
   </bean>
 
   <!-- similarly, don't forget the TransactionManager -->
-  <bean id="txManager" class="cn.taketoday.jdbc.datasource.DataSourceTransactionManager">
+  <bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource"/>
   </bean>
 

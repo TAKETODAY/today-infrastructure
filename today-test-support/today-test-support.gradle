@@ -3,7 +3,6 @@ description = 'Infra Test Support'
 dependencies {
   api project(':today-test')
   optional project(':today-web')
-  optional project(':today-context')
 
   optional "org.hamcrest:hamcrest"
   optional "org.mockito:mockito-core"

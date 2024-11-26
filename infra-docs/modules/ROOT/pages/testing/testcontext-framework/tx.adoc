@@ -272,7 +272,7 @@ of `PlatformTransactionManager` within the test's `ApplicationContext`, you can 
 qualifier by using `@Transactional("myTxMgr")` or `@Transactional(transactionManager =
 "myTxMgr")`, or `TransactionManagementConfigurer` can be implemented by an
 `@Configuration` class. Consult the
-{today-framework-api}/test/context/transaction/TestContextTransactionUtils.html#retrieveTransactionManager-cn.taketoday.test.context.TestContext-java.lang.String-[javadoc
+{today-framework-api}/test/context/transaction/TestContextTransactionUtils.html#retrieveTransactionManager-infra.test.context.TestContext-java.lang.String-[javadoc
 for `TestContextTransactionUtils.retrieveTransactionManager()`] for details on the
 algorithm used to look up a transaction manager in the test's `ApplicationContext`.
 
@@ -466,7 +466,7 @@ Java::
 ======
 
 See
-{today-framework-code}/today-test/src/test/java/cn/taketoday/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]
+{today-framework-code}/today-test/src/test/java/infra/test/context/junit/jupiter/orm/JpaEntityListenerTests.java[JpaEntityListenerTests]
 in the TODAY Framework test suite for working examples using all JPA lifecycle callbacks.
 =====
 

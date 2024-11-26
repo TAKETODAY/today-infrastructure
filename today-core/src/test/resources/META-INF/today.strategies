@@ -15,16 +15,16 @@
 # along with this program. If not, see [https://www.gnu.org/licenses/]
 #
 
-cn.taketoday.lang.DummyFactory =\
-cn.taketoday.lang.MyDummyFactory2, \
-cn.taketoday.lang.MyDummyFactory1, \
-cn.taketoday.lang.MyDummyFactory1
+infra.lang.DummyFactory =\
+infra.lang.MyDummyFactory2, \
+infra.lang.MyDummyFactory1, \
+infra.lang.MyDummyFactory1
 
 java.lang.String=\
-cn.taketoday.lang.MyDummyFactory1
+infra.lang.MyDummyFactory1
 
-cn.taketoday.lang.DummyPackagePrivateFactory=\
-cn.taketoday.lang.DummyPackagePrivateFactory
+infra.lang.DummyPackagePrivateFactory=\
+infra.lang.DummyPackagePrivateFactory
 
-cn.taketoday.util.concurrent.Scheduler=\
-cn.taketoday.util.concurrent.SchedulerFactoryTests.MyExecutor
+infra.util.concurrent.Scheduler=\
+infra.util.concurrent.SchedulerFactoryTests.MyExecutor

@@ -66,7 +66,7 @@ Since having a large number of application contexts loaded within a given test s
 cause the suite to take an unnecessarily long time to run, it is often beneficial to
 know exactly how many contexts have been loaded and cached. To view the statistics for
 the underlying context cache, you can set the log level for the
-`cn.taketoday.test.context.cache` logging category to `DEBUG`.
+`infra.test.context.cache` logging category to `DEBUG`.
 
 In the unlikely case that a test corrupts the application context and requires reloading
 (for example, by modifying a bean definition or the state of an application object), you

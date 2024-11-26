@@ -43,7 +43,7 @@ you instead need to use a `BeanFactoryPostProcessor`, as described in
 xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[Customizing Configuration Metadata with a `BeanFactoryPostProcessor`].
 ====
 
-The `cn.taketoday.beans.factory.config.BeanPostProcessor` interface consists of
+The `infra.beans.factory.config.BeanPostProcessor` interface consists of
 exactly two callback methods. When such a class is registered as a post-processor with
 the container, for each bean instance that is created by the container, the
 post-processor gets a callback from the container both before container
@@ -62,7 +62,7 @@ same fashion as any other beans.
 
 Note that, when declaring a `BeanPostProcessor` by using an `@Bean` factory method on a
 configuration class, the return type of the factory method should be the implementation
-class itself or at least the `cn.taketoday.beans.factory.config.BeanPostProcessor`
+class itself or at least the `infra.beans.factory.config.BeanPostProcessor`
 interface, clearly indicating the post-processor nature of that bean. Otherwise, the
 `ApplicationContext` cannot autodetect it by type before fully creating it.
 Since a `BeanPostProcessor` needs to be instantiated early in order to apply to the
@@ -127,7 +127,7 @@ Java::
 ----
 package scripting;
 
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import infra.beans.factory.config.BeanPostProcessor;
 
 public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor {
 
@@ -159,7 +159,7 @@ The following `beans` element uses the `InstantiationTracingBeanPostProcessor`:
     https://www.springframework.org/schema/lang/spring-lang.xsd">
 
   <lang:groovy id="messenger"
-      script-source="classpath:cn/taketoday/scripting/groovy/Messenger.groovy">
+      script-source="classpath:infra/scripting/groovy/Messenger.groovy">
     <lang:property name="message" value="Fiona Apple Is Just So Dreamy."/>
   </lang:groovy>
 
@@ -186,9 +186,9 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.scripting.Messenger;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
+import infra.scripting.Messenger;
 
 public final class Boot {
 
@@ -207,8 +207,8 @@ The output of the preceding application resembles the following:
 
 [literal,subs="verbatim,quotes"]
 ----
-Bean 'messenger' created : cn.taketoday.scripting.groovy.GroovyMessenger@272961
-cn.taketoday.scripting.groovy.GroovyMessenger@272961
+Bean 'messenger' created : infra.scripting.groovy.GroovyMessenger@272961
+infra.scripting.groovy.GroovyMessenger@272961
 ----
 
 
@@ -227,7 +227,7 @@ and arbitrary config methods.
 == Customizing Configuration Metadata with a `BeanFactoryPostProcessor`
 
 The next extension point that we look at is the
-`cn.taketoday.beans.factory.config.BeanFactoryPostProcessor`. The semantics of
+`infra.beans.factory.config.BeanFactoryPostProcessor`. The semantics of
 this interface are similar to those of the `BeanPostProcessor`, with one major
 difference: `BeanFactoryPostProcessor` operates on the bean configuration metadata.
 That is, the Infra IoC container lets a `BeanFactoryPostProcessor` read the
@@ -294,7 +294,7 @@ with placeholder values is defined:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer">
+<bean class="infra.context.support.PropertySourcesPlaceholderConfigurer">
   <property name="locations" value="classpath:com/something/jdbc.properties"/>
 </bean>
 
@@ -358,7 +358,7 @@ The following example shows how to do so:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.beans.factory.config.PropertySourcesPlaceholderConfigurer">
+<bean class="infra.beans.factory.config.PropertySourcesPlaceholderConfigurer">
   <property name="locations">
     <value>classpath:com/something/strategy.properties</value>
   </property>
@@ -436,7 +436,7 @@ property overriding with a dedicated configuration element, as the following exa
 [[beans-factory-extension-factorybean]]
 == Customizing Instantiation Logic with a `FactoryBean`
 
-You can implement the `cn.taketoday.beans.factory.FactoryBean` interface for objects that
+You can implement the `infra.beans.factory.FactoryBean` interface for objects that
 are themselves factories.
 
 The `FactoryBean` interface is a point of pluggability into the Infra IoC container's

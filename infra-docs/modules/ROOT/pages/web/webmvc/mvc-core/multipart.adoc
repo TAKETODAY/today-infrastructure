@@ -1,7 +1,7 @@
 [[mvc-multipart]]
 = Multipart Resolver
 
-`MultipartResolver` from the `cn.taketoday.web.multipart` package is a strategy
+`MultipartResolver` from the `infra.web.multipart` package is a strategy
 for parsing multipart requests including file uploads. There is a container-based
 `StandardServletMultipartResolver` implementation for Servlet multipart request parsing.
 Note that the outdated `CommonsMultipartResolver` based on Apache Commons FileUpload is

@@ -17,7 +17,7 @@ Infra 提供了一种方便的技术特定异常（如 `SQLException`）到其�
 对于 Infra 支持的各种 ORM 框架中的各种模板类，上述讨论同样适用。如果您使用基于拦截器的类，则应用程序必须自己处理
 `HibernateExceptions` 和 `PersistenceExceptions`，最好通过分别委托给 `SessionFactoryUtils`
 的 `convertHibernateAccessException(..)` 或 `convertJpaAccessException(..)` 方法。
-这些方法将异常转换为与 `cn.taketoday.dao` 异常层次结构中的异常兼容的异常。
+这些方法将异常转换为与 `infra.dao` 异常层次结构中的异常兼容的异常。
 由于 `PersistenceExceptions` 是未检查的，它们也可以被抛出（尽管这牺牲了异常方面的通用 DAO 抽象）。
 
 下图显示了 Infra 提供的异常层次结构。

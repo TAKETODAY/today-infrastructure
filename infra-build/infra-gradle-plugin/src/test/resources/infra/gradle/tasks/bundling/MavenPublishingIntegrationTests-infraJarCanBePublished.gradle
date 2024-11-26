@@ -1,0 +1,27 @@
+
+
+plugins {
+	id 'java'
+	id 'maven-publish'
+	id 'infra.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+publishing {
+	repositories {
+		maven {
+			url "${buildDir}/repo"
+		}
+	}
+	publications {
+		infraJava(MavenPublication) {
+			artifact infraJar
+		}
+	}
+}

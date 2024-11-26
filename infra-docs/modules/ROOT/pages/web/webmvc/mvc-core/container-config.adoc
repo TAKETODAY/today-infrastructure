@@ -11,7 +11,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.web.WebApplicationInitializer;
+import infra.web.WebApplicationInitializer;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 

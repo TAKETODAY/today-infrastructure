@@ -12,7 +12,7 @@ Use the correct `PlatformTransactionManager` implementation based on your choice
 transactional technologies and requirements. Used properly, the TODAY Framework merely
 provides a straightforward and portable abstraction. If you use global
 transactions, you must use the
-`cn.taketoday.transaction.jta.JtaTransactionManager` class (or an
+`infra.transaction.jta.JtaTransactionManager` class (or an
 xref:data-access/transaction/application-server-integration.adoc[application server-specific subclass] of
 it) for all your transactional operations. Otherwise, the transaction infrastructure
 tries to perform local transactions on such resources as container `DataSource`

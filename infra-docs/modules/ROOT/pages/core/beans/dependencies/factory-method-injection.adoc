@@ -26,9 +26,9 @@ Java::
 package fiona.apple;
 
 // Infra-API imports
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContextAware;
+import infra.beans.BeansException;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationContextAware;
 
 /**
  * A class that uses a stateful Command-style class to perform
@@ -217,7 +217,7 @@ Another way of accessing differently scoped target beans is an `ObjectFactory`/
 `Provider` injection point. See xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[Scoped Beans as Dependencies].
 
 You may also find the `ServiceLocatorFactoryBean` (in the
-`cn.taketoday.beans.factory.config` package) to be useful.
+`infra.beans.factory.config` package) to be useful.
 ====
 
 
@@ -251,7 +251,7 @@ public class MyValueCalculator {
 
 ======
 
-A class that implements the `cn.taketoday.beans.factory.support.MethodReplacer`
+A class that implements the `infra.beans.factory.support.MethodReplacer`
 interface provides the new method definition, as the following example shows:
 
 [tabs]

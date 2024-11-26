@@ -1,8 +1,0 @@
-plugins {
-	id 'java'
-	id 'cn.taketoday.application' version '{version}'
-}
-
-dependencies {
-	implementation('cn.taketoday:today-starter-web')
-}

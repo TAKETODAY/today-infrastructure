@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:lang="http://www.springframework.org/schema/lang"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+				https://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/lang
+				https://www.springframework.org/schema/lang/spring-lang.xsd"
+ 		default-lazy-init="true">
+
+	<bean class="infra.scripting.support.ScriptFactoryPostProcessor"/>
+
+	<bean id="calculator" class="infra.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg>
+			<value>inline:
+        package infra.scripting.groovy;
+        import infra.scripting.Calculator
+        class GroovyCalculator implements Calculator {
+        int add(int x, int y) {
+        return x + y;
+        }
+        }
+      </value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="messenger" class="infra.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:infra/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerPrototype" class="infra.scripting.groovy.GroovyScriptFactory"
+		  scope="prototype">
+		<constructor-arg value="classpath:infra/scripting/groovy/Messenger.groovy"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerInstance" class="infra.scripting.groovy.GroovyScriptFactory">
+		<constructor-arg value="classpath:infra/scripting/groovy/MessengerInstance.groovy"/>
+		<property name="message" ref="myMessage"/>
+	</bean>
+
+  <bean id="messengerInstanceInline" class="infra.scripting.groovy.GroovyScriptFactory">
+	  <constructor-arg>
+      <value>inline:
+        package infra.scripting.groovy;
+        import infra.scripting.Messenger
+        class GroovyMessenger implements Messenger {
+        def String message;
+        }
+        return new GroovyMessenger();
+      </value>
+    </constructor-arg>
+    <property name="message" ref="myMessage"/>
+  </bean>
+
+	<bean id="myMessage" class="java.lang.String">
+		<constructor-arg value="Hello World!"/>
+	</bean>
+
+	<lang:groovy id="refreshableFactory" refresh-check-delay="5000"
+			script-source="infra/scripting/groovy/TestFactoryBean.groovy"/>
+
+	<lang:groovy id="factory" script-source="classpath:infra/scripting/groovy/TestFactoryBean.groovy"/>
+
+</beans>

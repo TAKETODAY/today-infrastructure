@@ -1,6 +1,6 @@
 plugins {
   id "java-library"
-  id "cn.taketoday.build.conventions"
+  id "infra.building.conventions"
 }
 
 description = "Infra Application Loader Tools"

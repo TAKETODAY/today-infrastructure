@@ -21,9 +21,9 @@ Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型�
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.handler.function.ReqestPredicates.*;
-import static cn.taketoday.web.handler.function.RouterFunctions.route;
+import static infra.http.MediaType.APPLICATION_JSON;
+import static infra.web.handler.function.ReqestPredicates.*;
+import static infra.web.handler.function.RouterFunctions.route;
 
 PersonRepository repository = ...
 PersonHandler handler = new PersonHandler(repository);
@@ -185,8 +185,8 @@ HandlerFunction<ServerResponse> helloWorld =
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.handler.function.ServerResponse.ok;
+import static infra.http.MediaType.APPLICATION_JSON;
+import static infra.web.handler.function.ServerResponse.ok;
 
 public class PersonHandler {
 
@@ -329,8 +329,8 @@ RouterFunction<ServerResponse> route = RouterFunctions.route()
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import static cn.taketoday.http.MediaType.APPLICATION_JSON;
-import static cn.taketoday.web.handler.function.RequestPredicates.*;
+import static infra.http.MediaType.APPLICATION_JSON;
+import static infra.web.handler.function.RequestPredicates.*;
 
 PersonRepository repository = ...
 PersonHandler handler = new PersonHandler(repository);

@@ -27,7 +27,7 @@ SQL and extract results. The `JdbcTemplate` class:
 * Updates statements and stored procedure calls
 * Performs iteration over `ResultSet` instances and extraction of returned parameter values.
 * Catches JDBC exceptions and translates them to the generic, more informative, exception
-hierarchy defined in the `cn.taketoday.dao` package. (See xref:data-access/dao.adoc#dao-exceptions[Consistent Exception Hierarchy].)
+hierarchy defined in the `infra.dao` package. (See xref:data-access/dao.adoc#dao-exceptions[Consistent Exception Hierarchy].)
 
 When you use the `JdbcTemplate` for your code, you need only to implement callback
 interfaces, giving them a clearly defined contract. Given a `Connection` provided by the
@@ -341,7 +341,7 @@ The following example shows the corresponding configuration:
 [source,java]
 ----
 @Configuration
-@ComponentScan("cn.taketoday.docs.dataaccess.jdbc")
+@ComponentScan("infra.docs.dataaccess.jdbc")
 public class JdbcCorporateEventRepositoryConfiguration {
 
   @Bean(destroyMethod = "close")
@@ -635,7 +635,7 @@ plain direct `JdbcTemplate` usage for any such capabilities not available in `Jd
 == Using `SQLExceptionTranslator`
 
 `SQLExceptionTranslator` is an interface to be implemented by classes that can translate
-between ``SQLException``s and Infra own `cn.taketoday.dao.DataAccessException`,
+between ``SQLException``s and Infra own `infra.dao.DataAccessException`,
 which is agnostic in regard to data access strategy. Implementations can be generic (for
 example, using SQLState codes for JDBC) or proprietary (for example, using Oracle error
 codes) for greater precision. This exception translation mechanism is used behind the
@@ -754,7 +754,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import javax.sql.DataSource;
-import cn.taketoday.jdbc.core.JdbcTemplate;
+import infra.jdbc.core.JdbcTemplate;
 
 public class ExecuteAStatement {
 
@@ -789,7 +789,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import javax.sql.DataSource;
-import cn.taketoday.jdbc.core.JdbcTemplate;
+import infra.jdbc.core.JdbcTemplate;
 
 public class RunAQuery {
 
@@ -856,7 +856,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import javax.sql.DataSource;
-import cn.taketoday.jdbc.core.JdbcTemplate;
+import infra.jdbc.core.JdbcTemplate;
 
 public class ExecuteAnUpdate {
 

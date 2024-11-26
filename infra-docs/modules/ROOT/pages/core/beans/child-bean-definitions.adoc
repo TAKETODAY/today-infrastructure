@@ -11,12 +11,12 @@
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="inheritedTestBean" abstract="true" class="cn.taketoday.beans.TestBean">
+<bean id="inheritedTestBean" abstract="true" class="infra.beans.TestBean">
   <property name="name" value="parent"/>
   <property name="age" value="1"/>
 </bean>
 
-<bean id="inheritsWithDifferentClass" class="cn.taketoday.beans.DerivedTestBean"
+<bean id="inheritsWithDifferentClass" class="infra.beans.DerivedTestBean"
     parent="inheritedTestBean" init-method="initialize">  <1>
   <property name="name" value="override"/>
   <!-- the age property value of 1 will be inherited from parent -->
@@ -40,7 +40,7 @@
   <property name="age" value="1"/>
 </bean>
 
-<bean id="inheritsWithClass" class="cn.taketoday.beans.DerivedTestBean"
+<bean id="inheritsWithClass" class="infra.beans.DerivedTestBean"
     parent="inheritedTestBeanWithoutClass" init-method="initialize">
   <property name="name" value="override"/>
   <!-- age will inherit the value of 1 from the parent bean definition-->

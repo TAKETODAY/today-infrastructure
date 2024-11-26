@@ -1,0 +1,11 @@
+
+
+plugins {
+	id 'war'
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+infraWar {
+	mainClass = 'com.example.ExampleApplication'
+}

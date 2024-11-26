@@ -22,9 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.stereotype.Service;
+import infra.context.annotation.Scope;
+import infra.core.annotation.AliasFor;
+import infra.stereotype.Service;
 
 /**
  * @author Juergen Hoeller

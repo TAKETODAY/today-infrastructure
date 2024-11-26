@@ -46,7 +46,7 @@ The lifecycle callback interfaces are described in this section.
 [[beans-factory-lifecycle-initializingbean]]
 === Initialization Callbacks
 
-The `cn.taketoday.beans.factory.InitializingBean` interface lets a bean
+The `infra.beans.factory.InitializingBean` interface lets a bean
 perform initialization work after the container has set all necessary properties on the
 bean. The `InitializingBean` interface specifies a single method:
 
@@ -139,7 +139,7 @@ a pre-destroy stop step, and potential stop/restart callbacks (see below).
 [[beans-factory-lifecycle-disposablebean]]
 === Destruction Callbacks
 
-Implementing the `cn.taketoday.beans.factory.DisposableBean` interface lets a
+Implementing the `infra.beans.factory.DisposableBean` interface lets a
 bean get a callback when the container that contains it is destroyed. The
 `DisposableBean` interface specifies a single method:
 
@@ -384,11 +384,11 @@ and closed.
 
 [TIP]
 ====
-Note that the regular `cn.taketoday.context.Lifecycle` interface is a plain
+Note that the regular `infra.context.Lifecycle` interface is a plain
 contract for explicit start and stop notifications and does not imply auto-startup
 at context refresh time. For fine-grained control over auto-startup and for graceful
 stopping of a specific bean (including startup and stop phases), consider implementing
-the extended `cn.taketoday.context.SmartLifecycle` interface instead.
+the extended `infra.context.SmartLifecycle` interface instead.
 
 Also, please note that stop notifications are not guaranteed to come before destruction.
 On regular shutdown, all `Lifecycle` beans first receive a stop notification before
@@ -447,7 +447,7 @@ defining the following would suffice:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="lifecycleProcessor" class="cn.taketoday.context.support.DefaultLifecycleProcessor">
+<bean id="lifecycleProcessor" class="infra.context.support.DefaultLifecycleProcessor">
   <!-- timeout value in milliseconds -->
   <property name="timeoutPerShutdownPhase" value="10000"/>
 </bean>
@@ -493,8 +493,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
 
 public final class Boot {
 
@@ -553,7 +553,7 @@ shutdown after a cancelled bootstrap or in case of a stop timeout caused by anot
 == `ApplicationContextAware` and `BeanNameAware`
 
 When an `ApplicationContext` creates an object instance that implements the
-`cn.taketoday.context.ApplicationContextAware` interface, the instance is provided
+`infra.context.ApplicationContextAware` interface, the instance is provided
 with a reference to that `ApplicationContext`. The following listing shows the definition
 of the `ApplicationContextAware` interface:
 
@@ -588,7 +588,7 @@ method in question carries the `@Autowired` annotation. For more information, se
 xref:core/beans/annotation-config/autowired.adoc[Using `@Autowired`].
 
 When an `ApplicationContext` creates a class that implements the
-`cn.taketoday.beans.factory.BeanNameAware` interface, the class is provided with
+`infra.beans.factory.BeanNameAware` interface, the class is provided with
 a reference to the name defined in its associated object definition. The following listing
 shows the definition of the BeanNameAware interface:
 

@@ -2,7 +2,7 @@
 = Manipulating Advised Objects
 
 However you create AOP proxies, you can manipulate them BY using the
-`cn.taketoday.aop.framework.Advised` interface. Any AOP proxy can be cast to this
+`infra.aop.framework.Advised` interface. Any AOP proxy can be cast to this
 interface, no matter which other interfaces it implements. This interface includes the
 following methods:
 

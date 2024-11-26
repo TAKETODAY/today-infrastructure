@@ -30,12 +30,12 @@ public class TwoAdviceAspect {
 
   private int totalCalls;
 
-  @Around("execution(* cn.taketoday.beans.testfixture.beans.ITestBean.age())")
+  @Around("execution(* infra.beans.testfixture.beans.ITestBean.age())")
   public int returnCallCount(ProceedingJoinPoint pjp) throws Exception {
     return totalCalls;
   }
 
-  @Before("execution(* cn.taketoday.beans.testfixture.beans.ITestBean.setAge(int)) && args(newAge)")
+  @Before("execution(* infra.beans.testfixture.beans.ITestBean.setAge(int)) && args(newAge)")
   public void countSet(int newAge) throws Exception {
     ++totalCalls;
   }

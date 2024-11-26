@@ -9,7 +9,7 @@
     },
     {
       "name": "spring.foo",
-      "type": "cn.taketoday.boot.FooProperties"
+      "type": "infra.boot.FooProperties"
     }
   ],
   "properties": [
@@ -28,12 +28,12 @@
     {
       "name": "spring.foo.name",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.boot.FooProperties"
+      "sourceType": "infra.boot.FooProperties"
     },
     {
       "name": "spring.foo.counter",
       "type": "java.lang.Integer",
-      "sourceType": "cn.taketoday.boot.FooProperties",
+      "sourceType": "infra.boot.FooProperties",
       "defaultValue": 0
     }
   ],

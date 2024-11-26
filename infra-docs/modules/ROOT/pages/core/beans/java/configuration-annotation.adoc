@@ -161,7 +161,7 @@ about singletons here.
 [NOTE]
 ====
 It is not necessary to add CGLIB to your classpath because CGLIB classes are repackaged
-under the `cn.taketoday.cglib` package and included directly within the
+under the `infra.cglib` package and included directly within the
 `today-core` JAR.
 ====
 

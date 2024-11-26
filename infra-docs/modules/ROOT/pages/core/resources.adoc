@@ -25,7 +25,7 @@
 [[resources-resource]]
 == `Resource` 接口
 
-`Resource` 接口在 `cn.taketoday.core.io.` 包中。它的出现抽象各种资源成为可能。
+`Resource` 接口在 `infra.core.io.` 包中。它的出现抽象各种资源成为可能。
 详细 API 可以查看 {today-framework-api}/core/io/Resource.html[`Resource`].
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -277,7 +277,7 @@ xref:core/resources.adoc#resources-resourceloaderaware[`ResourceLoaderAware`]）
 `PathMatchingPatternResourceLoader` 是一个可独立 `ApplicationContext` 之外使用，也用于 `ResourceArrayPropertyEditor`
 填充 `Resource[]` bean 属性。 `PathMatchingPatternResourceLoader` 能够将指定的资源位置路径解析为一个或多个匹配的 `Resource` 对象。
 源路径可以是与目标具有一对一映射的简单路径 `Resource`，或者可以包含特殊的 `classpath*:` 前缀和/或内部
-Ant 风格的正则表达式（使用 Infra 进行匹配 `cn.taketoday.util.AntPathMatcher` 实用程序）。后两者都有效通配符。
+Ant 风格的正则表达式（使用 Infra 进行匹配 `infra.util.AntPathMatcher` 实用程序）。后两者都有效通配符。
 
 [NOTE]
 ====

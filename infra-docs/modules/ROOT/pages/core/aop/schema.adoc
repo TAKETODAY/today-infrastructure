@@ -474,7 +474,7 @@ Java::
 package com.xyz;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import cn.taketoday.util.StopWatch;
+import infra.util.StopWatch;
 
 public class SimpleProfiler {
 

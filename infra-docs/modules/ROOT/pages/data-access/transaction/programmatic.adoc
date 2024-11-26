@@ -147,7 +147,7 @@ settings by using Infra XML configuration:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="sharedTransactionTemplate"
-    class="cn.taketoday.transaction.support.TransactionTemplate">
+    class="infra.transaction.support.TransactionTemplate">
   <property name="isolationLevelName" value="ISOLATION_READ_UNCOMMITTED"/>
   <property name="timeout" value="30"/>
 </bean>
@@ -292,7 +292,7 @@ managers.
 === Using the `PlatformTransactionManager`
 
 For imperative transactions, you can use a
-`cn.taketoday.transaction.PlatformTransactionManager` directly to manage your
+`infra.transaction.PlatformTransactionManager` directly to manage your
 transaction. To do so, pass the implementation of the `PlatformTransactionManager` you
 use to your bean through a bean reference. Then, by using the `TransactionDefinition` and
 `TransactionStatus` objects, you can initiate transactions, roll back, and commit. The
@@ -326,7 +326,7 @@ Java::
 === Using the `ReactiveTransactionManager`
 
 When working with reactive transactions, you can use a
-`cn.taketoday.transaction.ReactiveTransactionManager` directly to manage your
+`infra.transaction.ReactiveTransactionManager` directly to manage your
 transaction. To do so, pass the implementation of the `ReactiveTransactionManager` you
 use to your bean through a bean reference. Then, by using the `TransactionDefinition` and
 `ReactiveTransaction` objects, you can initiate transactions, roll back, and commit. The

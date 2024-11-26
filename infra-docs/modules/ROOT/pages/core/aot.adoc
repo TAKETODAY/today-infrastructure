@@ -210,7 +210,7 @@ public class DataSourceConfiguration__BeanDefinitions {
 
 NOTE: 生成的确切代码可能会根据您的 bean 定义的具体特性而有所不同。
 
-TIP: 每个生成的类都会用 `cn.taketoday.aot.generate.Generated` 进行注解，以便在需要排除它们时进行识别，例如通过静态分析工具。
+TIP: 每个生成的类都会用 `infra.aot.generate.Generated` 进行注解，以便在需要排除它们时进行识别，例如通过静态分析工具。
 
 以上生成的代码创建了等效于 `@Configuration` 类的bean定义，但以直接方式进行，尽可能地避免使用反射。
 有一个用于 `dataSourceConfiguration` 的 bean 定义，以及一个用于 dataSourceBean 的 bean 定义。
@@ -582,7 +582,7 @@ public class SampleReflection {
 
   public void performReflection() {
     try {
-      Class<?> version = ClassUtils.forName("cn.taketoday.lang.Version", null);
+      Class<?> version = ClassUtils.forName("infra.lang.Version", null);
       Method getVersion = ReflectionUtils.getMethod(version, "get");
       Object versionObj = getVersion.invoke(null);
       logger.info("Infra version:" + versionObj);
@@ -629,20 +629,20 @@ class SampleReflectionRuntimeHintsTests {
 
 [source,txt,indent=0,subs="verbatim,quotes"]
 ----
-cn.taketoday.docs.core.aot.hints.testing.SampleReflection performReflection
+infra.docs.core.aot.hints.testing.SampleReflection performReflection
 INFO: Infra version:6.0.0-SNAPSHOT
 
 Missing <"ReflectionHints"> for invocation <java.lang.Class#forName>
-with arguments ["cn.taketoday.lang.Version",
+with arguments ["infra.lang.Version",
     false,
     jdk.internal.loader.ClassLoaders$AppClassLoader@251a69d7].
 Stacktrace:
-<"cn.taketoday.util.ClassUtils#forName, Line 284
-cn.taketoday.runtimehintstesting.SampleReflection#performReflection, Line 19
-cn.taketoday.runtimehintstesting.SampleReflectionRuntimeHintsTests#lambda$shouldRegisterReflectionHints$0, Line 25
+<"infra.util.ClassUtils#forName, Line 284
+infra.runtimehintstesting.SampleReflection#performReflection, Line 19
+infra.runtimehintstesting.SampleReflectionRuntimeHintsTests#lambda$shouldRegisterReflectionHints$0, Line 25
 ----
 
 您可以通过各种方式配置此 Java 代理程序在构建中的使用，请参阅您的构建工具和测试执行插件的文档。
-代理程序本身可以配置为仪器化特定的包（默认情况下仅仪器化`cn.taketoday`）。
+代理程序本身可以配置为仪器化特定的包（默认情况下仅仪器化`infra`）。
 您将在 {today-framework-code}/buildSrc/README.md[Framework `buildSrc` README] 文件中找到更多详细信息。
 

@@ -76,7 +76,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
+import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
 public class AppConfig {
@@ -92,7 +92,7 @@ XML::
 +
 [source,xml,indent=0,subs="verbatim,quotes",role="secondary"]
 ----
-<bean id="validator" class="cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean"/>
+<bean id="validator" class="infra.validation.beanvalidation.LocalValidatorFactoryBean"/>
 ----
 ======
 
@@ -132,7 +132,7 @@ public class MyService {
 === Inject Infra Validator
 
 In addition to implementing `jakarta.validation.Validator`, `LocalValidatorFactoryBean`
-also adapts to `cn.taketoday.validation.Validator`, so you can inject a reference
+also adapts to `infra.validation.Validator`, so you can inject a reference
 to the latter if your bean requires the Infra Validation API.
 
 For example:
@@ -143,7 +143,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.validation.Validator;
+import infra.validation.Validator;
 
 @Service
 public class MyService {
@@ -155,7 +155,7 @@ public class MyService {
 
 ======
 
-When used as `cn.taketoday.validation.Validator`, `LocalValidatorFactoryBean`
+When used as `infra.validation.Validator`, `LocalValidatorFactoryBean`
 invokes the underlying `jakarta.validation.Validator`, and then adapts
 ``ContraintViolation``s to ``FieldError``s, and registers them with the `Errors` object
 passed into the `validate` method.
@@ -233,7 +233,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
+import infra.validation.beanvalidation.MethodValidationPostProcessor;
 
 @Configuration
 public class AppConfig {
@@ -250,7 +250,7 @@ XML::
 +
 [source,xml,indent=0,subs="verbatim,quotes",role="secondary"]
 ----
-<bean class="cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor"/>
+<bean class="infra.validation.beanvalidation.MethodValidationPostProcessor"/>
 ----
 ======
 
@@ -289,7 +289,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
+import infra.validation.beanvalidation.MethodValidationPostProcessor;
 
 @Configuration
 public class AppConfig {
@@ -308,7 +308,7 @@ XML::
 +
 [source,xml,indent=0,subs="verbatim,quotes",role="secondary"]
 ----
-<bean class="cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor">
+<bean class="infra.validation.beanvalidation.MethodValidationPostProcessor">
   <property name="adaptConstraintViolations" value="true"/>
 </bean>
 ----
@@ -319,7 +319,7 @@ group errors by method parameter, and each exposes a `MethodParameter`, the argu
 value, and a list of `MessageSourceResolvable` errors adapted from
 ``ConstraintViolation``s. For `@Valid` method parameters with cascaded violations on
 fields and properties, the `ParameterValidationResult` is `ParameterErrors` which
-implements `cn.taketoday.validation.Errors` and exposes validation errors as
+implements `infra.validation.Errors` and exposes validation errors as
 ``FieldError``s.
 
 

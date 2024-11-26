@@ -20,8 +20,8 @@
 
 package example.scannable;
 
-import cn.taketoday.beans.factory.annotation.Qualifier;
-import cn.taketoday.stereotype.Repository;
+import infra.beans.factory.annotation.Qualifier;
+import infra.stereotype.Repository;
 
 /**
  * @author Mark Fisher

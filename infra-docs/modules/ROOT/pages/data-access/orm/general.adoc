@@ -81,7 +81,7 @@ public class ProductDaoImpl implements ProductDao {
 <beans>
 
   <!-- Exception translation bean post processor -->
-  <bean class="cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+  <bean class="infra.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
   <bean id="myProductDao" class="product.ProductDaoImpl"/>
 

@@ -56,7 +56,7 @@ URL 模式的 `CorsConfiguration` 映射。在大多数情况下，应用程序�
 
 全局和本地配置的组合规则通常是累加的 - 例如，所有全局和所有本地来源。对于那些只能接受单个值的属性，
 例如 `allowCredentials` 和 `maxAge`，本地值会覆盖全局值。有关更多详情，
-请参阅 {today-framework-api}/web/cors/CorsConfiguration.html#combine-cn.taketoday.web.cors.CorsConfiguration-[`CorsConfiguration#combine(CorsConfiguration)`]
+请参阅 {today-framework-api}/web/cors/CorsConfiguration.html#combine-infra.web.cors.CorsConfiguration-[`CorsConfiguration#combine(CorsConfiguration)`]
 
 
 [TIP]

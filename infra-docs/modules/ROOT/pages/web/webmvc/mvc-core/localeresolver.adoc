@@ -15,7 +15,7 @@ mapping interceptors) to change the locale under specific circumstances (for exa
 based on a parameter in the request).
 
 Locale resolvers and interceptors are defined in the
-`cn.taketoday.web.mockApi.i18n` package and are configured in your application
+`infra.web.mockApi.i18n` package and are configured in your application
 context in the normal way. The following selection of locale resolvers is included in
 Infra.
 
@@ -58,7 +58,7 @@ maximum age. The following example defines a `CookieLocaleResolver`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="localeResolver" class="cn.taketoday.web.mockApi.i18n.CookieLocaleResolver">
+<bean id="localeResolver" class="infra.web.mockApi.i18n.CookieLocaleResolver">
 
   <property name="cookieName" value="clientlanguage"/>
 
@@ -121,15 +121,15 @@ language to Dutch. The following example shows how to intercept the locale:
 [source,xml,indent=0,subs="verbatim"]
 ----
 <bean id="localeChangeInterceptor"
-    class="cn.taketoday.web.mockApi.i18n.LocaleChangeInterceptor">
+    class="infra.web.mockApi.i18n.LocaleChangeInterceptor">
   <property name="paramName" value="siteLanguage"/>
 </bean>
 
 <bean id="localeResolver"
-    class="cn.taketoday.web.mockApi.i18n.CookieLocaleResolver"/>
+    class="infra.web.mockApi.i18n.CookieLocaleResolver"/>
 
 <bean id="urlMapping"
-    class="cn.taketoday.web.mockApi.handler.SimpleUrlHandlerMapping">
+    class="infra.web.mockApi.handler.SimpleUrlHandlerMapping">
   <property name="interceptors">
     <list>
       <ref bean="localeChangeInterceptor"/>

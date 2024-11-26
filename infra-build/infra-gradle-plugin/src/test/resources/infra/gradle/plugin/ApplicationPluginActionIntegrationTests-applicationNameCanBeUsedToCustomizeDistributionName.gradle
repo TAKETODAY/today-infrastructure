@@ -1,0 +1,15 @@
+
+
+plugins {
+	id 'java'
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+application {
+	applicationName = 'custom'
+}
+
+infraJar {
+	mainClass = 'com.example.ExampleApplication'
+}

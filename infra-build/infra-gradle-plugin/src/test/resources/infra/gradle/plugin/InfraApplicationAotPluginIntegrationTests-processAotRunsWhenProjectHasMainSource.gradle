@@ -1,0 +1,15 @@
+
+
+plugins {
+	id 'infra.application'
+	id 'infra.application.aot'
+	id 'java'
+}
+
+repositories {
+	mavenCentral()
+}
+
+infraApplication {
+	mainClass = 'com.example.Main'
+}

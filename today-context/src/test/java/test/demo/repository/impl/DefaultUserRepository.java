@@ -23,10 +23,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.BeanNameAware;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.stereotype.Prototype;
+import infra.beans.factory.BeanNameAware;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.stereotype.Prototype;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import test.demo.config.User;

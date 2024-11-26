@@ -8,5 +8,5 @@
 
 
 === 默认实现
-自 5.0 开始 Netty 支持，在 `today-web` 模块下的 `cn.taketoday.web.server.support` 包。在实践过程中我们发现 Netty 无论是 性能还是内存占用都要
+自 5.0 开始 Netty 支持，在 `today-web` 模块下的 `infra.web.server.support` 包。在实践过程中我们发现 Netty 无论是 性能还是内存占用都要
 好与 5.0 之前的 Servlet 容器。

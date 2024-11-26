@@ -1,7 +1,7 @@
 [[orm-jpa]]
 = JPA
 
-The Infra JPA, available under the `cn.taketoday.orm.jpa` package, offers
+The Infra JPA, available under the `infra.orm.jpa` package, offers
 comprehensive support for the
 https://www.oracle.com/technetwork/articles/javaee/jpa-137156.html[Java Persistence
 API] in a manner similar to the integration with Hibernate while being aware of
@@ -33,7 +33,7 @@ persistence unit name. The following XML example configures such a bean:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="myEmf" class="cn.taketoday.orm.jpa.LocalEntityManagerFactoryBean">
+  <bean id="myEmf" class="infra.orm.jpa.LocalEntityManagerFactoryBean">
     <property name="persistenceUnitName" value="myPersistenceUnit"/>
   </bean>
 </beans>
@@ -100,10 +100,10 @@ process. The following example shows a typical bean definition for a
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="myEmf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+  <bean id="myEmf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="dataSource" ref="someDataSource"/>
     <property name="loadTimeWeaver">
-      <bean class="cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver"/>
+      <bean class="infra.instrument.classloading.InstrumentationLoadTimeWeaver"/>
     </property>
   </bean>
 </beans>
@@ -182,7 +182,7 @@ and automatic propagation of the weaver to all weaver-aware beans:
 ----
 <context:load-time-weaver/>
 
-<bean id="emf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<bean id="emf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
   ...
 </bean>
 ----
@@ -192,9 +192,9 @@ However, you can, if needed, manually specify a dedicated weaver through the
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="emf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<bean id="emf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
   <property name="loadTimeWeaver">
-    <bean class="cn.taketoday.instrument.classloading.ReflectiveLoadTimeWeaver"/>
+    <bean class="infra.instrument.classloading.ReflectiveLoadTimeWeaver"/>
   </property>
 </bean>
 ----
@@ -218,10 +218,10 @@ multiple locations:
 
 [source,xml,indent=0,subs="verbatim"]
 ----
-<bean id="pum" class="cn.taketoday.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
+<bean id="pum" class="infra.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
   <property name="persistenceXmlLocations">
     <list>
-      <value>cn/taketoday/orm/jpa/domain/persistence-multi.xml</value>
+      <value>infra/orm/jpa/domain/persistence-multi.xml</value>
       <value>classpath:/my/package/**/custom-persistence.xml</value>
       <value>classpath*:META-INF/persistence.xml</value>
     </list>
@@ -236,7 +236,7 @@ multiple locations:
   <property name="defaultDataSource" ref="remoteDataSource"/>
 </bean>
 
-<bean id="emf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<bean id="emf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
   <property name="persistenceUnitManager" ref="pum"/>
   <property name="persistenceUnitName" value="myCustomUnit"/>
 </bean>
@@ -257,9 +257,9 @@ the `bootstrapExecutor` property, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="emf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<bean id="emf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
   <property name="bootstrapExecutor">
-    <bean class="cn.taketoday.core.task.SimpleAsyncTaskExecutor"/>
+    <bean class="infra.core.task.SimpleAsyncTaskExecutor"/>
   </property>
 </bean>
 ----
@@ -337,7 +337,7 @@ injection of the default `EntityManagerFactory`, as the following example bean d
 <beans>
 
   <!-- bean post-processor for JPA annotations -->
-  <bean class="cn.taketoday.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+  <bean class="infra.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
 
   <bean id="myProductDao" class="product.ProductDaoImpl"/>
 
@@ -442,11 +442,11 @@ companion for your `EntityManagerFactory` definition:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="emf" class="cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<bean id="emf" class="infra.orm.jpa.LocalContainerEntityManagerFactoryBean">
   ...
 </bean>
 
-<bean id="em" class="cn.taketoday.orm.jpa.support.SharedEntityManagerBean">
+<bean id="em" class="infra.orm.jpa.support.SharedEntityManagerBean">
   <property name="entityManagerFactory" ref="emf"/>
 </bean>
 ----

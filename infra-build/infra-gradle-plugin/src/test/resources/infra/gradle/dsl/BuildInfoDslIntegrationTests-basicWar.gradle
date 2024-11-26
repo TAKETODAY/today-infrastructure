@@ -1,0 +1,12 @@
+
+plugins {
+	id 'war'
+	id 'infra.application' version '{version}'
+}
+
+group = 'com.example'
+version = '1.0'
+
+infraApplication {
+	buildInfo()
+}

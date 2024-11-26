@@ -44,7 +44,7 @@ issue is addressed through support for automatic discovery of default
 
 For example, the modules that make up the testing support in TODAY Framework and Infra
 Boot declare all core default `ContextCustomizerFactory` implementations under the
-`cn.taketoday.test.context.ContextCustomizerFactory` key in their
+`infra.test.context.ContextCustomizerFactory` key in their
 `META-INF/spring.factories` properties files. The `spring.factories` file for the
 `today-test` module can be viewed
 {today-framework-code}/today-test/src/main/resources/META-INF/spring.factories[here].

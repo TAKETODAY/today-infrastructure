@@ -27,7 +27,6 @@
 /today-framework/target/
 .flattened-pom.xml
 */.flattened-pom.xml
-**/target/**
 /buildSrc/build/*
 **/build/**
 publish.sh

@@ -24,7 +24,7 @@ There are two ways to do this:
 == Auto-proxy Bean Definitions
 
 This section covers the  auto-proxy creators provided by the
-`cn.taketoday.aop.framework.autoproxy` package.
+`infra.aop.framework.autoproxy` package.
 
 
 [[aop-api-autoproxy]]
@@ -36,7 +36,7 @@ example shows how to create a `BeanNameAutoProxyCreator` bean:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+<bean class="infra.aop.framework.autoproxy.BeanNameAutoProxyCreator">
   <property name="beanNames" value="jdk*,onlyJdk"/>
   <property name="interceptorNames">
     <list>
@@ -98,9 +98,9 @@ elements discussed in this section:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+<bean class="infra.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-<bean class="cn.taketoday.transaction.interceptor.TransactionAttributeSourceAdvisor">
+<bean class="infra.transaction.interceptor.TransactionAttributeSourceAdvisor">
   <property name="transactionInterceptor" ref="transactionInterceptor"/>
 </bean>
 
@@ -122,7 +122,7 @@ performance monitoring aspects) with minimal change to configuration.
 The `DefaultAdvisorAutoProxyCreator` offers support for filtering (by using a naming
 convention so that only certain advisors are evaluated, which allows the use of multiple,
 differently configured, AdvisorAutoProxyCreators in the same factory) and ordering.
-Advisors can implement the `cn.taketoday.core.Ordered` interface to ensure
+Advisors can implement the `infra.core.Ordered` interface to ensure
 correct ordering if this is an issue. The `TransactionAttributeSourceAdvisor` used in the
 preceding example has a configurable order value. The default setting is unordered.
 

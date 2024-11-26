@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/jdbc https://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<bean id="employee" class="infra.beans.testfixture.beans.Employee" p:name="John Smith" p:age="42"
+		p:company="Acme Widgets, Inc." />
+
+	<bean id="pet" class="infra.beans.testfixture.beans.Pet" c:_="Fido" />
+
+	<bean id="foo" class="java.lang.String" c:_="Foo" />
+
+	<bean id="bar" class="java.lang.String" c:_="Bar" />
+
+	<bean id="transactionManager" class="infra.jdbc.datasource.DataSourceTransactionManager"
+		p:data-source-ref="dataSource" />
+
+	<jdbc:embedded-database id="dataSource">
+		<jdbc:script location="classpath:/infra/test/jdbc/schema.sql" />
+		<jdbc:script location="classpath:/infra/test/jdbc/data.sql" />
+	</jdbc:embedded-database>
+
+</beans>

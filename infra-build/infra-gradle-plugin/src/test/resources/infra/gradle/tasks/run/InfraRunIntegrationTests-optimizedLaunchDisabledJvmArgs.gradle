@@ -1,0 +1,10 @@
+
+
+plugins {
+	id 'application'
+	id 'infra.application' version '{version}'
+}
+
+infraRun {
+	optimizedLaunch = false
+}

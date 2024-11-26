@@ -170,7 +170,7 @@ init-param):
   <context-param>
     <param-name>contextClass</param-name>
     <param-value>
-      cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
+      infra.web.context.support.AnnotationConfigWebApplicationContext
     </param-value>
   </context-param>
 
@@ -184,19 +184,19 @@ init-param):
 
   <!-- Bootstrap the root application context as usual using ContextLoaderListener -->
   <listener>
-    <listener-class>cn.taketoday.web.context.ContextLoaderListener</listener-class>
+    <listener-class>infra.web.context.ContextLoaderListener</listener-class>
   </listener>
 
   <!-- Declare a Web MVC DispatcherServlet as usual -->
   <mockApi>
     <mockApi-name>dispatcher</mockApi-name>
-    <mockApi-class>cn.taketoday.web.mockApi.DispatcherServlet</mockApi-class>
+    <mockApi-class>infra.web.mockApi.DispatcherServlet</mockApi-class>
     <!-- Configure DispatcherServlet to use AnnotationConfigWebApplicationContext
       instead of the default XmlWebApplicationContext -->
     <init-param>
       <param-name>contextClass</param-name>
       <param-value>
-        cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
+        infra.web.context.support.AnnotationConfigWebApplicationContext
       </param-value>
     </init-param>
     <!-- Again, config locations must consist of one or more comma- or space-delimited

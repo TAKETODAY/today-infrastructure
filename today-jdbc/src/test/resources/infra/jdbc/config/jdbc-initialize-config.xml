@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/jdbc https://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+
+	<jdbc:embedded-database id="dataSource" type="HSQL"/>
+
+	<jdbc:initialize-database data-source="dataSource" enabled="#{systemProperties['ENABLED']}">
+		<jdbc:script location="classpath:infra/jdbc/config/db-schema.sql"/>
+		<jdbc:script location="classpath:infra/jdbc/config/db-test-data.sql"/>
+	</jdbc:initialize-database>
+
+</beans>

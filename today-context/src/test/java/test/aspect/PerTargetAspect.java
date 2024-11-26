@@ -24,7 +24,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
-import cn.taketoday.core.Ordered;
+import infra.core.Ordered;
 
 @Aspect("pertarget(execution(* *.getSpouse()))")
 public class PerTargetAspect implements Ordered {

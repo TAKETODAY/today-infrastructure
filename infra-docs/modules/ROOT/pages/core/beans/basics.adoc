@@ -1,7 +1,7 @@
 [[beans-basics]]
 = 容器概述
 
-`cn.taketoday.context.ApplicationContext` 接口代表了 IoC 容器，
+`infra.context.ApplicationContext` 接口代表了 IoC 容器，
 负责实例化、配置和组装 bean。容器通过读取配置元数据来获取实例化、配置和组装对象的指令。
 配置元数据可以用 XML、Java 注解或 Java 代码表示。它允许您表达组成应用程序的对象以及这些对象之间的丰富相互依赖关系。
 
@@ -97,7 +97,7 @@ ApplicationContext context = new ClassPathXmlApplicationContext("services.xml", 
 
   <!-- services -->
 
-  <bean id="petStore" class="cn.taketoday.samples.jpetstore.services.PetStoreServiceImpl">
+  <bean id="petStore" class="infra.samples.jpetstore.services.PetStoreServiceImpl">
     <property name="accountDao" ref="accountDao"/>
     <property name="itemDao" ref="itemDao"/>
     <!-- additional collaborators and configuration for this bean go here -->
@@ -118,11 +118,11 @@ ApplicationContext context = new ClassPathXmlApplicationContext("services.xml", 
   xsi:schemaLocation="http://www.springframework.org/schema/beans
     https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="accountDao"	class="cn.taketoday.samples.jpetstore.dao.jpa.JpaAccountDao">
+  <bean id="accountDao"	class="infra.samples.jpetstore.dao.jpa.JpaAccountDao">
     <!-- additional collaborators and configuration for this bean go here -->
   </bean>
 
-  <bean id="itemDao" class="cn.taketoday.samples.jpetstore.dao.jpa.JpaItemDao">
+  <bean id="itemDao" class="infra.samples.jpetstore.dao.jpa.JpaItemDao">
     <!-- additional collaborators and configuration for this bean go here -->
   </bean>
 

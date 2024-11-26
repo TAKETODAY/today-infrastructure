@@ -19,15 +19,15 @@
  */
 package test.demo.config;
 
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.Order;
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.stereotype.Prototype;
+import infra.beans.factory.FactoryBean;
+import infra.beans.factory.InitializingBean;
+import infra.beans.factory.annotation.Autowired;
+import infra.core.Ordered;
+import infra.core.annotation.Order;
+import infra.core.env.Environment;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.stereotype.Prototype;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 

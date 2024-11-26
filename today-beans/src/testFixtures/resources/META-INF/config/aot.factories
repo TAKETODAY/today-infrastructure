@@ -1,2 +1,2 @@
-cn.taketoday.aot.generate.ValueCodeGenerator$Delegate=\
-cn.taketoday.beans.testfixture.beans.factory.aot.CustomPropertyValue$ValueCodeGeneratorDelegate
+infra.aot.generate.ValueCodeGenerator$Delegate=\
+infra.beans.testfixture.beans.factory.aot.CustomPropertyValue$ValueCodeGeneratorDelegate

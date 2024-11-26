@@ -1,1 +1,1 @@
-http\://mybatis.org/schema/mybatis-spring=cn.taketoday.orm.mybatis.config.MybatisNamespaceHandler
+http\://mybatis.org/schema/mybatis-spring=infra.orm.mybatis.config.MybatisNamespaceHandler

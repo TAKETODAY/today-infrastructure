@@ -1,7 +1,7 @@
 [[infra-log]]
 = Logging
 
-下面的例子通过 `cn.taketoday.logging.LoggerFactory` 获取 `Logger` 对象；
+下面的例子通过 `infra.logging.LoggerFactory` 获取 `Logger` 对象；
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -12,7 +12,7 @@ public class MyBean {
 }
 ----
 
-可以使用 `-Dlogger.factory` 参数替换 `cn.taketoday.logging.LoggerFactory` 实现
+可以使用 `-Dlogger.factory` 参数替换 `infra.logging.LoggerFactory` 实现
 
 [source,java]
 ----

@@ -20,7 +20,7 @@
 
 package example.scannable_implicitbasepackage;
 
-import cn.taketoday.stereotype.Component;
+import infra.stereotype.Component;
 
 /**
  * @author Juergen Hoeller

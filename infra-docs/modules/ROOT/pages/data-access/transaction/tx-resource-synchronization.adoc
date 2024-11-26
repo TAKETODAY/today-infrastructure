@@ -37,7 +37,7 @@ properly mapped to a consistent API.
 
 For example, in the case of JDBC, instead of the traditional JDBC approach of calling
 the `getConnection()` method on the `DataSource`, you can instead use Infra
-`cn.taketoday.jdbc.datasource.DataSourceUtils` class, as follows:
+`infra.jdbc.datasource.DataSourceUtils` class, as follows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----

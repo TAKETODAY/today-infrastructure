@@ -255,7 +255,7 @@ By default, this converter supports all media types (`{asterisk}/{asterisk}`) an
 You can override this by setting the `supportedMediaTypes` property and overriding `getContentType(byte[])`.
 
 | `MarshallingHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write XML by using Infra `Marshaller` and `Unmarshaller` abstractions from the `cn.taketoday.oxm` package.
+| An `HttpMessageConverter` implementation that can read and write XML by using Infra `Marshaller` and `Unmarshaller` abstractions from the `infra.oxm` package.
 This converter requires a `Marshaller` and `Unmarshaller` before it can be used.
 You can inject these through constructor or bean properties.
 By default, this converter supports `text/xml` and `application/xml`.

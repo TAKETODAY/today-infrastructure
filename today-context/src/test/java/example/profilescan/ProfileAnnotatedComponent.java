@@ -20,8 +20,8 @@
 
 package example.profilescan;
 
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.stereotype.Component;
+import infra.context.annotation.Profile;
+import infra.stereotype.Component;
 
 @Profile(ProfileAnnotatedComponent.PROFILE_NAME)
 @Component(ProfileAnnotatedComponent.BEAN_NAME)

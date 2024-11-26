@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans default-lazy-init="true">
+
+	<bean class="infra.scripting.support.ScriptFactoryPostProcessor">
+		<property name="defaultRefreshCheckDelay" value="1"/>
+	</bean>
+
+	<bean id="calculator" class="infra.scripting.bsh.BshScriptFactory">
+		<constructor-arg value="classpath:infra/scripting/bsh/Calculator.bsh"/>
+		<constructor-arg value="infra.scripting.Calculator"/>
+	</bean>
+
+	<bean id="messenger" class="infra.scripting.bsh.BshScriptFactory" init-method="init">
+		<constructor-arg value="classpath:infra/scripting/bsh/MessengerImpl.bsh"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+	<bean id="messengerPrototype" class="infra.scripting.bsh.BshScriptFactory"
+			scope="prototype" init-method="init">
+		<constructor-arg value="classpath:infra/scripting/bsh/MessengerImpl.bsh"/>
+		<property name="message" value="Hello World!"/>
+	</bean>
+
+</beans>

@@ -397,7 +397,7 @@ parameter of type `Serializable`.
 +
 [literal,indent=0,subs="verbatim"]
 ----
-	@target(cn.taketoday.transaction.annotation.Transactional)
+	@target(infra.transaction.annotation.Transactional)
 ----
 +
 NOTE: You can also use `@target` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section for
@@ -408,7 +408,7 @@ target object has an `@Transactional` annotation:
 +
 [literal,indent=0,subs="verbatim"]
 ----
-	@within(cn.taketoday.transaction.annotation.Transactional)
+	@within(infra.transaction.annotation.Transactional)
 ----
 +
 NOTE: You can also use `@within` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section for
@@ -419,7 +419,7 @@ how to make the annotation object available in the advice body.
 +
 [literal,indent=0,subs="verbatim"]
 ----
-	@annotation(cn.taketoday.transaction.annotation.Transactional)
+	@annotation(infra.transaction.annotation.Transactional)
 ----
 +
 NOTE: You can also use `@annotation` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section

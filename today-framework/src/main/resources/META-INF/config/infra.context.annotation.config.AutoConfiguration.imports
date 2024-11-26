@@ -1,0 +1,51 @@
+#
+# Copyright 2017 - 2024 the original author or authors.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see [https://www.gnu.org/licenses/]
+#
+
+infra.annotation.config.context.LifecycleAutoConfiguration
+infra.annotation.config.context.MessageSourceAutoConfiguration
+infra.annotation.config.context.PropertyPlaceholderAutoConfiguration
+infra.annotation.config.context.ConfigurationPropertiesAutoConfiguration
+infra.annotation.config.task.TaskExecutionAutoConfiguration
+infra.annotation.config.task.TaskSchedulingAutoConfiguration
+infra.annotation.config.validation.ValidationAutoConfiguration
+infra.annotation.config.aop.AopAutoConfiguration
+infra.annotation.config.jmx.JmxAutoConfiguration
+infra.annotation.config.jmx.InfraApplicationJmxAutoConfiguration
+infra.annotation.config.web.client.RestClientAutoConfiguration
+infra.annotation.config.web.client.RestTemplateAutoConfiguration
+infra.annotation.config.web.WebMvcAutoConfiguration
+infra.annotation.config.web.ErrorMvcAutoConfiguration
+infra.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration
+infra.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration
+infra.annotation.config.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
+infra.annotation.config.jdbc.DataSourceAutoConfiguration
+infra.annotation.config.jdbc.JdbcClientAutoConfiguration
+infra.annotation.config.jdbc.JdbcTemplateAutoConfiguration
+infra.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
+infra.annotation.config.transaction.jta.JtaAutoConfiguration
+infra.annotation.config.transaction.TransactionAutoConfiguration
+infra.annotation.config.http.HttpMessageConvertersAutoConfiguration
+infra.annotation.config.http.CodecsAutoConfiguration
+infra.annotation.config.gson.GsonAutoConfiguration
+infra.annotation.config.jsonb.JsonbAutoConfiguration
+infra.annotation.config.jackson.JacksonAutoConfiguration
+infra.annotation.config.freemarker.FreeMarkerAutoConfiguration
+infra.annotation.config.web.socket.WebSocketAutoConfiguration
+infra.annotation.config.web.reactive.client.WebClientAutoConfiguration
+infra.annotation.config.web.reactive.client.ClientHttpConnectorAutoConfiguration
+infra.annotation.config.availability.ApplicationAvailabilityAutoConfiguration
+infra.annotation.config.ssl.SslAutoConfiguration

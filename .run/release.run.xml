@@ -11,8 +11,8 @@
       <option name="taskNames">
         <list>
           <option value="clean" />
-          <option value="publishToSonatype" />
-          <option value="closeAndReleaseSonatypeStagingRepository" />
+          <option value="publishMavenPublicationToSonatypeRepository" />
+          <option value="closeAndReleaseStagingRepositories" />
         </list>
       </option>
       <option name="vmOptions" />

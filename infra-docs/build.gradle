@@ -1,7 +1,7 @@
 plugins {
   id 'java-library'
   id 'org.antora' version '1.0.0'
-  id 'cn.taketoday.generate-antora-yml'
+  id 'infra.generate-antora-yml'
 }
 
 description = "Infrastructure Docs"

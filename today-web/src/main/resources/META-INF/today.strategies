@@ -16,5 +16,5 @@
 #
 
 # ApplicationContextInitializer
-cn.taketoday.context.ApplicationContextInitializer=\
-cn.taketoday.web.server.context.ServerPortInfoApplicationContextInitializer
+infra.context.ApplicationContextInitializer=\
+infra.web.server.context.ServerPortInfoApplicationContextInitializer

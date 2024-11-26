@@ -18,7 +18,7 @@ interface definition shows:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert.converter;
+package infra.core.convert.converter;
 
 public interface Converter<S, T> {
 
@@ -43,7 +43,7 @@ The following listing shows the `StringToInteger` class, which is a typical `Con
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert.support;
+package infra.core.convert.support;
 
 final class StringToInteger implements Converter<String, Integer> {
 
@@ -64,7 +64,7 @@ When you need to centralize the conversion logic for an entire class hierarchy
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert.converter;
+package infra.core.convert.converter;
 
 public interface ConverterFactory<S, R> {
 
@@ -80,7 +80,7 @@ Consider the `StringToEnumConverterFactory` as an example:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert.support;
+package infra.core.convert.support;
 
 final class StringToEnumConverterFactory implements ConverterFactory<String, Enum> {
 
@@ -117,7 +117,7 @@ field signature. The following listing shows the interface definition of `Generi
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert.converter;
+package infra.core.convert.converter;
 
 public interface GenericConverter {
 
@@ -181,7 +181,7 @@ runtime. Converters are often run behind the following facade interface:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.core.convert;
+package infra.core.convert;
 
 public interface ConversionService {
 
@@ -225,7 +225,7 @@ with an `id` of `conversionService`:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="conversionService"
-  class="cn.taketoday.context.support.ConversionServiceFactoryBean"/>
+  class="infra.context.support.ConversionServiceFactoryBean"/>
 ----
 
 A default `ConversionService` can convert between strings, numbers, enums, collections,
@@ -236,7 +236,7 @@ any of the `Converter`, `ConverterFactory`, or `GenericConverter` interfaces.
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="conversionService"
-    class="cn.taketoday.context.support.ConversionServiceFactoryBean">
+    class="infra.context.support.ConversionServiceFactoryBean">
   <property name="converters">
     <set>
       <bean class="example.MyCustomConverter"/>

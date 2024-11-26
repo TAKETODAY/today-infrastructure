@@ -22,7 +22,7 @@ package org.aopalliance.intercept;
 
 import java.lang.reflect.AccessibleObject;
 
-import cn.taketoday.lang.Nullable;
+import infra.lang.Nullable;
 
 /**
  * This interface represents a generic runtime joinpoint (in the AOP

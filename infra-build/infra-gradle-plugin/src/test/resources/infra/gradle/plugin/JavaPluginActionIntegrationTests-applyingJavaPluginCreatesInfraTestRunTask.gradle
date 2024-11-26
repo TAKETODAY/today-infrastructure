@@ -1,0 +1,6 @@
+
+
+plugins {
+	id 'infra.application' version '{version}'
+	id 'java'
+}

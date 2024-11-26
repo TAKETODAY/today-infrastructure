@@ -20,8 +20,8 @@
 
 package example.scannable_scoped;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.stereotype.Component;
+import infra.beans.factory.config.BeanDefinition;
+import infra.stereotype.Component;
 
 @Component
 @MyScope(BeanDefinition.SCOPE_PROTOTYPE)

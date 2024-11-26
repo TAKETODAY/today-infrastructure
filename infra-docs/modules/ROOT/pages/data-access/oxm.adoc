@@ -66,7 +66,7 @@ the two Infra interfaces used for this purpose.
 === Understanding `Marshaller`
 
 Infra abstracts all marshalling operations behind the
-`cn.taketoday.oxm.Marshaller` interface, the main method of which follows:
+`infra.oxm.Marshaller` interface, the main method of which follows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -108,7 +108,7 @@ to determine how your O-X technology manages this.
 [[oxm-unmarshaller]]
 === Understanding `Unmarshaller`
 
-Similar to the `Marshaller`, we have the `cn.taketoday.oxm.Unmarshaller`
+Similar to the `Marshaller`, we have the `infra.oxm.Unmarshaller`
 interface, which the following listing shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -209,10 +209,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ClassPathXmlApplicationContext;
-import cn.taketoday.oxm.Marshaller;
-import cn.taketoday.oxm.Unmarshaller;
+import infra.context.ApplicationContext;
+import infra.context.support.ClassPathXmlApplicationContext;
+import infra.oxm.Marshaller;
+import infra.oxm.Unmarshaller;
 
 public class Application {
 
@@ -263,7 +263,7 @@ can do so by using the following `applicationContext.xml`:
     <property name="marshaller" ref="xstreamMarshaller" />
     <property name="unmarshaller" ref="xstreamMarshaller" />
   </bean>
-  <bean id="xstreamMarshaller" class="cn.taketoday.oxm.xstream.XStreamMarshaller"/>
+  <bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller"/>
 </beans>
 ----
 
@@ -316,7 +316,7 @@ the configuration of a JAXB2 marshaller might resemble the following:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<oxm:jaxb2-marshaller id="marshaller" contextPath="cn.taketoday.ws.samples.airline.schema"/>
+<oxm:jaxb2-marshaller id="marshaller" contextPath="infra.ws.samples.airline.schema"/>
 ----
 
 
@@ -330,7 +330,7 @@ generate a schema from annotated Java classes.
 
 Infra supports the JAXB 2.0 API as XML marshalling strategies, following the
 `Marshaller` and `Unmarshaller` interfaces described in xref:data-access/oxm.adoc#oxm-marshaller-unmarshaller[`Marshaller` and `Unmarshaller`].
-The corresponding integration classes reside in the `cn.taketoday.oxm.jaxb`
+The corresponding integration classes reside in the `infra.oxm.jaxb`
 package.
 
 
@@ -347,14 +347,14 @@ validation is performed by specifying one or more schema resources to the bean, 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="jaxb2Marshaller" class="cn.taketoday.oxm.jaxb.Jaxb2Marshaller">
+  <bean id="jaxb2Marshaller" class="infra.oxm.jaxb.Jaxb2Marshaller">
     <property name="classesToBeBound">
       <list>
-        <value>cn.taketoday.oxm.jaxb.Flight</value>
-        <value>cn.taketoday.oxm.jaxb.Flights</value>
+        <value>infra.oxm.jaxb.Flight</value>
+        <value>infra.oxm.jaxb.Flights</value>
       </list>
     </property>
-    <property name="schema" value="classpath:cn/taketoday/oxm/schema.xsd"/>
+    <property name="schema" value="classpath:infra/oxm/schema.xsd"/>
   </bean>
 
   ...
@@ -365,12 +365,12 @@ validation is performed by specifying one or more schema resources to the bean, 
 [[oxm-jaxb2-xsd]]
 ==== XML Configuration Namespace
 
-The `jaxb2-marshaller` element configures a `cn.taketoday.oxm.jaxb.Jaxb2Marshaller`,
+The `jaxb2-marshaller` element configures a `infra.oxm.jaxb.Jaxb2Marshaller`,
 as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<oxm:jaxb2-marshaller id="marshaller" contextPath="cn.taketoday.ws.samples.airline.schema"/>
+<oxm:jaxb2-marshaller id="marshaller" contextPath="infra.ws.samples.airline.schema"/>
 ----
 
 Alternatively, you can provide the list of classes to bind to the marshaller by using the
@@ -379,8 +379,8 @@ Alternatively, you can provide the list of classes to bind to the marshaller by 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <oxm:jaxb2-marshaller id="marshaller">
-  <oxm:class-to-be-bound name="cn.taketoday.ws.samples.airline.schema.Airport"/>
-  <oxm:class-to-be-bound name="cn.taketoday.ws.samples.airline.schema.Flight"/>
+  <oxm:class-to-be-bound name="infra.ws.samples.airline.schema.Airport"/>
+  <oxm:class-to-be-bound name="infra.ws.samples.airline.schema.Flight"/>
   ...
 </oxm:jaxb2-marshaller>
 ----
@@ -411,7 +411,7 @@ enhances the class files and adds code to handle converting instances of the cla
 from or to XML.
 
 For more information on JiBX, see the http://jibx.sourceforge.net/[JiBX web
-site]. The Infra integration classes reside in the `cn.taketoday.oxm.jibx`
+site]. The Infra integration classes reside in the `infra.oxm.jibx`
 package.
 
 
@@ -426,8 +426,8 @@ set using the `targetClass` property. Optionally, you can set the binding name b
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="jibxFlightsMarshaller" class="cn.taketoday.oxm.jibx.JibxMarshaller">
-    <property name="targetClass">cn.taketoday.oxm.jibx.Flights</property>
+  <bean id="jibxFlightsMarshaller" class="infra.oxm.jibx.JibxMarshaller">
+    <property name="targetClass">infra.oxm.jibx.Flights</property>
   </bean>
   ...
 </beans>
@@ -440,12 +440,12 @@ property values.
 [[oxm-jibx-xsd]]
 ==== XML Configuration Namespace
 
-The `jibx-marshaller` tag configures a `cn.taketoday.oxm.jibx.JibxMarshaller`,
+The `jibx-marshaller` tag configures a `infra.oxm.jibx.JibxMarshaller`,
 as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<oxm:jibx-marshaller id="marshaller" target-class="cn.taketoday.ws.samples.airline.schema.Flight"/>
+<oxm:jibx-marshaller id="marshaller" target-class="infra.ws.samples.airline.schema.Flight"/>
 ----
 
 The following table describes the available attributes:
@@ -476,7 +476,7 @@ require any mapping and generates clean XML.
 
 For more information on XStream, see the https://x-stream.github.io/[XStream
 web site]. The Infra integration classes reside in the
-`cn.taketoday.oxm.xstream` package.
+`infra.oxm.xstream` package.
 
 
 [[oxm-xstream-marshaller]]
@@ -489,10 +489,10 @@ which consists of string aliases mapped to classes, as the following example sho
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <beans>
-  <bean id="xstreamMarshaller" class="cn.taketoday.oxm.xstream.XStreamMarshaller">
+  <bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller">
     <property name="aliases">
       <props>
-        <prop key="Flight">cn.taketoday.oxm.xstream.Flight</prop>
+        <prop key="Flight">infra.oxm.xstream.Flight</prop>
       </props>
     </property>
   </bean>
@@ -512,8 +512,8 @@ set the `supportedClasses` property on the `XStreamMarshaller`, as the following
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="xstreamMarshaller" class="cn.taketoday.oxm.xstream.XStreamMarshaller">
-  <property name="supportedClasses" value="cn.taketoday.oxm.xstream.Flight"/>
+<bean id="xstreamMarshaller" class="infra.oxm.xstream.XStreamMarshaller">
+  <property name="supportedClasses" value="infra.oxm.xstream.Flight"/>
   ...
 </bean>
 ----

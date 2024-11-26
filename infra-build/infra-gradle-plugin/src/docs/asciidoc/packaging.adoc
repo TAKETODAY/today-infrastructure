@@ -273,7 +273,7 @@ The next `intoLayer` will claim all SNAPSHOT dependencies for the `snapshot-depe
 The third and final `intoLayer` will claim anything left (in this case, any dependency that is not a project dependency or a SNAPSHOT) for the `dependencies` layer.
 
 The `application` closure has similar rules.
-First claiming `cn/taketoday/app/loader/**` content for the `infra-app-loader` layer.
+First claiming `infra/app/loader/**` content for the `infra-app-loader` layer.
 Then claiming any remaining classes and resources for the `application` layer.
 
 NOTE: The order that `intoLayer` closures are added is often different from the order that the layers are written.

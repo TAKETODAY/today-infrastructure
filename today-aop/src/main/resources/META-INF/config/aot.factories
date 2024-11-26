@@ -1,6 +1,6 @@
-cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
-cn.taketoday.aop.scope.ScopedProxyBeanRegistrationAotProcessor,\
-cn.taketoday.aop.aspectj.annotation.AspectJAdvisorBeanRegistrationAotProcessor
+infra.beans.factory.aot.BeanRegistrationAotProcessor=\
+infra.aop.scope.ScopedProxyBeanRegistrationAotProcessor,\
+infra.aop.aspectj.annotation.AspectJAdvisorBeanRegistrationAotProcessor
 
-cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor= \
-cn.taketoday.aop.aspectj.annotation.AspectJBeanFactoryInitializationAotProcessor
+infra.beans.factory.aot.BeanFactoryInitializationAotProcessor= \
+infra.aop.aspectj.annotation.AspectJBeanFactoryInitializationAotProcessor

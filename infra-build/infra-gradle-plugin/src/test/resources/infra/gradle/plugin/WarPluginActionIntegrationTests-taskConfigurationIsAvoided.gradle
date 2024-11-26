@@ -1,0 +1,10 @@
+
+
+plugins {
+	id 'infra.application' version '{version}'
+	id 'war'
+}
+
+tasks.configureEach {
+	println "Configuring ${it.path}"
+}

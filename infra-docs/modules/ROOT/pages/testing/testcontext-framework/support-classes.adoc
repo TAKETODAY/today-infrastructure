@@ -45,7 +45,7 @@ be configured through `@ContextConfiguration`.
 [[testcontext-junit4-rules]]
 == Infra JUnit 4 Rules
 
-The `cn.taketoday.test.context.junit4.rules` package provides the following JUnit
+The `infra.test.context.junit4.rules` package provides the following JUnit
 4 rules (supported on JUnit 4.12 or higher):
 
 * `InfraClassRule`
@@ -91,7 +91,7 @@ public class IntegrationTest {
 [[testcontext-support-classes-junit4]]
 == JUnit 4 Support Classes
 
-The `cn.taketoday.test.context.junit4` package provides the following support
+The `infra.test.context.junit4` package provides the following support
 classes for JUnit 4-based test cases (supported on JUnit 4.12 or higher):
 
 * `AbstractJUnit4InfraContextTests`
@@ -464,7 +464,7 @@ class GreetingServiceTests {
 [[testcontext-support-classes-testng]]
 == TestNG Support Classes
 
-The `cn.taketoday.test.context.testng` package provides the following support
+The `infra.test.context.testng` package provides the following support
 classes for TestNG based test cases:
 
 * `AbstractTestNGInfraContextTests`

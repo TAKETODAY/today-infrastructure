@@ -1,0 +1,3 @@
+infra.aot.hint.RuntimeHintsRegistrar= \
+infra.context.aot.RuntimeHintsBeanFactoryInitializationAotProcessorTests.IncrementalRuntimeHintsRegistrar, \
+infra.context.aot.RuntimeHintsBeanFactoryInitializationAotProcessorTests.SampleRuntimeHintsRegistrar

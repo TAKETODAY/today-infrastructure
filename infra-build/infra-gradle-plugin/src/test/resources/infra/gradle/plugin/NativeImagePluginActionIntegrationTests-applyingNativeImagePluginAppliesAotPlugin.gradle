@@ -1,0 +1,13 @@
+
+
+plugins {
+	id 'infra.application' version '{version}'
+}
+
+apply plugin: 'org.graalvm.buildtools.native'
+
+task('aotPluginApplied') {
+	doFirst {
+		println "infra.application.aot applied = ${plugins.hasPlugin('infra.application.aot')}"
+	}
+}

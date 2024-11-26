@@ -28,12 +28,12 @@ v{gradle-project-version}
 :infra-docs: https://taketoday.cn/open-sources/today-infrastructure/docs/{gradle-project-version}
 :api-documentation: {infra-docs}/gradle-plugin/api
 :infra-reference: {infra-docs}/reference/htmlsingle
-:infra-application-api: {infra-docs}/api/cn/taketoday/framework
+:infra-application-api: {infra-docs}/api/infra/app
 :version-properties-appendix: {infra-reference}/#dependency-versions-properties
-:build-info-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/buildinfo/BuildInfo.html
-:infra-jar-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/bundling/InfraJar.html
-:infra-war-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/bundling/InfraWar.html
-:infra-run-javadoc: {api-documentation}/cn/taketoday/gradle/tasks/run/InfraRun.html
+:build-info-javadoc: {api-documentation}/infra/gradle/tasks/buildinfo/BuildInfo.html
+:infra-jar-javadoc: {api-documentation}/infra/gradle/tasks/bundling/InfraJar.html
+:infra-war-javadoc: {api-documentation}/infra/gradle/tasks/bundling/InfraWar.html
+:infra-run-javadoc: {api-documentation}/infra/gradle/tasks/run/InfraRun.html
 :github-code: https://github.com/TAKETODAY/today-infrastructure/tree/{github-tag}
 :buildpacks-reference: https://buildpacks.io/docs
 :paketo-reference: https://paketo.io/docs

@@ -11,7 +11,7 @@ This section describes how Infra handles the crucial pointcut concept.
 Infra pointcut model enables pointcut reuse independent of advice types. You can
 target different advice with the same pointcut.
 
-The `cn.taketoday.aop.Pointcut` interface is the central interface, used to
+The `infra.aop.Pointcut` interface is the central interface, used to
 target advice to particular classes and methods. The complete interface follows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -79,7 +79,7 @@ Union means the methods that either pointcut matches.
 Intersection means the methods that both pointcuts match.
 Union is usually more useful.
 You can compose pointcuts by using the static methods in the
-`cn.taketoday.aop.support.Pointcuts` class or by using the
+`infra.aop.support.Pointcuts` class or by using the
 `ComposablePointcut` class in the same package. However, using AspectJ pointcut
 expressions is usually a simpler approach.
 
@@ -89,7 +89,7 @@ expressions is usually a simpler approach.
 == AspectJ Expression Pointcuts
 
 Since 2.0, the most important type of pointcut used by Infra is
-`cn.taketoday.aop.aspectj.AspectJExpressionPointcut`. This is a pointcut that
+`infra.aop.aspectj.AspectJExpressionPointcut`. This is a pointcut that
 uses an AspectJ-supplied library to parse an AspectJ pointcut expression string.
 
 See the xref:core/aop.adoc[previous chapter] for a discussion of supported AspectJ pointcut primitives.
@@ -119,7 +119,7 @@ included with Infra.
 
 One obvious way to specify static pointcuts is regular expressions. Several AOP
 frameworks besides Infra make this possible.
-`cn.taketoday.aop.support.JdkRegexpMethodPointcut` is a generic regular
+`infra.aop.support.JdkRegexpMethodPointcut` is a generic regular
 expression pointcut that uses the regular expression support in the JDK.
 
 With the `JdkRegexpMethodPointcut` class, you can provide a list of pattern strings.
@@ -190,7 +190,7 @@ although less powerful. (There is currently no way to specify that a pointcut ru
 below a join point matched by another pointcut.) A control flow pointcut matches the
 current call stack. For example, it might fire if the join point was invoked by a method
 in the `com.mycompany.web` package or by the `SomeCaller` class. Control flow pointcuts
-are specified by using the `cn.taketoday.aop.support.ControlFlowPointcut` class.
+are specified by using the `infra.aop.support.ControlFlowPointcut` class.
 
 NOTE: Control flow pointcuts are significantly more expensive to evaluate at runtime than even
 other dynamic pointcuts. In Java 1.4, the cost is about five times that of other dynamic

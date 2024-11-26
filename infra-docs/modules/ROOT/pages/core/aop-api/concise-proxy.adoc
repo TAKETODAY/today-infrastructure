@@ -10,7 +10,7 @@ First, we create a parent, template, bean definition for the proxy, as follows:
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="txProxyTemplate" abstract="true"
-    class="cn.taketoday.transaction.interceptor.TransactionProxyFactoryBean">
+    class="infra.transaction.interceptor.TransactionProxyFactoryBean">
   <property name="transactionManager" ref="transactionManager"/>
   <property name="transactionAttributes">
     <props>
@@ -29,7 +29,7 @@ The following example shows such a child bean:
 ----
 <bean id="myService" parent="txProxyTemplate">
   <property name="target">
-    <bean class="cn.taketoday.samples.MyServiceImpl">
+    <bean class="infra.samples.MyServiceImpl">
     </bean>
   </property>
 </bean>
@@ -42,7 +42,7 @@ we override the transaction propagation settings:
 ----
 <bean id="mySpecialService" parent="txProxyTemplate">
   <property name="target">
-    <bean class="cn.taketoday.samples.MySpecialServiceImpl">
+    <bean class="infra.samples.MySpecialServiceImpl">
     </bean>
   </property>
   <property name="transactionAttributes">

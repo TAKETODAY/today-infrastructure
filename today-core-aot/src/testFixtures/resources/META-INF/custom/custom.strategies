@@ -1,2 +1,2 @@
-cn.taketoday.lang.DummyFactory =\
-cn.taketoday.lang.MyDummyFactory1
+infra.lang.DummyFactory =\
+infra.lang.MyDummyFactory1

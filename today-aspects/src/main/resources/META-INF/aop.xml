@@ -10,11 +10,11 @@
   -->
 
   <aspects>
-    <aspect name="cn.taketoday.scheduling.aspectj.AnnotationAsyncExecutionAspect" />
-    <aspect name="cn.taketoday.transaction.aspectj.AnnotationTransactionAspect" />
-    <aspect name="cn.taketoday.transaction.aspectj.JtaAnnotationTransactionAspect" />
-    <aspect name="cn.taketoday.cache.aspectj.AnnotationCacheAspect" />
-    <aspect name="cn.taketoday.cache.aspectj.JCacheCacheAspect" />
+    <aspect name="infra.scheduling.aspectj.AnnotationAsyncExecutionAspect" />
+    <aspect name="infra.transaction.aspectj.AnnotationTransactionAspect" />
+    <aspect name="infra.transaction.aspectj.JtaAnnotationTransactionAspect" />
+    <aspect name="infra.cache.aspectj.AnnotationCacheAspect" />
+    <aspect name="infra.cache.aspectj.JCacheCacheAspect" />
   </aspects>
 
 </aspectj>

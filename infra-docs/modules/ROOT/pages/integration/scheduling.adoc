@@ -81,7 +81,7 @@ to asynchronously print out a set of messages:
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-import cn.taketoday.core.task.TaskExecutor;
+import infra.core.task.TaskExecutor;
 
 public class TaskExecutorExample {
 
@@ -120,7 +120,7 @@ To configure the rules that the `TaskExecutor` uses, we expose simple bean prope
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="taskExecutor" class="cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor">
+<bean id="taskExecutor" class="infra.scheduling.concurrent.ThreadPoolTaskExecutor">
   <property name="corePoolSize" value="5"/>
   <property name="maxPoolSize" value="10"/>
   <property name="queueCapacity" value="25"/>
@@ -554,7 +554,7 @@ Future<String> returnSomething(int i) {
 ----
 
 TIP: `@Async` methods may not only declare a regular `java.util.concurrent.Future` return
-type but also Infra `cn.taketoday.util.concurrent.ListenableFuture` or, as of
+type but also Infra `infra.util.concurrent.ListenableFuture` or, as of
 Infra 4.2, JDK 8's `java.util.concurrent.CompletableFuture`, for richer interaction with
 the asynchronous task and for immediate composition with further processing steps.
 
@@ -907,7 +907,7 @@ configuration purposes. Consider the following example:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean name="exampleJob" class="cn.taketoday.scheduling.quartz.JobDetailFactoryBean">
+<bean name="exampleJob" class="infra.scheduling.quartz.JobDetailFactoryBean">
   <property name="jobClass" value="example.ExampleJob"/>
   <property name="jobDataAsMap">
     <map>
@@ -961,7 +961,7 @@ Often you merely need to invoke a method on a specific object. By using the
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="jobDetail" class="cn.taketoday.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+<bean id="jobDetail" class="infra.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
   <property name="targetObject" ref="exampleBusinessObject"/>
   <property name="targetMethod" value="doIt"/>
 </bean>
@@ -1002,7 +1002,7 @@ set the `concurrent` flag to `false`, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="jobDetail" class="cn.taketoday.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+<bean id="jobDetail" class="infra.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
   <property name="targetObject" ref="exampleBusinessObject"/>
   <property name="targetMethod" value="doIt"/>
   <property name="concurrent" value="false"/>
@@ -1031,7 +1031,7 @@ The following listing uses both a `SimpleTriggerFactoryBean` and a `CronTriggerF
 [source,xml,indent=0]
 [subs="verbatim"]
 ----
-<bean id="simpleTrigger" class="cn.taketoday.scheduling.quartz.SimpleTriggerFactoryBean">
+<bean id="simpleTrigger" class="infra.scheduling.quartz.SimpleTriggerFactoryBean">
   <!-- see the example of method invoking job above -->
   <property name="jobDetail" ref="jobDetail"/>
   <!-- 10 seconds -->
@@ -1040,7 +1040,7 @@ The following listing uses both a `SimpleTriggerFactoryBean` and a `CronTriggerF
   <property name="repeatInterval" value="50000"/>
 </bean>
 
-<bean id="cronTrigger" class="cn.taketoday.scheduling.quartz.CronTriggerFactoryBean">
+<bean id="cronTrigger" class="infra.scheduling.quartz.CronTriggerFactoryBean">
   <property name="jobDetail" ref="exampleJob"/>
   <!-- run every morning at 6 AM -->
   <property name="cronExpression" value="0 0 6 * * ?"/>
@@ -1053,7 +1053,7 @@ we need to set up the `SchedulerFactoryBean`, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean class="cn.taketoday.scheduling.quartz.SchedulerFactoryBean">
+<bean class="infra.scheduling.quartz.SchedulerFactoryBean">
   <property name="triggers">
     <list>
       <ref bean="cronTrigger"/>
@@ -1073,6 +1073,6 @@ based on Quartz property keys, as with regular Quartz configuration. Please note
 `SchedulerFactoryBean` settings interact with common Quartz settings in the properties file;
 it is therefore not recommended to specify values at both levels. For example, do not set
 an "org.quartz.jobStore.class" property if you mean to rely on a Infra-provided DataSource,
-or specify an `cn.taketoday.scheduling.quartz.LocalDataSourceJobStore` variant which
+or specify an `infra.scheduling.quartz.LocalDataSourceJobStore` variant which
 is a full-fledged replacement for the standard `org.quartz.impl.jdbcjobstore.JobStoreTX`.
 

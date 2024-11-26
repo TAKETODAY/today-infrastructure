@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2017 - 2024 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="properties"
+      class="infra.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <prop key="user.name">Dave</prop>
+        <prop key="username">Andy</prop>
+      </props>
+    </property>
+  </bean>
+
+  <!-- spr5906 -->
+
+  <bean id="derived"
+      class="infra.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
+      <props>
+        <prop key="user.name">#{properties['user.name']}</prop>
+        <prop key="username">#{properties['username']}</prop>
+        <prop key="username.no.quotes">#{properties[username]}</prop>
+        <prop key="username.no.brackets">#{properties.username}</prop>
+        <prop key="#{properties['user.name']}">exists</prop>
+        <prop key="#{properties.username}">exists also</prop>
+      </props>
+    </property>
+  </bean>
+
+  <!-- spr5847 -->
+
+  <bean id="andy"
+      class="infra.test.context.expression.ExpressionUsageTests$Foo">
+    <property name="name" value="#{properties.username}" />
+  </bean>
+
+  <bean id="andy2"
+      class="infra.test.context.expression.ExpressionUsageTests$Foo">
+    <property name="name" value="#{properties.username }" /><!-- space in expression -->
+  </bean>
+
+</beans>

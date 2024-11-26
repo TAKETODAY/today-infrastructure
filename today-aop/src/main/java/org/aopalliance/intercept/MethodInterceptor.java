@@ -20,7 +20,7 @@
 
 package org.aopalliance.intercept;
 
-import cn.taketoday.lang.Nullable;
+import infra.lang.Nullable;
 
 /**
  * Intercepts calls on an interface on its way to the target. These are nested

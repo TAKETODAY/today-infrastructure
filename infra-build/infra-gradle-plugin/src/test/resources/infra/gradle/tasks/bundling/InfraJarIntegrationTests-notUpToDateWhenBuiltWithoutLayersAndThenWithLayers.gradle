@@ -1,0 +1,13 @@
+
+
+plugins {
+	id 'java'
+	id 'infra.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+	layered {
+		{layerEnablement}
+	}
+}

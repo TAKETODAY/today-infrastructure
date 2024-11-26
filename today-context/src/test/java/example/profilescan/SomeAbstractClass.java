@@ -20,7 +20,7 @@
 
 package example.profilescan;
 
-import cn.taketoday.stereotype.Component;
+import infra.stereotype.Component;
 
 @Component
 public abstract class SomeAbstractClass {

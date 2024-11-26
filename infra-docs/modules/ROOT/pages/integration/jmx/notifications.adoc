@@ -45,7 +45,7 @@ example) to `notificationListenerMappings`:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
@@ -60,7 +60,7 @@ example) to `notificationListenerMappings`:
     </property>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -81,7 +81,7 @@ as the following example shows:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
@@ -96,7 +96,7 @@ as the following example shows:
     </property>
   </bean>
 
-  <bean id="__testBean__" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="__testBean__" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -137,7 +137,7 @@ different to what was presented previously, as the following example shows:
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean"/>
@@ -145,7 +145,7 @@ different to what was presented previously, as the following example shows:
     </property>
     <property name="notificationListeners">
       <list>
-        <bean class="cn.taketoday.jmx.export.NotificationListenerBean">
+        <bean class="infra.jmx.export.NotificationListenerBean">
           <constructor-arg>
             <bean class="com.example.ConsoleLoggingNotificationListener"/>
           </constructor-arg>
@@ -159,7 +159,7 @@ different to what was presented previously, as the following example shows:
     </property>
   </bean>
 
-  <bean id="testBean" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
@@ -176,7 +176,7 @@ we also want to filter out extraneous `Notifications` by supplying a
 ----
 <beans>
 
-  <bean id="exporter" class="cn.taketoday.jmx.export.MBeanExporter">
+  <bean id="exporter" class="infra.jmx.export.MBeanExporter">
     <property name="beans">
       <map>
         <entry key="bean:name=testBean1" value-ref="testBean1"/>
@@ -185,7 +185,7 @@ we also want to filter out extraneous `Notifications` by supplying a
     </property>
     <property name="notificationListeners">
       <list>
-        <bean class="cn.taketoday.jmx.export.NotificationListenerBean">
+        <bean class="infra.jmx.export.NotificationListenerBean">
           <constructor-arg ref="customerNotificationListener"/>
           <property name="mappedObjectNames">
             <list>
@@ -208,12 +208,12 @@ we also want to filter out extraneous `Notifications` by supplying a
   <!-- implements both the NotificationListener and NotificationFilter interfaces -->
   <bean id="customerNotificationListener" class="com.example.ConsoleLoggingNotificationListener"/>
 
-  <bean id="testBean1" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean1" class="infra.jmx.JmxTestBean">
     <property name="name" value="TEST"/>
     <property name="age" value="100"/>
   </bean>
 
-  <bean id="testBean2" class="cn.taketoday.jmx.JmxTestBean">
+  <bean id="testBean2" class="infra.jmx.JmxTestBean">
     <property name="name" value="ANOTHER TEST"/>
     <property name="age" value="200"/>
   </bean>
@@ -238,7 +238,7 @@ use the standard JMX APIs for notification publication.
 
 The key interface in Infra JMX notification publication support is the
 `NotificationPublisher` interface (defined in the
-`cn.taketoday.jmx.export.notification` package). Any bean that is going to be
+`infra.jmx.export.notification` package). Any bean that is going to be
 exported as an MBean through an `MBeanExporter` instance can implement the related
 `NotificationPublisherAware` interface to gain access to a `NotificationPublisher`
 instance. The `NotificationPublisherAware` interface supplies an instance of a
@@ -266,10 +266,10 @@ In the following example, exported instances of the `JmxTestBean` publish a
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages"]
 ----
-package cn.taketoday.jmx;
+package infra.jmx;
 
-import cn.taketoday.jmx.export.notification.NotificationPublisherAware;
-import cn.taketoday.jmx.export.notification.NotificationPublisher;
+import infra.jmx.export.notification.NotificationPublisherAware;
+import infra.jmx.export.notification.NotificationPublisher;
 import javax.management.Notification;
 
 public class JmxTestBean implements IJmxTestBean, NotificationPublisherAware {

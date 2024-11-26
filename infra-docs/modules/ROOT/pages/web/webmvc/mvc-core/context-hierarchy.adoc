@@ -60,7 +60,7 @@ The following example shows the `web.xml` equivalent:
 <web-app>
 
   <listener>
-    <listener-class>cn.taketoday.web.context.ContextLoaderListener</listener-class>
+    <listener-class>infra.web.context.ContextLoaderListener</listener-class>
   </listener>
 
   <context-param>
@@ -70,7 +70,7 @@ The following example shows the `web.xml` equivalent:
 
   <mockApi>
     <mockApi-name>app1</mockApi-name>
-    <mockApi-class>cn.taketoday.web.mockApi.DispatcherServlet</mockApi-class>
+    <mockApi-class>infra.web.mockApi.DispatcherServlet</mockApi-class>
     <init-param>
       <param-name>contextConfigLocation</param-name>
       <param-value>/WEB-INF/app1-context.xml</param-value>

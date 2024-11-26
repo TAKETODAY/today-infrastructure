@@ -9,7 +9,7 @@
  *
  * By default, the main build will fall back to using the a JDK 17
  * toolchain (and 17 language level) for all main sourceSets.
- * See {@link cn.taketoday.build.JavaConventions}.
+ * See {@link infra.building.JavaConventions}.
  *
  * Gradle will automatically detect JDK distributions in well-known locations.
  * The following command will list the detected JDKs on the host.

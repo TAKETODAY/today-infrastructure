@@ -17,10 +17,10 @@
 
 package demo;
 
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.Application;
-import cn.taketoday.web.config.EnableWebMvc;
 import demo.config.AppConfig;
+import infra.app.Application;
+import infra.context.annotation.Import;
+import infra.web.config.EnableWebMvc;
 
 /**
  * @author TODAY 2021/8/29 22:22

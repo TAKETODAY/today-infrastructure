@@ -1,0 +1,14 @@
+
+
+plugins {
+	id 'infra.application' version '{version}'
+	id 'java'
+}
+
+infraApplication {
+	mainClass = "com.example.Main"
+}
+
+gradle.taskGraph.whenReady {
+	println "testAndDevelopmentOnly exists = ${configurations.findByName('testAndDevelopmentOnly') != null}"
+}

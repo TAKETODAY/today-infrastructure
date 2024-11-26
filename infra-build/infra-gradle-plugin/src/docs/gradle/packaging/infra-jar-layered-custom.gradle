@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  id 'cn.taketoday.application' version '{gradle-project-version}'
+  id 'infra.application' version '{gradle-project-version}'
 }
 
 tasks.named("infraJar") {
@@ -12,7 +12,7 @@ tasks.named("infraJar") {
   layered {
     application {
       intoLayer("infra-app-loader") {
-        include "cn/taketoday/app/loader/**"
+        include "infra/app/loader/**"
       }
       intoLayer("application")
     }

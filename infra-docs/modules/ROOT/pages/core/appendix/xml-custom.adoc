@@ -44,7 +44,7 @@ Creating an XML configuration extension for use with Infra IoC container starts 
 authoring an XML Schema to describe the extension. For our example, we use the following schema
 to configure `SimpleDateFormat` objects:
 
-myns.xsd (inside package cn/taketoday/samples/xml)
+myns.xsd (inside package infra/samples/xml)
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -144,9 +144,9 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary",chomp="-packages"]
 ----
-package cn.taketoday.samples.xml;
+package infra.samples.xml;
 
-import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
+import infra.beans.factory.xml.NamespaceHandlerSupport;
 
 public class MyNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -186,11 +186,11 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary",chomp="-packages"]
 ----
-package cn.taketoday.samples.xml;
+package infra.samples.xml;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.xml.AbstractSingleBeanDefinitionParser;
-import cn.taketoday.util.StringUtils;
+import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import infra.util.StringUtils;
 import org.w3c.dom.Element;
 
 import java.text.SimpleDateFormat;
@@ -249,7 +249,7 @@ namespace handler classes. For our example, we need to write the following:
 
 [literal,subs="verbatim,quotes"]
 ----
-http\://www.mycompany.example/schema/myns=cn.taketoday.samples.xml.MyNamespaceHandler
+http\://www.mycompany.example/schema/myns=infra.samples.xml.MyNamespaceHandler
 ----
 
 (The `:` character is a valid delimiter in the Java properties format, so
@@ -269,7 +269,7 @@ of the `xsi:schemaLocation` attribute) to classpath resources. This file is need
 to prevent Infra from absolutely having to use a default `EntityResolver` that requires
 Internet access to retrieve the schema file. If you specify the mapping in this
 properties file, Infra searches for the schema (in this case,
-`myns.xsd` in the `cn.taketoday.samples.xml` package) on the classpath.
+`myns.xsd` in the `infra.samples.xml` package) on the classpath.
 The following snippet shows the line we need to add for our custom schema:
 
 [literal,subs="verbatim,quotes"]
@@ -406,7 +406,7 @@ Java::
 ----
 package com.foo;
 
-import cn.taketoday.beans.factory.FactoryBean;
+import infra.beans.factory.FactoryBean;
 
 import java.util.List;
 
@@ -484,7 +484,7 @@ Java::
 ----
 package com.foo;
 
-import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
+import infra.beans.factory.xml.NamespaceHandlerSupport;
 
 public class ComponentNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -508,13 +508,13 @@ Java::
 ----
 package com.foo;
 
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.xml.AbstractBeanDefinitionParser;
-import cn.taketoday.beans.factory.xml.ParserContext;
-import cn.taketoday.util.xml.DomUtils;
+import infra.beans.factory.config.BeanDefinition;
+import infra.beans.factory.support.AbstractBeanDefinition;
+import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.support.ManagedList;
+import infra.beans.factory.xml.AbstractBeanDefinitionParser;
+import infra.beans.factory.xml.ParserContext;
+import infra.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import java.util.List;
@@ -651,7 +651,7 @@ Java::
 ----
 package com.foo;
 
-import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
+import infra.beans.factory.xml.NamespaceHandlerSupport;
 
 public class JCacheNamespaceHandler extends NamespaceHandlerSupport {
 
@@ -677,11 +677,11 @@ Java::
 ----
 package com.foo;
 
-import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.xml.BeanDefinitionDecorator;
-import cn.taketoday.beans.factory.xml.ParserContext;
+import infra.beans.factory.config.BeanDefinitionHolder;
+import infra.beans.factory.support.AbstractBeanDefinition;
+import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.xml.BeanDefinitionDecorator;
+import infra.beans.factory.xml.ParserContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 

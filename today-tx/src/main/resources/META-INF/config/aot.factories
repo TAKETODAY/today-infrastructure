@@ -1,2 +1,2 @@
-cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
-cn.taketoday.transaction.annotation.TransactionBeanRegistrationAotProcessor
+infra.beans.factory.aot.BeanRegistrationAotProcessor=\
+infra.transaction.annotation.TransactionBeanRegistrationAotProcessor

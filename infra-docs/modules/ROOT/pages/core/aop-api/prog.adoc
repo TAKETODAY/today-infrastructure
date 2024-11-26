@@ -23,7 +23,7 @@ MyBusinessInterface tb = (MyBusinessInterface) factory.getProxy();
 ======
 
 The first step is to construct an object of type
-`cn.taketoday.aop.framework.ProxyFactory`. You can create this with a target
+`infra.aop.framework.ProxyFactory`. You can create this with a target
 object, as in the preceding example, or specify the interfaces to be proxied in an alternate
 constructor.
 

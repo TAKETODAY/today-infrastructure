@@ -2,7 +2,7 @@
   "groups": [
     {
       "name": "logging",
-      "type": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "type": "infra.app.context.logging.LoggingApplicationListener"
     }
   ],
   "properties": [
@@ -10,7 +10,7 @@
       "name": "debug",
       "type": "java.lang.Boolean",
       "description": "Enable debug logs.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": false
     },
     {
@@ -27,121 +27,121 @@
       "name": "logging.config",
       "type": "java.lang.String",
       "description": "Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.exception-conversion-word",
       "type": "java.lang.String",
       "description": "Conversion word used when logging exceptions.",
       "defaultValue": "%wEx",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.file.name",
       "type": "java.lang.String",
       "description": "Log file name (for instance, `myapp.log`). Names can be an exact location or relative to the current directory.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.file.path",
       "type": "java.lang.String",
       "description": "Location of the log file. For instance, `/var/log`.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.group",
       "type": "java.util.Map<java.lang.String,java.util.List<java.lang.String>>",
-      "description": "Log groups to quickly change multiple loggers at the same time. For instance, `logging.group.db=org.hibernate,cn.taketoday.jdbc`.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "description": "Log groups to quickly change multiple loggers at the same time. For instance, `logging.group.db=org.hibernate,infra.jdbc`.",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.include-application-name",
       "type": "java.lang.Boolean",
       "description": "Whether to include the application name in the logs.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": true
     },
     {
       "name": "logging.level",
       "type": "java.util.Map<java.lang.String,java.lang.String>",
-      "description": "Log levels severity mapping. For instance, `logging.level.cn.taketoday=DEBUG`.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+      "description": "Log levels severity mapping. For instance, `logging.level.infra=DEBUG`.",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener"
     },
     {
       "name": "logging.logback.rollingpolicy.clean-history-on-start",
       "type": "java.lang.Boolean",
       "description": "Whether to clean the archive log files on startup.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": false
     },
     {
       "name": "logging.logback.rollingpolicy.file-name-pattern",
       "type": "java.lang.String",
       "description": "Pattern for rolled-over log file names.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz"
     },
     {
       "name": "logging.logback.rollingpolicy.max-file-size",
-      "type": "cn.taketoday.util.DataSize",
+      "type": "infra.util.DataSize",
       "description": "Maximum log file size.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "10MB"
     },
     {
       "name": "logging.logback.rollingpolicy.max-history",
       "type": "java.lang.Integer",
       "description": "Maximum number of archive log files to keep.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": 7
     },
     {
       "name": "logging.logback.rollingpolicy.total-size-cap",
-      "type": "cn.taketoday.util.DataSize",
+      "type": "infra.util.DataSize",
       "description": "Total size of log backups to be kept.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "0B"
     },
     {
       "name": "logging.pattern.console",
       "type": "java.lang.String",
       "description": "Appender pattern for output to the console.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "Varies according to the logging system"
     },
     {
       "name": "logging.pattern.correlation",
       "type": "java.lang.String",
       "description": "Appender pattern for log correlation.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "Varies according to the logging system"
     },
     {
       "name": "logging.pattern.dateformat",
       "type": "java.lang.String",
       "description": "Appender pattern for log date format.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
     },
     {
       "name": "logging.pattern.file",
       "type": "java.lang.String",
       "description": "Appender pattern for output to a file.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "Varies according to the logging system"
     },
     {
       "name": "logging.pattern.level",
       "type": "java.lang.String",
       "description": "Appender pattern for log level.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": "%5p"
     },
     {
       "name": "logging.register-shutdown-hook",
       "type": "java.lang.Boolean",
       "description": "Register a shutdown hook for the logging system when it is initialized. Disabled automatically when deployed as a war file.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": true
     },
     {
@@ -213,7 +213,7 @@
     {
       "name": "app.name",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.framework.context.ContextIdApplicationContextInitializer",
+      "sourceType": "infra.app.context.ContextIdApplicationContextInitializer",
       "description": "Application name."
     },
     {
@@ -229,148 +229,148 @@
     },
     {
       "name": "banner.location",
-      "type": "cn.taketoday.core.io.Resource",
+      "type": "infra.core.io.Resource",
       "description": "Banner text resource location.",
       "defaultValue": "classpath:banner.txt"
     },
     {
       "name": "infra.beaninfo.ignore",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether to skip search of BeanInfo classes.",
       "defaultValue": true
     },
     {
       "name": "app.config.activate.on-cloud-platform",
-      "type": "cn.taketoday.framework.cloud.CloudPlatform",
+      "type": "infra.app.cloud.CloudPlatform",
       "description": "Required cloud platform for the document to be included.",
-      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+      "sourceType": "infra.app.context.config.ConfigDataProperties"
     },
     {
       "name": "app.config.activate.on-profile",
       "type": "java.lang.String[]",
       "description": "Profile expressions that should match for the document to be included.",
-      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+      "sourceType": "infra.app.context.config.ConfigDataProperties"
     },
     {
       "name": "app.config.additional-location",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.framework.context.config.ConfigDataEnvironment",
+      "sourceType": "infra.app.context.config.ConfigDataEnvironment",
       "description": "Config file locations used in addition to the defaults."
     },
     {
       "name": "app.config.import",
       "type": "java.util.List<java.lang.String>",
       "description": "Import additional config data.",
-      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+      "sourceType": "infra.app.context.config.ConfigDataProperties"
     },
     {
       "name": "app.config.location",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.framework.context.config.ConfigDataEnvironment",
+      "sourceType": "infra.app.context.config.ConfigDataEnvironment",
       "description": "Config file locations that replace the defaults."
     },
     {
       "name": "app.config.name",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.framework.context.config.StandardConfigDataLocationResolver",
+      "sourceType": "infra.app.context.config.StandardConfigDataLocationResolver",
       "description": "Config file name.",
       "defaultValue": "application"
     },
     {
       "name": "app.main.allow-bean-definition-overriding",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether bean definition overriding, by registering a definition with the same name as an existing definition, is allowed.",
       "defaultValue": false
     },
     {
       "name": "app.main.allow-circular-references",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether to allow circular references between beans and automatically try to resolve them.",
       "defaultValue": false
     },
     {
       "name": "app.main.banner-mode",
-      "type": "cn.taketoday.framework.Banner$Mode",
-      "sourceType": "cn.taketoday.framework.Application",
+      "type": "infra.app.Banner$Mode",
+      "sourceType": "infra.app.Application",
       "description": "Mode used to display the banner when the application runs. Defaults to 'off' if structured logging is enabled or to 'console' otherwise."
     },
     {
       "name": "app.main.cloud-platform",
-      "type": "cn.taketoday.framework.cloud.CloudPlatform",
+      "type": "infra.app.cloud.CloudPlatform",
       "description": "Override the Cloud Platform auto-detection."
     },
     {
       "name": "app.main.keep-alive",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether to keep the application alive even if there are no more non-daemon threads.",
       "defaultValue": false
     },
     {
       "name": "app.main.lazy-initialization",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether initialization should be performed lazily.",
       "defaultValue": false
     },
     {
       "name": "app.main.log-startup-info",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether to log information about the application when it starts.",
       "defaultValue": true
     },
     {
       "name": "app.main.register-shutdown-hook",
       "type": "java.lang.Boolean",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Whether the application should have a shutdown hook registered.",
       "defaultValue": true
     },
     {
       "name": "app.main.sources",
       "type": "java.util.Set<java.lang.String>",
-      "sourceType": "cn.taketoday.framework.Application",
+      "sourceType": "infra.app.Application",
       "description": "Sources (class names, package names, or XML resource locations) to include in the ApplicationContext."
     },
     {
       "name": "app.main.application-type",
-      "type": "cn.taketoday.framework.ApplicationType",
-      "sourceType": "cn.taketoday.framework.Application",
+      "type": "infra.app.ApplicationType",
+      "sourceType": "infra.app.Application",
       "description": "Flag to explicitly request a specific type of application. If not set, auto-detected based on the classpath."
     },
     {
       "name": "infra.output.ansi.enabled",
-      "type": "cn.taketoday.core.ansi.AnsiOutput$Enabled",
+      "type": "infra.core.ansi.AnsiOutput$Enabled",
       "description": "Configures the ANSI output.",
       "defaultValue": "detect"
     },
     {
       "name": "infra.profiles.active",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "sourceType": "infra.app.context.config.Profiles",
       "description": "Comma-separated list of active profiles. Can be overridden by a command line switch."
     },
     {
       "name": "infra.profiles.default",
       "type": "java.lang.String",
-      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "sourceType": "infra.app.context.config.Profiles",
       "description": "Name of the profile to enable if no profile is active.",
       "defaultValue": "default"
     },
     {
       "name": "infra.profiles.group",
       "type": "java.util.Map<java.lang.String,java.util.List<java.lang.String>>",
-      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "sourceType": "infra.app.context.config.Profiles",
       "description": "Profile groups to define a logical name for a related group of profiles."
     },
     {
       "name": "infra.profiles.include",
       "type": "java.util.List<java.lang.String>",
-      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "sourceType": "infra.app.context.config.Profiles",
       "description": "Unconditionally activate the specified comma-separated list of profiles (or list of profiles if using YAML)."
     },
     {
@@ -385,7 +385,7 @@
       "name": "trace",
       "type": "java.lang.Boolean",
       "description": "Enable trace logs.",
-      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "sourceType": "infra.app.context.logging.LoggingApplicationListener",
       "defaultValue": false
     },
     {
@@ -649,53 +649,6 @@
       "providers": [
         {
           "name": "any"
-        }
-      ]
-    },
-    {
-      "name": "jpa.hibernate.ddl-auto",
-      "values": [
-        {
-          "value": "none",
-          "description": "Disable DDL handling."
-        },
-        {
-          "value": "validate",
-          "description": "Validate the schema, make no changes to the database."
-        },
-        {
-          "value": "update",
-          "description": "Update the schema if necessary."
-        },
-        {
-          "value": "create",
-          "description": "Create the schema and destroy previous data."
-        },
-        {
-          "value": "create-drop",
-          "description": "Create and then destroy the schema at the end of the session."
-        }
-      ]
-    },
-    {
-      "name": "jpa.hibernate.naming.implicit-strategy",
-      "providers": [
-        {
-          "name": "class-reference",
-          "parameters": {
-            "target": "org.hibernate.boot.model.naming.ImplicitNamingStrategy"
-          }
-        }
-      ]
-    },
-    {
-      "name": "jpa.hibernate.naming.physical-strategy",
-      "providers": [
-        {
-          "name": "class-reference",
-          "parameters": {
-            "target": "org.hibernate.boot.model.naming.PhysicalNamingStrategy"
-          }
         }
       ]
     }
