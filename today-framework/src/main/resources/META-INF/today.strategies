@@ -63,6 +63,7 @@ infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
 #
 # ApplicationStartupListener
 infra.app.ApplicationStartupListener=\
+infra.app.context.ClearCachesStartupListener,\
 infra.app.context.event.EventPublishingStartupListener
 #
 
