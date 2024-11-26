@@ -33,7 +33,6 @@ import java.rmi.MarshalException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +42,7 @@ import infra.aop.AfterReturningAdvice;
 import infra.aop.DynamicIntroductionAdvice;
 import infra.aop.MethodBeforeAdvice;
 import infra.aop.Pointcut;
+import infra.aop.ProxyMethodInvocation;
 import infra.aop.TargetSource;
 import infra.aop.ThrowsAdvice;
 import infra.aop.interceptor.DebugInterceptor;
@@ -1014,8 +1014,8 @@ public abstract class AbstractAopProxyTests {
     MethodInterceptor twoBirthdayInterceptor = mi -> {
       // Clone the invocation to proceed three times
       // "The Moor's Last Sigh": this technology can cause premature aging
-      MethodInvocation clone1 = ((AbstractMethodInvocation) mi).invocableClone();
-      MethodInvocation clone2 = ((AbstractMethodInvocation) mi).invocableClone();
+      MethodInvocation clone1 = ((ProxyMethodInvocation) mi).invocableClone();
+      MethodInvocation clone2 = ((ProxyMethodInvocation) mi).invocableClone();
       clone1.proceed();
       clone2.proceed();
       return mi.proceed();
@@ -1052,7 +1052,7 @@ public abstract class AbstractAopProxyTests {
      * Changes the name, then changes it back.
      */
     MethodInterceptor nameReverter = mi -> {
-      MethodInvocation clone = ((AbstractMethodInvocation) mi).invocableClone();
+      MethodInvocation clone = ((ProxyMethodInvocation) mi).invocableClone();
       String oldName = ((ITestBean) mi.getThis()).getName();
       clone.getArguments()[0] = oldName;
       // Original method invocation should be unaffected by changes to argument list of clone
@@ -1235,9 +1235,8 @@ public abstract class AbstractAopProxyTests {
 
       @Override
       public Object invoke(MethodInvocation invocation) throws Throwable {
-        AbstractMethodInvocation rmi = (AbstractMethodInvocation) invocation;
-        for (Iterator<String> it = rmi.getAttributes().keySet().iterator(); it.hasNext(); ) {
-          Object key = it.next();
+        ProxyMethodInvocation rmi = (ProxyMethodInvocation) invocation;
+        for (String key : rmi.getAttributes().keySet()) {
           assertThat(rmi.getAttributes().get(key)).isEqualTo(expectedValues.get(key));
         }
         rmi.getAttributes().putAll(valuesToAdd);

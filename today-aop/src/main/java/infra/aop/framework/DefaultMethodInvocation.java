@@ -23,19 +23,25 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
+import infra.aop.ProxyMethodInvocation;
 import infra.aop.support.AopUtils;
+import infra.core.AttributeAccessorSupport;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
+import infra.util.ObjectUtils;
 
 import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 
 /**
+ * Default ProxyMethodInvocation
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-10 13:14
  */
-public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
+public class DefaultMethodInvocation extends AttributeAccessorSupport implements ProxyMethodInvocation {
 
   private final Object proxy;
 
@@ -63,8 +69,7 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   }
 
   public DefaultMethodInvocation(Object proxy, @Nullable Object target,
-          Method method, @Nullable Class<?> targetClass,
-          Object[] arguments, MethodInterceptor[] advices) {
+          Method method, @Nullable Class<?> targetClass, Object[] arguments, MethodInterceptor[] advices) {
     this.proxy = proxy;
     this.target = target;
     this.method = method;
@@ -75,6 +80,96 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
       this.adviceLength = advices.length;
     else {
       this.adviceLength = 0;
+    }
+  }
+
+  /**
+   * Return the proxy that this method invocation was made through.
+   *
+   * @return the original proxy object
+   */
+  @Override
+  public Object getProxy() {
+    return proxy;
+  }
+
+  /**
+   * Basic logic. Proceeds to the next interceptor in the chain.
+   * <p>
+   * Subclasses can override this method to handle {@link Exception}
+   * </p>
+   *
+   * @return see the children interfaces' proceed definition.
+   * @throws Throwable if the join-point throws an exception.
+   * @see CglibAopProxy.CglibMethodInvocation
+   * @see DefaultMethodInvocation
+   */
+  @Override
+  public Object proceed() throws Throwable {
+    if (currentAdviceIndex < adviceLength) {
+      // It's an interceptor, so we just invoke it
+      // runtime interceptor will automatically matches MethodInvocation
+      return advices[currentAdviceIndex++].invoke(this);
+    }
+    // join-point
+    return invokeJoinPoint();
+  }
+
+  /**
+   * Invoke jon-point
+   *
+   * @return the result of the call to {@link MethodInvocation#proceed()}, might be
+   * intercepted by the interceptor.
+   */
+  protected Object invokeJoinPoint() throws Throwable {
+    return AopUtils.invokeJoinpointUsingReflection(target, method, args);
+  }
+
+  /**
+   * This implementation returns a shallow copy of this invocation object,
+   * including an independent copy of the original arguments array.
+   * <p>We want a shallow copy in this case: We want to use the same interceptor
+   * chain and other object references, but we want an independent value for the
+   * current interceptor index.
+   *
+   * @see java.lang.Object#clone()
+   */
+  @Override
+  public MethodInvocation invocableClone() {
+    Object[] cloneArguments = this.args;
+    if (ObjectUtils.isNotEmpty(cloneArguments)) {
+      // Build an independent copy of the arguments array.
+      cloneArguments = cloneArguments.clone();
+    }
+    return invocableClone(cloneArguments);
+  }
+
+  /**
+   * This implementation returns a shallow copy of this invocation object,
+   * using the given arguments array for the clone.
+   * <p>We want a shallow copy in this case: We want to use the same interceptor
+   * chain and other object references, but we want an independent value for the
+   * current interceptor index.
+   *
+   * @see java.lang.Object#clone()
+   */
+  @Override
+  public MethodInvocation invocableClone(Object... arguments) {
+    // Force initialization of the user attributes Map,
+    // for having a shared Map reference in the clone.
+    if (this.attributes == null) {
+      this.attributes = new HashMap<>();
+    }
+
+    // Create the ProxyMethodInvocation clone.
+    try {
+      ProxyMethodInvocation clone = (ProxyMethodInvocation) clone();
+      clone.setArguments(arguments);
+      return clone;
+    }
+    catch (CloneNotSupportedException ex) {
+      throw new IllegalStateException(
+              "Should be able to clone object of type [%s]: %s".formatted(getClass(), ex));
     }
   }
 
@@ -94,30 +189,11 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   }
 
   @Override
-  public Object getProxy() {
-    return proxy;
-  }
-
-  @Override
-  protected Object invokeJoinPoint() throws Throwable {
-    return AopUtils.invokeJoinpointUsingReflection(target, method, args);
-  }
-
-  @Override
-  protected boolean hasInterceptor() {
-    return currentAdviceIndex < adviceLength;
-  }
-
-  @Override
-  protected Object executeInterceptor() throws Throwable {
-    return advices[currentAdviceIndex++].invoke(this);
-  }
-
-  @Override
   public Object getThis() {
     return target;
   }
 
+  @Nullable
   @Override
   public Class<?> getTargetClass() {
     return targetClass;

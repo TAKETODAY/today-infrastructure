@@ -20,6 +20,7 @@ package infra.aop;
 import org.aopalliance.intercept.MethodInvocation;
 
 import infra.aop.support.DelegatingIntroductionInterceptor;
+import infra.core.AttributeAccessor;
 import infra.lang.Nullable;
 
 /**
@@ -35,7 +36,7 @@ import infra.lang.Nullable;
  * @see DelegatingIntroductionInterceptor
  * @since 4.0 2022/3/9 11:57
  */
-public interface ProxyMethodInvocation extends MethodInvocation, TargetClassAware {
+public interface ProxyMethodInvocation extends MethodInvocation, TargetClassAware, AttributeAccessor {
 
   /**
    * Return the proxy that this method invocation was made through.

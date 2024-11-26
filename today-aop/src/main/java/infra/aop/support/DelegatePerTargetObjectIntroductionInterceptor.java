@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
 
 import infra.aop.DynamicIntroductionAdvice;
 import infra.aop.IntroductionInterceptor;
-import infra.aop.framework.AbstractMethodInvocation;
+import infra.aop.ProxyMethodInvocation;
 import infra.util.ReflectionUtils;
 
 /**
@@ -52,8 +52,8 @@ import infra.util.ReflectionUtils;
  * @see DelegatingIntroductionInterceptor
  * @since 3.0
  */
-public class DelegatePerTargetObjectIntroductionInterceptor
-        extends IntroductionInfoSupport implements IntroductionInterceptor {
+public class DelegatePerTargetObjectIntroductionInterceptor extends IntroductionInfoSupport implements IntroductionInterceptor {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -96,8 +96,8 @@ public class DelegatePerTargetObjectIntroductionInterceptor
 
       // Massage return value if possible: if the delegate returned itself,
       // we really want to return the proxy.
-      if (retVal == delegate && mi instanceof AbstractMethodInvocation) {
-        retVal = ((AbstractMethodInvocation) mi).getProxy();
+      if (retVal == delegate && mi instanceof ProxyMethodInvocation) {
+        retVal = ((ProxyMethodInvocation) mi).getProxy();
       }
       return retVal;
     }
@@ -135,9 +135,8 @@ public class DelegatePerTargetObjectIntroductionInterceptor
       return ReflectionUtils.accessibleConstructor(this.defaultImplType).newInstance();
     }
     catch (Throwable ex) {
-      throw new IllegalArgumentException(
-              "Cannot create default implementation for '" +
-                      this.interfaceType.getName() + "' mixin (" + this.defaultImplType.getName() + "): " + ex);
+      throw new IllegalArgumentException("Cannot create default implementation for '%s' mixin (%s): %s"
+              .formatted(this.interfaceType.getName(), this.defaultImplType.getName(), ex));
     }
   }
 
