@@ -138,7 +138,7 @@ class NativeImagePluginActionIntegrationTests {
     examplePackage.mkdirs();
     File main = new File(examplePackage, "ApplicationAotProcessor.java");
     try (PrintWriter writer = new PrintWriter(new FileWriter(main))) {
-      writer.println("package infra;");
+      writer.println("package infra.app;");
       writer.println();
       writer.println("import java.io.IOException;");
       writer.println();
