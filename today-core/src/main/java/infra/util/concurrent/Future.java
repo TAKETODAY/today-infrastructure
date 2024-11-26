@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import infra.core.Pair;
@@ -47,6 +48,7 @@ import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingConsumer;
 import infra.util.function.ThrowingFunction;
+import infra.util.function.ThrowingSupplier;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -676,6 +678,98 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     return map(v -> {
       consumer.acceptWithException(v);
       return null;
+    });
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped default value.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param defaultValue default value
+   * @return A new future instance that will complete with the default value
+   * of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfEmpty(V defaultValue) {
+    return map(value -> {
+      if (value == null) {
+        return defaultValue;
+      }
+      return value;
+    });
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped default value supplier.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param defaultValue default value supplier
+   * @return A new future instance that will complete with the default value
+   * supplier of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfEmpty(ThrowingSupplier<V> defaultValue) {
+    Assert.notNull(defaultValue, "defaultValue Supplier is required");
+    return map(value -> {
+      if (value == null) {
+        return defaultValue.getWithException();
+      }
+      return value;
+    });
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped default value Future.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param defaultValue default value
+   * @return A new future instance that will complete with the default value Future
+   * of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfEmpty(Future<V> defaultValue) {
+    Assert.notNull(defaultValue, "defaultValue Future is required");
+    return flatMap(value -> {
+      if (value == null) {
+        return defaultValue;
+      }
+      return Future.ok(value);
+    });
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} mapped default value Future
+   * supplier.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel
+   * the other.
+   *
+   * @param defaultValue default value
+   * @return A new future instance that will complete with the default value Future
+   * supplier of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfEmpty(Supplier<Future<V>> defaultValue) {
+    Assert.notNull(defaultValue, "defaultValue Supplier is required");
+    return flatMap(value -> {
+      if (value == null) {
+        return defaultValue.get();
+      }
+      return Future.ok(value);
     });
   }
 

@@ -38,11 +38,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.logging.LoggerFactory;
+import infra.util.function.ThrowingSupplier;
 import lombok.SneakyThrows;
 
 import static infra.util.concurrent.Future.failed;
@@ -421,6 +423,85 @@ class FutureTests {
             .withThrowableThat()
             .withRootCauseInstanceOf(IOException.class)
             .isNotNull();
+  }
+
+  @Test
+  void switchIfEmpty() {
+    assertThat(ok(2).switchIfEmpty(1))
+            .succeedsWithin(1, TimeUnit.SECONDS)
+            .isEqualTo(2);
+
+    assertThat(ok().switchIfEmpty(1)).succeedsWithin(1, TimeUnit.SECONDS).isEqualTo(1);
+
+    assertThat(failed(new RuntimeException()).switchIfEmpty(1)).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .havingRootCause()
+            .isInstanceOf(RuntimeException.class);
+
+    assertThat(failed(new RuntimeException()).switchIfEmpty(() -> 1)).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .havingRootCause()
+            .isInstanceOf(RuntimeException.class);
+
+    // cancel
+
+    Promise<Integer> promise = forPromise();
+    promise.cancel();
+    assertThat(promise.switchIfEmpty(1).awaitUninterruptibly()).isCancelled();
+    assertThat(promise.switchIfEmpty(() -> 1).awaitUninterruptibly()).isCancelled();
+    assertThat(promise.switchIfEmpty(Future.ok(1)).awaitUninterruptibly()).isCancelled();
+    assertThat(promise.switchIfEmpty(() -> Future.ok(1)).awaitUninterruptibly()).isCancelled();
+  }
+
+  ThrowingSupplier<Integer> nullThrowingSupplier() {
+    return null;
+  }
+
+  <T> Supplier<T> nullSupplier() {
+    return null;
+  }
+
+  @Test
+  void switchIfEmptySupplier() {
+    assertThatThrownBy(() -> Future.<Integer>ok().switchIfEmpty(nullThrowingSupplier()))
+            .hasMessage("defaultValue Supplier is required");
+
+    assertThat(ok(2).switchIfEmpty(() -> 1)).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(2);
+    assertThat(ok(null).switchIfEmpty(() -> 1)).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(1);
+    assertThat(Future.<Integer>ok(null).switchIfEmpty((ThrowingSupplier<Integer>) () -> {
+      // throws from supplier
+      throw new IOException("msg"); // not runtime exception
+    })).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .havingRootCause()
+            .withMessage("msg");
+
+  }
+
+  @Test
+  void switchIfEmptyFuture() {
+    assertThat(ok(2).switchIfEmpty(Future.ok(1))).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(2);
+    assertThat(ok(null).switchIfEmpty(Future.ok(1))).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(1);
+    assertThat(Future.<Integer>ok(null).switchIfEmpty(Future.failed(new IOException("msg"))))
+            .failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .havingRootCause()
+            .withMessage("msg");
+
+  }
+
+  @Test
+  void switchIfEmptyFutureSupplier() {
+    assertThatThrownBy(() -> Future.<Integer>ok().switchIfEmpty(nullSupplier()))
+            .hasMessage("defaultValue Supplier is required");
+
+    assertThat(ok(2).switchIfEmpty(() -> Future.ok(1))).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(2);
+    assertThat(Future.<Integer>ok(null).switchIfEmpty(() -> Future.ok(1))).succeedsWithin(Duration.ofSeconds(1)).isEqualTo(1);
+    assertThat(Future.<Integer>ok(null).switchIfEmpty(() -> Future.failed(new IOException("msg"))))
+            .failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat()
+            .havingRootCause()
+            .withMessage("msg");
   }
 
   @Test
