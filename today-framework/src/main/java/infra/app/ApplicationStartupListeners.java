@@ -38,9 +38,10 @@ import infra.logging.Logger;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 20:01
  */
-class ApplicationStartupListeners {
+final class ApplicationStartupListeners implements ApplicationStartupListener {
 
   private final Logger log;
+
   private final ArrayList<ApplicationStartupListener> listeners;
 
   ApplicationStartupListeners(Logger log, Collection<? extends ApplicationStartupListener> listeners) {
@@ -48,44 +49,51 @@ class ApplicationStartupListeners {
     this.listeners = new ArrayList<>(listeners);
   }
 
-  void starting(ConfigurableBootstrapContext bootstrapContext,
+  @Override
+  public void starting(ConfigurableBootstrapContext bootstrapContext,
           @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
     for (ApplicationStartupListener listener : listeners) {
       listener.starting(bootstrapContext, mainApplicationClass, arguments);
     }
   }
 
-  void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
+  @Override
+  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
     for (ApplicationStartupListener listener : listeners) {
       listener.environmentPrepared(bootstrapContext, environment);
     }
   }
 
-  void contextPrepared(ConfigurableApplicationContext context) {
+  @Override
+  public void contextPrepared(ConfigurableApplicationContext context) {
     for (ApplicationStartupListener listener : listeners) {
       listener.contextPrepared(context);
     }
   }
 
-  void contextLoaded(ConfigurableApplicationContext context) {
+  @Override
+  public void contextLoaded(ConfigurableApplicationContext context) {
     for (ApplicationStartupListener listener : listeners) {
       listener.contextLoaded(context);
     }
   }
 
-  void started(ConfigurableApplicationContext context, Duration timeTaken) {
+  @Override
+  public void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     for (ApplicationStartupListener listener : listeners) {
       listener.started(context, timeTaken);
     }
   }
 
-  void ready(ConfigurableApplicationContext context, Duration timeTaken) {
+  @Override
+  public void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     for (ApplicationStartupListener listener : listeners) {
       listener.ready(context, timeTaken);
     }
   }
 
-  void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
+  @Override
+  public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     for (ApplicationStartupListener listener : listeners) {
       callFailedListener(listener, context, exception);
     }

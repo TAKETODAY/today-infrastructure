@@ -137,7 +137,7 @@ class LoggingApplicationListenerTests {
   void clear() {
     LoggingSystem loggingSystem = LoggingSystem.get(getClass().getClassLoader());
     loggingSystem.setLogLevel("ROOT", LogLevel.INFO);
-    loggingSystem.cleanUp();
+    loggingSystem.cleanup();
     if (loggingSystem.getShutdownHandler() != null) {
       loggingSystem.getShutdownHandler().run();
     }
@@ -698,7 +698,7 @@ class LoggingApplicationListenerTests {
     }
 
     @Override
-    public void cleanUp() {
+    public void cleanup() {
       this.cleanedUp = true;
     }
 

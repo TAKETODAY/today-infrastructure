@@ -34,8 +34,7 @@ import infra.core.env.ConfigurableEnvironment;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/7 22:25
  */
-public class AnsiOutputApplicationListener
-        implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
+public class AnsiOutputApplicationListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
   @Override
   public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {

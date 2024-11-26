@@ -44,8 +44,8 @@ class LogbackLoggingSystemParallelInitializationTests {
           .get(LogbackLoggingSystemParallelInitializationTests.class.getClassLoader());
 
   @AfterEach
-  void cleanUp() {
-    this.loggingSystem.cleanUp();
+  void cleanup() {
+    this.loggingSystem.cleanup();
     ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
   }
 

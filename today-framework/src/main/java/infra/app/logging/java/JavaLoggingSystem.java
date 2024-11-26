@@ -172,7 +172,7 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
   }
 
   @Override
-  public void cleanUp() {
+  public void cleanup() {
     this.configuredLoggers.clear();
   }
 

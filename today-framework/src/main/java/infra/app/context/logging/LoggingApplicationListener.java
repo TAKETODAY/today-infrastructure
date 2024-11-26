@@ -228,14 +228,14 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
   @Override
   public void onApplicationEvent(ApplicationEvent event) {
-    if (event instanceof ApplicationStartingEvent startingEvent) {
-      onApplicationStartingEvent(startingEvent);
+    if (event instanceof ApplicationStartingEvent ase) {
+      onApplicationStartingEvent(ase);
     }
-    else if (event instanceof ApplicationEnvironmentPreparedEvent environmentPreparedEvent) {
-      onApplicationEnvironmentPreparedEvent(environmentPreparedEvent);
+    else if (event instanceof ApplicationEnvironmentPreparedEvent aepe) {
+      onApplicationEnvironmentPreparedEvent(aepe);
     }
-    else if (event instanceof ApplicationPreparedEvent preparedEvent) {
-      onApplicationPreparedEvent(preparedEvent);
+    else if (event instanceof ApplicationPreparedEvent ape) {
+      onApplicationPreparedEvent(ape);
     }
     else if (event instanceof ContextClosedEvent) {
       onContextClosedEvent((ContextClosedEvent) event);
@@ -287,7 +287,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
   void cleanupLoggingSystem() {
     if (this.loggingSystem != null) {
-      this.loggingSystem.cleanUp();
+      this.loggingSystem.cleanup();
     }
   }
 

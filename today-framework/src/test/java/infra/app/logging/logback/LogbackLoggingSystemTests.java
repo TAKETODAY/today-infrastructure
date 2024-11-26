@@ -109,7 +109,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
       System.getProperties().remove(property.getEnvironmentVariableName());
     }
     this.systemPropertyNames = new HashSet<>(System.getProperties().keySet());
-    this.loggingSystem.cleanUp();
+    this.loggingSystem.cleanup();
     this.logger = ((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger(getClass());
     this.environment = new MockEnvironment();
     var conversionService = ApplicationConversionService.getSharedInstance();
@@ -119,9 +119,9 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @AfterEach
-  void cleanUp() {
+  void cleanup() {
     System.getProperties().keySet().retainAll(this.systemPropertyNames);
-    this.loggingSystem.cleanUp();
+    this.loggingSystem.cleanup();
     ((LoggerContext) LoggerFactory.getILoggerFactory()).stop();
   }
 
@@ -330,7 +330,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     assertThat(bridgeHandlerInstalled()).isFalse();
     this.loggingSystem.beforeInitialize();
     assertThat(bridgeHandlerInstalled()).isTrue();
-    this.loggingSystem.cleanUp();
+    this.loggingSystem.cleanup();
     assertThat(bridgeHandlerInstalled()).isFalse();
   }
 
@@ -586,7 +586,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.loggingSystem.beforeInitialize();
     initialize(this.initializationContext, null, null);
     then(listener).should().onReset(loggerContext);
-    this.loggingSystem.cleanUp();
+    this.loggingSystem.cleanup();
     loggerContext.addListener(listener);
     this.loggingSystem.beforeInitialize();
     initialize(this.initializationContext, null, null);

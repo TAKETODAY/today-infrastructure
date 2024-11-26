@@ -305,10 +305,10 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   @Override
-  public void cleanUp() {
+  public void cleanup() {
     LoggerContext context = getLoggerContext();
     markAsUninitialized(context);
-    super.cleanUp();
+    super.cleanup();
     removeJdkLoggingBridgeHandler();
     context.getStatusManager().clear();
     context.getTurboFilterList().remove(SUPPRESS_ALL_FILTER);

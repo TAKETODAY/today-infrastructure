@@ -104,7 +104,7 @@ public abstract class LoggingSystem {
    * Clean up the logging system. The default implementation does nothing. Subclasses
    * should override this method to perform any logging system-specific cleanup.
    */
-  public void cleanUp() {
+  public void cleanup() {
 
   }
 
@@ -205,7 +205,7 @@ public abstract class LoggingSystem {
     }
 
     @Override
-    public void setLogLevel(String loggerName, LogLevel level) {
+    public void setLogLevel(@Nullable String loggerName, LogLevel level) {
 
     }
 

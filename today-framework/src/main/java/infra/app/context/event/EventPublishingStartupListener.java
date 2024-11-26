@@ -36,7 +36,6 @@ import infra.context.support.AbstractApplicationContext;
 import infra.core.Ordered;
 import infra.core.env.ConfigurableEnvironment;
 import infra.lang.Nullable;
-import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ErrorHandler;
 
@@ -56,7 +55,6 @@ import infra.util.ErrorHandler;
  * @since 4.0
  */
 public class EventPublishingStartupListener implements ApplicationStartupListener, Ordered, ErrorHandler {
-  private volatile Logger logger;
 
   private final Application application;
 
@@ -137,17 +135,8 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
 
   @Override
   public void handleError(Throwable throwable) {
-    Logger logger = this.logger;
-    if (logger == null) {
-      synchronized(this) {
-        logger = this.logger;
-        if (logger == null) {
-          logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
-          this.logger = logger;
-        }
-      }
-    }
-    logger.warn("Error calling ApplicationEventListener", throwable);
+    LoggerFactory.getLogger(getClass())
+            .warn("Error calling ApplicationEventListener", throwable);
   }
 
   private void multicastInitialEvent(ApplicationEvent event) {

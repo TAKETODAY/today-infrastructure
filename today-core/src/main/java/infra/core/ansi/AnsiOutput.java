@@ -78,7 +78,7 @@ public abstract class AnsiOutput {
    * @param consoleAvailable if the console is known to be available or {@code null} to
    * use standard detection logic.
    */
-  public static void setConsoleAvailable(Boolean consoleAvailable) {
+  public static void setConsoleAvailable(@Nullable Boolean consoleAvailable) {
     AnsiOutput.consoleAvailable = consoleAvailable;
   }
 

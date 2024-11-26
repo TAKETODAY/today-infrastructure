@@ -58,7 +58,9 @@ public interface ApplicationStartupListener {
    *
    * @param bootstrapContext the bootstrap context
    */
-  default void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) { }
+  default void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
+
+  }
 
   /**
    * Called once the environment has been prepared, but before the
@@ -67,7 +69,9 @@ public interface ApplicationStartupListener {
    * @param bootstrapContext the bootstrap context
    * @param environment the environment
    */
-  default void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) { }
+  default void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
+
+  }
 
   /**
    * Called once the {@link ApplicationContext} has been created and prepared, but
@@ -75,7 +79,9 @@ public interface ApplicationStartupListener {
    *
    * @param context the application context
    */
-  default void contextPrepared(ConfigurableApplicationContext context) { }
+  default void contextPrepared(ConfigurableApplicationContext context) {
+
+  }
 
   /**
    * Called once the application context has been loaded but before it has been
@@ -83,7 +89,9 @@ public interface ApplicationStartupListener {
    *
    * @param context the application context
    */
-  default void contextLoaded(ConfigurableApplicationContext context) { }
+  default void contextLoaded(ConfigurableApplicationContext context) {
+
+  }
 
   /**
    * The context has been refreshed and the application has started but
@@ -93,7 +101,9 @@ public interface ApplicationStartupListener {
    * @param context the application context.
    * @param timeTaken the time taken to start the application or {@code null} if unknown
    */
-  default void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) { }
+  default void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
+
+  }
 
   /**
    * Called immediately before the run method finishes, when the application context has
@@ -104,7 +114,9 @@ public interface ApplicationStartupListener {
    * @param timeTaken the time taken for the application to be ready or {@code null} if
    * unknown
    */
-  default void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) { }
+  default void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
+
+  }
 
   /**
    * Called when a failure occurs when running the application.
@@ -113,6 +125,8 @@ public interface ApplicationStartupListener {
    * the context was created
    * @param exception the failure
    */
-  default void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) { }
+  default void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
+
+  }
 
 }

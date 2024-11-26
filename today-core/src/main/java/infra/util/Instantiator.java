@@ -136,7 +136,7 @@ public class Instantiator<T> {
    * necessary.
    *
    * @param names the class names to instantiate
-   * @return a list of instantiated instances, can be modified
+   * @return An ordered list of instantiated instances, can be modified
    */
   @Modifiable
   public List<T> instantiate(Collection<String> names) {
@@ -149,7 +149,7 @@ public class Instantiator<T> {
    *
    * @param classLoader the source classloader
    * @param names the class names to instantiate
-   * @return a list of instantiated instances, can be modified
+   * @return An ordered list of instantiated instances, can be modified
    */
   @Modifiable
   public List<T> instantiate(@Nullable ClassLoader classLoader, Collection<String> names) {
@@ -161,7 +161,7 @@ public class Instantiator<T> {
    * Instantiate the given set of classes, injecting constructor arguments as necessary.
    *
    * @param types the types to instantiate
-   * @return a list of instantiated instances, can be modified
+   * @return An ordered list of instantiated instances, can be modified
    */
   @Modifiable
   public List<T> instantiateTypes(Collection<Class<?>> types) {
