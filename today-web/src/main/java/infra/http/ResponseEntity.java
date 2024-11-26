@@ -323,7 +323,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    *
    * @return the created builder
    */
-  public static HeadersBuilder<?> notFound() {
+  public static BodyBuilder notFound() {
     return status(HttpStatus.NOT_FOUND);
   }
 
