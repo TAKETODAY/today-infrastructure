@@ -41,7 +41,7 @@ import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-10 13:14
  */
-public class DefaultMethodInvocation extends AttributeAccessorSupport implements ProxyMethodInvocation {
+public class DefaultMethodInvocation extends AttributeAccessorSupport implements ProxyMethodInvocation, Cloneable {
 
   private final Object proxy;
 
