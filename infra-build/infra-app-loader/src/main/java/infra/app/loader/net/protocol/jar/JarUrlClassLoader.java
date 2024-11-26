@@ -203,7 +203,7 @@ public abstract class JarUrlClassLoader extends URLClassLoader {
 
   /**
    * Clear any caches. This method is called reflectively by
-   * {@code ClearCachesApplicationListener}.
+   * {@code ClearCachesStartupListener}.
    */
   public void clearCache() {
     Handler.clearCache();
