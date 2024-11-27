@@ -227,8 +227,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     if (logger.isDebugEnabled()) {
       Object theBody = body;
       MediaType selectedContentType = contentType;
-      LogFormatUtils.traceDebug(logger, traceOn -> "Read \"%s\" to [%s]".formatted(
-              selectedContentType, LogFormatUtils.formatValue(theBody, !traceOn)));
+      LogFormatUtils.traceDebug(logger, traceOn -> "Read \"%s\" to [%s]"
+              .formatted(selectedContentType, LogFormatUtils.formatValue(theBody, !traceOn)));
     }
 
     return body;

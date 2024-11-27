@@ -59,7 +59,6 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MimeTypeUtils;
-import infra.util.SmartList;
 import infra.web.util.AbstractUriTemplateHandler;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.DefaultUriBuilderFactory.EncodingMode;
@@ -626,7 +625,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
     }
     else {
-      return entity.getUrl();
+      return entity.getURI();
     }
   }
 
@@ -890,40 +889,35 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void doWithRequest(ClientHttpRequest httpRequest) throws IOException {
       super.doWithRequest(httpRequest);
-      Object requestBody = this.requestEntity.getBody();
+      Object requestBody = requestEntity.getBody();
       if (requestBody == null) {
         HttpHeaders httpHeaders = httpRequest.getHeaders();
-        copyHttpHeaders(httpHeaders, requestEntity.getHeaders());
+        httpHeaders.setAll(requestEntity.headers());
         if (httpHeaders.getContentLength() < 0) {
           httpHeaders.setContentLength(0L);
         }
       }
       else {
         Class<?> requestBodyClass = requestBody.getClass();
-        Type requestBodyType = this.requestEntity instanceof RequestEntity entity
-                ? entity.getType() : requestBodyClass;
-        HttpHeaders httpHeaders = httpRequest.getHeaders();
-        HttpHeaders requestHeaders = this.requestEntity.getHeaders();
-        MediaType requestContentType = requestHeaders.getContentType();
-
-        // iterate messageConverter
-        for (HttpMessageConverter messageConverter : getMessageConverters()) {
-          if (messageConverter instanceof GenericHttpMessageConverter genericConverter) {
-            if (genericConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
-              copyHttpHeaders(httpHeaders, requestHeaders);
+        Type requestBodyType = requestEntity instanceof RequestEntity entity ? entity.getType() : requestBodyClass;
+        MediaType requestContentType = requestEntity.getContentType();
+        for (HttpMessageConverter converter : getMessageConverters()) {
+          if (converter instanceof GenericHttpMessageConverter gc) {
+            if (gc.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
+              httpRequest.getHeaders().setAll(requestEntity.headers());
               if (logger.isDebugEnabled()) {
-                logBody(requestBody, requestContentType, genericConverter);
+                logBody(requestBody, requestContentType, gc);
               }
-              genericConverter.write(requestBody, requestBodyType, requestContentType, httpRequest);
+              gc.write(requestBody, requestBodyType, requestContentType, httpRequest);
               return;
             }
           }
-          else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
-            copyHttpHeaders(httpHeaders, requestHeaders);
+          else if (converter.canWrite(requestBodyClass, requestContentType)) {
+            httpRequest.getHeaders().setAll(requestEntity.headers());
             if (logger.isDebugEnabled()) {
-              logBody(requestBody, requestContentType, messageConverter);
+              logBody(requestBody, requestContentType, converter);
             }
-            messageConverter.write(requestBody, requestContentType, httpRequest);
+            converter.write(requestBody, requestContentType, httpRequest);
             return;
           }
         }
@@ -942,14 +936,6 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
       else {
         logger.debug("Writing [{}] with {}", body, converter.getClass().getName());
-      }
-    }
-  }
-
-  private static void copyHttpHeaders(HttpHeaders httpHeaders, HttpHeaders requestHeaders) {
-    if (!requestHeaders.isEmpty()) {
-      for (Map.Entry<String, List<String>> entry : requestHeaders.entrySet()) {
-        httpHeaders.put(entry.getKey(), new SmartList<>(entry.getValue()));
       }
     }
   }

@@ -20,7 +20,6 @@ package infra.http.converter;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.io.Resource;
+import infra.http.ContentDisposition;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
@@ -47,7 +47,6 @@ import infra.util.MimeTypeUtils;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
-import jakarta.mail.internet.MimeUtility;
 
 /**
  * Implementation of {@link HttpMessageConverter} to read and write 'normal' HTML
@@ -515,24 +514,26 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private void writePart(String name, HttpEntity<?> partEntity, OutputStream os) throws IOException {
     Object partBody = partEntity.getBody();
     if (partBody == null) {
       throw new IllegalStateException("Empty body for part '%s': %s".formatted(name, partEntity));
     }
     Class<?> partType = partBody.getClass();
-    HttpHeaders partHeaders = partEntity.getHeaders();
-    MediaType partContentType = partHeaders.getContentType();
-    for (HttpMessageConverter<?> messageConverter : this.partConverters) {
-      if (messageConverter.canWrite(partType, partContentType)) {
+    MediaType partContentType = partEntity.getContentType();
+    for (HttpMessageConverter converter : partConverters) {
+      if (converter.canWrite(partType, partContentType)) {
         Charset charset = isFilenameCharsetSet() ? StandardCharsets.US_ASCII : this.charset;
-        MultipartHttpOutputMessage multipartMessage = new MultipartHttpOutputMessage(os, charset);
-        multipartMessage.getHeaders().setContentDispositionFormData(name, getFilename(partBody));
-        if (!partHeaders.isEmpty()) {
-          multipartMessage.getHeaders().putAll(partHeaders);
+        var multipartMessage = new MultipartHttpOutputMessage(os, charset);
+        var cd = ContentDisposition.formData().name(name);
+        String filename = getFilename(partBody);
+        if (filename != null) {
+          cd.filename(filename, this.multipartCharset);
         }
-        ((HttpMessageConverter<Object>) messageConverter).write(partBody, partContentType, multipartMessage);
+        multipartMessage.headers.setContentDisposition(cd.build());
+        multipartMessage.headers.setAll(partEntity.headers());
+        converter.write(partBody, partContentType, multipartMessage);
         return;
       }
     }
@@ -573,11 +574,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   @Nullable
   protected String getFilename(Object part) {
     if (part instanceof Resource resource) {
-      String filename = resource.getName();
-      if (filename != null && this.multipartCharset != null) {
-        filename = MimeDelegate.encode(filename, this.multipartCharset.name());
-      }
-      return filename;
+      return resource.getName();
     }
     else {
       return null;
@@ -615,7 +612,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     private final OutputStream outputStream;
 
-    private final HttpHeaders headers = HttpHeaders.forWritable();
+    public final HttpHeaders headers = HttpHeaders.forWritable();
 
     private boolean headersWritten = false;
 
@@ -681,21 +678,6 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     @Override
     public void close() {
 
-    }
-  }
-
-  /**
-   * Inner class to avoid a hard dependency on the JavaMail API.
-   */
-  private static class MimeDelegate {
-
-    public static String encode(String value, String charset) {
-      try {
-        return MimeUtility.encodeText(value, charset, null);
-      }
-      catch (UnsupportedEncodingException ex) {
-        throw new IllegalStateException(ex);
-      }
     }
   }
 

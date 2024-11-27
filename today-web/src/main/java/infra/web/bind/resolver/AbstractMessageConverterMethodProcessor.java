@@ -520,13 +520,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       }
     }
 
-    MediaType mediaType = resolveMediaType(request, extension);
+    MediaType mediaType = MediaType.fromFileName("file." + extension);
     return mediaType == null || !safeMediaType(mediaType);
-  }
-
-  @Nullable
-  private MediaType resolveMediaType(RequestContext request, String extension) {
-    return MediaType.fromFileName("file." + extension);
   }
 
   private boolean safeMediaType(MediaType mediaType) {

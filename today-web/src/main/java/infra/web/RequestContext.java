@@ -1818,8 +1818,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @since 3.0
    */
-  public void mergeToResponse(HttpHeaders headers) {
-    responseHeaders().addAll(headers);
+  public void mergeToResponse(@Nullable HttpHeaders headers) {
+    if (CollectionUtils.isNotEmpty(headers)) {
+      responseHeaders().addAll(headers);
+    }
   }
 
   /**

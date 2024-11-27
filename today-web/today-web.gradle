@@ -70,7 +70,6 @@ dependencies {
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")
   optional("org.reactivestreams:reactive-streams")
-  optional("jakarta.mail:jakarta.mail-api")
 
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation("io.projectreactor:reactor-test")

@@ -1118,6 +1118,21 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   }
 
   /**
+   * Set the {@linkplain MediaType media type} of the body, as specified by the
+   * {@code Content-Type} header.
+   *
+   * @since 5.0
+   */
+  public void setContentType(@Nullable String mediaType) {
+    if (mediaType != null) {
+      setOrRemove(CONTENT_TYPE, mediaType);
+    }
+    else {
+      remove(CONTENT_TYPE);
+    }
+  }
+
+  /**
    * Return the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    * <p>
@@ -1128,7 +1143,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   @Nullable
   public MediaType getContentType() throws InvalidMediaTypeException {
     String value = getFirst(CONTENT_TYPE);
-    return (StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null);
+    return StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null;
   }
 
   /**

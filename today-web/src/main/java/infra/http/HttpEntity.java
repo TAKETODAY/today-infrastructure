@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http;
@@ -23,6 +20,7 @@ package infra.http;
 import java.util.Objects;
 
 import infra.lang.Nullable;
+import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 
 /**
@@ -66,10 +64,11 @@ public class HttpEntity<T> {
    */
   public static final HttpEntity<?> EMPTY = new HttpEntity<>();
 
-  private final HttpHeaders headers;
-
   @Nullable
   private final T body;
+
+  @Nullable
+  private HttpHeaders headers;
 
   /**
    * Create a new, empty {@code HttpEntity}.
@@ -92,7 +91,7 @@ public class HttpEntity<T> {
    *
    * @param headers the entity headers
    */
-  public HttpEntity(MultiValueMap<String, String> headers) {
+  public HttpEntity(@Nullable MultiValueMap<String, String> headers) {
     this(null, headers);
   }
 
@@ -103,19 +102,62 @@ public class HttpEntity<T> {
    * @param headers the entity headers
    */
   public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
-    DefaultHttpHeaders tempHeaders = new DefaultHttpHeaders();
-    if (headers != null) {
-      tempHeaders.addAll(headers);
-    }
     this.body = body;
-    this.headers = tempHeaders;
+    this.headers = CollectionUtils.isNotEmpty(headers) ? HttpHeaders.copyOf(headers) : null;
   }
 
   /**
    * Returns the headers of this entity.
    */
   public HttpHeaders getHeaders() {
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = HttpHeaders.forWritable();
+      this.headers = headers;
+    }
     return headers;
+  }
+
+  /**
+   * Returns the headers of this entity. maybe {@code null}
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public HttpHeaders headers() {
+    return headers;
+  }
+
+  /**
+   * Return the {@linkplain MediaType media type} of the body, as specified by the
+   * {@code Content-Type} header.
+   * <p>
+   * Returns {@code null} when the {@code Content-Type} header is not set.
+   *
+   * @throws InvalidMediaTypeException if the media type value cannot be parsed
+   * @since 5.0
+   */
+  @Nullable
+  public MediaType getContentType() {
+    return headers != null ? headers.getContentType() : null;
+  }
+
+  /**
+   * Indicates whether this entity has a header.
+   *
+   * @since 5.0
+   */
+  public boolean hasHeader(String name) {
+    return headers != null && headers.containsKey(name);
+  }
+
+  /**
+   * Indicates whether this entity has headers.
+   *
+   * @since 5.0
+   */
+  public boolean hasHeaders() {
+    return CollectionUtils.isNotEmpty(headers);
   }
 
   /**
@@ -158,9 +200,13 @@ public class HttpEntity<T> {
       builder.append(this.body);
       builder.append(',');
     }
-    builder.append(this.headers);
+    builder.append(toString(headers));
     builder.append('>');
     return builder.toString();
+  }
+
+  static String toString(@Nullable HttpHeaders headers) {
+    return headers != null ? headers.toString() : "[]";
   }
 
 }

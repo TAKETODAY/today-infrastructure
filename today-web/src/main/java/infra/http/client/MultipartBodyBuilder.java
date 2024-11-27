@@ -147,8 +147,7 @@ public final class MultipartBodyBuilder {
     HttpHeaders partHeaders = null;
     if (part instanceof HttpEntity<?> httpEntity) {
       partBody = httpEntity.getBody();
-      partHeaders = HttpHeaders.forWritable();
-      partHeaders.putAll(httpEntity.getHeaders());
+      partHeaders = HttpHeaders.copyOf(httpEntity.headers());
     }
     else {
       partBody = part;
@@ -280,29 +279,29 @@ public final class MultipartBodyBuilder {
 
     @Override
     public PartBuilder contentType(MediaType contentType) {
-      initHeadersIfNecessary().setContentType(contentType);
+      headers().setContentType(contentType);
       return this;
     }
 
     @Override
     public PartBuilder filename(String filename) {
-      initHeadersIfNecessary().setContentDispositionFormData(this.name, filename);
+      headers().setContentDispositionFormData(this.name, filename);
       return this;
     }
 
     @Override
     public PartBuilder header(String headerName, String... headerValues) {
-      initHeadersIfNecessary().setOrRemove(headerName, headerValues);
+      headers().setOrRemove(headerName, headerValues);
       return this;
     }
 
     @Override
     public PartBuilder headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(initHeadersIfNecessary());
+      headersConsumer.accept(headers());
       return this;
     }
 
-    private HttpHeaders initHeadersIfNecessary() {
+    private HttpHeaders headers() {
       if (this.headers == null) {
         this.headers = HttpHeaders.forWritable();
       }
@@ -329,7 +328,7 @@ public final class MultipartBodyBuilder {
     }
 
     public PublisherPartBuilder(String name, PublisherEntity<S, P> other) {
-      super(name, other.getHeaders(), other.getBody());
+      super(name, other.headers(), other.getBody());
       this.resolvableType = other.getResolvableType();
     }
 

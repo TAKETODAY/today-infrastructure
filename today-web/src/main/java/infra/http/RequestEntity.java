@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import infra.lang.Nullable;
+import infra.util.CollectionUtils;
+import infra.util.DataSize;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.web.client.RestOperations;
@@ -65,7 +67,7 @@ import infra.web.util.UriTemplateHandler;
  * @author Parviz Rozikov
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getMethod()
- * @see #getUrl()
+ * @see #getURI()
  * @see RestOperations#exchange(RequestEntity, Class)
  * @see ResponseEntity
  * @since 4.0 2021/11/5 21:46
@@ -76,7 +78,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
   private final HttpMethod method;
 
   @Nullable
-  private final URI url;
+  private final URI uri;
 
   @Nullable
   private final Type type;
@@ -85,10 +87,10 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * Constructor with method and URL but without body nor headers.
    *
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    */
-  public RequestEntity(HttpMethod method, URI url) {
-    this(null, null, method, url, null);
+  public RequestEntity(HttpMethod method, URI uri) {
+    this(null, null, method, uri, null);
   }
 
   /**
@@ -96,10 +98,10 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @param body the body
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    */
-  public RequestEntity(@Nullable T body, HttpMethod method, URI url) {
-    this(body, null, method, url, null);
+  public RequestEntity(@Nullable T body, HttpMethod method, URI uri) {
+    this(body, null, method, uri, null);
   }
 
   /**
@@ -107,11 +109,11 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @param body the body
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    * @param type the type used for generic type resolution
    */
-  public RequestEntity(@Nullable T body, HttpMethod method, URI url, Type type) {
-    this(body, null, method, url, type);
+  public RequestEntity(@Nullable T body, HttpMethod method, URI uri, Type type) {
+    this(body, null, method, uri, type);
   }
 
   /**
@@ -119,10 +121,10 @@ public class RequestEntity<T> extends HttpEntity<T> {
    *
    * @param headers the headers
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    */
-  public RequestEntity(MultiValueMap<String, String> headers, HttpMethod method, URI url) {
-    this(null, headers, method, url, null);
+  public RequestEntity(MultiValueMap<String, String> headers, HttpMethod method, URI uri) {
+    this(null, headers, method, uri, null);
   }
 
   /**
@@ -131,11 +133,10 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * @param body the body
    * @param headers the headers
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    */
-  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
-          @Nullable HttpMethod method, URI url) {
-    this(body, headers, method, url, null);
+  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, @Nullable HttpMethod method, URI uri) {
+    this(body, headers, method, uri, null);
   }
 
   /**
@@ -144,14 +145,14 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * @param body the body
    * @param headers the headers
    * @param method the method
-   * @param url the URL
+   * @param uri the URL
    * @param type the type used for generic type resolution
    */
   public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
-          @Nullable HttpMethod method, @Nullable URI url, @Nullable Type type) {
+          @Nullable HttpMethod method, @Nullable URI uri, @Nullable Type type) {
     super(body, headers);
     this.method = method;
-    this.url = url;
+    this.uri = uri;
     this.type = type;
   }
 
@@ -176,15 +177,15 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * {@link RestTemplate} with the help of the
    * {@link UriTemplateHandler} it is configured with.
    */
-  public URI getUrl() {
-    if (this.url == null) {
+  public URI getURI() {
+    if (this.uri == null) {
       throw new UnsupportedOperationException(
               "The RequestEntity was created with a URI template and variables, " +
                       "and there is not enough information on how to correctly expand and " +
                       "encode the URI template. This will be done by the RestTemplate instead " +
                       "with help from the UriTemplateHandler it is configured with.");
     }
-    return this.url;
+    return this.uri;
   }
 
   /**
@@ -213,24 +214,24 @@ public class RequestEntity<T> extends HttpEntity<T> {
     }
     RequestEntity<?> otherEntity = (RequestEntity<?>) other;
     return Objects.equals(this.method, otherEntity.method)
-            && Objects.equals(this.url, otherEntity.url);
+            && Objects.equals(this.uri, otherEntity.uri);
   }
 
   @Override
   public int hashCode() {
     int hashCode = super.hashCode();
     hashCode = 29 * hashCode + Objects.hashCode(this.method);
-    hashCode = 29 * hashCode + Objects.hashCode(this.url);
+    hashCode = 29 * hashCode + Objects.hashCode(this.uri);
     return hashCode;
   }
 
   @Override
   public String toString() {
-    return format(getMethod(), getUrl().toString(), getBody(), getHeaders());
+    return format(getMethod(), getURI().toString(), getBody(), headers());
   }
 
   static <T> String format(@Nullable HttpMethod httpMethod,
-          String url, @Nullable T body, HttpHeaders headers) {
+          String url, @Nullable T body, @Nullable HttpHeaders headers) {
     StringBuilder builder = new StringBuilder("<");
     builder.append(httpMethod);
     builder.append(' ');
@@ -240,7 +241,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       builder.append(body);
       builder.append(',');
     }
-    builder.append(headers);
+    builder.append(toString(headers));
     builder.append('>');
     return builder.toString();
   }
@@ -538,6 +539,17 @@ public class RequestEntity<T> extends HttpEntity<T> {
     BodyBuilder contentLength(long contentLength);
 
     /**
+     * Set the length of the body in bytes, as specified by the
+     * {@code Content-Length} header.
+     *
+     * @param contentLength the content length
+     * @return this builder
+     * @see HttpHeaders#setContentLength(long)
+     * @since 5.0
+     */
+    BodyBuilder contentLength(DataSize contentLength);
+
+    /**
      * Set the {@linkplain MediaType media type} of the body, as specified
      * by the {@code Content-Type} header.
      *
@@ -545,7 +557,18 @@ public class RequestEntity<T> extends HttpEntity<T> {
      * @return this builder
      * @see HttpHeaders#setContentType(MediaType)
      */
-    BodyBuilder contentType(MediaType contentType);
+    BodyBuilder contentType(@Nullable MediaType contentType);
+
+    /**
+     * Set the {@linkplain MediaType media type} of the body, as specified
+     * by the {@code Content-Type} header.
+     *
+     * @param contentType the content type
+     * @return this builder
+     * @see HttpHeaders#setContentType(String)
+     * @since 5.0
+     */
+    BodyBuilder contentType(@Nullable String contentType);
 
     /**
      * Set the body of the request entity and build the RequestEntity.
@@ -554,7 +577,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
      * @param body the body of the request entity
      * @return the built request entity
      */
-    <T> RequestEntity<T> body(T body);
+    <T> RequestEntity<T> body(@Nullable T body);
 
     /**
      * Set the body and type of the request entity and build the RequestEntity.
@@ -564,14 +587,12 @@ public class RequestEntity<T> extends HttpEntity<T> {
      * @param type the type of the body, useful for generic type resolution
      * @return the built request entity
      */
-    <T> RequestEntity<T> body(T body, Type type);
+    <T> RequestEntity<T> body(@Nullable T body, Type type);
   }
 
   private static class DefaultBodyBuilder implements BodyBuilder {
 
     private final HttpMethod method;
-
-    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     @Nullable
     private final URI uri;
@@ -584,6 +605,9 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Nullable
     private final Map<String, ?> uriVarsMap;
+
+    @Nullable
+    private HttpHeaders headers;
 
     DefaultBodyBuilder(HttpMethod method, @Nullable URI url) {
       this.method = method;
@@ -611,68 +635,91 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Override
     public BodyBuilder header(String headerName, String... headerValues) {
-      this.headers.setOrRemove(headerName, headerValues);
+      headers().setOrRemove(headerName, headerValues);
       return this;
     }
 
     @Override
     public BodyBuilder headers(@Nullable HttpHeaders headers) {
-      this.headers.setAll(headers);
+      if (CollectionUtils.isNotEmpty(headers)) {
+        headers().setAll(headers);
+      }
       return this;
     }
 
     @Override
     public BodyBuilder headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(this.headers);
+      headersConsumer.accept(headers());
       return this;
     }
 
     @Override
     public BodyBuilder accept(MediaType... acceptableMediaTypes) {
-      this.headers.setAccept(Arrays.asList(acceptableMediaTypes));
+      headers().setAccept(Arrays.asList(acceptableMediaTypes));
       return this;
     }
 
     @Override
     public BodyBuilder acceptCharset(Charset... acceptableCharsets) {
-      this.headers.setAcceptCharset(Arrays.asList(acceptableCharsets));
+      headers().setAcceptCharset(Arrays.asList(acceptableCharsets));
       return this;
     }
 
     @Override
     public BodyBuilder contentLength(long contentLength) {
-      this.headers.setContentLength(contentLength);
+      headers().setContentLength(contentLength);
       return this;
     }
 
     @Override
-    public BodyBuilder contentType(MediaType contentType) {
-      this.headers.setContentType(contentType);
+    public BodyBuilder contentLength(DataSize contentLength) {
+      headers().setContentLength(contentLength.toBytes());
+      return this;
+    }
+
+    @Override
+    public BodyBuilder contentType(@Nullable MediaType contentType) {
+      headers().setContentType(contentType);
+      return this;
+    }
+
+    @Override
+    public BodyBuilder contentType(@Nullable String contentType) {
+      headers().setContentType(contentType);
       return this;
     }
 
     @Override
     public BodyBuilder ifModifiedSince(ZonedDateTime ifModifiedSince) {
-      this.headers.setIfModifiedSince(ifModifiedSince);
+      headers().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public BodyBuilder ifModifiedSince(Instant ifModifiedSince) {
-      this.headers.setIfModifiedSince(ifModifiedSince);
+      headers().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public BodyBuilder ifModifiedSince(long ifModifiedSince) {
-      this.headers.setIfModifiedSince(ifModifiedSince);
+      headers().setIfModifiedSince(ifModifiedSince);
       return this;
     }
 
     @Override
     public BodyBuilder ifNoneMatch(String... ifNoneMatches) {
-      this.headers.setIfNoneMatch(Arrays.asList(ifNoneMatches));
+      headers().setIfNoneMatch(Arrays.asList(ifNoneMatches));
       return this;
+    }
+
+    private HttpHeaders headers() {
+      HttpHeaders headers = this.headers;
+      if (headers == null) {
+        headers = HttpHeaders.forWritable();
+        this.headers = headers;
+      }
+      return headers;
     }
 
     @Override
@@ -681,12 +728,12 @@ public class RequestEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public <T> RequestEntity<T> body(T body) {
+    public <T> RequestEntity<T> body(@Nullable T body) {
       return buildInternal(body, null);
     }
 
     @Override
-    public <T> RequestEntity<T> body(T body, Type type) {
+    public <T> RequestEntity<T> body(@Nullable T body, Type type) {
       return buildInternal(body, type);
     }
 
@@ -695,9 +742,8 @@ public class RequestEntity<T> extends HttpEntity<T> {
         return new RequestEntity<>(body, this.headers, this.method, this.uri, type);
       }
       else if (this.uriTemplate != null) {
-        return new UriTemplateRequestEntity<>(
-                body, this.headers, this.method, type,
-                this.uriTemplate, this.uriVarsArray, this.uriVarsMap);
+        return new UriTemplateRequestEntity<>(body, this.headers, this.method,
+                type, this.uriTemplate, this.uriVarsArray, this.uriVarsMap);
       }
       else {
         throw new IllegalStateException("Neither URI nor URI template");
@@ -720,8 +766,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     @Nullable
     private final Map<String, ?> uriVarsMap;
 
-    UriTemplateRequestEntity(
-            @Nullable T body, @Nullable MultiValueMap<String, String> headers,
+    UriTemplateRequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
             @Nullable HttpMethod method, @Nullable Type type, String uriTemplate,
             @Nullable Object[] uriVarsArray, @Nullable Map<String, ?> uriVarsMap) {
 
@@ -766,7 +811,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Override
     public String toString() {
-      return format(getMethod(), getUriTemplate(), getBody(), getHeaders());
+      return format(getMethod(), getUriTemplate(), getBody(), headers());
     }
   }
 

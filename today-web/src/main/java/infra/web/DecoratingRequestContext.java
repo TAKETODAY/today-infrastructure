@@ -430,7 +430,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void mergeToResponse(HttpHeaders headers) {
+  public void mergeToResponse(@Nullable HttpHeaders headers) {
     getDelegate().mergeToResponse(headers);
   }
 

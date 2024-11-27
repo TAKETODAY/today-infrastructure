@@ -68,10 +68,10 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
       return;
     }
 
-    if (returnValue instanceof ResponseEntity<?> responseEntity) {
-      context.setStatus(responseEntity.getStatusCode());
-      context.mergeToResponse(responseEntity.getHeaders());
-      returnValue = responseEntity.getBody();
+    if (returnValue instanceof ResponseEntity<?> entity) {
+      context.setStatus(entity.getStatusCode());
+      context.mergeToResponse(entity.headers());
+      returnValue = entity.getBody();
       if (returnValue == null) {
         return;
       }

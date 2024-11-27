@@ -24,7 +24,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
@@ -123,7 +122,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable)
-          throws IOException, HttpMediaTypeNotSupportedException {
+          throws IOException, HttpMediaTypeNotSupportedException //
+  {
     MethodParameter parameter = resolvable.getParameter();
     Type paramType = getHttpEntityType(parameter);
     if (paramType == null) {
@@ -207,21 +207,20 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
         if (responseEntity.getStatusCode().value() != detail.getStatus()) {
           HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
           if (handlerMethod != null) {
-            logger.warn("%s returned ResponseEntity: %s, but its status doesn't match the ProblemDetail status: %d"
-                    .formatted(handlerMethod.getMethod().toGenericString(), responseEntity, detail.getStatus()));
+            logger.warn("{} returned ResponseEntity: {}, but its status doesn't match the ProblemDetail status: {}",
+                    handlerMethod.getMethod().toGenericString(), responseEntity, detail.getStatus());
           }
         }
       }
       invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null);
     }
 
-    HttpHeaders entityHeaders = httpEntity.getHeaders();
-    if (!entityHeaders.isEmpty()) {
+    if (httpEntity.hasHeaders()) {
+      HttpHeaders entityHeaders = httpEntity.getHeaders();
       HttpHeaders outputHeaders = context.responseHeaders();
 
-      for (Map.Entry<String, List<String>> entry : entityHeaders.entrySet()) {
+      for (var entry : entityHeaders.entrySet()) {
         String key = entry.getKey();
-        List<String> value = entry.getValue();
         if (HttpHeaders.VARY.equals(key) && outputHeaders.containsKey(HttpHeaders.VARY)) {
           List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
           if (!values.isEmpty()) {
@@ -229,7 +228,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
           }
         }
         else {
-          outputHeaders.put(key, value);
+          outputHeaders.put(key, entry.getValue());
         }
       }
     }

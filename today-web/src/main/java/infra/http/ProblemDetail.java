@@ -71,7 +71,9 @@ public class ProblemDetail {
   /**
    * For deserialization.
    */
-  protected ProblemDetail() { }
+  protected ProblemDetail() {
+
+  }
 
   /**
    * Protected constructor for subclasses.

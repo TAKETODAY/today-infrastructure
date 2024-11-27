@@ -223,7 +223,7 @@ public class ResponseEntityTests {
     assertThat(responseHeaders.getFirst("X-CustomHeader")).isEqualTo("vale");
   }
 
-  @Test  // SPR-12792
+  @Test
   public void headersCopyWithEmptyAndNull() {
     ResponseEntity<Void> responseEntityWithEmptyHeaders =
             ResponseEntity.ok().headers(new DefaultHttpHeaders()).build();
@@ -246,8 +246,8 @@ public class ResponseEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(responseEntity.getHeaders().containsKey(HttpHeaders.CACHE_CONTROL)).isFalse();
-    assertThat((int) responseEntity.getBody()).isEqualTo((int) entity);
+    assertThat(responseEntity.hasHeader(HttpHeaders.CACHE_CONTROL)).isFalse();
+    assertThat(responseEntity.getBody()).isEqualTo((int) entity);
   }
 
   @Test
@@ -263,7 +263,7 @@ public class ResponseEntityTests {
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(responseEntity.getHeaders().containsKey(HttpHeaders.CACHE_CONTROL)).isTrue();
-    assertThat((int) responseEntity.getBody()).isEqualTo((int) entity);
+    assertThat(responseEntity.getBody()).isEqualTo((int) entity);
     String cacheControlHeader = responseEntity.getHeaders().getCacheControl();
     assertThat(cacheControlHeader).isEqualTo(
             "max-age=3600, must-revalidate, private, proxy-revalidate, s-maxage=1800");

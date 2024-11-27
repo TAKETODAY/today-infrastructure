@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http;
@@ -58,7 +55,7 @@ class RequestEntityTests {
 
     assertThat(requestEntity).isNotNull();
     assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.GET);
-    assertThat(requestEntity.getHeaders().containsKey(headerName)).isTrue();
+    assertThat(requestEntity.hasHeader(headerName)).isTrue();
     assertThat(requestEntity.getHeaders().getFirst(headerName)).isEqualTo(headerValue);
     assertThat(requestEntity.getBody()).isEqualTo(entity);
   }
@@ -75,7 +72,7 @@ class RequestEntityTests {
 
     uri = UriComponentsBuilder.fromUriString(url).buildAndExpand(host, path).toUri();
     RequestEntity<?> entity = RequestEntity.get(uri).build();
-    assertThat(entity.getUrl()).isEqualTo(expected);
+    assertThat(entity.getURI()).isEqualTo(expected);
 
     Map<String, String> uriVariables = new HashMap<>(2);
     uriVariables.put("host", host);
@@ -83,7 +80,7 @@ class RequestEntityTests {
 
     uri = UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables).toUri();
     entity = RequestEntity.get(uri).build();
-    assertThat(entity.getUrl()).isEqualTo(expected);
+    assertThat(entity.getURI()).isEqualTo(expected);
   }
 
   @Test
@@ -105,7 +102,7 @@ class RequestEntityTests {
 
     assertThat(requestEntity).isNotNull();
     assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.GET);
-    assertThat(requestEntity.getHeaders().containsKey(HttpHeaders.ACCEPT)).isTrue();
+    assertThat(requestEntity.hasHeader(HttpHeaders.ACCEPT)).isTrue();
     assertThat(requestEntity.getHeaders().getFirst(HttpHeaders.ACCEPT)).isEqualTo("image/gif, image/jpeg, image/png");
     assertThat(requestEntity.getBody()).isNull();
   }
@@ -130,7 +127,7 @@ class RequestEntityTests {
 
     assertThat(responseEntity).isNotNull();
     assertThat(responseEntity.getMethod()).isEqualTo(HttpMethod.POST);
-    assertThat(responseEntity.getUrl()).isEqualTo(new URI("https://example.com"));
+    assertThat(responseEntity.getURI()).isEqualTo(new URI("https://example.com"));
     HttpHeaders responseHeaders = responseEntity.getHeaders();
 
     assertThat(responseHeaders.getFirst(HttpHeaders.ACCEPT)).isEqualTo(MediaType.TEXT_PLAIN_VALUE);

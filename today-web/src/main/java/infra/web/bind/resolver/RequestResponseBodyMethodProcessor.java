@@ -68,8 +68,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    * {@code @ResponseBody} without {@code Request~} or
    * {@code ResponseBodyAdvice}.
    */
-  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
-          @Nullable ContentNegotiationManager manager) {
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager) {
     super(converters, manager);
   }
 
@@ -78,8 +77,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    * For handling {@code @ResponseBody} consider also providing a
    * {@code ContentNegotiationManager}.
    */
-  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
-          @Nullable List<Object> requestResponseBodyAdvice) {
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable List<Object> requestResponseBodyAdvice) {
     super(converters, null, requestResponseBodyAdvice);
   }
 

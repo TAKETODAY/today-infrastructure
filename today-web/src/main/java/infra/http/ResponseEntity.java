@@ -28,6 +28,8 @@ import java.util.function.Consumer;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.CollectionUtils;
+import infra.util.DataSize;
 import infra.util.MultiValueMap;
 
 /**
@@ -191,12 +193,11 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
     builder.append(',');
     T body = getBody();
-    HttpHeaders headers = getHeaders();
     if (body != null) {
       builder.append(body);
       builder.append(',');
     }
-    builder.append(headers);
+    builder.append(toString(headers()));
     builder.append('>');
     return builder.toString();
   }
@@ -483,6 +484,17 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     BodyBuilder contentLength(long contentLength);
 
     /**
+     * Set the length of the body in bytes, as specified by the
+     * {@code Content-Length} header.
+     *
+     * @param contentLength the content length
+     * @return this builder
+     * @see HttpHeaders#setContentLength(long)
+     * @since 5.0
+     */
+    BodyBuilder contentLength(DataSize contentLength);
+
+    /**
      * Set the {@linkplain MediaType media type} of the body, as specified by the
      * {@code Content-Type} header.
      *
@@ -490,7 +502,18 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * @return this builder
      * @see HttpHeaders#setContentType(MediaType)
      */
-    BodyBuilder contentType(MediaType contentType);
+    BodyBuilder contentType(@Nullable MediaType contentType);
+
+    /**
+     * Set the {@linkplain MediaType media type} of the body, as specified by the
+     * {@code Content-Type} header.
+     *
+     * @param contentType the content type
+     * @return this builder
+     * @see HttpHeaders#setContentType(MediaType)
+     * @since 5.0
+     */
+    BodyBuilder contentType(@Nullable String contentType);
 
     /**
      * Set the body of the response entity and returns it.
@@ -506,7 +529,8 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 
     private final Object statusCode;
 
-    private final DefaultHttpHeaders headers = new DefaultHttpHeaders();
+    @Nullable
+    private HttpHeaders headers;
 
     public DefaultBuilder(Object statusCode) {
       this.statusCode = statusCode;
@@ -514,82 +538,103 @@ public class ResponseEntity<T> extends HttpEntity<T> {
 
     @Override
     public BodyBuilder header(String headerName, String... headerValues) {
-      headers.setOrRemove(headerName, headerValues);
+      headers().setOrRemove(headerName, headerValues);
       return this;
     }
 
     @Override
     public BodyBuilder headers(@Nullable HttpHeaders headers) {
-      if (headers != null) {
-        this.headers.addAll(headers);
+      if (CollectionUtils.isNotEmpty(headers)) {
+        headers().setAll(headers);
       }
       return this;
     }
 
     @Override
     public BodyBuilder headers(Consumer<HttpHeaders> headersConsumer) {
-      headersConsumer.accept(this.headers);
+      headersConsumer.accept(headers());
       return this;
     }
 
     @Override
     public BodyBuilder allow(HttpMethod... allowedMethods) {
-      this.headers.setAllow(new LinkedHashSet<>(Arrays.asList(allowedMethods)));
+      headers().setAllow(new LinkedHashSet<>(Arrays.asList(allowedMethods)));
       return this;
     }
 
     @Override
     public BodyBuilder contentLength(long contentLength) {
-      this.headers.setContentLength(contentLength);
+      headers().setContentLength(contentLength);
       return this;
     }
 
     @Override
-    public BodyBuilder contentType(MediaType contentType) {
-      this.headers.setContentType(contentType);
+    public BodyBuilder contentLength(DataSize contentLength) {
+      headers().setContentLength(contentLength.toBytes());
+      return this;
+    }
+
+    @Override
+    public BodyBuilder contentType(@Nullable MediaType contentType) {
+      headers().setContentType(contentType);
+      return this;
+    }
+
+    @Override
+    public BodyBuilder contentType(@Nullable String contentType) {
+      headers().setContentType(contentType);
       return this;
     }
 
     @Override
     public BodyBuilder eTag(@Nullable String etag) {
-      this.headers.setETag(etag);
+      headers().setETag(etag);
       return this;
     }
 
     @Override
     public BodyBuilder lastModified(ZonedDateTime date) {
-      this.headers.setLastModified(date);
+      headers().setLastModified(date);
       return this;
     }
 
     @Override
     public BodyBuilder lastModified(Instant date) {
-      this.headers.setLastModified(date);
+      headers().setLastModified(date);
       return this;
     }
 
     @Override
     public BodyBuilder lastModified(long date) {
-      this.headers.setLastModified(date);
+      headers().setLastModified(date);
       return this;
     }
 
     @Override
     public BodyBuilder location(URI location) {
-      this.headers.setLocation(location);
+      headers().setLocation(location);
       return this;
     }
 
     @Override
     public BodyBuilder cacheControl(CacheControl cacheControl) {
-      this.headers.setCacheControl(cacheControl);
+      headers().setCacheControl(cacheControl);
       return this;
     }
 
     @Override
     public BodyBuilder varyBy(String... requestHeaders) {
-      this.headers.setVary(Arrays.asList(requestHeaders));
+      headers().setVary(Arrays.asList(requestHeaders));
       return this;
+    }
+
+    private HttpHeaders headers() {
+      HttpHeaders headers = this.headers;
+      if (headers == null) {
+        headers = HttpHeaders.forWritable();
+        this.headers = headers;
+      }
+      return headers;
     }
 
     @Override

@@ -991,7 +991,7 @@ public class TestRestTemplate {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private RequestEntity<?> createRequestEntityWithRootAppliedUri(RequestEntity<?> requestEntity) {
-    return new RequestEntity(requestEntity.getBody(), requestEntity.getHeaders(), requestEntity.getMethod(),
+    return new RequestEntity(requestEntity.getBody(), requestEntity.headers(), requestEntity.getMethod(),
             applyRootUriIfNecessary(resolveUri(requestEntity)), requestEntity.getType());
   }
 
@@ -1016,7 +1016,7 @@ public class TestRestTemplate {
       throw new IllegalStateException(
               "No variables specified for URI template: " + templatedUriEntity.getUriTemplate());
     }
-    return entity.getUrl();
+    return entity.getURI();
   }
 
   /**
