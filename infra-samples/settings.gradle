@@ -15,6 +15,8 @@ pluginManagement {
   }
 
 }
+
+
 buildscript {
   repositories {
     mavenLocal()
@@ -22,10 +24,17 @@ buildscript {
     mavenCentral()
   }
 
+  Properties properties = new Properties()
+
+  try (def reader = new FileReader(file("../gradle.properties"))) {
+    properties.load(reader)
+  }
+
+  def infraVersion = properties['version']
+
   dependencies {
     classpath "cn.taketoday:infra-gradle-plugin:$infraVersion"
   }
-
 }
 
 rootProject.name = 'infra-samples'
