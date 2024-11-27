@@ -61,7 +61,7 @@ import infra.web.util.UriUtils;
 import infra.web.util.pattern.PathPattern;
 
 /**
- * Extends {@link AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
+ * Extends {@link infra.web.bind.resolver.AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
  * return values by writing to the response with {@link HttpMessageConverter HttpMessageConverters}.
  *
  * @author Arjen Poutsma
@@ -291,7 +291,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
               LogFormatUtils.traceDebug(logger,
                       traceOn -> "Writing [%s]".formatted(LogFormatUtils.formatValue(theBody, !traceOn)));
             }
-            addContentDispositionHeader(context);
+            addContentDispositionHeader(context, body);
             if (generic != null) {
               generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
             }
@@ -452,7 +452,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * header with a safe attachment file name ("f.txt") is added to prevent
    * RFD exploits.
    */
-  private void addContentDispositionHeader(RequestContext request) {
+  private void addContentDispositionHeader(RequestContext request, Object body) {
     if (request.containsResponseHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       return;
     }
@@ -466,19 +466,27 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     catch (Throwable ex) {
       // ignore
     }
-    String requestUri = request.getRequestURI();
-
-    int index = requestUri.lastIndexOf('/') + 1;
-    String filename = requestUri.substring(index);
-    String pathParams = "";
-
-    index = filename.indexOf(';');
-    if (index != -1) {
-      pathParams = filename.substring(index);
-      filename = filename.substring(0, index);
+    String filename = null;
+    if (body instanceof Resource resource) {
+      filename = resource.getName();
     }
 
-    filename = UriUtils.decode(filename, StandardCharsets.UTF_8);
+    String pathParams = "";
+    if (filename == null) {
+      String requestUri = request.getRequestURI();
+
+      int index = requestUri.lastIndexOf('/') + 1;
+      filename = requestUri.substring(index);
+
+      index = filename.indexOf(';');
+      if (index != -1) {
+        pathParams = filename.substring(index);
+        filename = filename.substring(0, index);
+      }
+
+      filename = UriUtils.decode(filename, StandardCharsets.UTF_8);
+    }
+
     String ext = StringUtils.getFilenameExtension(filename);
 
     pathParams = UriUtils.decode(pathParams, StandardCharsets.UTF_8);
@@ -501,7 +509,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       PathPattern bestMatchingPattern = matchingMetadata.getBestMatchingPattern();
-      if (bestMatchingPattern != null && bestMatchingPattern.getPatternString().endsWith("." + extension)) {
+      if (bestMatchingPattern.getPatternString().endsWith("." + extension)) {
         return false;
       }
       if (extension.equals("html")) {
