@@ -253,13 +253,12 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
 
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
-    if (handlerMethod != null) {
-      MethodParameter methodReturnType = handlerMethod.getReturnType();
+    if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
       // Try even with null body. ResponseBodyAdvice could get involved.
-      writeWithMessageConverters(body, methodReturnType, context);
+      writeWithMessageConverters(body, handlerMethod.getReturnType(), context);
     }
     else if (body != null) {
-      // for other handler's result
+      // value can not-assignable to returnType, value maybe from HandlerInterceptor
       writeWithMessageConverters(body, null, context);
     }
   }

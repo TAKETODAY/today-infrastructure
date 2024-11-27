@@ -149,11 +149,10 @@ class HttpEntityMethodProcessorTests {
     assertThat(result.getBody().getName()).isEqualTo("Jad");
   }
 
-  @Test  // SPR-12811
+  @Test
   public void jacksonTypeInfoList() throws Exception {
     Method method = JacksonController.class.getMethod("handleList");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-    MethodParameter methodReturnType = handlerMethod.getReturnType();
 
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new MappingJackson2HttpMessageConverter());
@@ -167,14 +166,13 @@ class HttpEntityMethodProcessorTests {
     assertThat(content.contains("\"type\":\"bar\"")).isTrue();
   }
 
-  @Test  // SPR-13423
+  @Test
   public void handleReturnValueCharSequence() throws Exception {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new ByteArrayHttpMessageConverter());
     converters.add(new StringHttpMessageConverter());
 
     Method method = getClass().getDeclaredMethod("handle");
-    MethodParameter returnType = new MethodParameter(method, -1);
     ResponseEntity<StringBuilder> returnValue = ResponseEntity.ok(new StringBuilder("Foo"));
 
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters, null);

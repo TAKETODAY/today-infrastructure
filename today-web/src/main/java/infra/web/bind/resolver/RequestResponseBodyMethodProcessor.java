@@ -172,10 +172,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
     // Try even with null return value. ResponseBodyAdvice could get involved.
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
-    if (handlerMethod != null) {
+    if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
       writeWithMessageConverters(returnValue, handlerMethod.getReturnType(), context);
     }
     else if (returnValue != null) {
+      // value can not-assignable to returnType, value maybe from HandlerInterceptor
       writeWithMessageConverters(returnValue, null, context);
     }
   }

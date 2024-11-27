@@ -176,8 +176,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     else {
       body = value;
       valueType = getReturnValueType(body, returnType);
-      if (returnType == null || (body != null && !returnType.getParameterType().isInstance(value))) {
-        // value can not-assignable to returnType, value maybe from HandlerInterceptor
+      if (returnType == null) {
         targetType = ResolvableType.forInstance(body).getType();
       }
       else {
