@@ -20,7 +20,6 @@ package infra.http.converter;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -38,7 +37,6 @@ import infra.util.FileCopyUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -73,7 +71,7 @@ public class ResourceHttpMessageConverterTests {
     assertThat(actualResource.getName()).isEqualTo("yourlogo.jpg");
   }
 
-  @Test  // SPR-13443
+  @Test
   public void shouldReadInputStreamResource() throws IOException {
     try (InputStream body = getClass().getResourceAsStream("logo.jpg")) {
       MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
@@ -89,7 +87,7 @@ public class ResourceHttpMessageConverterTests {
     }
   }
 
-  @Test  // SPR-14882
+  @Test
   public void shouldNotReadInputStreamResource() throws IOException {
     ResourceHttpMessageConverter noStreamConverter = new ResourceHttpMessageConverter(false);
     try (InputStream body = getClass().getResourceAsStream("logo.jpg")) {
@@ -110,7 +108,7 @@ public class ResourceHttpMessageConverterTests {
     assertThat(outputMessage.getHeaders().getContentLength()).as("Invalid content-length").isEqualTo(body.getFile().length());
   }
 
-  @Test  // SPR-10848
+  @Test
   public void writeByteArrayNullMediaType() throws IOException {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     byte[] byteArray = { 1, 2, 3 };
@@ -120,30 +118,7 @@ public class ResourceHttpMessageConverterTests {
     assertThat(Arrays.equals(byteArray, outputMessage.getBodyAsBytes())).isTrue();
   }
 
-  @Test  // SPR-12999
-  public void writeContentNotGettingInputStream() throws Exception {
-    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-    Resource resource = mock(Resource.class);
-    given(resource.getInputStream()).willThrow(FileNotFoundException.class);
-    converter.write(resource, MediaType.APPLICATION_OCTET_STREAM, outputMessage);
-
-    assertThat(outputMessage.getHeaders().getContentLength()).isEqualTo(0);
-  }
-
-  @Test  // SPR-12999
-  public void writeContentNotClosingInputStream() throws Exception {
-    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-    Resource resource = mock(Resource.class);
-    InputStream inputStream = mock(InputStream.class);
-    given(resource.getInputStream()).willReturn(inputStream);
-    given(inputStream.read(ArgumentMatchers.any())).willReturn(-1);
-    willThrow(new NullPointerException()).given(inputStream).close();
-    converter.write(resource, MediaType.APPLICATION_OCTET_STREAM, outputMessage);
-
-    assertThat(outputMessage.getHeaders().getContentLength()).isEqualTo(0);
-  }
-
-  @Test  // SPR-13620
+  @Test
   public void writeContentInputStreamThrowingNullPointerException() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     Resource resource = mock(Resource.class);

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -357,16 +356,6 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
   }
 
   /**
-   * Returns the media types that can be produced.
-   *
-   * @see #getProducibleMediaTypes(RequestContext, Class, Type)
-   */
-  @SuppressWarnings("unused")
-  protected List<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass) {
-    return getProducibleMediaTypes(request, valueClass, null);
-  }
-
-  /**
    * Returns the media types that can be produced. The resulting media types are:
    * <ul>
    * <li>The producible media types specified in the request mappings, or
@@ -382,18 +371,16 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
         return Arrays.asList(mediaTypes);
       }
     }
-    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
+
     for (HttpMessageConverter<?> converter : messageConverters) {
-      if (converter instanceof GenericHttpMessageConverter<?> generic && targetType != null) {
-        if (generic.canWrite(targetType, valueClass, null)) {
-          result.addAll(converter.getSupportedMediaTypes(valueClass));
-        }
-      }
-      else if (converter.canWrite(valueClass, null)) {
-        result.addAll(converter.getSupportedMediaTypes(valueClass));
+      if ((targetType != null && converter instanceof GenericHttpMessageConverter<?> generic
+              && generic.canWrite(targetType, valueClass, null))
+              || converter.canWrite(valueClass, null)) {
+        return converter.getSupportedMediaTypes(valueClass);
       }
     }
-    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
+
+    return Collections.singletonList(MediaType.ALL);
   }
 
   /**

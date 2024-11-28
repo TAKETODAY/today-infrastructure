@@ -18,7 +18,6 @@
 package infra.http.converter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -130,26 +129,16 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
   protected void writeInternal(Resource resource, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException //
   {
-    // We cannot use try-with-resources here for the InputStream, since we have
-    // custom handling of the close() method in a finally-block.
-    try {
-      if (outputMessage.supportsZeroCopy() && resource.isFile()) {
-        File file = resource.getFile();
-        outputMessage.sendFile(file);
-      }
-      else {
-        try (InputStream in = resource.getInputStream()) {
-          OutputStream out = outputMessage.getBody();
-          in.transferTo(out);
-          out.flush();
-        }
-        catch (NullPointerException ex) {
-          // ignore, see SPR-13620
-        }
-      }
+    if (outputMessage.supportsZeroCopy() && resource.isFile()) {
+      File file = resource.getFile();
+      outputMessage.sendFile(file);
     }
-    catch (FileNotFoundException ex) {
-      // ignore, see SPR-12999
+    else {
+      try (InputStream in = resource.getInputStream()) {
+        OutputStream out = outputMessage.getBody();
+        in.transferTo(out);
+        out.flush();
+      }
     }
   }
 
