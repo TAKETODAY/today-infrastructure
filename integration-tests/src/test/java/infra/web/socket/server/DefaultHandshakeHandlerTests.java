@@ -116,7 +116,7 @@ public class DefaultHandshakeHandlerTests extends AbstractHttpRequestTests {
   private WebSocketHttpHeaders initHeaders(HttpHeaders httpHeaders) {
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders(httpHeaders);
     headers.setUpgrade("WebSocket");
-    headers.setConnection("Upgrade");
+    headers.setConnection(List.of("Upgrade"));
     headers.setSecWebSocketVersion("13");
     headers.setSecWebSocketKey("82/ZS2YHjEnUN97HLL8tbw==");
     return headers;

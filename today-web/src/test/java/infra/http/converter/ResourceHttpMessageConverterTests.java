@@ -67,7 +67,7 @@ public class ResourceHttpMessageConverterTests {
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
     inputMessage.getHeaders().setContentType(MediaType.IMAGE_JPEG);
     inputMessage.getHeaders().setContentDisposition(
-            ContentDisposition.attachment().filename("yourlogo.jpg").build());
+            ContentDisposition.attachment().filename("yourlogo.jpg").build().toString());
     Resource actualResource = converter.read(Resource.class, inputMessage);
     assertThat(FileCopyUtils.copyToByteArray(actualResource.getInputStream())).isEqualTo(body);
     assertThat(actualResource.getName()).isEqualTo("yourlogo.jpg");

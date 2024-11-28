@@ -138,7 +138,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    *
    * @param secWebSocketProtocol the value of the header
    */
-  public void setSecWebSocketProtocol(String secWebSocketProtocol) {
+  public void setSecWebSocketProtocol(@Nullable String secWebSocketProtocol) {
     setOrRemove(SEC_WEBSOCKET_PROTOCOL, secWebSocketProtocol);
   }
 
@@ -147,7 +147,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    *
    * @param secWebSocketProtocols the value of the header
    */
-  public void setSecWebSocketProtocol(List<String> secWebSocketProtocols) {
+  public void setSecWebSocketProtocol(@Nullable List<String> secWebSocketProtocols) {
     setOrRemove(SEC_WEBSOCKET_PROTOCOL, toCommaDelimitedString(secWebSocketProtocols));
   }
 
@@ -226,7 +226,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * @see #add(String, String)
    */
   @Override
-  public void setHeader(String name, String value) {
+  protected void setHeader(String name, String value) {
     this.headers.setOrRemove(name, value);
   }
 

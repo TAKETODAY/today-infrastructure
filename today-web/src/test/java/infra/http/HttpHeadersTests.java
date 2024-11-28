@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -489,7 +490,7 @@ public class HttpHeadersTests {
   @Test
   void accessControlMaxAge() {
     assertThat(headers.getAccessControlMaxAge()).isEqualTo(-1);
-    headers.setAccessControlMaxAge(3600);
+    headers.setAccessControlMaxAge(Duration.ofSeconds(3600));
     assertThat(headers.getAccessControlMaxAge()).isEqualTo(3600);
   }
 
