@@ -461,6 +461,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
           charset = Charset.forName(value);
           location = location.substring(endIndex + 1);
         }
+        location = ResourceHandlerUtils.initLocationPath(location);
+
         Resource resource = applicationContext.getResource(location);
         if (location.equals("/")) {
           throw new IllegalStateException("""
