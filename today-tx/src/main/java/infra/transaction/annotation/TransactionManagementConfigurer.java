@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.annotation;
@@ -37,6 +34,10 @@ import infra.transaction.TransactionManager;
  * <p>See @{@link EnableTransactionManagement} for general examples and context;
  * see {@link #annotationDrivenTransactionManager()} for detailed instructions.
  *
+ * <p><b>NOTE: A {@code TransactionManagementConfigurer} will get initialized early.</b>
+ * Do not inject common dependencies into autowired fields directly; instead, consider
+ * declaring a lazy {@link infra.beans.factory.ObjectProvider} for those.
+ *
  * <p>Note that in by-type lookup disambiguation cases, an alternative approach to
  * implementing this interface is to simply mark one of the offending
  * {@code PlatformTransactionManager} {@code @Bean} methods (or
@@ -46,6 +47,7 @@ import infra.transaction.TransactionManager;
  * of the {@code TransactionManager} bean.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see EnableTransactionManagement
  * @see Primary
  * @see PlatformTransactionManager

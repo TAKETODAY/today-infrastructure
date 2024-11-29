@@ -36,8 +36,13 @@ import infra.lang.Nullable;
  * {@link #cacheManager()}, {@link #cacheResolver()} and {@link #keyGenerator()}
  * for detailed instructions.
  *
+ * <p><b>NOTE: A {@code CachingConfigurer} will get initialized early.</b>
+ * Do not inject common dependencies into autowired fields directly; instead, consider
+ * declaring a lazy {@link infra.beans.factory.ObjectProvider} for those.
+ *
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see EnableCaching
  * @since 4.0
  */
