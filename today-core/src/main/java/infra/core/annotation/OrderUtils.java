@@ -19,12 +19,9 @@ package infra.core.annotation;
 
 import java.lang.reflect.AnnotatedElement;
 
-import infra.core.DecoratingProxy;
-import infra.core.Ordered;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.lang.NullValue;
 import infra.lang.Nullable;
-import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 
 /**
@@ -43,39 +40,6 @@ public abstract class OrderUtils {
   /** Cache for @Order value (or NOT_ANNOTATED marker) per Class. */
   static final ConcurrentReferenceHashMap<AnnotatedElement, Object>
           orderCache = new ConcurrentReferenceHashMap<>(64);
-
-  /**
-   * Get the order of the {@link AnnotatedElement}
-   *
-   * @param annotated {@link AnnotatedElement}
-   * @return The order
-   */
-  public static int getOrderOrLowest(final AnnotatedElement annotated) {
-    Integer order = getOrder(annotated);
-    return order == null ? Ordered.LOWEST_PRECEDENCE : order;
-  }
-
-  /**
-   * Get the order of the object
-   *
-   * @param obj object
-   * @return The order
-   */
-  public static int getOrderOrLowest(final Object obj) {
-    if (obj instanceof Ordered) {
-      return ((Ordered) obj).getOrder();
-    }
-    if (obj instanceof AnnotatedElement) {
-      return getOrderOrLowest((AnnotatedElement) obj);
-    }
-
-    if (obj instanceof DecoratingProxy) {
-      return getOrderOrLowest(((DecoratingProxy) obj).getDecoratedClass());
-    }
-    return getOrderOrLowest(ClassUtils.getUserClass(obj));
-  }
-
-  //
 
   /**
    * Return the order on the specified {@code type}, or the specified
