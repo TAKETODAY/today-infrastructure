@@ -17,6 +17,7 @@
 
 package infra.context.annotation;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -28,7 +29,6 @@ import java.util.Set;
 
 import infra.aop.TargetSource;
 import infra.aop.framework.ProxyFactory;
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import infra.beans.factory.config.DependencyDescriptor;
@@ -36,7 +36,6 @@ import infra.beans.factory.support.AutowireCandidateResolver;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.MethodParameter;
 import infra.core.annotation.AnnotationUtils;
-import infra.lang.Assert;
 import infra.lang.Nullable;
 
 /**
@@ -54,8 +53,8 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
   @Nullable
   public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
     return isLazy(descriptor)
-           ? buildLazyResolutionProxy(descriptor, beanName)
-           : null;
+            ? buildLazyResolutionProxy(descriptor, beanName)
+            : null;
   }
 
   @Override
@@ -86,56 +85,13 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
     return buildLazyResolutionProxy(descriptor, beanName, false);
   }
 
-  private Object buildLazyResolutionProxy(
-          final DependencyDescriptor descriptor, final @Nullable String beanName, boolean classOnly) {
+  private Object buildLazyResolutionProxy(DependencyDescriptor descriptor, @Nullable String beanName, boolean classOnly) {
 
-    BeanFactory beanFactory = getBeanFactory();
-    Assert.state(beanFactory instanceof StandardBeanFactory,
-            "BeanFactory needs to be a StandardBeanFactory");
-    final StandardBeanFactory dlbf = (StandardBeanFactory) beanFactory;
+    if (!(getBeanFactory() instanceof StandardBeanFactory stdF)) {
+      throw new IllegalStateException("Lazy resolution only supported with StandardBeanFactory");
+    }
 
-    TargetSource ts = new TargetSource() {
-      @Override
-      public Class<?> getTargetClass() {
-        return descriptor.getDependencyType();
-      }
-
-      @Override
-      public boolean isStatic() {
-        return false;
-      }
-
-      @Override
-      public Object getTarget() {
-        Set<String> autowiredBeanNames = beanName != null ? new LinkedHashSet<>(1) : null;
-        Object target = dlbf.doResolveDependency(descriptor, beanName, autowiredBeanNames, null);
-        if (target == null) {
-          Class<?> type = getTargetClass();
-          if (Map.class == type) {
-            return Collections.emptyMap();
-          }
-          else if (List.class == type) {
-            return Collections.emptyList();
-          }
-          else if (Set.class == type || Collection.class == type) {
-            return Collections.emptySet();
-          }
-          throw new NoSuchBeanDefinitionException(descriptor.getResolvableType(),
-                  "Optional dependency not present for lazy injection point");
-        }
-        if (autowiredBeanNames != null) {
-          for (String autowiredBeanName : autowiredBeanNames) {
-            if (dlbf.containsBean(autowiredBeanName)) {
-              dlbf.registerDependentBean(autowiredBeanName, beanName);
-            }
-          }
-        }
-        return target;
-      }
-
-      @Override
-      public void releaseTarget(Object target) { }
-    };
+    TargetSource ts = new LazyDependencyTargetSource(stdF, descriptor, beanName);
 
     ProxyFactory pf = new ProxyFactory();
     pf.setTargetSource(ts);
@@ -143,8 +99,99 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
     if (dependencyType.isInterface()) {
       pf.addInterface(dependencyType);
     }
-    ClassLoader classLoader = dlbf.getBeanClassLoader();
-    return (classOnly ? pf.getProxyClass(classLoader) : pf.getProxy(classLoader));
+    ClassLoader classLoader = stdF.getBeanClassLoader();
+    return classOnly ? pf.getProxyClass(classLoader) : pf.getProxy(classLoader);
+  }
+
+  @SuppressWarnings("serial")
+  private static class LazyDependencyTargetSource implements TargetSource, Serializable {
+
+    private final StandardBeanFactory beanFactory;
+
+    private final DependencyDescriptor descriptor;
+
+    @Nullable
+    private final String beanName;
+
+    @Nullable
+    private transient volatile Object cachedTarget;
+
+    public LazyDependencyTargetSource(StandardBeanFactory beanFactory,
+            DependencyDescriptor descriptor, @Nullable String beanName) {
+
+      this.beanFactory = beanFactory;
+      this.descriptor = descriptor;
+      this.beanName = beanName;
+    }
+
+    @Override
+    public Class<?> getTargetClass() {
+      return this.descriptor.getDependencyType();
+    }
+
+    @Override
+    @SuppressWarnings("NullAway")
+    public Object getTarget() {
+      Object cachedTarget = this.cachedTarget;
+      if (cachedTarget != null) {
+        return cachedTarget;
+      }
+
+      Set<String> autowiredBeanNames = new LinkedHashSet<>(2);
+      Object target = this.beanFactory.doResolveDependency(
+              this.descriptor, this.beanName, autowiredBeanNames, null);
+
+      if (target == null) {
+        Class<?> type = getTargetClass();
+        if (Map.class == type) {
+          target = Collections.emptyMap();
+        }
+        else if (List.class == type) {
+          target = Collections.emptyList();
+        }
+        else if (Set.class == type || Collection.class == type) {
+          target = Collections.emptySet();
+        }
+        else {
+          throw new NoSuchBeanDefinitionException(this.descriptor.getResolvableType(),
+                  "Optional dependency not present for lazy injection point");
+        }
+      }
+      else {
+        if (target instanceof Map<?, ?> map && Map.class == getTargetClass()) {
+          target = Collections.unmodifiableMap(map);
+        }
+        else if (target instanceof List<?> list && List.class == getTargetClass()) {
+          target = Collections.unmodifiableList(list);
+        }
+        else if (target instanceof Set<?> set && Set.class == getTargetClass()) {
+          target = Collections.unmodifiableSet(set);
+        }
+        else if (target instanceof Collection<?> coll && Collection.class == getTargetClass()) {
+          target = Collections.unmodifiableCollection(coll);
+        }
+      }
+
+      boolean cacheable = true;
+      for (String autowiredBeanName : autowiredBeanNames) {
+        if (!this.beanFactory.containsBean(autowiredBeanName)) {
+          cacheable = false;
+        }
+        else {
+          if (this.beanName != null) {
+            this.beanFactory.registerDependentBean(autowiredBeanName, this.beanName);
+          }
+          if (!this.beanFactory.isSingleton(autowiredBeanName)) {
+            cacheable = false;
+          }
+        }
+        if (cacheable) {
+          this.cachedTarget = target;
+        }
+      }
+
+      return target;
+    }
   }
 
 }

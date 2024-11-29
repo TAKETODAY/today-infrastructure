@@ -21,10 +21,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.function.Supplier;
 
 import infra.beans.factory.BeanFactory;
-import infra.beans.factory.annotation.Autowired;
 import infra.stereotype.Component;
 
 /**
@@ -47,10 +45,16 @@ import infra.stereotype.Component;
  * overriding the 'default lazy' behavior and that the bean should be eagerly initialized.
  *
  * <p>In addition to its role for component initialization, this annotation may also be placed
- * on injection points marked with {@link Autowired}
+ * on injection points marked with {@link infra.beans.factory.annotation.Autowired}
  * or {@link jakarta.inject.Inject}: In that context, it leads to the creation of a
- * lazy-resolution proxy for all affected dependencies, as an alternative to using
- * {@link Supplier} or {@link jakarta.inject.Provider}.
+ * lazy-resolution proxy for the affected dependency, caching it on first access in case of
+ * a singleton or re-resolving it on every access otherwise. This is an alternative to using
+ * {@link java.util.function.Supplier} or {@link jakarta.inject.Provider}.
+ * Please note that such a lazy-resolution proxy will always be injected; if the target
+ * dependency does not exist, you will only be able to find out through an exception on
+ * invocation. As a consequence, such an injection point results in unintuitive behavior
+ * for optional dependencies. For a programmatic equivalent, allowing for lazy references
+ * with more sophistication, consider {@link infra.beans.factory.ObjectProvider}.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
