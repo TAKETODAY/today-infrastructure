@@ -67,8 +67,8 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * </ul>
  *
  *
- * <p>This class is meant to reference "well-known" headers supported by Spring
- * Framework. If your application or library relies on other headers defined in RFCs,
+ * <p>This class is meant to reference "well-known" headers supported by Infra.
+ * If your application or library relies on other headers defined in RFCs,
  * please use methods that accept the header name as a parameter.
  *
  * @author Arjen Poutsma
