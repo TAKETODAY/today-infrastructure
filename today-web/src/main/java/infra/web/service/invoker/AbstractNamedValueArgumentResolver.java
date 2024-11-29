@@ -32,6 +32,7 @@ import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 
 /**
  * Base class for arguments that resolve to a named request value such as a
@@ -42,6 +43,7 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class AbstractNamedValueArgumentResolver implements HttpServiceArgumentResolver {
+
   private static final TypeDescriptor STRING_TARGET_TYPE = TypeDescriptor.valueOf(String.class);
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -49,7 +51,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
   @Nullable
   private final ConversionService conversionService;
 
-  private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
 
   /**
    * Constructor for a resolver to a String value.
@@ -185,11 +187,15 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     }
 
     if (conversionService != null && !(value instanceof String)) {
+      Object beforeValue = value;
       parameter = parameter.nestedIfOptional();
       Class<?> type = parameter.getNestedParameterType();
       value = (type != Object.class && !type.isArray() ?
               this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE) :
               this.conversionService.convert(value, String.class));
+      if (StringUtils.isBlank((String) value) && !required && beforeValue == null) {
+        value = null;
+      }
     }
 
     if (value == null) {
