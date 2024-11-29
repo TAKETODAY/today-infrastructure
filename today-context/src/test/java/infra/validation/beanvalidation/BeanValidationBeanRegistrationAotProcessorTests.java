@@ -17,12 +17,19 @@
 
 package infra.validation.beanvalidation;
 
+import org.hibernate.validator.internal.constraintvalidators.bv.PatternValidator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import infra.aot.generate.GenerationContext;
 import infra.aot.hint.MemberCategory;
@@ -32,11 +39,14 @@ import infra.beans.factory.aot.BeanRegistrationAotContribution;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.core.OverridingClassLoader;
 import infra.lang.Nullable;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -67,6 +77,9 @@ class BeanValidationBeanRegistrationAotProcessorTests {
   @Test
   void shouldProcessMethodParameterLevelConstraint() {
     process(MethodParameterLevelConstraint.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(2);
+    assertThat(RuntimeHintsPredicates.reflection().onType(MethodParameterLevelConstraint.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
     assertThat(RuntimeHintsPredicates.reflection().onType(ExistsValidator.class)
             .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.generationContext.getRuntimeHints());
   }
@@ -74,6 +87,9 @@ class BeanValidationBeanRegistrationAotProcessorTests {
   @Test
   void shouldProcessConstructorParameterLevelConstraint() {
     process(ConstructorParameterLevelConstraint.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(2);
+    assertThat(RuntimeHintsPredicates.reflection().onType(ConstructorParameterLevelConstraint.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
     assertThat(RuntimeHintsPredicates.reflection().onType(ExistsValidator.class)
             .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.generationContext.getRuntimeHints());
   }
@@ -81,8 +97,51 @@ class BeanValidationBeanRegistrationAotProcessorTests {
   @Test
   void shouldProcessPropertyLevelConstraint() {
     process(PropertyLevelConstraint.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(2);
+    assertThat(RuntimeHintsPredicates.reflection().onType(PropertyLevelConstraint.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
     assertThat(RuntimeHintsPredicates.reflection().onType(ExistsValidator.class)
             .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.generationContext.getRuntimeHints());
+  }
+
+  @Test
+  void shouldProcessGenericTypeLevelConstraint() {
+    process(GenericTypeLevelConstraint.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(2);
+    assertThat(RuntimeHintsPredicates.reflection().onType(GenericTypeLevelConstraint.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
+    assertThat(RuntimeHintsPredicates.reflection().onType(PatternValidator.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.generationContext.getRuntimeHints());
+  }
+
+  @Test
+  void shouldProcessTransitiveGenericTypeLevelConstraint() {
+    process(TransitiveGenericTypeLevelConstraint.class);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(3);
+    assertThat(RuntimeHintsPredicates.reflection().onType(TransitiveGenericTypeLevelConstraint.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
+    assertThat(RuntimeHintsPredicates.reflection().onType(Exclude.class)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
+    assertThat(RuntimeHintsPredicates.reflection().onType(PatternValidator.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.generationContext.getRuntimeHints());
+  }
+
+  @ParameterizedTest  // gh-33936
+  @ValueSource(classes = { BeanWithRecursiveIterable.class, BeanWithRecursiveMap.class, BeanWithRecursiveOptional.class })
+  void shouldProcessRecursiveGenericsWithoutInfiniteRecursion(Class<?> beanClass) {
+    process(beanClass);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).hasSize(1);
+    assertThat(RuntimeHintsPredicates.reflection().onType(beanClass)
+            .withMemberCategory(MemberCategory.DECLARED_FIELDS)).accepts(this.generationContext.getRuntimeHints());
+  }
+
+  @Test
+    // gh-33940
+  void shouldSkipConstraintWithMissingDependency() throws Exception {
+    MissingDependencyClassLoader classLoader = new MissingDependencyClassLoader(getClass().getClassLoader());
+    Class<?> beanClass = classLoader.loadClass(ConstraintWithMissingDependency.class.getName());
+    process(beanClass);
+    assertThat(this.generationContext.getRuntimeHints().reflection().typeHints()).isEmpty();
   }
 
   private void process(Class<?> beanClass) {
@@ -165,6 +224,85 @@ class BeanValidationBeanRegistrationAotProcessorTests {
 
     public void setName(String name) {
       this.name = name;
+    }
+  }
+
+  static class Exclude {
+
+    @Valid
+    private List<@Pattern(regexp = "^([1-5][x|X]{2}|[1-5][0-9]{2})\\$") String> httpStatus;
+
+    public List<String> getHttpStatus() {
+      return httpStatus;
+    }
+
+    public void setHttpStatus(List<String> httpStatus) {
+      this.httpStatus = httpStatus;
+    }
+  }
+
+  static class GenericTypeLevelConstraint {
+
+    private List<@Pattern(regexp = "^([1-5][x|X]{2}|[1-5][0-9]{2})\\$") String> httpStatus;
+
+    public List<String> getHttpStatus() {
+      return httpStatus;
+    }
+
+    public void setHttpStatus(List<String> httpStatus) {
+      this.httpStatus = httpStatus;
+    }
+  }
+
+  static class TransitiveGenericTypeLevelConstraint {
+
+    private List<Exclude> exclude = new ArrayList<>();
+
+    public List<Exclude> getExclude() {
+      return exclude;
+    }
+
+    public void setExclude(List<Exclude> exclude) {
+      this.exclude = exclude;
+    }
+  }
+
+  static class BeanWithRecursiveIterable {
+    Iterable<BeanWithRecursiveIterable> iterable;
+  }
+
+  static class BeanWithRecursiveMap {
+    Map<BeanWithRecursiveMap, BeanWithRecursiveMap> map;
+  }
+
+  static class BeanWithRecursiveOptional {
+    Optional<BeanWithRecursiveOptional> optional;
+  }
+
+  static class ConstraintWithMissingDependency {
+
+    MissingType missingType;
+  }
+
+  static class MissingType { }
+
+  static class MissingDependencyClassLoader extends OverridingClassLoader {
+
+    MissingDependencyClassLoader(ClassLoader parent) {
+      super(parent);
+    }
+
+    @Override
+    protected boolean isEligibleForOverriding(String className) {
+      return className.startsWith(BeanValidationBeanRegistrationAotProcessorTests.class.getName());
+    }
+
+    @Override
+    protected Class<?> loadClassForOverriding(String name) throws ClassNotFoundException {
+      if (name.contains("MissingType")) {
+        throw new NoClassDefFoundError(name);
+      }
+      return super.loadClassForOverriding(name);
     }
   }
 
