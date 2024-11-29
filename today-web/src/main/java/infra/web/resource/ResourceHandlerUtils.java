@@ -31,6 +31,7 @@ import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
+import infra.web.util.UriUtils;
 
 /**
  * Resource handling utility methods to share common logic between
@@ -205,23 +206,23 @@ public abstract class ResourceHandlerUtils {
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
   private static boolean isInvalidEncodedPath(String path) {
-    if (path.contains("%")) {
-      String decodedPath = decode(path);
-      if (decodedPath.contains("%")) {
-        decodedPath = decode(decodedPath);
-      }
-      if (isInvalidPath(decodedPath)) {
-        return true;
-      }
-      decodedPath = normalizeInputPath(decodedPath);
-      return isInvalidPath(decodedPath);
+    String decodedPath = decode(path);
+    if (decodedPath.contains("%")) {
+      decodedPath = decode(decodedPath);
     }
-    return false;
+    if (StringUtils.isBlank(decodedPath)) {
+      return true;
+    }
+    if (isInvalidPath(decodedPath)) {
+      return true;
+    }
+    decodedPath = normalizeInputPath(decodedPath);
+    return isInvalidPath(decodedPath);
   }
 
   private static String decode(String path) {
     try {
-      return URLDecoder.decode(path, StandardCharsets.UTF_8);
+      return UriUtils.decode(path, StandardCharsets.UTF_8);
     }
     catch (Exception ex) {
       return "";
