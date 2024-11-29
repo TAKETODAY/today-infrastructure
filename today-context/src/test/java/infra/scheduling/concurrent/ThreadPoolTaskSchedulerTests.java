@@ -21,7 +21,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -101,7 +100,7 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
   @Test
   void scheduleOneTimeTask() throws Exception {
     TestTask task = new TestTask(this.testName, 1);
-    Future<?> future = scheduler.schedule(task, new Date());
+    Future<?> future = scheduler.schedule(task, Instant.now());
     Object result = future.get(1000, TimeUnit.MILLISECONDS);
     assertThat(result).isNull();
     assertThat(future.isDone()).isTrue();
@@ -112,7 +111,7 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
   @Test
   void scheduleOneTimeFailingTaskWithoutErrorHandler() {
     TestTask task = new TestTask(this.testName, 0);
-    Future<?> future = scheduler.schedule(task, new Date());
+    Future<?> future = scheduler.schedule(task, Instant.now());
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(() -> future.get(1000, TimeUnit.MILLISECONDS));
     assertThat(future.isDone()).isTrue();
     assertThat(taskRun.get()).isTrue();
@@ -123,7 +122,7 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
     TestTask task = new TestTask(this.testName, 0);
     TestErrorHandler errorHandler = new TestErrorHandler(1);
     scheduler.setErrorHandler(errorHandler);
-    Future<?> future = scheduler.schedule(task, new Date());
+    Future<?> future = scheduler.schedule(task, Instant.now());
     Object result = future.get(1000, TimeUnit.MILLISECONDS);
     assertThat(future.isDone()).isTrue();
     assertThat(result).isNull();

@@ -20,7 +20,6 @@ package infra.scheduling;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 import infra.core.task.TaskExecutor;
@@ -38,8 +37,7 @@ import infra.scheduling.support.CronTrigger;
  * different characteristics and capabilities. Implementations may implement
  * both interfaces if they can handle both kinds of execution characteristics.
  *
- * <p>The 'default' implementation is
- * {@link ThreadPoolTaskScheduler},
+ * <p>The 'default' implementation is {@link ThreadPoolTaskScheduler},
  * wrapping a native {@link java.util.concurrent.ScheduledExecutorService}
  * and adding extended trigger capabilities.
  *
@@ -73,11 +71,10 @@ public interface TaskScheduler {
    *
    * @param task the Runnable to execute whenever the trigger fires
    * @param trigger an implementation of the {@link Trigger} interface,
-   * e.g. a {@link CronTrigger} object
-   * wrapping a cron expression
+   * e.g. a {@link CronTrigger} object wrapping a cron expression
    * @return a {@link ScheduledFuture} representing pending completion of the task,
    * or {@code null} if the given Trigger object never fires (i.e. returns
-   * {@code null} from {@link Trigger#nextExecutionTime})
+   * {@code null} from {@link Trigger#nextExecution})
    * @throws TaskRejectedException if the given task was not accepted
    * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
    * @see CronTrigger
@@ -100,22 +97,6 @@ public interface TaskScheduler {
   ScheduledFuture<?> schedule(Runnable task, Instant startTime);
 
   /**
-   * Schedule the given {@link Runnable}, invoking it at the specified execution time.
-   * <p>Execution will end once the scheduler shuts down or the returned
-   * {@link ScheduledFuture} gets cancelled.
-   *
-   * @param task the Runnable to execute whenever the trigger fires
-   * @param startTime the desired execution time for the task
-   * (if this is in the past, the task will be executed immediately, i.e. as soon as possible)
-   * @return a {@link ScheduledFuture} representing pending completion of the task
-   * @throws TaskRejectedException if the given task was not accepted
-   * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
-   */
-  default ScheduledFuture<?> schedule(Runnable task, Date startTime) {
-    return schedule(task, startTime.toInstant());
-  }
-
-  /**
    * Schedule the given {@link Runnable}, invoking it at the specified execution time
    * and subsequently with the given period.
    * <p>Execution will end once the scheduler shuts down or the returned
@@ -130,24 +111,6 @@ public interface TaskScheduler {
    * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
    */
   ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Instant startTime, Duration period);
-
-  /**
-   * Schedule the given {@link Runnable}, invoking it at the specified execution time
-   * and subsequently with the given period.
-   * <p>Execution will end once the scheduler shuts down or the returned
-   * {@link ScheduledFuture} gets cancelled.
-   *
-   * @param task the Runnable to execute whenever the trigger fires
-   * @param startTime the desired first execution time for the task
-   * (if this is in the past, the task will be executed immediately, i.e. as soon as possible)
-   * @param period the interval between successive executions of the task (in milliseconds)
-   * @return a {@link ScheduledFuture} representing pending completion of the task
-   * @throws TaskRejectedException if  the given task was not accepted
-   * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
-   */
-  default ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Date startTime, long period) {
-    return scheduleAtFixedRate(task, startTime.toInstant(), Duration.ofMillis(period));
-  }
 
   /**
    * Schedule the given {@link Runnable}, starting as soon as possible and
@@ -195,26 +158,6 @@ public interface TaskScheduler {
    * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
    */
   ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Instant startTime, Duration delay);
-
-  /**
-   * Schedule the given {@link Runnable}, invoking it at the specified execution time
-   * and subsequently with the given delay between the completion of one execution
-   * and the start of the next.
-   * <p>Execution will end once the scheduler shuts down or the returned
-   * {@link ScheduledFuture} gets cancelled.
-   *
-   * @param task the Runnable to execute whenever the trigger fires
-   * @param startTime the desired first execution time for the task
-   * (if this is in the past, the task will be executed immediately, i.e. as soon as possible)
-   * @param delay the delay between the completion of one execution and the start of the next
-   * (in milliseconds)
-   * @return a {@link ScheduledFuture} representing pending completion of the task
-   * @throws TaskRejectedException if the given task was not accepted
-   * for internal reasons (e.g. a pool overload handling policy or a pool shutdown in progress)
-   */
-  default ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Date startTime, long delay) {
-    return scheduleWithFixedDelay(task, startTime.toInstant(), Duration.ofMillis(delay));
-  }
 
   /**
    * Schedule the given {@link Runnable}, starting as soon as possible and invoking it with

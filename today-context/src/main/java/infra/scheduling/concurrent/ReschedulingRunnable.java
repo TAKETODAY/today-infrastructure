@@ -44,6 +44,7 @@ import infra.util.ErrorHandler;
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements ScheduledFuture<Object> {
@@ -62,8 +63,7 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
 
   private final Object triggerContextMonitor = new Object();
 
-  public ReschedulingRunnable(
-          Runnable delegate, Trigger trigger, Clock clock,
+  public ReschedulingRunnable(Runnable delegate, Trigger trigger, Clock clock,
           ScheduledExecutorService executor, ErrorHandler errorHandler) {
 
     super(delegate, errorHandler);

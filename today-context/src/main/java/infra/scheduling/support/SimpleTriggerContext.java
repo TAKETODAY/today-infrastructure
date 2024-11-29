@@ -19,7 +19,6 @@ package infra.scheduling.support;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 
 import infra.lang.Nullable;
 import infra.scheduling.TriggerContext;
@@ -53,22 +52,14 @@ public class SimpleTriggerContext implements TriggerContext {
   }
 
   /**
-   * Create a SimpleTriggerContext with the given time values,
-   * exposing the system clock for the default time zone.
+   * Create a SimpleTriggerContext with all time values set to {@code null},
+   * exposing the given clock.
    *
-   * @param lastScheduledExecutionTime last <i>scheduled</i> execution time
-   * @param lastActualExecutionTime last <i>actual</i> execution time
-   * @param lastCompletionTime last completion time
+   * @param clock the clock to use for trigger calculation
+   * @see #update(Instant, Instant, Instant)
    */
-  public SimpleTriggerContext(@Nullable Date lastScheduledExecutionTime,
-          @Nullable Date lastActualExecutionTime, @Nullable Date lastCompletionTime) {
-
-    this(toInstant(lastScheduledExecutionTime), toInstant(lastActualExecutionTime), toInstant(lastCompletionTime));
-  }
-
-  @Nullable
-  private static Instant toInstant(@Nullable Date date) {
-    return date != null ? date.toInstant() : null;
+  public SimpleTriggerContext(Clock clock) {
+    this.clock = clock;
   }
 
   /**
@@ -86,30 +77,6 @@ public class SimpleTriggerContext implements TriggerContext {
     this.lastScheduledExecution = lastScheduledExecution;
     this.lastActualExecution = lastActualExecution;
     this.lastCompletion = lastCompletion;
-  }
-
-  /**
-   * Create a SimpleTriggerContext with all time values set to {@code null},
-   * exposing the given clock.
-   *
-   * @param clock the clock to use for trigger calculation
-   * @see #update(Instant, Instant, Instant)
-   */
-  public SimpleTriggerContext(Clock clock) {
-    this.clock = clock;
-  }
-
-  /**
-   * Update this holder's state with the latest time values.
-   *
-   * @param lastScheduledExecutionTime last <i>scheduled</i> execution time
-   * @param lastActualExecutionTime last <i>actual</i> execution time
-   * @param lastCompletionTime last completion time
-   */
-  public void update(@Nullable Date lastScheduledExecutionTime,
-          @Nullable Date lastActualExecutionTime, @Nullable Date lastCompletionTime) {
-
-    update(toInstant(lastScheduledExecutionTime), toInstant(lastActualExecutionTime), toInstant(lastCompletionTime));
   }
 
   /**

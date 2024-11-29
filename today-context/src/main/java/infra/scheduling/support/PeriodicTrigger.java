@@ -77,15 +77,6 @@ public class PeriodicTrigger implements Trigger {
     this(toDuration(period, timeUnit), timeUnit);
   }
 
-  private static Duration toDuration(long amount, @Nullable TimeUnit timeUnit) {
-    if (timeUnit != null) {
-      return Duration.of(amount, timeUnit.toChronoUnit());
-    }
-    else {
-      return Duration.ofMillis(amount);
-    }
-  }
-
   /**
    * Create a trigger with the given period as a duration.
    */
@@ -241,4 +232,12 @@ public class PeriodicTrigger implements Trigger {
     return this.period.hashCode();
   }
 
+  private static Duration toDuration(long amount, @Nullable TimeUnit timeUnit) {
+    if (timeUnit != null) {
+      return Duration.of(amount, timeUnit.toChronoUnit());
+    }
+    else {
+      return Duration.ofMillis(amount);
+    }
+  }
 }
