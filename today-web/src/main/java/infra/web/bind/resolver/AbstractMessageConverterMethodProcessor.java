@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -372,15 +373,18 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       }
     }
 
+    LinkedHashSet<MediaType> result = new LinkedHashSet<>();
     for (HttpMessageConverter<?> converter : messageConverters) {
-      if ((targetType != null && converter instanceof GenericHttpMessageConverter<?> generic
-              && generic.canWrite(targetType, valueClass, null))
-              || converter.canWrite(valueClass, null)) {
-        return converter.getSupportedMediaTypes(valueClass);
+      if (converter instanceof GenericHttpMessageConverter<?> generic && targetType != null) {
+        if (generic.canWrite(targetType, valueClass, null)) {
+          result.addAll(converter.getSupportedMediaTypes(valueClass));
+        }
+      }
+      else if (converter.canWrite(valueClass, null)) {
+        result.addAll(converter.getSupportedMediaTypes(valueClass));
       }
     }
-
-    return Collections.singletonList(MediaType.ALL);
+    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
   }
 
   /**
