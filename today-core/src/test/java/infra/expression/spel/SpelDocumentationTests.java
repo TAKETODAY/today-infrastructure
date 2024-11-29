@@ -25,11 +25,16 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import example.Color;
+import example.FruitMap;
 import infra.expression.EvaluationContext;
 import infra.expression.Expression;
 import infra.expression.ExpressionParser;
@@ -44,8 +49,6 @@ import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.testresources.Inventor;
 import infra.expression.spel.testresources.PlaceOfBirth;
 import infra.util.ReflectionUtils;
-import example.Color;
-import example.FruitMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -657,12 +660,66 @@ class SpelDocumentationTests extends AbstractExpressionTests {
       MethodHandle methodHandle = MethodHandles.lookup().findVirtual(String.class, "formatted",
                       MethodType.methodType(String.class, Object[].class))
               .bindTo(template)
-              .bindTo(varargs); // here we have to provide arguments in a single array binding
+              // Here we have to provide the arguments in a single array binding:
+              .bindTo(varargs);
       context.registerFunction("message", methodHandle);
 
       String message = parser.parseExpression("#message()").getValue(context, String.class);
       assertThat(message).isEqualTo("This is a prerecorded message with 3 words: <Oh Hello World!>");
     }
+  }
+
+  @Nested
+  class Varargs {
+
+    @Test
+    void varargsMethodInvocationWithIndividualArguments() {
+      // evaluates to "blue is color #1"
+      String expression = "'%s is color #%d'.formatted('blue', 1)";
+      String message = parser.parseExpression(expression)
+              .getValue(String.class);
+      assertThat(message).isEqualTo("blue is color #1");
+    }
+
+    @Test
+    void varargsMethodInvocationWithArgumentsAsObjectArray() {
+      // evaluates to "blue is color #1"
+      String expression = "'%s is color #%d'.formatted(new Object[] {'blue', 1})";
+      String message = parser.parseExpression(expression)
+              .getValue(String.class);
+      assertThat(message).isEqualTo("blue is color #1");
+    }
+
+    @Test
+    void varargsMethodInvocationWithArgumentsAsInlineList() {
+      // evaluates to "blue is color #1"
+      String expression = "'%s is color #%d'.formatted({'blue', 1})";
+      String message = parser.parseExpression(expression).getValue(String.class);
+      assertThat(message).isEqualTo("blue is color #1");
+    }
+
+    @Test
+    void varargsMethodInvocationWithTypeConversion() {
+      Method reverseStringsMethod = ReflectionUtils.findMethod(StringUtils.class, "reverseStrings", String[].class);
+      SimpleEvaluationContext evaluationContext = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+      evaluationContext.setVariable("reverseStrings", reverseStringsMethod);
+
+      // String reverseStrings(String... strings)
+      // evaluates to "3.0, 2.0, 1.0, SpEL"
+      String expression = "#reverseStrings('SpEL', 1, 10F / 5, 3.0000)";
+      String message = parser.parseExpression(expression)
+              .getValue(evaluationContext, String.class);
+      assertThat(message).isEqualTo("3.0, 2.0, 1, SpEL");
+    }
+
+    @Test
+    void varargsMethodInvocationWithArgumentsAsStringArray() {
+      // evaluates to "blue is color #1"
+      String expression = "'%s is color #%s'.formatted(new String[] {'blue', 1})";
+      String message = parser.parseExpression(expression).getValue(String.class);
+      assertThat(message).isEqualTo("blue is color #1");
+    }
+
   }
 
   @Nested
@@ -902,6 +959,12 @@ class SpelDocumentationTests extends AbstractExpressionTests {
 
     public static String reverseString(String input) {
       return new StringBuilder(input).reverse().toString();
+    }
+
+    public static String reverseStrings(String... strings) {
+      List<String> list = Arrays.asList(strings);
+      Collections.reverse(list);
+      return list.stream().collect(Collectors.joining(", "));
     }
   }
 
