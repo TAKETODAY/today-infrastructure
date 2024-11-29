@@ -66,7 +66,10 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * <li>{@link #setOrRemove(String, String)} sets the header value to a single string value</li>
  * </ul>
  *
- * <p>Note that {@code HttpHeaders} generally treats header names in a case-insensitive manner.
+ *
+ * <p>This class is meant to reference "well-known" headers supported by Spring
+ * Framework. If your application or library relies on other headers defined in RFCs,
+ * please use methods that accept the header name as a parameter.
  *
  * @author Arjen Poutsma
  * @author Sebastien Deleuze

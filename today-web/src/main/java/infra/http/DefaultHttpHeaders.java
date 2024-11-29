@@ -34,6 +34,15 @@ import infra.util.MultiValueMap;
 /**
  * Default HttpHeaders
  *
+ * <p>Note that {@code HttpHeaders} instances created by the default constructor
+ * treat header names in a case-insensitive manner. Instances created with the
+ * {@link #DefaultHttpHeaders(MultiValueMap)} constructor like those instantiated
+ * internally by the framework to adapt to existing HTTP headers data structures
+ * do guarantee per-header get/set/add operations to be case-insensitive as
+ * mandated by the HTTP specification. However, it is not necessarily the case
+ * for operations that deal with the collection as a whole (like {@code size()},
+ * {@code values()}, {@code keySet()} and {@code entrySet()}).
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2020-01-30 18:31
  */
