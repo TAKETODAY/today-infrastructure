@@ -272,10 +272,12 @@ public abstract class MimeTypeUtils {
    */
   public static void sortBySpecificity(List<? extends MimeType> mimeTypes) {
     Assert.notNull(mimeTypes, "'mimeTypes' is required");
-    if (mimeTypes.size() > 50) {
-      throw new InvalidMimeTypeException(mimeTypes.toString(), "Too many elements");
+    if (mimeTypes.size() > 1) {
+      if (mimeTypes.size() > 50) {
+        throw new InvalidMimeTypeException(mimeTypes.toString(), "Too many elements");
+      }
+      bubbleSort(mimeTypes, MimeType::isLessSpecific);
     }
-    bubbleSort(mimeTypes, MimeType::isLessSpecific);
   }
 
   static <T> void bubbleSort(List<T> list, BiPredicate<? super T, ? super T> swap) {
@@ -290,24 +292,6 @@ public abstract class MimeTypeUtils {
         }
       }
     }
-  }
-
-  /**
-   * Lazily initialize the {@link SecureRandom} for
-   * {@link #generateMultipartBoundary()}.
-   */
-  private static Random initRandom() {
-    Random randomToUse = random;
-    if (randomToUse == null) {
-      synchronized(MimeTypeUtils.class) {
-        randomToUse = random;
-        if (randomToUse == null) {
-          randomToUse = new SecureRandom();
-          random = randomToUse;
-        }
-      }
-    }
-    return randomToUse;
   }
 
   /**
@@ -330,6 +314,24 @@ public abstract class MimeTypeUtils {
    */
   public static String generateMultipartBoundaryString() {
     return new String(generateMultipartBoundary(), StandardCharsets.US_ASCII);
+  }
+
+  /**
+   * Lazily initialize the {@link SecureRandom} for
+   * {@link #generateMultipartBoundary()}.
+   */
+  private static Random initRandom() {
+    Random randomToUse = random;
+    if (randomToUse == null) {
+      synchronized(MimeTypeUtils.class) {
+        randomToUse = random;
+        if (randomToUse == null) {
+          randomToUse = new SecureRandom();
+          random = randomToUse;
+        }
+      }
+    }
+    return randomToUse;
   }
 
 }
