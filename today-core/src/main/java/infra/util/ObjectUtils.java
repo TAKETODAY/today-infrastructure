@@ -31,6 +31,7 @@ import infra.core.conversion.ConversionException;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.lang.Contract;
 import infra.lang.Nullable;
 
 /**
@@ -156,6 +157,7 @@ public abstract class ObjectUtils {
    * @see CollectionUtils#isEmpty(java.util.Collection)
    * @see CollectionUtils#isEmpty(java.util.Map)
    */
+  @Contract("null -> true")
   public static boolean isEmpty(@Nullable Object obj) {
     if (obj == null) {
       return true;
