@@ -905,8 +905,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       }
 
       if (!Files.exists(rootPath)) {
-        if (log.isInfoEnabled()) {
-          log.info("Skipping search for files matching pattern [{}]: directory [{}] does not exist",
+        if (log.isDebugEnabled()) {
+          log.debug("Skipping search for files matching pattern [{}]: directory [{}] does not exist",
                   subPattern, rootPath.toAbsolutePath());
         }
         return;
