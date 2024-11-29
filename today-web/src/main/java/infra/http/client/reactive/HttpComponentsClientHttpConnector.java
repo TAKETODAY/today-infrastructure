@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.client.reactive;
 
-import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -58,7 +54,9 @@ import reactor.core.publisher.MonoSink;
 public class HttpComponentsClientHttpConnector implements ClientHttpConnector, Closeable {
 
   private final CloseableHttpAsyncClient client;
+
   private final BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider;
+
   private DataBufferFactory dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
 
   /**
@@ -106,12 +104,10 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
           Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
     HttpClientContext context = this.contextProvider.apply(method, uri);
-    if (context.getCookieStore() == null) {
-      context.setCookieStore(new BasicCookieStore());
-    }
 
     HttpComponentsClientHttpRequest request =
             new HttpComponentsClientHttpRequest(method, uri, context, this.dataBufferFactory);
+
     return requestCallback.apply(request).then(Mono.defer(() -> execute(request, context)));
   }
 
@@ -133,12 +129,13 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
   /**
    * Callback that invoked when a response is received.
    */
-  private static class ResponseCallback
-          implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
+  private static class ResponseCallback implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
+
+    private final MonoSink<ClientHttpResponse> sink;
+
+    private final DataBufferFactory dataBufferFactory;
 
     private final HttpClientContext context;
-    private final MonoSink<ClientHttpResponse> sink;
-    private final DataBufferFactory dataBufferFactory;
 
     public ResponseCallback(MonoSink<ClientHttpResponse> sink,
             DataBufferFactory dataBufferFactory, HttpClientContext context) {
