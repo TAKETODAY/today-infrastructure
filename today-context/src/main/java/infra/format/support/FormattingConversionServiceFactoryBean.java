@@ -38,24 +38,19 @@ import infra.format.Printer;
 import infra.lang.Nullable;
 
 /**
- * A factory providing convenient access to a {@code FormattingConversionService}
- * configured with converters and formatters for common types such as numbers and
- * datetimes.
+ * A factory providing convenient access to a {@link FormattingConversionService}
+ * configured with converters and formatters for common types such as numbers, dates,
+ * and times.
  *
  * <p>Additional converters and formatters can be registered declaratively through
  * {@link #setConverters(Set)} and {@link #setFormatters(Set)}. Another option
  * is to register converters and formatters in code by implementing the
- * {@link FormatterRegistrar} interface. You can then configure provide the set
- * of registrars to use through {@link #setFormatterRegistrars(Set)}.
- *
- * <p>A good example for registering converters and formatters in code is
- * {@code JodaTimeFormatterRegistrar}, which registers a number of
- * date-related formatters and converters. For a more detailed list of cases
- * see {@link #setFormatterRegistrars(Set)}
+ * {@link FormatterRegistrar} interface. You can then provide the set of registrars
+ * to use through {@link #setFormatterRegistrars(Set)}.
  *
  * <p>Like all {@code FactoryBean} implementations, this class is suitable for
  * use when configuring a Framework application context using Framework {@code <beans>}
- * XML. When configuring the container with
+ * XML configuration files. When configuring the container with
  * {@link Configuration @Configuration}
  * classes, simply instantiate, configure and return the appropriate
  * {@code FormattingConversionService} object from a

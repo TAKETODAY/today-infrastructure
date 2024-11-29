@@ -93,7 +93,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 
   /**
    * Add formatters appropriate for most environments: including number formatters,
-   * JSR-354 Money &amp; Currency formatters, JSR-310 Date-Time and/or Joda-Time formatters,
+   * JSR-354 Money &amp; Currency formatters, JSR-310 Date-Time  formatters,
    * depending on the presence of the corresponding API on the classpath.
    *
    * @param formatterRegistry the service to register default formatters with
