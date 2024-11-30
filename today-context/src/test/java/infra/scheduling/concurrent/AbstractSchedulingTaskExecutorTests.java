@@ -288,6 +288,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   void submitListenableCallableWithGetAfterShutdown() throws Exception {
     Future<?> future1 = executor.submit(new TestCallable(this.testName, -1));
     Future<?> future2 = executor.submit(new TestCallable(this.testName, -1));
+    Thread.sleep(3);
     shutdownExecutor();
     assertThatExceptionOfType(CancellationException.class).isThrownBy(() -> {
       future1.get(2000, TimeUnit.MILLISECONDS);
