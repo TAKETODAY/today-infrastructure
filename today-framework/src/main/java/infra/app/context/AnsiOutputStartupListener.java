@@ -17,15 +17,15 @@
 
 package infra.app.context;
 
-import infra.app.context.event.ApplicationEnvironmentPreparedEvent;
-import infra.context.ApplicationListener;
+import infra.app.ApplicationStartupListener;
+import infra.app.ConfigurableBootstrapContext;
 import infra.context.properties.bind.Binder;
 import infra.core.ansi.AnsiOutput;
 import infra.core.ansi.AnsiOutput.Enabled;
 import infra.core.env.ConfigurableEnvironment;
 
 /**
- * An {@link ApplicationListener} that configures {@link AnsiOutput} depending on the
+ * An {@link ApplicationStartupListener} that configures {@link AnsiOutput} depending on the
  * value of the property {@code infra.output.ansi.enabled}. See {@link Enabled} for valid
  * values.
  *
@@ -34,11 +34,10 @@ import infra.core.env.ConfigurableEnvironment;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/7 22:25
  */
-public class AnsiOutputApplicationListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
+public class AnsiOutputStartupListener implements ApplicationStartupListener {
 
   @Override
-  public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-    ConfigurableEnvironment environment = event.getEnvironment();
+  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
     Binder.get(environment)
             .bind("infra.output.ansi.enabled", Enabled.class)
             .ifBound(AnsiOutput::setEnabled);

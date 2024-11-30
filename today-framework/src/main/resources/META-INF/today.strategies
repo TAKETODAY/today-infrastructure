@@ -64,6 +64,7 @@ infra.app.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
 # ApplicationStartupListener
 infra.app.ApplicationStartupListener=\
 infra.app.context.ClearCachesStartupListener,\
+infra.app.context.AnsiOutputStartupListener,\
 infra.app.context.event.EventPublishingStartupListener
 #
 
@@ -101,7 +102,6 @@ infra.annotation.config.logging.ConditionEvaluationReportLoggingListener
 
 #
 infra.context.ApplicationListener=\
-  infra.app.context.AnsiOutputApplicationListener,\
   infra.app.context.logging.LoggingApplicationListener,\
   infra.app.builder.ParentContextCloserApplicationListener,\
   infra.app.env.EnvironmentPostProcessorApplicationListener,\
