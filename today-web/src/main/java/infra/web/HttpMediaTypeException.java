@@ -17,13 +17,14 @@
 
 package infra.web;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import infra.core.NestedRuntimeException;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.lang.Nullable;
+import infra.lang.Unmodifiable;
 
 /**
  * Abstract base for exceptions related to media types. Adds a list of supported {@link MediaType MediaTypes}.
@@ -34,7 +35,7 @@ import infra.lang.Nullable;
  */
 public abstract class HttpMediaTypeException extends NestedRuntimeException implements ErrorResponse {
 
-  private final List<MediaType> supportedMediaTypes;
+  private final Collection<MediaType> supportedMediaTypes;
 
   private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
@@ -53,19 +54,20 @@ public abstract class HttpMediaTypeException extends NestedRuntimeException impl
    * resolving the problem "detail" through a {@code MessageSource}
    * @since 5.0
    */
-  protected HttpMediaTypeException(@Nullable String message, List<MediaType> supportedMediaTypes,
+  protected HttpMediaTypeException(@Nullable String message, Collection<MediaType> supportedMediaTypes,
           @Nullable String messageDetailCode, @Nullable Object[] messageDetailArguments) {
 
     super(message);
     this.messageDetailArguments = messageDetailArguments;
-    this.supportedMediaTypes = Collections.unmodifiableList(supportedMediaTypes);
+    this.supportedMediaTypes = Collections.unmodifiableCollection(supportedMediaTypes);
     this.messageDetailCode = messageDetailCode != null ? messageDetailCode : ErrorResponse.getDefaultDetailMessageCode(getClass(), null);
   }
 
   /**
    * Return the list of supported media types.
    */
-  public List<MediaType> getSupportedMediaTypes() {
+  @Unmodifiable
+  public Collection<MediaType> getSupportedMediaTypes() {
     return this.supportedMediaTypes;
   }
 

@@ -232,7 +232,7 @@ class RequestMappingInfoHandlerMappingTests {
     HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
     assertThat(context.hasMatchingMetadata()).isTrue();
     assertThat(matchingMetadata).isNotNull();
-    MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
+    var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
     assertThat(producibleMediaTypes).isNotNull().contains(MediaType.APPLICATION_XML);
 
     request = new HttpMockRequestImpl("GET", "/content");

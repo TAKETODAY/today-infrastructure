@@ -26,6 +26,7 @@ import java.util.Set;
 
 import infra.http.MediaType;
 import infra.lang.Nullable;
+import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -170,6 +171,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
     return CollectionUtils.isNotEmpty(result) ? new ArrayList<>(result) : null;
   }
 
+  @Unmodifiable
   static Set<MediaType> filterNotNegated(@Nullable ArrayList<MediaTypeExpression> expressions) {
     if (expressions == null || expressions.isEmpty()) {
       return Collections.emptySet();
@@ -180,7 +182,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
         result.add(expression.mediaType);
       }
     }
-    return result;
+    return Collections.unmodifiableSet(result);
   }
 
 }

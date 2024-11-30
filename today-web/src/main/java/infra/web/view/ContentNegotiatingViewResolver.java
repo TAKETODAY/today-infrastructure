@@ -36,7 +36,6 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.MimeTypeUtils;
-import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpMediaTypeNotAcceptableException;
@@ -244,7 +243,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
     Assert.state(manager != null, "No ContentNegotiationManager set");
     try {
       List<MediaType> acceptableMediaTypes = manager.resolveMediaTypes(context);
-      MediaType[] producibleMediaTypes = getProducibleMediaTypes(context);
+      Collection<MediaType> producibleMediaTypes = getProducibleMediaTypes(context);
       LinkedHashSet<MediaType> compatibleMediaTypes = new LinkedHashSet<>();
       for (MediaType acceptable : acceptableMediaTypes) {
         for (MediaType producible : producibleMediaTypes) {
@@ -265,15 +264,15 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
     }
   }
 
-  private MediaType[] getProducibleMediaTypes(RequestContext context) {
+  private Collection<MediaType> getProducibleMediaTypes(RequestContext context) {
     HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
     if (matchingMetadata != null) {
-      MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
-      if (ObjectUtils.isNotEmpty(mediaTypes)) {
+      var mediaTypes = matchingMetadata.getProducibleMediaTypes();
+      if (CollectionUtils.isNotEmpty(mediaTypes)) {
         return mediaTypes;
       }
     }
-    return new MediaType[] { MediaType.ALL };
+    return List.of(MediaType.ALL);
   }
 
   /**

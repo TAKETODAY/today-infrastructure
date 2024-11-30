@@ -18,14 +18,14 @@
 package infra.web.handler.condition;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Nullable;
+import infra.lang.Unmodifiable;
 import infra.util.MimeType;
 import infra.util.MimeTypeUtils;
 import infra.web.HttpMediaTypeException;
@@ -63,7 +63,8 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   private final ContentNegotiationManager contentNegotiationManager;
 
   @Nullable
-  private MediaType[] producibleMediaTypes;
+  @Unmodifiable
+  private Collection<MediaType> producibleMediaTypes;
 
   /**
    * Creates a new instance from "produces" expressions. If 0 expressions
@@ -118,17 +119,19 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   /**
    * Return the contained "produces" expressions.
    */
-  public Set<MediaTypeExpression> getExpressions() {
-    return expressions == null ? Collections.emptySet() : new LinkedHashSet<>(expressions);
+  @Unmodifiable
+  public Collection<MediaTypeExpression> getExpressions() {
+    return expressions == null ? Collections.emptySet() : Collections.unmodifiableList(expressions);
   }
 
   /**
    * Return the contained producible media types excluding negated expressions.
    */
-  public MediaType[] getProducibleMediaTypes() {
-    MediaType[] producibleMediaTypes = this.producibleMediaTypes;
+  @Unmodifiable
+  public Collection<MediaType> getProducibleMediaTypes() {
+    Collection<MediaType> producibleMediaTypes = this.producibleMediaTypes;
     if (producibleMediaTypes == null) {
-      producibleMediaTypes = MediaTypeExpression.filterNotNegated(expressions).toArray(new MediaType[0]);
+      producibleMediaTypes = MediaTypeExpression.filterNotNegated(expressions);
       this.producibleMediaTypes = producibleMediaTypes;
     }
     return producibleMediaTypes;

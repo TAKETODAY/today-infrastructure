@@ -81,7 +81,7 @@ public class ContentNegotiatingViewResolverTests {
   public void getMediaTypeAcceptHeaderWithProduces() throws Exception {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(requestContext);
-    matchingMetadata.setProducibleMediaTypes(new MediaType[] { MediaType.APPLICATION_XHTML_XML });
+    matchingMetadata.setProducibleMediaTypes(List.of( MediaType.APPLICATION_XHTML_XML ));
     requestContext.setMatchingMetadata(matchingMetadata);
 
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");

@@ -17,12 +17,14 @@
 
 package infra.web;
 
+import java.util.Collection;
 import java.util.Map;
 
 import infra.http.MediaType;
 import infra.http.server.PathContainer;
 import infra.lang.NullValue;
 import infra.lang.Nullable;
+import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.web.util.pattern.PathMatchInfo;
@@ -54,7 +56,7 @@ public class HandlerMatchingMetadata {
   private PathMatchInfo pathMatchInfo;
 
   @Nullable
-  private MediaType[] producibleMediaTypes;
+  private Collection<MediaType> producibleMediaTypes;
 
   private final PathPatternParser patternParser;
 
@@ -179,13 +181,13 @@ public class HandlerMatchingMetadata {
     return directLookupPath;
   }
 
-  public void setProducibleMediaTypes(@Nullable MediaType[] producibleMediaTypes) {
+  public void setProducibleMediaTypes(@Nullable Collection<MediaType> producibleMediaTypes) {
     this.producibleMediaTypes = producibleMediaTypes;
   }
 
-  // todo use List
   @Nullable
-  public MediaType[] getProducibleMediaTypes() {
+  @Unmodifiable
+  public Collection<MediaType> getProducibleMediaTypes() {
     return producibleMediaTypes;
   }
 

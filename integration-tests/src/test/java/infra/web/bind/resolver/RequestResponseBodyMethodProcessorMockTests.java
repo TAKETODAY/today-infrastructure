@@ -344,7 +344,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest.addHeader("Accept", "text/*");
 
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-    given(metadata.getProducibleMediaTypes()).willReturn(new MediaType[] { MediaType.TEXT_HTML });
+    given(metadata.getProducibleMediaTypes()).willReturn(List.of(MediaType.TEXT_HTML));
 
     webRequest.setMatchingMetadata(metadata);
 
@@ -361,7 +361,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest.addHeader("Accept", accepted.toString());
 
     given(stringMessageConverter.canWrite(String.class, null)).willReturn(true);
-    given(stringMessageConverter.getSupportedMediaTypes()).willReturn(Arrays.asList(MediaType.TEXT_PLAIN));
+    given(stringMessageConverter.getSupportedMediaTypes()).willReturn(List.of(MediaType.TEXT_PLAIN));
     given(stringMessageConverter.canWrite(String.class, accepted)).willReturn(false);
 
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)

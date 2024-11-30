@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -310,8 +311,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     if (body != null) {
       HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
       if (matchingMetadata != null) {
-        MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
-        if (isContentTypePreset || ObjectUtils.isNotEmpty(producibleMediaTypes)) {
+        if (isContentTypePreset || CollectionUtils.isNotEmpty(matchingMetadata.getProducibleMediaTypes())) {
           throw new HttpMessageNotWritableException(
                   "No converter for [%s] with preset Content-Type '%s'".formatted(valueType, contentType));
         }
@@ -364,12 +364,12 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * <li>{@link MediaType#ALL}
    * </ul>
    */
-  protected List<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
+  protected Collection<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
-      MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
+      var mediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(mediaTypes)) {
-        return Arrays.asList(mediaTypes);
+        return mediaTypes;
       }
     }
 
@@ -384,7 +384,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
         result.addAll(converter.getSupportedMediaTypes(valueClass));
       }
     }
-    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
+    return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : result;
   }
 
   /**
@@ -410,7 +410,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
   }
 
   private void determineCompatibleMediaTypes(List<MediaType> acceptableTypes,
-          List<MediaType> producibleTypes, List<MediaType> mediaTypesToUse) {
+          Collection<MediaType> producibleTypes, List<MediaType> mediaTypesToUse) {
 
     for (MediaType requestedType : acceptableTypes) {
       for (MediaType producibleType : producibleTypes) {
@@ -504,8 +504,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
         return false;
       }
       if (extension.equals("html")) {
-        MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
-        if (ObjectUtils.isNotEmpty(mediaTypes) && ObjectUtils.containsElement(mediaTypes, MediaType.TEXT_HTML)) {
+        var mediaTypes = matchingMetadata.getProducibleMediaTypes();
+        if (CollectionUtils.isNotEmpty(mediaTypes) && mediaTypes.contains(MediaType.TEXT_HTML)) {
           return false;
         }
       }

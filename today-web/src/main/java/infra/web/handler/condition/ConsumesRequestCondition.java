@@ -20,7 +20,6 @@ package infra.web.handler.condition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.http.HttpHeaders;
@@ -95,14 +94,14 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
   /**
    * Return the contained MediaType expressions.
    */
-  public Set<MediaTypeExpression> getExpressions() {
-    return expressions == null ? Collections.emptySet() : new LinkedHashSet<>(expressions);
+  public Collection<MediaTypeExpression> getExpressions() {
+    return expressions == null ? Collections.emptySet() : Collections.unmodifiableList(expressions);
   }
 
   /**
    * Returns the media types for this condition excluding negated expressions.
    */
-  public Set<MediaType> getConsumableMediaTypes() {
+  public Collection<MediaType> getConsumableMediaTypes() {
     Set<MediaType> consumableMediaTypes = this.consumableMediaTypes;
     if (consumableMediaTypes == null) {
       consumableMediaTypes = MediaTypeExpression.filterNotNegated(expressions);
@@ -190,8 +189,8 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     try {
       String contentType1 = request.getContentType();
       contentType = StringUtils.isNotEmpty(contentType1)
-                    ? MediaType.parseMediaType(contentType1)
-                    : MediaType.APPLICATION_OCTET_STREAM;
+              ? MediaType.parseMediaType(contentType1)
+              : MediaType.APPLICATION_OCTET_STREAM;
     }
     catch (InvalidMediaTypeException ex) {
       return null;

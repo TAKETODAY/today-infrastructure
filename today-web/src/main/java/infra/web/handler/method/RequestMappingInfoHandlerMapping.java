@@ -19,6 +19,7 @@ package infra.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -104,8 +105,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
     request.setMatchingMetadata(matchingMetadata);
 
-    MediaType[] mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
-    if (mediaTypes.length > 0) {
+    Collection<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
+    if (!mediaTypes.isEmpty()) {
       matchingMetadata.setProducibleMediaTypes(mediaTypes);
     }
   }
@@ -148,11 +149,10 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
           contentType = MediaType.parseMediaType(request.getContentType());
         }
         catch (InvalidMediaTypeException ex) {
-          throw new HttpMediaTypeNotSupportedException(ex.getMessage(), new ArrayList<>(mediaTypes));
+          throw new HttpMediaTypeNotSupportedException(ex.getMessage(), mediaTypes);
         }
       }
-      throw new HttpMediaTypeNotSupportedException(
-              contentType, new ArrayList<>(mediaTypes), request.getMethod());
+      throw new HttpMediaTypeNotSupportedException(contentType, mediaTypes, request.getMethod());
     }
 
     if (helper.hasProducesMismatch()) {
@@ -373,7 +373,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
     public HttpOptionsHandler(Set<String> declaredMethods, Set<MediaType> acceptPatch) {
       this.headers.setAllow(initAllowedHttpMethods(declaredMethods));
-      this.headers.setAcceptPatch(new ArrayList<>(acceptPatch));
+      this.headers.setAcceptPatch(acceptPatch);
     }
 
     private static Set<HttpMethod> initAllowedHttpMethods(Set<String> declaredMethods) {

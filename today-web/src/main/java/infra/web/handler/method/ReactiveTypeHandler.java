@@ -24,7 +24,6 @@ import org.reactivestreams.Subscription;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +40,7 @@ import infra.http.MediaType;
 import infra.http.codec.ServerSentEvent;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.lang.Unmodifiable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.MimeType;
@@ -198,12 +198,13 @@ final class ReactiveTypeHandler {
     return null; // not a concrete streaming type
   }
 
+  @Unmodifiable
   private Collection<MediaType> getMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
-      MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
+      var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(producibleMediaTypes)) {
-        return Arrays.asList(producibleMediaTypes);
+        return producibleMediaTypes;
       }
     }
     return contentNegotiationManager.resolveMediaTypes(request);

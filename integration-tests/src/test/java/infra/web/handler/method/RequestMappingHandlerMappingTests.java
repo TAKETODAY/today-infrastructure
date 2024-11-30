@@ -36,6 +36,7 @@ import infra.http.MediaType;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.stereotype.Controller;
+import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.web.annotation.DeleteMapping;
 import infra.web.annotation.GetMapping;
@@ -143,7 +144,7 @@ class RequestMappingHandlerMappingTests {
 
     assertThat(info.getConsumesCondition().getConsumableMediaTypes().iterator().next().toString())
             .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-    assertThat(info.getProducesCondition().getProducibleMediaTypes()[0].toString())
+    assertThat(CollectionUtils.firstElement(info.getProducesCondition().getProducibleMediaTypes()).toString())
             .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
 

@@ -17,8 +17,8 @@
 
 package infra.web;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
@@ -53,7 +53,7 @@ public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException 
    *
    * @param mediaTypes the list of supported media types
    */
-  public HttpMediaTypeNotAcceptableException(List<MediaType> mediaTypes) {
+  public HttpMediaTypeNotAcceptableException(Collection<MediaType> mediaTypes) {
     super("No acceptable representation", mediaTypes, null, new Object[] { mediaTypes });
     getBody().setDetail("Acceptable representations: %s.".formatted(mediaTypes));
   }

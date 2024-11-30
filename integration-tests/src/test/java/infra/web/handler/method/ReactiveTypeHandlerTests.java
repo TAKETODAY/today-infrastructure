@@ -219,7 +219,7 @@ class ReactiveTypeHandlerTests {
     // Media type from "produces" attribute
     Set<MediaType> types = Collections.singleton(MediaType.TEXT_EVENT_STREAM);
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(webRequest);
-    matchingMetadata.setProducibleMediaTypes(new MediaType[] { MediaType.TEXT_EVENT_STREAM });
+    matchingMetadata.setProducibleMediaTypes(List.of(MediaType.TEXT_EVENT_STREAM));
     webRequest.setMatchingMetadata(matchingMetadata);
     testSseResponse(true);
 

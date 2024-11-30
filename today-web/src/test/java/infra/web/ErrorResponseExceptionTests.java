@@ -19,7 +19,9 @@ package infra.web;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -63,9 +65,8 @@ class ErrorResponseExceptionTests {
 
   @Test
   void httpMediaTypeNotSupportedException() {
-
-    List<MediaType> mediaTypes =
-            Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_CBOR);
+    Collection<MediaType> mediaTypes =
+            Collections.unmodifiableCollection(List.of(MediaType.APPLICATION_JSON, MediaType.APPLICATION_CBOR));
 
     HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException(
             MediaType.APPLICATION_XML, mediaTypes, HttpMethod.PATCH, "Custom message");
@@ -75,8 +76,8 @@ class ErrorResponseExceptionTests {
     assertDetailMessageCode(ex, null, new Object[] { ex.getContentType(), ex.getSupportedMediaTypes() });
 
     HttpHeaders headers = ex.getHeaders();
-    assertThat(headers.getAccept()).isEqualTo(mediaTypes);
-    assertThat(headers.getAcceptPatch()).isEqualTo(mediaTypes);
+    assertThat(headers.getAccept()).isEqualTo(new ArrayList<>(mediaTypes));
+    assertThat(headers.getAcceptPatch()).isEqualTo(new ArrayList<>(mediaTypes));
   }
 
   @Test
@@ -94,8 +95,9 @@ class ErrorResponseExceptionTests {
 
   @Test
   void httpMediaTypeNotAcceptableException() {
+    Collection<MediaType> mediaTypes =
+            Collections.unmodifiableCollection(List.of(MediaType.APPLICATION_JSON, MediaType.APPLICATION_CBOR));
 
-    List<MediaType> mediaTypes = Arrays.asList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_CBOR);
     HttpMediaTypeNotAcceptableException ex = new HttpMediaTypeNotAcceptableException(mediaTypes);
 
     assertStatus(ex, HttpStatus.NOT_ACCEPTABLE);
@@ -103,7 +105,7 @@ class ErrorResponseExceptionTests {
     assertDetailMessageCode(ex, null, new Object[] { ex.getSupportedMediaTypes() });
 
     assertThat(ex.getHeaders()).hasSize(1);
-    assertThat(ex.getHeaders().getAccept()).isEqualTo(mediaTypes);
+    assertThat(ex.getHeaders().getAccept()).isEqualTo(new ArrayList<>(mediaTypes));
   }
 
   @Test
@@ -413,7 +415,7 @@ class ErrorResponseExceptionTests {
             .isEqualTo(ErrorResponse.getDefaultDetailMessageCode(((Exception) ex).getClass(), suffix));
 
     if (arguments != null) {
-      assertThat(ex.getDetailMessageArguments()).containsExactlyElementsOf(Arrays.asList(arguments));
+      assertThat(ex.getDetailMessageArguments()).containsExactlyElementsOf(List.of(arguments));
     }
     else {
       assertThat(ex.getDetailMessageArguments()).isNull();
