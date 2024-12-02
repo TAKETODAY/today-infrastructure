@@ -44,8 +44,8 @@ class LoggingErrorHandler implements ErrorHandler, Serializable {
   private final String loggerName;
 
   public LoggingErrorHandler(@Nullable String message, @Nullable String loggerName) {
-    this.message = message == null ? defaultMessage : message;
-    this.loggerName = loggerName == null ? getClass().getName() : loggerName;
+    this.message = StringUtils.isBlank(message) ? defaultMessage : message;
+    this.loggerName = StringUtils.isBlank(loggerName) ? getClass().getName() : loggerName;
   }
 
   @Override

@@ -99,6 +99,7 @@ import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
+import infra.util.ErrorHandler;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
@@ -1460,7 +1461,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
       }
     }
     else {
-      this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+      var multicaster = new SimpleApplicationEventMulticaster(beanFactory);
+      multicaster.setErrorHandler(ErrorHandler.forLogging("Unexpected error occurred in application event listener",
+              SimpleApplicationEventMulticaster.class));
+      this.applicationEventMulticaster = multicaster;
       beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
       if (logger.isTraceEnabled()) {
         logger.trace("No '{}' bean, using [{}]",
