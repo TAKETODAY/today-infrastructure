@@ -57,11 +57,17 @@ import infra.util.ErrorHandler;
  */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
 
+  /**
+   * The current task executor for this multicaster.
+   */
   @Nullable
-  private Executor taskExecutor;
+  protected Executor taskExecutor;
 
+  /**
+   * The current error handler for this multicaster.
+   */
   @Nullable
-  private ErrorHandler errorHandler;
+  protected ErrorHandler errorHandler;
 
   @Nullable
   private volatile Logger lazyLogger;
@@ -69,7 +75,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
   /**
    * Create a new SimpleApplicationEventMulticaster.
    */
-  public SimpleApplicationEventMulticaster() { }
+  public SimpleApplicationEventMulticaster() {
+
+  }
 
   /**
    * Create a new SimpleApplicationEventMulticaster for the given BeanFactory.
@@ -100,14 +108,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
   }
 
   /**
-   * Return the current task executor for this multicaster.
-   */
-  @Nullable
-  protected Executor getTaskExecutor() {
-    return this.taskExecutor;
-  }
-
-  /**
    * Set the {@link ErrorHandler} to invoke in case an exception is thrown
    * from a listener.
    * <p>Default is none, with a listener exception stopping the current
@@ -125,14 +125,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     this.errorHandler = errorHandler;
   }
 
-  /**
-   * Return the current error handler for this multicaster.
-   */
-  @Nullable
-  protected ErrorHandler getErrorHandler() {
-    return this.errorHandler;
-  }
-
   @Override
   public void multicastEvent(ApplicationEvent event) {
     multicastEvent(event, null);
@@ -143,7 +135,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     if (eventType == null) {
       eventType = ResolvableType.forInstance(event);
     }
-    Executor executor = getTaskExecutor();
+    Executor executor = taskExecutor;
     if (executor != null) {
       for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
         if (listener.supportsAsyncExecution()) {
@@ -174,7 +166,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
    * @param event the current event to propagate
    */
   protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
-    ErrorHandler errorHandler = getErrorHandler();
+    ErrorHandler errorHandler = this.errorHandler;
     if (errorHandler != null) {
       try {
         doInvokeListener(listener, event);

@@ -428,8 +428,8 @@ class AnnotationDrivenEventListenerTests {
     this.eventCollector.assertTotalEventsCount(1);
 
     customScope.active = false;
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    this.context.publishEvent(new TestEvent()))
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.context.publishEvent(new TestEvent()))
             .withCauseInstanceOf(IllegalStateException.class);
   }
 

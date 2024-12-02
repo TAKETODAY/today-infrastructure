@@ -61,8 +61,7 @@ import infra.util.ClassUtils;
  * @since 4.0
  */
 @SuppressWarnings({ "rawtypes" })
-public abstract class AbstractApplicationEventMulticaster
-        implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
+public abstract class AbstractApplicationEventMulticaster implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
   private final DefaultListenerRetriever listenerRetriever = new DefaultListenerRetriever();
 
@@ -183,9 +182,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @return a Collection of ApplicationListeners
    * @see ApplicationListener
    */
-  protected Collection<ApplicationListener<?>> getApplicationListeners(
-          ApplicationEvent event, ResolvableType eventType) {
-
+  protected Collection<ApplicationListener<?>> getApplicationListeners(ApplicationEvent event, ResolvableType eventType) {
     Object source = event.getSource();
     Class<?> sourceType = (source != null ? source.getClass() : null);
     ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
@@ -484,8 +481,7 @@ public abstract class AbstractApplicationEventMulticaster
         BeanFactory beanFactory = getBeanFactory();
         for (String listenerBeanName : applicationListenerBeans) {
           try {
-            ApplicationListener<?> listener =
-                    beanFactory.getBean(listenerBeanName, ApplicationListener.class);
+            ApplicationListener<?> listener = beanFactory.getBean(listenerBeanName, ApplicationListener.class);
             if (!allListeners.contains(listener)) {
               allListeners.add(listener);
             }
