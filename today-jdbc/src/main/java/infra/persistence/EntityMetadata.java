@@ -125,7 +125,7 @@ public class EntityMetadata {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("tableName", tableName)
             .append("columnNames", columnNames)
             .append("entityClass", entityClass)

@@ -330,7 +330,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("messageConverters", messageConverters)
             .append("defaultStrategies", defaultStrategies.size())
             .append("customizedStrategies", customizedStrategies.size())

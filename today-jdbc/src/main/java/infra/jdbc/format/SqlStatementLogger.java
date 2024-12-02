@@ -222,7 +222,7 @@ public class SqlStatementLogger {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("format", format)
             .append("logToStdout", logToStdout)
             .append("highlight", highlight)

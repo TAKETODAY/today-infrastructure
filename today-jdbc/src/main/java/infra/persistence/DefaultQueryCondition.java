@@ -152,7 +152,7 @@ public class DefaultQueryCondition extends QueryCondition {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("columnName", columnName)
             .append("value", parameterValue)
             .toString();

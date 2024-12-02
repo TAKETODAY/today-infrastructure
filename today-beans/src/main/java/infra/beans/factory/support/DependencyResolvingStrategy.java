@@ -75,7 +75,7 @@ public interface DependencyResolvingStrategy {
 
     @Override
     public String toString() {
-      return ToStringBuilder.from(this)
+      return ToStringBuilder.forInstance(this)
               .append("dependentBeans", dependentBeans)
               .append("typeConverter", typeConverter)
               .append("requestingBeanName", requestingBeanName)

@@ -20,10 +20,7 @@ package infra.scheduling.support;
 import java.util.concurrent.Future;
 
 import infra.lang.Nullable;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.util.ErrorHandler;
-import infra.util.ReflectionUtils;
 
 /**
  * Utility methods for decorating tasks with error handling.
@@ -44,14 +41,14 @@ public abstract class TaskUtils {
    * no further handling. This will suppress the error so that
    * subsequent executions of the task will not be prevented.
    */
-  public static final ErrorHandler LOG_AND_SUPPRESS_ERROR_HANDLER = new LoggingErrorHandler();
+  public static final ErrorHandler LOG_AND_SUPPRESS_ERROR_HANDLER = ErrorHandler.forLogging("Unexpected error occurred in scheduled task");
 
   /**
    * An ErrorHandler strategy that will log at error level and then
    * re-throw the Exception. Note: this will typically prevent subsequent
    * execution of a scheduled task.
    */
-  public static final ErrorHandler LOG_AND_PROPAGATE_ERROR_HANDLER = new PropagatingErrorHandler();
+  public static final ErrorHandler LOG_AND_PROPAGATE_ERROR_HANDLER = ErrorHandler.forPropagating("Unexpected error occurred in scheduled task");
 
   /**
    * Decorate the task for error handling. If the provided {@link ErrorHandler}
@@ -77,35 +74,7 @@ public abstract class TaskUtils {
    * cases, the error will be logged.
    */
   public static ErrorHandler getDefaultErrorHandler(boolean isRepeatingTask) {
-    return (isRepeatingTask ? LOG_AND_SUPPRESS_ERROR_HANDLER : LOG_AND_PROPAGATE_ERROR_HANDLER);
-  }
-
-  /**
-   * An {@link ErrorHandler} implementation that logs the Throwable at error
-   * level. It does not perform any additional error handling. This can be
-   * useful when suppression of errors is the intended behavior.
-   */
-  private static class LoggingErrorHandler implements ErrorHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(LoggingErrorHandler.class);
-
-    @Override
-    public void handleError(Throwable t) {
-      logger.error("Unexpected error occurred in scheduled task", t);
-    }
-  }
-
-  /**
-   * An {@link ErrorHandler} implementation that logs the Throwable at error
-   * level and then propagates it.
-   */
-  private static class PropagatingErrorHandler extends LoggingErrorHandler {
-
-    @Override
-    public void handleError(Throwable t) {
-      super.handleError(t);
-      ReflectionUtils.rethrowRuntimeException(t);
-    }
+    return isRepeatingTask ? LOG_AND_SUPPRESS_ERROR_HANDLER : LOG_AND_PROPAGATE_ERROR_HANDLER;
   }
 
 }

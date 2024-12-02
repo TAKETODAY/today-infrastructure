@@ -273,7 +273,7 @@ public abstract class AbstractResource implements Resource {
   @Override
   public String toString() {
     try {
-      return ToStringBuilder.from(this).append("name", getName())
+      return ToStringBuilder.forInstance(this).append("name", getName())
               .append("location", getURL())
               .toString();
     }

@@ -176,7 +176,7 @@ public class ResourceDecorator implements Resource {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("delegate", delegate)
             .toString();
   }

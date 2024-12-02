@@ -29,7 +29,7 @@ record SimplePageable(int pageNumber, int pageSize) implements Pageable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("pageNumber", pageNumber)
             .append("pageSize", pageSize)
             .toString();

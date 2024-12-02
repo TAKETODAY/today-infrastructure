@@ -193,7 +193,7 @@ public class Page<T> {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("pageNumber", pageNumber)
             .append("limit", limit)
             .append("prevPage", prevPage)

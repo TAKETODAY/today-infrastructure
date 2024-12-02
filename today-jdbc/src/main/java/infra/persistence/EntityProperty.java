@@ -161,7 +161,7 @@ public class EntityProperty {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("property", property)
             .append("columnName", columnName)
             .toString();

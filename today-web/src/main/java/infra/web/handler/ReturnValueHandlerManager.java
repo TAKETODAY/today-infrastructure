@@ -581,7 +581,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("handlers", handlers)
             .append("viewResolver", viewResolver)
             .append("messageConverters", messageConverters)

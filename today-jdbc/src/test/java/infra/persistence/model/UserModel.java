@@ -92,7 +92,7 @@ public class UserModel {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("id", id)
             .append("age", age)
             .append("name", name)

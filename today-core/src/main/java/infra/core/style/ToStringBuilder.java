@@ -200,7 +200,7 @@ public class ToStringBuilder {
     return this.buffer.toString();
   }
 
-  public static ToStringBuilder from(Object obj) {
+  public static ToStringBuilder forInstance(Object obj) {
     return new ToStringBuilder(obj);
   }
 
