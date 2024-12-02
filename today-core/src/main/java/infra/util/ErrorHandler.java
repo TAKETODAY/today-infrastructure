@@ -17,6 +17,8 @@
 
 package infra.util;
 
+import infra.lang.Nullable;
+
 /**
  * A strategy for handling errors. This is especially useful for handling
  * errors that occur during asynchronous execution of tasks that have been
@@ -34,5 +36,79 @@ public interface ErrorHandler {
    * Handle the given error, possibly rethrowing it as a fatal exception.
    */
   void handleError(Throwable t);
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level.
+   * @since 5.0
+   */
+  static ErrorHandler forLogging() {
+    return forLogging(null);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level.
+   * @since 5.0
+   */
+  static ErrorHandler forLogging(@Nullable String message) {
+    return forLogging(message, (String) null);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level.
+   * @since 5.0
+   */
+  static ErrorHandler forLogging(@Nullable String message, @Nullable String loggerName) {
+    return new LoggingErrorHandler(message, loggerName);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level.
+   * @throws NullPointerException is loggerClass is {@code null}
+   * @since 5.0
+   */
+  static ErrorHandler forLogging(@Nullable String message, Class<?> loggerClass) {
+    return new LoggingErrorHandler(message, loggerClass.getName());
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level and then propagates it.
+   * @since 5.0
+   */
+  static ErrorHandler forPropagating() {
+    return forPropagating(null);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level and then propagates it.
+   * @since 5.0
+   */
+  static ErrorHandler forPropagating(@Nullable String message) {
+    return forPropagating(message, (String) null);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level and then propagates it.
+   * @since 5.0
+   */
+  static ErrorHandler forPropagating(@Nullable String message, @Nullable String loggerName) {
+    return new PropagatingErrorHandler(message, loggerName);
+  }
+
+  /**
+   * @return An {@link ErrorHandler} implementation that logs the Throwable at error
+   * level and then propagates it.
+   * @throws NullPointerException is loggerClass is {@code null}
+   * @since 5.0
+   */
+  static ErrorHandler forPropagating(@Nullable String message, Class<?> loggerClass) {
+    return new PropagatingErrorHandler(message, loggerClass.getName());
+  }
 
 }

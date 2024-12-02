@@ -14,12 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-/**
- * Logging System Adapter
- */
-@NonNullApi
-@NonNullFields
-package infra.logging;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+package infra.util;
+
+import infra.lang.Nullable;
+
+/**
+ * An {@link ErrorHandler} implementation that logs the Throwable at error
+ * level and then propagates it.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2024/12/2 16:44
+ */
+final class PropagatingErrorHandler extends LoggingErrorHandler {
+
+  public PropagatingErrorHandler(@Nullable String message, @Nullable String loggerName) {
+    super(message, loggerName);
+  }
+
+  @Override
+  public void handleError(Throwable t) {
+    super.handleError(t);
+    ReflectionUtils.rethrowRuntimeException(t);
+  }
+
+}
