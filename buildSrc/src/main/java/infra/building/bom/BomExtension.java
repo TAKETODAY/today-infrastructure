@@ -55,12 +55,12 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.FileCopyUtils;
-import infra.building.bom.version.DependencyVersion;
-import infra.building.maven.MavenExec;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import infra.building.bom.version.DependencyVersion;
+import infra.building.maven.MavenExec;
+import infra.lang.Nullable;
+import infra.util.FileCopyUtils;
 
 import static org.gradle.api.plugins.JavaPlatformPlugin.API_CONFIGURATION_NAME;
 

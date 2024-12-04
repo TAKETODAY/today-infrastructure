@@ -25,11 +25,7 @@ buildscript {
   }
 
   Properties properties = new Properties()
-
-  try (def reader = new FileReader(file("../gradle.properties"))) {
-    properties.load(reader)
-  }
-
+  file("../gradle.properties").withReader(properties::load)
   def infraVersion = properties['version']
 
   dependencies {
