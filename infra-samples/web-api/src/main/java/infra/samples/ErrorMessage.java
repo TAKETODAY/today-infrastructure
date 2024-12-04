@@ -47,7 +47,7 @@ public class ErrorMessage {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
+    return ToStringBuilder.forInstance(this)
             .append("message", message)
             .toString();
   }

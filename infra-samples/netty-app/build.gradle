@@ -16,3 +16,7 @@ compileJava {
   options.compilerArgs << '-parameters'
 
 }
+
+application {
+  mainClass = "infra.samples.NettyDemoApplication"
+}

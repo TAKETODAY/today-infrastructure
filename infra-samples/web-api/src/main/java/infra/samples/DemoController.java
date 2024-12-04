@@ -43,7 +43,7 @@ public class DemoController {
 
   @GET
   public String home() {
-    return "Home";
+    return "hello world";
   }
 
   @GET("/index")
