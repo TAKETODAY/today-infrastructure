@@ -17,7 +17,10 @@
 |===
 | 字段名称 | 描述
 
-| `inifra.aop.ajc.ignore`
+| `infra.web.prevent-RFD-exploits`
+| 阻止 RFD 攻击开关，默认开启。
+
+| `infra.aop.ajc.ignore`
 | 在同时启用了编织（weaving）和 AspectJ 自动代理的情况下，Infra 忽略 ajc 编译的 aspects，以便在 Infra AOP 代理中恢复传统的 Infra 行为。详见
 {today-framework-api}++/aop/aspectj/annotation/AbstractAspectJAdvisorFactory.html#IGNORE_AJC_PROPERTY_NAME++[`AbstractAspectJAdvisorFactory`]
 

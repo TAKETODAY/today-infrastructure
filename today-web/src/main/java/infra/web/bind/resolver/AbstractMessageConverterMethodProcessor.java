@@ -47,6 +47,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.lang.Nullable;
+import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;
@@ -91,6 +92,19 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
   private static final List<MediaType> problemMediaTypes = Arrays.asList(
           MediaType.APPLICATION_PROBLEM_JSON, MediaType.APPLICATION_PROBLEM_XML);
+
+  /**
+   * Check if the path has a file extension and whether the extension is either
+   * on the list of {@link #SAFE_EXTENSIONS safe extensions} or explicitly
+   * {@link infra.web.accept.ContentNegotiationManager#getAllFileExtensions() registered}.
+   * If not, and the status is in the 2xx range, a 'Content-Disposition'
+   * header with a safe attachment file name ("f.txt") is added to prevent
+   * RFD exploits.
+   *
+   * @see #addContentDispositionHeader(RequestContext, Object)
+   * @since 5.0
+   */
+  private static final boolean preventRFDExploits = TodayStrategies.getFlag("infra.web.prevent-RFD-exploits", true);
 
   private final ContentNegotiationManager contentNegotiationManager;
 
@@ -292,7 +306,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
               LogFormatUtils.traceDebug(logger,
                       traceOn -> "Writing [%s]".formatted(LogFormatUtils.formatValue(theBody, !traceOn)));
             }
-            addContentDispositionHeader(context, body);
+            if (preventRFDExploits) {
+              addContentDispositionHeader(context, body);
+            }
             if (generic != null) {
               generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
             }
