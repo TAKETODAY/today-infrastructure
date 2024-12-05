@@ -187,7 +187,7 @@ public abstract class HttpRange {
     if (CollectionUtils.isEmpty(ranges)) {
       return Collections.emptyList();
     }
-    List<ResourceRegion> regions = new ArrayList<>(ranges.size());
+    ArrayList<ResourceRegion> regions = new ArrayList<>(ranges.size());
     for (HttpRange range : ranges) {
       regions.add(range.toResourceRegion(resource));
     }
