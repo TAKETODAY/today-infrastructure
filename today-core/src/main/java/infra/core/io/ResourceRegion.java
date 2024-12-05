@@ -17,6 +17,7 @@
 
 package infra.core.io;
 
+import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 
 /**
@@ -72,6 +73,15 @@ public class ResourceRegion {
    */
   public long getCount() {
     return this.count;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.forInstance(this)
+            .append("count", count)
+            .append("position", position)
+            .append("resource", resource)
+            .toString();
   }
 
 }

@@ -38,16 +38,17 @@ import infra.util.StringUtils;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @author TODAY 2021/11/6 23:43
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see <a href="https://tools.ietf.org/html/rfc7233">HTTP/1.1: Range Requests</a>
  * @see HttpHeaders#setRange(Collection)
  * @see HttpHeaders#getRange()
- * @since 4.0
+ * @since 4.0 2021/11/6 23:43
  */
 public abstract class HttpRange {
 
   /** Maximum ranges per request. */
   private static final int MAX_RANGES = 100;
+
   private static final String BYTE_RANGE_PREFIX = "bytes=";
 
   /**
@@ -246,19 +247,15 @@ public abstract class HttpRange {
     private final Long lastPos;
 
     public ByteRange(long firstPos, @Nullable Long lastPos) {
-      assertPositions(firstPos, lastPos);
+      if (firstPos < 0) {
+        throw new IllegalArgumentException("Invalid first byte position: " + firstPos);
+      }
+      if (lastPos != null && lastPos < firstPos) {
+        throw new IllegalArgumentException("firstBytePosition=%d should be less then or equal to lastBytePosition=%d"
+                .formatted(firstPos, lastPos));
+      }
       this.firstPos = firstPos;
       this.lastPos = lastPos;
-    }
-
-    private void assertPositions(long firstBytePos, @Nullable Long lastBytePos) {
-      if (firstBytePos < 0) {
-        throw new IllegalArgumentException("Invalid first byte position: " + firstBytePos);
-      }
-      if (lastBytePos != null && lastBytePos < firstBytePos) {
-        throw new IllegalArgumentException("firstBytePosition=%d should be less then or equal to lastBytePosition=%d"
-                .formatted(firstBytePos, lastBytePos));
-      }
     }
 
     @Override
