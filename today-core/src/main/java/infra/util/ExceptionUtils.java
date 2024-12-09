@@ -22,10 +22,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.concurrent.Callable;
 
 import infra.core.NestedException;
 import infra.lang.Nullable;
+import infra.util.function.ThrowingRunnable;
+import infra.util.function.ThrowingSupplier;
 
 /**
  * Utility methods for Exception
@@ -228,27 +229,23 @@ public abstract class ExceptionUtils {
   /**
    * @since 4.0
    */
-  public static void sneakyThrow(Action action) {
+  public static void sneakyThrow(ThrowingRunnable action) {
     try {
-      action.call();
+      action.run();
     }
     catch (Throwable e) {
       throw sneakyThrow(e);
     }
   }
 
-  public interface Action {
-    void call() throws Throwable;
-  }
-
   /**
    * @since 4.0
    */
-  public static <T> T sneakyThrow(Callable<T> action) {
+  public static <T> T sneakyThrow(ThrowingSupplier<T> action) {
     try {
-      return action.call();
+      return action.getWithException();
     }
-    catch (Exception e) {
+    catch (Throwable e) {
       throw sneakyThrow(e);
     }
   }

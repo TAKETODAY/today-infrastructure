@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import infra.util.function.ThrowingRunnable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -35,7 +37,7 @@ class ExceptionUtilsTests {
   void sneakyThrow() {
     Exception exception = new Exception();
     assertThatThrownBy(() -> {
-      ExceptionUtils.sneakyThrow(() -> {
+      ExceptionUtils.sneakyThrow((ThrowingRunnable) () -> {
         throw exception;
       });
 
