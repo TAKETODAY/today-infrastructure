@@ -25,8 +25,10 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URLDecoder;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,6 +50,7 @@ import infra.http.server.ServerHttpResponse;
 import infra.http.support.Netty4HttpHeaders;
 import infra.lang.Constant;
 import infra.lang.Nullable;
+import infra.lang.TodayStrategies;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -63,7 +66,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -83,6 +85,8 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.handler.stream.ChunkedNioFile;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCountUtil;
 
 /**
@@ -92,6 +96,14 @@ import io.netty.util.ReferenceCountUtil;
  * @since 2019-07-04 21:24
  */
 public class NettyRequestContext extends RequestContext {
+
+  /**
+   * System property to configure the nio file chunk size when ssl is enabled.
+   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   *
+   * @since 5.0
+   */
+  private static final int nioFileChunkSize = TodayStrategies.getInt("infra.web.ssl.nio-file-chunked-size", 4096);
 
   // UNSAFE fields
   public final NettyRequestConfig config;
@@ -127,7 +139,7 @@ public class NettyRequestContext extends RequestContext {
   private /* volatile ?*/ ByteBuf responseBody;
 
   @Nullable
-  private FileRegion fileToSend;
+  private Object fileToSend;
 
   @Nullable
   private Integer queryStringIndex;
@@ -406,7 +418,7 @@ public class NettyRequestContext extends RequestContext {
   public void flush() {
     writeHeaders();
 
-    FileRegion fileToSend;
+    Object fileToSend;
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
@@ -811,17 +823,24 @@ public class NettyRequestContext extends RequestContext {
 
     @Override
     public boolean supportsZeroCopy() {
-      return !config.secure;
+      return true;
     }
 
     @Override
-    public void sendFile(Path file, long position, long count) {
+    public void sendFile(Path file, long position, long count) throws IOException {
       sendFile(file.toFile(), position, count);
     }
 
     @Override
-    public void sendFile(File file, long position, long count) {
-      fileToSend = new DefaultFileRegion(file, position, count);
+    public void sendFile(File file, long position, long count) throws IOException {
+      if (config.secure) {
+        channelContext.pipeline().addLast("chunkedWriter", new ChunkedWriteHandler());
+        fileToSend = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
+                position, count, nioFileChunkSize);
+      }
+      else {
+        fileToSend = new DefaultFileRegion(file, position, count);
+      }
     }
 
   }

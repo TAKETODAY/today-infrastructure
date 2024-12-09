@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import infra.lang.Nullable;
-import infra.util.ExceptionUtils;
 import infra.util.StreamUtils;
 
 /**
@@ -67,7 +66,7 @@ public interface HttpOutputMessage extends HttpMessage {
    *
    * @param file the file to transfer
    */
-  default void sendFile(File file) {
+  default void sendFile(File file) throws IOException {
     sendFile(file, 0, file.length());
   }
 
@@ -79,7 +78,7 @@ public interface HttpOutputMessage extends HttpMessage {
    * @param position the position within the file from which the transfer is to begin
    * @param count the number of bytes to be transferred
    */
-  default void sendFile(File file, long position, long count) {
+  default void sendFile(File file, long position, long count) throws IOException {
     sendFile(file.toPath(), position, count);
   }
 
@@ -91,12 +90,9 @@ public interface HttpOutputMessage extends HttpMessage {
    * @param position the position within the file from which the transfer is to begin
    * @param count the number of bytes to be transferred
    */
-  default void sendFile(Path file, long position, long count) {
+  default void sendFile(Path file, long position, long count) throws IOException {
     try (InputStream inputStream = Files.newInputStream(file)) {
       StreamUtils.copyRange(inputStream, getBody(), position, count);
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
