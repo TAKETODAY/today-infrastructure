@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -32,6 +33,7 @@ import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingFunction;
+import infra.util.function.ThrowingSupplier;
 
 /**
  * Combinator operations on {@linkplain Future futures}.
@@ -145,6 +147,35 @@ final class Futures {
     }
     Promise<R> promise = Future.forPromise(future.executor());
     future.onCompleted(new Mapper<>(promise, mapper));
+    promise.onCompleted(propagateCancel, future);
+    return promise;
+  }
+
+  /**
+   * @since 5.0
+   */
+  public static <V> Future<V> switchIfCancelled(Future<V> future, ThrowingSupplier<V> cancelledMapper) {
+    if (future.isFailed() || future.isSuccess()) {
+      return future;
+    }
+    if (future.isCancelled()) {
+      return new ListenableFutureTask<>(future.executor(), () -> ExceptionUtils.sneakyThrow(cancelledMapper)).execute();
+    }
+    Promise<V> promise = Future.forPromise(future.executor());
+    future.onCompleted(new CancelMapper<>(promise, cancelledMapper));
+    promise.onCompleted(propagateCancel, future);
+    return promise;
+  }
+
+  /**
+   * @since 5.0
+   */
+  public static <V> Future<V> switchIfCancelled(Future<V> future, Supplier<Future<V>> cancelledMapper) {
+    if (future.isFailed() || future.isSuccess()) {
+      return future;
+    }
+    Promise<V> promise = Future.forPromise(future.executor());
+    future.onCompleted(new CancelFlatMapper<>(promise, cancelledMapper));
     promise.onCompleted(propagateCancel, future);
     return promise;
   }
@@ -610,6 +641,89 @@ final class Futures {
       }
     }
 
+  }
+
+  /**
+   * @param <T> value type
+   * @since 5.0
+   */
+  private static final class CancelMapper<T> implements FutureListener<Future<T>> {
+
+    private final Promise<T> recipient;
+
+    private final ThrowingSupplier<T> mapper;
+
+    CancelMapper(Promise<T> recipient, ThrowingSupplier<T> mapper) {
+      this.recipient = recipient;
+      this.mapper = mapper;
+    }
+
+    @Override
+    public void operationComplete(Future<T> completed) {
+      if (!recipient.isDone()) {
+        if (completed.isCancelled()) {
+          try {
+            T mapped = mapper.getWithException();
+            recipient.trySuccess(mapped);
+          }
+          catch (Throwable e) {
+            tryFailure(recipient, e, logger);
+          }
+        }
+        else if (completed.isSuccess()) {
+          recipient.trySuccess(completed.getNow());
+        }
+        else {
+          recipient.tryFailure(completed.getCause());
+        }
+      }
+    }
+  }
+
+  /**
+   * @param <T> value type
+   * @since 5.0
+   */
+  private static final class CancelFlatMapper<T> implements FutureListener<Future<T>> {
+
+    private final Promise<T> recipient;
+
+    private final Supplier<Future<T>> mapper;
+
+    CancelFlatMapper(Promise<T> recipient, Supplier<Future<T>> mapper) {
+      this.recipient = recipient;
+      this.mapper = mapper;
+    }
+
+    @Override
+    public void operationComplete(Future<T> completed) {
+      if (!recipient.isDone()) {
+        if (completed.isCancelled()) {
+          try {
+            var mapped = mapper.get();
+            if (mapped.isSuccess()) {
+              recipient.trySuccess(mapped.getNow());
+            }
+            else if (mapped.isFailed()) {
+              propagateUncommonCompletion(mapped, recipient);
+            }
+            else {
+              mapped.onCompleted(passThrough(), recipient);
+              recipient.onCompleted(propagateCancel, mapped);
+            }
+          }
+          catch (Throwable e) {
+            tryFailure(recipient, e, logger);
+          }
+        }
+        else if (completed.isSuccess()) {
+          recipient.trySuccess(completed.getNow());
+        }
+        else {
+          recipient.tryFailure(completed.getCause());
+        }
+      }
+    }
   }
 
 }

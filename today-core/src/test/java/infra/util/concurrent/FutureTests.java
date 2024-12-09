@@ -1809,6 +1809,186 @@ class FutureTests {
 
   }
 
+  @Test
+  void switchIfCancelled() {
+    RuntimeException exception = new IllegalStateException("msg");
+
+    Future<Integer> future = Future.<Integer>failed(exception)
+            .switchIfCancelled(() -> 1);
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withMessageEndingWith("msg");
+
+    assertThat(future.isFailed()).isTrue();
+    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isFalse();
+
+    Promise<Integer> integerPromise = Future.forPromise();
+
+    Future<Integer> ifCancelled = integerPromise.switchIfCancelled(2);
+    ifCancelled.cancel();
+
+    assertThat(ifCancelled).isCancelled();
+    assertThat(integerPromise.awaitUninterruptibly()).isCancelled();
+
+    integerPromise = Future.forPromise();
+
+    ifCancelled = integerPromise.switchIfCancelled(ok(1));
+    integerPromise.cancel();
+
+    assertThat(integerPromise).isCancelled();
+    assertThat(ifCancelled.join()).isEqualTo(1);
+
+    //
+
+    Promise<Integer> promise = Future.forPromise();
+    ifCancelled = promise.switchIfCancelled(2);
+    promise.trySuccess(1);
+
+    assertThat(promise.join()).isEqualTo(1);
+    assertThat(ifCancelled.awaitUninterruptibly()).isNotCancelled();
+    assertThat(promise.switchIfCancelled(2).join()).isEqualTo(1);
+
+    //
+
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(2);
+    integerPromise.cancel();
+
+    assertThat(ifCancelled.join()).isEqualTo(2);
+    assertThat(integerPromise).isCancelled();
+
+    //
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled((ThrowingSupplier<Integer>) () -> {
+      throw new IOException("msg");
+    });
+    integerPromise.cancel();
+
+    assertThatThrownBy(ifCancelled::join)
+            .isInstanceOf(IOException.class)
+            .hasMessage("msg");
+
+    assertThat(integerPromise).isCancelled();
+    //
+
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(2);
+    integerPromise.tryFailure(new IOException("msg"));
+
+    assertThatThrownBy(ifCancelled::join)
+            .isInstanceOf(IOException.class)
+            .hasMessage("msg");
+
+    assertThat(ok(1).switchIfCancelled(2).join()).isEqualTo(1);
+    assertThatThrownBy(() ->
+            failed(new IOException("msg")).switchIfCancelled(2).join())
+            .hasMessage("msg");
+  }
+
+  @Test
+  void switchIfCancelledFuture() throws InterruptedException {
+    RuntimeException exception = new IllegalStateException("msg");
+
+    Future<Integer> future = Future.<Integer>failed(exception)
+            .switchIfCancelled(() -> Future.ok(1));
+
+    assertThat(future).failsWithin(Duration.ofSeconds(1))
+            .withThrowableThat().withMessageEndingWith("msg");
+
+    assertThat(future.isFailed()).isTrue();
+    assertThat(future.isFailure()).isTrue();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isDone()).isTrue();
+    assertThat(future.isSuccess()).isFalse();
+
+    Promise<Integer> integerPromise = Future.forPromise();
+
+    Future<Integer> ifCancelled = integerPromise.switchIfCancelled(Future.ok(2));
+    ifCancelled.cancel();
+
+    assertThat(ifCancelled).isCancelled();
+    assertThat(integerPromise.awaitUninterruptibly()).isCancelled();
+
+    integerPromise = Future.forPromise();
+
+    ifCancelled = integerPromise.switchIfCancelled(ok(1));
+    integerPromise.cancel();
+
+    assertThat(integerPromise).isCancelled();
+    assertThat(ifCancelled.join()).isEqualTo(1);
+
+    //
+
+    Promise<Integer> promise = Future.forPromise();
+    ifCancelled = promise.switchIfCancelled(Future.ok(2));
+    promise.trySuccess(1);
+
+    assertThat(promise.join()).isEqualTo(1);
+    assertThat(ifCancelled.awaitUninterruptibly()).isNotCancelled();
+    assertThat(promise.switchIfCancelled(2).join()).isEqualTo(1);
+
+    //
+
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(Future.ok(2));
+    integerPromise.cancel();
+
+    assertThat(ifCancelled.join()).isEqualTo(2);
+    assertThat(integerPromise).isCancelled();
+
+    //
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(() -> Future.failed(new IOException("msg")));
+    integerPromise.cancel();
+
+    assertThatThrownBy(ifCancelled::join)
+            .isInstanceOf(IOException.class)
+            .hasMessage("msg");
+
+    assertThat(integerPromise).isCancelled();
+    //
+
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(Future.ok(2));
+    integerPromise.tryFailure(new IOException("msg"));
+
+    assertThatThrownBy(ifCancelled::join)
+            .hasMessage("msg");
+
+    //
+    integerPromise = Future.forPromise();
+    Promise<Integer> cancelledFuture = forPromise();
+    ifCancelled = integerPromise.switchIfCancelled(cancelledFuture);
+    integerPromise.cancel();
+    Thread.sleep(1000);
+
+    cancelledFuture.tryFailure(new IOException("msg"));
+
+    assertThatThrownBy(ifCancelled::join)
+            .hasMessage("msg");
+
+    assertThat(ok(1).switchIfCancelled(Future.ok(2)).join()).isEqualTo(1);
+    assertThatThrownBy(() ->
+            failed(new IOException("msg")).switchIfCancelled(Future.failed(new RuntimeException("msg1"))).join())
+            .hasMessage("msg");
+
+    //
+    integerPromise = Future.forPromise();
+    ifCancelled = integerPromise.switchIfCancelled((Supplier<Future<Integer>>) () -> {
+      throw new RuntimeException("msg");
+    });
+    integerPromise.cancel();
+
+    assertThatThrownBy(ifCancelled::join)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("msg");
+
+    assertThat(integerPromise).isCancelled();
+  }
+
   static Executor directExecutor() {
     return Runnable::run;
   }

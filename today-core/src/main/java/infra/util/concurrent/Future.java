@@ -48,6 +48,7 @@ import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingBiFunction;
 import infra.util.function.ThrowingConsumer;
 import infra.util.function.ThrowingFunction;
+import infra.util.function.ThrowingRunnable;
 import infra.util.function.ThrowingSupplier;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -353,7 +354,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isCancelled()
    * @since 5.0
    */
-  public final Future<V> onCancelled(Runnable callback) {
+  public final Future<V> onCancelled(ThrowingRunnable callback) {
     Assert.notNull(callback, "cancelledCallback is required");
     return onCompleted(future -> {
       if (future.isCancelled()) {
@@ -386,7 +387,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see #isDone()
    * @since 5.0
    */
-  public final Future<V> onFinally(Runnable callback) {
+  public final Future<V> onFinally(ThrowingRunnable callback) {
     Assert.notNull(callback, "finallyCallback is required");
     return onCompleted(future -> callback.run());
   }
@@ -679,6 +680,76 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
       consumer.acceptWithException(v);
       return null;
     });
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} {@link #isCancelled() cancelled}.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of new future will cancel
+   * this future.
+   *
+   * @param cancelledValue cancelled value
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfCancelled(V cancelledValue) {
+    return Futures.switchIfCancelled(this, () -> cancelledValue);
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} {@link #isCancelled() cancelled}.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of new future will cancel
+   * this future.
+   *
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfCancelled(ThrowingSupplier<V> cancelledMapper) {
+    Assert.notNull(cancelledMapper, "cancelledMapper is required");
+    return Futures.switchIfCancelled(this, cancelledMapper);
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} {@link #isCancelled() cancelled}.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of new future will cancel
+   * this future.
+   *
+   * @param cancelledFuture cancelled value
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfCancelled(Future<V> cancelledFuture) {
+    Assert.notNull(cancelledFuture, "cancelled Future is required");
+    return Futures.switchIfCancelled(this, () -> cancelledFuture);
+  }
+
+  /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} {@link #isCancelled() cancelled}.
+   * <p>
+   * If this future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of new future will cancel
+   * this future.
+   *
+   * @param cancelledFuture cancelled value
+   * @return A new future instance that will complete with the mapped
+   * result of this future.
+   * @since 5.0
+   */
+  public final Future<V> switchIfCancelled(Supplier<Future<V>> cancelledFuture) {
+    Assert.notNull(cancelledFuture, "cancelled Future Supplier is required");
+    return Futures.switchIfCancelled(this, cancelledFuture);
   }
 
   /**
