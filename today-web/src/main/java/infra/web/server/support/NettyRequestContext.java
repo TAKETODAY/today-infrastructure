@@ -65,6 +65,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -104,6 +105,14 @@ public class NettyRequestContext extends RequestContext {
    * @since 5.0
    */
   private static final int nioFileChunkSize = TodayStrategies.getInt("infra.web.ssl.nio-file-chunked-size", 4096);
+
+  /**
+   * For Chunk file written
+   *
+   * @see ChunkedWriteHandler
+   * @since 5.0
+   */
+  private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
   // UNSAFE fields
   public final NettyRequestConfig config;
@@ -834,7 +843,10 @@ public class NettyRequestContext extends RequestContext {
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
       if (config.secure) {
-        channelContext.pipeline().addLast("chunkedWriter", new ChunkedWriteHandler());
+        ChannelPipeline pipeline = channelContext.pipeline();
+        if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
+          pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
+        }
         fileToSend = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
       }
