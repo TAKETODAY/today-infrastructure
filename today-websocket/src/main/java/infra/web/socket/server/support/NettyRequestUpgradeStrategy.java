@@ -75,7 +75,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    WebSocketSession session = new NettyWebSocketSession(context.config.secure, context.channelContext.channel());
+    WebSocketSession session = new NettyWebSocketSession(context.config.secure, context.channel);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -106,7 +106,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
     FullHttpRequest request = nettyContext.nativeRequest();
     var handshaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
-    Channel channel = nettyContext.channelContext.channel();
+    Channel channel = nettyContext.channel;
     if (handshaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;

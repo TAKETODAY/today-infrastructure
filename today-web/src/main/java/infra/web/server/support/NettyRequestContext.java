@@ -117,7 +117,7 @@ public class NettyRequestContext extends RequestContext {
   // UNSAFE fields
   public final NettyRequestConfig config;
 
-  public final ChannelHandlerContext channelContext;
+  public final Channel channel;
 
   /**
    * response headers
@@ -161,7 +161,7 @@ public class NettyRequestContext extends RequestContext {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
-    this.channelContext = ctx;
+    this.channel = ctx.channel();
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
@@ -178,7 +178,7 @@ public class NettyRequestContext extends RequestContext {
   private InetSocketAddress localAddress() {
     InetSocketAddress inetSocketAddress = this.inetSocketAddress;
     if (inetSocketAddress == null) {
-      SocketAddress socketAddress = channelContext.channel().localAddress();
+      SocketAddress socketAddress = channel.localAddress();
       if (socketAddress instanceof InetSocketAddress address) {
         inetSocketAddress = address;
       }
@@ -245,7 +245,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public final String getRemoteAddress() {
     if (remoteAddress == null) {
-      InetSocketAddress remote = (InetSocketAddress) channelContext.channel().remoteAddress();
+      InetSocketAddress remote = (InetSocketAddress) channel.remoteAddress();
       remoteAddress = remote.getAddress().getHostAddress();
     }
     return remoteAddress;
@@ -407,14 +407,14 @@ public class NettyRequestContext extends RequestContext {
       }
       if (responseBody == null) {
         // fallback
-        responseBody = createResponseBody(channelContext.channel(), config);
+        responseBody = createResponseBody(config);
       }
       this.responseBody = responseBody;
     }
     return responseBody;
   }
 
-  protected ByteBuf createResponseBody(Channel channel, NettyRequestConfig config) {
+  protected ByteBuf createResponseBody(NettyRequestConfig config) {
     return channel.alloc().ioBuffer(config.responseBodyInitialCapacity);
   }
 
@@ -431,10 +431,10 @@ public class NettyRequestContext extends RequestContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      channelContext.writeAndFlush(responseBody);
+      channel.writeAndFlush(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
-      channelContext.writeAndFlush(fileToSend);
+      channel.writeAndFlush(fileToSend);
     }
   }
 
@@ -490,10 +490,10 @@ public class NettyRequestContext extends RequestContext {
     }
 
     if (isKeepAlive()) {
-      channelContext.writeAndFlush(lastHttpContent);
+      channel.writeAndFlush(lastHttpContent);
     }
     else {
-      channelContext.writeAndFlush(lastHttpContent)
+      channel.writeAndFlush(lastHttpContent)
               .addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -560,7 +560,7 @@ public class NettyRequestContext extends RequestContext {
         }
       }
 
-      channelContext.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers));
+      channel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers));
     }
 
   }
@@ -843,7 +843,7 @@ public class NettyRequestContext extends RequestContext {
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
       if (config.secure) {
-        ChannelPipeline pipeline = channelContext.pipeline();
+        ChannelPipeline pipeline = channel.pipeline();
         if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
           pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
         }

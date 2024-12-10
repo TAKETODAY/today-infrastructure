@@ -18,13 +18,12 @@
 package infra.web.server.support;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.async.AsyncWebRequest;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
 
 /**
@@ -37,7 +36,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private final NettyRequestContext request;
 
-  private final ChannelHandlerContext channelContext;
+  private final Channel channel;
 
   private volatile boolean asyncStarted;
 
@@ -46,13 +45,13 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
-    this.channelContext = request.channelContext;
+    this.channel = request.channel;
   }
 
   @Override
   public void startAsync() {
     if (timeout != null && timeout > 0) {
-      timeoutFuture = channelContext.executor().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
+      timeoutFuture = channel.eventLoop().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
     }
 
     this.asyncStarted = true;
@@ -78,21 +77,19 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
       if (timeoutFuture != null) {
         timeoutFuture.cancel(true);
       }
-      channelContext.executor().execute(() -> {
-        try {
-          request.dispatchConcurrentResult(concurrentResult);
+      try {
+        request.dispatchConcurrentResult(concurrentResult);
+      }
+      catch (Throwable e) {
+        // last exception handling
+        for (var exceptionHandler : exceptionHandlers) {
+          exceptionHandler.accept(e);
         }
-        catch (Throwable e) {
-          // last exception handling
-          for (Consumer<Throwable> exceptionHandler : exceptionHandlers) {
-            exceptionHandler.accept(e);
-          }
-          channelContext.fireExceptionCaught(e);
-        }
-        finally {
-          dispatchEvent(completionHandlers);
-        }
-      });
+        channel.pipeline().fireExceptionCaught(e);
+      }
+      finally {
+        dispatchEvent(completionHandlers);
+      }
     }
   }
 
