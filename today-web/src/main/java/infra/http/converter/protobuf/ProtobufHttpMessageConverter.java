@@ -76,7 +76,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   /**
    * The media-type for protobuf {@code application/x-protobuf}.
    */
-  public static final MediaType PROTOBUF = new MediaType("application", "x-protobuf", Constant.DEFAULT_CHARSET);
+  public static final MediaType PROTOBUF = MediaType.APPLICATION_PROTOBUF;
 
   /**
    * The HTTP header containing the protobuf schema.
@@ -130,7 +130,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     setSupportedMediaTypes(Arrays.asList(
             this.protobufFormatSupport != null ?
-            this.protobufFormatSupport.supportedMediaTypes() : new MediaType[] { PROTOBUF, TEXT_PLAIN }));
+                    this.protobufFormatSupport.supportedMediaTypes() : new MediaType[] { PROTOBUF, TEXT_PLAIN }));
 
     this.extensionRegistry = (extensionRegistry == null ? ExtensionRegistry.newInstance() : extensionRegistry);
   }
