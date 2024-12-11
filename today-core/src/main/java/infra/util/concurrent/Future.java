@@ -320,7 +320,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return this {@link Future}
    * @since 5.0
    */
-  public final <E extends Throwable> Future<V> onFailure(Class<E> exceptionType, FailureCallback failureCallback) {
+  public final <E extends Throwable> Future<V> onFailure(Class<E> exceptionType, ThrowingConsumer<E> failureCallback) {
     return onFailure(exceptionType::isInstance, failureCallback);
   }
 
@@ -336,12 +336,13 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return this {@link Future}
    * @since 5.0
    */
-  public final Future<V> onFailure(Predicate<Throwable> predicate, FailureCallback failureCallback) {
+  @SuppressWarnings("unchecked")
+  public final <E extends Throwable> Future<V> onFailure(Predicate<Throwable> predicate, ThrowingConsumer<E> failureCallback) {
     Assert.notNull(predicate, "predicate is required");
     Assert.notNull(failureCallback, "failureCallback is required");
     return onFailure(ex -> {
       if (predicate.test(ex)) {
-        failureCallback.onFailure(ex);
+        failureCallback.acceptWithException((E) ex);
       }
     });
   }
