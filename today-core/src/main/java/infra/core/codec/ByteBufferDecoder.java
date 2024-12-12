@@ -52,7 +52,7 @@ public class ByteBufferDecoder extends AbstractDataBufferDecoder<ByteBuffer> {
           DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    int len = dataBuffer.readableByteCount();
+    int len = dataBuffer.readableBytes();
     ByteBuffer result = ByteBuffer.allocate(len);
     dataBuffer.toByteBuffer(result);
     if (logger.isDebugEnabled()) {

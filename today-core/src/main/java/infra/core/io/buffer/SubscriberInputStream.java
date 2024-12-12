@@ -277,7 +277,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
           return -1;
         }
         int initialReadPosition = next.readPosition();
-        next.read(b, off + j, Math.min(len - j, next.readableByteCount()));
+        next.read(b, off + j, Math.min(len - j, next.readableBytes()));
         j += next.readPosition() - initialReadPosition;
       }
 
@@ -295,7 +295,7 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   private DataBuffer getNextOrAwait() {
-    if (this.available == null || this.available.readableByteCount() == 0) {
+    if (this.available == null || this.available.readableBytes() == 0) {
       discard(this.available);
       this.available = null;
 

@@ -80,7 +80,7 @@ public class DefaultDataBuffer extends DataBuffer {
   /**
    * Directly exposes the native {@code ByteBuffer} that this buffer is based
    * on also updating the {@code ByteBuffer's} position and limit to match
-   * the current {@link #readPosition()} and {@link #readableByteCount()}.
+   * the current {@link #readPosition()} and {@link #readableBytes()}.
    *
    * @return the wrapped byte buffer
    */
@@ -132,12 +132,12 @@ public class DefaultDataBuffer extends DataBuffer {
   }
 
   @Override
-  public int readableByteCount() {
+  public int readableBytes() {
     return this.writePosition - this.readPosition;
   }
 
   @Override
-  public int writableByteCount() {
+  public int writableBytes() {
     return this.capacity - this.writePosition;
   }
 
@@ -221,7 +221,7 @@ public class DefaultDataBuffer extends DataBuffer {
 
   @Override
   public DataBuffer ensureWritable(int length) {
-    if (length > writableByteCount()) {
+    if (length > writableBytes()) {
       int newCapacity = calculateCapacity(this.writePosition + length);
       setCapacity(newCapacity);
     }
@@ -307,7 +307,7 @@ public class DefaultDataBuffer extends DataBuffer {
     if (ObjectUtils.isNotEmpty(dataBuffers)) {
       ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
       for (int i = 0; i < dataBuffers.length; i++) {
-        byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
+        byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableBytes());
         dataBuffers[i].toByteBuffer(byteBuffers[i]);
       }
       write(byteBuffers);
@@ -375,7 +375,7 @@ public class DefaultDataBuffer extends DataBuffer {
 
   @Override
   public ByteBuffer asByteBuffer() {
-    return asByteBuffer(this.readPosition, readableByteCount());
+    return asByteBuffer(this.readPosition, readableBytes());
   }
 
   @Override

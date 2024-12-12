@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.codec.json;
@@ -235,7 +235,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    */
   protected final Consumer<DataBuffer> expectBytes(byte[] expected) {
     return dataBuffer -> {
-      byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+      byte[] resultBytes = new byte[dataBuffer.readableBytes()];
       dataBuffer.read(resultBytes);
       release(dataBuffer);
       assertThat(resultBytes).isEqualTo(expected);

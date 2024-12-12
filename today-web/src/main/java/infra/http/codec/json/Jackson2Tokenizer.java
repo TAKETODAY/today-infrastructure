@@ -89,7 +89,7 @@ final class Jackson2Tokenizer {
 
   private List<TokenBuffer> tokenize(DataBuffer dataBuffer) {
     try {
-      int bufferSize = dataBuffer.readableByteCount();
+      int bufferSize = dataBuffer.readableBytes();
       ArrayList<TokenBuffer> tokens = new ArrayList<>();
       if (this.inputFeeder instanceof ByteBufferFeeder byteBufferFeeder) {
         try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {

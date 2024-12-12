@@ -62,7 +62,7 @@ public class ByteBufferEncoder extends AbstractEncoder<ByteBuffer> {
 
     DataBuffer dataBuffer = bufferFactory.wrap(byteBuffer);
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
-      logger.debug("{}Writing {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableByteCount());
+      logger.debug("{}Writing {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableBytes());
     }
     return dataBuffer;
   }

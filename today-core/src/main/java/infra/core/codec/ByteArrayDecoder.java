@@ -47,7 +47,7 @@ public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
   public byte[] decode(DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    byte[] result = new byte[dataBuffer.readableByteCount()];
+    byte[] result = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(result);
     DataBufferUtils.release(dataBuffer);
     if (logger.isDebugEnabled()) {

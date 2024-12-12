@@ -52,13 +52,13 @@ public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled()) {
-      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableByteCount());
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), dataBuffer.readableBytes());
     }
     if (dataBuffer instanceof NettyDataBuffer) {
       return ((NettyDataBuffer) dataBuffer).getNativeBuffer();
     }
     ByteBuf byteBuf;
-    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+    byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
     byteBuf = Unpooled.wrappedBuffer(bytes);
     DataBufferUtils.release(dataBuffer);

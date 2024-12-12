@@ -96,14 +96,14 @@ public abstract class DataBuffer {
    *
    * @return the readable byte count
    */
-  public abstract int readableByteCount();
+  public abstract int readableBytes();
 
   /**
    * Return the number of bytes that can be written to this data buffer.
    *
    * @return the writable byte count
    */
-  public abstract int writableByteCount();
+  public abstract int writableBytes();
 
   /**
    * Return the number of bytes that this buffer can contain.
@@ -125,7 +125,7 @@ public abstract class DataBuffer {
   public abstract DataBuffer capacity(int capacity);
 
   /**
-   * Ensure that the current buffer has enough {@link #writableByteCount()}
+   * Ensure that the current buffer has enough {@link #writableBytes()}
    * to write the amount of data given as an argument. If not, the missing
    * capacity will be added to the buffer.
    *
@@ -380,7 +380,7 @@ public abstract class DataBuffer {
    * @return this data buffer as a byte buffer
    */
   public ByteBuffer toByteBuffer() {
-    return toByteBuffer(readPosition(), readableByteCount());
+    return toByteBuffer(readPosition(), readableBytes());
   }
 
   /**
@@ -401,7 +401,7 @@ public abstract class DataBuffer {
    * @param dest the destination byte buffer
    */
   public void toByteBuffer(ByteBuffer dest) {
-    toByteBuffer(readPosition(), dest, dest.position(), readableByteCount());
+    toByteBuffer(readPosition(), dest, dest.position(), readableBytes());
   }
 
   /**
@@ -486,7 +486,7 @@ public abstract class DataBuffer {
    */
   public String toString(Charset charset) {
     Assert.notNull(charset, "Charset is required");
-    return toString(readPosition(), readableByteCount(), charset);
+    return toString(readPosition(), readableBytes(), charset);
   }
 
   /**

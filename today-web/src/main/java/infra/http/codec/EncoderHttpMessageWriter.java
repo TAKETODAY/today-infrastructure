@@ -131,7 +131,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
               }))
               .flatMap(buffer -> {
                 Hints.touchDataBuffer(buffer, hints, logger);
-                message.getHeaders().setContentLength(buffer.readableByteCount());
+                message.getHeaders().setContentLength(buffer.readableBytes());
                 return message.writeWith(
                         Mono.just(buffer)
                                 .doOnDiscard(DataBuffer.class, DataBufferUtils::release));

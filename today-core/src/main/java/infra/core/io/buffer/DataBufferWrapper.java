@@ -72,13 +72,13 @@ public class DataBufferWrapper extends DataBuffer {
   }
 
   @Override
-  public int readableByteCount() {
-    return this.delegate.readableByteCount();
+  public int readableBytes() {
+    return this.delegate.readableBytes();
   }
 
   @Override
-  public int writableByteCount() {
-    return this.delegate.writableByteCount();
+  public int writableBytes() {
+    return this.delegate.writableBytes();
   }
 
   @Override

@@ -86,7 +86,7 @@ class DataBufferDecoderTests extends AbstractDecoderTests<DataBufferDecoder> {
 
   private Consumer<DataBuffer> expectDataBuffer(byte[] expected) {
     return actual -> {
-      byte[] actualBytes = new byte[actual.readableByteCount()];
+      byte[] actualBytes = new byte[actual.readableBytes()];
       actual.read(actualBytes);
       assertThat(actualBytes).isEqualTo(expected);
 

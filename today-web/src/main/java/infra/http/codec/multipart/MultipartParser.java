@@ -142,7 +142,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       }
       oldState.dispose();
       if (remainder != null) {
-        if (remainder.readableByteCount() > 0) {
+        if (remainder.readableBytes() > 0) {
           newState.onNext(remainder);
         }
         else {
@@ -385,7 +385,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
         }
       }
       else {
-        long count = this.byteCount.addAndGet(buf.readableByteCount());
+        long count = this.byteCount.addAndGet(buf.readableBytes());
         if (belowMaxHeaderSize(count)) {
           this.buffers.add(buf);
           requestBuffer();
@@ -400,13 +400,13 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     private boolean isLastBoundary(DataBuffer buf) {
       return (
               buffers.isEmpty()
-                      && buf.readableByteCount() >= 2
+                      && buf.readableBytes() >= 2
                       && buf.getByte(0) == HYPHEN && buf.getByte(1) == HYPHEN
       ) || (
               buffers.size() == 1
-                      && buffers.get(0).readableByteCount() == 1
+                      && buffers.get(0).readableBytes() == 1
                       && buffers.get(0).getByte(0) == HYPHEN
-                      && buf.readableByteCount() >= 1
+                      && buf.readableBytes() >= 1
                       && buf.getByte(0) == HYPHEN
       );
     }
@@ -525,7 +525,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           DataBufferUtils.release(boundaryBuffer);
           DataBuffer prev;
           while ((prev = this.queue.pollLast()) != null) {
-            int prevByteCount = prev.readableByteCount();
+            int prevByteCount = prev.readableBytes();
             int prevLen = prevByteCount + len;
             if (prevLen >= 0) {
               // slice body part of previous buffer, and flush it
@@ -574,7 +574,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           emit.addFirst(previous);
           iterator.remove();
         }
-        len += previous.readableByteCount();
+        len += previous.readableBytes();
       }
 
       for (DataBuffer buffer : emit) {

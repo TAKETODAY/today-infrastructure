@@ -766,7 +766,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
       response.setStatusCode(HttpStatus.OK);
       response.getHeaders().set(HttpHeaders.CONTENT_TYPE, this.mediaType);
-      response.getHeaders().setContentLength(this.bytes.readableByteCount());
+      response.getHeaders().setContentLength(this.bytes.readableBytes());
       return response.writeWith(Mono.just(this.bytes));
     }
 

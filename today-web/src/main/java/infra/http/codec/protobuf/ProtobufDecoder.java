@@ -151,7 +151,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
 
     try {
       Message.Builder builder = getMessageBuilder(targetType.toClass());
-      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
       dataBuffer.toByteBuffer(byteBuffer);
       builder.mergeFrom(CodedInputStream.newInstance(byteBuffer), this.extensionRegistry);
       return builder.build();
@@ -224,8 +224,8 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
             this.output = input.factory().allocateBuffer(this.messageBytesToRead);
           }
 
-          chunkBytesToRead = Math.min(this.messageBytesToRead, input.readableByteCount());
-          remainingBytesToRead = input.readableByteCount() - chunkBytesToRead;
+          chunkBytesToRead = Math.min(this.messageBytesToRead, input.readableBytes());
+          remainingBytesToRead = input.readableBytes() - chunkBytesToRead;
 
           byte[] bytesToWrite = new byte[chunkBytesToRead];
           input.read(bytesToWrite, 0, chunkBytesToRead);
@@ -233,7 +233,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
           this.messageBytesToRead -= chunkBytesToRead;
 
           if (this.messageBytesToRead == 0) {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(this.output.readableByteCount());
+            ByteBuffer byteBuffer = ByteBuffer.allocate(this.output.readableBytes());
             this.output.toByteBuffer(byteBuffer);
             CodedInputStream stream = CodedInputStream.newInstance(byteBuffer);
             DataBufferUtils.release(this.output);
@@ -272,7 +272,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
      */
     private boolean readMessageSize(DataBuffer input) {
       if (this.offset == 0) {
-        if (input.readableByteCount() == 0) {
+        if (input.readableBytes() == 0) {
           return false;
         }
         int firstByte = input.read();
@@ -286,7 +286,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
 
       if (this.offset < 32) {
         for (; this.offset < 32; this.offset += 7) {
-          if (input.readableByteCount() == 0) {
+          if (input.readableBytes() == 0) {
             return false;
           }
           final int b = input.read();
@@ -299,7 +299,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
       }
       // Keep reading up to 64 bits.
       for (; this.offset < 64; this.offset += 7) {
-        if (input.readableByteCount() == 0) {
+        if (input.readableBytes() == 0) {
           return false;
         }
         final int b = input.read();

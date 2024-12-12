@@ -291,7 +291,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      int size = this.value.size() + dataBuffer.readableByteCount();
+      int size = this.value.size() + dataBuffer.readableBytes();
       if (PartGenerator.this.maxInMemorySize == -1
               || size < PartGenerator.this.maxInMemorySize) {
         store(dataBuffer);
@@ -307,7 +307,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     private void store(DataBuffer dataBuffer) {
       try {
-        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        byte[] bytes = new byte[dataBuffer.readableBytes()];
         dataBuffer.read(bytes);
         this.value.write(bytes);
       }
@@ -406,7 +406,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @Override
     public void applyBody(DataBuffer dataBuffer) {
       long prevCount = this.byteCount.get();
-      long count = this.byteCount.addAndGet(dataBuffer.readableByteCount());
+      long count = this.byteCount.addAndGet(dataBuffer.readableBytes());
       if (PartGenerator.this.maxInMemorySize == -1
               || count <= PartGenerator.this.maxInMemorySize) {
         storeBuffer(dataBuffer);
@@ -448,7 +448,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       byte[] bytes = new byte[(int) byteCount.get()];
       int idx = 0;
       for (DataBuffer buffer : content) {
-        int len = buffer.readableByteCount();
+        int len = buffer.readableBytes();
         buffer.read(bytes, idx, len);
         idx += len;
         DataBufferUtils.release(buffer);
@@ -580,7 +580,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      long count = this.byteCount.addAndGet(dataBuffer.readableByteCount());
+      long count = this.byteCount.addAndGet(dataBuffer.readableBytes());
       if (PartGenerator.this.maxDiskUsagePerPart == -1 || count <= PartGenerator.this.maxDiskUsagePerPart) {
 
         this.closeOnDispose = false;

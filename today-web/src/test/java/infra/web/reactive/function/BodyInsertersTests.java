@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.reactive.function;
@@ -238,7 +235,7 @@ public class BodyInsertersTests {
 
     StepVerifier.create(response.getBody())
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               assertThat(resultBytes).isEqualTo(expectedBytes);
@@ -261,7 +258,7 @@ public class BodyInsertersTests {
     assertThat(request.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_MARKDOWN);
     StepVerifier.create(request.getBody())
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               assertThat(resultBytes).isEqualTo(expectedBytes);
@@ -304,7 +301,7 @@ public class BodyInsertersTests {
 
     StepVerifier.create(response.getBody())
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               assertThat(resultBytes).isEqualTo(expectedBytes);
@@ -342,7 +339,7 @@ public class BodyInsertersTests {
 
     StepVerifier.create(request.getBody())
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               assertThat(resultBytes).isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3".getBytes(StandardCharsets.UTF_8));
@@ -366,7 +363,7 @@ public class BodyInsertersTests {
 
     StepVerifier.create(request.getBody())
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               assertThat(resultBytes).isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3".getBytes(StandardCharsets.UTF_8));
@@ -404,7 +401,7 @@ public class BodyInsertersTests {
 
     StepVerifier.create(DataBufferUtils.join(request.getBody()))
             .consumeNextWith(dataBuffer -> {
-              byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+              byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
               DataBufferUtils.release(dataBuffer);
               String content = new String(resultBytes, StandardCharsets.UTF_8);

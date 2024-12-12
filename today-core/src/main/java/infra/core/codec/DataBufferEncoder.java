@@ -70,7 +70,7 @@ public class DataBufferEncoder extends AbstractEncoder<DataBuffer> {
   }
 
   private void logValue(DataBuffer buffer, @Nullable Map<String, Object> hints) {
-    logger.debug("{} Writing {} bytes", Hints.getLogPrefix(hints), buffer.readableByteCount());
+    logger.debug("{} Writing {} bytes", Hints.getLogPrefix(hints), buffer.readableBytes());
   }
 
 }

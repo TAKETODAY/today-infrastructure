@@ -95,12 +95,12 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
   }
 
   @Override
-  public int readableByteCount() {
+  public int readableBytes() {
     return this.buffer.readableBytes();
   }
 
   @Override
-  public int writableByteCount() {
+  public int writableBytes() {
     return this.buffer.writableBytes();
   }
 
@@ -202,7 +202,7 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
       else {
         ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
         for (int i = 0; i < dataBuffers.length; i++) {
-          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
+          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableBytes());
           dataBuffers[i].toByteBuffer(byteBuffers[i]);
         }
         return write(byteBuffers);

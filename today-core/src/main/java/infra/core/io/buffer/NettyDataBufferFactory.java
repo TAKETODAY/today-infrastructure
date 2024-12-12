@@ -139,7 +139,7 @@ public class NettyDataBufferFactory implements DataBufferFactory {
       return nettyDataBuffer.getNativeBuffer();
     }
     else {
-      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
       dataBuffer.toByteBuffer(byteBuffer);
       return Unpooled.wrappedBuffer(byteBuffer);
     }

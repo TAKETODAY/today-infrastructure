@@ -52,12 +52,12 @@ public class Netty5BufferDecoder extends AbstractDataBufferDecoder<Buffer> {
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + dataBuffer.readableByteCount() + " bytes");
+      logger.debug("%sRead %d bytes".formatted(Hints.getLogPrefix(hints), dataBuffer.readableBytes()));
     }
     if (dataBuffer instanceof Netty5DataBuffer netty5DataBuffer) {
       return netty5DataBuffer.getNativeBuffer();
     }
-    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+    byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
     Buffer buffer = DefaultBufferAllocators.preferredAllocator().copyOf(bytes);
     DataBufferUtils.release(dataBuffer);

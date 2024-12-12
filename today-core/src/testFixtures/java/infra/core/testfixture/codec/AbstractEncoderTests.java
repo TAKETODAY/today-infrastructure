@@ -234,7 +234,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    */
   protected final Consumer<DataBuffer> expectBytes(byte[] expected) {
     return dataBuffer -> {
-      byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+      byte[] resultBytes = new byte[dataBuffer.readableBytes()];
       dataBuffer.read(resultBytes);
       release(dataBuffer);
       assertThat(resultBytes).isEqualTo(expected);

@@ -94,12 +94,12 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
-  public int readableByteCount() {
+  public int readableBytes() {
     return this.byteBuf.readableBytes();
   }
 
   @Override
-  public int writableByteCount() {
+  public int writableBytes() {
     return this.byteBuf.writableBytes();
   }
 
@@ -195,7 +195,7 @@ public class NettyDataBuffer extends DataBuffer {
       else {
         ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
         for (int i = 0; i < dataBuffers.length; i++) {
-          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
+          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableBytes());
           dataBuffers[i].toByteBuffer(byteBuffers[i]);
         }
         write(byteBuffers);

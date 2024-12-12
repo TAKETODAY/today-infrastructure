@@ -142,7 +142,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   }
 
   private ByteBuffer toByteBuffer(DataBuffer dataBuffer) {
-    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
     dataBuffer.toByteBuffer(byteBuffer);
     return byteBuffer;
   }

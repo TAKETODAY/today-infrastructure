@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.codec.protobuf;
@@ -146,10 +146,10 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
               }
             }))
             .flatMap(buffer -> {
-              int len = buffer.readableByteCount() / 2;
+              int len = buffer.readableBytes() / 2;
               Flux<DataBuffer> result = Flux.just(
                       DataBufferUtils.retain(buffer.slice(0, len)),
-                      DataBufferUtils.retain(buffer.slice(len, buffer.readableByteCount() - len))
+                      DataBufferUtils.retain(buffer.slice(len, buffer.readableBytes() - len))
               );
               release(buffer);
               return result;
@@ -187,7 +187,7 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
               Flux<DataBuffer> result = Flux.just(
                       DataBufferUtils.retain(buffer.slice(0, len)),
                       DataBufferUtils
-                              .retain(buffer.slice(len, buffer.readableByteCount() - len))
+                              .retain(buffer.slice(len, buffer.readableBytes() - len))
               );
               release(buffer);
               return result;

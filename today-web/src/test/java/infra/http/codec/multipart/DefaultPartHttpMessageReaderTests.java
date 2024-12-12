@@ -351,7 +351,7 @@ public class DefaultPartHttpMessageReaderTests {
 
     Mono<String> content = DataBufferUtils.join(part.content())
             .map(buffer -> {
-              byte[] bytes = new byte[buffer.readableByteCount()];
+              byte[] bytes = new byte[buffer.readableBytes()];
               buffer.read(bytes);
               release(buffer);
               return new String(bytes, UTF_8);

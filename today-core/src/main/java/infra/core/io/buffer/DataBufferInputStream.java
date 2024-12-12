@@ -46,7 +46,7 @@ final class DataBufferInputStream extends InputStream {
     Assert.notNull(dataBuffer, "DataBuffer is required");
     this.dataBuffer = dataBuffer;
     int start = this.dataBuffer.readPosition();
-    this.end = start + this.dataBuffer.readableByteCount();
+    this.end = start + this.dataBuffer.readableBytes();
     this.mark = start;
     this.releaseOnClose = releaseOnClose;
   }

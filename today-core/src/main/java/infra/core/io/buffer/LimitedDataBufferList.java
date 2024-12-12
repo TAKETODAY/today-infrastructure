@@ -55,21 +55,21 @@ public class LimitedDataBufferList extends ArrayList<DataBuffer> {
 
   @Override
   public boolean add(DataBuffer buffer) {
-    updateCount(buffer.readableByteCount());
+    updateCount(buffer.readableBytes());
     return super.add(buffer);
   }
 
   @Override
   public void add(int index, DataBuffer buffer) {
     super.add(index, buffer);
-    updateCount(buffer.readableByteCount());
+    updateCount(buffer.readableBytes());
   }
 
   @Override
   public boolean addAll(Collection<? extends DataBuffer> collection) {
     boolean result = super.addAll(collection);
     for (DataBuffer buffer : collection) {
-      updateCount(buffer.readableByteCount());
+      updateCount(buffer.readableBytes());
     }
     return result;
   }
@@ -78,7 +78,7 @@ public class LimitedDataBufferList extends ArrayList<DataBuffer> {
   public boolean addAll(int index, Collection<? extends DataBuffer> collection) {
     boolean result = super.addAll(index, collection);
     for (DataBuffer buffer : collection) {
-      updateCount(buffer.readableByteCount());
+      updateCount(buffer.readableBytes());
     }
     return result;
   }

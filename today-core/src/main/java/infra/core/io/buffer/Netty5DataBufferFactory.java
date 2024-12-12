@@ -135,7 +135,7 @@ public class Netty5DataBufferFactory implements DataBufferFactory {
       return netty5DataBuffer.getNativeBuffer();
     }
     else {
-      ByteBuffer byteBuffer = ByteBuffer.allocate(buffer.readableByteCount());
+      ByteBuffer byteBuffer = ByteBuffer.allocate(buffer.readableBytes());
       buffer.toByteBuffer(byteBuffer);
       return DefaultBufferAllocators.preferredAllocator().copyOf(byteBuffer);
     }

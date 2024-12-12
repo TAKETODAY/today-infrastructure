@@ -83,7 +83,7 @@ class RandomHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests 
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
       Mono<Integer> requestSizeMono = request.getBody().
               reduce(0, (integer, dataBuffer) -> integer +
-                      dataBuffer.readableByteCount()).
+                      dataBuffer.readableBytes()).
               doOnNext(size -> assertThat(size).isEqualTo(REQUEST_SIZE)).
               doOnError(throwable -> assertThat(throwable).isNull());
 

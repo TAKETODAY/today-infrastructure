@@ -54,7 +54,7 @@ public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuf
 
   @Override
   protected CharBuffer decodeInternal(DataBuffer dataBuffer, Charset charset) {
-    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
     dataBuffer.toByteBuffer(byteBuffer);
     return charset.decode(byteBuffer);
   }

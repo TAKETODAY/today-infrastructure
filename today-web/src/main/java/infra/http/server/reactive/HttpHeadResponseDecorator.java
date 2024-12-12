@@ -48,7 +48,7 @@ public class HttpHeadResponseDecorator extends ServerHttpResponseDecorator {
     if (shouldSetContentLength() && body instanceof Mono) {
       return ((Mono<? extends DataBuffer>) body).doOnSuccess(buffer -> {
                 if (buffer != null) {
-                  getHeaders().setContentLength(buffer.readableByteCount());
+                  getHeaders().setContentLength(buffer.readableBytes());
                   DataBufferUtils.release(buffer);
                 }
                 else {

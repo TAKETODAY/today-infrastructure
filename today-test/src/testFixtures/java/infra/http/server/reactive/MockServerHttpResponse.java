@@ -350,7 +350,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     @Override
     protected boolean isDataEmpty(DataBuffer dataBuffer) {
-      return dataBuffer.readableByteCount() == 0;
+      return dataBuffer.readableBytes() == 0;
     }
 
     @Override
@@ -363,7 +363,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
       }
 
       boolean ready = MockServerHttpResponse.this.isWritePossible();
-      int remaining = dataBuffer.readableByteCount();
+      int remaining = dataBuffer.readableBytes();
       if (ready && remaining > 0) {
         // In case of IOException, onError handling should call discardData(DataBuffer)..
         int written = writeToOutputStream(dataBuffer);

@@ -41,7 +41,7 @@ public abstract class DataBufferTestUtils {
    */
   public static byte[] dumpBytes(DataBuffer buffer) {
     Assert.notNull(buffer, "'buffer' is required");
-    byte[] bytes = new byte[buffer.readableByteCount()];
+    byte[] bytes = new byte[buffer.readableBytes()];
     buffer.read(bytes);
     return bytes;
   }

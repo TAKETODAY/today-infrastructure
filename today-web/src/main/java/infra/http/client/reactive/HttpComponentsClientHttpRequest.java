@@ -104,7 +104,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return doCommit(() -> {
       this.byteBufferFlux = Flux.from(body).map(dataBuffer -> {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
         dataBuffer.toByteBuffer(byteBuffer);
         return byteBuffer;
       });

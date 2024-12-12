@@ -485,7 +485,7 @@ public abstract class DataBufferUtils {
 
   /**
    * Relay buffers from the given {@link Publisher} until the total
-   * {@linkplain DataBuffer#readableByteCount() byte count} reaches
+   * {@linkplain DataBuffer#readableBytes() byte count} reaches
    * the given maximum byte count, or until the publisher is complete.
    *
    * @param publisher the publisher to filter
@@ -501,9 +501,9 @@ public abstract class DataBufferUtils {
       AtomicLong countDown = new AtomicLong(maxByteCount);
       return Flux.from(publisher)
               .map(buffer -> {
-                long remainder = countDown.addAndGet(-buffer.readableByteCount());
+                long remainder = countDown.addAndGet(-buffer.readableBytes());
                 if (remainder < 0) {
-                  int index = buffer.readableByteCount() + (int) remainder;
+                  int index = buffer.readableBytes() + (int) remainder;
                   DataBuffer split = buffer.split(index);
                   release(buffer);
                   return (T) split;
@@ -520,7 +520,7 @@ public abstract class DataBufferUtils {
 
   /**
    * Skip buffers from the given {@link Publisher} until the total
-   * {@linkplain DataBuffer#readableByteCount() byte count} reaches
+   * {@linkplain DataBuffer#readableBytes() byte count} reaches
    * the given maximum byte count, or until the publisher is complete.
    *
    * @param publisher the publisher to filter
@@ -535,14 +535,14 @@ public abstract class DataBufferUtils {
       AtomicLong countDown = new AtomicLong(maxByteCount);
       return Flux.from(publisher)
               .skipUntil(buffer -> {
-                long remainder = countDown.addAndGet(-buffer.readableByteCount());
+                long remainder = countDown.addAndGet(-buffer.readableBytes());
                 return remainder < 0;
               })
               .map(buffer -> {
                 long remainder = countDown.get();
                 if (remainder < 0) {
                   countDown.set(0);
-                  int start = buffer.readableByteCount() + (int) remainder;
+                  int start = buffer.readableBytes() + (int) remainder;
                   DataBuffer split = buffer.split(start);
                   release(split);
                 }

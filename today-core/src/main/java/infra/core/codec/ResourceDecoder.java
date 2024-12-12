@@ -65,7 +65,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
   public Resource decode(DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+    byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
     DataBufferUtils.release(dataBuffer);
 

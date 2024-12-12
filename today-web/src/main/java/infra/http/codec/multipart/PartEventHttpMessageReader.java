@@ -219,7 +219,7 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
 
   private boolean tooLarge(AtomicLong partSize, DataBuffer buffer) {
     if (this.maxPartSize != -1) {
-      long size = partSize.addAndGet(buffer.readableByteCount());
+      long size = partSize.addAndGet(buffer.readableBytes());
       return size > this.maxPartSize;
     }
     else {

@@ -121,7 +121,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     httpRequest.setWriteHandler(dataBuffers ->
             DataBufferUtils.join(dataBuffers)
                     .doOnNext(buffer -> {
-                      byte[] bytes = new byte[buffer.readableByteCount()];
+                      byte[] bytes = new byte[buffer.readableBytes()];
                       buffer.read(bytes);
                       DataBufferUtils.release(buffer);
                       contentRef.set(bytes);
@@ -170,7 +170,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
             .flatMap(part ->
                     DataBufferUtils.join(part.content())
                             .doOnNext(buffer -> {
-                              byte[] partBytes = new byte[buffer.readableByteCount()];
+                              byte[] partBytes = new byte[buffer.readableBytes()];
                               buffer.read(partBytes);
                               DataBufferUtils.release(buffer);
 

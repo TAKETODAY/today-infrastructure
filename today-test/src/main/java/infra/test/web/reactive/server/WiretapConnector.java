@@ -203,7 +203,7 @@ class WiretapConnector implements ClientHttpConnector {
     }
 
     private void handleOnComplete() {
-      byte[] bytes = new byte[this.buffer.readableByteCount()];
+      byte[] bytes = new byte[this.buffer.readableBytes()];
       this.buffer.read(bytes);
       // Ignore result: signals cannot compete
       this.content.tryEmitValue(bytes);
