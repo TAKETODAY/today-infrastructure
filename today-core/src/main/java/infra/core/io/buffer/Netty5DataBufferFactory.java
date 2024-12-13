@@ -117,6 +117,20 @@ public class Netty5DataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  public DataBuffer join(DataBuffer... dataBuffers) {
+    Assert.notEmpty(dataBuffers, "DataBuffer List must not be empty");
+    if (dataBuffers.length == 1) {
+      return dataBuffers[0];
+    }
+    CompositeBuffer composite = this.bufferAllocator.compose();
+    for (DataBuffer dataBuffer : dataBuffers) {
+      Assert.isInstanceOf(Netty5DataBuffer.class, dataBuffer);
+      composite.extendWith(((Netty5DataBuffer) dataBuffer).getNativeBuffer().send());
+    }
+    return new Netty5DataBuffer(composite, this);
+  }
+
+  @Override
   public boolean isDirect() {
     return this.bufferAllocator.getAllocationType().isDirect();
   }

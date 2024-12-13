@@ -156,6 +156,11 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
   }
 
   @Override
+  public DataBuffer join(DataBuffer... dataBuffers) {
+    return join(List.of(dataBuffers));
+  }
+
+  @Override
   public boolean isDirect() {
     return this.delegate.isDirect();
   }

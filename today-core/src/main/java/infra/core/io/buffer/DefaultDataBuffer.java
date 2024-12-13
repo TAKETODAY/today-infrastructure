@@ -19,7 +19,6 @@ package infra.core.io.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
@@ -303,6 +302,15 @@ public class DefaultDataBuffer extends DataBuffer {
   }
 
   @Override
+  public DataBuffer write(@Nullable DataBuffer source) {
+    if (source != null) {
+      ensureWritable(source.readableBytes());
+      writeInternal(source.toByteBuffer());
+    }
+    return this;
+  }
+
+  @Override
   public DefaultDataBuffer write(DataBuffer... dataBuffers) {
     if (ObjectUtils.isNotEmpty(dataBuffers)) {
       ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
@@ -318,14 +326,28 @@ public class DefaultDataBuffer extends DataBuffer {
   @Override
   public DefaultDataBuffer write(ByteBuffer... buffers) {
     if (ObjectUtils.isNotEmpty(buffers)) {
-      int capacity = Arrays.stream(buffers).mapToInt(ByteBuffer::remaining).sum();
+      int capacity = 0;
+      for (var buffer : buffers) {
+        capacity += buffer.remaining();
+      }
+
       ensureWritable(capacity);
-      Arrays.stream(buffers).forEach(this::write);
+      for (ByteBuffer buffer : buffers) {
+        writeInternal(buffer);
+      }
     }
     return this;
   }
 
-  private void write(ByteBuffer source) {
+  @Override
+  public DefaultDataBuffer write(@Nullable ByteBuffer source) {
+    if (source != null) {
+      writeInternal(source);
+    }
+    return this;
+  }
+
+  private void writeInternal(ByteBuffer source) {
     int length = source.remaining();
     ByteBuffer tmp = this.byteBuffer.duplicate();
     int limit = this.writePosition + source.remaining();

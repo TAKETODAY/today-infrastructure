@@ -99,6 +99,20 @@ public interface DataBufferFactory {
   DataBuffer join(List<? extends DataBuffer> dataBuffers);
 
   /**
+   * Return a new {@code DataBuffer} composed of the {@code dataBuffers} elements joined together.
+   * Depending on the implementation, the returned buffer may be a single buffer containing all
+   * data of the provided buffers, or it may be a true composite that contains references to the
+   * buffers.
+   * <p>Note that the given data buffers do <strong>not</strong> have to be released, as they are
+   * released as part of the returned composite.
+   *
+   * @param dataBuffers the data buffers to be composed
+   * @return a buffer that is composed of the {@code dataBuffers} argument
+   * @since 5.0
+   */
+  DataBuffer join(DataBuffer... dataBuffers);
+
+  /**
    * Indicates whether this factory allocates direct buffers (i.e. non-heap,
    * native memory).
    *

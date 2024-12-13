@@ -120,6 +120,25 @@ public class NettyDataBufferFactory implements DataBufferFactory {
     return new NettyDataBuffer(composite, this);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>This implementation uses Netty's {@link CompositeByteBuf}.
+   */
+  @Override
+  public DataBuffer join(DataBuffer... dataBuffers) {
+    Assert.notEmpty(dataBuffers, "DataBuffer array must not be empty");
+    int bufferCount = dataBuffers.length;
+    if (bufferCount == 1) {
+      return dataBuffers[0];
+    }
+    CompositeByteBuf composite = this.byteBufAllocator.compositeBuffer(bufferCount);
+    for (DataBuffer dataBuffer : dataBuffers) {
+      Assert.isInstanceOf(NettyDataBuffer.class, dataBuffer);
+      composite.addComponent(true, ((NettyDataBuffer) dataBuffer).getNativeBuffer());
+    }
+    return new NettyDataBuffer(composite, this);
+  }
+
   @Override
   public boolean isDirect() {
     return this.byteBufAllocator.isDirectBufferPooled();

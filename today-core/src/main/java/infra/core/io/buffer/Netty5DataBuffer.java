@@ -24,7 +24,6 @@ import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.ObjectUtils;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferComponent;
 import io.netty5.buffer.ComponentIterator;
@@ -190,58 +189,20 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
   }
 
   @Override
-  public Netty5DataBuffer write(DataBuffer... dataBuffers) {
-    if (ObjectUtils.isNotEmpty(dataBuffers)) {
-      if (hasNetty5DataBuffers(dataBuffers)) {
-        Buffer[] nativeBuffers = new Buffer[dataBuffers.length];
-        for (int i = 0; i < dataBuffers.length; i++) {
-          nativeBuffers[i] = ((Netty5DataBuffer) dataBuffers[i]).getNativeBuffer();
-        }
-        return write(nativeBuffers);
-      }
-      else {
-        ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
-        for (int i = 0; i < dataBuffers.length; i++) {
-          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableBytes());
-          dataBuffers[i].toByteBuffer(byteBuffers[i]);
-        }
-        return write(byteBuffers);
-      }
+  public DataBuffer write(@Nullable ByteBuffer source) {
+    if (source != null) {
+      buffer.writeBytes(source);
     }
     return this;
-  }
-
-  private static boolean hasNetty5DataBuffers(DataBuffer[] buffers) {
-    for (DataBuffer buffer : buffers) {
-      if (!(buffer instanceof Netty5DataBuffer)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override
-  public Netty5DataBuffer write(ByteBuffer... buffers) {
-    if (ObjectUtils.isNotEmpty(buffers)) {
-      for (ByteBuffer buffer : buffers) {
-        this.buffer.writeBytes(buffer);
-      }
+  public DataBuffer write(@Nullable DataBuffer source) {
+    if (source instanceof Netty5DataBuffer ndb) {
+      buffer.writeBytes(ndb.buffer);
     }
-    return this;
-  }
-
-  /**
-   * Writes one or more Netty 5 {@link Buffer Buffers} to this buffer,
-   * starting at the current writing position.
-   *
-   * @param buffers the buffers to write into this buffer
-   * @return this buffer
-   */
-  public Netty5DataBuffer write(Buffer... buffers) {
-    if (ObjectUtils.isNotEmpty(buffers)) {
-      for (Buffer buffer : buffers) {
-        this.buffer.writeBytes(buffer);
-      }
+    else if (source != null) {
+      buffer.writeBytes(source.toByteBuffer());
     }
     return this;
   }

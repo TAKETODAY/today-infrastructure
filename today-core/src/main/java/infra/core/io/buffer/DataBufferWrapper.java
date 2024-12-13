@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * Provides a convenient implementation of the {@link DataBuffer} interface
@@ -87,13 +88,15 @@ public class DataBufferWrapper extends DataBuffer {
   }
 
   @Override
-  public DataBuffer capacity(int capacity) {
-    return this.delegate.capacity(capacity);
+  public DataBufferWrapper capacity(int capacity) {
+    this.delegate.capacity(capacity);
+    return this;
   }
 
   @Override
-  public DataBuffer ensureWritable(int capacity) {
-    return this.delegate.ensureWritable(capacity);
+  public DataBufferWrapper ensureWritable(int capacity) {
+    this.delegate.ensureWritable(capacity);
+    return this;
   }
 
   @Override
@@ -102,8 +105,9 @@ public class DataBufferWrapper extends DataBuffer {
   }
 
   @Override
-  public DataBuffer readPosition(int readPosition) {
-    return this.delegate.readPosition(readPosition);
+  public DataBufferWrapper readPosition(int readPosition) {
+    this.delegate.readPosition(readPosition);
+    return this;
   }
 
   @Override
@@ -112,8 +116,9 @@ public class DataBufferWrapper extends DataBuffer {
   }
 
   @Override
-  public DataBuffer writePosition(int writePosition) {
-    return this.delegate.writePosition(writePosition);
+  public DataBufferWrapper writePosition(int writePosition) {
+    this.delegate.writePosition(writePosition);
+    return this;
   }
 
   @Override
@@ -127,44 +132,63 @@ public class DataBufferWrapper extends DataBuffer {
   }
 
   @Override
-  public DataBuffer read(byte[] destination) {
-    return this.delegate.read(destination);
+  public DataBufferWrapper read(byte[] destination) {
+    this.delegate.read(destination);
+    return this;
   }
 
   @Override
-  public DataBuffer read(byte[] destination, int offset, int length) {
-    return this.delegate.read(destination, offset, length);
+  public DataBufferWrapper read(byte[] destination, int offset, int length) {
+    this.delegate.read(destination, offset, length);
+    return this;
   }
 
   @Override
-  public DataBuffer write(byte b) {
-    return this.delegate.write(b);
+  public DataBufferWrapper write(byte b) {
+    this.delegate.write(b);
+    return this;
   }
 
   @Override
-  public DataBuffer write(byte[] source) {
-    return this.delegate.write(source);
+  public DataBufferWrapper write(byte[] source) {
+    this.delegate.write(source);
+    return this;
   }
 
   @Override
-  public DataBuffer write(byte[] source, int offset, int length) {
-    return this.delegate.write(source, offset, length);
+  public DataBufferWrapper write(byte[] source, int offset, int length) {
+    this.delegate.write(source, offset, length);
+    return this;
   }
 
   @Override
-  public DataBuffer write(DataBuffer... buffers) {
-    return this.delegate.write(buffers);
+  public DataBufferWrapper write(DataBuffer... buffers) {
+    this.delegate.write(buffers);
+    return this;
   }
 
   @Override
-  public DataBuffer write(ByteBuffer... buffers) {
-    return this.delegate.write(buffers);
+  public DataBufferWrapper write(ByteBuffer... buffers) {
+    this.delegate.write(buffers);
+    return this;
   }
 
   @Override
-  public DataBuffer write(CharSequence charSequence,
-          Charset charset) {
-    return this.delegate.write(charSequence, charset);
+  public DataBufferWrapper write(@Nullable DataBuffer source) {
+    delegate.write(source);
+    return this;
+  }
+
+  @Override
+  public DataBufferWrapper write(@Nullable ByteBuffer source) {
+    delegate.write(source);
+    return this;
+  }
+
+  @Override
+  public DataBufferWrapper write(CharSequence charSequence, Charset charset) {
+    delegate.write(charSequence, charset);
+    return this;
   }
 
   @Override
