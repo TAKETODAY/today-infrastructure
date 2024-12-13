@@ -18,6 +18,7 @@
 package infra.web.socket.server.support;
 
 import infra.context.ApplicationContext;
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
@@ -27,6 +28,7 @@ import infra.web.socket.Message;
 import infra.web.socket.PingMessage;
 import infra.web.socket.PongMessage;
 import infra.web.socket.TextMessage;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -55,26 +57,27 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
    */
   @Override
   protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
-    WebSocketHolder socketHolder = WebSocketHolder.find(ctx.channel());
-    if (socketHolder == null) {
+    Channel channel = ctx.channel();
+    WebSocketHolder holder = WebSocketHolder.find(channel);
+    if (holder == null) {
       return;
     }
     if (frame instanceof CloseWebSocketFrame closeFrame) {
       int statusCode = closeFrame.statusCode();
       String reasonText = closeFrame.reasonText();
       CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
-      close(ctx, closeStatus);
-      socketHolder.unbind(ctx.channel());
-      ctx.close();
+      close(channel, closeStatus);
+      holder.unbind(channel);
+      channel.close();
     }
     else {
-      Message<?> message = adaptMessage(frame);
+      Message<?> message = adaptMessage(holder.allocator, frame);
       if (message != null) {
         try {
-          socketHolder.wsHandler.handleMessage(socketHolder.session, message);
+          holder.wsHandler.handleMessage(holder.session, message);
         }
         catch (Exception e) {
-          tryCloseWithError(socketHolder.session, e, log);
+          tryCloseWithError(holder.session, e, log);
         }
       }
     }
@@ -83,7 +86,7 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     try {
-      close(ctx, CloseStatus.NORMAL);
+      close(ctx.channel(), CloseStatus.NORMAL);
     }
     finally {
       ctx.fireChannelInactive();
@@ -106,8 +109,8 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
     }
   }
 
-  private static void close(ChannelHandlerContext ctx, CloseStatus closeStatus) {
-    WebSocketHolder socketHolder = WebSocketHolder.find(ctx.channel());
+  private static void close(Channel channel, CloseStatus closeStatus) {
+    WebSocketHolder socketHolder = WebSocketHolder.find(channel);
     if (socketHolder != null) {
       try {
         socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
@@ -125,19 +128,19 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
    * @return websocket message
    */
   @Nullable
-  public static Message<?> adaptMessage(WebSocketFrame frame) {
+  public static Message<?> adaptMessage(NettyDataBufferFactory allocator, WebSocketFrame frame) {
     if (frame instanceof PingWebSocketFrame) {
-      return new PingMessage(frame.content().nioBuffer());
+      return new PingMessage(allocator.wrap(frame.content()));
     }
     if (frame instanceof PongWebSocketFrame) {
-      return new PongMessage(frame.content().nioBuffer());
+      return new PongMessage(allocator.wrap(frame.content()));
     }
     if (frame instanceof TextWebSocketFrame twsf) {
       String text = twsf.text();
       return new TextMessage(text, frame.isFinalFragment());
     }
     if (frame instanceof BinaryWebSocketFrame) {
-      return new BinaryMessage(frame.content().nioBuffer(), frame.isFinalFragment());
+      return new BinaryMessage(allocator.wrap(frame.content()), frame.isFinalFragment());
     }
     return null;
   }

@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
+import infra.util.ObjectUtils;
 
 /**
  * Basic abstraction over byte buffers.
@@ -233,6 +235,27 @@ public abstract class DataBuffer {
   public abstract DataBuffer write(byte[] source, int offset, int length);
 
   /**
+   * Write one {@code DataBuffer} to this buffer, starting at the current
+   * writing position. It is the responsibility of the caller to
+   * {@linkplain DataBufferUtils#release(DataBuffer) release} the given data buffers.
+   *
+   * @param source the byte buffer to write into this buffer
+   * @return this buffer
+   * @since 5.0
+   */
+  public abstract DataBuffer write(@Nullable DataBuffer source);
+
+  /**
+   * Write one {@code ByteBuffer} to this buffer, starting at the current
+   * writing position.
+   *
+   * @param source the byte buffer to write into this buffer
+   * @return this buffer
+   * @since 5.0
+   */
+  public abstract DataBuffer write(@Nullable ByteBuffer source);
+
+  /**
    * Write one or more {@code DataBuffer}s to this buffer, starting at the current
    * writing position. It is the responsibility of the caller to
    * {@linkplain DataBufferUtils#release(DataBuffer) release} the given data buffers.
@@ -240,7 +263,14 @@ public abstract class DataBuffer {
    * @param buffers the byte buffers to write into this buffer
    * @return this buffer
    */
-  public abstract DataBuffer write(DataBuffer... buffers);
+  public DataBuffer write(DataBuffer... buffers) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
+      for (DataBuffer dataBuffer : buffers) {
+        write(dataBuffer);
+      }
+    }
+    return this;
+  }
 
   /**
    * Write one or more {@link ByteBuffer} to this buffer, starting at the current
@@ -249,7 +279,14 @@ public abstract class DataBuffer {
    * @param buffers the byte buffers to write into this buffer
    * @return this buffer
    */
-  public abstract DataBuffer write(ByteBuffer... buffers);
+  public DataBuffer write(ByteBuffer... buffers) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
+      for (ByteBuffer buffer : buffers) {
+        write(buffer);
+      }
+    }
+    return this;
+  }
 
   /**
    * Write the given {@code CharSequence} using the given {@code Charset},
@@ -590,6 +627,14 @@ public abstract class DataBuffer {
    */
   public void close() {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return empty buffer
+   * @since 2.5
+   */
+  public static DataBuffer empty() {
+    return DefaultDataBuffer.EMPTY;
   }
 
   /**

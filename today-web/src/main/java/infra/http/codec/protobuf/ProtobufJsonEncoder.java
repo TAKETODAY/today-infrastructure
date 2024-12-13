@@ -124,8 +124,8 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
               byte[] delimiter = helper.getDelimiter();
               DataBuffer dataBuffer = encodeValue(value, bufferFactory, MESSAGE_TYPE, mimeType, hints);
               return (prefix.length > 0 ?
-                      bufferFactory.join(List.of(bufferFactory.wrap(prefix), bufferFactory.wrap(delimiter), dataBuffer)) :
-                      bufferFactory.join(List.of(bufferFactory.wrap(delimiter), dataBuffer)));
+                      bufferFactory.join(bufferFactory.wrap(prefix), bufferFactory.wrap(delimiter), dataBuffer) :
+                      bufferFactory.join(bufferFactory.wrap(delimiter), dataBuffer));
             })
             .switchIfEmpty(Mono.fromCallable(() -> bufferFactory.wrap(helper.getPrefix())))
             .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.socket;
 
-import java.nio.ByteBuffer;
+import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.DefaultDataBufferFactory;
 
 /**
  * A binary WebSocket message.
  *
- * @author TODAY 2021/4/3 11:57
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2024/12/12 20:13
  */
-public class BinaryMessage extends AbstractMessage<ByteBuffer> {
+public class BinaryMessage extends AbstractMessage<DataBuffer> {
 
   /**
-   * Create a new binary WebSocket message with the given ByteBuffer payload.
+   * Create a new binary WebSocket message with the given DataBuffer payload.
    *
    * @param payload the non-null payload
    */
-  public BinaryMessage(ByteBuffer payload) {
-    super(payload, true);
+  public BinaryMessage(DataBuffer payload) {
+    super(payload);
   }
 
   /**
@@ -48,7 +46,7 @@ public class BinaryMessage extends AbstractMessage<ByteBuffer> {
    * @param payload the non-null payload
    * @param isLast if the message is the last of a series of partial messages
    */
-  public BinaryMessage(ByteBuffer payload, boolean isLast) {
+  public BinaryMessage(DataBuffer payload, boolean isLast) {
     super(payload, isLast);
   }
 
@@ -86,17 +84,12 @@ public class BinaryMessage extends AbstractMessage<ByteBuffer> {
    * @param isLast if the message is the last of a series of partial messages
    */
   public BinaryMessage(byte[] payload, int offset, int length, boolean isLast) {
-    super(ByteBuffer.wrap(payload, offset, length), isLast);
+    super(DefaultDataBufferFactory.sharedInstance.wrap(payload, offset, length), isLast);
   }
 
-  	@Override
-	public int getPayloadLength() {
-		return getPayload().remaining();
-	}
-
-	@Override
-	protected String toStringPayload() {
-		return getPayload().toString();
-	}
+  @Override
+  public int getPayloadLength() {
+    return payload.readableBytes();
+  }
 
 }

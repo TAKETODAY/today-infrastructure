@@ -593,7 +593,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void emptyAsByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -613,7 +612,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     buffer.write(new byte[] { 'a', 'b', 'c' });
     buffer.read(); // skip a
 
-    @SuppressWarnings("deprecation")
     ByteBuffer result = buffer.toByteBuffer();
     assertThat(result.capacity()).isEqualTo(2);
     assertThat(result.remaining()).isEqualTo(2);
@@ -632,7 +630,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     DataBuffer buffer = createDataBuffer(3);
     buffer.write(new byte[] { 'a', 'b', 'c' });
 
-    @SuppressWarnings("deprecation")
     ByteBuffer result = buffer.toByteBuffer(1, 2);
     assertThat(result.capacity()).isEqualTo(2);
     assertThat(result.remaining()).isEqualTo(2);
@@ -764,7 +761,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void slice(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -792,7 +788,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void retainedSlice(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support retainedSlice");
@@ -822,7 +817,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void spr16351(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -927,7 +921,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // gh-31605
   void shouldHonorSourceBuffersReadPosition(DataBufferFactory bufferFactory) {
     DataBuffer dataBuffer = bufferFactory.wrap("ab".getBytes(StandardCharsets.UTF_8));
     dataBuffer.readPosition(1);

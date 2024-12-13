@@ -19,7 +19,6 @@ package infra.core.io.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
@@ -29,8 +28,8 @@ import infra.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link DataBuffer} interface that uses a
- * {@link ByteBuffer} internally. with separate read and write positions.
- * Constructed using the {@link DefaultDataBufferFactory}.
+ * {@link java.nio.ByteBuffer} internally. with separate read and write positions.
+ * Constructed using the {@link infra.core.io.buffer.DefaultDataBufferFactory}.
  *
  * <p>Inspired by Netty's {@code ByteBuf}. Introduced so that non-Netty runtimes
  * (i.e. Mock) do not require Netty on the classpath.
@@ -39,7 +38,7 @@ import infra.util.ObjectUtils;
  * @author Juergen Hoeller
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DefaultDataBufferFactory
+ * @see infra.core.io.buffer.DefaultDataBufferFactory
  * @since 4.0
  */
 public class DefaultDataBuffer extends DataBuffer {
@@ -50,6 +49,8 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private final DefaultDataBufferFactory dataBufferFactory;
 
+  static final DefaultDataBuffer EMPTY = new DefaultDataBuffer();
+
   private ByteBuffer byteBuffer;
 
   private int capacity;
@@ -58,13 +59,21 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private int writePosition;
 
+  /**
+   * empty constructor
+   */
+  private DefaultDataBuffer() {
+    this.dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
+    this.byteBuffer = ByteBuffer.allocate(0).asReadOnlyBuffer();
+  }
+
   private DefaultDataBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {
     Assert.notNull(dataBufferFactory, "DefaultDataBufferFactory is required");
     Assert.notNull(byteBuffer, "ByteBuffer is required");
-    this.dataBufferFactory = dataBufferFactory;
     ByteBuffer slice = byteBuffer.slice();
     this.byteBuffer = slice;
     this.capacity = slice.remaining();
+    this.dataBufferFactory = dataBufferFactory;
   }
 
   static DefaultDataBuffer fromFilledByteBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {
@@ -303,6 +312,15 @@ public class DefaultDataBuffer extends DataBuffer {
   }
 
   @Override
+  public DataBuffer write(@Nullable DataBuffer source) {
+    if (source != null) {
+      ensureWritable(source.readableBytes());
+      writeInternal(source.toByteBuffer());
+    }
+    return this;
+  }
+
+  @Override
   public DefaultDataBuffer write(DataBuffer... dataBuffers) {
     if (ObjectUtils.isNotEmpty(dataBuffers)) {
       ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
@@ -318,14 +336,28 @@ public class DefaultDataBuffer extends DataBuffer {
   @Override
   public DefaultDataBuffer write(ByteBuffer... buffers) {
     if (ObjectUtils.isNotEmpty(buffers)) {
-      int capacity = Arrays.stream(buffers).mapToInt(ByteBuffer::remaining).sum();
+      int capacity = 0;
+      for (var buffer : buffers) {
+        capacity += buffer.remaining();
+      }
+
       ensureWritable(capacity);
-      Arrays.stream(buffers).forEach(this::write);
+      for (ByteBuffer buffer : buffers) {
+        writeInternal(buffer);
+      }
     }
     return this;
   }
 
-  private void write(ByteBuffer source) {
+  @Override
+  public DefaultDataBuffer write(@Nullable ByteBuffer source) {
+    if (source != null) {
+      writeInternal(source);
+    }
+    return this;
+  }
+
+  private void writeInternal(ByteBuffer source) {
     int length = source.remaining();
     ByteBuffer tmp = this.byteBuffer.duplicate();
     int limit = this.writePosition + source.remaining();

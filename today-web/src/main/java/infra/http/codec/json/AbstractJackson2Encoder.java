@@ -151,7 +151,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
 
       Map<String, Object> hintsToUse =
               contextView.isEmpty() ? hints :
-              Hints.merge(hints, ContextView.class.getName(), contextView);
+                      Hints.merge(hints, ContextView.class.getName(), contextView);
 
       if (inputStream instanceof Mono) {
         return Mono.from(inputStream)
@@ -194,8 +194,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
                             delimiter, EMPTY_BYTES);
 
                     return prefix.length > 0
-                           ? bufferFactory.join(List.of(bufferFactory.wrap(prefix), dataBuffer))
-                           : dataBuffer;
+                            ? bufferFactory.join(bufferFactory.wrap(prefix), dataBuffer)
+                            : dataBuffer;
                   })
                   .switchIfEmpty(Mono.fromCallable(() -> bufferFactory.wrap(helper.getPrefix())))
                   .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));

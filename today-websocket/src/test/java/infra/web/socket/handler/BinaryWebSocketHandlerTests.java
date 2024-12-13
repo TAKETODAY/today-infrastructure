@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import infra.web.socket.BinaryMessage;
 import infra.web.socket.CloseStatus;
+import infra.web.socket.BinaryMessage;
 import infra.web.socket.TextMessage;
 import infra.web.socket.WebSocketSession;
 

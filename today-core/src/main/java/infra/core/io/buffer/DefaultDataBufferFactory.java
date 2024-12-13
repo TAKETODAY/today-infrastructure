@@ -118,10 +118,30 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
   @Override
   public DefaultDataBuffer join(List<? extends DataBuffer> dataBuffers) {
     Assert.notEmpty(dataBuffers, "DataBuffer List must not be empty");
-    int capacity = dataBuffers.stream().mapToInt(DataBuffer::readableBytes).sum();
+    int capacity = 0;
+    for (DataBuffer buffer : dataBuffers) {
+      capacity += buffer.readableBytes();
+    }
     DefaultDataBuffer result = allocateBuffer(capacity);
-    dataBuffers.forEach(result::write);
-    dataBuffers.forEach(DataBufferUtils::release);
+    for (DataBuffer buffer : dataBuffers) {
+      result.write(buffer);
+      DataBufferUtils.release(buffer);
+    }
+    return result;
+  }
+
+  @Override
+  public DefaultDataBuffer join(DataBuffer... dataBuffers) {
+    Assert.notEmpty(dataBuffers, "DataBuffer array must not be empty");
+    int capacity = 0;
+    for (DataBuffer buffer : dataBuffers) {
+      capacity += buffer.readableBytes();
+    }
+    DefaultDataBuffer result = allocateBuffer(capacity);
+    for (DataBuffer buffer : dataBuffers) {
+      result.write(buffer);
+      DataBufferUtils.release(buffer);
+    }
     return result;
   }
 

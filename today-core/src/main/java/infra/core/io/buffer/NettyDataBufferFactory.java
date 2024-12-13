@@ -39,36 +39,36 @@ import io.netty.buffer.Unpooled;
  */
 public class NettyDataBufferFactory implements DataBufferFactory {
 
-  private final ByteBufAllocator byteBufAllocator;
+  private final ByteBufAllocator allocator;
 
   /**
    * Create a new {@code NettyDataBufferFactory} based on the given factory.
    *
-   * @param byteBufAllocator the factory to use
+   * @param allocator the factory to use
    * @see io.netty.buffer.PooledByteBufAllocator
    * @see io.netty.buffer.UnpooledByteBufAllocator
    */
-  public NettyDataBufferFactory(ByteBufAllocator byteBufAllocator) {
-    Assert.notNull(byteBufAllocator, "ByteBufAllocator is required");
-    this.byteBufAllocator = byteBufAllocator;
+  public NettyDataBufferFactory(ByteBufAllocator allocator) {
+    Assert.notNull(allocator, "ByteBufAllocator is required");
+    this.allocator = allocator;
   }
 
   /**
    * Return the {@code ByteBufAllocator} used by this factory.
    */
   public ByteBufAllocator getByteBufAllocator() {
-    return this.byteBufAllocator;
+    return this.allocator;
   }
 
   @Override
   public NettyDataBuffer allocateBuffer() {
-    ByteBuf byteBuf = this.byteBufAllocator.buffer();
+    ByteBuf byteBuf = this.allocator.buffer();
     return new NettyDataBuffer(byteBuf, this);
   }
 
   @Override
   public NettyDataBuffer allocateBuffer(int initialCapacity) {
-    ByteBuf byteBuf = this.byteBufAllocator.buffer(initialCapacity);
+    ByteBuf byteBuf = this.allocator.buffer(initialCapacity);
     return new NettyDataBuffer(byteBuf, this);
   }
 
@@ -112,7 +112,26 @@ public class NettyDataBufferFactory implements DataBufferFactory {
     if (bufferCount == 1) {
       return dataBuffers.get(0);
     }
-    CompositeByteBuf composite = this.byteBufAllocator.compositeBuffer(bufferCount);
+    CompositeByteBuf composite = this.allocator.compositeBuffer(bufferCount);
+    for (DataBuffer dataBuffer : dataBuffers) {
+      Assert.isInstanceOf(NettyDataBuffer.class, dataBuffer);
+      composite.addComponent(true, ((NettyDataBuffer) dataBuffer).getNativeBuffer());
+    }
+    return new NettyDataBuffer(composite, this);
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>This implementation uses Netty's {@link CompositeByteBuf}.
+   */
+  @Override
+  public DataBuffer join(DataBuffer... dataBuffers) {
+    Assert.notEmpty(dataBuffers, "DataBuffer array must not be empty");
+    int bufferCount = dataBuffers.length;
+    if (bufferCount == 1) {
+      return dataBuffers[0];
+    }
+    CompositeByteBuf composite = this.allocator.compositeBuffer(bufferCount);
     for (DataBuffer dataBuffer : dataBuffers) {
       Assert.isInstanceOf(NettyDataBuffer.class, dataBuffer);
       composite.addComponent(true, ((NettyDataBuffer) dataBuffer).getNativeBuffer());
@@ -122,32 +141,12 @@ public class NettyDataBufferFactory implements DataBufferFactory {
 
   @Override
   public boolean isDirect() {
-    return this.byteBufAllocator.isDirectBufferPooled();
-  }
-
-  /**
-   * Return the given Netty {@link DataBuffer} as a {@link ByteBuf}.
-   * <p>Returns the {@linkplain NettyDataBuffer#getNativeBuffer() native buffer}
-   * if {@code dataBuffer} is a {@link NettyDataBuffer}; returns
-   * {@link Unpooled#wrappedBuffer(ByteBuffer)} otherwise.
-   *
-   * @param dataBuffer the {@code DataBuffer} to return a {@code ByteBuf} for
-   * @return the netty {@code ByteBuf}
-   */
-  public static ByteBuf toByteBuf(DataBuffer dataBuffer) {
-    if (dataBuffer instanceof NettyDataBuffer nettyDataBuffer) {
-      return nettyDataBuffer.getNativeBuffer();
-    }
-    else {
-      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
-      dataBuffer.toByteBuffer(byteBuffer);
-      return Unpooled.wrappedBuffer(byteBuffer);
-    }
+    return this.allocator.isDirectBufferPooled();
   }
 
   @Override
   public String toString() {
-    return "NettyDataBufferFactory (" + this.byteBufAllocator + ")";
+    return "NettyDataBufferFactory (" + this.allocator + ")";
   }
 
 }

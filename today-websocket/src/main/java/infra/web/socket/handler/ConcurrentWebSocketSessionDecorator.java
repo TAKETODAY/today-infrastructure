@@ -18,12 +18,12 @@
 package infra.web.socket.handler;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
@@ -149,8 +149,8 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
   }
 
   @Override
-  public void sendBinary(ByteBuffer data) throws IOException {
-    sendMessage(new BinaryMessage(data));
+  public void sendBinary(DataBuffer buffer) throws IOException {
+    sendMessage(new BinaryMessage(buffer));
   }
 
   @Override

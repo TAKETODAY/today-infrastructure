@@ -19,10 +19,10 @@ package infra.web.socket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
 import infra.core.AttributeAccessor;
 import infra.core.AttributeAccessorSupport;
+import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
 import infra.util.AlternativeJdkIdGenerator;
 
@@ -61,8 +61,9 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    *
    * @param buffer the message to be sent.
    * @throws IOException if there is a problem delivering the message.
+   * @since 5.0
    */
-  public void sendBinary(ByteBuffer buffer) throws IOException {
+  public void sendBinary(DataBuffer buffer) throws IOException {
     sendMessage(new BinaryMessage(buffer));
   }
 

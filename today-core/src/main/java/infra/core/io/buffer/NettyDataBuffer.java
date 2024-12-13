@@ -25,9 +25,9 @@ import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.ObjectUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty
@@ -63,6 +63,30 @@ public class NettyDataBuffer extends DataBuffer {
    */
   public ByteBuf getNativeBuffer() {
     return this.byteBuf;
+  }
+
+  /**
+   * Return the given Netty {@link DataBuffer} as a {@link ByteBuf}.
+   * <p>Returns the {@linkplain NettyDataBuffer#getNativeBuffer() native buffer}
+   * if {@code dataBuffer} is a {@link NettyDataBuffer}; returns
+   * {@link Unpooled#wrappedBuffer(ByteBuffer)} otherwise.
+   *
+   * @param dataBuffer the {@code DataBuffer} to return a {@code ByteBuf} for
+   * @return the netty {@code ByteBuf}
+   * @since 5.0
+   */
+  public static ByteBuf toByteBuf(DataBuffer dataBuffer) {
+    if (dataBuffer instanceof NettyDataBuffer nettyDataBuffer) {
+      return nettyDataBuffer.getNativeBuffer();
+    }
+    else if (dataBuffer.readableBytes() == 0) {
+      return Unpooled.EMPTY_BUFFER;
+    }
+    else {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
+      dataBuffer.toByteBuffer(byteBuffer);
+      return Unpooled.wrappedBuffer(byteBuffer);
+    }
   }
 
   @Override
@@ -183,58 +207,20 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
-  public NettyDataBuffer write(DataBuffer... dataBuffers) {
-    if (ObjectUtils.isNotEmpty(dataBuffers)) {
-      if (hasNettyDataBuffers(dataBuffers)) {
-        ByteBuf[] nativeBuffers = new ByteBuf[dataBuffers.length];
-        for (int i = 0; i < dataBuffers.length; i++) {
-          nativeBuffers[i] = ((NettyDataBuffer) dataBuffers[i]).getNativeBuffer();
-        }
-        write(nativeBuffers);
-      }
-      else {
-        ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
-        for (int i = 0; i < dataBuffers.length; i++) {
-          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableBytes());
-          dataBuffers[i].toByteBuffer(byteBuffers[i]);
-        }
-        write(byteBuffers);
-      }
+  public DataBuffer write(@Nullable ByteBuffer source) {
+    if (source != null) {
+      byteBuf.writeBytes(source);
     }
     return this;
-  }
-
-  private static boolean hasNettyDataBuffers(DataBuffer[] buffers) {
-    for (DataBuffer buffer : buffers) {
-      if (!(buffer instanceof NettyDataBuffer)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override
-  public NettyDataBuffer write(ByteBuffer... buffers) {
-    if (ObjectUtils.isNotEmpty(buffers)) {
-      for (ByteBuffer buffer : buffers) {
-        this.byteBuf.writeBytes(buffer);
-      }
+  public DataBuffer write(@Nullable DataBuffer source) {
+    if (source instanceof NettyDataBuffer ndb) {
+      byteBuf.writeBytes(ndb.byteBuf);
     }
-    return this;
-  }
-
-  /**
-   * Writes one or more Netty {@link ByteBuf ByteBufs} to this buffer,
-   * starting at the current writing position.
-   *
-   * @param byteBufs the buffers to write into this buffer
-   * @return this buffer
-   */
-  public NettyDataBuffer write(ByteBuf... byteBufs) {
-    if (ObjectUtils.isNotEmpty(byteBufs)) {
-      for (ByteBuf byteBuf : byteBufs) {
-        this.byteBuf.writeBytes(byteBuf);
-      }
+    else if (source != null) {
+      byteBuf.writeBytes(source.toByteBuffer());
     }
     return this;
   }

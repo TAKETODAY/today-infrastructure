@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DataBufferUtils;
-import infra.core.io.buffer.NettyDataBufferFactory;
+import infra.core.io.buffer.NettyDataBuffer;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -130,8 +130,8 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   private Publisher<ByteBuf> toByteBuf(Publisher<? extends DataBuffer> dataBuffers) {
     return dataBuffers instanceof Mono
-            ? Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf)
-            : Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+            ? Mono.from(dataBuffers).map(NettyDataBuffer::toByteBuf)
+            : Flux.from(dataBuffers).map(NettyDataBuffer::toByteBuf);
   }
 
   @Override

@@ -19,9 +19,10 @@ package infra.web.socket.server.support;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
+import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.NettyDataBuffer;
 import infra.lang.Nullable;
 import infra.web.socket.BinaryMessage;
 import infra.web.socket.CloseStatus;
@@ -60,16 +61,16 @@ public class NettyWebSocketSession extends WebSocketSession {
   @Override
   public void sendMessage(Message<?> message) throws IOException {
     if (message instanceof TextMessage) {
-      sendText((String) message.getPayload());
+      sendText((CharSequence) message.getPayload());
     }
     else if (message instanceof BinaryMessage bm) {
-      sendBinary(bm.getPayload());
+      channel.writeAndFlush(new BinaryWebSocketFrame(NettyDataBuffer.toByteBuf(bm.getPayload())));
     }
     else if (message instanceof PingMessage pm) {
-      channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
+      channel.writeAndFlush(new PingWebSocketFrame(NettyDataBuffer.toByteBuf(pm.getPayload())));
     }
     else if (message instanceof PongMessage pm) {
-      channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(pm.getPayload())));
+      channel.writeAndFlush(new PongWebSocketFrame(NettyDataBuffer.toByteBuf(pm.getPayload())));
     }
     else {
       throw new IllegalStateException("Unexpected WebSocket message type: " + message);
@@ -87,8 +88,8 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void sendBinary(ByteBuffer payload) {
-    channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
+  public void sendBinary(DataBuffer buffer) throws IOException {
+    channel.writeAndFlush(new BinaryWebSocketFrame(NettyDataBuffer.toByteBuf(buffer)));
   }
 
   @Override
