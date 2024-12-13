@@ -20,8 +20,8 @@ package infra.web.socket.handler;
 import java.io.IOException;
 
 import infra.lang.Nullable;
-import infra.web.socket.BinaryMessage;
 import infra.web.socket.CloseStatus;
+import infra.web.socket.BinaryMessage;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 

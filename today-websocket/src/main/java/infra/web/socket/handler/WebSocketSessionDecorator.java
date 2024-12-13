@@ -19,12 +19,12 @@ package infra.web.socket.handler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
+import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.Message;
@@ -99,8 +99,8 @@ public class WebSocketSessionDecorator extends WebSocketSession {
   }
 
   @Override
-  public void sendBinary(ByteBuffer data) throws IOException {
-    delegate.sendBinary(data);
+  public void sendBinary(DataBuffer buffer) throws IOException {
+    delegate.sendBinary(buffer);
   }
 
   @Override

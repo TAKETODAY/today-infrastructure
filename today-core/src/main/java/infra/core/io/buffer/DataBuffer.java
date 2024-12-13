@@ -630,6 +630,14 @@ public abstract class DataBuffer {
   }
 
   /**
+   * @return empty buffer
+   * @since 2.5
+   */
+  public static DataBuffer empty() {
+    return DefaultDataBuffer.EMPTY;
+  }
+
+  /**
    * A dedicated iterator type that ensures the lifecycle of iterated
    * {@link ByteBuffer} elements. This iterator must be used in a
    * try-with-resources clause or explicitly {@linkplain #close() closed}.

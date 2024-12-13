@@ -26,6 +26,7 @@ import java.util.Map;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
+import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
@@ -95,11 +96,11 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
     return doCommit(() -> {
       // Send as Mono if possible as an optimization hint to Reactor Netty
       if (body instanceof Mono) {
-        Mono<ByteBuf> byteBufMono = Mono.from(body).map(NettyDataBufferFactory::toByteBuf);
+        Mono<ByteBuf> byteBufMono = Mono.from(body).map(NettyDataBuffer::toByteBuf);
         return this.outbound.send(byteBufMono).then();
       }
       else {
-        Flux<ByteBuf> byteBufFlux = Flux.from(body).map(NettyDataBufferFactory::toByteBuf);
+        Flux<ByteBuf> byteBufFlux = Flux.from(body).map(NettyDataBuffer::toByteBuf);
         return this.outbound.send(byteBufFlux).then();
       }
     });
@@ -112,7 +113,7 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
   }
 
   private static Publisher<ByteBuf> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
-    return Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+    return Flux.from(dataBuffers).map(NettyDataBuffer::toByteBuf);
   }
 
   @Override

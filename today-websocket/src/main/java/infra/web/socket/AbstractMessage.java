@@ -25,9 +25,9 @@ import infra.lang.Assert;
  */
 public abstract class AbstractMessage<T> implements Message<T> {
 
-  private final T payload;
+  protected final T payload;
 
-  private final boolean last;
+  protected final boolean last;
 
   /**
    * Create a new WebSocket message with the given payload.

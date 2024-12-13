@@ -28,8 +28,8 @@ import infra.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link DataBuffer} interface that uses a
- * {@link ByteBuffer} internally. with separate read and write positions.
- * Constructed using the {@link DefaultDataBufferFactory}.
+ * {@link java.nio.ByteBuffer} internally. with separate read and write positions.
+ * Constructed using the {@link infra.core.io.buffer.DefaultDataBufferFactory}.
  *
  * <p>Inspired by Netty's {@code ByteBuf}. Introduced so that non-Netty runtimes
  * (i.e. Mock) do not require Netty on the classpath.
@@ -38,7 +38,7 @@ import infra.util.ObjectUtils;
  * @author Juergen Hoeller
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DefaultDataBufferFactory
+ * @see infra.core.io.buffer.DefaultDataBufferFactory
  * @since 4.0
  */
 public class DefaultDataBuffer extends DataBuffer {
@@ -49,6 +49,8 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private final DefaultDataBufferFactory dataBufferFactory;
 
+  static final DefaultDataBuffer EMPTY = new DefaultDataBuffer();
+
   private ByteBuffer byteBuffer;
 
   private int capacity;
@@ -57,13 +59,21 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private int writePosition;
 
+  /**
+   * empty constructor
+   */
+  private DefaultDataBuffer() {
+    this.dataBufferFactory = DefaultDataBufferFactory.sharedInstance;
+    this.byteBuffer = ByteBuffer.allocate(0).asReadOnlyBuffer();
+  }
+
   private DefaultDataBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {
     Assert.notNull(dataBufferFactory, "DefaultDataBufferFactory is required");
     Assert.notNull(byteBuffer, "ByteBuffer is required");
-    this.dataBufferFactory = dataBufferFactory;
     ByteBuffer slice = byteBuffer.slice();
     this.byteBuffer = slice;
     this.capacity = slice.remaining();
+    this.dataBufferFactory = dataBufferFactory;
   }
 
   static DefaultDataBuffer fromFilledByteBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import infra.core.Decorator;
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -293,6 +294,8 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     public final Promise<WebSocketSession> future = Future.forPromise();
 
+    private NettyDataBufferFactory allocator;
+
     private WebSocketSession session;
 
     MessageHandler(URI uri, WebSocketHandler handler, WebSocketClientHandshaker handshaker) {
@@ -309,7 +312,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
       if (msg instanceof WebSocketFrame frame) {
-        Message<?> message = WsNettyChannelHandler.adaptMessage(frame);
+        Message<?> message = WsNettyChannelHandler.adaptMessage(allocator, frame);
         if (message != null) {
           try {
             handler.handleMessage(session, message);
@@ -326,6 +329,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
       else if (msg instanceof FullHttpResponse response) {
         if (!handshaker.isHandshakeComplete()) {
           Channel channel = ctx.channel();
+          allocator = new NettyDataBufferFactory(channel.alloc());
           try {
             handshaker.finishHandshake(channel, response);
             session = createSession(channel, "wss".equals(uri.getScheme()), sessionDecorator, handshaker);

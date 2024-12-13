@@ -27,6 +27,7 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty
@@ -62,6 +63,30 @@ public class NettyDataBuffer extends DataBuffer {
    */
   public ByteBuf getNativeBuffer() {
     return this.byteBuf;
+  }
+
+  /**
+   * Return the given Netty {@link DataBuffer} as a {@link ByteBuf}.
+   * <p>Returns the {@linkplain NettyDataBuffer#getNativeBuffer() native buffer}
+   * if {@code dataBuffer} is a {@link NettyDataBuffer}; returns
+   * {@link Unpooled#wrappedBuffer(ByteBuffer)} otherwise.
+   *
+   * @param dataBuffer the {@code DataBuffer} to return a {@code ByteBuf} for
+   * @return the netty {@code ByteBuf}
+   * @since 5.0
+   */
+  public static ByteBuf toByteBuf(DataBuffer dataBuffer) {
+    if (dataBuffer instanceof NettyDataBuffer nettyDataBuffer) {
+      return nettyDataBuffer.getNativeBuffer();
+    }
+    else if (dataBuffer.readableBytes() == 0) {
+      return Unpooled.EMPTY_BUFFER;
+    }
+    else {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableBytes());
+      dataBuffer.toByteBuffer(byteBuffer);
+      return Unpooled.wrappedBuffer(byteBuffer);
+    }
   }
 
   @Override

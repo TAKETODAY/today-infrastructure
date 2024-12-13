@@ -17,7 +17,7 @@
 
 package infra.web.socket;
 
-import java.nio.ByteBuffer;
+import infra.core.io.buffer.DataBuffer;
 
 /**
  * The PingMessage interface represents a web socket ping.
@@ -25,13 +25,13 @@ import java.nio.ByteBuffer;
  * @author TODAY 2021/4/5 16:49
  * @since 3.0
  */
-public final class PingMessage extends AbstractMessage<ByteBuffer> {
+public final class PingMessage extends AbstractMessage<DataBuffer> {
 
   /**
    * Create a new ping message with an empty payload.
    */
   public PingMessage() {
-    super(ByteBuffer.allocate(0));
+    super(DataBuffer.empty());
   }
 
   /**
@@ -39,13 +39,13 @@ public final class PingMessage extends AbstractMessage<ByteBuffer> {
    *
    * @param payload the non-null payload
    */
-  public PingMessage(ByteBuffer payload) {
+  public PingMessage(DataBuffer payload) {
     super(payload);
   }
 
   @Override
   public int getPayloadLength() {
-    return getPayload().remaining();
+    return getPayload().readableBytes();
   }
 
 }

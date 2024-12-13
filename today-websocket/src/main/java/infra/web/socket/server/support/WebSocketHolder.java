@@ -17,9 +17,12 @@
 
 package infra.web.socket.server.support;
 
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
 
@@ -28,23 +31,30 @@ import io.netty.util.AttributeMap;
  * @since 4.0 2023/11/28 17:32
  */
 final class WebSocketHolder {
+
   private static final AttributeKey<WebSocketHolder> KEY = AttributeKey.valueOf(WebSocketHolder.class, "KEY");
 
   public final WebSocketHandler wsHandler;
 
   public final WebSocketSession session;
 
-  private WebSocketHolder(WebSocketHandler wsHandler, WebSocketSession session) {
+  /**
+   * @since 5.0
+   */
+  public final NettyDataBufferFactory allocator;
+
+  private WebSocketHolder(WebSocketHandler wsHandler, WebSocketSession session, ByteBufAllocator allocator) {
     this.wsHandler = wsHandler;
     this.session = session;
+    this.allocator = new NettyDataBufferFactory(allocator);
   }
 
   public void unbind(AttributeMap attributes) {
     attributes.attr(KEY).set(null);
   }
 
-  public static void bind(AttributeMap attributes, WebSocketHandler wsHandler, WebSocketSession session) {
-    attributes.attr(KEY).set(new WebSocketHolder(wsHandler, session));
+  public static void bind(Channel channel, WebSocketHandler wsHandler, WebSocketSession session) {
+    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session, channel.alloc()));
   }
 
   @Nullable
