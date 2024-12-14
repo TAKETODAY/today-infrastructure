@@ -28,7 +28,6 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceRegion;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.util.MimeType;
 import infra.util.MimeTypeUtils;
@@ -185,7 +184,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
   protected Consumer<DataBuffer> stringConsumer(String expected) {
     return dataBuffer -> {
       String value = dataBuffer.toString(UTF_8);
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       assertThat(value).isEqualTo(expected);
     };
   }

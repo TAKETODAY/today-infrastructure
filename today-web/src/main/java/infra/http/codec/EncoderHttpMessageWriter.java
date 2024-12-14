@@ -134,15 +134,15 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
                 message.getHeaders().setContentLength(buffer.readableBytes());
                 return message.writeWith(
                         Mono.just(buffer)
-                                .doOnDiscard(DataBuffer.class, DataBufferUtils::release));
+                                .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER));
               })
-              .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+              .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
     }
 
     if (isStreamingMediaType(contentType)) {
       return message.writeAndFlushWith(body.map(buffer -> {
         Hints.touchDataBuffer(buffer, hints, logger);
-        return Mono.just(buffer).doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+        return Mono.just(buffer).doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
       }));
     }
 

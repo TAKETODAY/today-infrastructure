@@ -237,7 +237,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               assertThat(resultBytes).isEqualTo(expectedBytes);
             })
             .expectComplete()
@@ -260,7 +260,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               assertThat(resultBytes).isEqualTo(expectedBytes);
             })
             .expectComplete()
@@ -303,7 +303,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               assertThat(resultBytes).isEqualTo(expectedBytes);
             })
             .expectComplete()
@@ -341,7 +341,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               assertThat(resultBytes).isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3".getBytes(StandardCharsets.UTF_8));
             })
             .expectComplete()
@@ -365,7 +365,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               assertThat(resultBytes).isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3".getBytes(StandardCharsets.UTF_8));
             })
             .expectComplete()
@@ -403,7 +403,7 @@ public class BodyInsertersTests {
             .consumeNextWith(dataBuffer -> {
               byte[] resultBytes = new byte[dataBuffer.readableBytes()];
               dataBuffer.read(resultBytes);
-              DataBufferUtils.release(dataBuffer);
+              dataBuffer.release();
               String content = new String(resultBytes, StandardCharsets.UTF_8);
               assertThat(content).contains("Content-Disposition: form-data; name=\"name\"\r\n" +
                       "Content-Type: text/plain;charset=UTF-8\r\n" +

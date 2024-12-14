@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -99,7 +98,7 @@ class JdkClientHttpResponse extends AbstractClientHttpResponse {
     return JdkFlowAdapter.flowPublisherToFlux(response.body())
             .flatMapIterable(Function.identity())
             .map(bufferFactory::wrap)
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release)
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER)
             .cache(0);
   }
 

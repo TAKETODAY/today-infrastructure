@@ -123,7 +123,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                     .doOnNext(buffer -> {
                       byte[] bytes = new byte[buffer.readableBytes()];
                       buffer.read(bytes);
-                      DataBufferUtils.release(buffer);
+                      buffer.release();
                       contentRef.set(bytes);
                     })
                     .then());
@@ -172,7 +172,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                             .doOnNext(buffer -> {
                               byte[] partBytes = new byte[buffer.readableBytes()];
                               buffer.read(partBytes);
-                              DataBufferUtils.release(buffer);
+                              buffer.release();
 
                               // Adapt to infra.mock.api.http.Part...
                               MockPart mockPart = (part instanceof FilePart filePart ?

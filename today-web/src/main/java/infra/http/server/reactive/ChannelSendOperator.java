@@ -24,7 +24,6 @@ import org.reactivestreams.Subscription;
 import java.util.function.Function;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import reactor.core.CoreSubscriber;
@@ -329,8 +328,8 @@ public class ChannelSendOperator<T> extends Mono<Void> implements Scannable {
     private void releaseCachedItem() {
       synchronized(this) {
         Object item = this.item;
-        if (item instanceof DataBuffer) {
-          DataBufferUtils.release((DataBuffer) item);
+        if (item instanceof DataBuffer dataBuffer) {
+          dataBuffer.release();
         }
         this.item = null;
       }

@@ -378,7 +378,9 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
   }
 
   private void discard(@Nullable DataBuffer buffer) {
-    DataBufferUtils.release(buffer);
+    if (buffer != null) {
+      buffer.release();
+    }
   }
 
   private void await() {

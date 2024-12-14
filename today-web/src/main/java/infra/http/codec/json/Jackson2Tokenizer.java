@@ -115,7 +115,7 @@ final class Jackson2Tokenizer {
       throw Exceptions.propagate(ex);
     }
     finally {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
     }
   }
 

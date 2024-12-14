@@ -171,7 +171,7 @@ public abstract class BodyExtractors {
   /**
    * Extractor that returns the raw {@link DataBuffer DataBuffers}.
    * <p><strong>Note:</strong> the data buffers should be
-   * {@link DataBufferUtils#release(DataBuffer)
+   * {@link DataBuffer#release()
    * released} after being used.
    *
    * @return {@code BodyExtractor} for data buffers
@@ -227,13 +227,13 @@ public abstract class BodyExtractors {
     if (message.getHeaders().getContentType() == null) {
       // Maybe it's okay there is no content type, if there is no content..
       result = message.getBody().handle((buffer, sink) -> {
-        DataBufferUtils.release(buffer);
+        buffer.release();
         sink.error(ex);
       });
     }
     else {
       result = message instanceof ClientHttpResponse ?
-               consumeAndCancel(message).thenMany(Flux.error(ex)) : Flux.error(ex);
+              consumeAndCancel(message).thenMany(Flux.error(ex)) : Flux.error(ex);
     }
     return result;
   }
@@ -256,17 +256,17 @@ public abstract class BodyExtractors {
 
   private static <T> Supplier<Flux<T>> skipBodyAsFlux(ReactiveHttpInputMessage message) {
     return message instanceof ClientHttpResponse ?
-           () -> consumeAndCancel(message).thenMany(Mono.empty()) : Flux::empty;
+            () -> consumeAndCancel(message).thenMany(Mono.empty()) : Flux::empty;
   }
 
   private static <T> Supplier<Mono<T>> skipBodyAsMono(ReactiveHttpInputMessage message) {
     return message instanceof ClientHttpResponse ?
-           () -> consumeAndCancel(message).then(Mono.empty()) : Mono::empty;
+            () -> consumeAndCancel(message).then(Mono.empty()) : Mono::empty;
   }
 
   private static Flux<DataBuffer> consumeAndCancel(ReactiveHttpInputMessage message) {
     return message.getBody().takeWhile(buffer -> {
-      DataBufferUtils.release(buffer);
+      buffer.release();
       return false;
     });
   }

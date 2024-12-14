@@ -24,7 +24,6 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import reactor.core.publisher.Flux;
@@ -141,7 +140,7 @@ public interface PartEvent {
 
   /**
    * Return the content of this event. The returned buffer must be consumed or
-   * {@linkplain DataBufferUtils#release(DataBuffer) released}.
+   * {@linkplain DataBuffer#release() released}.
    */
   DataBuffer content();
 

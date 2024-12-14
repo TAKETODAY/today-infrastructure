@@ -122,7 +122,7 @@ public class MockClientHttpResponse implements ClientHttpResponse {
     return DataBufferUtils.join(getBody())
             .map(buffer -> {
               String s = buffer.toString(getCharset());
-              DataBufferUtils.release(buffer);
+              buffer.release();
               return s;
             })
             .defaultIfEmpty("");

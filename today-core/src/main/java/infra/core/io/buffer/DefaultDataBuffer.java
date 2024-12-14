@@ -59,6 +59,8 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private int writePosition;
 
+  public boolean allocated = true;
+
   /**
    * empty constructor
    */
@@ -474,6 +476,17 @@ public class DefaultDataBuffer extends DataBuffer {
       duplicate.get(bytes, 0, length);
     }
     return new String(bytes, offset, length, charset);
+  }
+
+  @Override
+  public boolean isAllocated() {
+    return allocated;
+  }
+
+  @Override
+  public boolean release() {
+    allocated = false;
+    return true;
   }
 
   /**

@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.util.LogFormatUtils;
@@ -92,7 +91,7 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
     }
     finally {
       if (release) {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
       }
     }
     return dataBuffer;

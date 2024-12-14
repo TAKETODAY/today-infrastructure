@@ -107,7 +107,7 @@ public abstract class AbstractDataBufferAllocatingTests {
   }
 
   protected void release(DataBuffer... buffers) {
-    Arrays.stream(buffers).forEach(DataBufferUtils::release);
+    Arrays.stream(buffers).forEach(DataBuffer.RELEASE_CONSUMER);
   }
 
   protected Consumer<DataBuffer> stringConsumer(String expected) {
@@ -117,7 +117,7 @@ public abstract class AbstractDataBufferAllocatingTests {
   protected Consumer<DataBuffer> stringConsumer(String expected, Charset charset) {
     return dataBuffer -> {
       String value = dataBuffer.toString(charset);
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       assertThat(value).isEqualTo(expected);
     };
   }

@@ -22,7 +22,6 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.util.MimeType;
 
@@ -48,17 +47,16 @@ public class ByteBufferDecoder extends AbstractDataBufferDecoder<ByteBuffer> {
   }
 
   @Override
-  public ByteBuffer decode(
-          DataBuffer dataBuffer, ResolvableType elementType,
+  public ByteBuffer decode(DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     int len = dataBuffer.readableBytes();
     ByteBuffer result = ByteBuffer.allocate(len);
     dataBuffer.toByteBuffer(result);
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + len + " bytes");
+      logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), len);
     }
-    DataBufferUtils.release(dataBuffer);
+    dataBuffer.release();
     return result;
   }
 

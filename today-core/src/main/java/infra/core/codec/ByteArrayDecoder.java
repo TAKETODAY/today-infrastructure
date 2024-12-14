@@ -21,7 +21,6 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.util.MimeType;
 
@@ -30,6 +29,7 @@ import infra.util.MimeType;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
@@ -49,7 +49,7 @@ public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
     byte[] result = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(result);
-    DataBufferUtils.release(dataBuffer);
+    dataBuffer.release();
     if (logger.isDebugEnabled()) {
       logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), result.length);
     }

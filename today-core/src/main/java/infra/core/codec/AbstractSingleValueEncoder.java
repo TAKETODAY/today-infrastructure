@@ -24,7 +24,6 @@ import java.util.Map;
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -51,7 +50,7 @@ public abstract class AbstractSingleValueEncoder<T> extends AbstractEncoder<T> {
     return Flux.from(inputStream)
             .take(1)
             .concatMap(value -> encode(value, bufferFactory, elementType, mimeType, hints))
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
   }
 
   /**

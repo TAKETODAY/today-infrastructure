@@ -108,7 +108,7 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
               return Mono.just(lastBuffer);
             }))
             .doFinally(signalType -> chunks.releaseAndClear())
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release)
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER)
             .map(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
@@ -161,7 +161,7 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
     }
     finally {
       if (release) {
-        DataBufferUtils.release(buffer);
+        buffer.release();
       }
     }
   }
@@ -172,7 +172,7 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
 
     Charset charset = getCharset(mimeType);
     T value = decodeInternal(dataBuffer, charset);
-    DataBufferUtils.release(dataBuffer);
+    dataBuffer.release();
     LogFormatUtils.traceDebug(logger, traceOn -> {
       String formatted = LogFormatUtils.formatValue(value, !traceOn);
       return Hints.getLogPrefix(hints) + "Decoded " + formatted;

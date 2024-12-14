@@ -124,7 +124,7 @@ public class ClientHttpConnectorTests {
               DataBufferUtils.join(response.getBody())
                       .map(buffer -> {
                         String s = buffer.toString(StandardCharsets.UTF_8);
-                        DataBufferUtils.release(buffer);
+                        buffer.release();
                         return s;
                       }).subscribe(
                               s -> assertThat(s).isEqualTo(responseBody),

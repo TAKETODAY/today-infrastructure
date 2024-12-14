@@ -23,7 +23,6 @@ import java.nio.file.Path;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -138,12 +137,12 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   protected void touchDataBuffer(DataBuffer buffer) {
     if (logger.isDebugEnabled()) {
       if (response instanceof ChannelOperationsId operationsId) {
-        DataBufferUtils.touch(buffer, "Channel id: " + operationsId.asLongText());
+        buffer.touch("Channel id: " + operationsId.asLongText());
       }
       else {
         response.withConnection(connection -> {
           ChannelId id = connection.channel().id();
-          DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
+          buffer.touch("Channel id: " + id.asShortText());
         });
       }
     }

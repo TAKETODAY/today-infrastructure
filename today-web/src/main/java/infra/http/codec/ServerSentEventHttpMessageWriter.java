@@ -156,7 +156,7 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
         result = encodeEvent(sb, data, dataType, mediaType, factory, hints);
       }
 
-      return result.doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+      return result.doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
     });
   }
 

@@ -120,7 +120,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport implements HttpMe
     return DataBufferUtils.join(message.getBody(), this.maxInMemorySize)
             .map(buffer -> {
               String body = buffer.toString(charset);
-              DataBufferUtils.release(buffer);
+              buffer.release();
               MultiValueMap<String, String> formData = parseFormData(charset, body);
               if (logger.isDebugEnabled()) {
                 logFormData(formData, hints);

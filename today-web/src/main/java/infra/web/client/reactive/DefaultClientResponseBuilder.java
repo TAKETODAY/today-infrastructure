@@ -25,7 +25,6 @@ import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -240,7 +239,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   }
 
   private void releaseBody() {
-    this.body.subscribe(DataBufferUtils.releaseConsumer());
+    this.body.subscribe(DataBuffer.RELEASE_CONSUMER);
   }
 
   @Override

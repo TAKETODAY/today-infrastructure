@@ -37,7 +37,6 @@ import java.util.function.Function;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.logging.Logger;
@@ -265,7 +264,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       emitError(new IllegalStateException("Body token not expected"));
     }
 
@@ -298,7 +297,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         requestToken();
       }
       else {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
         emitError(new DataBufferLimitException(
                 "Form field value exceeded the memory usage limit of " +
                         PartGenerator.this.maxInMemorySize + " bytes"));
@@ -315,7 +314,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         emitError(ex);
       }
       finally {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
       }
     }
 
@@ -354,7 +353,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         }
       }
       else {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
         // even though the body sink is canceled, the (outer) part sink
         // might not be, so request another token
         requestToken();
@@ -415,7 +414,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         switchToFile(dataBuffer, count);
       }
       else {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
         emitError(new IllegalStateException("Body token not expected"));
       }
     }
@@ -435,7 +434,9 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         newState.createFile();
       }
       else {
-        content.forEach(DataBufferUtils::release);
+        for (DataBuffer buffer : content) {
+          buffer.release();
+        }
       }
     }
 
@@ -451,7 +452,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         int len = buffer.readableBytes();
         buffer.read(bytes, idx, len);
         idx += len;
-        DataBufferUtils.release(buffer);
+        buffer.release();
       }
       content.clear();
       Flux<DataBuffer> content = Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes));
@@ -461,7 +462,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @Override
     public void dispose() {
       if (releaseOnDispose) {
-        content.forEach(DataBufferUtils::release);
+        content.forEach(DataBuffer.RELEASE_CONSUMER);
       }
     }
 
@@ -498,7 +499,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       emitError(new IllegalStateException("Body token not expected"));
     }
 
@@ -539,14 +540,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       else {
         MultipartUtils.closeChannel(newState.channel);
         MultipartUtils.deleteFile(newState.file);
-        this.content.forEach(DataBufferUtils::release);
+        this.content.forEach(DataBuffer.RELEASE_CONSUMER);
       }
     }
 
     @Override
     public void dispose() {
       if (this.releaseOnDispose) {
-        this.content.forEach(DataBufferUtils::release);
+        this.content.forEach(DataBuffer.RELEASE_CONSUMER);
       }
     }
 
@@ -593,13 +594,13 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         else {
           MultipartUtils.closeChannel(this.channel);
           MultipartUtils.deleteFile(this.file);
-          DataBufferUtils.release(dataBuffer);
+          dataBuffer.release();
         }
       }
       else {
         MultipartUtils.closeChannel(this.channel);
         MultipartUtils.deleteFile(this.file);
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
         emitError(new DataBufferLimitException("Part exceeded the disk usage limit of " +
                 PartGenerator.this.maxDiskUsagePerPart + " bytes"));
       }
@@ -659,7 +660,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       emitError(new IllegalStateException("Body token not expected"));
     }
 
@@ -730,7 +731,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         return Mono.error(ex);
       }
       finally {
-        DataBufferUtils.release(dataBuffer);
+        dataBuffer.release();
       }
     }
 
@@ -766,7 +767,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     @Override
     public void applyBody(DataBuffer dataBuffer) {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
     }
 
     @Override

@@ -56,7 +56,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static infra.core.ResolvableType.forClass;
-import static infra.core.io.buffer.DataBufferUtils.release;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -105,7 +104,7 @@ public class DefaultPartHttpMessageReaderTests {
     StepVerifier.create(result)
             .consumeNextWith(part -> {
               assertThat(part.headers()).isEmpty();
-              part.content().subscribe(DataBufferUtils::release);
+              part.content().subscribe(DataBuffer.RELEASE_CONSUMER);
             })
             .verifyComplete();
   }
@@ -120,7 +119,7 @@ public class DefaultPartHttpMessageReaderTests {
     StepVerifier.create(result)
             .consumeNextWith(part -> {
               assertThat(part.headers().getFirst("Header")).isEqualTo("Value");
-              part.content().subscribe(DataBufferUtils::release);
+              part.content().subscribe(DataBuffer.RELEASE_CONSUMER);
             })
             .expectError(DecodingException.class)
             .verify();
@@ -167,7 +166,7 @@ public class DefaultPartHttpMessageReaderTests {
     Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result, 1)
-            .consumeNextWith(part -> part.content().subscribe(DataBufferUtils::release))
+            .consumeNextWith(part -> part.content().subscribe(DataBuffer.RELEASE_CONSUMER))
             .thenCancel()
             .verify();
   }
@@ -353,7 +352,7 @@ public class DefaultPartHttpMessageReaderTests {
             .map(buffer -> {
               byte[] bytes = new byte[buffer.readableBytes()];
               buffer.read(bytes);
-              release(buffer);
+              buffer.release();
               return new String(bytes, UTF_8);
             });
 
@@ -419,7 +418,7 @@ public class DefaultPartHttpMessageReaderTests {
 
     @Override
     protected void hookOnNext(DataBuffer buffer) {
-      DataBufferUtils.release(buffer);
+      buffer.release();
       cancel();
     }
 

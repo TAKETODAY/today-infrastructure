@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.codec.json;
@@ -73,9 +70,9 @@ public class CustomizedJackson2JsonEncoderTests extends AbstractEncoderTests<Jac
     );
 
     testEncode(input, MyCustomizedEncoderBean.class, step -> step
-            .consumeNextWith(expectString("[{\"property\":\"Value1\"}").andThen(DataBufferUtils::release))
-            .consumeNextWith(expectString(",{\"property\":\"Value2\"}").andThen(DataBufferUtils::release))
-            .consumeNextWith(expectString("]").andThen(DataBufferUtils::release))
+            .consumeNextWith(expectString("[{\"property\":\"Value1\"}").andThen(DataBuffer.RELEASE_CONSUMER))
+            .consumeNextWith(expectString(",{\"property\":\"Value2\"}").andThen(DataBuffer.RELEASE_CONSUMER))
+            .consumeNextWith(expectString("]").andThen(DataBuffer.RELEASE_CONSUMER))
             .verifyComplete());
   }
 

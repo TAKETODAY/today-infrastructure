@@ -23,7 +23,6 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -32,11 +31,11 @@ import reactor.core.publisher.Flux;
  * Simple pass-through decoder for {@link DataBuffer DataBuffers}.
  *
  * <p><strong>Note:</strong> The data buffers should be released via
- * {@link DataBufferUtils#release(DataBuffer)}
+ * {@link DataBuffer#release()}
  * after they have been consumed. In addition, if using {@code Flux} or
  * {@code Mono} operators such as flatMap, reduce, and others that prefetch,
  * cache, and skip or filter out data items internally, please add
- * {@code doOnDiscard(DataBuffer.class, DataBufferUtils::release)} to the
+ * {@code doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER)} to the
  * composition chain to ensure cached data buffers are released prior to an
  * error or cancellation signal.
  *

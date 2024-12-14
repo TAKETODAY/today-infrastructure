@@ -220,7 +220,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
     Flux<DataBuffer> body = Flux.fromIterable(map.entrySet())
             .concatMap(entry -> encodePartValues(boundary, entry.getKey(), entry.getValue(), bufferFactory))
             .concatWith(generateLastLine(boundary, bufferFactory))
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
 
     if (logger.isDebugEnabled()) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));

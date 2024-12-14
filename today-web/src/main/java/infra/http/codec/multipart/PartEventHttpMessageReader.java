@@ -192,7 +192,7 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
       return DataBufferUtils.join(contents, maxSize)
               .map(content -> {
                 String value = content.toString(MultipartUtils.charset(headers));
-                DataBufferUtils.release(content);
+                content.release();
                 return DefaultPartEvents.form(headers, value);
               })
               .switchIfEmpty(Mono.fromCallable(() -> DefaultPartEvents.form(headers)));
@@ -204,7 +204,7 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
               .concatMap(body -> {
                 DataBuffer buffer = body.getBuffer();
                 if (tooLarge(partSize, buffer)) {
-                  DataBufferUtils.release(buffer);
+                  buffer.release();
                   return Mono.error(new DataBufferLimitException("Part exceeded the limit of %s bytes".formatted(this.maxPartSize)));
                 }
                 else {

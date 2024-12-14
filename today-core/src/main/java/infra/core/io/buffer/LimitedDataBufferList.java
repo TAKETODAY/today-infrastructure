@@ -141,13 +141,13 @@ public class LimitedDataBufferList extends ArrayList<DataBuffer> {
   }
 
   /**
-   * Shortcut to {@link DataBufferUtils#release release} all data buffers and
+   * Shortcut to {@link DataBuffer#release release} all data buffers and
    * then {@link #clear()}.
    */
   public void releaseAndClear() {
     for (DataBuffer buf : this) {
       try {
-        DataBufferUtils.release(buf);
+        buf.release();
       }
       catch (Throwable ex) {
         // Keep going..

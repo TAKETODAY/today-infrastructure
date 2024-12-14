@@ -96,7 +96,7 @@ public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
   private Consumer<DataBuffer> stringConsumer(String expected) {
     return dataBuffer -> {
       String value = dataBuffer.toString(UTF_8);
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
       assertThat(value).isEqualTo(expected);
     };
   }

@@ -23,7 +23,6 @@ import java.nio.file.Path;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.Netty5DataBufferFactory;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -131,12 +130,12 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
   protected void touchDataBuffer(DataBuffer buffer) {
     if (logger.isDebugEnabled()) {
       if (this.response instanceof ChannelOperationsId operationsId) {
-        DataBufferUtils.touch(buffer, "Channel id: " + operationsId.asLongText());
+        buffer.touch("Channel id: " + operationsId.asLongText());
       }
       else {
         this.response.withConnection(connection -> {
           ChannelId id = connection.channel().id();
-          DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
+          buffer.touch("Channel id: " + id.asShortText());
         });
       }
     }

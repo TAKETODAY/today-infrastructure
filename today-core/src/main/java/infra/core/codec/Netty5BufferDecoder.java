@@ -21,7 +21,6 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.Netty5DataBuffer;
 import infra.lang.Nullable;
 import infra.util.MimeType;
@@ -60,7 +59,7 @@ public class Netty5BufferDecoder extends AbstractDataBufferDecoder<Buffer> {
     byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
     Buffer buffer = DefaultBufferAllocators.preferredAllocator().copyOf(bytes);
-    DataBufferUtils.release(dataBuffer);
+    dataBuffer.release();
     return buffer;
   }
 

@@ -18,7 +18,6 @@
 package infra.core.testfixture.io.buffer;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DataBufferWrapper;
 import infra.lang.Assert;
 
@@ -59,36 +58,20 @@ class LeakAwareDataBuffer extends DataBufferWrapper {
   }
 
   @Override
-  public boolean isTouchable() {
-    return true;
-  }
-
-  @Override
-  public boolean isPooled() {
-    return true;
-  }
-
-  @Override
   public boolean isAllocated() {
     DataBuffer delegate = dataBuffer();
-    return delegate.isPooled() && delegate.isAllocated();
-  }
-
-  @Override
-  public LeakAwareDataBuffer retain() {
-    DataBufferUtils.retain(dataBuffer());
-    return this;
+    return delegate.isAllocated();
   }
 
   @Override
   public LeakAwareDataBuffer touch(Object hint) {
-    DataBufferUtils.touch(dataBuffer(), hint);
+    dataBuffer().touch(hint);
     return this;
   }
 
   @Override
   public boolean release() {
-    DataBufferUtils.release(dataBuffer());
+    dataBuffer().release();
     return isAllocated();
   }
 

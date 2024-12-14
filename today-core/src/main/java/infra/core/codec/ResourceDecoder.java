@@ -27,7 +27,6 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -67,7 +66,7 @@ public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
 
     byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
-    DataBufferUtils.release(dataBuffer);
+    dataBuffer.release();
 
     if (logger.isDebugEnabled()) {
       logger.debug("{}Read {} bytes", Hints.getLogPrefix(hints), bytes.length);

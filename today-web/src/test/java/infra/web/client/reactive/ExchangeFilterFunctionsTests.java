@@ -216,7 +216,7 @@ public class ExchangeFilterFunctionsTests {
 
   private String string(DataBuffer buffer) {
     String value = buffer.toString(UTF_8);
-    DataBufferUtils.release(buffer);
+    buffer.release();
     return value;
   }
 

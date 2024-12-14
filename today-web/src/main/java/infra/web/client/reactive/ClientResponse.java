@@ -26,7 +26,6 @@ import java.util.function.Function;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpHeaders;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
@@ -134,7 +133,7 @@ public interface ClientResponse {
    * Release the body of this response.
    *
    * @return a completion signal
-   * @see DataBufferUtils#release(DataBuffer)
+   * @see DataBuffer#release()
    */
   Mono<Void> releaseBody();
 

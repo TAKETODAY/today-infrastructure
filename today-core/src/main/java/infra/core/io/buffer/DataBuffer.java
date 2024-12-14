@@ -27,6 +27,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
@@ -63,6 +64,12 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class DataBuffer {
+
+  /**
+   * A consumer that calls {@link DataBuffer#release()} on all
+   * passed data buffers.
+   */
+  public static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBuffer::release;
 
   /**
    * Return the {@link DataBufferFactory} that created this buffer.
@@ -237,7 +244,7 @@ public abstract class DataBuffer {
   /**
    * Write one {@code DataBuffer} to this buffer, starting at the current
    * writing position. It is the responsibility of the caller to
-   * {@linkplain DataBufferUtils#release(DataBuffer) release} the given data buffers.
+   * {@linkplain DataBuffer#release() release} the given data buffers.
    *
    * @param source the byte buffer to write into this buffer
    * @return this buffer
@@ -258,7 +265,7 @@ public abstract class DataBuffer {
   /**
    * Write one or more {@code DataBuffer}s to this buffer, starting at the current
    * writing position. It is the responsibility of the caller to
-   * {@linkplain DataBufferUtils#release(DataBuffer) release} the given data buffers.
+   * {@linkplain DataBuffer#release() release} the given data buffers.
    *
    * @param buffers the byte buffers to write into this buffer
    * @return this buffer
@@ -334,7 +341,7 @@ public abstract class DataBuffer {
    * shared; though changes in the returned buffer's position will not be reflected
    * in the reading nor writing position of this data buffer.
    * <p><strong>Note</strong> that this method will <strong>not</strong> call
-   * {@link DataBufferUtils#retain(DataBuffer)} on the resulting slice: the reference
+   * {@link DataBuffer#retain()} on the resulting slice: the reference
    * count will not be increased.
    *
    * @param index the index at which to start the slice
@@ -350,7 +357,7 @@ public abstract class DataBuffer {
    * shared; though changes in the returned buffer's position will not be reflected
    * in the reading nor writing position of this data buffer.
    * <p><strong>Note</strong> that unlike {@link #slice(int, int)}, this method
-   * <strong>will</strong> call {@link DataBufferUtils#retain(DataBuffer)} (or equivalent) on the
+   * <strong>will</strong> call {@link DataBuffer#retain()} (or equivalent) on the
    * resulting slice.
    *
    * @param index the index at which to start the slice
@@ -359,7 +366,7 @@ public abstract class DataBuffer {
    * @see #split(int) which has different semantics
    */
   public DataBuffer retainedSlice(int index, int length) {
-    return DataBufferUtils.retain(slice(index, length));
+    return slice(index, length).retain();
   }
 
   /**
@@ -481,7 +488,7 @@ public abstract class DataBuffer {
   /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
    * shared between the returned stream and this data buffer. The underlying buffer will
-   * <strong>not</strong> be {@linkplain DataBufferUtils#release(DataBuffer) released}
+   * <strong>not</strong> be {@linkplain DataBuffer#release() released}
    * when the input stream is {@linkplain InputStream#close() closed}.
    *
    * @return this data buffer as an input stream
@@ -496,7 +503,7 @@ public abstract class DataBuffer {
    * shared between the returned stream and this data buffer.
    *
    * @param releaseOnClose whether the underlying buffer will be
-   * {@linkplain DataBufferUtils#release(DataBuffer) released} when the input stream is
+   * {@linkplain DataBuffer#release() released} when the input stream is
    * {@linkplain InputStream#close() closed}.
    * @return this data buffer as an input stream
    */
@@ -539,20 +546,9 @@ public abstract class DataBuffer {
   // Touchable
 
   /**
-   * Extension of {@link DataBuffer} that allows for buffers that can be given
-   * hints for debugging purposes.
-   *
-   * @since 5.0
-   */
-  public boolean isTouchable() {
-    return false;
-  }
-
-  /**
    * Associate the given hint with the data buffer for debugging purposes.
    *
    * @return this buffer
-   * @see #isTouchable()
    * @since 5.0
    */
   public DataBuffer touch(Object hint) {
@@ -562,72 +558,37 @@ public abstract class DataBuffer {
   // Pooled
 
   /**
-   * Extension of {@link DataBuffer} that allows for buffers that share
-   * a memory pool. Introduces methods for reference counting.
-   *
-   * @since 5.0
-   */
-  public boolean isPooled() {
-    return false;
-  }
-
-  /**
    * Return {@code true} if this buffer is allocated;
    * {@code false} if it has been deallocated.
    *
-   * @see #isPooled()
    * @since 5.0
    */
-  public boolean isAllocated() {
-    throw new UnsupportedOperationException();
-  }
+  public abstract boolean isAllocated();
 
   /**
    * Increase the reference count for this buffer by one.
    *
    * @return this buffer
-   * @see #isPooled()
    * @since 5.0
    */
   public DataBuffer retain() {
-    throw new UnsupportedOperationException();
+    return this;
   }
 
   /**
-   * Decrease the reference count for this buffer by one,
+   * Release the given data buffer. If it is a Pooled DataBuffer
+   * and has been {@linkplain DataBuffer#isAllocated() allocated}, this
+   * method will call release.
+   *
+   * <p> Decrease the reference count for this buffer by one,
    * and deallocate it once the count reaches zero.
    *
-   * @return {@code true} if the buffer was deallocated;
-   * {@code false} otherwise
-   * @see #isPooled()
+   * @return {@code true} if the buffer was released; {@code false} otherwise.
    * @since 5.0
    */
-  public boolean release() {
-    throw new UnsupportedOperationException();
-  }
+  public abstract boolean release();
 
   // Closeable
-
-  /**
-   * Extension of {@link DataBuffer} that allows for buffers that can be used
-   * in a {@code try}-with-resources statement.
-   *
-   * @since 5.0
-   */
-  public boolean isCloseable() {
-    return false;
-  }
-
-  /**
-   * Closes this data buffer, freeing any resources.
-   *
-   * @throws IllegalStateException if this buffer has already been closed
-   * @see #isCloseable()
-   * @since 5.0
-   */
-  public void close() {
-    throw new UnsupportedOperationException();
-  }
 
   /**
    * @return empty buffer

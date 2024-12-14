@@ -409,7 +409,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     assertThat(result).isEqualTo("foo");
     channel.close();
 
-    flux.subscribe(DataBufferUtils::release);
+    flux.subscribe(DataBuffer.RELEASE_CONSUMER);
   }
 
   @ParameterizedDataBufferAllocatingTest
@@ -529,7 +529,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     assertThat(result).isEqualTo("foo");
     channel.close();
 
-    flux.subscribe(DataBufferUtils::release);
+    flux.subscribe(DataBuffer.RELEASE_CONSUMER);
   }
 
   @ParameterizedDataBufferAllocatingTest
@@ -706,7 +706,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     WritableByteChannel channel = Files.newByteChannel(destination, StandardOpenOption.WRITE);
 
     DataBufferUtils.write(sourceFlux, channel)
-            .subscribe(DataBufferUtils.releaseConsumer(),
+            .subscribe(DataBuffer.RELEASE_CONSUMER,
                     throwable -> {
                       throw new AssertionError(throwable.getMessage(), throwable);
                     },
@@ -743,7 +743,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     CountDownLatch latch = new CountDownLatch(1);
 
     DataBufferUtils.write(sourceFlux, channel)
-            .subscribe(DataBufferUtils::release,
+            .subscribe(DataBuffer.RELEASE_CONSUMER,
                     throwable -> {
                       throw new AssertionError(throwable.getMessage(), throwable);
                     },
@@ -910,7 +910,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
     DataBuffer baz = stringBuffer("baz");
     Flux<DataBuffer> flux = Flux.just(foo, bar, baz);
 
-    flux.subscribe(DataBufferUtils.releaseConsumer());
+    flux.subscribe(DataBuffer.RELEASE_CONSUMER);
 
     assertReleased(foo);
     assertReleased(bar);
@@ -1106,7 +1106,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
               .contextWrite(Context.of("key", "TEST"));
 
       StepVerifier.create(result)
-              .consumeNextWith(DataBufferUtils::release)
+              .consumeNextWith(DataBuffer.RELEASE_CONSUMER)
               .verifyComplete();
 
     }
@@ -1129,7 +1129,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
               .contextWrite(Context.of("key", "TEST"));
 
       StepVerifier.create(result)
-              .consumeNextWith(DataBufferUtils::release)
+              .consumeNextWith(DataBuffer.RELEASE_CONSUMER)
               .verifyComplete();
 
     }

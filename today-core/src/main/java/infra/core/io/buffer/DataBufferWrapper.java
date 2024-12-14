@@ -271,4 +271,23 @@ public class DataBufferWrapper extends DataBuffer {
     return this.delegate.toString(index, length, charset);
   }
 
+  @Override
+  public boolean isAllocated() {
+    return delegate.isAllocated();
+  }
+
+  @Override
+  public boolean release() {
+    return delegate.release();
+  }
+
+  @Override
+  public DataBuffer retain() {
+    return delegate.retain();
+  }
+
+  @Override
+  public DataBuffer touch(Object hint) {
+    return delegate.touch(hint);
+  }
 }

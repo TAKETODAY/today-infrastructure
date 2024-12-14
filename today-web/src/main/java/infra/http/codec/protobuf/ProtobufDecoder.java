@@ -163,7 +163,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
       throw new DecodingException("Could not read Protobuf message: " + ex.getMessage(), ex);
     }
     finally {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
     }
   }
 
@@ -236,7 +236,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
             ByteBuffer byteBuffer = ByteBuffer.allocate(this.output.readableBytes());
             this.output.toByteBuffer(byteBuffer);
             CodedInputStream stream = CodedInputStream.newInstance(byteBuffer);
-            DataBufferUtils.release(this.output);
+            output.release();
             this.output = null;
             Message message = getMessageBuilder(this.elementType.toClass())
                     .mergeFrom(stream, extensionRegistry)
@@ -257,7 +257,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
         throw new DecodingException("Could not read Protobuf message: " + ex.getMessage(), ex);
       }
       finally {
-        DataBufferUtils.release(input);
+        input.release();
       }
     }
 
@@ -314,7 +314,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
 
     public void discard() {
       if (this.output != null) {
-        DataBufferUtils.release(this.output);
+        output.release();
       }
     }
   }

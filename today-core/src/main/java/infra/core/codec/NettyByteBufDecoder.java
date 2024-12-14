@@ -21,7 +21,6 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.lang.Nullable;
 import infra.util.MimeType;
@@ -57,11 +56,10 @@ public class NettyByteBufDecoder extends AbstractDataBufferDecoder<ByteBuf> {
     if (dataBuffer instanceof NettyDataBuffer) {
       return ((NettyDataBuffer) dataBuffer).getNativeBuffer();
     }
-    ByteBuf byteBuf;
     byte[] bytes = new byte[dataBuffer.readableBytes()];
     dataBuffer.read(bytes);
-    byteBuf = Unpooled.wrappedBuffer(bytes);
-    DataBufferUtils.release(dataBuffer);
+    ByteBuf byteBuf = Unpooled.wrappedBuffer(bytes);
+    dataBuffer.release();
     return byteBuf;
   }
 

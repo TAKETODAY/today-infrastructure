@@ -49,7 +49,7 @@ public class HttpHeadResponseDecorator extends ServerHttpResponseDecorator {
       return ((Mono<? extends DataBuffer>) body).doOnSuccess(buffer -> {
                 if (buffer != null) {
                   getHeaders().setContentLength(buffer.readableBytes());
-                  DataBufferUtils.release(buffer);
+                  buffer.release();
                 }
                 else {
                   getHeaders().setContentLength(0);
@@ -59,7 +59,7 @@ public class HttpHeadResponseDecorator extends ServerHttpResponseDecorator {
     }
     else {
       return Flux.from(body)
-              .doOnNext(DataBufferUtils::release)
+              .doOnNext(DataBuffer.RELEASE_CONSUMER)
               .then();
     }
   }

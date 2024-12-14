@@ -188,20 +188,20 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
                     return writeWithInternal(
                             Mono.fromCallable(() -> buffer)
                                     .doOnSubscribe(s -> subscribed.set(true))
-                                    .doOnDiscard(DataBuffer.class, DataBufferUtils::release)
+                                    .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER)
                     );
                   }
                   catch (Throwable ex) {
                     return Mono.error(ex);
                   }
-                }).doOnError(ex -> DataBufferUtils.release(buffer)).doOnCancel(() -> {
+                }).doOnError(ex -> buffer.release()).doOnCancel(() -> {
                   if (!subscribed.get()) {
-                    DataBufferUtils.release(buffer);
+                    buffer.release();
                   }
                 });
               })
               .doOnError(t -> getHeaders().clearContentHeaders())
-              .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+              .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
     }
     else {
       return new ChannelSendOperator<>(body, inner -> doCommit(() -> writeWithInternal(inner)))

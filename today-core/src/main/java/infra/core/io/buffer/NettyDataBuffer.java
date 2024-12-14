@@ -29,6 +29,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 
+import static infra.core.io.buffer.DataBufferUtils.logger;
+
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty
  * {@link ByteBuf}. Typically constructed with {@link NettyDataBufferFactory}.
@@ -323,16 +325,6 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
-  public boolean isTouchable() {
-    return true;
-  }
-
-  @Override
-  public boolean isPooled() {
-    return true;
-  }
-
-  @Override
   public boolean isAllocated() {
     return this.byteBuf.refCnt() > 0;
   }
@@ -351,7 +343,15 @@ public class NettyDataBuffer extends DataBuffer {
 
   @Override
   public boolean release() {
-    return this.byteBuf.release();
+    try {
+      return byteBuf.release();
+    }
+    catch (IllegalStateException ex) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Failed to release DataBuffer: {}", this, ex);
+      }
+    }
+    return false;
   }
 
   @Override

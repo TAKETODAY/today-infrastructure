@@ -125,7 +125,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
     DefaultDataBuffer result = allocateBuffer(capacity);
     for (DataBuffer buffer : dataBuffers) {
       result.write(buffer);
-      DataBufferUtils.release(buffer);
+      buffer.release();
     }
     return result;
   }
@@ -140,7 +140,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
     DefaultDataBuffer result = allocateBuffer(capacity);
     for (DataBuffer buffer : dataBuffers) {
       result.write(buffer);
-      DataBufferUtils.release(buffer);
+      buffer.release();
     }
     return result;
   }

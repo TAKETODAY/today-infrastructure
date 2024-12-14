@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 
@@ -136,10 +135,10 @@ public class WebSocketMessage {
    * DataBufferUtils.retain(payload);
    * </pre>
    *
-   * @see DataBufferUtils#retain(DataBuffer)
+   * @see DataBuffer#retain()
    */
   public WebSocketMessage retain() {
-    DataBufferUtils.retain(this.payload);
+    payload.retain();
     return this;
   }
 
@@ -151,10 +150,10 @@ public class WebSocketMessage {
    * DataBufferUtils.release(payload);
    * </pre>
    *
-   * @see DataBufferUtils#release(DataBuffer)
+   * @see DataBuffer#release()
    */
   public void release() {
-    DataBufferUtils.release(this.payload);
+    payload.release();
   }
 
   /**

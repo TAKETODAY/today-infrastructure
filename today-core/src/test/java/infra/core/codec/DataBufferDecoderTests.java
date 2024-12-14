@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 
 import infra.core.ResolvableType;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.testfixture.codec.AbstractDecoderTests;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
@@ -90,7 +89,7 @@ class DataBufferDecoderTests extends AbstractDecoderTests<DataBufferDecoder> {
       actual.read(actualBytes);
       assertThat(actualBytes).isEqualTo(expected);
 
-      DataBufferUtils.release(actual);
+      actual.release();
     };
   }
 

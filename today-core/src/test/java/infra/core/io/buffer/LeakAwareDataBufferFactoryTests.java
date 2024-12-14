@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.core.testfixture.io.buffer.LeakAwareDataBufferFactory;
 
-import static infra.core.io.buffer.DataBufferUtils.release;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -38,14 +37,14 @@ class LeakAwareDataBufferFactoryTests {
               this.bufferFactory::checkForLeaks);
     }
     finally {
-      release(dataBuffer);
+      dataBuffer.release();
     }
   }
 
   @Test
   void noLeak() {
     DataBuffer dataBuffer = this.bufferFactory.allocateBuffer();
-    release(dataBuffer);
+    dataBuffer.release();
     this.bufferFactory.checkForLeaks();
   }
 

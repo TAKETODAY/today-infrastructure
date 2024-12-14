@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import static infra.core.io.buffer.DataBufferUtils.release;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -50,7 +49,7 @@ class DefaultDataBufferTests {
     assertThat(nativeBuffer.capacity()).isEqualTo(256);
     assertThat(dataBuffer.capacity()).isEqualTo(256);
 
-    release(dataBuffer);
+    dataBuffer.release();
   }
 
 }

@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import infra.core.ResolvableType;
 import infra.core.codec.Encoder;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -34,7 +33,6 @@ import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import static infra.core.io.buffer.DataBufferUtils.release;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -172,15 +170,14 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   protected void testEncodeError(Publisher<?> input, ResolvableType inputType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    input = Flux.concat(
-            Flux.from(input).take(1),
+    input = Flux.concat(Flux.from(input).take(1),
             Flux.error(new InputException()));
 
     Flux<DataBuffer> result = encoder().encode(input, this.bufferFactory, inputType,
             mimeType, hints);
 
     StepVerifier.create(result)
-            .consumeNextWith(DataBufferUtils::release)
+            .consumeNextWith(DataBuffer.RELEASE_CONSUMER)
             .expectError(InputException.class)
             .verify();
   }
@@ -203,7 +200,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
             hints);
 
     StepVerifier.create(result)
-            .consumeNextWith(DataBufferUtils::release)
+            .consumeNextWith(DataBuffer.RELEASE_CONSUMER)
             .thenCancel()
             .verify();
   }
@@ -237,7 +234,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
     return dataBuffer -> {
       byte[] resultBytes = new byte[dataBuffer.readableBytes()];
       dataBuffer.read(resultBytes);
-      release(dataBuffer);
+      dataBuffer.release();
       assertThat(resultBytes).isEqualTo(expected);
     };
   }
@@ -251,7 +248,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   protected Consumer<DataBuffer> expectString(String expected) {
     return dataBuffer -> {
       String actual = dataBuffer.toString(UTF_8);
-      release(dataBuffer);
+      dataBuffer.release();
       assertThat(actual).isEqualTo(expected);
     };
   }

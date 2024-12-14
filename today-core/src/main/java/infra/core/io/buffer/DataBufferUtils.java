@@ -70,9 +70,7 @@ import reactor.util.context.Context;
  */
 public abstract class DataBufferUtils {
 
-  private final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
-
-  private static final Consumer<DataBuffer> RELEASE_CONSUMER = DataBufferUtils::release;
+  final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
 
   //---------------------------------------------------------------------
   // Reading
@@ -166,7 +164,7 @@ public abstract class DataBufferUtils {
               // and then complete after releasing the DataBuffer.
             });
 
-    return flux.doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+    return flux.doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
   }
 
   /**
@@ -248,9 +246,9 @@ public abstract class DataBufferUtils {
    * Write the given stream of {@link DataBuffer DataBuffers} to the given
    * {@code OutputStream}. Does <strong>not</strong> close the output stream
    * when the flux is terminated, and does <strong>not</strong>
-   * {@linkplain #release(DataBuffer) release} the data buffers in the source.
+   * {@linkplain DataBuffer#release() release} the data buffers in the source.
    * If releasing is required, then subscribe to the returned {@code Flux}
-   * with a {@link #releaseConsumer()}.
+   * with a {@link DataBuffer#RELEASE_CONSUMER}.
    * <p>Note that the writing process does not start until the returned
    * {@code Flux} is subscribed to.
    *
@@ -272,9 +270,9 @@ public abstract class DataBufferUtils {
    * Write the given stream of {@link DataBuffer DataBuffers} to the given
    * {@code WritableByteChannel}. Does <strong>not</strong> close the channel
    * when the flux is terminated, and does <strong>not</strong>
-   * {@linkplain #release(DataBuffer) release} the data buffers in the source.
+   * {@linkplain DataBuffer#release() release} the data buffers in the source.
    * If releasing is required, then subscribe to the returned {@code Flux}
-   * with a {@link #releaseConsumer()}.
+   * with a {@link DataBuffer#RELEASE_CONSUMER}.
    * <p>Note that the writing process does not start until the returned
    * {@code Flux} is subscribed to.
    *
@@ -300,9 +298,9 @@ public abstract class DataBufferUtils {
    * Write the given stream of {@link DataBuffer DataBuffers} to the given
    * {@code AsynchronousFileChannel}. Does <strong>not</strong> close the
    * channel when the flux is terminated, and does <strong>not</strong>
-   * {@linkplain #release(DataBuffer) release} the data buffers in the source.
+   * {@linkplain DataBuffer#release() release} the data buffers in the source.
    * If releasing is required, then subscribe to the returned {@code Flux}
-   * with a {@link #releaseConsumer()}.
+   * with a {@link DataBuffer#RELEASE_CONSUMER}.
    * <p>Note that the writing process does not start until the returned
    * {@code Flux} is subscribed to.
    *
@@ -320,9 +318,9 @@ public abstract class DataBufferUtils {
    * Write the given stream of {@link DataBuffer DataBuffers} to the given
    * {@code AsynchronousFileChannel}. Does <strong>not</strong> close the channel
    * when the flux is terminated, and does <strong>not</strong>
-   * {@linkplain #release(DataBuffer) release} the data buffers in the source.
+   * {@linkplain DataBuffer#release() release} the data buffers in the source.
    * If releasing is required, then subscribe to the returned {@code Flux} with a
-   * {@link #releaseConsumer()}.
+   * {@link DataBuffer#RELEASE_CONSUMER}.
    * <p>Note that the writing process does not start until the returned
    * {@code Flux} is subscribed to.
    *
@@ -369,7 +367,7 @@ public abstract class DataBufferUtils {
         var channel = AsynchronousFileChannel.open(destination, optionSet, null);
         sink.onDispose(() -> closeChannel(channel));
         write(source, channel)
-                .subscribe(DataBufferUtils::release, sink::error, sink::success, Context.of(sink.contextView()));
+                .subscribe(DataBuffer.RELEASE_CONSUMER, sink::error, sink::success, Context.of(sink.contextView()));
       }
       catch (IOException ex) {
         sink.error(ex);
@@ -505,7 +503,7 @@ public abstract class DataBufferUtils {
                 if (remainder < 0) {
                   int index = buffer.readableBytes() + (int) remainder;
                   DataBuffer split = buffer.split(index);
-                  release(buffer);
+                  buffer.release();
                   return (T) split;
                 }
                 else {
@@ -544,94 +542,11 @@ public abstract class DataBufferUtils {
                   countDown.set(0);
                   int start = buffer.readableBytes() + (int) remainder;
                   DataBuffer split = buffer.split(start);
-                  release(split);
+                  split.release();
                 }
                 return buffer;
               });
-    }).doOnDiscard(DataBuffer.class, DataBufferUtils::release);
-  }
-
-  /**
-   * Retain the given data buffer, if it is a {@link DataBuffer#isPooled() PooledDataBuffer}.
-   *
-   * @param dataBuffer the data buffer to retain
-   * @return the retained buffer
-   */
-  @SuppressWarnings("unchecked")
-  public static <T extends DataBuffer> T retain(T dataBuffer) {
-    if (dataBuffer.isPooled()) {
-      return (T) dataBuffer.retain();
-    }
-    else {
-      return dataBuffer;
-    }
-  }
-
-  /**
-   * Associate the given hint with the data buffer if it is a pooled buffer
-   * and supports leak tracking.
-   *
-   * @param dataBuffer the data buffer to attach the hint to
-   * @param hint the hint to attach
-   * @return the input buffer
-   */
-  @SuppressWarnings("unchecked")
-  public static <T extends DataBuffer> T touch(T dataBuffer, Object hint) {
-    if (dataBuffer.isTouchable()) {
-      return (T) dataBuffer.touch(hint);
-    }
-    else {
-      return dataBuffer;
-    }
-  }
-
-  /**
-   * Release the given data buffer. If it is a {@link DataBuffer#isPooled() Pooled DataBuffer}
-   * and has been {@linkplain DataBuffer#isAllocated() allocated}, this
-   * method will call {@link DataBuffer#release()}. If it is a
-   * {@link DataBuffer#isCloseable() Closeable DataBuffer}, this method will call
-   * {@link DataBuffer#close()}.
-   *
-   * @param dataBuffer the data buffer to release
-   * @return {@code true} if the buffer was released; {@code false} otherwise.
-   */
-  public static boolean release(@Nullable DataBuffer dataBuffer) {
-    if (dataBuffer != null) {
-      if (dataBuffer.isPooled()) {
-        if (dataBuffer.isAllocated()) {
-          try {
-            return dataBuffer.release();
-          }
-          catch (IllegalStateException ex) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Failed to release PooledDataBuffer: {}", dataBuffer, ex);
-            }
-            return false;
-          }
-        }
-      }
-      else if (dataBuffer.isCloseable()) {
-        try {
-          dataBuffer.close();
-          return true;
-        }
-        catch (IllegalStateException ex) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Failed to release CloseableDataBuffer {}", dataBuffer, ex);
-          }
-          return false;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Return a consumer that calls {@link #release(DataBuffer)} on all
-   * passed data buffers.
-   */
-  public static Consumer<DataBuffer> releaseConsumer() {
-    return RELEASE_CONSUMER;
+    }).doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
   }
 
   /**
@@ -642,7 +557,7 @@ public abstract class DataBufferUtils {
    * the given buffers.
    * <p>If {@code dataBuffers} produces an error or if there is a cancel
    * signal, then all accumulated buffers will be
-   * {@linkplain #release(DataBuffer) released}.
+   * {@linkplain DataBuffer#release() released}.
    * <p>Note that the given data buffers do <strong>not</strong> have to be
    * released. They will be released as part of the returned composite.
    *
@@ -675,7 +590,7 @@ public abstract class DataBufferUtils {
             .collect(() -> new LimitedDataBufferList(maxByteCount), LimitedDataBufferList::add)
             .filter(list -> !list.isEmpty())
             .map(list -> list.get(0).factory().join(list))
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
   }
 
   /**
@@ -977,7 +892,7 @@ public abstract class DataBufferUtils {
       }
       finally {
         if (read == -1) {
-          release(dataBuffer);
+          dataBuffer.release();
         }
       }
     }
@@ -1046,13 +961,13 @@ public abstract class DataBufferUtils {
       DataBuffer dataBuffer = attachment.dataBuffer();
 
       if (this.state.get().equals(State.DISPOSED)) {
-        release(dataBuffer);
+        dataBuffer.release();
         closeChannel(this.channel);
         return;
       }
 
       if (read == -1) {
-        release(dataBuffer);
+        dataBuffer.release();
         closeChannel(this.channel);
         this.state.set(State.DISPOSED);
         this.sink.complete();
@@ -1078,7 +993,7 @@ public abstract class DataBufferUtils {
     @Override
     public void failed(Throwable exc, Attachment attachment) {
       attachment.iterator().close();
-      release(attachment.dataBuffer());
+      attachment.dataBuffer().release();
 
       closeChannel(this.channel);
       this.state.set(State.DISPOSED);

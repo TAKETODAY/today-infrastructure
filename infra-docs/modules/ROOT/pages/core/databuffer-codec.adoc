@@ -81,9 +81,9 @@ xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
 
 `Decoder` 是最后一个读取输入数据缓冲区的对象，在创建更高级别对象之前，因此它必须按以下方式释放它们：
 
-. 如果 `Decoder` 只是简单地读取每个输入缓冲区并准备立即释放它，它可以通过 `DataBufferUtils.release(dataBuffer)` 来释放。
+. 如果 `Decoder` 只是简单地读取每个输入缓冲区并准备立即释放它，它可以通过 `dataBuffer.release()` 来释放。
 . 如果 `Decoder` 使用 `Flux` 或 `Mono` 操作符，如 `flatMap`、`reduce` 和其他在内部预取和缓存数据项的操作符，或者是使用诸如
-`filter`、`skip` 和其他排除项的操作符，则必须将 `doOnDiscard(DataBuffer.class, DataBufferUtils::release)`
+`filter`、`skip` 和其他排除项的操作符，则必须将 `doOnDiscard(DataBuffer.class, DataBuffer::release)`
 添加到组合链中，以确保在被丢弃之前释放这些缓冲区，可能还包括作为错误或取消信号的结果而被丢弃。
 . 如果 `Decoder` 以任何其他方式持有一个或多个数据缓冲区，它必须确保在完全读取时释放它们，或者在缓存的数据缓冲区被读取和释放之前发生错误或取消信号的情况下释放它们。
 
@@ -104,7 +104,7 @@ try {
 }
 finally {
   if (release) {
-    DataBufferUtils.release(buffer);
+    buffer.release();
   }
 }
 return buffer;

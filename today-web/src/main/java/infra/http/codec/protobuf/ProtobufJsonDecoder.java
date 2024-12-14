@@ -151,7 +151,7 @@ public class ProtobufJsonDecoder implements Decoder<Message> {
       throw new DecodingException("Could not read Protobuf message: " + ex.getMessage(), ex);
     }
     finally {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
     }
   }
 

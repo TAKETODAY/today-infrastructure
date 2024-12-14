@@ -172,15 +172,15 @@ class PartEventHttpMessageReaderTests {
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, true))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, true))
             .verifyComplete();
   }
 
@@ -194,14 +194,14 @@ class PartEventHttpMessageReaderTests {
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, true))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, true))
             .verifyComplete();
   }
 
@@ -215,14 +215,14 @@ class PartEventHttpMessageReaderTests {
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file1", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, false))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, true))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file1", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, false))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, true))
             .verifyComplete();
   }
 
@@ -304,8 +304,8 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, true))
-            .assertNext(data(headersFile("file2", "b.txt"), DataBufferUtils::release, true))
+            .assertNext(data(headersFile("file2", "a.txt"), DataBuffer.RELEASE_CONSUMER, true))
+            .assertNext(data(headersFile("file2", "b.txt"), DataBuffer.RELEASE_CONSUMER, true))
             .verifyComplete();
   }
 
@@ -356,7 +356,7 @@ class PartEventHttpMessageReaderTests {
   private static Consumer<DataBuffer> bodyText(String expected) {
     return buffer -> {
       String s = buffer.toString(UTF_8);
-      DataBufferUtils.release(buffer);
+      buffer.release();
       assertThat(s).isEqualTo(expected);
     };
   }

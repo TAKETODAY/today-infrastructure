@@ -160,7 +160,7 @@ public class MockClientHttpRequest extends AbstractClientHttpRequest implements 
     return DataBufferUtils.join(getBody())
             .map(buffer -> {
               String s = buffer.toString(charset);
-              DataBufferUtils.release(buffer);
+              buffer.release();
               return s;
             })
             .defaultIfEmpty("");

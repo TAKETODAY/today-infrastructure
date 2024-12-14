@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.util.CollectionUtils;
@@ -158,7 +157,7 @@ public abstract class Hints {
   /**
    * If the hints contain a {@link #LOG_PREFIX_HINT} and the given logger has
    * DEBUG level enabled, apply the log prefix as a hint to the given buffer
-   * via {@link DataBufferUtils#touch(DataBuffer, Object)}.
+   * via {@link DataBuffer#touch(Object)}.
    *
    * @param buffer the buffer to touch
    * @param hints the hints map to check for a log prefix
@@ -168,7 +167,7 @@ public abstract class Hints {
     if (logger.isDebugEnabled() && hints != null) {
       Object logPrefix = hints.get(LOG_PREFIX_HINT);
       if (logPrefix != null) {
-        DataBufferUtils.touch(buffer, logPrefix);
+        buffer.touch(logPrefix);
       }
     }
   }

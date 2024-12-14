@@ -95,7 +95,7 @@ public class PartEventHttpMessageWriter extends MultipartWriterSupport implement
               }
             }))
             .concatWith(generateLastLine(boundary, outputMessage.bufferFactory()))
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
 
     if (logger.isDebugEnabled()) {
       body = body.doOnNext(buffer -> Hints.touchDataBuffer(buffer, hints, logger));

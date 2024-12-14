@@ -27,7 +27,6 @@ import java.util.Arrays;
 import infra.core.ResolvableType;
 import infra.core.codec.DecodingException;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.testfixture.codec.AbstractDecoderTests;
 import infra.http.MediaType;
 import infra.protobuf.Msg;
@@ -38,7 +37,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static infra.core.ResolvableType.forClass;
-import static infra.core.io.buffer.DataBufferUtils.release;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -119,7 +117,7 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
                 return Mono.just(buffer);
               }
               catch (IOException e) {
-                release(buffer);
+                buffer.release();
                 return Mono.error(e);
               }
             }));
@@ -141,17 +139,17 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
                 return Mono.just(buffer);
               }
               catch (IOException e) {
-                release(buffer);
+                buffer.release();
                 return Mono.error(e);
               }
             }))
             .flatMap(buffer -> {
               int len = buffer.readableBytes() / 2;
               Flux<DataBuffer> result = Flux.just(
-                      DataBufferUtils.retain(buffer.slice(0, len)),
-                      DataBufferUtils.retain(buffer.slice(len, buffer.readableBytes() - len))
+                      buffer.slice(0, len).retain(),
+                      buffer.slice(len, buffer.readableBytes() - len).retain()
               );
-              release(buffer);
+              buffer.release();
               return result;
             });
 
@@ -161,14 +159,11 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
             .verifyComplete());
   }
 
-  @Test  // SPR-17429
+  @Test
   public void decodeSplitMessageSize() {
     this.decoder.setMaxMessageSize(100009);
-    StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < 10000; i++) {
-      builder.append("azertyuiop");
-    }
-    Msg bigMessage = Msg.newBuilder().setFoo(builder.toString()).setBlah(secondMsg2).build();
+    Msg bigMessage = Msg.newBuilder().setFoo("azertyuiop".repeat(10000))
+            .setBlah(secondMsg2).build();
 
     Flux<DataBuffer> input = Flux.just(bigMessage, bigMessage)
             .flatMap(msg -> Mono.defer(() -> {
@@ -178,18 +173,15 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
                 return Mono.just(buffer);
               }
               catch (IOException e) {
-                release(buffer);
+                buffer.release();
                 return Mono.error(e);
               }
             }))
             .flatMap(buffer -> {
               int len = 2;
-              Flux<DataBuffer> result = Flux.just(
-                      DataBufferUtils.retain(buffer.slice(0, len)),
-                      DataBufferUtils
-                              .retain(buffer.slice(len, buffer.readableBytes() - len))
-              );
-              release(buffer);
+              Flux<DataBuffer> result = Flux.just(buffer.retainedSlice(0, len),
+                      buffer.retainedSlice(len, buffer.readableBytes() - len));
+              buffer.release();
               return result;
             });
 

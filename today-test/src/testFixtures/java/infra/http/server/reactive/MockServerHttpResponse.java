@@ -371,7 +371,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
           rsWriteLogger.trace("{}Wrote {} of {} bytes", getLogPrefix(), written, remaining);
         }
         if (written == remaining) {
-          DataBufferUtils.release(dataBuffer);
+          dataBuffer.release();
           return true;
         }
       }
@@ -391,7 +391,7 @@ class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     @Override
     protected void discardData(DataBuffer dataBuffer) {
-      DataBufferUtils.release(dataBuffer);
+      dataBuffer.release();
     }
   }
 

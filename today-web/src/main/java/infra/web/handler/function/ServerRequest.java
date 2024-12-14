@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -563,7 +562,7 @@ public interface ServerRequest extends ServerResponse.Context {
     /**
      * Set the body of the request.
      * <p>Calling this methods will
-     * {@linkplain DataBufferUtils#release(DataBuffer) release}
+     * {@linkplain DataBuffer#release() release}
      * the existing body of the builder.
      *
      * @param body the new body
@@ -574,7 +573,7 @@ public interface ServerRequest extends ServerResponse.Context {
     /**
      * Set the body of the request to the UTF-8 encoded bytes of the given string.
      * <p>Calling this methods will
-     * {@linkplain DataBufferUtils#release(DataBuffer) release}
+     * {@linkplain DataBuffer#release() release}
      * the existing body of the builder.
      *
      * @param body the new body

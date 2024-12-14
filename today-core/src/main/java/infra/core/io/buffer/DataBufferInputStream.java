@@ -99,7 +99,7 @@ final class DataBufferInputStream extends InputStream {
       return;
     }
     if (this.releaseOnClose) {
-      DataBufferUtils.release(this.dataBuffer);
+      dataBuffer.release();
     }
     this.closed = true;
   }

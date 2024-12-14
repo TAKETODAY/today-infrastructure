@@ -146,16 +146,16 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           newState.onNext(remainder);
         }
         else {
-          DataBufferUtils.release(remainder);
+          remainder.release();
           requestBuffer();
         }
       }
       return true;
     }
-    else {
-      DataBufferUtils.release(remainder);
-      return false;
+    else if (remainder != null) {
+      remainder.release();
     }
+    return false;
   }
 
   void emitHeaders(HttpHeaders headers) {
@@ -312,12 +312,12 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           log.trace("First boundary found @{} in {}", endIdx, buf);
         }
         DataBuffer preambleBuffer = buf.split(endIdx + 1);
-        DataBufferUtils.release(preambleBuffer);
+        preambleBuffer.release();
 
         changeState(this, new HeadersState(), buf);
       }
       else {
-        DataBufferUtils.release(buf);
+        buf.release();
         requestBuffer();
       }
     }
@@ -438,7 +438,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       DataBuffer joined = buffers.get(0).factory().join(buffers);
       buffers.clear();
       String string = joined.toString(MultipartParser.this.headersCharset);
-      DataBufferUtils.release(joined);
+      joined.release();
       HttpHeaders result = HttpHeaders.forWritable();
       for (String line : string.split(HEADER_ENTRY_SEPARATOR)) {
         int idx = line.indexOf(':');
@@ -464,7 +464,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     @Override
     public void dispose() {
       for (DataBuffer buffer : buffers) {
-        DataBufferUtils.release(buffer);
+        buffer.release();
       }
     }
 
@@ -515,14 +515,14 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           // whole boundary in buffer.
           // slice off the body part, and flush
           DataBuffer body = boundaryBuffer.split(len);
-          DataBufferUtils.release(boundaryBuffer);
+          boundaryBuffer.release();
           enqueue(body);
           flush();
         }
         else if (len < 0) {
           // boundary spans multiple buffers, and we've just found the end
           // iterate over buffers in reverse order
-          DataBufferUtils.release(boundaryBuffer);
+          boundaryBuffer.release();
           DataBuffer prev;
           while ((prev = this.queue.pollLast()) != null) {
             int prevByteCount = prev.readableBytes();
@@ -530,21 +530,21 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
             if (prevLen >= 0) {
               // slice body part of previous buffer, and flush it
               DataBuffer body = prev.split(prevLen + prev.readPosition());
-              DataBufferUtils.release(prev);
+              prev.release();
               enqueue(body);
               flush();
               break;
             }
             else {
               // previous buffer only contains boundary bytes
-              DataBufferUtils.release(prev);
+              prev.release();
               len += prevByteCount;
             }
           }
         }
         else /* if (len == 0) */ {
           // buffer starts with complete delimiter, flush out the previous buffers
-          DataBufferUtils.release(boundaryBuffer);
+          boundaryBuffer.release();
           flush();
         }
 
@@ -602,7 +602,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
     @Override
     public void dispose() {
-      this.queue.forEach(DataBufferUtils::release);
+      this.queue.forEach(DataBuffer.RELEASE_CONSUMER);
       this.queue.clear();
     }
 
@@ -624,7 +624,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
 
     @Override
     public void onNext(DataBuffer buf) {
-      DataBufferUtils.release(buf);
+      buf.release();
     }
 
     @Override

@@ -284,24 +284,32 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
   }
 
   @Override
-  public boolean isTouchable() {
-    return true;
-  }
-
-  @Override
-  public boolean isCloseable() {
-    return true;
-  }
-
-  @Override
   public Netty5DataBuffer touch(Object hint) {
     this.buffer.touch(hint);
     return this;
   }
 
   @Override
+  public boolean isAllocated() {
+    return buffer.isAccessible();
+  }
+
+  @Override
   public void close() {
     this.buffer.close();
+  }
+
+  @Override
+  public boolean release() {
+    try {
+      this.buffer.close();
+    }
+    catch (IllegalStateException ex) {
+      if (DataBufferUtils.logger.isDebugEnabled()) {
+        DataBufferUtils.logger.debug("Failed to release DataBuffer {}", this, ex);
+      }
+    }
+    return true;
   }
 
   @Override
