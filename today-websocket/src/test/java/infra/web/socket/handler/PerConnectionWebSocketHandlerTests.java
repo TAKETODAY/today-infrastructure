@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PerConnectionWebSocketHandlerTests {
 
   @Test
-  void onOpen() throws Exception {
+  void onOpen() throws Throwable {
 
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();

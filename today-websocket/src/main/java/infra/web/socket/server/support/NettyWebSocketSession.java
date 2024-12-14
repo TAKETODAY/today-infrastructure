@@ -17,20 +17,18 @@
 
 package infra.web.socket.server.support;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
-import infra.web.socket.BinaryMessage;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
-import infra.web.socket.PingMessage;
-import infra.web.socket.PongMessage;
-import infra.web.socket.TextMessage;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -39,7 +37,10 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+
+import static infra.web.socket.PromiseAdapter.adapt;
 
 /**
  * Netty websocket session
@@ -53,53 +54,63 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final Channel channel;
 
-  protected NettyWebSocketSession(boolean secure, Channel channel) {
+  private final NettyDataBufferFactory allocator;
+
+  protected NettyWebSocketSession(boolean secure, Channel channel, NettyDataBufferFactory allocator) {
     this.secure = secure;
     this.channel = channel;
+    this.allocator = allocator;
   }
 
   @Override
-  public void sendMessage(Message<?> message) throws IOException {
-    if (message instanceof TextMessage) {
-      sendText((CharSequence) message.getPayload());
-    }
-    else if (message instanceof BinaryMessage bm) {
-      channel.writeAndFlush(new BinaryWebSocketFrame(NettyDataBuffer.toByteBuf(bm.getPayload())));
-    }
-    else if (message instanceof PingMessage pm) {
-      channel.writeAndFlush(new PingWebSocketFrame(NettyDataBuffer.toByteBuf(pm.getPayload())));
-    }
-    else if (message instanceof PongMessage pm) {
-      channel.writeAndFlush(new PongWebSocketFrame(NettyDataBuffer.toByteBuf(pm.getPayload())));
-    }
-    else {
-      throw new IllegalStateException("Unexpected WebSocket message type: " + message);
-    }
+  public NettyDataBufferFactory bufferFactory() {
+    return allocator;
   }
 
   @Override
-  public void sendText(CharSequence text) {
+  public Future<Void> sendText(CharSequence text) {
     if (text.isEmpty()) {
-      channel.writeAndFlush(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
+      return send(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
     }
-    else {
-      channel.writeAndFlush(new TextWebSocketFrame(Unpooled.copiedBuffer(text, CharsetUtil.UTF_8)));
+    return send(new TextWebSocketFrame(Unpooled.copiedBuffer(text, CharsetUtil.UTF_8)));
+  }
+
+  @Override
+  public Future<Void> sendBinary(DataBuffer payload) {
+    return send(new BinaryWebSocketFrame(NettyDataBuffer.toByteBuf(payload)));
+  }
+
+  @Override
+  public Future<Void> sendPing() {
+    return send(new PingWebSocketFrame());
+  }
+
+  @Override
+  public Future<Void> sendPong() {
+    return send(new PongWebSocketFrame());
+  }
+
+  @Override
+  public Future<Void> send(WebSocketMessage message) {
+    return send(createFrame(message));
+  }
+
+  public Future<Void> send(WebSocketFrame message) {
+    return adapt(channel.writeAndFlush(message));
+  }
+
+  protected WebSocketFrame createFrame(WebSocketMessage message) {
+    if (message.getNativeMessage() != null) {
+      return message.getNativeMessage();
     }
-  }
 
-  @Override
-  public void sendBinary(DataBuffer buffer) throws IOException {
-    channel.writeAndFlush(new BinaryWebSocketFrame(NettyDataBuffer.toByteBuf(buffer)));
-  }
-
-  @Override
-  public void sendPing() {
-    channel.writeAndFlush(new PingWebSocketFrame());
-  }
-
-  @Override
-  public void sendPong() {
-    channel.writeAndFlush(new PongWebSocketFrame());
+    ByteBuf byteBuf = NettyDataBuffer.toByteBuf(message.getPayload());
+    return switch (message.getType()) {
+      case PING -> new PingWebSocketFrame(byteBuf);
+      case PONG -> new PongWebSocketFrame(byteBuf);
+      case TEXT -> new TextWebSocketFrame(byteBuf);
+      case BINARY -> new BinaryWebSocketFrame(byteBuf);
+    };
   }
 
   @Override
@@ -118,9 +129,9 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void close(CloseStatus status) throws IOException {
-    channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
-            .addListener(ChannelFutureListener.CLOSE);
+  public Future<Void> close(CloseStatus status) {
+    return adapt(channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
+            .addListener(ChannelFutureListener.CLOSE));
   }
 
   @Nullable

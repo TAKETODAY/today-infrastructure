@@ -17,17 +17,16 @@
 
 package infra.web.socket.server.support;
 
+import java.util.Map;
+
 import infra.context.ApplicationContext;
+import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.lang.Nullable;
+import infra.lang.Assert;
 import infra.web.server.support.NettyChannelHandler;
 import infra.web.server.support.NettyRequestConfig;
-import infra.web.socket.BinaryMessage;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
-import infra.web.socket.PingMessage;
-import infra.web.socket.PongMessage;
-import infra.web.socket.TextMessage;
+import infra.web.socket.WebSocketMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -44,6 +43,12 @@ import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryClo
  * @since 4.0 2024/4/28 15:02
  */
 public class WsNettyChannelHandler extends NettyChannelHandler {
+
+  private static final Map<Class<?>, WebSocketMessage.Type> messageTypes = Map.of(
+          TextWebSocketFrame.class, infra.web.socket.WebSocketMessage.Type.TEXT,
+          PingWebSocketFrame.class, WebSocketMessage.Type.PING,
+          PongWebSocketFrame.class, WebSocketMessage.Type.PONG,
+          BinaryWebSocketFrame.class, WebSocketMessage.Type.BINARY);
 
   public WsNettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
     super(requestConfig, context);
@@ -67,18 +72,15 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
       String reasonText = closeFrame.reasonText();
       CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
       close(channel, closeStatus);
-      holder.unbind(channel);
       channel.close();
     }
     else {
-      Message<?> message = adaptMessage(holder.allocator, frame);
-      if (message != null) {
-        try {
-          holder.wsHandler.handleMessage(holder.session, message);
-        }
-        catch (Exception e) {
-          tryCloseWithError(holder.session, e, log);
-        }
+      try {
+        var message = adaptMessage(holder.allocator, frame);
+        holder.wsHandler.handleMessage(holder.session, message);
+      }
+      catch (Throwable e) {
+        tryCloseWithError(holder.session, e, log);
       }
     }
   }
@@ -100,7 +102,7 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
       try {
         socketHolder.wsHandler.onError(socketHolder.session, cause);
       }
-      catch (Exception e) {
+      catch (Throwable e) {
         tryCloseWithError(socketHolder.session, e, log);
       }
     }
@@ -110,39 +112,30 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
   }
 
   private static void close(Channel channel, CloseStatus closeStatus) {
-    WebSocketHolder socketHolder = WebSocketHolder.find(channel);
-    if (socketHolder != null) {
+    WebSocketHolder holder = WebSocketHolder.find(channel);
+    if (holder != null) {
       try {
-        socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
+        holder.unbind(channel);
+        holder.wsHandler.onClose(holder.session, closeStatus);
       }
-      catch (Exception ex) {
-        log.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
+      catch (Throwable ex) {
+        log.warn("Unhandled on-close exception for {}", holder.session, ex);
       }
     }
   }
 
   /**
-   * Adapt WebSocketFrame to {@link Message}
+   * Adapt WebSocketFrame to {@link WebSocketMessage}
    *
    * @param frame WebSocketFrame
    * @return websocket message
+   * @since 5.0
    */
-  @Nullable
-  public static Message<?> adaptMessage(NettyDataBufferFactory allocator, WebSocketFrame frame) {
-    if (frame instanceof PingWebSocketFrame) {
-      return new PingMessage(allocator.wrap(frame.content()));
-    }
-    if (frame instanceof PongWebSocketFrame) {
-      return new PongMessage(allocator.wrap(frame.content()));
-    }
-    if (frame instanceof TextWebSocketFrame twsf) {
-      String text = twsf.text();
-      return new TextMessage(text, frame.isFinalFragment());
-    }
-    if (frame instanceof BinaryWebSocketFrame) {
-      return new BinaryMessage(allocator.wrap(frame.content()), frame.isFinalFragment());
-    }
-    return null;
+  public static WebSocketMessage adaptMessage(NettyDataBufferFactory allocator, WebSocketFrame frame) {
+    WebSocketMessage.Type messageType = messageTypes.get(frame.getClass());
+    Assert.state(messageType != null, "Unexpected message type");
+    DataBuffer payload = allocator.wrap(frame.content());
+    return new WebSocketMessage(messageType, payload, frame, frame.isFinalFragment());
   }
 
 }

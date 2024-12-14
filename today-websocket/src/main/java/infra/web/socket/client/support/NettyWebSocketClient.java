@@ -30,11 +30,11 @@ import infra.util.DataSize;
 import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
-import infra.web.socket.Message;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.client.AbstractWebSocketClient;
+import infra.web.socket.server.support.NettyWebSocketSession;
 import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -60,7 +60,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 
 import static infra.util.concurrent.Future.ok;
-import static infra.web.socket.client.support.PromiseAdapter.adapt;
+import static infra.web.socket.PromiseAdapter.adapt;
 import static infra.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
@@ -233,14 +233,9 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
             StringUtils.collectionToCommaDelimitedString(subProtocols), true, customHeaders);
   }
 
-  protected WebSocketSession createSession(Channel channel, boolean secure,
-          @Nullable Decorator<WebSocketSession> sessionDecorator, WebSocketClientHandshaker handshaker) {
-    WebSocketSession session = new NettyClientWebSocketSession(secure, channel, handshaker);
-
-    if (sessionDecorator != null) {
-      session = sessionDecorator.decorate(session);
-    }
-    return session;
+  protected NettyWebSocketSession createSession(Channel channel, boolean secure,
+          WebSocketClientHandshaker handshaker, NettyDataBufferFactory allocator) {
+    return new NettyClientWebSocketSession(secure, channel, handshaker, allocator);
   }
 
   /**
@@ -296,7 +291,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private NettyDataBufferFactory allocator;
 
-    private WebSocketSession session;
+    private NettyWebSocketSession session;
 
     MessageHandler(URI uri, WebSocketHandler handler, WebSocketClientHandshaker handshaker) {
       this.uri = uri;
@@ -311,19 +306,16 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-      if (msg instanceof WebSocketFrame frame) {
-        Message<?> message = WsNettyChannelHandler.adaptMessage(allocator, frame);
-        if (message != null) {
-          try {
-            handler.handleMessage(session, message);
-          }
-          catch (Exception e) {
-            tryCloseWithError(session, e, logger);
-          }
+      if (msg instanceof CloseWebSocketFrame) {
+        processCloseFrame(ctx);
+      }
+      else if (msg instanceof WebSocketFrame frame) {
+        try {
+          var message = WsNettyChannelHandler.adaptMessage(allocator, frame);
+          handler.handleMessage(session, message);
         }
-
-        if (msg instanceof CloseWebSocketFrame) {
-          processCloseFrame(ctx);
+        catch (Throwable e) {
+          tryCloseWithError(session, e, logger);
         }
       }
       else if (msg instanceof FullHttpResponse response) {
@@ -332,11 +324,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
           allocator = new NettyDataBufferFactory(channel.alloc());
           try {
             handshaker.finishHandshake(channel, response);
-            session = createSession(channel, "wss".equals(uri.getScheme()), sessionDecorator, handshaker);
+            session = createSession(channel, "wss".equals(uri.getScheme()), handshaker, allocator);
+            allocator = session.bufferFactory();
             handler.onOpen(session);
             future.setSuccess(session);
           }
-          catch (Exception e) {
+          catch (Throwable e) {
             future.setFailure(e);
           }
         }
@@ -355,7 +348,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
         try {
           handler.onError(session, cause);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
           tryCloseWithError(session, e, logger);
         }
       }

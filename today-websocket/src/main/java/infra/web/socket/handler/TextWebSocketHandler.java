@@ -17,12 +17,10 @@
 
 package infra.web.socket.handler;
 
-import java.io.IOException;
-
 import infra.lang.Nullable;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.BinaryMessage;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 /**
@@ -46,13 +44,8 @@ public class TextWebSocketHandler extends WebSocketHandler {
   }
 
   @Override
-  protected final void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-    try {
-      session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
-    }
-    catch (IOException ex) {
-      // ignore
-    }
+  protected final void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
+    session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
   }
 
 }

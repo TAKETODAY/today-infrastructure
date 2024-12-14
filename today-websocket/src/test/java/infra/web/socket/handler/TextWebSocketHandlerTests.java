@@ -19,15 +19,14 @@ package infra.web.socket.handler;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.BinaryMessage;
-import infra.web.socket.TextMessage;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,18 +40,19 @@ class TextWebSocketHandlerTests {
 
   private final WebSocketSession session = mock(WebSocketSession.class);
 
+  private final DataBuffer hello = DefaultDataBufferFactory.sharedInstance.copiedBuffer("hello", StandardCharsets.UTF_8);
+
   @Test
-  void handleTextMessage() throws Exception {
-    handler.handleMessage(session, new TextMessage("hello"));
-    handler.handleMessage(session, new BinaryMessage("hello".getBytes(StandardCharsets.UTF_8)));
+  void handleTextMessage() throws Throwable {
+    handler.handleMessage(session, WebSocketMessage.text(hello));
+    handler.handleMessage(session, WebSocketMessage.binary(hello));
 
     verify(session).close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
   }
 
   @Test
-  void ioEx() throws Exception {
-    doThrow(IOException.class).when(session).close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
-    handler.handleMessage(session, new BinaryMessage("hello".getBytes(StandardCharsets.UTF_8)));
+  void ioEx() throws Throwable {
+    handler.handleMessage(session, WebSocketMessage.binary(hello));
 
     verify(session).close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
   }

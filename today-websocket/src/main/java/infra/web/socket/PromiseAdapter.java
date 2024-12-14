@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.socket.client.support;
+package infra.web.socket;
 
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
@@ -25,7 +25,7 @@ import io.netty.util.concurrent.GenericFutureListener;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
+public class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.concurrent.Future<V>> {
 
   private final Promise<V> promise;
 

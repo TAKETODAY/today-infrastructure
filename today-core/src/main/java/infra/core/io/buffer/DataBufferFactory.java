@@ -18,6 +18,8 @@
 package infra.core.io.buffer;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -49,6 +51,30 @@ public interface DataBufferFactory {
    * @return the allocated buffer
    */
   DataBuffer allocateBuffer(int initialCapacity);
+
+  /**
+   * Creates a new big-endian buffer whose content is the specified
+   * {@code string} encoded in the specified {@code charset}.
+   * The new buffer's {@code readerIndex} and {@code writerIndex} are
+   * {@code 0} and the length of the encoded string respectively.
+   *
+   * @since 5.0
+   */
+  default DataBuffer copiedBuffer(CharSequence string) {
+    return copiedBuffer(string, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Creates a new big-endian buffer whose content is the specified
+   * {@code string} encoded in the specified {@code charset}.
+   * The new buffer's {@code readerIndex} and {@code writerIndex} are
+   * {@code 0} and the length of the encoded string respectively.
+   *
+   * @since 5.0
+   */
+  default DataBuffer copiedBuffer(CharSequence string, Charset charset) {
+    return wrap(string.toString().getBytes(charset));
+  }
 
   /**
    * Wrap the given {@link ByteBuffer} in a {@code DataBuffer}. Unlike

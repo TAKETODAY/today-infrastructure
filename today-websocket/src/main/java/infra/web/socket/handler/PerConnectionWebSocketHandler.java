@@ -25,8 +25,8 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 /**
@@ -39,7 +39,7 @@ import infra.web.socket.WebSocketSession;
  *
  * <p>If initializing the target {@link WebSocketHandler} type requires a Infra
  * BeanFactory, then the {@link #setBeanFactory(BeanFactory)} property accordingly. Simply
- * declaring this class as a Infra bean will do that. Otherwise, {@link WebSocketHandler}
+ * declaring this class as an Infra bean will do that. Otherwise, {@link WebSocketHandler}
  * instances of the target type will be created using the default constructor.
  *
  * @author Rossen Stoyanchev
@@ -65,24 +65,24 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public void onOpen(WebSocketSession session) throws Exception {
+  public void onOpen(WebSocketSession session) throws Throwable {
     WebSocketHandler handler = this.provider.getHandler();
     this.handlers.put(session, handler);
     handler.onOpen(session);
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
+  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     getHandler(session).handleMessage(session, message);
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable exception) throws Exception {
+  public void onError(WebSocketSession session, Throwable exception) throws Throwable {
     getHandler(session).onError(session, exception);
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
     try {
       getHandler(session).onClose(session, status);
     }

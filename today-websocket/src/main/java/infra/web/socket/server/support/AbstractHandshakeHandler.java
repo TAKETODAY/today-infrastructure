@@ -309,7 +309,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
       return upgradeStrategy;
     }
 
-    return new NettyRequestUpgradeStrategy(null);
+    return new NettyRequestUpgradeStrategy();
   }
 
 }

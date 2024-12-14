@@ -31,19 +31,13 @@ class NettyRequestUpgradeStrategyTests {
 
   @Test
   void setDecoderConfig() {
-    NettyRequestUpgradeStrategy requestUpgradeStrategy = new NettyRequestUpgradeStrategy(null);
+    NettyRequestUpgradeStrategy requestUpgradeStrategy = new NettyRequestUpgradeStrategy();
     assertThat(requestUpgradeStrategy).extracting("decoderConfig").isNotNull();
 
     WebSocketDecoderConfig config = WebSocketDecoderConfig.newBuilder().build();
     requestUpgradeStrategy.setDecoderConfig(config);
 
     assertThat(requestUpgradeStrategy).extracting("decoderConfig").isSameAs(config);
-  }
-
-  @Test
-  void construct() {
-    assertThat(new NettyRequestUpgradeStrategy(null)).extracting("sessionDecorator").isNull();
-    assertThat(new NettyRequestUpgradeStrategy(delegate -> delegate)).extracting("sessionDecorator").isNotNull();
   }
 
 }

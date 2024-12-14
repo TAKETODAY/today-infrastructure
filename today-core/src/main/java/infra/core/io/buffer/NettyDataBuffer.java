@@ -339,7 +339,8 @@ public class NettyDataBuffer extends DataBuffer {
 
   @Override
   public NettyDataBuffer retain() {
-    return new NettyDataBuffer(this.byteBuf.retain(), this.dataBufferFactory);
+    this.byteBuf = byteBuf.retain();
+    return this;
   }
 
   @Override

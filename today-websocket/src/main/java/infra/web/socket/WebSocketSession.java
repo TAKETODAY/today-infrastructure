@@ -17,14 +17,17 @@
 
 package infra.web.socket;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 import infra.core.AttributeAccessor;
 import infra.core.AttributeAccessorSupport;
 import infra.core.io.buffer.DataBuffer;
+import infra.core.io.buffer.DataBufferFactory;
 import infra.lang.Nullable;
 import infra.util.AlternativeJdkIdGenerator;
+import infra.util.concurrent.Future;
 
 /**
  * A WebSocket session abstraction. Allows sending messages over a WebSocket
@@ -47,24 +50,68 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   }
 
   /**
+   * Return a {@code DataBuffer} Factory to create message payloads.
+   *
+   * @return the buffer factory for the session
+   * @since 5.0
+   */
+  public abstract DataBufferFactory bufferFactory();
+
+  /**
+   * write the messages and return a {@code Future<Void>} that
+   * completes when the source completes and writing is done.
+   *
+   * @since 5.0
+   */
+  public abstract Future<Void> send(WebSocketMessage message);
+
+  /**
+   * write the messages and return a {@code Future<Void>} that
+   * completes when the source completes and writing is done.
+   *
+   * @since 5.0
+   */
+  public Future<Void> send(Future<WebSocketMessage> message) {
+    return message.flatMap(this::send);
+  }
+
+  /**
    * Send a text message, blocking until all of the message has been transmitted.
    *
    * @param text the message to be sent.
-   * @throws IOException if there is a problem delivering the message.
    */
-  public void sendText(CharSequence text) throws IOException {
-    sendMessage(new TextMessage(text, true));
+  public Future<Void> sendText(CharSequence text) {
+    return send(textMessage(text));
   }
 
   /**
    * Send a binary message, returning when all of the message has been transmitted.
    *
-   * @param buffer the message to be sent.
-   * @throws IOException if there is a problem delivering the message.
+   * @param payload the message to be sent.
    * @since 5.0
    */
-  public void sendBinary(DataBuffer buffer) throws IOException {
-    sendMessage(new BinaryMessage(buffer));
+  public Future<Void> sendBinary(DataBuffer payload) {
+    return send(WebSocketMessage.binary(payload));
+  }
+
+  /**
+   * Send a binary message, returning when all of the message has been transmitted.
+   *
+   * @param payloadFactory the message factory to be sent.
+   * @since 5.0
+   */
+  public Future<Void> sendBinary(Function<DataBufferFactory, DataBuffer> payloadFactory) {
+    return send(WebSocketMessage.binary(payloadFactory.apply(bufferFactory())));
+  }
+
+  /**
+   * Send a binary message, returning when all of the message has been transmitted.
+   *
+   * @param payloadFactory the message factory to be sent.
+   * @since 5.0
+   */
+  public Future<Void> send(Function<DataBufferFactory, WebSocketMessage> payloadFactory) {
+    return send(payloadFactory.apply(bufferFactory()));
   }
 
   /**
@@ -72,8 +119,8 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    *
    * @since 5.0
    */
-  public void sendPing() throws IOException {
-    sendMessage(new PingMessage());
+  public Future<Void> sendPing() {
+    return send(WebSocketMessage.ping());
   }
 
   /**
@@ -81,21 +128,31 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    *
    * @since 5.0
    */
-  public void sendPong() throws IOException {
-    sendMessage(new PongMessage());
+  public Future<Void> sendPong() {
+    return send(WebSocketMessage.pong());
   }
 
   /**
-   * Send a message in parts, blocking until all of the message has
-   * been transmitted. The runtime reads the message in order.
-   * Non-final parts of the message are sent with isLast set to false.
-   * The final part must be sent with isLast set to true.
+   * Factory method to create a text {@link WebSocketMessage} using the
+   * {@link #bufferFactory()} for the session.
    *
-   * @param message Message
-   * @throws IOException if there is a problem delivering the message.
-   * @see Message#isLast()
+   * @since 5.0
    */
-  public abstract void sendMessage(Message<?> message) throws IOException;
+  public WebSocketMessage textMessage(CharSequence payload) {
+    DataBuffer buffer = bufferFactory().copiedBuffer(payload, StandardCharsets.UTF_8);
+    return WebSocketMessage.text(buffer, true);
+  }
+
+  /**
+   * Factory method to create a binary WebSocketMessage using the
+   * {@link #bufferFactory()} for the session.
+   *
+   * @since 5.0
+   */
+  public WebSocketMessage binaryMessage(Function<DataBufferFactory, DataBuffer> payloadFactory) {
+    DataBuffer payload = payloadFactory.apply(bufferFactory());
+    return WebSocketMessage.binary(payload);
+  }
 
   /**
    * is WSS ?
@@ -118,11 +175,9 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
 
   /**
    * Close the current conversation with a normal status code and no reason phrase.
-   *
-   * @throws IOException if there was a connection error closing the connection.
    */
-  public void close() throws IOException {
-    close(CloseStatus.NORMAL);
+  public Future<Void> close() {
+    return close(CloseStatus.NORMAL);
   }
 
   /**
@@ -137,9 +192,8 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    * to use {@link CloseStatus#NO_STATUS_CODE}.
    *
    * @param status the reason for the closure.
-   * @throws IOException if there was a connection error closing the connection
    */
-  public abstract void close(CloseStatus status) throws IOException;
+  public abstract Future<Void> close(CloseStatus status);
 
   /**
    * Return the address on which the request was received.

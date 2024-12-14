@@ -21,9 +21,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.Decorator;
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.ExceptionUtils;
 import infra.web.RequestContext;
 import infra.web.server.support.NettyRequestContext;
 import infra.web.socket.WebSocketExtension;
@@ -49,9 +50,6 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13" };
 
-  @Nullable
-  private final Decorator<WebSocketSession> sessionDecorator;
-
   private WebSocketDecoderConfig decoderConfig = WebSocketDecoderConfig.newBuilder()
           .maxFramePayloadLength(65536)
           .expectMaskedFrames(true)
@@ -61,10 +59,6 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
           .withUTF8Validator(true)
           .build();
 
-  public NettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
-    this.sessionDecorator = sessionDecorator;
-  }
-
   /**
    * set Frames decoder configuration.
    *
@@ -72,15 +66,6 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
    */
   public void setDecoderConfig(WebSocketDecoderConfig decoderConfig) {
     this.decoderConfig = decoderConfig;
-  }
-
-  protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    WebSocketSession session = new NettyWebSocketSession(context.config.secure, context.channel);
-
-    if (sessionDecorator != null) {
-      session = sessionDecorator.decorate(session);
-    }
-    return session;
   }
 
   @Override
@@ -101,9 +86,6 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
       throw new IllegalStateException("not running in netty");
     }
 
-    WebSocketSession session = createSession(nettyContext, sessionDecorator);
-    session.setAttributes(attributes);
-
     FullHttpRequest request = nettyContext.nativeRequest();
     var handshaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channel;
@@ -111,6 +93,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;
     }
+    NettyDataBufferFactory allocator = new NettyDataBufferFactory(channel.alloc());
+    NettyWebSocketSession session = createSession(nettyContext, allocator);
+    session.setAttributes(attributes);
 
     WebSocketHolder.bind(channel, wsHandler, session);
     ChannelPromise writePromise = channel.newPromise();
@@ -131,14 +116,24 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     handshakeChannel.release();
 
     writePromise.addListener(future -> {
-      if (future.isSuccess()) {
-        wsHandler.onOpen(session);
+      try {
+        if (future.isSuccess()) {
+          wsHandler.onOpen(session);
+        }
+        else {
+          wsHandler.onError(session, future.cause());
+        }
       }
-      else {
-        wsHandler.onError(session, future.cause());
+      catch (Throwable e) {
+        throw ExceptionUtils.sneakyThrow(e);
       }
     });
+
     return session;
+  }
+
+  protected NettyWebSocketSession createSession(NettyRequestContext context, NettyDataBufferFactory allocator) {
+    return new NettyWebSocketSession(context.config.secure, context.channel, allocator);
   }
 
   protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request,

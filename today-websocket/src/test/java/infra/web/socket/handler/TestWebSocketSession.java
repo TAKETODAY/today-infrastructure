@@ -17,7 +17,6 @@
 
 package infra.web.socket.handler;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,10 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.io.buffer.DataBufferFactory;
+import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
 import infra.web.socket.WebSocketExtension;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 /**
@@ -54,7 +56,7 @@ public class TestWebSocketSession extends WebSocketSession {
 
   private boolean open;
 
-  private final List<Message<?>> messages = new ArrayList<>();
+  private final List<WebSocketMessage> messages = new ArrayList<>();
 
   private CloseStatus status;
 
@@ -74,6 +76,11 @@ public class TestWebSocketSession extends WebSocketSession {
   @Override
   public String getId() {
     return this.id;
+  }
+
+  @Override
+  public DataBufferFactory bufferFactory() {
+    return DefaultDataBufferFactory.sharedInstance;
   }
 
   public void setId(String id) {
@@ -149,7 +156,7 @@ public class TestWebSocketSession extends WebSocketSession {
     this.open = open;
   }
 
-  public List<Message<?>> getSentMessages() {
+  public List<WebSocketMessage> getSentMessages() {
     return this.messages;
   }
 
@@ -158,8 +165,9 @@ public class TestWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void sendMessage(Message<?> message) throws IOException {
-    this.messages.add(message);
+  public Future<Void> send(WebSocketMessage message) {
+    messages.add(message);
+    return Future.ok();
   }
 
   @Override
@@ -168,14 +176,16 @@ public class TestWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void close() throws IOException {
+  public Future<Void> close() {
     this.open = false;
+    return Future.ok();
   }
 
   @Override
-  public void close(CloseStatus status) throws IOException {
+  public Future<Void> close(CloseStatus status) {
     this.open = false;
     this.status = status;
+    return Future.ok();
   }
 
 }

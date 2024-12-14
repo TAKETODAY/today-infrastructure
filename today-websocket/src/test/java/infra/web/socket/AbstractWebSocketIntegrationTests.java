@@ -152,7 +152,7 @@ public abstract class AbstractWebSocketIntegrationTests {
     @Override
     @Bean
     public RequestUpgradeStrategy requestUpgradeStrategy() {
-      return new NettyRequestUpgradeStrategy(null);
+      return new NettyRequestUpgradeStrategy();
     }
   }
 

@@ -77,12 +77,12 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     TestWebSocketHandler serverHandler = this.wac.getBean(TestWebSocketHandler.class);
     serverHandler.setWaitMessageCount(1);
 
-    session.sendMessage(new PongMessage());
+    session.sendPong();
 
     serverHandler.await();
     assertThat(serverHandler.getTransportError()).isNull();
     assertThat(serverHandler.getReceivedMessages()).hasSize(1);
-    assertThat(serverHandler.getReceivedMessages().get(0).getClass()).isEqualTo(PongMessage.class);
+    assertThat(serverHandler.getReceivedMessages().get(0).getType()).isEqualTo(WebSocketMessage.Type.PONG);
   }
 
   @Configuration
@@ -120,10 +120,9 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
 
   }
 
-  @SuppressWarnings("rawtypes")
   private static class TestWebSocketHandler extends WebSocketHandler {
 
-    private final List<Message> receivedMessages = new ArrayList<>();
+    private final List<WebSocketMessage> receivedMessages = new ArrayList<>();
 
     private int waitMessageCount;
 
@@ -135,7 +134,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
       this.waitMessageCount = waitMessageCount;
     }
 
-    public List<Message> getReceivedMessages() {
+    public List<WebSocketMessage> getReceivedMessages() {
       return this.receivedMessages;
     }
 
@@ -144,7 +143,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     }
 
     @Override
-    public void handleMessage(WebSocketSession session, Message<?> message) {
+    public void handleMessage(WebSocketSession session, WebSocketMessage message) {
       this.receivedMessages.add(message);
       if (this.receivedMessages.size() >= this.waitMessageCount) {
         this.latch.countDown();

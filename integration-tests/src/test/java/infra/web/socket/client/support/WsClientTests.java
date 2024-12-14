@@ -24,11 +24,12 @@ import java.util.concurrent.CountDownLatch;
 
 import infra.app.Application;
 import infra.app.InfraApplication;
+import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.RequestContext;
-import infra.web.socket.TextMessage;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
@@ -68,8 +69,7 @@ class WsClientTests {
 
     @Override
     public boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
-      log.info("server afterHandshake,{} {}", request, attributes);
-
+      log.info("server beforeHandshake,{} {}", request, attributes);
       return HandshakeCapable.super.beforeHandshake(request, attributes);
     }
 
@@ -79,15 +79,19 @@ class WsClientTests {
     }
 
     @Override
-    public void onOpen(WebSocketSession session) throws Exception {
+    public void onOpen(WebSocketSession session) {
       log.info("server onOpen");
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-      assertThat(message.getPayload()).isEqualTo("Hello World");
+    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+      assertThat(message.getPayloadAsText()).isEqualTo("Hello World");
       log.info("server handleTextMessage: {}", message);
-      session.sendMessage(message);
+      session.send(message.retain());
+      session.send(factory -> {
+        DataBuffer buffer = factory.copiedBuffer("hello");
+        return WebSocketMessage.binary(buffer);
+      });
     }
 
   }
@@ -101,14 +105,14 @@ class WsClientTests {
     }
 
     @Override
-    public void onOpen(WebSocketSession session) throws Exception {
+    public void onOpen(WebSocketSession session) {
       log.info("client onOpen");
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
       log.info("client handleTextMessage: {}", message);
-      assertThat(message.getPayload()).isEqualTo("Hello World");
+      assertThat(message.getPayloadAsText()).isEqualTo("Hello World");
       latch.countDown();
     }
 

@@ -23,11 +23,9 @@ import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.core.Decorator;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.web.config.WebMvcConfigurationSupport;
-import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
 import infra.web.socket.server.support.NettyRequestUpgradeStrategy;
@@ -68,8 +66,8 @@ class WebSocketConfiguration {
   @Component
   @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
   @ConditionalOnMissingBean
-  static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
-    return new NettyRequestUpgradeStrategy(sessionDecorator);
+  static RequestUpgradeStrategy nettyRequestUpgradeStrategy() {
+    return new NettyRequestUpgradeStrategy();
   }
 
 }

@@ -20,8 +20,8 @@ package infra.web.socket.handler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 /**
@@ -34,6 +34,7 @@ import infra.web.socket.WebSocketSession;
  * @since 4.0 2023/2/7 21:47
  */
 public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
+
   private static final Logger logger = LoggerFactory.getLogger(ExceptionWebSocketHandlerDecorator.class);
 
   public ExceptionWebSocketHandlerDecorator(WebSocketHandler delegate) {
@@ -45,17 +46,17 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     try {
       super.onOpen(session);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
     }
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) {
+  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     try {
       super.handleMessage(session, message);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
     }
   }
@@ -65,7 +66,7 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     try {
       super.onError(session, exception);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       tryCloseWithError(session, ex, logger);
     }
   }
@@ -75,7 +76,7 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
     try {
       super.onClose(session, closeStatus);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       logger.warn("Unhandled exception after connection closed for {}", this, ex);
     }
   }
@@ -85,12 +86,7 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
       logger.error("Closing session due to exception for {}", session, exception);
     }
     if (session.isOpen()) {
-      try {
-        session.close(CloseStatus.SERVER_ERROR);
-      }
-      catch (Throwable ex) {
-        // ignore
-      }
+      session.close(CloseStatus.SERVER_ERROR);
     }
   }
 

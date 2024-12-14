@@ -20,8 +20,8 @@ package infra.web.socket.handler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.Message;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 /**
@@ -32,6 +32,7 @@ import infra.web.socket.WebSocketSession;
  * @since 4.0
  */
 public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
+
   private static final Logger logger = LoggerFactory.getLogger(LoggingWebSocketHandlerDecorator.class);
 
   public LoggingWebSocketHandlerDecorator(WebSocketHandler delegate) {
@@ -39,7 +40,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
   }
 
   @Override
-  public void onOpen(WebSocketSession session) throws Exception {
+  public void onOpen(WebSocketSession session) throws Throwable {
     if (logger.isDebugEnabled()) {
       logger.debug("New {}", session);
     }
@@ -47,7 +48,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
   }
 
   @Override
-  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
+  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (logger.isTraceEnabled()) {
       logger.trace("Handling {} in {}", message, session);
     }
@@ -55,7 +56,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
   }
 
   @Override
-  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
+  public void onError(WebSocketSession session, Throwable throwable) throws Throwable {
     if (logger.isDebugEnabled()) {
       logger.debug("Transport error in {}", session, throwable);
     }
@@ -63,7 +64,7 @@ public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
   }
 
   @Override
-  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
     if (logger.isDebugEnabled()) {
       logger.debug("{} closed with {}", session, status);
     }

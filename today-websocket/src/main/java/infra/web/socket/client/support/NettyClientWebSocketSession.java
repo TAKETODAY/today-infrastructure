@@ -17,6 +17,7 @@
 
 package infra.web.socket.client.support;
 
+import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
 import infra.web.socket.server.support.NettyWebSocketSession;
 import io.netty.channel.Channel;
@@ -33,8 +34,9 @@ final class NettyClientWebSocketSession extends NettyWebSocketSession {
   @Nullable
   private final String acceptedProtocol;
 
-  NettyClientWebSocketSession(boolean secure, Channel channel, WebSocketClientHandshaker handshaker) {
-    super(secure, channel);
+  NettyClientWebSocketSession(boolean secure, Channel channel,
+          WebSocketClientHandshaker handshaker, NettyDataBufferFactory allocator) {
+    super(secure, channel, allocator);
     this.acceptedProtocol = handshaker.actualSubprotocol();
   }
 

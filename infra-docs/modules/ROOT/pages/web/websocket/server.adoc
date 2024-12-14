@@ -45,8 +45,6 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 {today-framework-api}/web/socket/server/support/WebSocketHttpRequestHandler.html[`WebSocketHttpRequestHandler`]
 的帮助，将 `WebSocketHandler` 集成到其他 HTTP 服务环境中相对简单。
 
-一种选择是使用
-{today-framework-api}/web/socket/handler/ConcurrentWebSocketSessionDecorator.html[`ConcurrentWebSocketSessionDecorator`] 包装 `WebSocketSession`。
 
 [[websocket-server-handshake]]
 == WebSocket 握手
@@ -54,7 +52,6 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 通过 `HandshakeInterceptor` 是定制初始 HTTP WebSocket 握手请求的最简单方法，它公开了 `"before"` 和 `"after"` 握手的方法。
 您可以使用此类拦截器来阻止握手或使任何属性可用于 `WebSocketSession`。
 以下示例使用内置拦截器将 HTTP 会话属性传递到 WebSocket 会话：
-
 
 [source,java]
 ----
@@ -123,7 +120,6 @@ WebSocket 的默认行为是仅接受同源请求。
 * 允许所有来源：要启用此模式，应将 `{asterisk}` 作为允许的来源值提供。在此模式下，所有传输都可用。
 
 您可以配置 WebSocket 和 SockJS 允许的来源，如下例所示：
-
 
 [source,java]
 ----

@@ -33,13 +33,11 @@ import infra.lang.Nullable;
  * public class EchoWebSocketHandler extends WebSocketHandler {
  *
  *  @Override
- *  public void handleMessage(WebSocketSession session, Message<?> message)
- *        throws Exception {
- *    session.sendText("Got your message (" + message.getPayload() + "). Thanks !");
+ *  public void handleMessage(WebSocketSession session, WebSocketMessage message) {
+ *    session.sendText("Got your message (" + message.getPayloadAsText() + "). Thanks !");
  *  }
  *
- * }
- * }</code></pre>
+ * }}</code></pre>
  * <p>
  * this handler Wraps another {@link WebSocketHandler} instance and delegates to it.
  *
@@ -76,7 +74,7 @@ public abstract class WebSocketHandler {
    *
    * @param session the session that has just been activated.
    */
-  public void onOpen(WebSocketSession session) throws Exception {
+  public void onOpen(WebSocketSession session) throws Throwable {
     if (delegate != null) {
       delegate.onOpen(session);
     }
@@ -86,25 +84,19 @@ public abstract class WebSocketHandler {
    * Called when the message has been fully received.
    *
    * @param message the message data.
+   * @since 5.0
    */
-  public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
+  public void handleMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handleMessage(session, message);
     }
-    else if (message instanceof TextMessage) {
-      handleTextMessage(session, (TextMessage) message);
-    }
-    else if (message instanceof BinaryMessage) {
-      handleBinaryMessage(session, (BinaryMessage) message);
-    }
-    else if (message instanceof PingMessage) {
-      handlePingMessage(session, (PingMessage) message);
-    }
-    else if (message instanceof PongMessage) {
-      handlePongMessage(session, (PongMessage) message);
-    }
     else {
-      throwNotSupportMessage(message);
+      switch (message.getType()) {
+        case PING -> handlePingMessage(session, message);
+        case PONG -> handlePongMessage(session, message);
+        case TEXT -> handleTextMessage(session, message);
+        case BINARY -> handleBinaryMessage(session, message);
+      }
     }
   }
 
@@ -123,7 +115,7 @@ public abstract class WebSocketHandler {
    * @param session the session about to be closed.
    * @param status the reason the session was closed.
    */
-  public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
+  public void onClose(WebSocketSession session, CloseStatus status) throws Throwable {
     if (delegate != null) {
       delegate.onClose(session, status);
     }
@@ -139,35 +131,31 @@ public abstract class WebSocketHandler {
    * @param session the session in use when the error occurs.
    * @param throwable the throwable representing the problem.
    */
-  public void onError(WebSocketSession session, Throwable throwable) throws Exception {
+  public void onError(WebSocketSession session, Throwable throwable) throws Throwable {
     if (delegate != null) {
       delegate.onError(session, throwable);
     }
   }
 
-  protected void throwNotSupportMessage(Message<?> message) {
-    throw new IllegalArgumentException("Not support message: " + message);
-  }
-
-  protected void handlePingMessage(WebSocketSession session, PingMessage message) throws Exception {
+  protected void handlePingMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handlePingMessage(session, message);
     }
   }
 
-  protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
+  protected void handlePongMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handlePongMessage(session, message);
     }
   }
 
-  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+  protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handleTextMessage(session, message);
     }
   }
 
-  protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+  protected void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) throws Throwable {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }

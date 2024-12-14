@@ -18,6 +18,7 @@
 package infra.core.io.buffer;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import infra.lang.Assert;
@@ -69,6 +70,12 @@ public class NettyDataBufferFactory implements DataBufferFactory {
   @Override
   public NettyDataBuffer allocateBuffer(int initialCapacity) {
     ByteBuf byteBuf = this.allocator.buffer(initialCapacity);
+    return new NettyDataBuffer(byteBuf, this);
+  }
+
+  @Override
+  public DataBuffer copiedBuffer(CharSequence string, Charset charset) {
+    ByteBuf byteBuf = Unpooled.copiedBuffer(string, charset);
     return new NettyDataBuffer(byteBuf, this);
   }
 

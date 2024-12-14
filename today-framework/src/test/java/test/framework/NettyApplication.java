@@ -42,9 +42,8 @@ import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
 import infra.web.socket.CloseStatus;
-import infra.web.socket.BinaryMessage;
-import infra.web.socket.TextMessage;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.client.support.NettyWebSocketClient;
 import infra.web.socket.config.WebSocketConfigurer;
@@ -165,13 +164,13 @@ public class NettyApplication {
   static class WebSocket0 extends WebSocketHandler implements HandshakeCapable {
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+    protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws IOException {
       System.out.println("handleTextMessage" + message);
-      session.sendMessage(message);
+      session.send(message.retain());
     }
 
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+    protected void handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
       System.out.println("handleBinaryMessage" + message);
     }
 
@@ -193,7 +192,7 @@ public class NettyApplication {
       NettyWebSocketClient client = new NettyWebSocketClient();
       client.connect(new WebSocketHandler() {
                 @Override
-                protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+                protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) throws Exception {
                   System.out.println("handleTextMessage: " + message);
                   session.close();
                 }

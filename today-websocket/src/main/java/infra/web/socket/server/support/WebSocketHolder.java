@@ -21,7 +21,6 @@ import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Nullable;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
@@ -43,18 +42,18 @@ final class WebSocketHolder {
    */
   public final NettyDataBufferFactory allocator;
 
-  private WebSocketHolder(WebSocketHandler wsHandler, WebSocketSession session, ByteBufAllocator allocator) {
+  private WebSocketHolder(WebSocketHandler wsHandler, NettyWebSocketSession session) {
     this.wsHandler = wsHandler;
     this.session = session;
-    this.allocator = new NettyDataBufferFactory(allocator);
+    this.allocator = session.bufferFactory();
   }
 
   public void unbind(AttributeMap attributes) {
     attributes.attr(KEY).set(null);
   }
 
-  public static void bind(Channel channel, WebSocketHandler wsHandler, WebSocketSession session) {
-    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session, channel.alloc()));
+  public static void bind(Channel channel, WebSocketHandler wsHandler, NettyWebSocketSession session) {
+    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session));
   }
 
   @Nullable
