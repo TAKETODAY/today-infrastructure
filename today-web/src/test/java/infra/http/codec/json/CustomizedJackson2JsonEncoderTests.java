@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import infra.core.ResolvableType;
-import infra.core.io.buffer.DataBufferUtils;
+import infra.core.io.buffer.DataBuffer;
 import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 
