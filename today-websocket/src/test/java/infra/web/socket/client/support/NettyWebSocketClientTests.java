@@ -39,7 +39,6 @@ class NettyWebSocketClientTests {
     assertThat(client).extracting("parseHttpAfterConnectRequest").isEqualTo(false);
     assertThat(client).extracting("maxContentLength").isEqualTo(DataSize.ofKilobytes(64).toBytesInt());
     assertThat(client).extracting("closeOnExpectationFailed").isEqualTo(false);
-    assertThat(client).extracting("sessionDecorator").isNull();
     assertThat(client).extracting("httpDecoderConfig").isNotNull();
     assertThat(client).extracting("channelFactory").isNull();
     assertThat(client).extracting("eventLoopGroup").isNull();
@@ -48,7 +47,6 @@ class NettyWebSocketClientTests {
     client.setParseHttpAfterConnectRequest(true);
     client.setMaxContentLength(100);
     client.setCloseOnExpectationFailed(true);
-    client.setSessionDecorator(s -> s);
     client.setHttpDecoderConfig(new HttpDecoderConfig());
     client.setChannelFactory(null);
     client.setEventLoopGroup(null);
@@ -57,7 +55,6 @@ class NettyWebSocketClientTests {
     assertThat(client).extracting("parseHttpAfterConnectRequest").isEqualTo(true);
     assertThat(client).extracting("maxContentLength").isEqualTo(100);
     assertThat(client).extracting("closeOnExpectationFailed").isEqualTo(true);
-    assertThat(client).extracting("sessionDecorator").isNotNull();
     assertThat(client).extracting("httpDecoderConfig").isNotNull();
     assertThat(client).extracting("channelFactory").isNull();
     assertThat(client).extracting("eventLoopGroup").isNull();

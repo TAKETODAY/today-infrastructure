@@ -21,7 +21,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import infra.core.Decorator;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
@@ -89,9 +88,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   private boolean closeOnExpectationFailed = false;
 
-  @Nullable
-  private Decorator<WebSocketSession> sessionDecorator;
-
   /**
    * A configuration object for specifying the behaviour
    * of {@link HttpObjectDecoder} and its subclasses.
@@ -148,10 +144,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   public void setCloseOnExpectationFailed(boolean closeOnExpectationFailed) {
     this.closeOnExpectationFailed = closeOnExpectationFailed;
-  }
-
-  public void setSessionDecorator(@Nullable Decorator<WebSocketSession> sessionDecorator) {
-    this.sessionDecorator = sessionDecorator;
   }
 
   /**
