@@ -101,7 +101,7 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
    * @since 5.0
    */
   public Future<Void> sendBinary(Function<DataBufferFactory, DataBuffer> payloadFactory) {
-    return send(WebSocketMessage.binary(payloadFactory.apply(bufferFactory())));
+    return sendBinary(payloadFactory.apply(bufferFactory()));
   }
 
   /**
