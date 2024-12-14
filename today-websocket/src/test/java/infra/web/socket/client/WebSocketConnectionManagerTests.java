@@ -25,13 +25,13 @@ import java.util.List;
 
 import infra.context.Lifecycle;
 import infra.http.HttpHeaders;
+import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketHttpHeaders;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.handler.LoggingWebSocketHandlerDecorator;
 import infra.web.socket.handler.TextWebSocketHandler;
-import infra.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -108,23 +108,13 @@ public class WebSocketConnectionManagerTests {
     }
 
     @Override
-    public Future<WebSocketSession> connect(
-            WebSocketHandler handler, String uriTemplate, Object... uriVars) {
-
-      URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-      return connect(handler, null, uri);
-    }
-
-    @Override
-    public Future<WebSocketSession> connect(
-            WebSocketHandler handler, WebSocketHttpHeaders headers, URI uri) {
+    public Future<WebSocketSession> connect(URI uri, @Nullable HttpHeaders headers, WebSocketHandler handler) {
 
       this.webSocketHandler = handler;
       this.headers = headers;
       this.uri = uri;
       return Future.forFutureTask(() -> null);
     }
-
 
   }
 

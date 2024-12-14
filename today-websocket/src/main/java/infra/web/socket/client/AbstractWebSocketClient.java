@@ -19,10 +19,10 @@ package infra.web.socket.client;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
@@ -34,7 +34,6 @@ import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketHttpHeaders;
 import infra.web.socket.WebSocketSession;
-import infra.web.util.UriComponentsBuilder;
 
 /**
  * Abstract base class for {@link WebSocketClient} implementations.
@@ -45,38 +44,23 @@ import infra.web.util.UriComponentsBuilder;
  */
 public abstract class AbstractWebSocketClient implements WebSocketClient {
 
-  private static final HashSet<String> specialHeaders = new HashSet<>();
-
-  static {
-    specialHeaders.add("cache-control");
-    specialHeaders.add("connection");
-    specialHeaders.add("host");
-    specialHeaders.add("sec-websocket-extensions");
-    specialHeaders.add("sec-websocket-key");
-    specialHeaders.add("sec-websocket-protocol");
-    specialHeaders.add("sec-websocket-version");
-    specialHeaders.add("pragma");
-    specialHeaders.add("upgrade");
-  }
+  private static final Set<String> specialHeaders = Set.of(
+          "cache-control", "connection", "host", "sec-websocket-extensions", "sec-websocket-key",
+          "sec-websocket-protocol", "sec-websocket-version", "pragma", "upgrade");
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
-  public Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
-    Assert.notNull(uriTemplate, "'uriTemplate' is required");
-
-    URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-    return connect(webSocketHandler, null, uri);
-  }
-
-  @Override
-  public final Future<WebSocketSession> connect(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
+  public Future<WebSocketSession> connect(URI uri, @Nullable HttpHeaders headers, WebSocketHandler handler) {
     Assert.notNull(handler, "WebSocketHandler is required");
-    assertUri(uri);
+    assertURI(uri);
 
     if (logger.isDebugEnabled()) {
       logger.debug("Connecting to {}", uri);
     }
+
+    List<String> subProtocols = Collections.emptyList();
+    List<WebSocketExtension> extensions = Collections.emptyList();
 
     HttpHeaders headersToUse = HttpHeaders.forWritable();
     if (headers != null) {
@@ -87,15 +71,22 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
           headersToUse.put(header, values);
         }
       }
-    }
 
-    List<String> subProtocols = (headers != null ? headers.getSecWebSocketProtocol() : Collections.emptyList());
-    List<WebSocketExtension> extensions = (headers != null ? headers.getSecWebSocketExtensions() : Collections.emptyList());
+      WebSocketHttpHeaders wsth;
+      if (headers instanceof WebSocketHttpHeaders) {
+        wsth = (WebSocketHttpHeaders) headers;
+      }
+      else {
+        wsth = new WebSocketHttpHeaders(headers);
+      }
+      subProtocols = wsth.getSecWebSocketProtocol();
+      extensions = wsth.getSecWebSocketExtensions();
+    }
 
     return doHandshakeInternal(handler, headersToUse, uri, subProtocols, extensions);
   }
 
-  protected void assertUri(URI uri) {
+  protected void assertURI(URI uri) {
     Assert.notNull(uri, "URI is required");
     String scheme = uri.getScheme();
     if (!"ws".equals(scheme) && !"wss".equals(scheme)) {

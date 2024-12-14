@@ -19,11 +19,15 @@ package infra.web.socket.client;
 
 import java.net.URI;
 
+import infra.http.HttpHeaders;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
-import infra.web.socket.WebSocketHttpHeaders;
 import infra.web.socket.WebSocketSession;
+import infra.web.util.UriBuilder;
+import infra.web.util.UriComponents;
+import infra.web.util.UriComponentsBuilder;
 
 /**
  * Contract for initiating a WebSocket request. As an alternative considering using the
@@ -41,21 +45,52 @@ public interface WebSocketClient {
    * Execute a handshake request to the given url and handle the resulting
    * WebSocket session with the given handler.
    *
-   * @param webSocketHandler the session handler
-   * @param uriTemplate the url template
-   * @param uriVariables the variables to expand the template
+   * @param handler the session handler
+   * @param uri the URI
    * @return a future that completes when the session is available
+   * @since 5.0
    */
-  Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
+  default Future<WebSocketSession> connect(UriBuilder uri, @Nullable HttpHeaders headers, WebSocketHandler handler) {
+    return connect(uri.build(), headers, handler);
+  }
 
   /**
    * Execute a handshake request to the given url and handle the resulting
    * WebSocket session with the given handler.
    *
-   * @param webSocketHandler the session handler
-   * @param uri the url
+   * @param handler the session handler
+   * @param uri the URI
+   * @return a future that completes when the session is available
+   * @since 5.0
+   */
+  default Future<WebSocketSession> connect(UriComponents uri, @Nullable HttpHeaders headers, WebSocketHandler handler) {
+    return connect(uri.toUri(), headers, handler);
+  }
+
+  /**
+   * Execute a handshake request to the given url and handle the resulting
+   * WebSocket session with the given handler.
+   *
+   * @param handler the websocket handler
+   * @param uriTemplate the url template
+   * @param uriVariables the variables to expand the template
    * @return a future that completes when the session is available
    */
-  Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
+  default Future<WebSocketSession> connect(WebSocketHandler handler, String uriTemplate, Object... uriVariables) {
+    Assert.notNull(uriTemplate, "'uriTemplate' is required");
+    URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVariables).encode().toUri();
+    return connect(uri, null, handler);
+  }
+
+  /**
+   * Execute a handshake request to the given url and handle the resulting
+   * WebSocket session with the given handler.
+   *
+   * @param handler the session handler
+   * @param uri the URI
+   * @return a future that completes when the session is available
+   * @since 5.0
+   */
+  Future<WebSocketSession> connect(URI uri, @Nullable HttpHeaders headers, WebSocketHandler handler);
 
 }
