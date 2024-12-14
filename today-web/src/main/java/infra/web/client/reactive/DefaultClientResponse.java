@@ -31,7 +31,6 @@ import infra.core.ResolvableType;
 import infra.core.codec.Decoder;
 import infra.core.codec.Hints;
 import infra.core.io.buffer.DataBuffer;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.http.HttpRequest;
@@ -171,7 +170,8 @@ class DefaultClientResponse implements ClientResponse {
 
   @Override
   public Mono<Void> releaseBody() {
-    return body(BodyExtractors.toDataBuffers()).map(DataBuffer.RELEASE_CONSUMER).then();
+    return body(BodyExtractors.toDataBuffers())
+            .map(DataBuffer::release).then();
   }
 
   @Override
