@@ -254,7 +254,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
             .isThrownBy(() -> processor.resolveArgument(webRequest, paramRequestBodyString));
   }
 
-  @Test // SPR-9942
+  @Test
   public void resolveArgumentRequiredNoContent() throws Throwable {
     mockRequest.setContentType(MediaType.TEXT_PLAIN_VALUE);
     mockRequest.setContent(new byte[0]);
@@ -289,7 +289,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     assertThat(processor.resolveArgument(webRequest, paramStringNotRequired)).isNull();
   }
 
-  @Test  // SPR-13417
+  @Test
   public void resolveArgumentNotRequiredNoContentNoContentType() throws Throwable {
     mockRequest.setContent(new byte[0]);
     given(stringMessageConverter.canRead(String.class, MediaType.TEXT_PLAIN)).willReturn(true);
@@ -397,7 +397,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     assertThat(mockResponse.getStatus()).isEqualTo(200);
   }
 
-  @Test  // SPR-9841
+  @Test
   public void handleReturnValueMediaTypeSuffix() throws Throwable {
     String body = "Foo";
     MediaType accepted = MediaType.APPLICATION_XHTML_XML;

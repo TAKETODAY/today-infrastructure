@@ -261,7 +261,7 @@ class ModelAttributeMethodProcessorTests {
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
   }
 
-  @Test  // SPR-9378
+  @Test  //
   public void resolveArgumentOrdering() throws Throwable {
     String name = "testBean";
     Object testBean = new TestBean(name);

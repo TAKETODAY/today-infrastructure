@@ -274,7 +274,7 @@ public class ResolvableTypeTests {
   }
 
   @Test
-    // SPR-16210
+
   void forMethodParameterWithSameSignatureAndGenerics() throws Exception {
     Method method = Methods.class.getMethod("list1");
     MethodParameter methodParameter = MethodParameter.forExecutable(method, -1);

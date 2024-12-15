@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <p>See also:
  * <ul>
- * <li><a href="https://jira.spring.io/browse/SPR-8093">SPR-8093</a></li>
+ * <li>/li>
  * <li><a href="https://issuetracker.springsource.com/browse/EBR-349">EBR-349</a></li>
  * </ul>
  *

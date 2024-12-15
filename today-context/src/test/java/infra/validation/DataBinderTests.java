@@ -2050,7 +2050,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-14888
+
   void setAutoGrowCollectionLimit() {
     BeanWithIntegerList tb = new BeanWithIntegerList();
     DataBinder binder = new DataBinder(tb);
@@ -2065,7 +2065,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-14888
+
   void setAutoGrowCollectionLimitAfterInitialization() {
     DataBinder binder = new DataBinder(new BeanWithIntegerList());
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -2075,7 +2075,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-15009
+
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForBeanPropertyAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2093,7 +2093,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-15009
+
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForDirectFieldAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2109,7 +2109,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-15009
+
   void setCustomMessageCodesResolverAfterInitializeBindingResult() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2125,7 +2125,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-15009
+
   void setMessageCodesResolverIsNullAfterInitializeBindingResult() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");
@@ -2140,7 +2140,7 @@ class DataBinderTests {
   }
 
   @Test
-    // SPR-15009
+
   void callSetMessageCodesResolverTwice() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");

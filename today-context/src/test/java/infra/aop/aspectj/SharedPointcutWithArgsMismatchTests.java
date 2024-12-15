@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.context.support.ClassPathXmlApplicationContext;
 
 /**
- * See SPR-1682.
- *
  * @author Adrian Colyer
  * @author Chris Beams
  */

@@ -137,7 +137,7 @@ public class RepeatedInfraRuleTests extends RepeatedInfraRunnerTests {
   }
 
   /**
-   * Unit tests for claims raised in <a href="https://jira.spring.io/browse/SPR-6011" target="_blank">SPR-6011</a>.
+   * Unit tests for claims raised in .
    */
   @Ignore("TestCase classes are run manually by the enclosing test class")
   public static final class TimedRepeatedTestCase extends AbstractRepeatedTestCase {

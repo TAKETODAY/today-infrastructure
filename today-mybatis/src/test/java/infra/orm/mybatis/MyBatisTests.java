@@ -157,7 +157,7 @@ class MyBatisTests extends AbstractMyBatisTest {
     }
   }
 
-  // Spring TX, non-Spring TransactionFactory, Spring managed DataSource
+  // TX, non-Spring TransactionFactory, Spring managed DataSource
   // this should not work since the DS will be out of sync with MyBatis
   @Test
   void testNonSpringTxFactoryWithTx() throws Exception {
@@ -182,7 +182,7 @@ class MyBatisTests extends AbstractMyBatisTest {
     }
   }
 
-  // Spring TX, non-Spring TransactionFactory, MyBatis managed DataSource
+  // TX, non-Spring TransactionFactory, MyBatis managed DataSource
   // this should work since the DS is managed MyBatis
   @Test
   void testNonSpringTxFactoryNonSpringDSWithTx() throws java.sql.SQLException {
@@ -322,7 +322,7 @@ class MyBatisTests extends AbstractMyBatisTest {
     try {
       session = SqlSessionUtils.getSqlSession(sqlSessionFactory);
       session.getMapper(TestMapper.class).findTest();
-      // Spring is not managing SqlSession, so commit is needed
+      // is not managing SqlSession, so commit is needed
       session.commit(true);
       SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
 
@@ -445,7 +445,7 @@ class MyBatisTests extends AbstractMyBatisTest {
     SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
 
     // this should succeed
-    // SpringManagedTransaction (from SqlSession.commit()) should not interfere with tx
+    //ManagedTransaction (from SqlSession.commit()) should not interfere with tx
     txManager.commit(status);
 
     // two transactions should have completed, each using their own Connection

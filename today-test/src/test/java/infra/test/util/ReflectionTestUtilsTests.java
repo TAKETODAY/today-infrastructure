@@ -339,7 +339,7 @@ class ReflectionTestUtilsTests {
   }
 
   @Test
-  @Disabled("[SPR-8644] MethodInvoker.findMatchingMethod() does not currently support var-args")
+  @Disabled("MethodInvoker.findMatchingMethod() does not currently support var-args")
   void invokeMethodWithPrimitiveVarArgs() {
     // IntelliJ IDEA 11 won't accept int assignment here
     Integer sum = invokeMethod(component, "add", 1, 2, 3, 4);
@@ -402,14 +402,13 @@ class ReflectionTestUtilsTests {
   }
 
   @Test
-    // SPR-14363
+
   void getFieldOnLegacyEntityWithSideEffectsInToString() {
     Object collaborator = getField(entity, "collaborator");
     assertThat(collaborator).isNotNull();
   }
 
   @Test
-    // SPR-9571 and SPR-14363
   void setFieldOnLegacyEntityWithSideEffectsInToString() {
     String testCollaborator = "test collaborator";
     setField(entity, "collaborator", testCollaborator, Object.class);
@@ -417,7 +416,7 @@ class ReflectionTestUtilsTests {
   }
 
   @Test
-    // SPR-14363
+
   void invokeMethodOnLegacyEntityWithSideEffectsInToString() {
     invokeMethod(entity, "configure", Integer.valueOf(42), "enigma");
     assertThat(entity.getNumber()).as("number should have been configured").isEqualTo(Integer.valueOf(42));
@@ -425,14 +424,14 @@ class ReflectionTestUtilsTests {
   }
 
   @Test
-    // SPR-14363
+
   void invokeGetterMethodOnLegacyEntityWithSideEffectsInToString() {
     Object collaborator = invokeGetterMethod(entity, "collaborator");
     assertThat(collaborator).isNotNull();
   }
 
   @Test
-    // SPR-14363
+
   void invokeSetterMethodOnLegacyEntityWithSideEffectsInToString() {
     String testCollaborator = "test collaborator";
     invokeSetterMethod(entity, "collaborator", testCollaborator);

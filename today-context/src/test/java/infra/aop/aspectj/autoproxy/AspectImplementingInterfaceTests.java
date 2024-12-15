@@ -27,8 +27,6 @@ import infra.context.support.ClassPathXmlApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test for ensuring the aspects aren't advised. See SPR-3893 for more details.
- *
  * @author Ramnivas Laddad
  * @author Chris Beams
  */

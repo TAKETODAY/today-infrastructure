@@ -219,7 +219,7 @@ class MultipartControllerTests {
   }
 
   @Test
-    // SPR-13317
+    
   void multipartRequestWrapped() throws Exception {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);

@@ -75,7 +75,6 @@ public class BeanNamePointcutTests {
   public void testMatchingBeanName() {
     boolean condition = this.testBean1 instanceof Advised;
     assertThat(condition).as("Matching bean must be advised (proxied)").isTrue();
-    // Call two methods to test for SPR-3953-like condition
     this.testBean1.setAge(20);
     this.testBean1.setName("");
     assertThat(this.counterAspect.getCount()).as("Advice not executed: must have been").isEqualTo(2);

@@ -28,9 +28,6 @@ import infra.test.context.junit4.JUnit4ClassRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests to verify claims made in <a
- * href="https://jira.springframework.org/browse/SPR-6128"
- * target="_blank">SPR-6128</a>.
  *
  * @author Sam Brannen
  * @author Chris Beams

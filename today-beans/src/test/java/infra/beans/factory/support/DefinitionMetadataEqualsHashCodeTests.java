@@ -46,9 +46,6 @@ public class DefinitionMetadataEqualsHashCodeTests {
     assertEqualsAndHashCodeContracts(master, equal, notEqual, subclass);
   }
 
-  /**
-   * @see <a href="https://jira.spring.io/browse/SPR-11420">SPR-11420</a>
-   */
   @Test
   public void rootBeanDefinitionAndMethodOverridesWithDifferentOverloadedValues() {
     RootBeanDefinition master = new RootBeanDefinition(TestBean.class);

@@ -163,7 +163,6 @@ public class FormHttpMessageConverterTests {
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
     parts.add("logo", logo);
 
-    // SPR-12108
     Resource utf8 = new ClassPathResource("/infra/http/converter/logo.jpg") {
       @Override
       public String getName() {
@@ -246,7 +245,6 @@ public class FormHttpMessageConverterTests {
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
     parts.add("logo", logo);
 
-    // SPR-12108
     Resource utf8 = new ClassPathResource("/infra/http/converter/logo.jpg") {
       @Override
       public String getName() {

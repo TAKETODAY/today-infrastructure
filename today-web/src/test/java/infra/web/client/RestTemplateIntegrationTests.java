@@ -415,7 +415,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
-    // SPR-12123
+    //
   void serverPort(ClientHttpRequestFactory clientHttpRequestFactory) {
     setUpClient(clientHttpRequestFactory);
 
@@ -424,7 +424,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
-    // SPR-13154
+    //
   void jsonPostForObjectWithJacksonTypeInfoList(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
@@ -442,7 +442,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
-    // SPR-15015
+    //
   void postWithoutBody(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 

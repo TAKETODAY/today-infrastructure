@@ -84,7 +84,7 @@ public class InfraValidatorAdapterTests {
     assertThat(nativeValidator).isSameAs(this.nativeValidator);
   }
 
-  @Test  // SPR-13406
+  @Test
   public void testNoStringArgumentValue() throws Exception {
     TestBean testBean = new TestBean();
     testBean.setPassword("pass");
@@ -103,7 +103,7 @@ public class InfraValidatorAdapterTests {
     assertThat(SerializationTestUtils.serializeAndDeserialize(error.toString())).isEqualTo(error.toString());
   }
 
-  @Test  // SPR-13406
+  @Test
   public void testApplyMessageSourceResolvableToStringArgumentValueWithResolvedLogicalFieldName() throws Exception {
     TestBean testBean = new TestBean();
     testBean.setPassword("password");
@@ -122,7 +122,7 @@ public class InfraValidatorAdapterTests {
     assertThat(SerializationTestUtils.serializeAndDeserialize(error.toString())).isEqualTo(error.toString());
   }
 
-  @Test  // SPR-13406
+  @Test
   public void testApplyMessageSourceResolvableToStringArgumentValueWithUnresolvedLogicalFieldName() {
     TestBean testBean = new TestBean();
     testBean.setEmail("test@example.com");
@@ -146,7 +146,7 @@ public class InfraValidatorAdapterTests {
     assertThat(error2.unwrap(ConstraintViolation.class).getPropertyPath().toString()).isEqualTo("confirmEmail");
   }
 
-  @Test  // SPR-15123
+  @Test
   public void testApplyMessageSourceResolvableToStringArgumentValueWithAlwaysUseMessageFormat() {
     messageSource.setAlwaysUseMessageFormat(true);
 
@@ -190,7 +190,7 @@ public class InfraValidatorAdapterTests {
     assertThat(error.unwrap(ConstraintViolation.class).getPropertyPath().toString()).isEqualTo("email");
   }
 
-  @Test  // SPR-16177
+  @Test
   public void testWithList() {
     Parent parent = new Parent();
     parent.setName("Parent whit list");
@@ -202,7 +202,7 @@ public class InfraValidatorAdapterTests {
     assertThat(errors.getErrorCount() > 0).isTrue();
   }
 
-  @Test  // SPR-16177
+  @Test
   public void testWithSet() {
     Parent parent = new Parent();
     parent.setName("Parent with set");
@@ -228,7 +228,7 @@ public class InfraValidatorAdapterTests {
     return Arrays.asList(child1, child2);
   }
 
-  @Test  // SPR-15839
+  @Test
   public void testListElementConstraint() {
     BeanWithListElementConstraint bean = new BeanWithListElementConstraint();
     bean.setProperty(Arrays.asList("no", "element", "can", "be", null));
@@ -240,7 +240,7 @@ public class InfraValidatorAdapterTests {
     assertThat(errors.getFieldValue("property[4]")).isNull();
   }
 
-  @Test  // SPR-15839
+  @Test
   public void testMapValueConstraint() {
     Map<String, String> property = new HashMap<>();
     property.put("no value can be", null);
@@ -255,7 +255,7 @@ public class InfraValidatorAdapterTests {
     assertThat(errors.getFieldValue("property[no value can be]")).isNull();
   }
 
-  @Test  // SPR-15839
+  @Test
   public void testMapEntryConstraint() {
     Map<String, String> property = new HashMap<>();
     property.put(null, null);

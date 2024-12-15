@@ -150,7 +150,7 @@ public class NamedParameterJdbcTemplateTests {
     verify(connection).close();
   }
 
-  @Disabled("SPR-16340")
+  @Disabled
   @Test
   public void testExecuteArray() throws SQLException {
     given(preparedStatement.executeUpdate()).willReturn(1);

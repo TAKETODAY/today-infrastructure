@@ -28,7 +28,7 @@ import infra.expression.spel.support.StandardEvaluationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test for caching in {@link MethodReference} (SPR-10657).
+ * Test for caching in {@link MethodReference} .
  *
  * @author Oliver Becker
  */

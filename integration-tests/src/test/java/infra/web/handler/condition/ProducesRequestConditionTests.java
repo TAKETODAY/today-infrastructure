@@ -142,7 +142,7 @@ public class ProducesRequestConditionTests {
     assertThat(condition.getMatchingCondition(createContext(request))).isNotNull();
   }
 
-  @Test // SPR-17550
+  @Test
   public void matchWithNegationAndMediaTypeAllWithQualityParameter() {
     ProducesRequestCondition condition = new ProducesRequestCondition("!application/json");
     HttpMockRequest request = createRequest(
@@ -194,7 +194,7 @@ public class ProducesRequestConditionTests {
     assertThat(html.compareTo(xml, createContext(request))).isEqualTo(0);
     assertThat(xml.compareTo(html, createContext(request))).isEqualTo(0);
 
-    // See SPR-7000
+
     request = createRequest("text/html;q=0.9,application/xml");
 
     assertThat(html.compareTo(xml, createContext(request)) > 0).isTrue();
@@ -251,7 +251,7 @@ public class ProducesRequestConditionTests {
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
   }
 
-  // SPR-8536
+  //
 
   @Test
   public void compareToMediaTypeAll() {
@@ -284,7 +284,7 @@ public class ProducesRequestConditionTests {
     assertThat(condition2.compareTo(condition1, createContext(request)) > 0).isTrue();
   }
 
-  // SPR-9021
+  //
 
   @Test
   public void compareToMediaTypeAllWithParameter() {

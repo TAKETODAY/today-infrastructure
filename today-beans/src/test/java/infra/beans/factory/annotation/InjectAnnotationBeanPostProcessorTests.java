@@ -441,7 +441,6 @@ public class InjectAnnotationBeanPostProcessorTests {
   /**
    * Verifies that a dependency on a {@link FactoryBean}
    * can be autowired via {@link Autowired @Inject},
-   * specifically addressing SPR-4040.
    */
   @Test
   public void testBeanAutowiredWithFactoryBean() {

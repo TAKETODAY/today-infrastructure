@@ -95,7 +95,7 @@ class InterceptorRegistryTests {
     assertThat(getInterceptorsForPath("/path1/secret")).isEqualTo(Collections.emptyList());
   }
 
-  @Test  // SPR-11130
+  @Test
   public void addInterceptorWithExcludePathPatternOnly() {
     this.registry.addInterceptor(this.interceptor1).excludePathPatterns("/path1/secret");
     this.registry.addInterceptor(this.interceptor2).addPathPatterns("/path2");

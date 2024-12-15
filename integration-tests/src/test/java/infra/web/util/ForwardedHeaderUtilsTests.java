@@ -100,7 +100,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-14761
   void fromHttpRequestWithForwardedIPv4Host() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("https");
@@ -116,7 +115,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-14761
   void fromHttpRequestWithForwardedIPv6() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -132,7 +130,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-14761
   void fromHttpRequestWithForwardedIPv6Host() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -148,7 +145,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-14761
   void fromHttpRequestWithForwardedIPv6HostAndPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -195,7 +191,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-10701
   void fromHttpRequestWithForwardedHostIncludingPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -212,7 +207,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-11140
   void fromHttpRequestWithForwardedHostMultiValuedHeader() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -228,7 +222,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-11855
   void fromHttpRequestWithForwardedHostAndPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -245,7 +238,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-11872
   void fromHttpRequestWithForwardedHostWithDefaultPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -261,7 +253,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-16262
   void fromHttpRequestWithForwardedProtoWithDefaultPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -278,7 +269,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-16863
   void fromHttpRequestWithForwardedSsl() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -312,7 +302,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-12771
   void fromHttpRequestWithForwardedProtoAndDefaultPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -330,7 +319,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-12813
   void fromHttpRequestWithForwardedPortMultiValueHeader() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -347,7 +335,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-12816
   void fromHttpRequestWithForwardedProtoMultiValueHeader() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setScheme("http");
@@ -388,7 +375,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-11856
   void fromHttpRequestForwardedHeader() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("Forwarded", "proto=https; host=84.198.58.199");
@@ -510,7 +496,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // SPR-16262
   void fromHttpRequestForwardedHeaderWithProtoAndServerPort() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader("Forwarded", "proto=https");

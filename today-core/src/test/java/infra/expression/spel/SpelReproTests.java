@@ -2190,7 +2190,7 @@ class SpelReproTests extends AbstractExpressionTests {
     }
   }
 
-  static class TestClass2 {  // SPR-9194
+  static class TestClass2 {  //
 
     String string;
 

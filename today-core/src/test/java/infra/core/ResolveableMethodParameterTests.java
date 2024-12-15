@@ -113,7 +113,7 @@ class ResolveableMethodParameterTests {
   }
 
   @Test
-    // SPR-16652
+
   void annotatedConstructorParameterInInnerClass() throws Exception {
     Constructor<?> constructor = InnerClass.class.getConstructor(getClass(), String.class, Callable.class);
 
@@ -131,7 +131,7 @@ class ResolveableMethodParameterTests {
   }
 
   @Test
-    // SPR-16734
+
   void genericConstructorParameterInInnerClass() throws Exception {
     Constructor<?> constructor = InnerClass.class.getConstructor(getClass(), String.class, Callable.class);
 

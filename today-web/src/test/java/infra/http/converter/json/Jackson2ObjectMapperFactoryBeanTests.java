@@ -348,7 +348,7 @@ public class Jackson2ObjectMapperFactoryBeanTests {
     assertThat(this.factory.getObjectType()).isEqualTo(XmlMapper.class);
   }
 
-  @Test  // SPR-14435
+  @Test
   public void setFactory() {
     this.factory.setFactory(new SmileFactory());
     this.factory.afterPropertiesSet();

@@ -49,7 +49,7 @@ public class JavaScriptUtilsTests {
     assertThat(JavaScriptUtils.javaScriptEscape(sb.toString())).isEqualTo("\\\"\\'\\\\\\/\\t\\n\\n\\f\\b\\v");
   }
 
-  // SPR-9983
+  //
 
   @Test
   public void escapePsLsLineTerminators() {
@@ -61,7 +61,7 @@ public class JavaScriptUtilsTests {
     assertThat(result).isEqualTo("\\u2028\\u2029");
   }
 
-  // SPR-9983
+  //
 
   @Test
   public void escapeLessThanGreaterThanSigns() throws UnsupportedEncodingException {

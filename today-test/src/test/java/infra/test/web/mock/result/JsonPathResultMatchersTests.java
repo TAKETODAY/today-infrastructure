@@ -91,7 +91,7 @@ class JsonPathResultMatchersTests {
   }
 
   @Test
-    // SPR-16587
+
   void valueWithNumberConversion() throws Exception {
     new JsonPathResultMatchers("$.num").value(5.0f).match(stubMvcResult);
   }
@@ -102,7 +102,7 @@ class JsonPathResultMatchersTests {
   }
 
   @Test
-    // SPR-16587
+
   void valueWithMatcherAndNumberConversion() throws Exception {
     new JsonPathResultMatchers("$.num").value(Matchers.equalTo(5.0f), Float.class).match(stubMvcResult);
   }

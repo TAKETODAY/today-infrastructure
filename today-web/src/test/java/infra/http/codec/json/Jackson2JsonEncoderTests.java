@@ -79,10 +79,10 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     assertThat(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
             new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isFalse();
 
-    // SPR-15464
+    //
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isTrue();
 
-    // SPR-15910
+    //
     assertThat(this.encoder.canEncode(ResolvableType.forClass(Object.class), APPLICATION_OCTET_STREAM)).isFalse();
   }
 
@@ -101,7 +101,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
     );
   }
 
-  @Test  // SPR-15866
+  @Test
   public void canEncodeWithCustomMimeType() {
     MimeType textJavascript = new MimeType("text", "javascript", StandardCharsets.UTF_8);
     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder(new ObjectMapper(), textJavascript);
@@ -173,7 +173,7 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
             .verifyComplete());
   }
 
-  @Test  // SPR-15727
+  @Test
   public void encodeStreamWithCustomStreamingType() {
     MediaType fooMediaType = new MediaType("application", "foo");
     MediaType barMediaType = new MediaType("application", "bar");

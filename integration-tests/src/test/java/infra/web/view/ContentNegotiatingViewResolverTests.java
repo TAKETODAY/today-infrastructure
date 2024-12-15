@@ -234,7 +234,7 @@ public class ContentNegotiatingViewResolverTests {
     assertThat(result).as("Invalid view").isSameAs(viewMock2);
   }
 
-  // SPR-9160
+  //
 
   @Test
   public void resolveViewNameAcceptHeaderSortByQuality() throws Exception {
@@ -261,7 +261,7 @@ public class ContentNegotiatingViewResolverTests {
     assertThat(result).as("Invalid view").isSameAs(jsonViewMock);
   }
 
-  // SPR-9807
+  //
 
   @Test
   public void resolveViewNameAcceptHeaderWithSuffix() throws Exception {

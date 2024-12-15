@@ -170,7 +170,7 @@ class ModelHandlerTests {
     }
   }
 
-  @Test  // SPR-12542
+  @Test
   public void updateModelWhenRedirecting() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";

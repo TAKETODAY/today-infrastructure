@@ -46,9 +46,6 @@ public class DefaultMockMvcBuilderTests {
 
   private final MockContextImpl mockContext = new MockContextImpl();
 
-  /**
-   * See SPR-12553 and SPR-13075.
-   */
   @Test
   public void rootWacMockContainerAttributePreviouslySet() {
     StubWebApplicationContext child = new StubWebApplicationContext(this.mockContext);
@@ -58,9 +55,6 @@ public class DefaultMockMvcBuilderTests {
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext());
   }
 
-  /**
-   * See SPR-12553 and SPR-13075.
-   */
   @Test
   public void rootWacMockContainerAttributePreviouslySetWithContextHierarchy() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
@@ -75,9 +69,6 @@ public class DefaultMockMvcBuilderTests {
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext().getParent());
   }
 
-  /**
-   * See SPR-12553 and SPR-13075.
-   */
   @Test
   public void rootWacMockContainerAttributeNotPreviouslySet() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
@@ -87,9 +78,6 @@ public class DefaultMockMvcBuilderTests {
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
   }
 
-  /**
-   * See SPR-12553 and SPR-13075.
-   */
   @Test
   public void rootWacMockContainerAttributeNotPreviouslySetWithContextHierarchy() {
     StaticApplicationContext ear = new StaticApplicationContext();
@@ -109,9 +97,6 @@ public class DefaultMockMvcBuilderTests {
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
   }
 
-  /**
-   * See /SPR-14277
-   */
   @Test
   public void dispatcherCustomizer() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);

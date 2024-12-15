@@ -28,7 +28,7 @@ import infra.core.Ordered;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test for SPR-3522. Arguments changed on a call to proceed should be
+ *Arguments changed on a call to proceed should be
  * visible to advice further down the invocation chain.
  *
  * @author Adrian Colyer

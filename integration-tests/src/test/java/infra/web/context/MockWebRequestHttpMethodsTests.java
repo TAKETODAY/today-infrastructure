@@ -156,7 +156,6 @@ class MockWebRequestHttpMethodsTests {
   }
 
   @SafeHttpMethodsTest
-    // SPR-14559
   void ifNoneMatchShouldNotFailForUnquotedETag(String method) {
     setUpRequest(method);
     String etag = "\"etagvalue\"";
@@ -228,7 +227,7 @@ class MockWebRequestHttpMethodsTests {
   }
 
   @SafeHttpMethodsTest
-    // SPR-13516
+
   void ifModifiedSinceShouldNotFailForInvalidResponseStatus(String method) {
     setUpRequest(method);
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, NOW.toEpochMilli());

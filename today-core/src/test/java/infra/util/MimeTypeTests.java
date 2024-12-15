@@ -118,7 +118,7 @@ class MimeTypeTests {
 
     MimeType applicationSoapXml = new MimeType("application", "soap+xml");
     MimeType applicationWildcardXml = new MimeType("application", "*+xml");
-    MimeType suffixXml = new MimeType("application", "x.y+z+xml"); // SPR-15795
+    MimeType suffixXml = new MimeType("application", "x.y+z+xml");
 
     assertThat(applicationSoapXml.includes(applicationSoapXml)).isTrue();
     assertThat(applicationWildcardXml.includes(applicationWildcardXml)).isTrue();
@@ -149,7 +149,7 @@ class MimeTypeTests {
 
     MimeType applicationSoapXml = new MimeType("application", "soap+xml");
     MimeType applicationWildcardXml = new MimeType("application", "*+xml");
-    MimeType suffixXml = new MimeType("application", "x.y+z+xml"); // SPR-15795
+    MimeType suffixXml = new MimeType("application", "x.y+z+xml");
 
     assertThat(applicationSoapXml.isCompatibleWith(applicationSoapXml)).isTrue();
     assertThat(applicationWildcardXml.isCompatibleWith(applicationWildcardXml)).isTrue();

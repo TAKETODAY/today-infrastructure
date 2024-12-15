@@ -36,8 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests ensuring that after-returning advice for generic parameters bound to
  * the advice and the return type follow AspectJ semantics.
  *
- * <p>See SPR-3628 for more details.
- *
  * @author Ramnivas Laddad
  * @author Chris Beams
  */

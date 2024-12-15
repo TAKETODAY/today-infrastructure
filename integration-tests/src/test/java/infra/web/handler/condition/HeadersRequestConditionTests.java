@@ -133,7 +133,7 @@ public class HeadersRequestConditionTests {
     assertThat(result > 0).as("Invalid comparison result: " + result).isTrue();
   }
 
-  @Test // SPR-16674
+  @Test
   public void compareToWithMoreSpecificMatchByValue() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 

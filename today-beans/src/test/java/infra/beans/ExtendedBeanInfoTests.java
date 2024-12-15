@@ -204,7 +204,7 @@ public class ExtendedBeanInfoTests {
       ExtendedBeanInfo bi = new ExtendedBeanInfo(Introspector.getBeanInfo(Parent.class));
       assertThat(hasReadMethodForProperty(bi, "property1")).isTrue();
     }
-    { // failed prior to fix for SPR-9414
+    {
       ExtendedBeanInfo bi = new ExtendedBeanInfo(Introspector.getBeanInfo(Child.class));
       assertThat(hasReadMethodForProperty(bi, "property1")).isTrue();
     }
@@ -222,7 +222,7 @@ public class ExtendedBeanInfoTests {
       BeanInfo info = Introspector.getBeanInfo(Bean.class);
       assertThat(info.getPropertyDescriptors().length).isEqualTo(2);
     }
-    { // failed prior to fix for SPR-9453
+    {
       BeanInfo info = new ExtendedBeanInfo(Introspector.getBeanInfo(Bean.class));
       assertThat(info.getPropertyDescriptors().length).isEqualTo(2);
     }
@@ -604,7 +604,7 @@ public class ExtendedBeanInfoTests {
   }
 
   /**
-   * Prior to SPR-10111 (a follow-up fix for SPR-9702), this method would throw an
+   * this method would throw an
    * IntrospectionException regarding a "type mismatch between indexed and non-indexed
    * methods" intermittently (approximately one out of every four times) under JDK 7
    * due to non-deterministic results from {@link Class#getDeclaredMethods()}.
@@ -748,7 +748,7 @@ public class ExtendedBeanInfoTests {
   }
 
   /**
-   * Corners the bug revealed by SPR-8522, in which an (apparently) indexed write method
+   * which an (apparently) indexed write method
    * without a corresponding indexed read method would fail to be processed correctly by
    * ExtendedBeanInfo. The local class C below represents the relevant methods from
    * Google's GsonBuilder class. Interestingly, the setDateFormat(int, int) method was
@@ -850,7 +850,6 @@ public class ExtendedBeanInfoTests {
     // does not throw
     Introspector.getBeanInfo(LawLibrary.class);
 
-    // does not throw after the changes introduced in SPR-8806
     new ExtendedBeanInfo(Introspector.getBeanInfo(LawLibrary.class));
   }
 
@@ -929,7 +928,7 @@ public class ExtendedBeanInfoTests {
     }
   }
 
-  @Test  // SPR-12434
+  @Test
   public void shouldDetectValidPropertiesAndIgnoreInvalidProperties() throws IntrospectionException {
     BeanInfo bi = new ExtendedBeanInfo(Introspector.getBeanInfo(java.awt.Window.class));
     assertThat(hasReadMethodForProperty(bi, "locationByPlatform")).isTrue();

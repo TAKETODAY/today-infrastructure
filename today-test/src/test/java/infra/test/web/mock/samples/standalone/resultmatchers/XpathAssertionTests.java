@@ -156,7 +156,7 @@ public class XpathAssertionTests {
             .andExpect(xpath("/ns:people/performers/performer", musicNamespace).nodeCount(equalTo(2)));
   }
 
-  @Test  // SPR-10704
+  @Test
   public void testFeedWithLinefeedChars() throws Exception {
     standaloneSetup(new BlogFeedController()).build()
             .perform(get("/blog.atom").accept(MediaType.APPLICATION_ATOM_XML))

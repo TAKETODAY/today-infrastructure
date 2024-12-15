@@ -1384,9 +1384,6 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getContentAsString()).isEqualTo("templatePath");
   }
 
-  /*
-   * See SPR-6021
-   */
   @Test
   void customMapEditor() throws Exception {
     initDispatcher(CustomMapEditorController.class);

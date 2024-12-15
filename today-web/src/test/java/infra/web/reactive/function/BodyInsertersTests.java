@@ -389,7 +389,7 @@ public class BodyInsertersTests {
 
   }
 
-  @Test  // SPR-16350
+  @Test
   public void fromMultipartDataWithMultipleValues() {
     MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
     map.put("name", Arrays.asList("value1", "value2"));

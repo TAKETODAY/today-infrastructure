@@ -128,7 +128,7 @@ public class Jaxb2UnmarshallerTests extends AbstractUnmarshallerTests<Jaxb2Marsh
   @Test
   @SuppressWarnings("unchecked")
   public void unmarshalAnXmlReferringToAWrappedXmlElementDecl() throws Exception {
-    // SPR-10714
+
     unmarshaller = new Jaxb2Marshaller();
     unmarshaller.setPackagesToScan(new String[] { "infra.oxm.jaxb" });
     unmarshaller.afterPropertiesSet();

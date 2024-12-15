@@ -113,7 +113,7 @@ class WebClientDataBufferAllocatingTests extends AbstractDataBufferAllocatingTes
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // SPR-17482
+    //
   void bodyToMonoVoidWithoutContentType(DataBufferFactory bufferFactory) {
     setUp(bufferFactory);
 
@@ -147,7 +147,7 @@ class WebClientDataBufferAllocatingTests extends AbstractDataBufferAllocatingTes
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // SPR-17473
+    //
   void onStatusWithMonoErrorAndBodyNotConsumed(DataBufferFactory bufferFactory) {
     setUp(bufferFactory);
 

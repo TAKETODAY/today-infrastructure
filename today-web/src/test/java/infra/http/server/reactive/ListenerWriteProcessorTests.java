@@ -54,7 +54,7 @@ public class ListenerWriteProcessorTests {
     assertThat(subscription.getDemand()).isEqualTo(1);
   }
 
-  @Test // SPR-17410
+  @Test
   public void writePublisherError() {
 
     // Turn off writing so next item will be cached
@@ -70,7 +70,7 @@ public class ListenerWriteProcessorTests {
     assertThat(this.processor.getDiscardedBuffers().get(0)).isSameAs(buffer);
   }
 
-  @Test // SPR-17410
+  @Test
   public void ioExceptionDuringWrite() {
 
     // Fail on next write
@@ -86,7 +86,7 @@ public class ListenerWriteProcessorTests {
     assertThat(this.processor.getDiscardedBuffers().get(0)).isSameAs(buffer);
   }
 
-  @Test // SPR-17410
+  @Test
   public void onNextWithoutDemand() {
 
     // Disable writing: next item will be cached..

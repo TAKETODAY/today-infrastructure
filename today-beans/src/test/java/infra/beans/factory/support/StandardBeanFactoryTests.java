@@ -2064,12 +2064,6 @@ class StandardBeanFactoryTests {
     assertThat(bean.getSpouse()).isEqualTo(test);
   }
 
-  /**
-   * Verifies that a dependency on a {@link FactoryBean} can be autowired
-   * <em>by type</em>, specifically addressing the JIRA issue raised in <a
-   * href="https://opensource.atlassian.com/projects/spring/browse/SPR-4040"
-   * target="_blank">SPR-4040</a>.
-   */
   @Test
   void autowireBeanWithFactoryBeanByType() {
     RootBeanDefinition bd = new RootBeanDefinition(LazyInitFactory.class);

@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * This set of tests (i.e., all concrete subclasses) investigates the claims made in
- * <a href="https://jira.spring.io/browse/SPR-9051" target="_blank">SPR-9051</a>
+ *
  * with regard to transactional tests.
  *
  * @author Sam Brannen

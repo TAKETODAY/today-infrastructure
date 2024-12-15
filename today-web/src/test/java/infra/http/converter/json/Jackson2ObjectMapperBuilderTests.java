@@ -536,7 +536,7 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-    // SPR-13975
+    //
   void defaultUseWrapper() throws JsonProcessingException {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.xml().defaultUseWrapper(false).build();
     assertThat(objectMapper).isNotNull();
@@ -547,7 +547,7 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-    // SPR-14435
+    //
   void smile() {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.smile().build();
     assertThat(objectMapper).isNotNull();
@@ -555,7 +555,7 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-    // SPR-14435
+    //
   void cbor() {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.cbor().build();
     assertThat(objectMapper).isNotNull();

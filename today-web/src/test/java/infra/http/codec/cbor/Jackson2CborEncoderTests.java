@@ -72,7 +72,7 @@ public class Jackson2CborEncoderTests extends AbstractLeakCheckingTests {
     assertThat(this.encoder.canEncode(pojoType, CBOR_MIME_TYPE)).isTrue();
     assertThat(this.encoder.canEncode(pojoType, null)).isTrue();
 
-    // SPR-15464
+
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isTrue();
   }
 

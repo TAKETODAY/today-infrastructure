@@ -125,7 +125,7 @@ public class ConfigurationClassProcessingTests {
             .isThrownBy(() -> factory.getBean("methodName"));
   }
 
-  @Test  // SPR-11830
+  @Test
   public void configWithBeanWithProviderImplementation() {
     AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
 //    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
@@ -134,7 +134,7 @@ public class ConfigurationClassProcessingTests {
     assertThat(ConfigWithBeanWithProviderImplementation.testBean).isSameAs(ac.getBean("customName"));
   }
 
-  @Test  // SPR-11830
+  @Test
   public void configWithSetWithProviderImplementation() {
     AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
     ac.registerBeanDefinition("config", new RootBeanDefinition(ConfigWithSetWithProviderImplementation.class));

@@ -122,7 +122,7 @@ public class ContextPathCompositeHandlerTests {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
-  @Test // SPR-17144
+  @Test
   public void notFoundWithCommitAction() {
 
     AtomicBoolean commitInvoked = new AtomicBoolean();

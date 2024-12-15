@@ -96,7 +96,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-13435
+
   void requestUriWithDoubleSlashes() throws URISyntaxException {
     this.builder = new MockHttpRequestBuilder(GET, URI.create("/test//currentlyValid/0"));
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -122,7 +122,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-16453
+
   void pathInfoIsDecoded() {
     this.builder = new MockHttpRequestBuilder(GET, "/travel/hotels 42");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -242,7 +242,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-11043
+
   void requestParameterFromQueryNull() {
     this.builder = new MockHttpRequestBuilder(GET, "/?foo");
 
@@ -254,7 +254,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-13801
+
   void requestParameterFromMultiValueMap() throws Exception {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("foo", "bar");
@@ -337,7 +337,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-11308
+
   void contentTypeViaHeader() {
     this.builder.header("Content-Type", MediaType.TEXT_HTML_VALUE);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -355,7 +355,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-11308
+
   void contentTypeViaMultipleHeaderValues() {
     this.builder.header("Content-Type", MediaType.TEXT_HTML_VALUE, MediaType.ALL_VALUE);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -519,7 +519,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-12945
+
   void mergeInvokesDefaultRequestPostProcessorFirst() {
     final String ATTR = "ATTR";
     final String EXPECTED = "override";
@@ -538,7 +538,7 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-    // SPR-13719
+
   void arbitraryMethod() {
     String httpMethod = "REPort";
     URI url = UriComponentsBuilder.fromPath("/foo/{bar}").buildAndExpand(42).toUri();

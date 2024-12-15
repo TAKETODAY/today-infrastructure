@@ -224,14 +224,14 @@ class AnnotationMetadataTests {
   }
 
   @Test
-    // SPR-11649
+
   void multipleAnnotationsWithIdenticalAttributeNamesUsingStandardAnnotationMetadata() {
     AnnotationMetadata metadata = AnnotationMetadata.introspect(NamedAnnotationsClass.class);
     assertMultipleAnnotationsWithIdenticalAttributeNames(metadata);
   }
 
   @Test
-    // SPR-11649
+
   void multipleAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedAnnotationsClass.class.getName());
@@ -240,14 +240,14 @@ class AnnotationMetadataTests {
   }
 
   @Test
-    // SPR-11649
+
   void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingStandardAnnotationMetadata() {
     AnnotationMetadata metadata = AnnotationMetadata.introspect(NamedComposedAnnotationClass.class);
     assertMultipleAnnotationsWithIdenticalAttributeNames(metadata);
   }
 
   @Test
-    // SPR-11649
+
   void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedComposedAnnotationClass.class.getName());
@@ -608,7 +608,7 @@ class AnnotationMetadataTests {
     SubclassEnum[] value();
   }
 
-  // SPR-10914
+
   public enum SubclassEnum {
     FOO {
       /* Do not delete! This subclassing is intentional. */

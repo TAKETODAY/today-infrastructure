@@ -479,6 +479,12 @@ public class DefaultDataBuffer extends DataBuffer {
   }
 
   @Override
+  public DataBuffer retain() {
+    allocated = true;
+    return this;
+  }
+
+  @Override
   public boolean isAllocated() {
     return allocated;
   }

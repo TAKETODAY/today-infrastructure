@@ -55,8 +55,6 @@ import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.hamcrest.core.Is.is;
 
 /**
- * Tests for SPR-11441 (MockMvc accepts an already encoded URI).
- *
  * @author Sebastien Deleuze
  */
 @ExtendWith(InfraExtension.class)

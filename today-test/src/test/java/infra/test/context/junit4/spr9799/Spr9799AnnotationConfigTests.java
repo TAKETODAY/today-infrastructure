@@ -28,7 +28,7 @@ import infra.web.config.EnableWebMvc;
 
 /**
  * Integration tests used to assess claims raised in
- * <a href="https://jira.spring.io/browse/SPR-9799" target="_blank">SPR-9799</a>.
+ * .
  *
  * @author Sam Brannen
  * @see Spr9799XmlConfigTests

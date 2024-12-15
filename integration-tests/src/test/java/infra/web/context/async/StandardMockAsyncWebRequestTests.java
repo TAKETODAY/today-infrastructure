@@ -143,8 +143,6 @@ class StandardMockAsyncWebRequestTests {
     assertThat(this.asyncRequest.isAsyncComplete()).isTrue();
   }
 
-  // SPR-13292
-
   @SuppressWarnings("unchecked")
   @Test
   public void onErrorHandlerAfterOnErrorEvent() throws Exception {

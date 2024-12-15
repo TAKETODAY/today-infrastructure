@@ -134,7 +134,7 @@ public class EncodedResourceResolverTests {
     assertThat(condition1).isFalse();
   }
 
-  @Test  // SPR-13149
+  @Test
   public void resolveWithNullRequest() {
     String file = "js/foo.js";
     Resource resolved = this.resolver.resolveResource(null, file, this.locations);

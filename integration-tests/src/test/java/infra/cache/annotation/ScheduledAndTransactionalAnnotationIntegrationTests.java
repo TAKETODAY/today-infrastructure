@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
- * Integration tests cornering bug SPR-8651, which revealed that @Scheduled methods may
+ *which revealed that @Scheduled methods may
  * not work well with beans that have already been proxied for other reasons such
  * as @Transactional or @Async processing.
  *

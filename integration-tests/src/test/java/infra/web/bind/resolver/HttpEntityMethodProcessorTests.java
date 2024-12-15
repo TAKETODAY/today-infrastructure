@@ -93,7 +93,7 @@ class HttpEntityMethodProcessorTests {
     assertThat(result.getBody().getName()).isEqualTo("Jad");
   }
 
-  @Test  // SPR-12861
+  @Test
   public void resolveArgumentWithEmptyBody() throws Exception {
     this.mockRequest.setContent(new byte[0]);
     this.mockRequest.setContentType("application/json");

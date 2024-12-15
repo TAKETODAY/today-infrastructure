@@ -67,7 +67,7 @@ class TransactionalTestExecutionListenerTests {
   }
 
   @Test
-    // SPR-13895
+
   void transactionalTestWithoutTransactionManager() throws Exception {
     TransactionalTestExecutionListener listener = new TransactionalTestExecutionListener() {
       @Override

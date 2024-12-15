@@ -187,7 +187,7 @@ public class ResourceRegionHttpMessageConverterTests {
     assertThat(ranges[15]).isEqualTo("t resource");
   }
 
-  @Test // SPR-15041
+  @Test
   public void applicationOctetStreamDefaultContentType() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     ClassPathResource body = mock(ClassPathResource.class);

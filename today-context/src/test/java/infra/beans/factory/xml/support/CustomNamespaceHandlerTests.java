@@ -146,21 +146,21 @@ class CustomNamespaceHandlerTests {
     assertThat(beanDefinition.getAttribute("objectName")).isEqualTo("foo");
   }
 
-  @Test  // SPR-2728
+  @Test  //
   public void testCustomElementNestedWithinUtilList() {
     List<?> things = (List<?>) this.beanFactory.getBean("list.of.things");
     assertThat(things).isNotNull();
     assertThat(things).hasSize(2);
   }
 
-  @Test  // SPR-2728
+  @Test  //
   public void testCustomElementNestedWithinUtilSet() {
     Set<?> things = (Set<?>) this.beanFactory.getBean("set.of.things");
     assertThat(things).isNotNull();
     assertThat(things).hasSize(2);
   }
 
-  @Test  // SPR-2728
+  @Test  //
   public void testCustomElementNestedWithinUtilMap() {
     Map<?, ?> things = (Map<?, ?>) this.beanFactory.getBean("map.of.things");
     assertThat(things).isNotNull();

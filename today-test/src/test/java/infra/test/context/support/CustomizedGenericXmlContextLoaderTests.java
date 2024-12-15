@@ -29,10 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit test which verifies that extensions of
  * {@link AbstractGenericContextLoader} are able to <em>customize</em> the
- * newly created {@code ApplicationContext}. Specifically, this test
- * addresses the issues raised in <a
- * href="https://opensource.atlassian.com/projects/spring/browse/SPR-4008"
- * target="_blank">SPR-4008</a>: <em>Supply an opportunity to customize context
+ * newly created {@code ApplicationContext}. <em>Supply an opportunity to customize context
  * before calling refresh in ContextLoaders</em>.
  *
  * @author Sam Brannen

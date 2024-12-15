@@ -28,8 +28,6 @@ import infra.context.support.ClassPathXmlApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests lookup methods wrapped by a CGLIB proxy (see SPR-391).
- *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Chris Beams

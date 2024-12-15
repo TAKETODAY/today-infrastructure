@@ -42,7 +42,7 @@ import static infra.test.web.mock.result.MockMvcResultMatchers.status;
  */
 public class ReactiveReturnTypeTests {
 
-  @Test // SPR-16869
+  @Test
   public void sseWithFlux() throws Exception {
 
     MockMvc mockMvc = MockMvcBuilders.standaloneSetup(ReactiveController.class).build();

@@ -290,7 +290,7 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-    // SPR-10714
+
   void marshalAWrappedObjectHoldingAnXmlElementDeclElement() throws Exception {
     marshaller = new Jaxb2Marshaller();
     marshaller.setPackagesToScan("infra.oxm.jaxb");
@@ -305,7 +305,7 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-    // SPR-10806
+
   void unmarshalStreamSourceWithXmlOptions() throws Exception {
     final jakarta.xml.bind.Unmarshaller unmarshaller = mock();
     Jaxb2Marshaller marshaller = new Jaxb2Marshaller() {
@@ -340,7 +340,7 @@ class Jaxb2MarshallerTests extends AbstractMarshallerTests<Jaxb2Marshaller> {
   }
 
   @Test
-    // SPR-10806
+
   void unmarshalSaxSourceWithXmlOptions() throws Exception {
     final jakarta.xml.bind.Unmarshaller unmarshaller = mock();
     Jaxb2Marshaller marshaller = new Jaxb2Marshaller() {

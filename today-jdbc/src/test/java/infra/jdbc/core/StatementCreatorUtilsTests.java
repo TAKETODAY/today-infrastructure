@@ -262,7 +262,7 @@ public class StatementCreatorUtilsTests {
     verify(preparedStatement).setNull(1, Types.NULL);
   }
 
-  @Test  // SPR-8571
+  @Test  //
   public void testSetParameterValueWithStringAndVendorSpecificType() throws SQLException {
     Connection con = mock();
     DatabaseMetaData dbmd = mock();
@@ -273,7 +273,7 @@ public class StatementCreatorUtilsTests {
     verify(preparedStatement).setString(1, "test");
   }
 
-  @Test  // SPR-8571
+  @Test  //
   public void testSetParameterValueWithNullAndVendorSpecificType() throws SQLException {
     StatementCreatorUtils.shouldIgnoreGetParameterType = true;
     Connection con = mock();

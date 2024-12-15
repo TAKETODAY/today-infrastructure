@@ -223,7 +223,7 @@ public class ScriptTemplateViewTests {
             .withMessageContaining("sharedEngine");
   }
 
-  @Test // SPR-14210
+  @Test
   public void resourceLoaderPath() throws Exception {
     MockContextImpl mockContext = new MockContextImpl();
     this.wac.setMockContext(mockContext);
@@ -253,7 +253,7 @@ public class ScriptTemplateViewTests {
     assertThat(response.getContentAsString()).isEqualTo("foo");
   }
 
-  @Test // SPR-13379
+  @Test
   public void contentType() throws Exception {
     MockContextImpl mockContext = new MockContextImpl();
     this.wac.setMockContext(mockContext);

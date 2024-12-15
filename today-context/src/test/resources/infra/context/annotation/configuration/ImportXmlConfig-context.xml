@@ -15,7 +15,7 @@
     </property>
   </bean>
 
-  <!-- should not cause infinite loop (SPR-11858) but rather simply be ignored -->
+  <!-- should not cause infinite loop  but rather simply be ignored -->
   <bean class="infra.context.annotation.ConfigurationClassPostProcessor" />
 
 </beans>

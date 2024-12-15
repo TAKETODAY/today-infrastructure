@@ -812,7 +812,7 @@ class BridgeMethodResolverTests {
 
   @SuppressWarnings({ "serial", "unchecked" })
   public static class MessageBroadcasterImpl extends GenericEventBroadcasterImpl<MessageEvent>
-          implements Serializable,  // implement an unrelated interface first (SPR-16288)
+          implements Serializable,  // implement an unrelated interface first
           MessageBroadcaster {
 
     public MessageBroadcasterImpl() {
@@ -840,7 +840,7 @@ class BridgeMethodResolverTests {
   }
 
   //-----------------------------
-  // SPR-2454 Test Classes
+  //  Test Classes
   //-----------------------------
 
   public interface SimpleGenericRepository<T> {
@@ -976,7 +976,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  // SPR-2603 classes
+  //  classes
   //-------------------
 
   public interface Homer<E> {
@@ -1091,7 +1091,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  // SPR-3304 classes
+  //  classes
   //-------------------
 
   private static class MegaEvent {
@@ -1135,7 +1135,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  // SPR-3357 classes
+  //  classes
   //-------------------
 
   private static class DomainObjectSuper {
@@ -1169,7 +1169,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  // SPR-3485 classes
+  //  classes
   //-------------------
 
   @SuppressWarnings("serial")
@@ -1200,7 +1200,7 @@ class BridgeMethodResolverTests {
   }
 
   //-------------------
-  // SPR-3534 classes
+  //  classes
   //-------------------
 
   public interface SearchProvider<RETURN_TYPE, CONDITIONS_TYPE> {
@@ -1246,10 +1246,6 @@ class BridgeMethodResolverTests {
       return null;
     }
   }
-
-  //-------------------
-  // SPR-16103 classes
-  //-------------------
 
   public abstract static class BaseEntity {
   }

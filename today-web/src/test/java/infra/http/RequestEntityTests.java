@@ -168,7 +168,7 @@ class RequestEntityTests {
   }
 
   @Test
-    // SPR-13154
+
   void types() throws URISyntaxException {
     URI url = new URI("https://example.com");
     List<String> body = Arrays.asList("foo", "bar");

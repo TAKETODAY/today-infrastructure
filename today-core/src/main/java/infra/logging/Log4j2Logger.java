@@ -82,7 +82,7 @@ final class Log4j2Logger extends Logger {
   protected void logInternal(Level level, Object message, Throwable t) {
     if (message instanceof String) {
       // Explicitly pass a String argument, avoiding Log4j's argument expansion
-      // for message objects in case of "{}" sequences (SPR-16226)
+      // for message objects in case of "{}" sequences
       if (t != null) {
         this.logger.logIfEnabled(FQCN, getLevel(level), null, (String) message, t);
       }

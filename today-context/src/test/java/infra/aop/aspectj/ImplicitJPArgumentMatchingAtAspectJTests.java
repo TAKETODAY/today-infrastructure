@@ -27,7 +27,6 @@ import infra.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Tests to check if the first implicit join point argument is correctly processed.
- * See SPR-3723 for more details.
  *
  * @author Ramnivas Laddad
  * @author Chris Beams

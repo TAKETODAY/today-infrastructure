@@ -37,11 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes in conjunction
  * with the {@link InfraExtension} in a JUnit Jupiter environment ... when using
- * constructor injection as opposed to field injection (see SPR-16653).
- *
- * <p>
- * To run these tests in an IDE that does not have built-in support for the JUnit
- * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
+ * constructor injection as opposed to field injection
  *
  * @author Sam Brannen
  * @see ContextConfigurationNestedTests

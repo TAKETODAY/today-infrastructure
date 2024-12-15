@@ -435,7 +435,7 @@ class ConditionalOnBeanTests {
     @TestAnnotation
     static FactoryBean<?> exampleBeanFactoryBean(ApplicationContext applicationContext) {
       // NOTE: must be static and return raw FactoryBean and not the subclass so
-      // Spring can't guess type
+      // can't guess type
       ConfigurableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
       calledWhenNoFrozen = calledWhenNoFrozen || !beanFactory.isConfigurationFrozen();
       return new ExampleFactoryBean();

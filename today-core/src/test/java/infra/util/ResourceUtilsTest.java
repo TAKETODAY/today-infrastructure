@@ -66,7 +66,7 @@ public class ResourceUtilsTest {
 
   }
 
-  // spring
+  //
   // ----------------------------------------
 
   @Test

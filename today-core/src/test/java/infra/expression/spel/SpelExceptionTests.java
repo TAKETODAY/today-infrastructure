@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * SpelEvaluationException tests (SPR-16544).
+ * SpelEvaluationException tests .
  *
  * @author Juergen Hoeller
  * @author DJ Kulkarni

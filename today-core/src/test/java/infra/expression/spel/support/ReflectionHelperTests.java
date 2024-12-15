@@ -375,13 +375,11 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
     assertThat(rpa.read(ctx, t, "Id").getValue()).isEqualTo("id");
     assertThat(rpa.canRead(ctx, t, "Id")).isTrue();
 
-    // repro SPR-10994
     assertThat(rpa.read(ctx, t, "xyZ").getValue()).isEqualTo("xyZ");
     assertThat(rpa.canRead(ctx, t, "xyZ")).isTrue();
     assertThat(rpa.read(ctx, t, "xY").getValue()).isEqualTo("xY");
     assertThat(rpa.canRead(ctx, t, "xY")).isTrue();
 
-    // SPR-10122, ReflectivePropertyAccessor JavaBean property names compliance tests - setters
     rpa.write(ctx, t, "pEBS", "Test String");
     assertThat(rpa.read(ctx, t, "pEBS").getValue()).isEqualTo("Test String");
   }

@@ -137,7 +137,7 @@ class XmlBeanFactoryTests {
   }
 
   @Test
-    // SPR-2368
+    //
   void collectionsReferredToAsRefLocals() {
     StandardBeanFactory factory = new StandardBeanFactory();
     new XmlBeanDefinitionReader(factory).loadBeanDefinitions(COLLECTIONS_XSD_CONTEXT);
@@ -1208,10 +1208,6 @@ class XmlBeanFactoryTests {
             new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(RECURSIVE_IMPORT_CONTEXT));
   }
 
-  /**
-   * See <a href="https://jira.spring.io/browse/SPR-10785">SPR-10785</a> and <a
-   * href="https://jira.spring.io/browse/SPR-11420">SPR-11420</a>
-   */
   @Test
   @SuppressWarnings("deprecation")
   void methodInjectedBeanMustBeOfSameEnhancedCglibSubclassTypeAcrossBeanFactories() {
@@ -1416,7 +1412,7 @@ class XmlBeanFactoryTests {
     String forwards = "this is forwards";
     String backwards = new StringBuilder(forwards).reverse().toString();
     assertThat(s.replaceMe(forwards)).isEqualTo(backwards);
-    // SPR-356: lookup methods & method replacers are not serializable.
+    // : lookup methods & method replacers are not serializable.
     assertThat(SerializationTestUtils.isSerializable(s)).as("Lookup methods and method replacers are not meant to be serializable.").isFalse();
   }
 

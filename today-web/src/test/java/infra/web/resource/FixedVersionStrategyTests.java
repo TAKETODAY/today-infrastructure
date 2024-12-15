@@ -67,7 +67,7 @@ public class FixedVersionStrategyTests {
     assertThat(this.strategy.addVersion("/" + PATH, VERSION)).isEqualTo((VERSION + "/" + PATH));
   }
 
-  @Test  // SPR-13727
+  @Test
   public void addVersionRelativePath() {
     String relativePath = "../" + PATH;
     assertThat(this.strategy.addVersion(relativePath, VERSION)).isEqualTo(relativePath);

@@ -371,7 +371,7 @@ class PropertySourcesPlaceholderConfigurerTests {
 
   @Test
   public void multipleLocationsWithDefaultResolvedValue() throws Exception {
-    // SPR-10619
+
     PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
     ClassPathResource doesNotHave = new ClassPathResource("test.properties", getClass());
     ClassPathResource setToTrue = new ClassPathResource("placeholder.properties", getClass());

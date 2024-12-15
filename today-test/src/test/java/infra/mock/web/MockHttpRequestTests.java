@@ -138,7 +138,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16505
+
   void getReaderTwice() throws IOException {
     byte[] bytes = "body".getBytes(Charset.defaultCharset());
     request.setContent(bytes);
@@ -146,7 +146,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16505
+
   void getInputStreamTwice() throws IOException {
     byte[] bytes = "body".getBytes(Charset.defaultCharset());
     request.setContent(bytes);
@@ -154,7 +154,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16499
+
   void getReaderAfterGettingInputStream() throws IOException {
     request.getInputStream();
     assertThatIllegalStateException().isThrownBy(
@@ -163,7 +163,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16499
+
   void getInputStreamAfterGettingReader() throws IOException {
     request.getReader();
     assertThatIllegalStateException().isThrownBy(
@@ -208,7 +208,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-12677
+
   void setContentTypeHeaderWithMoreComplexCharsetSyntax() {
     String contentType = "test/plain;charset=\"utf-8\";foo=\"charset=bar\";foocharset=bar;foo=bar";
     request.addHeader(HttpHeaders.CONTENT_TYPE, contentType);
@@ -503,7 +503,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16138
+
   void getRequestURLWithHostHeader() {
     String testServer = "test.server";
     request.addHeader(HOST, testServer);
@@ -512,7 +512,7 @@ class MockHttpRequestTests {
   }
 
   @Test
-    // SPR-16138
+
   void getRequestURLWithHostHeaderAndPort() {
     String testServer = "test.server:9999";
     request.addHeader(HOST, testServer);

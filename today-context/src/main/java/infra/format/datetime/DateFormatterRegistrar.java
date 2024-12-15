@@ -61,7 +61,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
   public void registerFormatters(FormatterRegistry registry) {
     addDateConverters(registry);
     // In order to retain back compatibility we only register Date/Calendar
-    // types when a user defined formatter is specified (see SPR-10105)
+    // types when a user defined formatter is specified
     if (this.dateFormatter != null) {
       registry.addFormatter(this.dateFormatter);
       registry.addFormatterForFieldType(Calendar.class, this.dateFormatter);

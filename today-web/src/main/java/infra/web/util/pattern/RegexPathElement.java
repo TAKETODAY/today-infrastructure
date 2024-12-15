@@ -155,7 +155,7 @@ class RegexPathElement extends PathElement {
 
     if (matches && matchingContext.extractingVariables) {
       // Process captures
-      if (this.variableNames.size() != matcher.groupCount()) {  // SPR-8455
+      if (this.variableNames.size() != matcher.groupCount()) {  //
         throw new IllegalArgumentException(
                 "The number of capturing groups in the pattern segment " +
                         this.pattern + " does not match the number of URI template variables it defines, " +

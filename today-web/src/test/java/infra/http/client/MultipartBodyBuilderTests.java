@@ -91,7 +91,7 @@ public class MultipartBodyBuilderTests {
     assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
   }
 
-  @Test // SPR-16601
+  @Test
   public void publisherEntityAcceptedAsInput() {
 
     Publisher<String> publisher = Flux.just("foo", "bar", "baz");

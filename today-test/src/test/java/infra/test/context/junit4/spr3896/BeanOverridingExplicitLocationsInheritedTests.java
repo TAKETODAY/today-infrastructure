@@ -24,12 +24,6 @@ import infra.test.context.ContextConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * JUnit 4 based integration test for verifying support for the
- * {@link ContextConfiguration#inheritLocations() inheritLocations} flag of
- * {@link ContextConfiguration @ContextConfiguration} indirectly proposed in <a
- * href="https://opensource.atlassian.com/projects/spring/browse/SPR-3896"
- * target="_blank">SPR-3896</a>.
- *
  * @author Sam Brannen
  * @since 4.0
  */

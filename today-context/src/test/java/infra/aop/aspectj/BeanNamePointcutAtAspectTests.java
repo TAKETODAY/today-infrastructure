@@ -60,7 +60,6 @@ public class BeanNamePointcutAtAspectTests {
     boolean condition = testBean1 instanceof Advised;
     assertThat(condition).as("Expected a proxy").isTrue();
 
-    // Call two methods to test for SPR-3953-like condition
     testBean1.setAge(20);
     testBean1.setName("");
     assertThat(counterAspect.count).isEqualTo(2);

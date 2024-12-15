@@ -207,7 +207,7 @@ class GenericConversionServiceTests {
     assertThat((int) result).isEqualTo((int) Integer.valueOf(3));
   }
 
-  // SPR-8718
+  //
   @Test
   void convertSuperTarget() {
     conversionService.addConverter(new ColorConverter());
@@ -481,7 +481,7 @@ class GenericConversionServiceTests {
 
   @Test
   void convertOptimizeArray() {
-    // SPR-9566
+    //
     byte[] byteArray = new byte[] { 1, 2, 3 };
     byte[] converted = conversionService.convert(byteArray, byte[].class);
     assertThat(converted).isSameAs(byteArray);
@@ -501,7 +501,7 @@ class GenericConversionServiceTests {
 
   @Test
   void enumWithInterfaceToStringConversion() {
-    // SPR-9692
+    //
     conversionService.addConverter(new EnumToStringConverter(conversionService));
     conversionService.addConverter(new MyEnumInterfaceToStringConverter<MyEnum>());
     assertThat(conversionService.convert(MyEnum.A, String.class)).isEqualTo("1");

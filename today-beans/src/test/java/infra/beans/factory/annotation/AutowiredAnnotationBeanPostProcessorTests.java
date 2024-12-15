@@ -1894,10 +1894,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   /**
    * Verifies that a dependency on a {@link FactoryBean} can be autowired via
-   * {@link Autowired @Autowired}, specifically addressing the JIRA issue
-   * raised in <a
-   * href="https://opensource.atlassian.com/projects/spring/browse/SPR-4040"
-   * target="_blank">SPR-4040</a>.
+   * {@link Autowired @Autowired}
    */
   @Test
   void beanAutowiredWithFactoryBean() {
@@ -2430,7 +2427,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @Disabled  // SPR-11521
+  @Disabled
   @SuppressWarnings("rawtypes")
   void genericsBasedInjectionIntoTypeVariableSelectingBestMatchAgainstFactoryMethodSignature() {
     RootBeanDefinition bd = new RootBeanDefinition(GenericInterface1Impl.class);

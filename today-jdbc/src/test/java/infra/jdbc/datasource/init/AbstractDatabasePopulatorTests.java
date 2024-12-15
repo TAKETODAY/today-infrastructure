@@ -162,9 +162,6 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     assertThat(jdbcTemplate.queryForObject(COUNT_DAVE_SQL, Integer.class)).isEqualTo(1);
   }
 
-  /**
-   * See SPR-9457
-   */
   @Test
   void usesBoundConnectionIfAvailable() throws SQLException {
     TransactionSynchronizationManager.initSynchronization();

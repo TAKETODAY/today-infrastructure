@@ -155,8 +155,6 @@ class ContextLoaderUtilsConfigurationAttributesTests extends AbstractContextConf
   }
 
   /**
-   * Verifies change requested in <a href="https://jira.spring.io/browse/SPR-11634">SPR-11634</a>.
-   *
    * @since 4.0
    */
   @Test

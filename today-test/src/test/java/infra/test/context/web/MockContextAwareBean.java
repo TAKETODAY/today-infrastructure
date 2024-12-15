@@ -21,8 +21,6 @@ import infra.web.mock.MockContextAware;
 import infra.mock.api.MockContext;
 
 /**
- * Introduced to investigate claims in SPR-11145.
- *
  * @author Sam Brannen
  * @since 4.0
  */

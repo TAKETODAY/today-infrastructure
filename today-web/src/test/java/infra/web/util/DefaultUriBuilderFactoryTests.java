@@ -42,7 +42,7 @@ public class DefaultUriBuilderFactoryTests {
     assertThat(uri.toString()).isEqualTo("/foo/a%2Fb");
   }
 
-  @Test // SPR-17465
+  @Test
   public void defaultSettingsWithBuilder() {
     DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
     URI uri = factory.builder().path("/foo/{id}").build("a/b");
@@ -174,7 +174,7 @@ public class DefaultUriBuilderFactoryTests {
     assertThat(uri.toString()).isEqualTo("/foo/a/b/baz/c/d");
   }
 
-  @Test // SPR-15201
+  @Test
   public void pathWithTrailingSlash() {
     DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
     URI uri = factory.expand("https://localhost:8080/spring/");

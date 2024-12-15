@@ -80,7 +80,6 @@ class PathExtensionContentNegotiationStrategyTests {
   }
 
   @Test
-    // SPR-9390
   void getMediaTypeFilenameWithEncodedURI() throws Exception {
     this.mockRequest.setRequestURI("/quo%20vadis%3f.html");
     List<MediaType> result = this.strategy.resolveMediaTypes(webRequest);
@@ -89,7 +88,6 @@ class PathExtensionContentNegotiationStrategyTests {
   }
 
   @Test
-    // SPR-10170
   void resolveMediaTypesIgnoreUnknownExtension() throws Exception {
     this.mockRequest.setRequestURI("test.foobar");
 

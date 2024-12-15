@@ -127,7 +127,6 @@ class ConditionalOnMissingBeanTests {
 
   @Test
   void testAnnotationOnMissingBeanConditionWithEagerFactoryBean() {
-    // Rigorous test for SPR-11069
     this.contextRunner
             .withUserConfiguration(FooConfiguration.class, OnAnnotationConfiguration.class,
                     FactoryBeanXmlConfiguration.class, PropertyPlaceholderAutoConfiguration.class)

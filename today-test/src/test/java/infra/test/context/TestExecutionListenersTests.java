@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * <li>Proper registering of {@linkplain TestExecutionListener listeners} in
  * conjunction with a {@link TestContextManager}</li>
  * <li><em>Inherited</em> functionality proposed in
- * <a href="https://jira.spring.io/browse/SPR-3896" target="_blank">SPR-3896</a></li>
+ * </li>
  * </ul>
  *
  * @author Sam Brannen

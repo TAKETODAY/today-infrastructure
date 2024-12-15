@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify the behavior requested in
- * <a href="https://jira.spring.io/browse/SPR-9645">SPR-9645</a>.
+ *
  *
  * @author Sam Brannen
  * @since 4.0

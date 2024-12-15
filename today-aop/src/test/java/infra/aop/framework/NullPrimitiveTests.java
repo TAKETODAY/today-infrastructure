@@ -25,7 +25,7 @@ import infra.aop.AopInvocationException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Test for SPR-4675. A null value returned from around advice is very hard to debug if
+ *A null value returned from around advice is very hard to debug if
  * the caller expects a primitive.
  *
  * @author Dave Syer

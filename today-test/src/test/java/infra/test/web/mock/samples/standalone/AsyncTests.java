@@ -132,7 +132,7 @@ class AsyncTests {
   }
 
   @Test
-    // SPR-13079
+
   void deferredResultWithDelayedError() throws Exception {
     MvcResult mvcResult = this.mockMvc.perform(get("/1").param("deferredResultWithDelayedError", "true"))
             .andExpect(request().asyncStarted())
@@ -156,7 +156,7 @@ class AsyncTests {
   }
 
   @Test
-    // SPR-12597
+
   void completableFutureWithImmediateValue() throws Exception {
     MvcResult mvcResult = this.mockMvc.perform(get("/1").param("completableFutureWithImmediateValue", "true"))
             .andExpect(request().asyncStarted())
@@ -169,7 +169,7 @@ class AsyncTests {
   }
 
   @Test
-    // SPR-12735
+
   void printAsyncResult() throws Exception {
     StringWriter writer = new StringWriter();
 

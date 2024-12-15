@@ -156,19 +156,19 @@ class AnnotationBeanNameGeneratorTests {
   }
 
   @Test
-    // SPR-11360
+
   void generateBeanNameFromComposedControllerAnnotationWithoutName() {
     assertGeneratedNameIsDefault(ComposedControllerAnnotationWithoutName.class);
   }
 
   @Test
-    // SPR-11360
+
   void generateBeanNameFromComposedControllerAnnotationWithBlankName() {
     assertGeneratedNameIsDefault(ComposedControllerAnnotationWithBlankName.class);
   }
 
   @Test
-    // SPR-11360
+
   void generateBeanNameFromComposedControllerAnnotationWithStringValue() {
     assertGeneratedName(ComposedControllerAnnotationWithStringValue.class, "restController");
   }

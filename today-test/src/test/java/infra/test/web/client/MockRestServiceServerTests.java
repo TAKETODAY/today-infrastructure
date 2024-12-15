@@ -138,7 +138,7 @@ public class MockRestServiceServerTests {
     server.verify();
   }
 
-  @Test  // SPR-16132
+  @Test
   public void followUpRequestAfterFailure() {
     MockRestServiceServer server = MockRestServiceServer.bindTo(this.restTemplate).build();
 

@@ -48,8 +48,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class MergedAnnotationsRepeatableAnnotationTests {
 
-  // See SPR-13973
-
   @Test
   void inheritedAnnotationsWhenNonRepeatableThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->

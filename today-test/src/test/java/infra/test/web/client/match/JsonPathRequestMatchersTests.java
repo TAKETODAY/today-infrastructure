@@ -68,7 +68,7 @@ public class JsonPathRequestMatchersTests {
     new JsonPathRequestMatchers("$.str").value("foo").match(request);
   }
 
-  @Test // SPR-14498
+  @Test
   public void valueWithNumberConversion() throws Exception {
     new JsonPathRequestMatchers("$.num").value(5.0f).match(request);
   }
@@ -78,7 +78,7 @@ public class JsonPathRequestMatchersTests {
     new JsonPathRequestMatchers("$.str").value(equalTo("foo")).match(request);
   }
 
-  @Test // SPR-14498
+  @Test
   public void valueWithMatcherAndNumberConversion() throws Exception {
     new JsonPathRequestMatchers("$.num").value(equalTo(5.0f), Float.class).match(request);
   }

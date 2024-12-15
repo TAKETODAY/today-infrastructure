@@ -95,7 +95,7 @@ public class ScriptUtilsUnitTests {
     assertThat(statements).as("stripped but not split statements").containsExactly(script.replace('\n', ' '));
   }
 
-  @Test  // SPR-13218
+  @Test
   @SuppressWarnings("deprecation")
   public void splitScriptWithSingleQuotesNestedInsideDoubleQuotes() {
     String statement1 = "select '1' as \"Dogbert's owner's\" from dual";
@@ -110,7 +110,7 @@ public class ScriptUtilsUnitTests {
     assertThat(statements).containsExactly(statement1, statement2);
   }
 
-  @Test  // SPR-11560
+  @Test
   @SuppressWarnings("deprecation")
   public void readAndSplitScriptWithMultipleNewlinesAsSeparator() throws Exception {
     String script = readScript("db-test-data-multi-newline.sql");
@@ -156,7 +156,7 @@ public class ScriptUtilsUnitTests {
     assertThat(statements).containsExactly(statement1, statement2, statement3, statement4);
   }
 
-  @Test  // SPR-10330
+  @Test
   @SuppressWarnings("deprecation")
   public void readAndSplitScriptContainingCommentsWithLeadingTabs() throws Exception {
     String script = readScript("test-data-with-comments-and-leading-tabs.sql");
@@ -170,7 +170,7 @@ public class ScriptUtilsUnitTests {
     assertThat(statements).containsExactly(statement1, statement2, statement3);
   }
 
-  @Test  // SPR-9531
+  @Test  //
   @SuppressWarnings("deprecation")
   public void readAndSplitScriptContainingMultiLineComments() throws Exception {
     String script = readScript("test-data-with-multi-line-comments.sql");

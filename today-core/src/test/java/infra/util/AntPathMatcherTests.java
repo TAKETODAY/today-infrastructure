@@ -51,7 +51,7 @@ class AntPathMatcherTests {
     // test exact matching
     assertThat(pathMatcher.match("test", "test")).isTrue();
     assertThat(pathMatcher.match("/test", "/test")).isTrue();
-    // SPR-14141
+
     assertThat(pathMatcher.match("https://example.org", "https://example.org")).isTrue();
     assertThat(pathMatcher.match("/test.jpg", "test.jpg")).isFalse();
     assertThat(pathMatcher.match("test", "/test")).isFalse();
@@ -316,7 +316,7 @@ class AntPathMatcherTests {
     assertThat(pathMatcher.extractPathWithinPattern("*.html", "/docs/commit.html")).isEqualTo("/docs/commit.html");
     assertThat(pathMatcher.extractPathWithinPattern("**/*.*", "/docs/commit.html")).isEqualTo("/docs/commit.html");
     assertThat(pathMatcher.extractPathWithinPattern("*", "/docs/commit.html")).isEqualTo("/docs/commit.html");
-    // SPR-10515
+
     assertThat(pathMatcher.extractPathWithinPattern("**/commit.html", "/docs/cvs/other/commit.html")).isEqualTo(
             "/docs/cvs/other/commit.html");
     assertThat(pathMatcher.extractPathWithinPattern("/docs/**/commit.html", "/docs/cvs/other/commit.html")).isEqualTo(
@@ -454,17 +454,17 @@ class AntPathMatcherTests {
     assertThat(pathMatcher.combine("/**", "/*.html")).isEqualTo("/*.html");
     assertThat(pathMatcher.combine("/*", "/*.html")).isEqualTo("/*.html");
     assertThat(pathMatcher.combine("/*.*", "/*.html")).isEqualTo("/*.html");
-    // SPR-8858
+    //
     assertThat(pathMatcher.combine("/{foo}", "/bar")).isEqualTo("/{foo}/bar");
-    // SPR-7970
+    //
     assertThat(pathMatcher.combine("/user", "/user")).isEqualTo("/user/user");
-    // SPR-10062
+
     assertThat(pathMatcher.combine("/{foo:.*[^0-9].*}", "/edit/")).isEqualTo("/{foo:.*[^0-9].*}/edit/");
-    // SPR-10554
+
     assertThat(pathMatcher.combine("/1.0", "/foo/test")).isEqualTo("/1.0/foo/test");
-    // SPR-12975
+
     assertThat(pathMatcher.combine("/", "/hotel")).isEqualTo("/hotel");
-    // SPR-12975
+
     assertThat(pathMatcher.combine("/hotel/", "/booking")).isEqualTo("/hotel/booking");
   }
 
@@ -493,7 +493,7 @@ class AntPathMatcherTests {
     assertThat(comparator.compare("/hotels/{hotel}/booking", "/hotels/{hotel}/bookings/{booking}")).isEqualTo(-1);
     assertThat(comparator.compare("/hotels/{hotel}/bookings/{booking}", "/hotels/{hotel}/booking")).isEqualTo(1);
 
-    // SPR-10550
+
     assertThat(comparator.compare("/hotels/{hotel}/bookings/{booking}/cutomers/{customer}", "/**")).isEqualTo(-1);
     assertThat(comparator.compare("/**", "/hotels/{hotel}/bookings/{booking}/cutomers/{customer}")).isEqualTo(1);
     assertThat(comparator.compare("/**", "/**")).isEqualTo(0);
@@ -507,7 +507,7 @@ class AntPathMatcherTests {
     assertThat(comparator.compare("/hotels/new", "/hotels/new.*")).isEqualTo(-1);
     assertThat(comparator.compare("/hotels/{hotel}", "/hotels/{hotel}.*")).isEqualTo(2);
 
-    // SPR-6741
+    //
     assertThat(comparator.compare("/hotels/{hotel}/bookings/{booking}/cutomers/{customer}", "/hotels/**")).isEqualTo(-1);
     assertThat(comparator.compare("/hotels/**", "/hotels/{hotel}/bookings/{booking}/cutomers/{customer}")).isEqualTo(1);
     assertThat(comparator.compare("/hotels/foo/bar/**", "/hotels/{hotel}")).isEqualTo(1);
@@ -516,13 +516,13 @@ class AntPathMatcherTests {
     // gh-23125
     assertThat(comparator.compare("/hotels/*/bookings/**", "/hotels/**")).isEqualTo(1);
 
-    // SPR-8683
+    //
     assertThat(comparator.compare("/**", "/hotels/{hotel}")).isEqualTo(1);
 
     // longer is better
     assertThat(comparator.compare("/hotels", "/hotels2")).isEqualTo(1);
 
-    // SPR-13139
+
     assertThat(comparator.compare("*", "*/**")).isEqualTo(-1);
     assertThat(comparator.compare("*/**", "*")).isEqualTo(1);
   }

@@ -39,10 +39,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  * {@link ContextLoader#processLocations(Class, String...) processing} of
  * {@code resource locations} by a {@link GenericXmlContextLoader}
  * configured via {@link ContextConfiguration @ContextConfiguration}.
- * Specifically, this test addresses the issues raised in <a
- * href="https://opensource.atlassian.com/projects/spring/browse/SPR-3949"
- * target="_blank">SPR-3949</a>:
- * <em>ContextConfiguration annotation should accept not only classpath resources</em>.
  *
  * @author Sam Brannen
  * @since 4.0

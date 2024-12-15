@@ -278,7 +278,6 @@ class PropertySourceAnnotationTests {
 
   @Test
   void orderingWithAndWithoutNameAndMultipleResourceLocations() {
-    // SPR-10820: p2 should 'win' as it was registered last
     AnnotationConfigApplicationContext ctxWithName = new AnnotationConfigApplicationContext(ConfigWithNameAndMultipleResourceLocations.class);
     AnnotationConfigApplicationContext ctxWithoutName = new AnnotationConfigApplicationContext(ConfigWithMultipleResourceLocations.class);
     assertEnvironmentProperty(ctxWithName, "testbean.name", "p2TestBean");
@@ -289,7 +288,6 @@ class PropertySourceAnnotationTests {
 
   @Test
   void orderingWithFourResourceLocations() {
-    // SPR-12198: p4 should 'win' as it was registered last
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithFourResourceLocations.class);
     assertEnvironmentProperty(ctx, "testbean.name", "p4TestBean");
     ctx.close();
@@ -297,7 +295,6 @@ class PropertySourceAnnotationTests {
 
   @Test
   void orderingDoesntReplaceExisting() {
-    // SPR-12198: mySource should 'win' as it was registered manually
     AnnotationConfigApplicationContext ctxWithoutName = new AnnotationConfigApplicationContext();
     MapPropertySource mySource = new MapPropertySource("mine", Map.of("testbean.name", "myTestBean"));
     ctxWithoutName.getEnvironment().getPropertySources().addLast(mySource);

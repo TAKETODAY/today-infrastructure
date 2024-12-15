@@ -141,7 +141,7 @@ public class ThreadLocalTargetSourceTests {
   }
 
   /**
-   * Test for SPR-1442. Destroyed target should re-associated with thread and not throw NPE.
+   *Destroyed target should re-associated with thread and not throw NPE.
    */
   @Test
   public void testReuseDestroyedTarget() {

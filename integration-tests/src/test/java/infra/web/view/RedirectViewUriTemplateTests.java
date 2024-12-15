@@ -141,7 +141,7 @@ class RedirectViewUriTemplateTests {
     assertThat(this.response.getRedirectedUrl()).isEmpty();
   }
 
-  // SPR-9016
+  //
 
   @Test
   void dontApplyUriVariables() throws Exception {

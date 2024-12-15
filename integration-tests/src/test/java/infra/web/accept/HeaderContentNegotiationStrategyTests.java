@@ -56,7 +56,7 @@ public class HeaderContentNegotiationStrategyTests {
     assertThat(mediaTypes.get(3).toString()).isEqualTo("text/plain;q=0.5");
   }
 
-  @Test  // SPR-14506
+  @Test
   public void resolveMediaTypesFromMultipleHeaderValues() throws Exception {
     this.mockRequest.addHeader("Accept", "text/plain; q=0.5, text/html");
     this.mockRequest.addHeader("Accept", "text/x-dvi; q=0.8, text/x-c");

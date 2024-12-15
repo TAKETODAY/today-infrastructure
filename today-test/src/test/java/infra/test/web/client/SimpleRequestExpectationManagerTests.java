@@ -158,7 +158,7 @@ public class SimpleRequestExpectationManagerTests {
             .withMessage("Unexpected HttpMethod expected:<GET> but was:<POST>");
   }
 
-  @Test  // SPR-15672
+  @Test
   public void sequentialRequestsWithDifferentCount() throws Exception {
     this.manager.expectRequest(times(2), requestTo("/foo")).andExpect(method(GET)).andRespond(withSuccess());
     this.manager.expectRequest(once(), requestTo("/bar")).andExpect(method(GET)).andRespond(withSuccess());
@@ -168,7 +168,7 @@ public class SimpleRequestExpectationManagerTests {
     this.manager.validateRequest(createRequest(GET, "/bar"));
   }
 
-  @Test  // SPR-15719
+  @Test
   public void repeatedRequestsInSequentialOrder() throws Exception {
     this.manager.expectRequest(times(2), requestTo("/foo")).andExpect(method(GET)).andRespond(withSuccess());
     this.manager.expectRequest(times(2), requestTo("/bar")).andExpect(method(GET)).andRespond(withSuccess());
@@ -179,7 +179,7 @@ public class SimpleRequestExpectationManagerTests {
     this.manager.validateRequest(createRequest(GET, "/bar"));
   }
 
-  @Test  // SPR-16132
+  @Test
   public void sequentialRequestsWithFirstFailing() throws Exception {
     this.manager.expectRequest(once(), requestTo("/foo")).
             andExpect(method(GET)).andRespond(request -> { throw new SocketException("pseudo network error"); });

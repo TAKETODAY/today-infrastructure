@@ -45,8 +45,6 @@ class H2DatabasePopulatorTests extends AbstractDatabasePopulatorTests {
   }
 
   /**
-   * https://jira.spring.io/browse/SPR-15896
-   *
    * @since 4.0
    */
   @Test

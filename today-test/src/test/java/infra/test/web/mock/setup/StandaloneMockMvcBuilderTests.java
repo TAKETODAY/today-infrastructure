@@ -93,7 +93,7 @@ class StandaloneMockMvcBuilderTests {
   }
 
   @Test
-    // SPR-12553
+
   void applicationContextAttribute() {
     TestStandaloneMockMvcBuilder builder = new TestStandaloneMockMvcBuilder(new PlaceholderController());
     builder.addPlaceholderValue("sys.login.ajax", "/foo");
@@ -121,7 +121,7 @@ class StandaloneMockMvcBuilderTests {
     assertThat(captor.getValue().getInitParameter("p")).isEqualTo("v");
   }
 
-  @Test  // SPR-13375
+  @Test
   @SuppressWarnings("rawtypes")
   void springHandlerInstantiator() {
     TestStandaloneMockMvcBuilder builder = new TestStandaloneMockMvcBuilder(new PersonController());

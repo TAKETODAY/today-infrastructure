@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.util.pattern;
@@ -892,17 +892,17 @@ public class PathPatternTests {
     assertThat(pathMatcher.combine("/**", "/*.html")).isEqualTo("/*.html");
     assertThat(pathMatcher.combine("/*", "/*.html")).isEqualTo("/*.html");
     assertThat(pathMatcher.combine("/*.*", "/*.html")).isEqualTo("/*.html");
-    // SPR-8858
+    //
     assertThat(pathMatcher.combine("/{foo}", "/bar")).isEqualTo("/{foo}/bar");
-    // SPR-7970
+    //
     assertThat(pathMatcher.combine("/user", "/user")).isEqualTo("/user/user");
-    // SPR-10062
+    //
     assertThat(pathMatcher.combine("/{foo:.*[^0-9].*}", "/edit/")).isEqualTo("/{foo:.*[^0-9].*}/edit/");
     assertThat(pathMatcher.combine("/1.0", "/foo/test")).isEqualTo("/1.0/foo/test");
-    // SPR-10554
-    // SPR-12975
+    //
+    //
     assertThat(pathMatcher.combine("/", "/hotel")).isEqualTo("/hotel");
-    // SPR-12975
+    //
     assertThat(pathMatcher.combine("/hotel/", "/booking")).isEqualTo("/hotel/booking");
     assertThat(pathMatcher.combine("", "/hotel")).isEqualTo("/hotel");
     assertThat(pathMatcher.combine("/hotel", "")).isEqualTo("/hotel");
@@ -951,7 +951,7 @@ public class PathPatternTests {
 //		assertEquals(-1,
 //				comparator.compare(parse("/hotels/new"), parse("/hotels/new.*")));
 
-    // SPR-6741
+    //
     assertThat(comparator.compare(
             parse("/hotels/{hotel}/bookings/{booking}/cutomers/{customer}"),
             parse("/hotels/**"))).isEqualTo(-1);
@@ -962,13 +962,13 @@ public class PathPatternTests {
     assertThat(comparator.compare(parse("/hotels/{hotel}"),
             parse("/hotels/foo/bar/**"))).isEqualTo(-1);
 
-    // SPR-8683
+    //
     assertThat(comparator.compare(parse("/**"), parse("/hotels/{hotel}"))).isEqualTo(1);
 
     // longer is better
     assertThat(comparator.compare(parse("/hotels"), parse("/hotels2"))).isEqualTo(1);
 
-    // SPR-13139
+    //
     assertThat(comparator.compare(parse("*"), parse("*/**"))).isEqualTo(-1);
     assertThat(comparator.compare(parse("*/**"), parse("*"))).isEqualTo(1);
   }
@@ -984,10 +984,6 @@ public class PathPatternTests {
     // works fine
     assertThat(r1.getUriVariables().get("foo")).isEqualTo("file.txt");
     assertThat(r2.getUriVariables().get("foo")).isEqualTo("file");
-
-    // This produces 2 (see comments in https://jira.spring.io/browse/SPR-14544 )
-    // Comparator<String> patternComparator = new AntPathMatcher().getPatternComparator("");
-    // System.out.println(patternComparator.compare("/{foo}","/{foo}.*"));
 
     assertThat(p1.compareTo(p2)).isGreaterThan(0);
   }
@@ -1099,7 +1095,7 @@ public class PathPatternTests {
     paths.clear();
   }
 
-  @Test  // SPR-13286
+  @Test
   public void caseInsensitive() {
     PathPatternParser pp = new PathPatternParser();
     pp.setCaseSensitive(false);

@@ -476,7 +476,6 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
       }
     }
     // We'll search superclasses and implemented interfaces explicitly,
-    // although it shouldn't be necessary - however, see SPR-10125.
     if (clazz.getSuperclass() != null) {
       Field field = findField(name, clazz.getSuperclass(), mustBeStatic);
       if (field != null) {

@@ -199,7 +199,7 @@ class RequestMappingInfoTests {
   }
 
   @Test
-    // SPR-14383
+
   void compareToWithHttpHeadMapping() {
     HttpMockRequestImpl request = initRequest("GET", "/", false);
     request.setMethod("HEAD");

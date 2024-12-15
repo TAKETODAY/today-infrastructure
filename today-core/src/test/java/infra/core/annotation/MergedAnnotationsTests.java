@@ -225,7 +225,6 @@ class MergedAnnotationsTests {
 
     @Test
     void getWithInheritedAnnotationsFromHalfConventionBasedAndHalfAliasedComposedAnnotation1() {
-      // SPR-13554: convention mapping mixed with AliasFor annotations
       // xmlConfigFiles can be used because it has an AliasFor annotation
       MergedAnnotation<?> annotation =
               MergedAnnotations.from(HalfConventionBasedAndHalfAliasedComposedContextConfigurationClass1.class,
@@ -236,7 +235,6 @@ class MergedAnnotationsTests {
 
     @Test
     void getWithInheritedAnnotationsFromHalfConventionBasedAndHalfAliasedComposedAnnotation2() {
-      // SPR-13554: convention mapping mixed with AliasFor annotations
       // locations doesn't apply because it has no AliasFor annotation
       MergedAnnotation<?> annotation =
               MergedAnnotations.from(HalfConventionBasedAndHalfAliasedComposedContextConfigurationClass2.class,
@@ -977,7 +975,7 @@ class MergedAnnotationsTests {
   }
 
   @Test
-    // SPR-16060
+
   void getFromMethodWithGenericInterface() throws Exception {
     Method method = ImplementsInterfaceWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     assertThat(MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(
@@ -985,7 +983,7 @@ class MergedAnnotationsTests {
   }
 
   @Test
-    // SPR-17146
+
   void getFromMethodWithGenericSuperclass() throws Exception {
     Method method = ExtendsBaseClassWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     assertThat(MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(
@@ -2476,7 +2474,7 @@ class MergedAnnotationsTests {
 
   /**
    * This hybrid approach for annotation attribute overrides with transitive implicit
-   * aliases is unsupported. See SPR-13554 for details.
+   * aliases is unsupported.
    */
   @ContextConfiguration
   @Retention(RetentionPolicy.RUNTIME)
@@ -2520,7 +2518,7 @@ class MergedAnnotationsTests {
     @AliasFor(annotation = ContextConfiguration.class)
     String[] locations() default {};
 
-    // intentionally omitted: attribute = "locations" (SPR-14069)
+    // intentionally omitted: attribute = "locations"
     @AliasFor(annotation = ContextConfiguration.class)
     String[] value() default {};
   }

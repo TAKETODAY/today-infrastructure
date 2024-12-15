@@ -350,7 +350,6 @@ public class HttpHeadersTests {
   }
 
   @Test
-    // SPR-10648 (example is from INT-3063)
   void expiresInvalidDate() {
     headers.setOrRemove("Expires", "-1");
     assertThat(headers.getExpires()).isEqualTo(-1);
@@ -367,7 +366,7 @@ public class HttpHeadersTests {
   }
 
   @Test
-    // SPR-14144
+    //
   void invalidIfModifiedSinceHeader() {
     headers.setOrRemove(HttpHeaders.IF_MODIFIED_SINCE, "0");
     assertThat(headers.getIfModifiedSince()).isEqualTo(-1);
@@ -428,7 +427,6 @@ public class HttpHeadersTests {
   }
 
   @Test
-    // SPR-11917
   void getAllowEmptySet() {
     headers.setAllow(Collections.emptySet());
     assertThat(headers.getAllow()).isEmpty();

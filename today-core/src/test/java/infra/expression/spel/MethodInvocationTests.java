@@ -88,7 +88,7 @@ class MethodInvocationTests extends AbstractExpressionTests {
   }
 
   @Test
-    // SPR-6760
+    //
   void methodThrowingException() {
     // Test method on inventor: throwException()
     // On 1 it will throw an IllegalArgumentException.
@@ -180,7 +180,7 @@ class MethodInvocationTests extends AbstractExpressionTests {
   }
 
   @Test
-    // SPR-6764
+    //
   void methodFiltering() {
     SpelExpressionParser parser = new SpelExpressionParser();
     StandardEvaluationContext context = new StandardEvaluationContext();

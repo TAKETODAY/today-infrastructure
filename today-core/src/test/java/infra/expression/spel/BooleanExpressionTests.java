@@ -92,7 +92,7 @@ public class BooleanExpressionTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testConvertAndHandleNull() { // SPR-9445
+  public void testConvertAndHandleNull() { //
     // without null conversion
     evaluateAndCheckError("null or true", SpelMessage.TYPE_CONVERSION_ERROR, 0, "null", "boolean");
     evaluateAndCheckError("null and true", SpelMessage.TYPE_CONVERSION_ERROR, 0, "null", "boolean");

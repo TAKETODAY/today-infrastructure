@@ -49,8 +49,8 @@ import static org.junit.platform.testkit.engine.TestExecutionResultConditions.me
  * {@code @BeforeTransaction} and {@code @AfterTransaction} methods can fail
  * tests run via the {@link InfraExtension} in a JUnit Jupiter environment.
  *
- * <p>See: <a href="https://jira.spring.io/browse/SPR-3960" target="_blank">SPR-3960</a>
- * and <a href="https://jira.spring.io/browse/SPR-4365" target="_blank">SPR-4365</a>.
+ * <p>See:
+ * and .
  *
  * <p>Indirectly, this class also verifies that all {@code TestExecutionListener}
  * lifecycle callbacks are called.

@@ -106,7 +106,7 @@ public class ResourceUrlProviderTests {
   }
 
   @Test
-    // SPR-12647
+
   void bestPatternMatch() throws Exception {
     ResourceHttpRequestHandler otherHandler = new ResourceHttpRequestHandler();
     otherHandler.setLocations(this.locations);
@@ -127,7 +127,7 @@ public class ResourceUrlProviderTests {
     assertThat(url).isEqualTo("/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css");
   }
 
-  @Test // SPR-12592
+  @Test
   @SuppressWarnings("resource")
   void initializeOnce() throws Exception {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
@@ -164,7 +164,7 @@ public class ResourceUrlProviderTests {
   }
 
   @Test
-    // SPR-16296
+
   void getForLookupPathShouldNotFailIfPathContainsDoubleSlashes() {
     // given
     ResourceResolver mockResourceResolver = mock(ResourceResolver.class);

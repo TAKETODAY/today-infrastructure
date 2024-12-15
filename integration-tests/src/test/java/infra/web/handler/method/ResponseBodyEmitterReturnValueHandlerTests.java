@@ -295,7 +295,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     assertThat(this.response.getContentAsString()).isEqualTo("foobarbaz");
   }
 
-  @Test // SPR-17076
+  @Test
   public void responseEntityFluxWithCustomHeader() throws Exception {
 
     Sinks.Many<SimpleBean> sink = Sinks.many().unicast().onBackpressureBuffer();

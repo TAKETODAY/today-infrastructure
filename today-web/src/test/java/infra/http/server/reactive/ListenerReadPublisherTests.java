@@ -53,7 +53,7 @@ public class ListenerReadPublisherTests {
     assertThat(this.publisher.getReadCalls()).isEqualTo(2);
   }
 
-  @Test // SPR-17410
+  @Test
   public void discardDataOnError() {
 
     this.subscriber.getSubscription().request(2);
@@ -64,7 +64,7 @@ public class ListenerReadPublisherTests {
     assertThat(this.publisher.getDiscardCalls()).isEqualTo(1);
   }
 
-  @Test // SPR-17410
+  @Test
   public void discardDataOnCancel() {
 
     this.subscriber.getSubscription().request(2);

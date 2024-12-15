@@ -173,10 +173,9 @@ class UrlFilenameViewControllerTests {
 
   /**
    * This is the expected behavior, and it now has a test to prove it.
-   * https://opensource.atlassian.com/projects/spring/browse/SPR-2789
    */
   @PathPatternsParameterizedTest
-  void nestedPathisUsedAsViewName_InBreakingChangeFromSpring12Line(
+  void nestedPathisUsedAsViewName_InBreakingChange(
           Function<String, RequestContext> requestFactory) throws Throwable {
 
     UrlFilenameViewController controller = new UrlFilenameViewController();

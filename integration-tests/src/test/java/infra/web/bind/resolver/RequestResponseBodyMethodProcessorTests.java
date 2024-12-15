@@ -193,7 +193,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result).isEqualTo("foobarbaz");
   }
 
-  @Test // SPR-9942
+  @Test
   public void resolveArgumentRequiredNoContent() {
     this.mockRequest.setContent(new byte[0]);
     this.mockRequest.setContentType("text/plain");
@@ -204,7 +204,7 @@ class RequestResponseBodyMethodProcessorTests {
             processor.resolveArgument(request, paramString));
   }
 
-  @Test  // SPR-12778
+  @Test
   public void resolveArgumentRequiredNoContentDefaultValue() throws Throwable {
     this.mockRequest.setContent(new byte[0]);
     this.mockRequest.setContentType("text/plain");
@@ -216,7 +216,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(arg).isEqualTo("default value for empty body");
   }
 
-  @Test  // SPR-9964
+  @Test
   public void resolveArgumentTypeVariable() throws Throwable {
     Method method = MyParameterizedController.class.getMethod("handleDto", Identifiable.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
@@ -236,7 +236,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getName()).isEqualTo("Jad");
   }
 
-  @Test  // SPR-14470
+  @Test
   public void resolveParameterizedWithTypeVariableArgument() throws Throwable {
     Method method = MyParameterizedControllerWithList.class.getMethod("handleDto", List.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedControllerWithList(), method);
@@ -259,7 +259,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.get(1).getName()).isEqualTo("Robert");
   }
 
-  @Test  // SPR-11225
+  @Test
   public void resolveArgumentTypeVariableWithNonGenericConverter() throws Throwable {
     Method method = MyParameterizedController.class.getMethod("handleDto", Identifiable.class);
     HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
@@ -282,7 +282,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getName()).isEqualTo("Jad");
   }
 
-  @Test  // SPR-9160
+  @Test
   public void handleReturnValueSortByQuality() throws Throwable {
     this.mockRequest.addHeader("Accept", "text/plain; q=0.5, application/json");
 
@@ -309,7 +309,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(mockResponse.getContentAsString()).isEqualTo("Foo");
   }
 
-  @Test  // SPR-13423
+  @Test
   public void handleReturnValueCharSequence() throws Throwable {
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     converters.add(new ByteArrayHttpMessageConverter());
@@ -338,7 +338,6 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
   }
 
-  // SPR-12894
 
   @Test
   public void handleReturnValueImage() throws Throwable {
@@ -449,7 +448,7 @@ class RequestResponseBodyMethodProcessorTests {
     }
   }
 
-  @Test // SPR-13135
+  @Test
   public void handleReturnValueWithInvalidReturnType() throws Throwable {
     Method method = getClass().getDeclaredMethod("handleAndReturnOutputStream");
     MethodParameter returnType = new MethodParameter(method, -1);
@@ -578,7 +577,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("\"withoutView\":\"without\"")).isFalse();
   }
 
-  @Test  // SPR-12149
+  @Test
   public void jacksonJsonViewWithResponseBodyAndXmlMessageConverter() throws Throwable {
     Method method = JacksonController.class.getMethod("handleResponseBody");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -599,7 +598,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("<withoutView>without</withoutView>")).isFalse();
   }
 
-  @Test  // SPR-12149
+  @Test
   public void jacksonJsonViewWithResponseEntityAndXmlMessageConverter() throws Throwable {
     Method method = JacksonController.class.getMethod("handleResponseEntity");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -620,7 +619,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("<withoutView>without</withoutView>")).isFalse();
   }
 
-  @Test  // SPR-12501
+  @Test
   public void resolveArgumentWithJacksonJsonView() throws Throwable {
     String content = "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -645,7 +644,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getWithoutView()).isNull();
   }
 
-  @Test  // SPR-12501
+  @Test
   public void resolveHttpEntityArgumentWithJacksonJsonView() throws Throwable {
     String content = "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}";
     this.mockRequest.setContent(content.getBytes(StandardCharsets.UTF_8));
@@ -672,7 +671,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getBody().getWithoutView()).isNull();
   }
 
-  @Test  // SPR-12501
+  @Test
   public void resolveArgumentWithJacksonJsonViewAndXmlMessageConverter() throws Throwable {
     String content = "<root>" +
             "<withView1>with</withView1>" +
@@ -700,7 +699,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getWithoutView()).isNull();
   }
 
-  @Test  // SPR-12501
+  @Test
   public void resolveHttpEntityArgumentWithJacksonJsonViewAndXmlMessageConverter() throws Throwable {
     String content = "<root>" +
             "<withView1>with</withView1>" +
@@ -730,7 +729,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(result.getBody().getWithoutView()).isNull();
   }
 
-  @Test  // SPR-12811
+  @Test
   public void jacksonTypeInfoList() throws Throwable {
     Method method = JacksonController.class.getMethod("handleTypeInfoList");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -748,7 +747,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("\"type\":\"bar\"")).isTrue();
   }
 
-  @Test  // SPR-13318
+  @Test
   public void jacksonSubType() throws Throwable {
     Method method = JacksonController.class.getMethod("handleSubType");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -766,7 +765,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("\"name\":\"foo\"")).isTrue();
   }
 
-  @Test  // SPR-13318
+  @Test
   public void jacksonSubTypeList() throws Throwable {
     Method method = JacksonController.class.getMethod("handleSubTypeList");
     HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
@@ -785,7 +784,7 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(content.contains("\"name\":\"bar\"")).isTrue();
   }
 
-  @Test  // SPR-14520
+  @Test
   public void resolveArgumentTypeVariableWithGenericInterface() throws Throwable {
     this.mockRequest.setContent("\"foo\"".getBytes(StandardCharsets.UTF_8));
     this.mockRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);

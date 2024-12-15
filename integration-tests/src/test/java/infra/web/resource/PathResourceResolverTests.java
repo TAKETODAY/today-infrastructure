@@ -122,13 +122,13 @@ public class PathResourceResolverTests {
     assertThat(actual).isNotNull();
   }
 
-  @Test // SPR-12747
+  @Test
   public void checkFileLocation() throws Exception {
     Resource resource = getResource("main.css");
     assertThat(this.resolver.checkResource(resource, resource)).isTrue();
   }
 
-  @Test // SPR-13241
+  @Test
   public void resolvePathRootResource() {
     Resource webjarsLocation = new ClassPathResource("/META-INF/resources/webjars/", PathResourceResolver.class);
     String path = this.resolver.resolveUrlPathInternal("", Collections.singletonList(webjarsLocation), null);

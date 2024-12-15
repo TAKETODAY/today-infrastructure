@@ -93,7 +93,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     Resource utf8 = new ClassPathResource("/infra/http/converter/logo.jpg") {
       @Override
       public String getName() {
-        // SPR-12108
+        //
         return "Hall\u00F6le.jpg";
       }
     };
@@ -214,7 +214,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             Collections.emptyMap()).block(Duration.ZERO);
   }
 
-  @Test  // SPR-16402
+  @Test
   public void singleSubscriberWithResource() throws IOException {
     Sinks.Many<Resource> sink = Sinks.many().unicast().onBackpressureBuffer();
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
@@ -239,7 +239,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     assertThat(part.headers().getContentLength()).isEqualTo(logo.getFile().length());
   }
 
-  @Test // SPR-16402
+  @Test
   public void singleSubscriberWithStrings() {
     AtomicBoolean subscribed = new AtomicBoolean();
     Flux<String> publisher = Flux.just("foo", "bar", "baz")
@@ -258,7 +258,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     this.response.getBodyAsString().block(Duration.ofSeconds(5));
   }
 
-  @Test  // SPR-16376
+  @Test
   public void customContentDisposition() throws IOException {
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
     Flux<DataBuffer> buffers = DataBufferUtils.read(logo, DefaultDataBufferFactory.sharedInstance, 1024);

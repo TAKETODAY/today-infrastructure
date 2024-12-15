@@ -23,17 +23,13 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * Test suite to investigate claims raised in
- * <a href="https://jira.spring.io/browse/SPR-8849">SPR-8849</a>.
+ *
  *
  * <h3>Work Around</h3>
  * <p>By using a SpEL expression to generate a random {@code database-name}
  * for the embedded database (see {@code datasource-config.xml}), we ensure
  * that each {@code ApplicationContext} that imports the common configuration
  * will create an embedded database with a unique name.
- *
- * <p>To reproduce the problem mentioned in SPR-8849, delete the declaration
- * of the {@code database-name} attribute of the embedded database in
- * {@code datasource-config.xml} and run this <em>suite</em>.
  *
  * <h3>Solution</h3>
  * <p>As of Spring 4.2, a proper solution is possible thanks to SPR-8849.

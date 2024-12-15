@@ -46,8 +46,6 @@ class MockTestExecutionListenerJUnitIntegrationTests {
   private HttpMockRequestImpl mockRequest;
 
   /**
-   * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
-   *
    * @see #ensureMocksAreReinjectedBetweenTests_2
    */
   @Test
@@ -56,8 +54,6 @@ class MockTestExecutionListenerJUnitIntegrationTests {
   }
 
   /**
-   * Verifies bug fix for <a href="https://jira.spring.io/browse/SPR-11626">SPR-11626</a>.
-   *
    * @see #ensureMocksAreReinjectedBetweenTests_1
    */
   @Test

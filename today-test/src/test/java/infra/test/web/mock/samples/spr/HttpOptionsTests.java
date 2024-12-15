@@ -44,8 +44,6 @@ import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for SPR-10093 (support for OPTIONS requests).
- *
  * @author Arnaud Cogoluègnes
  */
 @ExtendWith(InfraExtension.class)

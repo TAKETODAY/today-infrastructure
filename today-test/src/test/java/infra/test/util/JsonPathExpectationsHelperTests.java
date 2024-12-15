@@ -220,13 +220,13 @@ class JsonPathExpectationsHelperTests {
   }
 
   @Test
-    // SPR-16339
+
   void doesNotHaveJsonPath() {
     new JsonPathExpectationsHelper("$.abc").doesNotHaveJsonPath("{}");
   }
 
   @Test
-    // SPR-16339
+
   void doesNotHaveJsonPathWithNull() {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
             new JsonPathExpectationsHelper("$.abc").doesNotHaveJsonPath("{\"abc\": null}"));
@@ -251,13 +251,13 @@ class JsonPathExpectationsHelperTests {
   }
 
   @Test
-    // SPR-14498
+
   void assertValueWithNumberConversion() {
     new JsonPathExpectationsHelper("$.num").assertValue(CONTENT, 5.0);
   }
 
   @Test
-    // SPR-14498
+
   void assertValueWithNumberConversionAndMatcher() {
     new JsonPathExpectationsHelper("$.num").assertValue(CONTENT, is(5.0), Double.class);
   }

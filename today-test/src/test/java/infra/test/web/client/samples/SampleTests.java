@@ -183,7 +183,7 @@ public class SampleTests {
     }
   }
 
-  @Test // SPR-14694
+  @Test
   public void repeatedAccessToResponseViaResource() {
 
     Resource resource = new ClassPathResource("ludwig.json", this.getClass());

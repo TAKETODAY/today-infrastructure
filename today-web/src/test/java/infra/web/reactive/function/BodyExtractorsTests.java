@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.reactive.function;
@@ -61,7 +58,6 @@ import infra.util.MultiValueMap;
 import infra.web.testfixture.http.client.reactive.MockClientHttpResponse;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.util.IllegalReferenceCountException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -69,7 +65,6 @@ import reactor.test.publisher.TestPublisher;
 
 import static infra.http.codec.json.Jackson2CodecSupport.JSON_VIEW_HINT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Arjen Poutsma
@@ -180,7 +175,7 @@ public class BodyExtractorsTests {
             .verify();
   }
 
-  @Test  // SPR-15758
+  @Test
   public void toMonoWithEmptyBodyAndNoContentType() {
     BodyExtractor<Mono<Map<String, String>>, ReactiveHttpInputMessage> extractor =
             BodyExtractors.toMono(new ParameterizedTypeReference<Map<String, String>>() { });
@@ -411,7 +406,7 @@ public class BodyExtractorsTests {
             .verify();
   }
 
-  @Test // SPR-17054
+  @Test
   public void unsupportedMediaTypeShouldConsumeAndCancel() {
     NettyDataBufferFactory factory = new NettyDataBufferFactory(new PooledByteBufAllocator(true));
     NettyDataBuffer buffer = factory.wrap(ByteBuffer.wrap("spring".getBytes(StandardCharsets.UTF_8)));
@@ -430,8 +425,7 @@ public class BodyExtractorsTests {
             .expectErrorSatisfies(throwable -> {
               boolean condition = throwable instanceof UnsupportedMediaTypeException;
               assertThat(condition).isTrue();
-              assertThatExceptionOfType(IllegalReferenceCountException.class).isThrownBy(
-                      buffer::release);
+              assertThat(buffer.release()).isFalse();
               body.assertCancelled();
             }).verify();
   }

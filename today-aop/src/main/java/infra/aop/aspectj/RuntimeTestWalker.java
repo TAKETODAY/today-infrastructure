@@ -222,9 +222,6 @@ class RuntimeTestWalker {
     }
   }
 
-  /**
-   * Check if residue of target(TYPE) kind. See SPR-3783 for more details.
-   */
   private static class TargetInstanceOfResidueTestVisitor extends InstanceOfResidueTestVisitor {
 
     public TargetInstanceOfResidueTestVisitor(Class<?> targetClass) {
@@ -236,9 +233,6 @@ class RuntimeTestWalker {
     }
   }
 
-  /**
-   * Check if residue of this(TYPE) kind. See SPR-2979 for more details.
-   */
   private static class ThisInstanceOfResidueTestVisitor extends InstanceOfResidueTestVisitor {
 
     public ThisInstanceOfResidueTestVisitor(Class<?> thisClass) {

@@ -37,7 +37,7 @@ import infra.context.annotation.Configuration;
  */
 public class ExpressionCachingIntegrationTests {
 
-  @Test  // SPR-11692
+  @Test
   @SuppressWarnings("unchecked")
   public void expressionIsCacheBasedOnActualMethod() {
     ConfigurableApplicationContext context =

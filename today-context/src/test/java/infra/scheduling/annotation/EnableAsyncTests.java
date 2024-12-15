@@ -314,7 +314,7 @@ public class EnableAsyncTests {
     ctx.close();
   }
 
-  @Test  // SPR-14949
+  @Test
   public void findOnInterfaceWithInterfaceProxy() {
     // Arrange
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigA.class);
@@ -330,7 +330,7 @@ public class EnableAsyncTests {
     ctx.close();
   }
 
-  @Test  // SPR-14949
+  @Test
   public void findOnInterfaceWithCglibProxy() {
     // Arrange
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14949ConfigB.class);

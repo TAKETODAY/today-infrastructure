@@ -50,7 +50,7 @@ public class ScopedProxyTests {
   private static final ClassPathResource OVERRIDE_CONTEXT = new ClassPathResource(CLASSNAME + "-override.xml", CLASS);
   private static final ClassPathResource TESTBEAN_CONTEXT = new ClassPathResource(CLASSNAME + "-testbean.xml", CLASS);
 
-  @Test  // SPR-2108
+  @Test  //
   public void testProxyAssignable() throws Exception {
     StandardBeanFactory bf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(MAP_CONTEXT);

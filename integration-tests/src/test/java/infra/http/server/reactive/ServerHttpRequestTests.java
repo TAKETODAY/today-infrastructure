@@ -73,7 +73,7 @@ public class ServerHttpRequestTests {
     assertThat(params.get("a")).isEqualTo(Arrays.asList("1", "2"));
   }
 
-  @Test  // SPR-15140
+  @Test
   public void queryParamsWithEncodedValue() throws Exception {
     MultiValueMap<String, String> params = createRequest("/path?a=%20%2B+%C3%A0").getQueryParams();
     assertThat(params.size()).isEqualTo(1);
@@ -122,7 +122,7 @@ public class ServerHttpRequestTests {
     assertThat(request.getPath().contextPath().value()).isEqualTo("/app");
   }
 
-  @Test  // SPR-16434
+  @Test
   public void mutatePathWithEncodedQueryParams() throws Exception {
     ServerHttpRequest request = createRequest("/path?name=%E6%89%8E%E6%A0%B9");
     request = request.mutate().path("/mutatedPath").build();

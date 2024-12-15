@@ -380,7 +380,6 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
        * ensure that 'this' is correctly checked against. Without this check,
        * we get incorrect match on this(TYPE) where TYPE matches the target
        * type but not 'this' (as would be the case of JDK dynamic proxies).
-       * <p>See SPR-2979 for the original bug.
        */
       if (pmi != null && thisObject != null) {  // there is a current invocation
         RuntimeTestWalker originalMethodResidueTest = getRuntimeTestWalker(getShadowMatch(method, method));

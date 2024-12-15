@@ -539,7 +539,7 @@ public class MBeanExporterTests extends AbstractMBeanServerTests {
   }
 
   @Test
-    // SPR-2158
+    //
   void mbeanIsNotUnregisteredSpuriouslyIfSomeExternalProcessHasUnregisteredMBean() throws Exception {
     exporter.setBeans(getBeanMap());
     exporter.setServer(this.server);
@@ -557,7 +557,7 @@ public class MBeanExporterTests extends AbstractMBeanServerTests {
   }
 
   @Test
-    // SPR-3302
+    //
   void beanNameCanBeUsedInNotificationListenersMap() throws Exception {
     String beanName = "charlesDexterWard";
     BeanDefinitionBuilder testBean = BeanDefinitionBuilder.rootBeanDefinition(JmxTestBean.class);
@@ -598,7 +598,7 @@ public class MBeanExporterTests extends AbstractMBeanServerTests {
   }
 
   @Test
-    // SPR-3625
+    //
   void mbeanIsUnregisteredForRuntimeExceptionDuringInitialization() throws Exception {
     BeanDefinitionBuilder builder1 = BeanDefinitionBuilder.rootBeanDefinition(Person.class);
     BeanDefinitionBuilder builder2 = BeanDefinitionBuilder

@@ -97,7 +97,7 @@ public class ClassPathXmlApplicationContextTests {
     ctx.close();
     assertThat(service.isProperlyDestroyed()).isTrue();
 
-    // re-activating and re-closing the context (SPR-13425)
+    // re-activating and re-closing the context
     ctx.refresh();
     service = (Service) ctx.getBean("service");
     ctx.close();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation;
@@ -26,7 +26,7 @@ import jakarta.annotation.PostConstruct;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests cornering the issue reported in SPR-8080. If the product of a @Bean method
+ * If the product of a @Bean method
  * was @Autowired into a configuration class while at the same time the declaring
  * configuration class for the @Bean method in question has a @PostConstruct
  * (or other initializer) method, the container would become confused about the

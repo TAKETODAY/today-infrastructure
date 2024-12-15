@@ -153,7 +153,6 @@ class ConfigurationClassEnhancer {
   private Class<?> createClass(Enhancer enhancer) {
     Class<?> subclass = enhancer.createClass();
     // Registering callbacks statically (as opposed to thread-local)
-    // is critical for usage in an OSGi environment (SPR-5932)...
     Enhancer.registerStaticCallbacks(subclass, CALLBACKS);
     return subclass;
   }
@@ -313,7 +312,6 @@ class ConfigurationClassEnhancer {
       // First, check to see if the requested bean is a FactoryBean. If so, create a subclass
       // proxy that intercepts calls to getObject() and returns any cached bean instance.
       // This ensures that the semantics of calling a FactoryBean from within @Component methods
-      // is the same as that of referring to a FactoryBean within XML. See SPR-6602.
       if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName)
               && factoryContainsBean(beanFactory, beanName)) {
         Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);

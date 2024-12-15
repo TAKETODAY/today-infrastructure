@@ -110,7 +110,6 @@ public class WebUtilsTests {
     assertThat(checkSameOrigin("http", "mydomain1.example", -1, "invalid-origin")).isFalse();
     assertThat(checkSameOrigin("https", "mydomain1.example", -1, "http://mydomain1.example")).isFalse();
 
-    // Handling of invalid origins as described in SPR-13478
     assertThat(checkSameOrigin("http", "mydomain1.example", -1, "http://mydomain1.example/")).isTrue();
     assertThat(checkSameOrigin("http", "mydomain1.example", -1, "http://mydomain1.example:80/")).isTrue();
     assertThat(checkSameOrigin("http", "mydomain1.example", -1, "http://mydomain1.example/path")).isTrue();
@@ -120,7 +119,6 @@ public class WebUtilsTests {
     assertThat(checkSameOrigin("http", "mydomain2.example", -1, "http://mydomain1.example/path")).isFalse();
     assertThat(checkSameOrigin("http", "mydomain2.example", -1, "http://mydomain1.example:80/path")).isFalse();
 
-    // Handling of IPv6 hosts as described in SPR-13525
     assertThat(checkSameOrigin("http", "[::1]", -1, "http://[::1]")).isTrue();
     assertThat(checkSameOrigin("http", "[::1]", 8080, "http://[::1]:8080")).isTrue();
     assertThat(checkSameOrigin("http",
@@ -134,7 +132,7 @@ public class WebUtilsTests {
             "http://[2001:0db8:0000:85a3:0000:0000:ac1f:8001]:8080")).isFalse();
   }
 
-  @Test  // SPR-16262
+  @Test
   public void isSameOriginWithXForwardedHeaders() throws Exception {
     String server = "mydomain1.example";
     testWithXForwardedHeaders(server, -1, "https", null, -1, "https://mydomain1.example");
@@ -145,7 +143,7 @@ public class WebUtilsTests {
     testWithXForwardedHeaders(server, 123, "https", "mydomain2.example", 456, "https://mydomain2.example:456");
   }
 
-  @Test  // SPR-16262
+  @Test
   public void isSameOriginWithForwardedHeader() throws Exception {
     String server = "mydomain1.example";
     testWithForwardedHeader(server, -1, "proto=https", "https://mydomain1.example");

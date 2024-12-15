@@ -108,7 +108,6 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             singletonList("[{\"id\":1,\"name\":\"Robert\"},{\"id\":2,\"name\":\"Raide\"},{\"id\":3,\"name\":\"Ford\"}]"),
             false);
 
-    // SPR-16166: top-level JSON values
     testTokenize(asList("\"foo", "bar\""), singletonList("\"foobar\""), false);
     testTokenize(asList("12", "34"), singletonList("1234"), false);
     testTokenize(asList("12.", "34"), singletonList("12.34"), false);
@@ -146,7 +145,6 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             ),
             true);
 
-    // SPR-15803: nested array
     testTokenize(
             singletonList("[" +
                     "{\"id\":\"0\",\"start\":[-999999999,1,1],\"end\":[999999999,12,31]}," +
@@ -160,7 +158,6 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             ),
             true);
 
-    // SPR-15803: nested array, no top-level array
     testTokenize(
             singletonList("{\"speakerIds\":[\"tastapod\"],\"language\":\"ENGLISH\"}"),
             singletonList("{\"speakerIds\":[\"tastapod\"],\"language\":\"ENGLISH\"}"), true);
@@ -191,12 +188,12 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             ),
             true);
 
-    // SPR-16166: top-level JSON values
+    // : top-level JSON values
     testTokenize(asList("\"foo", "bar\""), singletonList("\"foobar\""), true);
     testTokenize(asList("12", "34"), singletonList("1234"), true);
     testTokenize(asList("12.", "34"), singletonList("12.34"), true);
 
-    // SPR-16407
+    //
     testTokenize(asList("[1", ",2,", "3]"), asList("1", "2", "3"), true);
   }
 
@@ -309,7 +306,7 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             .verify();
   }
 
-  @Test  // SPR-16521
+  @Test
   public void jsonEOFExceptionIsWrappedAsDecodingError() {
     Flux<DataBuffer> source = Flux.just(stringBuffer("{\"status\": \"noClosingQuote}"));
     Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, false,

@@ -38,8 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Unit tests that verify support for finding multiple composed annotations on
  * a single annotated element.
  *
- * <p>See <a href="https://jira.spring.io/browse/SPR-13486">SPR-13486</a>.
- *
  * @author Sam Brannen
  * @see AnnotatedElementUtils
  * @see AnnotatedElementUtilsTests

@@ -66,7 +66,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     assertThat(this.messageWriter.canWrite(null, MediaType.TEXT_EVENT_STREAM)).isTrue();
     assertThat(this.messageWriter.canWrite(forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
 
-    // SPR-15464
+
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, MediaType.TEXT_EVENT_STREAM)).isTrue();
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, new MediaType("foo", "bar"))).isFalse();
   }
@@ -120,7 +120,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // SPR-16516
+
   void writeStringWithCustomCharset(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -161,7 +161,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // SPR-14899
+
   void writePojoWithPrettyPrint(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -188,7 +188,6 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   }
 
   @ParameterizedDataBufferAllocatingTest
-    // SPR-16516, SPR-16539
   void writePojoWithCustomEncoding(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 

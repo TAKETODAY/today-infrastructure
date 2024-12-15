@@ -65,7 +65,7 @@ public class HtmlUtilsTests {
     assertThat(HtmlUtils.htmlEscapeDecimal("" + (char) 977)).as("The special character 977 should be encoded to '&#977;'").isEqualTo("&#977;");
   }
 
-  // SPR-9293
+  //
   @Test
   public void testEncodeIntoHtmlCharacterSetFromUtf8() {
     String utf8 = ("UTF-8");

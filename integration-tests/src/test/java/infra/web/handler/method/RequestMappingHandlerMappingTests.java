@@ -149,7 +149,7 @@ class RequestMappingHandlerMappingTests {
   }
 
   @Test
-    // SPR-14988
+
   void getMappingOverridesConsumesFromTypeLevelAnnotation() throws Exception {
     RequestMappingInfo requestMappingInfo = assertComposedAnnotationMapping(HttpMethod.POST);
 

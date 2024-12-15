@@ -80,7 +80,6 @@ public class MockServerHttpRequestTests {
   }
 
   @Test
-    // SPR-16414
   void getUriWithQueryParam() throws URISyntaxException {
     mockRequest.setScheme("https");
     mockRequest.setServerPort(443);
@@ -91,7 +90,6 @@ public class MockServerHttpRequestTests {
   }
 
   @Test
-    // SPR-16414
   void getUriWithMalformedQueryParam() throws URISyntaxException {
     mockRequest.setScheme("https");
     mockRequest.setServerPort(443);
@@ -102,7 +100,6 @@ public class MockServerHttpRequestTests {
   }
 
   @Test
-    // SPR-13876
   void getUriWithEncoding() throws URISyntaxException {
     URI uri = new URI("https://example.com/%E4%B8%AD%E6%96%87" +
             "?redirect=https%3A%2F%2Fgithub.com%2Fspring-projects%2Fspring-framework");
@@ -173,7 +170,6 @@ public class MockServerHttpRequestTests {
 
   @Test
   void getFormBody() throws IOException {
-    // Charset (SPR-8676)
     mockRequest.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
     mockRequest.setMethod("POST");
     mockRequest.addParameter("name 1", "value 1");

@@ -75,7 +75,7 @@ public class ServerHttpResponseTests {
   }
 
   @Test
-    // SPR-14952
+    //
   void writeAndFlushWithFluxOfDefaultDataBuffer() {
     TestServerHttpResponse response = new TestServerHttpResponse();
     Flux<Flux<DefaultDataBuffer>> flux = Flux.just(Flux.just(wrap("foo")));

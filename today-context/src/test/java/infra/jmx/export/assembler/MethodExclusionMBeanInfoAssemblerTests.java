@@ -74,9 +74,6 @@ public class MethodExclusionMBeanInfoAssemblerTests extends AbstractJmxAssembler
     assertThat(attr.isWritable()).isFalse();
   }
 
-  /*
-   * https://opensource.atlassian.com/projects/spring/browse/SPR-2754
-   */
   @Test
   public void testIsNotIgnoredDoesntIgnoreUnspecifiedBeanMethods() throws Exception {
     final String beanKey = "myTestBean";

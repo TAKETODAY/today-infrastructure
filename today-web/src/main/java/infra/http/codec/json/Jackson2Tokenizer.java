@@ -137,7 +137,6 @@ final class Jackson2Tokenizer {
   }
 
   private void parseTokens(ArrayList<TokenBuffer> tokens) throws IOException {
-    // SPR-16151: Smile data format uses null to separate documents
     boolean previousNull = false;
     while (!this.parser.isClosed()) {
       JsonToken token = this.parser.nextToken();

@@ -98,7 +98,7 @@ public class ClientCodecConfigurerTests {
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageReader.class);
     assertStringDecoder(getNextDecoder(readers), true);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ProtobufDecoder.class);
-    // SPR-16804
+    //
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(FormHttpMessageReader.class);
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(DefaultPartHttpMessageReader.class);
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(MultipartHttpMessageReader.class);

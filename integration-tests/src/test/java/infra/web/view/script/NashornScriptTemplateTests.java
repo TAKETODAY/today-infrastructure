@@ -68,7 +68,7 @@ public class NashornScriptTemplateTests {
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
-  @Test  // SPR-13453
+  @Test
   public void renderTemplateWithUrl() throws Exception {
     String url = "infra/web/mock/view/script/nashorn/template.html";
     MockHttpResponseImpl response = render(url, null, ScriptTemplatingWithUrlConfiguration.class);

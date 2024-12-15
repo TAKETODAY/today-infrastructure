@@ -184,7 +184,7 @@ class HttpMessageConverterExtractorTests {
   }
 
   @Test
-    // SPR-13592
+    //
   void converterThrowsIOException() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
@@ -198,7 +198,7 @@ class HttpMessageConverterExtractorTests {
   }
 
   @Test
-    // SPR-13592
+    //
   void converterThrowsHttpMessageNotReadableException() throws IOException {
     responseHeaders.setContentType(contentType);
     given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());

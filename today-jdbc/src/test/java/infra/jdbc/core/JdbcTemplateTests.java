@@ -1094,7 +1094,7 @@ public class JdbcTemplateTests {
     verify(this.connection).close();
   }
 
-  @Test  // SPR-16578
+  @Test
   public void testEquallyNamedColumn() throws SQLException {
     given(this.connection.createStatement()).willReturn(this.statement);
 

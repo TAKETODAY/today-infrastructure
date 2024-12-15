@@ -484,7 +484,7 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-    // SPR-15946
+    //
   void retrieve404(ClientHttpConnector connector) {
     startServer(connector);
 

@@ -128,7 +128,7 @@ public class ResourceHttpRequestHandlerTests {
     }
 
     @Test
-      // SPR-13658
+
     void getResourceWithRegisteredMediaType() throws Throwable {
       ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
       factory.addMediaType("bar", new MediaType("foo", "bar"));

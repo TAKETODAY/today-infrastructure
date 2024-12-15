@@ -140,7 +140,7 @@ public abstract class AbstractErrors implements Errors, Serializable {
     if (field.equals(fieldError.getField())) {
       return true;
     }
-    // Optimization: use charAt and regionMatches instead of endsWith and startsWith (SPR-11304)
+    // Optimization: use charAt and regionMatches instead of endsWith and startsWith
     int endIndex = field.length() - 1;
     return (endIndex >= 0 && field.charAt(endIndex) == '*'
             && (endIndex == 0 || field.regionMatches(0, fieldError.getField(), 0, endIndex)));

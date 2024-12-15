@@ -156,7 +156,7 @@ public class GenericTypeResolverTests {
   }
 
   @Test
-    // SPR-11044
+
   void getGenericsOnArrayFromReturnCannotBeResolved() throws Exception {
     Class<?> resolved = GenericTypeResolver.resolveReturnType(
             WithArrayBase.class.getDeclaredMethod("array", Object[].class), WithArray.class);
@@ -164,7 +164,7 @@ public class GenericTypeResolverTests {
   }
 
   @Test
-    // SPR-11763
+
   void resolveIncompleteTypeVariables() {
     Class<?>[] resolved = GenericTypeResolver.resolveTypeArguments(IdFixingRepository.class, Repository.class);
     assertThat(resolved).isNotNull();

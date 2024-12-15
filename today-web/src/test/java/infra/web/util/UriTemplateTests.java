@@ -76,7 +76,7 @@ public class UriTemplateTests {
   }
 
   @Test
-    // SPR-9712
+    //
   void expandVarArgsWithArrayValue() {
     UriTemplate template = new UriTemplate("/sum?numbers={numbers}");
     URI result = template.expand(new int[] { 1, 2, 3 });
@@ -186,7 +186,7 @@ public class UriTemplateTests {
   }
 
   @Test
-    // SPR-13627
+    //
   void matchCustomRegexWithNestedCurlyBraces() {
     UriTemplate template = new UriTemplate("/site.{domain:co.[a-z]{2}}");
     Map<String, String> result = template.match("/site.co.eu");
@@ -209,7 +209,7 @@ public class UriTemplateTests {
   }
 
   @Test
-    // SPR-16169
+    //
   void matchWithMultipleSegmentsAtTheEnd() {
     UriTemplate template = new UriTemplate("/account/{accountId}");
     assertThat(template.matches("/account/15/alias/5")).isFalse();
@@ -231,7 +231,7 @@ public class UriTemplateTests {
   }
 
   @Test
-    // SPR-13705
+    //
   void matchesWithSlashAtTheEnd() {
     assertThat(new UriTemplate("/test/").matches("/test/")).isTrue();
   }

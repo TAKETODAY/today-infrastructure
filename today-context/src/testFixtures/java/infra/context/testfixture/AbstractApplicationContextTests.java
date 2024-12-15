@@ -162,7 +162,6 @@ public abstract class AbstractApplicationContextTests extends AbstractBeanFactor
 
   @Test
   public void eventsWithNoSource() throws Exception {
-    // See SPR-10945 Serialized events result in a null source
     MyEvent event = new MyEvent(this);
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(bos);

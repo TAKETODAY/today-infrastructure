@@ -74,7 +74,7 @@ class UriComponentsTests {
   }
 
   @Test
-    // SPR-17168
+    //
   void encodeAndExpandWithDollarSign() {
     UriComponents uri = UriComponentsBuilder.fromPath("/path").queryParam("q", "{value}").encode().build();
     assertThat(uri.expand("JavaClass$1.class").toString()).isEqualTo("/path?q=JavaClass%241.class");
@@ -128,7 +128,7 @@ class UriComponentsTests {
     assertThat(uri.toUriString()).isEqualTo("https://example.com/1 2 3 4");
   }
 
-  @ParameterizedTest // SPR-13311
+  @ParameterizedTest //
   @EnumSource(value = ParserType.class)
   void expandWithRegexVar(ParserType parserType) {
     String template = "/myurl/{name:[a-z]{1,5}}/show";
@@ -138,7 +138,7 @@ class UriComponentsTests {
     assertThat(uri.getPath()).isEqualTo("/myurl/test/show");
   }
 
-  @ParameterizedTest // SPR-17630
+  @ParameterizedTest //
   @EnumSource(value = ParserType.class)
   void uirTemplateExpandWithMismatchedCurlyBraces(ParserType parserType) {
     UriComponents uri = UriComponentsBuilder.fromUriString("/myurl/?q={{{{", parserType).encode().build();
@@ -155,7 +155,7 @@ class UriComponentsTests {
     assertThat(uri.toUriString()).isEqualTo("https://example.com/foo#bar");
   }
 
-  @ParameterizedTest // SPR-12123
+  @ParameterizedTest //
   @EnumSource(value = ParserType.class)
   void port(ParserType parserType) {
     UriComponents uri1 = fromUriString("https://example.com:8080/bar", parserType).build();

@@ -46,8 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MergedAnnotationsComposedOnSingleAnnotatedElementTests {
 
-  // See SPR-13486
-
   @Test
   void inheritedStrategyMultipleComposedAnnotationsOnClass() {
     assertInheritedStrategyBehavior(MultipleComposedCachesClass.class);

@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Unit tests that verify support for getting and finding all composed, repeatable
  * annotations on a single annotated element.
  *
- * <p>See <a href="https://jira.spring.io/browse/SPR-13973">SPR-13973</a>.
  *
  * @author Sam Brannen
  * @see AnnotatedElementUtils#getMergedRepeatableAnnotations

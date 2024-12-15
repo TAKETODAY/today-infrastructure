@@ -128,7 +128,7 @@ public class RedirectViewTests {
     assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
-  @Test // SPR-16752
+  @Test
   public void contextRelativeWithValidatedContextPath() throws Exception {
     String url = "/myUrl";
 

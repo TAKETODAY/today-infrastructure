@@ -161,12 +161,12 @@ public class HeaderAssertionTests {
             this.mockMvc.perform(get("/persons/1")).andExpect(header().exists("X-Custom-Header")));
   }
 
-  @Test  // SPR-10771
+  @Test
   public void doesNotExist() throws Exception {
     this.mockMvc.perform(get("/persons/1")).andExpect(header().doesNotExist("X-Custom-Header"));
   }
 
-  @Test // SPR-10771
+  @Test
   public void doesNotExistFail() throws Exception {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
             this.mockMvc.perform(get("/persons/1")).andExpect(header().doesNotExist(LAST_MODIFIED)));
@@ -202,7 +202,7 @@ public class HeaderAssertionTests {
       if (ERROR_MESSAGE.equals(err.getMessage())) {
         throw err;
       }
-      // SPR-10659: ensure header name is in the message
+      : ensure header name is in the message
       // Unfortunately, we can't control formatting from JUnit or Hamcrest.
       assertMessageContains(err, "Response header '" + LAST_MODIFIED + "'");
       assertMessageContains(err, expected);

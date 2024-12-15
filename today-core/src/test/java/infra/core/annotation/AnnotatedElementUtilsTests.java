@@ -376,7 +376,6 @@ class AnnotatedElementUtilsTests {
   /**
    * This test should never pass, simply because does not support a hybrid
    * approach for annotation attribute overrides with transitive implicit aliases.
-   * See SPR-13554 for details.
    * <p>Furthermore, if you choose to execute this test, it can fail for either
    * the first test class or the second one (with different exceptions), depending
    * on the order in which the JVM returns the attribute methods via reflection.
@@ -868,7 +867,7 @@ class AnnotatedElementUtilsTests {
   }
 
   @Test
-    // SPR-16060
+
   void findMethodAnnotationFromGenericInterface() throws Exception {
     Method method = AnnotationUtilsTests.ImplementsInterfaceWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findMergedAnnotation(method, Order.class);
@@ -876,7 +875,7 @@ class AnnotatedElementUtilsTests {
   }
 
   @Test
-    // SPR-17146
+
   void findMethodAnnotationFromGenericSuperclass() throws Exception {
     Method method = AnnotationUtilsTests.ExtendsBaseClassWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findMergedAnnotation(method, Order.class);
@@ -1088,7 +1087,7 @@ class AnnotatedElementUtilsTests {
 
   /**
    * This hybrid approach for annotation attribute overrides with transitive implicit
-   * aliases is unsupported. See SPR-13554 for details.
+   * aliases is unsupported.
    */
   @ContextConfig
   @Retention(RetentionPolicy.RUNTIME)
@@ -1130,7 +1129,7 @@ class AnnotatedElementUtilsTests {
     @AliasFor(annotation = ContextConfig.class)
     String[] locations() default {};
 
-    // intentionally omitted: attribute = "locations" (SPR-14069)
+    // intentionally omitted: attribute = "locations"
     @AliasFor(annotation = ContextConfig.class)
     String[] value() default {};
   }

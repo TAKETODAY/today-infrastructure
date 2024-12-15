@@ -22,10 +22,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * JUnit 4 based test suite for functionality proposed in <a
- * href="https://opensource.atlassian.com/projects/spring/browse/SPR-3896"
- * target="_blank">SPR-3896</a>.
- *
  * @author Sam Brannen
  * @since 4.0
  */

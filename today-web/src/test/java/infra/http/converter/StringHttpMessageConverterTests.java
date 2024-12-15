@@ -147,7 +147,7 @@ public class StringHttpMessageConverterTests {
   }
 
   @Test
-    // SPR-8867
+    //
   void writeOverrideRequestedContentType() throws IOException {
     String body = "H\u00e9llo W\u00f6rld";
     MediaType requestedContentType = new MediaType("text", "html");

@@ -118,7 +118,7 @@ public class ResponseEntityTests {
     assertThat(responseEntity.getBody()).isNull();
   }
 
-  @Test // SPR-14939
+  @Test
   public void acceptedNoBodyWithAlternativeBodyType() throws URISyntaxException {
     ResponseEntity<String> responseEntity = ResponseEntity.accepted().build();
 

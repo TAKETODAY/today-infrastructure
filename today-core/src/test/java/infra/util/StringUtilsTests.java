@@ -744,7 +744,7 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-8637
+    //
   void parseLocaleWithMultiSpecialCharactersInVariant() {
     String variant = "proper-northern";
     String localeString = "en_GB_" + variant;
@@ -753,7 +753,7 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-3671
+    //
   void parseLocaleWithMultiValuedVariant() {
     String variant = "proper_northern";
     String localeString = "en_GB_" + variant;
@@ -762,7 +762,7 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-3671
+    //
   void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparators() {
     String variant = "proper northern";
     String localeString = "en GB " + variant;
@@ -771,7 +771,7 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-3671
+    //
   void parseLocaleWithMultiValuedVariantUsingMixtureOfUnderscoresAndSpacesAsSeparators() {
     String variant = "proper northern";
     String localeString = "en_GB_" + variant;
@@ -780,21 +780,21 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-7779
+    //
   void parseLocaleWithInvalidCharacters() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> StringUtils.parseLocaleString("%0D%0AContent-length:30%0D%0A%0D%0A%3Cscript%3Ealert%28123%29%3C/script%3E"));
   }
 
   @Test
-    // SPR-9420
+    //
   void parseLocaleWithSameLowercaseTokenForLanguageAndCountry() {
     assertThat(StringUtils.parseLocaleString("tr_tr").toString()).isEqualTo("tr_TR");
     assertThat(StringUtils.parseLocaleString("bg_bg_vnt").toString()).isEqualTo("bg_BG_vnt");
   }
 
   @Test
-    // SPR-11806
+
   void parseLocaleWithVariantContainingCountryCode() {
     String variant = "GBtest";
     String localeString = "en_GB_" + variant;
@@ -803,13 +803,12 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-14718, SPR-7598
   void parseJava7Variant() {
     assertThat(StringUtils.parseLocaleString("sr__#LATN").toString()).isEqualTo("sr__#LATN");
   }
 
   @Test
-    // SPR-16651
+
   void availableLocalesWithLocaleString() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocaleString(locale.toString());
@@ -823,7 +822,7 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-16651
+
   void availableLocalesWithLanguageTag() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocale(locale.toLanguageTag());

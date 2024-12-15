@@ -64,7 +64,7 @@ class DefaultAliasRegistryTests {
   }
 
   @Test
-    // SPR-17191
+
   void aliasChainingWithMultipleAliases() {
     registerAlias(NAME1, ALIAS1);
     registerAlias(NAME1, ALIAS2);

@@ -533,7 +533,7 @@ class EvaluationTests extends AbstractExpressionTests {
     }
 
     @Test
-      // SPR-16731
+
     void matchesWithPatternAccessThreshold() {
       String pattern = "^(?=[a-z0-9-]{1,47})([a-z0-9]+[-]{0,1}){1,47}[a-z0-9]{1}$";
       String expression = "'abcde-fghijklmn-o42pasdfasdfasdf.qrstuvwxyz10x.xx.yyy.zasdfasfd' matches '" + pattern + "'";

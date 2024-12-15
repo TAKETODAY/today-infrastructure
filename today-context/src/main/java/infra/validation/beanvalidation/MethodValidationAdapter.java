@@ -246,7 +246,6 @@ public class MethodValidationAdapter implements MethodValidator {
       violations = execVal.validateParameters(target, method, arguments, groups);
     }
     catch (IllegalArgumentException ex) {
-      // Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
       // Let's try to find the bridged method on the implementation class...
       Method bridgedMethod = BridgeMethodResolver.getMostSpecificMethod(method, target.getClass());
       violations = execVal.validateParameters(target, bridgedMethod, arguments, groups);

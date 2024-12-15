@@ -137,7 +137,7 @@ public class AspectProxyFactoryTests {
     assertThatIllegalArgumentException().isThrownBy(() -> pf.addAspect(new PerThisAspect()));
   }
 
-  @Test  // SPR-13328
+  @Test
   public void testProxiedVarargsWithEnumArray() throws Exception {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     proxyFactory.addAspect(LoggingAspectOnVarargs.class);
@@ -145,7 +145,7 @@ public class AspectProxyFactoryTests {
     assertThat(proxy.doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
   }
 
-  @Test  // SPR-13328
+  @Test
   public void testUnproxiedVarargsWithEnumArray() throws Exception {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     proxyFactory.addAspect(LoggingAspectOnSetter.class);

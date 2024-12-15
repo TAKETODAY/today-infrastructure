@@ -83,7 +83,7 @@ public class HtmlCharacterEntityReferencesTests {
             .isEqualTo((char) -1);
   }
 
-  // SPR-9293
+  //
   @Test
   public void testConvertToReferenceUTF8() {
     HtmlCharacterEntityReferences entityReferences = new HtmlCharacterEntityReferences();

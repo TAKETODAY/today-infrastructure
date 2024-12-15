@@ -250,7 +250,7 @@ public class CollectionUtilsTests {
   }
 
   @Test
-    // SPR-17619
+
   void createsEnumSetSubclass() {
     EnumSet<Color> enumSet = EnumSet.noneOf(Color.class);
     assertThat(createCollection(enumSet.getClass(), Color.class, 0)).isInstanceOf(enumSet.getClass());

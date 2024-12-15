@@ -52,7 +52,7 @@ public class ParamsRequestConditionTests {
   }
 
   @Test
-    // SPR-15831
+
   void paramPresentNullValue() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("foo", (String) null);
@@ -107,7 +107,7 @@ public class ParamsRequestConditionTests {
   }
 
   @Test
-    // SPR-16674
+
   void compareToWithMoreSpecificMatchByValue() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
 

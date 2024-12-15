@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation.spr10546;
@@ -41,15 +41,13 @@ public class Spr10546Tests {
     }
   }
 
-  // These fail prior to fixing SPR-10546
-
   @Test
   public void enclosingConfigFirstParentDefinesBean() {
     assertLoadsMyBean(AEnclosingConfig.class, AEnclosingConfig.ChildConfig.class);
   }
 
   /**
-   * Prior to fixing SPR-10546 this might have succeeded depending on the ordering the
+   * this might have succeeded depending on the ordering the
    * classes were picked up. If they are picked up in the same order as
    * {@link #enclosingConfigFirstParentDefinesBean()} then it would fail. This test is
    * mostly for illustration purposes, but doesn't hurt to continue using it.

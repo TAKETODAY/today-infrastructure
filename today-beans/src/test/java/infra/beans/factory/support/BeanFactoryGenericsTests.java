@@ -586,7 +586,6 @@ class BeanFactoryGenericsTests {
    * public static <T> T mock(Class<T> classToMock)
    * }
    * </pre>
-   * <p>See SPR-9493
    */
   @Test
   void parameterizedStaticFactoryMethod() {
@@ -627,7 +626,6 @@ class BeanFactoryGenericsTests {
    * public <T> T createMock(Class<T> toMock)
    * }
    * </pre>
-   * <p>See SPR-10411
    */
   @Test
   void parameterizedInstanceFactoryMethod() {
@@ -714,7 +712,7 @@ class BeanFactoryGenericsTests {
   }
 
   @Test
-    // SPR-16720
+
   void parameterizedInstanceFactoryMethodWithTempClassLoader() {
     StandardBeanFactory bf = new StandardBeanFactory();
     bf.setTempClassLoader(new OverridingClassLoader(getClass().getClassLoader()));

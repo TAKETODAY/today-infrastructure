@@ -170,7 +170,7 @@ class RestTemplateTests {
   }
 
   @Test
-    // SPR-15201
+    //
   void uriTemplateWithTrailingSlash() throws Exception {
     String url = "https://example.com/spring/";
     mockSentRequest(GET, url);
@@ -605,7 +605,6 @@ class RestTemplateTests {
   }
 
   @Test
-    // SPR-9325, SPR-13860
   void ioException() throws Exception {
     String url = "https://example.com/resource?access_token=123";
     mockSentRequest(GET, url);
@@ -619,7 +618,7 @@ class RestTemplateTests {
   }
 
   @Test
-    // SPR-15900
+    //
   void ioExceptionWithEmptyQueryString() throws Exception {
     // https://example.com/resource?
     URI uri = new URI("https", "example.com", "/resource", "", null);
@@ -694,7 +693,7 @@ class RestTemplateTests {
   }
 
   @Test
-    // SPR-15066
+    //
   void requestInterceptorCanAddExistingHeaderValueWithoutBody() throws Exception {
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");
@@ -716,7 +715,7 @@ class RestTemplateTests {
   }
 
   @Test
-    // SPR-15066
+    //
   void requestInterceptorCanAddExistingHeaderValueWithBody() throws Exception {
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
       request.getHeaders().add("MyHeader", "MyInterceptorValue");

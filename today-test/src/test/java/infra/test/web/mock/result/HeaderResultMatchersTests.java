@@ -42,7 +42,7 @@ public class HeaderResultMatchersTests {
   private final MvcResult mvcResult =
           new StubMvcResult(new HttpMockRequestImpl(), null, null, null, null, null, this.response);
 
-  @Test // SPR-17330
+  @Test
   public void matchDateFormattedWithHttpHeaders() throws Exception {
 
     long epochMilli = ZonedDateTime.of(2018, 10, 5, 0, 0, 0, 0, ZoneId.of("GMT")).toInstant().toEpochMilli();

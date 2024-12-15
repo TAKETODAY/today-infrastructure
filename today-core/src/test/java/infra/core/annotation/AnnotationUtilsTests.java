@@ -198,7 +198,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-    // SPR-16060
+
   void findMethodAnnotationFromGenericInterface() throws Exception {
     Method method = ImplementsInterfaceWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findAnnotation(method, Order.class);
@@ -206,7 +206,7 @@ class AnnotationUtilsTests {
   }
 
   @Test
-    // SPR-17146
+
   void findMethodAnnotationFromGenericSuperclass() throws Exception {
     Method method = ExtendsBaseClassWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     Order order = findAnnotation(method, Order.class);
@@ -586,7 +586,7 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getRepeatableAnnotations(MyRepeatableClass.class, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
@@ -611,7 +611,7 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
@@ -636,7 +636,7 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
@@ -661,7 +661,7 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     values = set.stream().map(MyRepeatable::value).collect(toList());
@@ -685,7 +685,7 @@ class AnnotationUtilsTests {
     List<String> values = stream(array).map(MyRepeatable::value).collect(toList());
     assertThat(values).isEqualTo(expectedValuesJava);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getDeclaredRepeatableAnnotations(
             MyRepeatableClass.class, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
@@ -708,7 +708,7 @@ class AnnotationUtilsTests {
     assertThat(array).isNotNull();
     assertThat(array.length).isEqualTo(0);
 
-    // Spring
+    //
     Set<MyRepeatable> set = getDeclaredRepeatableAnnotations(clazz, MyRepeatable.class, MyRepeatableContainer.class);
     assertThat(set).isNotNull();
     assertThat(set).hasSize(0);

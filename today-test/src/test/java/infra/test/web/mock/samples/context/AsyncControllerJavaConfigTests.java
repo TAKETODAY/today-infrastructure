@@ -79,7 +79,7 @@ public class AsyncControllerJavaConfigTests {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
   }
 
-  // SPR-13615
+
 
   @Test
   public void callableInterceptor() throws Exception {

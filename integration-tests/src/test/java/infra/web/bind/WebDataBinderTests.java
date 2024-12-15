@@ -143,7 +143,6 @@ public class WebDataBinderTests {
     assertThat(target.isPostProcessed()).isFalse();
   }
 
-  // SPR-13502
   @Test
   public void testCollectionFieldsDefault() throws Exception {
     TestBean target = new TestBean();

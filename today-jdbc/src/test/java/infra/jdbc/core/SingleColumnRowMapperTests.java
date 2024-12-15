@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
  */
 public class SingleColumnRowMapperTests {
 
-  @Test  // SPR-16483
+  @Test
   public void useDefaultConversionService() throws SQLException {
     Timestamp timestamp = new Timestamp(0);
 
@@ -60,7 +60,7 @@ public class SingleColumnRowMapperTests {
     assertThat(actualLocalDateTime).isEqualTo(timestamp.toLocalDateTime());
   }
 
-  @Test  // SPR-16483
+  @Test
   public void useCustomConversionService() throws SQLException {
     Timestamp timestamp = new Timestamp(0);
 
@@ -84,7 +84,7 @@ public class SingleColumnRowMapperTests {
     assertThat(actualMyLocalDateTime.value).isEqualTo(timestamp.toLocalDateTime());
   }
 
-  @Test // SPR-16483
+  @Test
   public void doesNotUseConversionService() throws SQLException {
     SingleColumnRowMapper<LocalDateTime> rowMapper =
             SingleColumnRowMapper.newInstance(LocalDateTime.class, null);

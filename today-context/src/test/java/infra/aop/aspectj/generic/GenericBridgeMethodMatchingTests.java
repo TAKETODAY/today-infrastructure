@@ -35,8 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>This class focuses on JDK proxy, while a subclass, GenericBridgeMethodMatchingClassProxyTests,
  * focuses on class proxying.
  *
- * See SPR-3556 for more details.
- *
  * @author Ramnivas Laddad
  * @author Chris Beams
  */

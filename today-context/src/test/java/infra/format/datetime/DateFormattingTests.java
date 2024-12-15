@@ -265,7 +265,7 @@ class DateFormattingTests {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test  // SPR-10105
+  @Test
   @SuppressWarnings("deprecation")
   void stringToDateWithoutGlobalFormat() {
     String string = "Sat, 12 Aug 1995 13:30:00 GM";
@@ -274,7 +274,7 @@ class DateFormattingTests {
   }
 
   @Test
-    // SPR-10105
+
   void stringToDateWithGlobalFormat() {
     DateFormatterRegistrar registrar = new DateFormatterRegistrar();
     DateFormatter dateFormatter = new DateFormatter();

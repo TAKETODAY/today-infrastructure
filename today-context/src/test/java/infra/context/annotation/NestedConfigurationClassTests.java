@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests ensuring that nested static @Configuration classes are automatically detected
- * and registered without the need for explicit registration or @Import. See SPR-8186.
+ * and registered without the need for explicit registration or @Import.
  *
  * @author Chris Beams
  * @author Juergen Hoeller

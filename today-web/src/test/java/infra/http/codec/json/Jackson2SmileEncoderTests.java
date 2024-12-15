@@ -68,7 +68,7 @@ public class Jackson2SmileEncoderTests extends AbstractEncoderTests<Jackson2Smil
     assertThat(this.encoder.canEncode(pojoType, STREAM_SMILE_MIME_TYPE)).isTrue();
     assertThat(this.encoder.canEncode(pojoType, null)).isTrue();
 
-    // SPR-15464
+    //
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isTrue();
   }
 

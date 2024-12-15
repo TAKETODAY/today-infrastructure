@@ -22,8 +22,6 @@ import org.junit.Test;
 import infra.test.context.junit4.JUnitTestingUtils;
 
 /**
- * Introduced to investigate claims in SPR-11145.
- *
  * <p>Yes, this test class does in fact use JUnit to run JUnit. ;)
  *
  * @author Sam Brannen

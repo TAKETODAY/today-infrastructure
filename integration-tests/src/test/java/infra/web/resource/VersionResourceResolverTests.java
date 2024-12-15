@@ -173,7 +173,7 @@ public class VersionResourceResolverTests {
     assertThat(this.resolver.getStrategyForPath("bar/foo.js")).isEqualTo(jsStrategy);
   }
 
-  // SPR-13883
+
   @Test
   public void shouldConfigureFixedPrefixAutomatically() throws Exception {
 
@@ -186,7 +186,7 @@ public class VersionResourceResolverTests {
     assertThat(this.resolver.getStrategyForPath("fixedversion/css/something.css")).isInstanceOf(FixedVersionStrategy.class);
   }
 
-  @Test // SPR-15372
+  @Test
   public void resolveUrlPathNoVersionStrategy() throws Exception {
     given(this.chain.resolveUrlPath("/foo.css", this.locations)).willReturn("/foo.css");
     String resolved = this.resolver.resolveUrlPathInternal("/foo.css", this.locations, this.chain);

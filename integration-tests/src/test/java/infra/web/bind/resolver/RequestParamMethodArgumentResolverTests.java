@@ -281,7 +281,7 @@ class RequestParamMethodArgumentResolverTests {
             resolver.resolveArgument(webRequest, param));
   }
 
-  @Test  // SPR-9079
+  @Test
   public void isMultipartRequestHttpPut() throws Throwable {
     MockMultipartHttpMockRequest request = new MockMultipartHttpMockRequest();
     MultipartFile expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
@@ -334,7 +334,7 @@ class RequestParamMethodArgumentResolverTests {
             resolver.resolveArgument(webRequest, param));
   }
 
-  @Test  // SPR-10578
+  @Test
   public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
     WebDataBinder binder = new WebDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -422,7 +422,7 @@ class RequestParamMethodArgumentResolverTests {
     assertThat(result).isEqualTo("plainValue");
   }
 
-  @Test  // SPR-8561
+  @Test
   public void resolveSimpleTypeParamToNull() throws Throwable {
     ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
     assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
@@ -430,7 +430,7 @@ class RequestParamMethodArgumentResolverTests {
             .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is not present");
   }
 
-  @Test  // SPR-10180
+  @Test
   public void resolveEmptyValueToDefault() throws Throwable {
     request.addParameter("name", "");
     ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);

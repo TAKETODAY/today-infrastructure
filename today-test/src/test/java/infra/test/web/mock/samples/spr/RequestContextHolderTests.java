@@ -58,13 +58,6 @@ import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for the following use cases.
- * <ul>
- * <li>SPR-10025: Access to request attributes via RequestContextHolder</li>
- * <li>SPR-13217: Populate RequestContext before invoking Filters in MockMvc</li>
- * <li>SPR-13260: No reuse of mock requests</li>
- * </ul>
- *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @see CustomRequestAttributesRequestContextHolderTests

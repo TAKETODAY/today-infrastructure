@@ -48,7 +48,7 @@ class ModelMapTests {
   }
 
   /*
-   * SPR-2185 - Null model assertion causes backwards compatibility issue
+   * Null model assertion causes backwards compatibility issue
    */
   @Test
   public void testAddNullObjectWithExplicitKey() throws Exception {
@@ -59,7 +59,7 @@ class ModelMapTests {
   }
 
   /*
-   * SPR-2185 - Null model assertion causes backwards compatibility issue
+   * Null model assertion causes backwards compatibility issue
    */
   @Test
   public void testAddNullObjectViaCtorWithExplicitKey() throws Exception {

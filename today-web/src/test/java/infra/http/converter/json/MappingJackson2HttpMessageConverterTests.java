@@ -107,7 +107,7 @@ public class MappingJackson2HttpMessageConverterTests {
     assertThat(converter.canWrite(MyBean.class, new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isFalse();
   }
 
-  @Test  // SPR-7905
+  @Test  //
   public void canReadAndWriteMicroformats() {
     assertThat(converter.canRead(MyBean.class, new MediaType("application", "vnd.test-micro-type+json"))).isTrue();
     assertThat(converter.canWrite(MyBean.class, new MediaType("application", "vnd.test-micro-type+json"))).isTrue();
@@ -457,7 +457,7 @@ public class MappingJackson2HttpMessageConverterTests {
     assertThat(result).doesNotContain("\"property2\":\"value\"");
   }
 
-  @Test  // SPR-13318
+  @Test
   public void writeSubType() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     MyBean bean = new MyBean();
@@ -471,7 +471,7 @@ public class MappingJackson2HttpMessageConverterTests {
     assertThat(result.contains("\"number\":42")).isTrue();
   }
 
-  @Test  // SPR-13318
+  @Test
   public void writeSubTypeList() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     List<MyBean> beans = new ArrayList<>();

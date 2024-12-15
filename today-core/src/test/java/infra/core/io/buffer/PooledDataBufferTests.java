@@ -24,7 +24,6 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Arjen Poutsma
@@ -91,8 +90,8 @@ class PooledDataBufferTests {
       DataBuffer buffer = createDataBuffer(1);
       buffer.write((byte) 'a');
 
-      buffer.release();
-      assertThatIllegalStateException().isThrownBy(buffer::release);
+      assertThat(buffer.release()).isTrue();
+      assertThat(buffer.release()).isFalse();
     }
 
   }

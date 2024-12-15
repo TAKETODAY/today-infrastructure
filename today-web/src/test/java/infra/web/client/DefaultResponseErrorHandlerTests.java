@@ -175,7 +175,7 @@ public class DefaultResponseErrorHandlerTests {
             handler.handleError(mockRequest(), response));
   }
 
-  @Test  // SPR-17461
+  @Test
   public void hasErrorForCustomClientError() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
@@ -215,7 +215,7 @@ public class DefaultResponseErrorHandlerTests {
     assertThat(actualHttpClientErrorException.getResponseBodyAsString()).isEqualTo(responseBody);
   }
 
-  @Test  // SPR-17461
+  @Test
   public void hasErrorForCustomServerError() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
@@ -255,7 +255,7 @@ public class DefaultResponseErrorHandlerTests {
     assertThat(actualHttpServerErrorException.getResponseBodyAsString()).isEqualTo(responseBody);
   }
 
-  @Test  // SPR-16604
+  @Test
   public void bodyAvailableAfterHasErrorForUnknownStatusCode() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);

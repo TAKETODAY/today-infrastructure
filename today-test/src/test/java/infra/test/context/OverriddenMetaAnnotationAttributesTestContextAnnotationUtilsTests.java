@@ -32,8 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Unit tests for {@link TestContextAnnotationUtils} that verify support for
  * overridden meta-annotation attributes.
  *
- * <p>See <a href="https://jira.spring.io/browse/SPR-10181">SPR-10181</a>.
- *
  * @author Sam Brannen
  * @see TestContextAnnotationUtilsTests
  */

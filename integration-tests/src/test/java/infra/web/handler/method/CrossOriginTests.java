@@ -121,7 +121,7 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-    // SPR-12931
+
   void noAnnotationWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
     this.request.setRequestURI("/no");
@@ -130,7 +130,7 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-    // SPR-12931
+
   void noAnnotationPostWithOrigin(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelController());
     this.request.setMethod("POST");
@@ -268,7 +268,7 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-    // SPR-13468
+
   void classLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new ClassLevelMappingWithComposedAnnotation());
 
@@ -282,7 +282,7 @@ class CrossOriginTests {
   }
 
   @PathPatternsParameterizedTest
-    // SPR-13468
+
   void methodLevelComposedAnnotation(TestRequestMappingInfoHandlerMapping mapping) throws Exception {
     mapping.registerHandler(new MethodLevelMappingWithComposedAnnotation());
 

@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests that pointcut matching is correct with generic method parameter.
- * See SPR-3904 for more details.
  *
  * @author Ramnivas Laddad
  * @author Chris Beams

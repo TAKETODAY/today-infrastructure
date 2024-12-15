@@ -172,14 +172,14 @@ class MvcUriComponentsBuilderTests {
     assertThat(queryParams.get("offset")).contains("10");
   }
 
-  @Test  // SPR-12977
+  @Test
   public void fromMethodNameWithBridgedMethod() {
     UriComponents uriComponents = fromMethodName(PersonCrudController.class, "get", (long) 42).build();
 
     assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/42");
   }
 
-  @Test  // SPR-11391
+  @Test
   public void fromMethodNameTypeLevelPathVariableWithoutArgumentValue() {
     UriComponents uriComponents = fromMethodName(UserContactController.class, "showCreate", 123).build();
 
@@ -221,7 +221,7 @@ class MvcUriComponentsBuilderTests {
     assertThat(builder.toUriString()).isEqualTo("https://example.org:9090/base");
   }
 
-  @Test  // SPR-14405
+  @Test
   public void fromMethodNameWithOptionalParam() {
     UriComponents uriComponents = fromMethodName(ControllerWithMethods.class,
             "methodWithOptionalParam", new Object[] { null }).build();
@@ -345,7 +345,7 @@ class MvcUriComponentsBuilderTests {
     assertThat(builder.toUriString()).isEqualTo("https://example.org:9090/base");
   }
 
-  @Test  // SPR-16710
+  @Test
   public void fromMethodCallWithModelAndViewReturnType() {
     UriComponents uriComponents = fromMethodCall(
             on(BookingControllerWithModelAndView.class).getBooking(21L)).buildAndExpand(42);
@@ -353,7 +353,7 @@ class MvcUriComponentsBuilderTests {
     assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
-  @Test  // SPR-16710
+  @Test
   public void fromMethodCallWithObjectReturnType() {
     UriComponents uriComponents = fromMethodCall(
             on(BookingControllerWithObject.class).getBooking(21L)).buildAndExpand(42);
@@ -361,7 +361,7 @@ class MvcUriComponentsBuilderTests {
     assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
-  @Test  // SPR-16710
+  @Test
   public void fromMethodCallWithStringReturnType() {
     assertThatIllegalStateException().isThrownBy(() -> {
       UriComponents uriComponents = fromMethodCall(
@@ -370,7 +370,7 @@ class MvcUriComponentsBuilderTests {
     });
   }
 
-  @Test  // SPR-16710
+  @Test
   public void fromMethodNameWithStringReturnType() {
     UriComponents uriComponents = fromMethodName(
             BookingControllerWithString.class, "getBooking", 21L).buildAndExpand(42);
@@ -417,7 +417,7 @@ class MvcUriComponentsBuilderTests {
     assertThat(url).isEqualTo("https://example.org:9999/base/people/123/addresses/DE");
   }
 
-  @Test  // SPR-17027
+  @Test
   public void fromMappingNameWithEncoding() {
     initWebApplicationContext(WebConfig.class);
 

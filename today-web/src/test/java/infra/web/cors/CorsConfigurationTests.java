@@ -110,7 +110,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-    // SPR-15772
+    //
   void combineWithDefaultPermitValues() {
     CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues();
     CorsConfiguration other = new CorsConfiguration();
@@ -222,7 +222,7 @@ public class CorsConfigurationTests {
   }
 
   @Test
-    // SPR-14792
+    //
   void combineWithDuplicatedElements() {
     CorsConfiguration config = new CorsConfiguration();
     config.addAllowedOrigin("https://domain1.com");

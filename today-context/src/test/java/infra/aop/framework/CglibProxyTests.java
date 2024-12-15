@@ -426,7 +426,7 @@ public class CglibProxyTests extends AbstractAopProxyTests implements Serializab
     assertThat(proxy.add(1, 3)).isEqualTo(4);
   }
 
-  @Test  // SPR-13328
+  @Test
   @SuppressWarnings("unchecked")
   public void testVarargsWithEnumArray() {
     ProxyFactory proxyFactory = new ProxyFactory(new MyBean());

@@ -153,7 +153,6 @@ public class EnableSchedulingTests {
 
   @Test
   void withExplicitSchedulerAmbiguity_andSchedulingEnabled() {
-    // No exception raised as of 4.3, aligned with the behavior for @Async methods (SPR-14030)
     ctx = new AnnotationConfigApplicationContext(AmbiguousExplicitSchedulerConfig.class);
   }
 
@@ -210,7 +209,7 @@ public class EnableSchedulingTests {
 
   @Test
   void withAmbiguousTaskSchedulers_andSingleTask() {
-    // No exception raised as of 4.3, aligned with the behavior for @Async methods (SPR-14030)
+    // No exception raised as of 4.3, aligned with the behavior for @Async methods
     ctx = new AnnotationConfigApplicationContext(SchedulingEnabled_withAmbiguousTaskSchedulers_andSingleTask.class);
   }
 

@@ -28,8 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link GenericXmlApplicationContext}.
  *
- * See SPR-7530.
- *
  * @author Chris Beams
  */
 public class GenericXmlApplicationContextTests {

@@ -142,7 +142,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-    // SPR-12677
+
   void contentTypeHeaderWithMoreComplexCharsetSyntax() {
     String contentType = "test/plain;charset=\"utf-8\";foo=\"charset=bar\";foocharset=bar;foo=bar";
     response.setHeader(CONTENT_TYPE, contentType);
@@ -423,14 +423,14 @@ class HttpMockResponseTests {
   }
 
   @Test
-    // SPR-16160
+
   void getNonExistentDateHeader() {
     assertThat(response.getHeader(LAST_MODIFIED)).isNull();
     assertThat(response.getDateHeader(LAST_MODIFIED)).isEqualTo(-1);
   }
 
   @Test
-    // SPR-10414
+
   void modifyStatusAfterSendError() throws IOException {
     response.sendError(HttpMockResponse.SC_NOT_FOUND);
     response.setStatus(HttpMockResponse.SC_OK);
@@ -438,7 +438,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-    // SPR-10414
+
   void modifyStatusMessageAfterSendError() throws IOException {
     response.sendError(HttpMockResponse.SC_NOT_FOUND);
     response.setStatus(HttpMockResponse.SC_INTERNAL_SERVER_ERROR);

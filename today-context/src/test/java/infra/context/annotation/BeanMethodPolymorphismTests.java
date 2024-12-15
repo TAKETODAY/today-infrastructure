@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests regarding overloading and overriding of bean methods.
- * <p>Related to SPR-6618.
  *
  * @author Chris Beams
  * @author Phillip Webb
@@ -179,7 +178,7 @@ public class BeanMethodPolymorphismTests {
   }
 
   @Test
-    // SPR-11025
+
   void beanMethodOverloadingWithInheritanceAndList() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(SubConfigWithList.class);

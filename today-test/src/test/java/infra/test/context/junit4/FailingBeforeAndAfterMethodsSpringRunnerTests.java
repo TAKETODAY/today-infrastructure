@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.fail;
  * {@code @BeforeTransaction} and {@code @AfterTransaction} methods can fail
  * tests run via the {@link InfraRunner} in a JUnit 4 environment.
  *
- * <p>See: <a href="https://jira.spring.io/browse/SPR-3960" target="_blank">SPR-3960</a>.
+ * <p>See: .
  *
  * <p>Indirectly, this class also verifies that all {@code TestExecutionListener}
  * lifecycle callbacks are called.

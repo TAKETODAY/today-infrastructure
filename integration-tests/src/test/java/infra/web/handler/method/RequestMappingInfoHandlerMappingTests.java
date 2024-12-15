@@ -201,7 +201,7 @@ class RequestMappingInfoHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-    // SPR-8462
+    //
   void getHandlerMediaTypeNotAccepted(TestRequestMappingInfoHandlerMapping mapping) {
     testHttpMediaTypeNotAcceptableException(mapping, "/persons");
     if (mapping.getPatternParser() == null) {
@@ -401,7 +401,7 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(uriVariables.get("cars")).isEqualTo("cars");
     assertThat(uriVariables.get("params")).isEqualTo("");
 
-    // SPR-11897
+
     request = new HttpMockRequestImpl("GET", "/a=42;b=c");
     handleMatch(mapping, request, "/{foo}", request.getRequestURI());
 

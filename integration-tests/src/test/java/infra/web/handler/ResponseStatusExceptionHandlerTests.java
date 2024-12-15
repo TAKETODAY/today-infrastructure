@@ -120,7 +120,7 @@ class ResponseStatusExceptionHandlerTests {
     }
   }
 
-  @Test // SPR-12903
+  @Test
   public void nestedException() throws Exception {
     Exception cause = new StatusCodeAndReasonMessageException();
     TypeMismatchException ex = new TypeMismatchException("value", ITestBean.class, cause);
@@ -135,7 +135,7 @@ class ResponseStatusExceptionHandlerTests {
     assertResolved(mav, 400, null);
   }
 
-  @Test  // SPR-15524
+  @Test
   public void responseStatusExceptionWithReason() throws Exception {
     ResponseStatusException ex = new ResponseStatusException(HttpStatus.BAD_REQUEST, "The reason");
     Object mav = handleException(ex);

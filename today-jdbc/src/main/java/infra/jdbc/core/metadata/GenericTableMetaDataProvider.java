@@ -411,7 +411,6 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
           int decimalDigits = tableColumns.getInt("DECIMAL_DIGITS");
           // Override a DECIMAL data type for no-decimal numerics
           // (this is for better Oracle support where there have been issues
-          // using DECIMAL for certain inserts (see SPR-6912))
           if ("NUMBER".equals(typeName) && decimalDigits == 0) {
             dataType = Types.NUMERIC;
             if (logger.isDebugEnabled()) {

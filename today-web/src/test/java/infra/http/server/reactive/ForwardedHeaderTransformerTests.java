@@ -118,7 +118,7 @@ class ForwardedHeaderTransformerTests {
   }
 
   @Test
-    // SPR-17525
+    //
   void shouldNotDoubleEncode() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");

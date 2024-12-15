@@ -43,8 +43,6 @@ import static infra.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for SPR-13211 which verify that a custom mock request
- * is not reused by MockMvc.
  *
  * @author Sam Brannen
  * @see RequestContextHolderTests
