@@ -128,7 +128,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
                   "Failed to invoke constructor for CGLIB enhanced subclass [" + subclass.getName() + "]", ex);
         }
       }
-    : set callbacks directly on the instance instead of in the
+      // set callbacks directly on the instance instead of in the
       // enhanced class (via the Enhancer) in order to avoid memory leaks.
       Factory factory = (Factory) instance;
       factory.setCallbacks(new Callback[] { NoOp.INSTANCE,
