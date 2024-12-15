@@ -202,7 +202,7 @@ public class HeaderAssertionTests {
       if (ERROR_MESSAGE.equals(err.getMessage())) {
         throw err;
       }
-      : ensure header name is in the message
+      // : ensure header name is in the message
       // Unfortunately, we can't control formatting from JUnit or Hamcrest.
       assertMessageContains(err, "Response header '" + LAST_MODIFIED + "'");
       assertMessageContains(err, expected);
