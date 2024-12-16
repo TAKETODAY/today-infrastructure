@@ -136,12 +136,28 @@ public class WebSocketMessage {
    * }</pre>
    *
    * @see DataBuffer#retain()
-   * @see DataBuffer#readPosition(int)
    */
   public WebSocketMessage retain() {
-    payload.readPosition(0);
     payload.retain();
     return this;
+  }
+
+  /**
+   * Retain the data buffer for the message payload, which is useful on
+   * runtimes (for example, Netty) with pooled buffers. A shortcut for:
+   * <pre>{@code
+   * DataBuffer payload = message.getPayload();
+   * payload.retainedDuplicate();
+   * }</pre>
+   *
+   * @return Returns a retained message which shares the whole region of
+   * payload buffer. Modifying the content of the returned buffer or this
+   * buffer affects each other's content while they maintain separate
+   * indexes and marks.
+   * @see DataBuffer#retainedDuplicate()
+   */
+  public WebSocketMessage retainedDuplicate() {
+    return new WebSocketMessage(type, payload.retainedDuplicate(), null, last);
   }
 
   /**
