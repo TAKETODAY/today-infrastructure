@@ -26,9 +26,11 @@ import infra.http.HttpHeaders;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.DataSize;
+import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
+import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
@@ -281,8 +283,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     public final Promise<WebSocketSession> future = Future.forPromise();
 
-    private NettyDataBufferFactory allocator;
-
+    @Nullable
     private NettyWebSocketSession session;
 
     MessageHandler(URI uri, WebSocketHandler handler, WebSocketClientHandshaker handshaker) {
@@ -297,27 +298,46 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-      if (msg instanceof CloseWebSocketFrame) {
-        processCloseFrame(ctx);
-      }
-      else if (msg instanceof WebSocketFrame frame) {
+    public void channelInactive(ChannelHandlerContext ctx) {
+      if (session != null) {
         try {
-          var message = WsNettyChannelHandler.adaptMessage(allocator, frame);
-          handler.handleMessage(session, message);
+          handler.onClose(session, CloseStatus.NORMAL);
         }
         catch (Throwable e) {
-          tryCloseWithError(session, e, logger);
+          throw ExceptionUtils.sneakyThrow(e);
+        }
+      }
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+      if (session != null) {
+        if (msg instanceof CloseWebSocketFrame cwsf) {
+          try {
+            handler.onClose(session, new CloseStatus(cwsf.statusCode(), cwsf.reasonText()));
+            session = null;
+            processCloseFrame(ctx);
+          }
+          catch (Throwable e) {
+            throw ExceptionUtils.sneakyThrow(e);
+          }
+        }
+        else if (msg instanceof WebSocketFrame frame) {
+          try {
+            var message = WsNettyChannelHandler.adaptMessage(session.bufferFactory(), frame);
+            handler.handleMessage(session, message);
+          }
+          catch (Throwable e) {
+            tryCloseWithError(session, e, logger);
+          }
         }
       }
       else if (msg instanceof FullHttpResponse response) {
         if (!handshaker.isHandshakeComplete()) {
           Channel channel = ctx.channel();
-          allocator = new NettyDataBufferFactory(channel.alloc());
           try {
             handshaker.finishHandshake(channel, response);
-            session = createSession(channel, "wss".equals(uri.getScheme()), handshaker, allocator);
-            allocator = session.bufferFactory();
+            session = createSession(channel, "wss".equals(uri.getScheme()), handshaker, new NettyDataBufferFactory(channel.alloc()));
             handler.onOpen(session);
             future.setSuccess(session);
           }
@@ -336,7 +356,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
       if (!future.isDone()) {
         future.setFailure(cause);
       }
-      else {
+      else if (session != null) {
         try {
           handler.onError(session, cause);
         }
