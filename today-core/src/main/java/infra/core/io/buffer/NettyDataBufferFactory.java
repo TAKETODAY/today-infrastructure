@@ -38,7 +38,7 @@ import io.netty.buffer.Unpooled;
  * @see io.netty.buffer.UnpooledByteBufAllocator
  * @since 4.0
  */
-public class NettyDataBufferFactory implements DataBufferFactory {
+public class NettyDataBufferFactory extends DataBufferFactory {
 
   private final ByteBufAllocator allocator;
 
@@ -153,7 +153,7 @@ public class NettyDataBufferFactory implements DataBufferFactory {
 
   @Override
   public String toString() {
-    return "NettyDataBufferFactory (" + this.allocator + ")";
+    return "NettyDataBufferFactory (%s)".formatted(this.allocator);
   }
 
 }

@@ -45,7 +45,7 @@ import io.netty.buffer.PooledByteBufAllocator;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LeakAwareDataBufferFactory
  */
-public class LeakAwareDataBufferFactory implements DataBufferFactory {
+public class LeakAwareDataBufferFactory extends DataBufferFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(LeakAwareDataBufferFactory.class);
 

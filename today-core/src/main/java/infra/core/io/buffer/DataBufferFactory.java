@@ -31,7 +31,7 @@ import java.util.List;
  * @see DataBuffer
  * @since 4.0
  */
-public interface DataBufferFactory {
+public abstract class DataBufferFactory {
 
   /**
    * Allocate a data buffer of a default initial capacity. Depending on the
@@ -40,7 +40,7 @@ public interface DataBufferFactory {
    *
    * @return the allocated buffer
    */
-  DataBuffer allocateBuffer();
+  public abstract DataBuffer allocateBuffer();
 
   /**
    * Allocate a data buffer of the given initial capacity. Depending on the
@@ -50,7 +50,7 @@ public interface DataBufferFactory {
    * @param initialCapacity the initial capacity of the buffer to allocate
    * @return the allocated buffer
    */
-  DataBuffer allocateBuffer(int initialCapacity);
+  public abstract DataBuffer allocateBuffer(int initialCapacity);
 
   /**
    * Creates a new big-endian buffer whose content is the specified
@@ -60,7 +60,7 @@ public interface DataBufferFactory {
    *
    * @since 5.0
    */
-  default DataBuffer copiedBuffer(CharSequence string) {
+  public DataBuffer copiedBuffer(CharSequence string) {
     return copiedBuffer(string, StandardCharsets.UTF_8);
   }
 
@@ -72,7 +72,7 @@ public interface DataBufferFactory {
    *
    * @since 5.0
    */
-  default DataBuffer copiedBuffer(CharSequence string, Charset charset) {
+  public DataBuffer copiedBuffer(CharSequence string, Charset charset) {
     return wrap(string.toString().getBytes(charset));
   }
 
@@ -83,7 +83,7 @@ public interface DataBufferFactory {
    * @param byteBuffer the NIO byte buffer to wrap
    * @return the wrapped buffer
    */
-  DataBuffer wrap(ByteBuffer byteBuffer);
+  public abstract DataBuffer wrap(ByteBuffer byteBuffer);
 
   /**
    * Wrap the given {@code byte} array in a {@code DataBuffer}. Unlike
@@ -92,7 +92,7 @@ public interface DataBufferFactory {
    * @param bytes the byte array to wrap
    * @return the wrapped buffer
    */
-  default DataBuffer wrap(byte[] bytes) {
+  public DataBuffer wrap(byte[] bytes) {
     return wrap(bytes, 0, bytes.length);
   }
 
@@ -109,7 +109,7 @@ public interface DataBufferFactory {
    * @return the wrapped buffer
    * @since 5.0
    */
-  DataBuffer wrap(byte[] bytes, int offset, int length);
+  public abstract DataBuffer wrap(byte[] bytes, int offset, int length);
 
   /**
    * Return a new {@code DataBuffer} composed of the {@code dataBuffers} elements joined together.
@@ -122,7 +122,7 @@ public interface DataBufferFactory {
    * @param dataBuffers the data buffers to be composed
    * @return a buffer that is composed of the {@code dataBuffers} argument
    */
-  DataBuffer join(List<? extends DataBuffer> dataBuffers);
+  public abstract DataBuffer join(List<? extends DataBuffer> dataBuffers);
 
   /**
    * Return a new {@code DataBuffer} composed of the {@code dataBuffers} elements joined together.
@@ -136,7 +136,7 @@ public interface DataBufferFactory {
    * @return a buffer that is composed of the {@code dataBuffers} argument
    * @since 5.0
    */
-  DataBuffer join(DataBuffer... dataBuffers);
+  public abstract DataBuffer join(DataBuffer... dataBuffers);
 
   /**
    * Indicates whether this factory allocates direct buffers (i.e. non-heap,
@@ -145,6 +145,6 @@ public interface DataBufferFactory {
    * @return {@code true} if this factory allocates direct buffers;
    * {@code false} otherwise
    */
-  boolean isDirect();
+  public abstract boolean isDirect();
 
 }

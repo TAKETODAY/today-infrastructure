@@ -35,7 +35,7 @@ import io.netty5.buffer.DefaultBufferAllocators;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public class Netty5DataBufferFactory implements DataBufferFactory {
+public class Netty5DataBufferFactory extends DataBufferFactory {
 
   private final BufferAllocator bufferAllocator;
 
@@ -157,6 +157,6 @@ public class Netty5DataBufferFactory implements DataBufferFactory {
 
   @Override
   public String toString() {
-    return "Netty5DataBufferFactory (" + this.bufferAllocator + ")";
+    return "Netty5DataBufferFactory (%s)".formatted(this.bufferAllocator);
   }
 }

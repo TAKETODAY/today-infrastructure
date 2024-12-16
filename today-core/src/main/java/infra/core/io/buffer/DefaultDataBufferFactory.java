@@ -31,7 +31,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public class DefaultDataBufferFactory implements DataBufferFactory {
+public class DefaultDataBufferFactory extends DataBufferFactory {
 
   /**
    * The default capacity when none is specified.
@@ -152,7 +152,7 @@ public class DefaultDataBufferFactory implements DataBufferFactory {
 
   @Override
   public String toString() {
-    return "DefaultDataBufferFactory (preferDirect=" + this.preferDirect + ")";
+    return "DefaultDataBufferFactory (preferDirect=%s)".formatted(this.preferDirect);
   }
 
 }
