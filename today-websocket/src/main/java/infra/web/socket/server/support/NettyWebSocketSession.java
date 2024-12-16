@@ -153,7 +153,7 @@ public class NettyWebSocketSession extends WebSocketSession {
     if (!(o instanceof final NettyWebSocketSession that))
       return false;
     return secure == that.secure
-            && Objects.equals(channel, that.channel) && super.equals(o);
+            && Objects.equals(channel, that.channel);
   }
 
   @Override

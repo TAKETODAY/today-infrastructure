@@ -132,7 +132,7 @@ public class WebSocketMessage {
    * runtimes (for example, Netty) with pooled buffers. A shortcut for:
    * <pre>
    * DataBuffer payload = message.getPayload();
-   * DataBufferUtils.retain(payload);
+   * DataBuffer.retain(payload);
    * </pre>
    *
    * @see DataBuffer#retain()
@@ -147,7 +147,7 @@ public class WebSocketMessage {
    * (for example, Netty) with pooled buffers such as Netty. A shortcut for:
    * <pre>
    * DataBuffer payload = message.getPayload();
-   * DataBufferUtils.release(payload);
+   * DataBuffer.release(payload);
    * </pre>
    *
    * @see DataBuffer#release()
