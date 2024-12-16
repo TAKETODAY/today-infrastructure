@@ -28,7 +28,7 @@ import infra.util.concurrent.FutureListener;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketHttpHeaders;
 import infra.web.socket.WebSocketSession;
-import infra.web.socket.handler.LoggingWebSocketHandlerDecorator;
+import infra.web.socket.handler.LoggingWebSocketHandler;
 
 /**
  * A WebSocket connection manager that is given a URI, a {@link WebSocketClient}, and a
@@ -73,10 +73,10 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport impleme
 
   /**
    * Decorate the WebSocketHandler provided to the class constructor.
-   * <p>By default {@link LoggingWebSocketHandlerDecorator} is added.
+   * <p>By default {@link LoggingWebSocketHandler} is added.
    */
   protected WebSocketHandler decorateWebSocketHandler(WebSocketHandler handler) {
-    return new LoggingWebSocketHandlerDecorator(handler);
+    return new LoggingWebSocketHandler(handler);
   }
 
   /**
