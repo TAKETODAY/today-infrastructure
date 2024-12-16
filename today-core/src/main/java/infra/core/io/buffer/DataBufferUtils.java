@@ -50,8 +50,6 @@ import infra.core.io.buffer.DataBuffer.ByteBufferIterator;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Nullable;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
@@ -69,8 +67,6 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 public abstract class DataBufferUtils {
-
-  final static Logger logger = LoggerFactory.getLogger(DataBufferUtils.class);
 
   //---------------------------------------------------------------------
   // Reading

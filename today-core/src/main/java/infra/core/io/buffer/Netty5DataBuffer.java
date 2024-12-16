@@ -24,6 +24,8 @@ import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import io.netty5.buffer.Buffer;
 import io.netty5.buffer.BufferComponent;
 import io.netty5.buffer.ComponentIterator;
@@ -38,6 +40,8 @@ import io.netty5.buffer.ComponentIterator;
  * @since 4.0
  */
 public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable {
+
+  private final static Logger logger = LoggerFactory.getLogger(Netty5DataBuffer.class);
 
   private final Buffer buffer;
 
@@ -305,8 +309,8 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
       this.buffer.close();
     }
     catch (IllegalStateException ex) {
-      if (DataBufferUtils.logger.isDebugEnabled()) {
-        DataBufferUtils.logger.debug("Failed to release DataBuffer {}", this, ex);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Failed to release DataBuffer {}", this, ex);
       }
     }
     return true;

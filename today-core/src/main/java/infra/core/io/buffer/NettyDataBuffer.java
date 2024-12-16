@@ -25,11 +25,11 @@ import java.util.function.IntPredicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
-import static infra.core.io.buffer.DataBufferUtils.logger;
 
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty
@@ -41,6 +41,8 @@ import static infra.core.io.buffer.DataBufferUtils.logger;
  * @since 4.0
  */
 public class NettyDataBuffer extends DataBuffer {
+
+  private final static Logger logger = LoggerFactory.getLogger(NettyDataBuffer.class);
 
   private ByteBuf byteBuf;
 
