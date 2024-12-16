@@ -47,9 +47,9 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private static final int CAPACITY_THRESHOLD = 1024 * 1024 * 4;
 
-  private final DefaultDataBufferFactory dataBufferFactory;
-
   static final DefaultDataBuffer EMPTY = new DefaultDataBuffer();
+
+  private final DefaultDataBufferFactory dataBufferFactory;
 
   private ByteBuffer byteBuffer;
 
@@ -476,6 +476,12 @@ public class DefaultDataBuffer extends DataBuffer {
       duplicate.get(bytes, 0, length);
     }
     return new String(bytes, offset, length, charset);
+  }
+
+  @Override
+  public DataBuffer duplicate() {
+    return new DefaultDataBuffer(dataBufferFactory, byteBuffer.duplicate())
+            .writePosition(writePosition);
   }
 
   @Override

@@ -937,4 +937,51 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThat(factory.copiedBuffer("hello", StandardCharsets.UTF_8).readBytes()).isEqualTo("hello".getBytes(StandardCharsets.UTF_8));
   }
 
+  @ParameterizedDataBufferAllocatingTest
+  void duplicate(DataBufferFactory factory) {
+    DataBuffer hello = factory.copiedBuffer("hello");
+    DataBuffer duplicate = hello.duplicate();
+
+    assertThat(hello.toString(StandardCharsets.UTF_8)).isEqualTo("hello");
+    assertThat(duplicate.toString(StandardCharsets.UTF_8)).isEqualTo("hello");
+    release(hello, duplicate);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void retainedDuplicate(DataBufferFactory factory) {
+    this.bufferFactory = factory;
+    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
+            "Netty 5 does not support retainedSlice");
+
+    DataBuffer hello = factory.copiedBuffer("hello");
+    DataBuffer duplicate = hello.retainedDuplicate();
+
+    assertThat(hello.toString(StandardCharsets.UTF_8)).isEqualTo("hello");
+    assertThat(duplicate.toString(StandardCharsets.UTF_8)).isEqualTo("hello");
+
+    DataBuffer buffer = factory.allocateBuffer(3);
+    buffer.write(new byte[] { 'a', 'b' });
+
+    DataBuffer retainedDuplicate = buffer.retainedDuplicate();
+    assertThat(retainedDuplicate.readableBytes()).isEqualTo(2);
+    buffer.write((byte) 'c');
+
+    assertThat(buffer.readableBytes()).isEqualTo(3);
+    assertThat(retainedDuplicate.readableBytes()).isEqualTo(2);
+
+    byte[] result = new byte[3];
+    buffer.read(result);
+
+    assertThat(result).isEqualTo(new byte[] { 'a', 'b', 'c' });
+    assertThat(retainedDuplicate.readableBytes()).isEqualTo(2);
+
+    result = new byte[2];
+    retainedDuplicate.read(result);
+
+    assertThat(result).isEqualTo(new byte[] { 'a', 'b' });
+
+    release(buffer, retainedDuplicate);
+    release(hello, duplicate);
+  }
+
 }

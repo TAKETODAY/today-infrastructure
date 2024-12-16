@@ -338,6 +338,16 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
+  public NettyDataBuffer duplicate() {
+    return new NettyDataBuffer(this.byteBuf.duplicate(), this.dataBufferFactory);
+  }
+
+  @Override
+  public DataBuffer retainedDuplicate() {
+    return new NettyDataBuffer(this.byteBuf.retainedDuplicate(), this.dataBufferFactory);
+  }
+
+  @Override
   public NettyDataBuffer touch(Object hint) {
     this.byteBuf.touch(hint);
     return this;
@@ -404,7 +414,9 @@ public class NettyDataBuffer extends DataBuffer {
     }
 
     @Override
-    public void close() { }
+    public void close() {
+
+    }
   }
 
 }

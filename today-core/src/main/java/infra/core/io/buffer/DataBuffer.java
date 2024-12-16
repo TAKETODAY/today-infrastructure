@@ -589,6 +589,46 @@ public abstract class DataBuffer {
   }
 
   /**
+   * Returns a buffer which shares the whole region of this buffer.
+   * Modifying the content of the returned buffer or this buffer affects
+   * each other's content while they maintain separate indexes and marks.
+   * This method does not modify {@code readPosition} or {@code writePosition}
+   * of this buffer.
+   * <p>
+   * The reader and writer marks will not be duplicated. Also be aware that
+   * this method will NOT call {@link #retain()} and so the reference count
+   * will NOT be increased.
+   *
+   * @return A buffer whose readable content is equivalent to the
+   * buffer returned by {@link #slice(int, int)}. However, this buffer
+   * will share the capacity of the underlying buffer, and therefore
+   * allows access to all the underlying content if necessary.
+   * @since 5.0
+   */
+  public DataBuffer duplicate() {
+    return this;
+  }
+
+  /**
+   * Returns a retained buffer which shares the whole region of this buffer.
+   * Modifying the content of the returned buffer or this buffer affects
+   * each other's content while they maintain separate indexes and marks.
+   * This method is identical to {@code buf.slice(0, buf.capacity())}.
+   * This method does not modify {@code readPosition} or {@code writePosition}
+   * of this buffer.
+   * <p>
+   * Note that this method returns a {@linkplain #retain() retained} buffer
+   * unlike {@link #slice(int, int)}. This method behaves similarly to
+   * {@code duplicate().retain()} except that this method may return a
+   * buffer implementation that produces less garbage.
+   *
+   * @since 5.0
+   */
+  public DataBuffer retainedDuplicate() {
+    return duplicate().retain();
+  }
+
+  /**
    * Release the given data buffer. If it is a Pooled DataBuffer
    * and has been {@linkplain DataBuffer#isAllocated() allocated}, this
    * method will call release.

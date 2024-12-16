@@ -233,6 +233,11 @@ public final class Netty5DataBuffer extends DataBuffer implements AutoCloseable 
   }
 
   @Override
+  public DataBuffer duplicate() {
+    return slice(readPosition(), readableBytes());
+  }
+
+  @Override
   public DataBuffer split(int index) {
     Buffer split = this.buffer.split(index);
     return new Netty5DataBuffer(split, this.dataBufferFactory);
