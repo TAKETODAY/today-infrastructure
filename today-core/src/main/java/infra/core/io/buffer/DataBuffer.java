@@ -194,6 +194,19 @@ public abstract class DataBuffer {
   public abstract byte read();
 
   /**
+   * Read this buffer's data into the byte array, starting at the current
+   * reading position of this buffer.
+   *
+   * @return this buffer's byte array
+   * @since 5.0
+   */
+  public byte[] readBytes() {
+    byte[] bytes = new byte[readableBytes()];
+    read(bytes);
+    return bytes;
+  }
+
+  /**
    * Read this buffer's data into the specified destination, starting at the current
    * reading position of this buffer.
    *

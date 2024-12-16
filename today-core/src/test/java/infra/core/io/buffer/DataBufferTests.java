@@ -931,4 +931,10 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThat(StandardCharsets.UTF_8.decode(byteBuffer).toString()).isEqualTo("b");
   }
 
+  @ParameterizedDataBufferAllocatingTest
+  void readBytes(DataBufferFactory factory) {
+    assertThat(factory.copiedBuffer("hello").readBytes()).isEqualTo("hello".getBytes(StandardCharsets.UTF_8));
+    assertThat(factory.copiedBuffer("hello", StandardCharsets.UTF_8).readBytes()).isEqualTo("hello".getBytes(StandardCharsets.UTF_8));
+  }
+
 }
