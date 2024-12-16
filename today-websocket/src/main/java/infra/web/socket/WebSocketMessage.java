@@ -130,14 +130,16 @@ public class WebSocketMessage {
   /**
    * Retain the data buffer for the message payload, which is useful on
    * runtimes (for example, Netty) with pooled buffers. A shortcut for:
-   * <pre>
+   * <pre>{@code
    * DataBuffer payload = message.getPayload();
-   * DataBuffer.retain(payload);
-   * </pre>
+   * payload.retain();
+   * }</pre>
    *
    * @see DataBuffer#retain()
+   * @see DataBuffer#readPosition(int)
    */
   public WebSocketMessage retain() {
+    payload.readPosition(0);
     payload.retain();
     return this;
   }
@@ -145,10 +147,10 @@ public class WebSocketMessage {
   /**
    * Release the payload {@code DataBuffer} which is useful on runtimes
    * (for example, Netty) with pooled buffers such as Netty. A shortcut for:
-   * <pre>
+   * <pre>{@code
    * DataBuffer payload = message.getPayload();
-   * DataBuffer.release(payload);
-   * </pre>
+   * payload.release();
+   * }</pre>
    *
    * @see DataBuffer#release()
    */
