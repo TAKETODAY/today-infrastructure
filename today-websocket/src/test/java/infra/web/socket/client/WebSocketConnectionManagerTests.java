@@ -30,7 +30,7 @@ import infra.util.concurrent.Future;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketHttpHeaders;
 import infra.web.socket.WebSocketSession;
-import infra.web.socket.handler.LoggingWebSocketHandlerDecorator;
+import infra.web.socket.handler.LoggingWebSocketHandler;
 import infra.web.socket.handler.TextWebSocketHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +60,7 @@ public class WebSocketConnectionManagerTests {
     assertThat(client.uri).isEqualTo(new URI("/path/123"));
 
     WebSocketHandler loggingHandler = client.webSocketHandler;
-    assertThat(loggingHandler.getClass()).isEqualTo(LoggingWebSocketHandlerDecorator.class);
+    assertThat(loggingHandler.getClass()).isEqualTo(LoggingWebSocketHandler.class);
 
     assertThat(loggingHandler.getRawHandler()).isSameAs(handler);
   }

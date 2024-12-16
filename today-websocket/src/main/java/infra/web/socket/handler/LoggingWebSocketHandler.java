@@ -17,12 +17,17 @@
 
 package infra.web.socket.handler;
 
+import java.util.Map;
+
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.web.RequestContext;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
+import infra.web.socket.server.HandshakeCapable;
 
 /**
  * A {@link WebSocketHandler} that adds logging to WebSocket lifecycle events.
@@ -31,12 +36,36 @@ import infra.web.socket.WebSocketSession;
  * @author TODAY 2021/11/12 16:49
  * @since 4.0
  */
-public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
+public class LoggingWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
 
-  private static final Logger logger = LoggerFactory.getLogger(LoggingWebSocketHandlerDecorator.class);
+  private static final Logger logger = LoggerFactory.getLogger(LoggingWebSocketHandler.class);
 
-  public LoggingWebSocketHandlerDecorator(WebSocketHandler delegate) {
+  public LoggingWebSocketHandler(WebSocketHandler delegate) {
     super(delegate);
+  }
+
+  @Override
+  public boolean beforeHandshake(RequestContext request, Map<String, Object> attributes) throws Throwable {
+    if (logger.isDebugEnabled()) {
+      logger.debug("Before Handshake {}", request);
+    }
+    if (delegate instanceof HandshakeCapable hc) {
+      return hc.beforeHandshake(request, attributes);
+    }
+    return true;
+  }
+
+  @Override
+  public void afterHandshake(RequestContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Throwable {
+    if (failure != null) {
+      logger.error("Handshake failed {}", request, failure);
+    }
+    else if (logger.isDebugEnabled()) {
+      logger.debug("After Handshake {}", request);
+    }
+    if (delegate instanceof HandshakeCapable hc) {
+      hc.afterHandshake(request, session, failure);
+    }
   }
 
   @Override
