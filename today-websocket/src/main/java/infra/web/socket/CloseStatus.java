@@ -20,6 +20,7 @@ package infra.web.socket;
 import java.util.Objects;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * Represents a WebSocket close status code and reason. Status codes in the 1xxx range are
@@ -156,6 +157,7 @@ public final class CloseStatus {
 
   private final int code;
 
+  @Nullable
   private final String reason;
 
   /**
@@ -173,7 +175,7 @@ public final class CloseStatus {
    * @param code the status code
    * @param reason the reason
    */
-  public CloseStatus(int code, String reason) {
+  public CloseStatus(int code, @Nullable String reason) {
     Assert.isTrue((code >= 1000 && code < 5000), "Invalid status code");
     this.code = code;
     this.reason = reason;
@@ -189,6 +191,7 @@ public final class CloseStatus {
   /**
    * Return the reason, or {@code null} if none.
    */
+  @Nullable
   public String getReason() {
     return this.reason;
   }
@@ -202,10 +205,6 @@ public final class CloseStatus {
   public CloseStatus withReason(String reason) {
     Assert.hasText(reason, "Reason must not be empty");
     return new CloseStatus(this.code, reason);
-  }
-
-  public boolean equalsCode(CloseStatus other) {
-    return (this.code == other.code);
   }
 
   @Override
@@ -227,7 +226,7 @@ public final class CloseStatus {
 
   @Override
   public String toString() {
-    return "CloseStatus[code=" + this.code + ", reason=" + this.reason + "]";
+    return "CloseStatus[code=%d, reason=%s]".formatted(this.code, this.reason);
   }
 
 }
