@@ -377,7 +377,7 @@
       "name": "infra.auto-configuration.exclude",
       "type": "java.util.List<java.lang.Class>",
       "sourceType": "infra.context.annotation.config.AutoConfigurationImportSelector",
-      "deprecation": "Auto-configuration classes to exclude."
+      "description": "Auto-configuration classes to exclude."
     },
     {
       "name": "jackson.constructor-detector",
