@@ -67,7 +67,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
-  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "infra.autoconfigure.exclude";
+  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "infra.auto-configuration.exclude";
 
   static final int ORDER = Ordered.LOWEST_PRECEDENCE - 1;
 
@@ -262,7 +262,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   /**
    * Returns the auto-configurations excluded by the
-   * {@code infra.autoconfigure.exclude} property.
+   * {@code infra.auto-configuration.exclude} property.
    *
    * @return excluded auto-configurations
    */
@@ -341,6 +341,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     return this.beanClassLoader;
   }
 
+  @Nullable
   protected final Environment getEnvironment() {
     if (bootstrapContext == null) {
       return null;

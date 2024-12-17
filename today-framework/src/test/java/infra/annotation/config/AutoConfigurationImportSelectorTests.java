@@ -113,7 +113,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void propertyExclusionsAreApplied() {
-    this.environment.setProperty("infra.autoconfigure.exclude", LifecycleAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.auto-configuration.exclude", LifecycleAutoConfiguration.class.getName());
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
@@ -122,22 +122,22 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void severalPropertyExclusionsAreApplied() {
-    this.environment.setProperty("infra.autoconfigure.exclude",
+    this.environment.setProperty("infra.auto-configuration.exclude",
             LifecycleAutoConfiguration.class.getName() + "," + PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyExclusionsAreAppliedWithExtraSpaces() {
-    this.environment.setProperty("infra.autoconfigure.exclude",
+    this.environment.setProperty("infra.auto-configuration.exclude",
             LifecycleAutoConfiguration.class.getName() + " , " + PropertyPlaceholderAutoConfiguration.class.getName() + " ");
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyYamlExclusionsAreApplied() {
-    this.environment.setProperty("infra.autoconfigure.exclude[0]", LifecycleAutoConfiguration.class.getName());
-    this.environment.setProperty("infra.autoconfigure.exclude[1]", PropertyPlaceholderAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.auto-configuration.exclude[0]", LifecycleAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.auto-configuration.exclude[1]", PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
@@ -150,7 +150,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void combinedExclusionsAreApplied() {
-    this.environment.setProperty("infra.autoconfigure.exclude", MessageSourceAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.auto-configuration.exclude", MessageSourceAutoConfiguration.class.getName());
     String[] imports = selectImports(EnableAutoConfigurationWithClassAndClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 3);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
@@ -164,7 +164,7 @@ class AutoConfigurationImportSelectorTests {
             TestAutoConfiguration.class);
     AnnotationMetadata metadata = AnnotationMetadata.introspect(BasicEnableAutoConfiguration.class);
     assertThat(importSelector.selectImports(metadata)).contains(ReplacementAutoConfiguration.class.getName());
-    this.environment.setProperty("infra.autoconfigure.exclude", DeprecatedAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.auto-configuration.exclude", DeprecatedAutoConfiguration.class.getName());
     assertThat(importSelector.selectImports(metadata)).doesNotContain(ReplacementAutoConfiguration.class.getName());
   }
 
@@ -183,14 +183,14 @@ class AutoConfigurationImportSelectorTests {
   @Test
   void nonAutoConfigurationPropertyExclusionsWhenPresentOnClassPathShouldThrowException() {
 //    /AutoConfigurationImportSelectorTests.java:165
-    this.environment.setProperty("infra.autoconfigure.exclude",
+    this.environment.setProperty("infra.auto-configuration.exclude",
             "infra.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration");
     assertThatIllegalStateException().isThrownBy(() -> selectImports(BasicEnableAutoConfiguration.class));
   }
 
   @Test
   void nameAndPropertyExclusionsWhenNotPresentOnClasspathShouldNotThrowException() {
-    this.environment.setProperty("infra.autoconfigure.exclude",
+    this.environment.setProperty("infra.auto-configuration.exclude",
             "infra.context.annotation.config.DoesNotExist2");
     selectImports(EnableAutoConfigurationWithAbsentClassNameExclude.class);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(

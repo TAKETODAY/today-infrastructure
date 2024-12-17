@@ -49,7 +49,7 @@ import infra.lang.TodayStrategies;
  * define more of your own configuration. You can always manually {@link #exclude()} any
  * configuration that you never want to apply (use {@link #excludeName()} if you don't
  * have access to them). You can also exclude them via the
- * {@code infra.autoconfigure.exclude} property. Auto-configuration is always applied
+ * {@code infra.auto-configuration.exclude} property. Auto-configuration is always applied
  * after user-defined beans have been registered.
  * <p>
  * The package of the class that is annotated with {@code @EnableAutoConfiguration},
