@@ -91,7 +91,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private Pageable defaultPageable = Pageable.of(10, 1);
 
-  private Platform platform = Platform.forClasspath();
+  private Platform platform;
 
   private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
@@ -103,8 +103,13 @@ public class DefaultEntityManager implements EntityManager {
   private final DataSource dataSource;
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
+    this(repositoryManager, Platform.forClasspath());
+  }
+
+  public DefaultEntityManager(RepositoryManager repositoryManager, Platform platform) {
     this.dataSource = repositoryManager.getDataSource();
     this.repositoryManager = repositoryManager;
+    this.platform = platform;
   }
 
   public void setPlatform(@Nullable Platform platform) {
