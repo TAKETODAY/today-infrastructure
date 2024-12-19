@@ -21,6 +21,8 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+
 import infra.util.ObjectUtils;
 
 import static infra.reflect.ReadOnlyPropertyAccessor.classToString;
@@ -88,6 +90,60 @@ class PropertyAccessorTests implements WithAssertions {
       PropertyAccessor accessor = PropertyAccessor.forField(PrimitiveBean.class.getDeclaredField(name));
       accessor.set(bean, actual);
       assertThat(actual).isEqualTo(accessor.get(bean));
+    }
+  }
+
+  @Test
+  void forMethod() throws NoSuchMethodException {
+    Method getAgeMethod = ForMethod.class.getDeclaredMethod("getAge");
+    Method setAgeMethod = ForMethod.class.getDeclaredMethod("setAge", int.class);
+    GetterMethod getAge = GetterMethod.forMethod(getAgeMethod);
+    SetterMethod setAge = SetterMethod.forMethod(setAgeMethod);
+
+    PropertyAccessor age = PropertyAccessor.forMethod(getAge, setAge);
+    assertThat(age).isInstanceOf(GetterSetterPropertyAccessor.class);
+
+    ForMethod obj = new ForMethod();
+    assertThat(age.get(obj)).isEqualTo(0);
+
+    age.set(obj, 1);
+    assertThat(age.get(obj)).isEqualTo(1);
+
+    assertThat(age.getReadMethod()).isSameAs(getAgeMethod).isSameAs(getAge.getReadMethod());
+    assertThat(age.getWriteMethod()).isSameAs(setAgeMethod).isSameAs(setAge.getWriteMethod());
+
+    Method getNameMethod = ForMethod.class.getDeclaredMethod("getName");
+    GetterMethod getName = GetterMethod.forMethod(getNameMethod);
+
+    PropertyAccessor name = PropertyAccessor.forMethod(getName, null);
+    assertThat(name).isInstanceOf(ReadOnlyGetterMethodPropertyAccessor.class);
+
+    assertThat(name.get(obj)).isEqualTo("name");
+    assertThat(name.getReadMethod()).isSameAs(getNameMethod).isSameAs(getName.getReadMethod());
+
+    assertThatThrownBy(() -> name.set(obj, "name1"))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessage("Can't set value '%s' to '%s' read only property"
+                    .formatted(ObjectUtils.toHexString("name1"), classToString(obj)));
+
+  }
+
+  static class ForMethod {
+
+    private int age;
+
+    private final String name = "name";
+
+    public String getName() {
+      return name;
+    }
+
+    public void setAge(int age) {
+      this.age = age;
+    }
+
+    public int getAge() {
+      return age;
     }
   }
 

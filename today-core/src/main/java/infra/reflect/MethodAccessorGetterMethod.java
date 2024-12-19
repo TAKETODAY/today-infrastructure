@@ -17,6 +17,10 @@
 
 package infra.reflect;
 
+import java.lang.reflect.Method;
+
+import infra.lang.Nullable;
+
 /**
  * @author TODAY 2021/1/7 17:39
  */
@@ -31,5 +35,12 @@ final class MethodAccessorGetterMethod implements GetterMethod {
   public Object get(Object obj) {
     return accessor.invoke(obj, null);
   }
+
+  @Nullable
+  @Override
+  public Method getReadMethod() {
+    return accessor.getMethod();
+  }
+
 }
 

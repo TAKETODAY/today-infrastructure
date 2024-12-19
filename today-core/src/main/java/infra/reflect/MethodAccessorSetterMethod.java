@@ -17,6 +17,10 @@
 
 package infra.reflect;
 
+import java.lang.reflect.Method;
+
+import infra.lang.Nullable;
+
 /**
  * @author TODAY 2021/1/7 17:43
  * @since 3.0
@@ -32,4 +36,11 @@ final class MethodAccessorSetterMethod implements SetterMethod {
   public void set(Object obj, Object value) {
     accessor.invoke(obj, new Object[] { value });
   }
+
+  @Nullable
+  @Override
+  public Method getWriteMethod() {
+    return accessor.getMethod();
+  }
+
 }
