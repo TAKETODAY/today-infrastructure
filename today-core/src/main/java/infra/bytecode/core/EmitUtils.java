@@ -17,8 +17,6 @@
 
 package infra.bytecode.core;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -210,60 +208,6 @@ public abstract class EmitUtils {
     }
   }
 
-  public static void pushArray(CodeEmitter e, Object[] array) {
-    e.push(array.length);
-    e.newArray(Type.forClass(remapComponentType(array.getClass().getComponentType())));
-
-    for (int i = 0; i < array.length; i++) {
-      e.dup();
-      e.push(i);
-      pushObject(e, array[i]);
-      e.aastore();
-    }
-  }
-
-  private static Class<?> remapComponentType(Class<?> componentType) {
-    return componentType.equals(Type.class) ? Class.class : componentType;
-  }
-
-  public static void pushObject(CodeEmitter e, Object obj) {
-    if (obj == null) {
-      e.visitInsn(Opcodes.ACONST_NULL);
-    }
-    else {
-      Class type = obj.getClass();
-      if (type.isArray()) {
-        pushArray(e, (Object[]) obj);
-      }
-      else if (obj instanceof String) {
-        e.push((String) obj);
-      }
-      else if (obj instanceof Type) {
-        loadClass(e, (Type) obj);
-      }
-      else if (obj instanceof Class) {
-        loadClass(e, Type.forClass((Class) obj));
-      }
-      else if (obj instanceof BigInteger) {
-        Type typeBigInteger = Type.forClass(BigInteger.class);
-        e.newInstance(typeBigInteger);
-        e.dup();
-        e.push(obj.toString());
-        e.invokeConstructor(typeBigInteger);
-      }
-      else if (obj instanceof BigDecimal) {
-        Type typeBigDecimal = Type.forClass(BigDecimal.class);
-        e.newInstance(typeBigDecimal);
-        e.dup();
-        e.push(obj.toString());
-        e.invokeConstructor(typeBigDecimal);
-      }
-      else {
-        throw new IllegalArgumentException("unknown type: " + obj.getClass());
-      }
-    }
-  }
-
   private interface ParameterTyper {
 
     Type[] getParameterTypes(MethodInfo member);
@@ -277,56 +221,45 @@ public abstract class EmitUtils {
     memberSwitchHelper(e, constructors, callback, false);
   }
 
-  private static void memberSwitchHelper(CodeEmitter e, //
-          List members,
-          ObjectSwitchCallback callback, boolean useName)//
-  {
-    try {
+  private static void memberSwitchHelper(CodeEmitter e,
+          List members, ObjectSwitchCallback callback, boolean useName) {
 
-      HashMap<MethodInfo, Type[]> cache = new HashMap<>();
-      ParameterTyper cached = (MethodInfo member) -> {
-        Type[] types = cache.get(member);
-        if (types == null) {
-          cache.put(member, types = member.getSignature().getArgumentTypes());
+    HashMap<MethodInfo, Type[]> cache = new HashMap<>();
+    ParameterTyper cached = (MethodInfo member) -> {
+      Type[] types = cache.get(member);
+      if (types == null) {
+        cache.put(member, types = member.getSignature().getArgumentTypes());
+      }
+      return types;
+    };
+
+    Label def = e.newLabel();
+    Label end = e.newLabel();
+    if (useName) {
+      e.swap();
+      Map<String, List<MethodInfo>> buckets = CollectionUtils.buckets(members, (MethodInfo value) -> value.getSignature().getName());
+
+      String[] names = StringUtils.toStringArray(buckets.keySet());
+      stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+
+        @Override
+        public void processCase(Object key, Label dontUseEnd) {
+          memberHelperSize(e, buckets.get(key), callback, cached, def, end);
         }
-        return types;
-      };
 
-      Label def = e.newLabel();
-      Label end = e.newLabel();
-      if (useName) {
-        e.swap();
-        Map<String, List<MethodInfo>> buckets = //
-                CollectionUtils.buckets(members, (MethodInfo value) -> value.getSignature().getName());
-
-        String[] names = StringUtils.toStringArray(buckets.keySet());
-        stringSwitch(e, names, Opcodes.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
-
-          @Override
-          public void processCase(Object key, Label dontUseEnd) {
-            memberHelperSize(e, buckets.get(key), callback, cached, def, end);
-          }
-
-          @Override
-          public void processDefault() {
-            e.goTo(def);
-          }
-        });
-      }
-      else {
-        memberHelperSize(e, members, callback, cached, def, end);
-      }
-      e.mark(def);
-      e.pop();
-      callback.processDefault();
-      e.mark(end);
+        @Override
+        public void processDefault() {
+          e.goTo(def);
+        }
+      });
     }
-    catch (RuntimeException | Error ex) {
-      throw ex;
+    else {
+      memberHelperSize(e, members, callback, cached, def, end);
     }
-    catch (Exception ex) {
-      throw new CodeGenerationException(ex);
-    }
+    e.mark(def);
+    e.pop();
+    callback.processDefault();
+    e.mark(end);
   }
 
   private static void memberHelperSize(CodeEmitter e,
