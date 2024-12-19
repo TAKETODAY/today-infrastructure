@@ -14,6 +14,7 @@ dependencies {
   jacocoAggregation project(':today-context')
   jacocoAggregation project(':today-aspects')
   jacocoAggregation project(':today-context-indexer')
+  jacocoAggregation project(':today-core-aot')
   jacocoAggregation project(':today-core-test')
   jacocoAggregation project(':today-framework')
   jacocoAggregation project(':today-jcache')
