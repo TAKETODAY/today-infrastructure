@@ -59,7 +59,9 @@ public class DefaultContextLoadTimeWeaver implements LoadTimeWeaver, BeanClassLo
   @Nullable
   private LoadTimeWeaver loadTimeWeaver;
 
-  public DefaultContextLoadTimeWeaver() { }
+  public DefaultContextLoadTimeWeaver() {
+
+  }
 
   public DefaultContextLoadTimeWeaver(ClassLoader beanClassLoader) {
     setBeanClassLoader(beanClassLoader);
@@ -76,7 +78,7 @@ public class DefaultContextLoadTimeWeaver implements LoadTimeWeaver, BeanClassLo
       this.loadTimeWeaver = serverSpecificLoadTimeWeaver;
     }
     else if (InstrumentationLoadTimeWeaver.isInstrumentationAvailable()) {
-      logger.debug("Found Framework's JVM agent for instrumentation");
+      logger.debug("Found Infra JVM agent for instrumentation");
       this.loadTimeWeaver = new InstrumentationLoadTimeWeaver(classLoader);
     }
     else {
@@ -89,7 +91,7 @@ public class DefaultContextLoadTimeWeaver implements LoadTimeWeaver, BeanClassLo
       }
       catch (IllegalStateException ex) {
         throw new IllegalStateException(ex.getMessage() + " Specify a custom LoadTimeWeaver or start your " +
-                "Java virtual machine with Framework's agent: -javaagent:instrument-{version}.jar");
+                "Java virtual machine with Infra agent: -javaagent:today-instrument-{version}.jar");
       }
     }
   }

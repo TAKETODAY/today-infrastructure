@@ -65,9 +65,11 @@ import infra.util.ReflectionUtils;
  * @since 4.0
  */
 public class ReflectiveLoadTimeWeaver implements LoadTimeWeaver {
+
   private static final Logger log = LoggerFactory.getLogger(ReflectiveLoadTimeWeaver.class);
 
   private static final String ADD_TRANSFORMER_METHOD_NAME = "addTransformer";
+
   private static final String GET_THROWAWAY_CLASS_LOADER_METHOD_NAME = "getThrowawayClassLoader";
 
   private final ClassLoader classLoader;
@@ -101,8 +103,8 @@ public class ReflectiveLoadTimeWeaver implements LoadTimeWeaver {
             this.classLoader.getClass(), ADD_TRANSFORMER_METHOD_NAME, ClassFileTransformer.class);
     if (addTransformerMethod == null) {
       throw new IllegalStateException(
-              "ClassLoader [" + classLoader.getClass().getName() + "] does NOT provide an " +
-                      "'addTransformer(ClassFileTransformer)' method.");
+              "ClassLoader [%s] does NOT provide an 'addTransformer(ClassFileTransformer)' method."
+                      .formatted(classLoader.getClass().getName()));
     }
     this.addTransformerMethod = addTransformerMethod;
 
