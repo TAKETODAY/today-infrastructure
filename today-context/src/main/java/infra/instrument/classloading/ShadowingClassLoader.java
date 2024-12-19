@@ -25,8 +25,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import infra.core.DecoratingClassLoader;
 import infra.core.OverridingClassLoader;
@@ -50,18 +48,17 @@ import infra.util.StringUtils;
 public class ShadowingClassLoader extends DecoratingClassLoader {
 
   /** Packages that are excluded by default. */
-  public static final String[] DEFAULT_EXCLUDED_PACKAGES =
-          new String[] {
-                  "java.", "javax.", "jdk.", "sun.", "oracle.", "com.sun.", "com.ibm.", "COM.ibm.",
-                  "org.w3c.", "org.xml.", "org.dom4j.", "org.eclipse", "org.aspectj.", "net.sf.cglib",
-                  "infra.bytecode", "org.apache.xerces.", "org.apache.commons.logging."
-          };
+  public static final String[] DEFAULT_EXCLUDED_PACKAGES = {
+          "java.", "javax.", "jdk.", "sun.", "oracle.", "com.sun.", "com.ibm.", "COM.ibm.",
+          "org.w3c.", "org.xml.", "org.dom4j.", "org.eclipse", "org.aspectj.", "net.sf.cglib",
+          "infra.bytecode", "org.apache.xerces.", "org.apache.commons.logging."
+  };
 
   private final ClassLoader enclosingClassLoader;
 
-  private final List<ClassFileTransformer> classFileTransformers = new ArrayList<>(1);
+  private final ArrayList<ClassFileTransformer> classFileTransformers = new ArrayList<>(1);
 
-  private final Map<String, Class<?>> classCache = new HashMap<>();
+  private final HashMap<String, Class<?>> classCache = new HashMap<>();
 
   /**
    * Create a new ShadowingClassLoader, decorating the given ClassLoader,
@@ -171,7 +168,7 @@ public class ShadowingClassLoader extends DecoratingClassLoader {
       return cls;
     }
     catch (IOException ex) {
-      throw new ClassNotFoundException("Cannot load resource for class [" + name + "]", ex);
+      throw new ClassNotFoundException("Cannot load resource for class [%s]".formatted(name), ex);
     }
   }
 
