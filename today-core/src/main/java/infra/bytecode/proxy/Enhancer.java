@@ -485,7 +485,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
       if (callbacksSetter == null) {
         throw new CodeGenerationException(
-                SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass);
+                SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass, null);
       }
       this.setThreadCallbacks = callbacksSetter;
       if (classOnly) {
@@ -866,6 +866,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
   }
 
+  @Nullable
   private static Method getCallbacksSetter(Class type, String methodName) {
     try {
       return type.getDeclaredMethod(methodName, Callback[].class);

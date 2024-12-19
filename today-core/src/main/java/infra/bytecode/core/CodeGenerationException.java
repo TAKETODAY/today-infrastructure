@@ -31,10 +31,6 @@ public class CodeGenerationException extends NestedRuntimeException {
     super(ExceptionUtils.unwrapIfNecessary(cause).toString(), cause);
   }
 
-  public CodeGenerationException(@Nullable String message) {
-    super(message);
-  }
-
   public CodeGenerationException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
   }
