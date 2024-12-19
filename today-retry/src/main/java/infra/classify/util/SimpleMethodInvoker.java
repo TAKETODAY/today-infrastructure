@@ -66,8 +66,8 @@ public class SimpleMethodInvoker implements MethodInvoker {
 
     if (method == null) {
       throw new IllegalArgumentException(
-              "No methods found for name: [" + methodName + "] in class: [" + object.getClass()
-                      + "] with arguments of type: [" + Arrays.toString(paramTypes) + "]");
+              "No methods found for name: [%s] in class: [%s] with arguments of type: [%s]"
+                      .formatted(methodName, object.getClass(), Arrays.toString(paramTypes)));
     }
 
     this.object = object;
@@ -76,12 +76,6 @@ public class SimpleMethodInvoker implements MethodInvoker {
     ReflectionUtils.makeAccessible(method);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see infra.batch.core.configuration.util.MethodInvoker#invokeMethod
-   * (java.lang.Object[])
-   */
   @Override
   public Object invokeMethod(Object... args) {
     if (this.parameterTypes.length != args.length) {
@@ -96,8 +90,8 @@ public class SimpleMethodInvoker implements MethodInvoker {
       return method.invoke(target, args);
     }
     catch (Exception e) {
-      throw new IllegalArgumentException("Unable to invoke method: [" + this.method + "] on object: ["
-              + this.object + "] with arguments: [" + Arrays.toString(args) + "]", e);
+      throw new IllegalArgumentException("Unable to invoke method: [%s] on object: [%s] with arguments: [%s]"
+              .formatted(this.method, this.object, Arrays.toString(args)), e);
     }
   }
 

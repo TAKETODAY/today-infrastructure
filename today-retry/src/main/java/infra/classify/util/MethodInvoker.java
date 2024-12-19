@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import infra.aop.framework.Advised;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
@@ -50,16 +51,17 @@ public interface MethodInvoker {
    * @param target to be invoked
    * @return MethodInvoker for the provided annotation, null if none is found.
    */
+  @Nullable
   static MethodInvoker forAnnotation(Class<? extends Annotation> annotationType, Object target) {
     Assert.notNull(target, "Target is required");
     Assert.notNull(annotationType, "AnnotationType is required");
     if (!ObjectUtils.containsElement(annotationType.getAnnotation(Target.class).value(), ElementType.METHOD)) {
-      throw new IllegalArgumentException("Annotation [" + annotationType + "] is not a Method-level annotation.");
+      throw new IllegalArgumentException("Annotation [%s] is not a Method-level annotation.".formatted(annotationType));
     }
 
     Class<?> targetClass = target instanceof Advised
-                           ? ((Advised) target).getTargetSource().getTargetClass()
-                           : target.getClass();
+            ? ((Advised) target).getTargetSource().getTargetClass()
+            : target.getClass();
     if (targetClass == null) {
       // Proxy with no target cannot have annotations
       return null;
@@ -70,8 +72,8 @@ public interface MethodInvoker {
       if (annotation != null) {
         if (annotatedMethod.get() != null) {
           throw new IllegalArgumentException(
-                  "found more than one method on target class [" + targetClass.getSimpleName()
-                          + "] with the annotation type [" + annotationType.getSimpleName() + "].");
+                  "found more than one method on target class [%s] with the annotation type [%s]."
+                          .formatted(targetClass.getSimpleName(), annotationType.getSimpleName()));
         }
         annotatedMethod.set(method);
       }
