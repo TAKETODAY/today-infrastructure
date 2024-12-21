@@ -775,6 +775,11 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  public <K, T> Map<K, T> find(Class<T> entityClass, Function<T, K> keyMapper) throws DataAccessException {
+    return find(entityClass, null, keyMapper);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <K, T> Map<K, T> find(T example, Function<T, K> keyMapper) throws DataAccessException {
     return find((Class<T>) example.getClass(), example, keyMapper);
