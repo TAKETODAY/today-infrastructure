@@ -41,6 +41,8 @@ import infra.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFactory;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -234,8 +236,10 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     MessageHandler handler = new MessageHandler(uri, webSocketHandler, handshaker);
 
     Bootstrap bootstrap = getBootstrap(handler);
-    bootstrap.connect(uri.getHost(), uri.getPort());
-    return handler.future;
+    ChannelFuture connect = bootstrap.connect(uri.getHost(), uri.getPort())
+            .addListener(handler);
+    return handler.promise
+            .onCancelled(() -> connect.cancel(true));
   }
 
   /**
@@ -336,7 +340,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     return entries;
   }
 
-  final class MessageHandler extends ChannelInboundHandlerAdapter {
+  final class MessageHandler extends ChannelInboundHandlerAdapter implements ChannelFutureListener {
 
     private final URI uri;
 
@@ -344,7 +348,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private final WebSocketClientHandshaker handshaker;
 
-    public final Promise<WebSocketSession> future = Future.forPromise();
+    public final Promise<WebSocketSession> promise = Future.forPromise();
 
     @Nullable
     private NettyWebSocketSession session;
@@ -353,6 +357,13 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
       this.uri = uri;
       this.handler = handler;
       this.handshaker = handshaker;
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) {
+      if (!future.isSuccess()) {
+        promise.tryFailure(future.cause());
+      }
     }
 
     @Override
@@ -402,10 +413,10 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
             handshaker.finishHandshake(channel, response);
             session = createSession(channel, "wss".equals(uri.getScheme()), handshaker, new NettyDataBufferFactory(channel.alloc()));
             handler.onOpen(session);
-            future.setSuccess(session);
+            promise.setSuccess(session);
           }
           catch (Throwable e) {
-            future.setFailure(e);
+            promise.setFailure(e);
           }
         }
       }
@@ -416,8 +427,8 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-      if (!future.isDone()) {
-        future.setFailure(cause);
+      if (!promise.isDone()) {
+        promise.setFailure(cause);
       }
       else if (session != null) {
         try {
@@ -428,6 +439,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
         }
       }
     }
+
   }
 
 }
