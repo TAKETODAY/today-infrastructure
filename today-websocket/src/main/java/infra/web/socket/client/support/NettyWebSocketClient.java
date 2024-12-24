@@ -18,6 +18,7 @@
 package infra.web.socket.client.support;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +45,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -59,6 +61,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.util.concurrent.DefaultThreadFactory;
 
 import static infra.util.concurrent.Future.ok;
 import static infra.web.socket.PromiseAdapter.adapt;
@@ -115,6 +118,26 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
   @Nullable
   private NioEventLoopGroup eventLoopGroup;
+
+  /**
+   * the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   * @since 5.0
+   */
+  private int ioThreadCount = 4;
+
+  /**
+   * @since 5.0
+   */
+  @Nullable
+  private String ioThreadPoolName;
+
+  /**
+   * @since 5.0
+   */
+  private Duration connectTimeout = Duration.ofSeconds(10);
 
   public void setFailOnMissingResponse(boolean failOnMissingResponse) {
     this.failOnMissingResponse = failOnMissingResponse;
@@ -173,6 +196,33 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     this.eventLoopGroup = eventLoopGroup;
   }
 
+  /**
+   * @since 5.0
+   */
+  public void setConnectTimeout(Duration connectTimeout) {
+    this.connectTimeout = connectTimeout;
+  }
+
+  /**
+   * set the number of threads that will be used by
+   * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+   *
+   * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+   * @since 5.0
+   */
+  public void setIOThreadCount(int ioThreadCount) {
+    this.ioThreadCount = ioThreadCount;
+  }
+
+  /**
+   * Set the io thread pool name
+   *
+   * @since 5.0
+   */
+  public void setIOThreadPoolName(@Nullable String workerPoolName) {
+    this.ioThreadPoolName = workerPoolName;
+  }
+
   @Override
   protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions) {
@@ -205,8 +255,11 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   protected Bootstrap getBootstrap(ChannelHandler handler) {
     NioEventLoopGroup eventLoopGroup = eventLoopGroup();
     ChannelFactory<?> channelFactory = channelFactory();
-    return new Bootstrap()
+    Bootstrap bootstrap = new Bootstrap();
+    processBootstrap(bootstrap);
+    return bootstrap
             .group(eventLoopGroup)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Math.toIntExact(connectTimeout.toMillis()))
             .channelFactory(channelFactory)
             .handler(new ChannelInitializer<SocketChannel>() {
 
@@ -230,6 +283,15 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   protected NettyWebSocketSession createSession(Channel channel, boolean secure,
           WebSocketClientHandshaker handshaker, NettyDataBufferFactory allocator) {
     return new NettyClientWebSocketSession(secure, channel, handshaker, allocator);
+  }
+
+  /**
+   * process bootstrap
+   *
+   * @since 5.0
+   */
+  protected void processBootstrap(Bootstrap bootstrap) {
+
   }
 
   /**
@@ -261,7 +323,8 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   private NioEventLoopGroup eventLoopGroup() {
     NioEventLoopGroup eventLoopGroup = this.eventLoopGroup;
     if (eventLoopGroup == null) {
-      eventLoopGroup = new NioEventLoopGroup(4);
+      eventLoopGroup = new NioEventLoopGroup(ioThreadCount,
+              new DefaultThreadFactory(ioThreadPoolName == null ? "websocket-client" : ioThreadPoolName));
       this.eventLoopGroup = eventLoopGroup;
     }
     return eventLoopGroup;
