@@ -62,7 +62,7 @@ class ReactorClientHttpConnectorFactory implements ClientHttpConnectorFactory<Re
   public ReactorClientHttpConnector createClientHttpConnector(@Nullable SslBundle sslBundle) {
     List<ReactorNettyHttpClientMapper> mappers = new ArrayList<>();
     if (mappersProvider != null) {
-      mappers.addAll(mappersProvider.orderedList());
+      mappersProvider.addOrderedTo(mappers);
     }
     if (sslBundle != null) {
       mappers.add(new SslConfigurer(sslBundle));
