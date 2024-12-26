@@ -170,10 +170,16 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   @Nullable
   private SslContext sslContext;
 
+  /**
+   * @see HttpClientCodec#failOnMissingResponse
+   */
   public void setFailOnMissingResponse(boolean failOnMissingResponse) {
     this.failOnMissingResponse = failOnMissingResponse;
   }
 
+  /**
+   * @see HttpClientCodec#parseHttpAfterConnectRequest
+   */
   public void setParseHttpAfterConnectRequest(boolean parseHttpAfterConnectRequest) {
     this.parseHttpAfterConnectRequest = parseHttpAfterConnectRequest;
   }
