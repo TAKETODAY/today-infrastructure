@@ -44,7 +44,7 @@ import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
 /**
- * today-framework Strategies
+ * Infra Strategies
  * <p>General purpose strategy loading mechanism for internal use within the framework.
  * <p>Reads a {@code META-INF/today.strategies} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
@@ -82,7 +82,7 @@ public class TodayStrategies {
       }
     }
     catch (IOException ex) {
-      System.err.println("Could not load 'today.properties' file from local classpath: " + ex);
+      log.error("Could not load 'today.properties' file from local classpath: " + ex, ex);
     }
   }
 
