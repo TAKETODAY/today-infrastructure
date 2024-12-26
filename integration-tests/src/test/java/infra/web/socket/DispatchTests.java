@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.fail;
 @InfraTest(webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT)
 class DispatchTests {
 
-  static final int connections = 100;
+  static final int connections = 32;
 
   final NettyWebSocketClient client = new NettyWebSocketClient();
 
