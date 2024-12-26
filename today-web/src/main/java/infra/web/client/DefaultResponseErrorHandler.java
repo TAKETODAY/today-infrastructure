@@ -37,7 +37,6 @@ import infra.http.converter.HttpMessageConverter;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
-import infra.util.ObjectUtils;
 
 /**
  * Default implementation of the {@link ResponseErrorHandler} interface.
@@ -142,7 +141,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
     }
 
     msg.append("\": ");
-    if (ObjectUtils.isEmpty(responseBody)) {
+    if (responseBody == null || responseBody.length == 0) {
       msg.append("[no body]");
     }
     else {

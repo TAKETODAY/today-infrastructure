@@ -37,26 +37,6 @@ public class UnknownHttpStatusCodeException extends WebClientResponseException {
    * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
    * parameters.
    */
-  public UnknownHttpStatusCodeException(int statusCode, HttpHeaders headers, byte[] responseBody, Charset responseCharset) {
-    super("Unknown status code [%d]".formatted(statusCode), statusCode, "",
-            headers, responseBody, responseCharset);
-  }
-
-  /**
-   * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
-   * parameters.
-   */
-  public UnknownHttpStatusCodeException(int statusCode, HttpHeaders headers, byte[] responseBody,
-          @Nullable Charset responseCharset, @Nullable HttpRequest request) {
-
-    super("Unknown status code [%d]".formatted(statusCode), statusCode, "",
-            headers, responseBody, responseCharset, request);
-  }
-
-  /**
-   * Create a new instance of the {@code UnknownHttpStatusCodeException} with the given
-   * parameters.
-   */
   public UnknownHttpStatusCodeException(HttpStatusCode statusCode, HttpHeaders headers,
           byte[] responseBody, @Nullable Charset responseCharset, @Nullable HttpRequest request) {
 

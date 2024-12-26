@@ -52,8 +52,8 @@ public class HttpServerErrorException extends HttpStatusCodeException {
   /**
    * Constructor with a status code and status text, and content.
    */
-  public HttpServerErrorException(
-          HttpStatusCode statusCode, String statusText, @Nullable byte[] body, @Nullable Charset charset) {
+  public HttpServerErrorException(HttpStatusCode statusCode,
+          String statusText, @Nullable byte[] body, @Nullable Charset charset) {
     super(statusCode, statusText, body, charset);
   }
 
@@ -77,8 +77,8 @@ public class HttpServerErrorException extends HttpStatusCodeException {
   /**
    * Create an {@code HttpServerErrorException} or an HTTP status specific sub-class.
    */
-  public static HttpServerErrorException create(
-          HttpStatus statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+  public static HttpServerErrorException create(HttpStatus statusCode,
+          String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
     return create(null, statusCode, statusText, headers, body, charset);
   }
 
