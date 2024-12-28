@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.client;
@@ -24,6 +24,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpMessage;
 import infra.http.MediaType;
+import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 
@@ -40,9 +41,8 @@ abstract class RestClientUtils {
     try {
       return FileCopyUtils.copyToByteArray(message.getBody());
     }
-    catch (IOException ignore) {
-    }
-    return new byte[0];
+    catch (IOException ignore) { }
+    return Constant.EMPTY_BYTES;
   }
 
   @Nullable

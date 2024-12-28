@@ -137,6 +137,8 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private boolean ignoreStatus = false;
 
+  private boolean detectEmptyMessageBody = true;
+
   public DefaultRestClientBuilder() {
 
   }
@@ -317,6 +319,12 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
+  @Override
+  public RestClient.Builder detectEmptyMessageBody(boolean detectEmptyBody) {
+    this.detectEmptyMessageBody = detectEmptyBody;
+    return this;
+  }
+
   private RestClient.Builder defaultStatusHandlerInternal(ResponseErrorHandler statusHandler) {
     if (this.statusHandlers == null) {
       this.statusHandlers = new ArrayList<>();
@@ -445,7 +453,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers,
-            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus);
+            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody);
   }
 
   private ClientHttpRequestFactory initRequestFactory() {

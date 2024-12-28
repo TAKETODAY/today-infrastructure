@@ -469,6 +469,16 @@ public interface RestClient {
     Builder ignoreStatus(boolean ignoreStatus);
 
     /**
+     * Detect empty message body
+     *
+     * @param detectEmptyBody detect empty message body
+     * @return this builder
+     * @see IntrospectingClientHttpResponse#hasMessageBody()
+     * @since 5.0
+     */
+    Builder detectEmptyMessageBody(boolean detectEmptyBody);
+
+    /**
      * Add the given request interceptor to the end of the interceptor chain.
      *
      * @param interceptor the interceptor to be added to the chain

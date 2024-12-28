@@ -275,6 +275,24 @@ class RestClientBuilderTests {
             .isFalse();
   }
 
+  @Test
+  void detectEmptyMessageBody() {
+    RestClient restClient = RestClient.builder()
+            .build();
+
+    assertThat(fieldValue("detectEmptyMessageBody", restClient))
+            .asInstanceOf(InstanceOfAssertFactories.BOOLEAN)
+            .isTrue();
+
+    restClient = RestClient.builder()
+            .detectEmptyMessageBody(false)
+            .build();
+
+    assertThat(fieldValue("detectEmptyMessageBody", restClient))
+            .asInstanceOf(InstanceOfAssertFactories.BOOLEAN)
+            .isFalse();
+  }
+
   @Nullable
   private static Object fieldValue(String name, DefaultRestClientBuilder instance) {
     try {

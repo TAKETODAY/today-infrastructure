@@ -108,6 +108,8 @@ final class DefaultRestClient implements RestClient {
 
   private final boolean ignoreStatusHandlers;
 
+  private final boolean detectEmptyMessageBody;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
@@ -116,7 +118,7 @@ final class DefaultRestClient implements RestClient {
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable List<ResponseErrorHandler> statusHandlers,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder,
-          boolean ignoreStatusHandlers) {
+          boolean ignoreStatusHandlers, boolean detectEmptyMessageBody) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -130,6 +132,7 @@ final class DefaultRestClient implements RestClient {
     this.builder = builder;
     this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
     this.ignoreStatusHandlers = ignoreStatusHandlers;
+    this.detectEmptyMessageBody = detectEmptyMessageBody;
   }
 
   @Override
@@ -191,13 +194,17 @@ final class DefaultRestClient implements RestClient {
   private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable ResponseConsumer callback, Type bodyType, Class<T> bodyClass) {
     MediaType contentType = getContentType(clientResponse);
 
-    try (var responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
+    try {
       if (callback != null) {
         callback.accept(clientResponse);
       }
 
-      if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
-        return null;
+      if (detectEmptyMessageBody) {
+        var responseWrapper = new IntrospectingClientHttpResponse(clientResponse);
+        if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
+          return null;
+        }
+        clientResponse = responseWrapper;
       }
 
       for (HttpMessageConverter<?> hmc : this.messageConverters) {
@@ -206,23 +213,26 @@ final class DefaultRestClient implements RestClient {
             if (logger.isDebugEnabled()) {
               logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
             }
-            return (T) ghmc.read(bodyType, null, responseWrapper);
+            return (T) ghmc.read(bodyType, null, clientResponse);
           }
         }
         else if (hmc.canRead(bodyClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
           }
-          return (T) hmc.read((Class) bodyClass, responseWrapper);
+          return (T) hmc.read((Class) bodyClass, clientResponse);
         }
       }
       throw new UnknownContentTypeException(bodyType, contentType,
-              responseWrapper.getStatusCode(), responseWrapper.getStatusText(),
-              responseWrapper.getHeaders(), RestClientUtils.getBody(responseWrapper));
+              clientResponse.getStatusCode(), clientResponse.getStatusText(),
+              clientResponse.getHeaders(), RestClientUtils.getBody(clientResponse));
     }
     catch (IOException | HttpMessageNotReadableException ex) {
       throw new RestClientException("Error while extracting response for type [%s] and content type [%s]"
               .formatted(ResolvableType.forType(bodyType), contentType), ex);
+    }
+    finally {
+      clientResponse.close();
     }
   }
 
