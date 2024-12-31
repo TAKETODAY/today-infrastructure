@@ -143,7 +143,8 @@ abstract class ScheduledAnnotationReactiveSupport {
 
     boolean shouldBlock = scheduled.fixedDelay() > 0 || StringUtils.hasText(scheduled.fixedDelayString());
     Publisher<?> publisher = getPublisherFor(method, targetBean);
-    return new SubscribingRunnable(publisher, shouldBlock, scheduled.scheduler(), subscriptionTrackerRegistry);
+    String displayName = targetBean.getClass().getName() + "." + method.getName();
+    return new SubscribingRunnable(publisher, shouldBlock, scheduled.scheduler(), subscriptionTrackerRegistry, displayName);
   }
 
   /**
@@ -161,13 +162,16 @@ abstract class ScheduledAnnotationReactiveSupport {
 
     private final List<Runnable> subscriptionTrackerRegistry;
 
+    final String displayName;
+
     SubscribingRunnable(Publisher<?> publisher, boolean shouldBlock,
-            @Nullable String qualifier, List<Runnable> subscriptionTrackerRegistry) {
+            @Nullable String qualifier, List<Runnable> subscriptionTrackerRegistry, String displayName) {
 
       this.publisher = publisher;
       this.shouldBlock = shouldBlock;
       this.qualifier = qualifier;
       this.subscriptionTrackerRegistry = subscriptionTrackerRegistry;
+      this.displayName = displayName;
     }
 
     @Override
@@ -198,6 +202,11 @@ abstract class ScheduledAnnotationReactiveSupport {
     private void subscribe(TrackingSubscriber subscriber) {
       this.subscriptionTrackerRegistry.add(subscriber);
       this.publisher.subscribe(subscriber);
+    }
+
+    @Override
+    public String toString() {
+      return this.displayName;
     }
   }
 
