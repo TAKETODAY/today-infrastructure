@@ -31,10 +31,12 @@ import infra.lang.Assert;
  * <p>All methods return {@code ComposablePointcut}, so we can use concise idioms
  * like in the following example.
  *
- * <pre class="code">Pointcut pc = new ComposablePointcut()
- *                      .union(classFilter)
- *                      .intersection(methodMatcher)
- *                      .intersection(pointcut);</pre>
+ * <pre>{@code
+ *   Pointcut pc = new ComposablePointcut()
+ *       .union(classFilter)
+ *       .intersection(methodMatcher)
+ *       .intersection(pointcut);
+ * }</pre>
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

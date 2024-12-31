@@ -48,8 +48,7 @@ import infra.util.ClassUtils;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public abstract class AbstractRegexpMethodPointcut
-        extends StaticMethodMatcherPointcut implements Serializable {
+public abstract class AbstractRegexpMethodPointcut extends StaticMethodMatcherPointcut implements Serializable {
 
   /**
    * Regular expressions to match.
@@ -134,9 +133,8 @@ public abstract class AbstractRegexpMethodPointcut
    */
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
-    return (matchesPattern(ClassUtils.getQualifiedMethodName(method, targetClass)) ||
-            (targetClass != method.getDeclaringClass() &&
-                    matchesPattern(ClassUtils.getQualifiedMethodName(method, method.getDeclaringClass()))));
+    return (matchesPattern(ClassUtils.getQualifiedMethodName(method, targetClass))
+            || (targetClass != method.getDeclaringClass() && matchesPattern(ClassUtils.getQualifiedMethodName(method, method.getDeclaringClass()))));
   }
 
   /**
@@ -206,10 +204,9 @@ public abstract class AbstractRegexpMethodPointcut
     if (this == other) {
       return true;
     }
-    if (!(other instanceof AbstractRegexpMethodPointcut)) {
+    if (!(other instanceof AbstractRegexpMethodPointcut otherPointcut)) {
       return false;
     }
-    AbstractRegexpMethodPointcut otherPointcut = (AbstractRegexpMethodPointcut) other;
     return (Arrays.equals(this.patterns, otherPointcut.patterns) &&
             Arrays.equals(this.excludedPatterns, otherPointcut.excludedPatterns));
   }

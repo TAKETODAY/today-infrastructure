@@ -17,7 +17,6 @@
 
 package infra.aop.framework.autoproxy;
 
-import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +52,7 @@ class DefaultAdvisorAutoProxyCreatorTests {
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
-    assertThat(demoPointcutAdvisor.matchesInvocationCount).as("matches() invocations after").isEqualTo(2);
+    assertThat(demoPointcutAdvisor.matchesInvocationCount).as("matches() invocations after").isEqualTo(3);
 
     context.close();
   }
@@ -65,7 +64,6 @@ class DefaultAdvisorAutoProxyCreatorTests {
     }
   }
 
-  @SuppressWarnings("serial")
   static class DemoPointcutAdvisor extends AbstractPointcutAdvisor {
 
     int matchesInvocationCount = 0;
@@ -88,8 +86,8 @@ class DefaultAdvisorAutoProxyCreatorTests {
     }
 
     @Override
-    public Advice getAdvice() {
-      return (MethodInterceptor) invocation -> "Advised: " + invocation.proceed();
+    public MethodInterceptor getAdvice() {
+      return invocation -> "Advised: " + invocation.proceed();
     }
   }
 

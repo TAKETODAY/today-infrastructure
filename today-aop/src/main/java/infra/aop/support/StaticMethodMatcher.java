@@ -30,8 +30,7 @@ import infra.core.OrderedSupport;
  * @author TODAY 2021/2/1 18:33
  * @since 3.0
  */
-public abstract class StaticMethodMatcher
-        extends OrderedSupport implements MethodMatcher {
+public abstract class StaticMethodMatcher extends OrderedSupport implements MethodMatcher {
 
   @Override
   public final boolean isRuntime() {
@@ -43,4 +42,5 @@ public abstract class StaticMethodMatcher
     // should never be invoked because isRuntime() returns false
     throw new UnsupportedOperationException("Illegal MethodMatcher usage");
   }
+
 }

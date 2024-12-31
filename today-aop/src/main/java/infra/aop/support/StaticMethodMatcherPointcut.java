@@ -33,8 +33,7 @@ import infra.aop.Pointcut;
  * @author TODAY 2021/2/1 18:34
  * @since 3.0
  */
-public abstract class StaticMethodMatcherPointcut
-        extends StaticMethodMatcher implements Pointcut {
+public abstract class StaticMethodMatcherPointcut extends StaticMethodMatcher implements Pointcut {
 
   private ClassFilter classFilter = ClassFilter.TRUE;
 

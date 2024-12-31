@@ -68,12 +68,14 @@ import infra.util.ReflectionUtils;
  * @author Dave Syer
  * @author Artem Bilan
  * @author Markus Heiden
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class RetryConfiguration extends AbstractPointcutAdvisor
-        implements IntroductionAdvisor, BeanFactoryAware, InitializingBean, SmartInitializingSingleton, ImportAware {
+public class RetryConfiguration extends AbstractPointcutAdvisor implements IntroductionAdvisor,
+        BeanFactoryAware, InitializingBean, SmartInitializingSingleton, ImportAware {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -117,7 +119,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
 
   @Nullable
   private <T> List<T> findBeans(Class<? extends T> type) {
-    if (beanFactory.getBeanNamesForType(type).size() > 0) {
+    if (!beanFactory.getBeanNamesForType(type).isEmpty()) {
       ArrayList<T> list = new ArrayList<>(beanFactory.getBeansOfType(type, false, false).values());
       OrderComparator.sort(list);
       return list;
@@ -146,7 +148,6 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     return this.pointcut.getClassFilter();
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public Class<?>[] getInterfaces() {
     return new Class[] { infra.retry.interceptor.Retryable.class };
