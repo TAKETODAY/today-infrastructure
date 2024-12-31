@@ -20,6 +20,8 @@ package infra.scheduling.config;
 import java.time.Instant;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
+import infra.scheduling.SchedulingAwareRunnable;
 
 /**
  * Holder class defining a {@code Runnable} to be executed as a task, typically at a
@@ -42,7 +44,7 @@ public class Task {
    * @param runnable the underlying task to execute
    */
   public Task(Runnable runnable) {
-    Assert.notNull(runnable, "Runnable is required");
+    Assert.notNull(runnable, "Runnable must not be null");
     this.runnable = new OutcomeTrackingRunnable(runnable);
     this.lastExecutionOutcome = TaskExecutionOutcome.create();
   }
@@ -57,7 +59,7 @@ public class Task {
   /**
    * Return the outcome of the last task execution.
    *
-   * @since 5.0
+   * @since 6.2
    */
   public TaskExecutionOutcome getLastExecutionOutcome() {
     return this.lastExecutionOutcome;
@@ -68,7 +70,7 @@ public class Task {
     return this.runnable.toString();
   }
 
-  private class OutcomeTrackingRunnable implements Runnable {
+  private class OutcomeTrackingRunnable implements SchedulingAwareRunnable {
 
     private final Runnable runnable;
 
@@ -87,6 +89,23 @@ public class Task {
         Task.this.lastExecutionOutcome = Task.this.lastExecutionOutcome.failure(exc);
         throw exc;
       }
+    }
+
+    @Override
+    public boolean isLongLived() {
+      if (this.runnable instanceof SchedulingAwareRunnable sar) {
+        return sar.isLongLived();
+      }
+      return SchedulingAwareRunnable.super.isLongLived();
+    }
+
+    @Override
+    @Nullable
+    public String getQualifier() {
+      if (this.runnable instanceof SchedulingAwareRunnable sar) {
+        return sar.getQualifier();
+      }
+      return SchedulingAwareRunnable.super.getQualifier();
     }
 
     @Override
