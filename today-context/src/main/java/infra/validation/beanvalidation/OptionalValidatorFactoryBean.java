@@ -17,6 +17,7 @@
 
 package infra.validation.beanvalidation;
 
+import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.validation.Validator;
 import jakarta.validation.ValidationException;
@@ -42,7 +43,13 @@ public class OptionalValidatorFactoryBean extends LocalValidatorFactoryBean {
       super.afterPropertiesSet();
     }
     catch (ValidationException ex) {
-      LoggerFactory.getLogger(getClass()).debug("Failed to set up a Bean Validation provider", ex);
+      Logger logger = LoggerFactory.getLogger(getClass());
+      if (logger.isDebugEnabled()) {
+        logger.debug("Failed to set up a Bean Validation provider", ex);
+      }
+      else if (logger.isInfoEnabled()) {
+        logger.info("Failed to set up a Bean Validation provider: " + ex);
+      }
     }
   }
 
