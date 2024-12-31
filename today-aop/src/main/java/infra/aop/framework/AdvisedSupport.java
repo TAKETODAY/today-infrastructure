@@ -688,8 +688,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
     @Override
     public boolean equals(Object other) {
-      return (this == other
-              || (other instanceof MethodCacheKey && this.method == ((MethodCacheKey) other).method));
+      return (this == other || (other instanceof MethodCacheKey that &&
+              (this.method == that.method || this.method.equals(that.method))));
     }
 
     @Override

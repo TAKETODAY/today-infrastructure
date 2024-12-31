@@ -52,7 +52,7 @@ class DefaultAdvisorAutoProxyCreatorTests {
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
     assertThat(demoBean.sayHello()).isEqualTo("Advised: Hello!");
-    assertThat(demoPointcutAdvisor.matchesInvocationCount).as("matches() invocations after").isEqualTo(3);
+    assertThat(demoPointcutAdvisor.matchesInvocationCount).as("matches() invocations after").isEqualTo(2);
 
     context.close();
   }

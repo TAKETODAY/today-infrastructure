@@ -138,9 +138,7 @@ class BeanFactoryTransactionTests {
 
     // The matches(Method, Class) method of the static transaction pointcut should not
     // have been invoked for the actual invocation of the getAge() and setAge() methods.
-//    assertThat(txnPointcut.counter).as("txnPointcut").isZero();
-    assertThat(0 < txnPointcut.counter && txnPointcut.counter <= 4).isTrue();
-
+    assertThat(txnPointcut.counter).as("txnPointcut").isZero();
 
     assertThat(preInterceptor.counter).as("preInterceptor").isEqualTo(3);
     assertThat(postInterceptor.counter).as("postInterceptor").isEqualTo(3);
