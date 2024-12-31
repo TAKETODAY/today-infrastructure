@@ -654,6 +654,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           }
         }
         else {
+          if (log.isInfoEnabled()) {
+            log.info("Removing alias '{}' for bean {}' due to registration of bean definition for bean '{}': [{}]",
+                    beanName, aliasedName, beanName, def);
+          }
           removeAlias(beanName);
         }
       }
