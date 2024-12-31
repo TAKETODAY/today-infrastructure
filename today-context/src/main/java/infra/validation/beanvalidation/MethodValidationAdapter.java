@@ -349,16 +349,12 @@ public class MethodValidationAdapter implements MethodValidator {
           container = null;
         }
 
-        if (node.getKind().equals(ElementKind.PROPERTY)) {
-          nestedViolations
-                  .computeIfAbsent(parameterNode, k ->
-                          new ParamErrorsBuilder(parameter, value, container, index, key))
+        if (node.getKind().equals(ElementKind.PROPERTY) || node.getKind().equals(ElementKind.BEAN)) {
+          nestedViolations.computeIfAbsent(parameterNode, k -> new ParamErrorsBuilder(parameter, value, container, index, key))
                   .addViolation(violation);
         }
         else {
-          paramViolations
-                  .computeIfAbsent(parameterNode, p ->
-                          new ParamValidationResultBuilder(target, parameter, value, container, index, key))
+          paramViolations.computeIfAbsent(parameterNode, p -> new ParamValidationResultBuilder(target, parameter, value, container, index, key))
                   .addViolation(violation);
         }
 
