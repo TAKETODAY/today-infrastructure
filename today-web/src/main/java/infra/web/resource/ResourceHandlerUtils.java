@@ -152,7 +152,7 @@ public abstract class ResourceHandlerUtils {
    * checks are performed again.
    */
   public static boolean shouldIgnoreInputPath(String path) {
-    return (!StringUtils.hasText(path) || isInvalidPath(path) || isInvalidEncodedPath(path));
+    return StringUtils.isBlank(path) || isInvalidPath(path) || isInvalidEncodedPath(path);
   }
 
   /**
@@ -175,7 +175,7 @@ public abstract class ResourceHandlerUtils {
     if (path.contains("WEB-INF") || path.contains("META-INF")) {
       if (logger.isWarnEnabled()) {
         logger.warn(LogFormatUtils.formatValue(
-                "Path with \"WEB-INF\" or \"META-INF\": [" + path + "]", -1, true));
+                "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));
       }
       return true;
     }
@@ -184,7 +184,7 @@ public abstract class ResourceHandlerUtils {
       if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
         if (logger.isWarnEnabled()) {
           logger.warn(LogFormatUtils.formatValue(
-                  "Path represents URL or has \"url:\" prefix: [" + path + "]", -1, true));
+                  "Path represents URL or has \"url:\" prefix: [%s]".formatted(path), -1, true));
         }
         return true;
       }
@@ -192,7 +192,7 @@ public abstract class ResourceHandlerUtils {
     if (path.contains("../")) {
       if (logger.isWarnEnabled()) {
         logger.warn(LogFormatUtils.formatValue(
-                "Path contains \"../\" after call to StringUtils#cleanPath: [" + path + "]", -1, true));
+                "Path contains \"../\" after call to StringUtils#cleanPath: [%s]".formatted(path), -1, true));
       }
       return true;
     }
@@ -257,7 +257,7 @@ public abstract class ResourceHandlerUtils {
       return true;
     }
     locationPath = (locationPath.endsWith("/") || locationPath.isEmpty() ? locationPath : locationPath + "/");
-    return (resourcePath.startsWith(locationPath) && !isInvalidEncodedResourcePath(resourcePath));
+    return resourcePath.startsWith(locationPath) && !isInvalidEncodedResourcePath(resourcePath);
   }
 
   private static boolean isInvalidEncodedResourcePath(String resourcePath) {
