@@ -34,6 +34,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.AbstractBeanDefinitionReader;
+import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.beans.factory.support.BeanDefinitionReader;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanNameGenerator;
@@ -322,18 +323,25 @@ class ConfigurationClassBeanDefinitionReader {
       return false;
     }
     BeanDefinition existingBeanDef = bootstrapContext.getBeanDefinition(beanName);
+    ConfigurationClass configClass = componentMethod.configurationClass;
 
     // If the bean method is an overloaded case on the same configuration class,
     // preserve the existing bean definition and mark it as overloaded.
     if (existingBeanDef instanceof ConfigurationClassBeanDefinition ccbd) {
-      if (ccbd.getMetadata().getClassName().equals(componentMethod.configurationClass.metadata.getClassName())
-              && ccbd.getFactoryMethodMetadata().getMethodName().equals(componentMethod.metadata.getMethodName())) {
+      if (!ccbd.getMetadata().getClassName().equals(configClass.metadata.getClassName())) {
+        return false;
+      }
+      if (ccbd.getFactoryMethodMetadata().getMethodName().equals(componentMethod.metadata.getMethodName())) {
         ccbd.setNonUniqueFactoryMethodName(ccbd.getFactoryMethodMetadata().getMethodName());
         return true;
       }
-      else {
-        return false;
+      Map<String, Object> attributes = configClass.metadata.getAnnotationAttributes(Configuration.class.getName());
+      if ((attributes != null && (Boolean) attributes.get("enforceUniqueMethods"))
+              || !bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
+        throw new BeanDefinitionOverrideException(beanName, new ConfigurationClassBeanDefinition(configClass, componentMethod.metadata, beanName),
+                existingBeanDef, "@Bean method override with same bean name but different method name: " + existingBeanDef);
       }
+      return true;
     }
 
     // A bean definition resulting from a component scan can be silently overridden
@@ -355,13 +363,12 @@ class ConfigurationClassBeanDefinitionReader {
     // At this point, it's a top-level override (probably XML), just having been parsed
     // before configuration class processing kicks in...
     if (!bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
-      throw new BeanDefinitionStoreException(componentMethod.configurationClass.resource.toString(),
-              beanName, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
+      throw new BeanDefinitionOverrideException(beanName, new ConfigurationClassBeanDefinition(configClass, componentMethod.metadata, beanName),
+              existingBeanDef, "@Bean definition illegally overridden by existing bean definition: " + existingBeanDef);
     }
     if (logger.isDebugEnabled()) {
       logger.debug("Skipping bean definition for {}: a definition for bean '{}' " +
-                      "already exists. This top-level bean definition is considered as an override.",
-              componentMethod, beanName);
+              "already exists. This top-level bean definition is considered as an override.", componentMethod, beanName);
     }
     return true;
   }

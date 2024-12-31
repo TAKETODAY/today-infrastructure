@@ -52,6 +52,23 @@ public class BeanDefinitionOverrideException extends BeanDefinitionStoreExceptio
   }
 
   /**
+   * Create a new BeanDefinitionOverrideException for the given new and existing definition.
+   *
+   * @param beanName the name of the bean
+   * @param beanDefinition the newly registered bean definition
+   * @param existingDefinition the existing bean definition for the same name
+   * @param msg the detail message to include
+   * @since 5.0
+   */
+  public BeanDefinitionOverrideException(String beanName,
+          BeanDefinition beanDefinition, BeanDefinition existingDefinition, String msg) {
+
+    super(beanDefinition.getResourceDescription(), beanName, msg);
+    this.beanDefinition = beanDefinition;
+    this.existingDefinition = existingDefinition;
+  }
+
+  /**
    * Return the newly registered bean definition.
    */
   public BeanDefinition getBeanDefinition() {
