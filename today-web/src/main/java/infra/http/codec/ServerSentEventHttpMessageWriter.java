@@ -20,7 +20,6 @@ package infra.http.codec;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import infra.core.codec.Encoder;
 import infra.core.codec.Hints;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpLogging;
 import infra.http.MediaType;
 import infra.http.ReactiveHttpOutputMessage;
@@ -54,6 +52,7 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Object> {
+
   private static final Logger logger = HttpLogging.forLogName(ServerSentEventHttpMessageWriter.class);
 
   private static final MediaType DEFAULT_MEDIA_TYPE = new MediaType("text", "event-stream", StandardCharsets.UTF_8);
@@ -114,54 +113,35 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   private Flux<Publisher<DataBuffer>> encode(Publisher<?> input, ResolvableType elementType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
-    ResolvableType dataType = ServerSentEvent.class.isAssignableFrom(elementType.toClass())
-                              ? elementType.getGeneric() : elementType;
+    ResolvableType dataType = (ServerSentEvent.class.isAssignableFrom(elementType.toClass()) ?
+            elementType.getGeneric() : elementType);
 
     return Flux.from(input).map(element -> {
-      ServerSentEvent<?> sse = element instanceof ServerSentEvent
-                               ? (ServerSentEvent<?>) element
-                               : ServerSentEvent.builder().data(element).build();
 
-      StringBuilder sb = new StringBuilder();
-      String id = sse.id();
-      String event = sse.event();
-      Duration retry = sse.retry();
-      String comment = sse.comment();
+      ServerSentEvent<?> sse = (element instanceof ServerSentEvent<?> serverSentEvent ?
+              serverSentEvent : ServerSentEvent.builder().data(element).build());
+
+      String sseText = sse.format();
       Object data = sse.data();
-      if (id != null) {
-        writeField("id", id, sb);
-      }
-      if (event != null) {
-        writeField("event", event, sb);
-      }
-      if (retry != null) {
-        writeField("retry", retry.toMillis(), sb);
-      }
-      if (comment != null) {
-        sb.append(':').append(StringUtils.replace(comment, "\n", "\n:")).append('\n');
-      }
-      if (data != null) {
-        sb.append("data:");
-      }
 
       Flux<DataBuffer> result;
       if (data == null) {
-        result = Flux.just(encodeText(sb + "\n", mediaType, factory));
+        result = Flux.just(encodeText(sseText + "\n", mediaType, factory));
       }
-      else if (data instanceof String) {
-        data = StringUtils.replace((String) data, "\n", "\ndata:");
-        result = Flux.just(encodeText(sb + (String) data + "\n\n", mediaType, factory));
+      else if (data instanceof String text) {
+        text = StringUtils.replace(text, "\n", "\ndata:");
+        result = Flux.just(encodeText(sseText + text + "\n\n", mediaType, factory));
       }
       else {
-        result = encodeEvent(sb, data, dataType, mediaType, factory, hints);
+        result = encodeEvent(sseText, data, dataType, mediaType, factory, hints);
       }
 
-      return result.doOnDiscard(DataBuffer.class, DataBuffer.RELEASE_CONSUMER);
+      return result.doOnDiscard(DataBuffer.class, DataBuffer::release);
     });
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Flux<DataBuffer> encodeEvent(StringBuilder eventContent, T data, ResolvableType dataType,
+  private <T> Flux<DataBuffer> encodeEvent(CharSequence sseText, T data, ResolvableType dataType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
     if (this.encoder == null) {
@@ -169,16 +149,12 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
     }
 
     return Flux.defer(() -> {
-      DataBuffer startBuffer = encodeText(eventContent, mediaType, factory);
+      DataBuffer startBuffer = encodeText(sseText, mediaType, factory);
       DataBuffer endBuffer = encodeText("\n\n", mediaType, factory);
       DataBuffer dataBuffer = ((Encoder<T>) this.encoder).encodeValue(data, factory, dataType, mediaType, hints);
       Hints.touchDataBuffer(dataBuffer, hints, logger);
       return Flux.just(startBuffer, dataBuffer, endBuffer);
     });
-  }
-
-  private void writeField(String fieldName, Object fieldValue, StringBuilder sb) {
-    sb.append(fieldName).append(':').append(fieldValue).append('\n');
   }
 
   private DataBuffer encodeText(CharSequence text, MediaType mediaType, DataBufferFactory bufferFactory) {
@@ -190,16 +166,18 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   @Override
   public Mono<Void> write(Publisher<?> input, ResolvableType actualType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
-    Map<String, Object> allHints = Hints.merge(
-            hints, getEncodeHints(actualType, elementType, mediaType, request, response));
+
+    Map<String, Object> allHints = Hints.merge(hints,
+            getEncodeHints(actualType, elementType, mediaType, request, response));
+
     return write(input, elementType, mediaType, response, allHints);
   }
 
   private Map<String, Object> getEncodeHints(ResolvableType actualType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
-    if (this.encoder instanceof HttpMessageEncoder<?> encoder) {
-      return encoder.getEncodeHints(actualType, elementType, mediaType, request, response);
+    if (this.encoder instanceof HttpMessageEncoder<?> httpMessageEncoder) {
+      return httpMessageEncoder.getEncodeHints(actualType, elementType, mediaType, request, response);
     }
     return Hints.none();
   }

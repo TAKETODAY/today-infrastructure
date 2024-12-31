@@ -43,8 +43,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
-    if (resolvable.getParameterType() == Map.class
-            && resolvable.getParameterAnnotations().length == 0) {
+    if (resolvable.is(Map.class) && resolvable.getParameterAnnotations().length == 0) {
       // Map<String, Object> model;
       ResolvableType mapType = resolvable.getResolvableType().asMap();
       ResolvableType keyType = mapType.getGeneric(0);

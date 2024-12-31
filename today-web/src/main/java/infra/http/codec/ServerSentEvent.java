@@ -18,9 +18,11 @@
 package infra.http.codec;
 
 import java.time.Duration;
+import java.util.Objects;
 
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 
 /**
  * Representation for a Server-Sent Event for use with reactive Web support.
@@ -101,13 +103,43 @@ public final class ServerSentEvent<T> {
     return this.data;
   }
 
+  /**
+   * Return a StringBuilder with the id, event, retry, and comment fields fully
+   * serialized, and also appending "data:" if there is data.
+   *
+   * @since 5.0
+   */
+  public String format() {
+    StringBuilder sb = new StringBuilder();
+    if (this.id != null) {
+      appendAttribute("id", this.id, sb);
+    }
+    if (this.event != null) {
+      appendAttribute("event", this.event, sb);
+    }
+    if (this.retry != null) {
+      appendAttribute("retry", this.retry.toMillis(), sb);
+    }
+    if (this.comment != null) {
+      sb.append(':').append(StringUtils.replace(this.comment, "\n", "\n:")).append('\n');
+    }
+    if (this.data != null) {
+      sb.append("data:");
+    }
+    return sb.toString();
+  }
+
+  private void appendAttribute(String fieldName, Object fieldValue, StringBuilder sb) {
+    sb.append(fieldName).append(':').append(fieldValue).append('\n');
+  }
+
   @Override
   public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof ServerSentEvent<?> that &&
-            ObjectUtils.nullSafeEquals(this.id, that.id) &&
-            ObjectUtils.nullSafeEquals(this.event, that.event) &&
-            ObjectUtils.nullSafeEquals(this.retry, that.retry) &&
-            ObjectUtils.nullSafeEquals(this.comment, that.comment) &&
+            Objects.equals(this.id, that.id) &&
+            Objects.equals(this.event, that.event) &&
+            Objects.equals(this.retry, that.retry) &&
+            Objects.equals(this.comment, that.comment) &&
             ObjectUtils.nullSafeEquals(this.data, that.data)));
   }
 
