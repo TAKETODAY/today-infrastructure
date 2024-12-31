@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,7 @@ public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
 
   public Jackson2JsonEncoder(ObjectMapper mapper, MimeType... mimeTypes) {
     super(mapper, mimeTypes);
-    setStreamingMediaTypes(Arrays.asList(MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON));
+    setStreamingMediaTypes(List.of(MediaType.APPLICATION_NDJSON));
     this.ssePrettyPrinter = initSsePrettyPrinter();
   }
 
@@ -76,10 +75,10 @@ public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
           @Nullable MimeType mimeType, ResolvableType elementType, @Nullable Map<String, Object> hints) {
 
     return this.ssePrettyPrinter != null
-                   && MediaType.TEXT_EVENT_STREAM.isCompatibleWith(mimeType)
-                   && writer.getConfig().isEnabled(SerializationFeature.INDENT_OUTPUT)
-           ? writer.with(this.ssePrettyPrinter)
-           : writer;
+            && MediaType.TEXT_EVENT_STREAM.isCompatibleWith(mimeType)
+            && writer.getConfig().isEnabled(SerializationFeature.INDENT_OUTPUT)
+            ? writer.with(this.ssePrettyPrinter)
+            : writer;
   }
 
   @Override

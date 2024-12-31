@@ -99,13 +99,6 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   public static final String APPLICATION_JSON_VALUE = "application/json";
 
   /**
-   * A String equivalent of {@link MimeType#APPLICATION_JSON}.
-   *
-   * @since 5.0
-   */
-  public static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
-
-  /**
    * Public constant mime type for {@code application/octet-stream}.
    *
    * @since 5.0

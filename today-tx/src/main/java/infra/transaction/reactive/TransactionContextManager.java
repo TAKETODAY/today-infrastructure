@@ -38,9 +38,6 @@ import reactor.util.context.Context;
  */
 public abstract class TransactionContextManager {
 
-  private static final NoTransactionInContextException NO_TRANSACTION_IN_CONTEXT_EXCEPTION =
-          new NoTransactionInContextException();
-
   private TransactionContextManager() { }
 
   /**
@@ -63,7 +60,7 @@ public abstract class TransactionContextManager {
           return Mono.just(holder.currentContext());
         }
       }
-      return Mono.error(NO_TRANSACTION_IN_CONTEXT_EXCEPTION);
+      return Mono.error(new NoTransactionInContextException());
     });
   }
 
