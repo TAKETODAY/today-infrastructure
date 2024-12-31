@@ -349,19 +349,19 @@ public class ResolvableType implements Serializable {
 
     // Deal with wildcard bounds
     WildcardBounds ourBounds = WildcardBounds.get(this);
-    WildcardBounds typeBounds = WildcardBounds.get(other);
+    WildcardBounds otherBounds = WildcardBounds.get(other);
 
     // In the form X is assignable to <? extends Number>
-    if (typeBounds != null) {
+    if (otherBounds != null) {
       if (ourBounds != null) {
-        return ourBounds.isSameKind(typeBounds)
-                && ourBounds.isAssignableFrom(typeBounds.bounds, matchedBefore);
+        return (ourBounds.isSameKind(otherBounds) &&
+                ourBounds.isAssignableFrom(otherBounds.bounds, matchedBefore));
       }
       else if (upUntilUnresolvable) {
-        return typeBounds.isAssignableFrom(this, matchedBefore);
+        return otherBounds.isAssignableFrom(this, matchedBefore);
       }
       else if (!exactMatch) {
-        return typeBounds.isAssignableTo(this, matchedBefore);
+        return otherBounds.isAssignableTo(this, matchedBefore);
       }
       else {
         return false;
@@ -415,8 +415,8 @@ public class ResolvableType implements Serializable {
     if (checkGenerics) {
       // Recursively check each generic
       ResolvableType[] ourGenerics = getGenerics();
-      ResolvableType[] typeGenerics = other.as(ourResolved).getGenerics();
-      if (ourGenerics.length != typeGenerics.length) {
+      ResolvableType[] otherGenerics = other.as(ourResolved).getGenerics();
+      if (ourGenerics.length != otherGenerics.length) {
         return false;
       }
       if (ourGenerics.length > 0) {
@@ -425,7 +425,8 @@ public class ResolvableType implements Serializable {
         }
         matchedBefore.put(this.type, other.type);
         for (int i = 0; i < ourGenerics.length; i++) {
-          if (!ourGenerics[i].isAssignableFrom(typeGenerics[i], true, matchedBefore, upUntilUnresolvable)) {
+          if (!ourGenerics[i].isAssignableFrom(otherGenerics[i],
+                  !other.hasUnresolvableGenerics(), matchedBefore, upUntilUnresolvable)) {
             return false;
           }
         }

@@ -274,7 +274,6 @@ public class ResolvableTypeTests {
   }
 
   @Test
-
   void forMethodParameterWithSameSignatureAndGenerics() throws Exception {
     Method method = Methods.class.getMethod("list1");
     MethodParameter methodParameter = MethodParameter.forExecutable(method, -1);
@@ -1187,6 +1186,26 @@ public class ResolvableTypeTests {
   }
 
   @Test
+  void isAssignableFromForUnresolvedWildcards() {
+    ResolvableType wildcard = ResolvableType.forInstance(new Wildcard<>());
+    ResolvableType wildcardFixed = ResolvableType.forInstance(new WildcardFixed());
+    ResolvableType wildcardConcrete = ResolvableType.forClassWithGenerics(Wildcard.class, Number.class);
+
+    assertThat(wildcard.isAssignableFrom(wildcardFixed)).isTrue();
+    assertThat(wildcard.isAssignableFromResolvedPart(wildcardFixed)).isTrue();
+    assertThat(wildcard.isAssignableFrom(wildcardConcrete)).isTrue();
+    assertThat(wildcard.isAssignableFromResolvedPart(wildcardConcrete)).isTrue();
+    assertThat(wildcardFixed.isAssignableFrom(wildcard)).isFalse();
+    assertThat(wildcardFixed.isAssignableFromResolvedPart(wildcard)).isFalse();
+    assertThat(wildcardFixed.isAssignableFrom(wildcardConcrete)).isFalse();
+    assertThat(wildcardFixed.isAssignableFromResolvedPart(wildcardConcrete)).isFalse();
+    assertThat(wildcardConcrete.isAssignableFrom(wildcard)).isTrue();
+    assertThat(wildcardConcrete.isAssignableFromResolvedPart(wildcard)).isTrue();
+    assertThat(wildcardConcrete.isAssignableFrom(wildcardFixed)).isFalse();
+    assertThat(wildcardConcrete.isAssignableFromResolvedPart(wildcardFixed)).isFalse();
+  }
+
+  @Test
   void identifyTypeVariable() throws Exception {
     Method method = ClassArguments.class.getMethod("typedArgumentFirst", Class.class, Class.class, Class.class);
     ResolvableType returnType = ResolvableType.forReturnType(method, ClassArguments.class);
@@ -1690,10 +1709,10 @@ public class ResolvableTypeTests {
   public class MyCollectionSuperclassType extends MySuperclassType<Collection<String>> {
   }
 
-  interface Wildcard<T extends Number> extends List<T> {
+  public class Wildcard<T extends Number> {
   }
 
-  interface RawExtendsWildcard extends Wildcard {
+  public class WildcardFixed extends Wildcard<Integer> {
   }
 
   interface VariableNameSwitch<V, K> extends MultiValueMap<K, V> {
