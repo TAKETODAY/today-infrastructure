@@ -84,10 +84,6 @@ final class PlaceholderParser {
   @Nullable
   private final Character escape;
 
-  private final int placeholderPrefixLength;
-
-  private final int placeholderSuffixLength;
-
   /**
    * Create an instance using the specified input for the parser.
    *
@@ -114,9 +110,6 @@ final class PlaceholderParser {
     this.separator = separator;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;
     this.escape = escape;
-
-    this.placeholderPrefixLength = prefix.length();
-    this.placeholderSuffixLength = suffix.length();
   }
 
   /**
@@ -130,8 +123,9 @@ final class PlaceholderParser {
   public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
     Assert.notNull(value, "'value' is required");
     ParsedValue parsedValue = parse(value);
-    PartResolutionContext resolutionContext = new PartResolutionContext(placeholderResolver, this.prefix,
-            this.suffix, this.ignoreUnresolvablePlaceholders, candidate -> parse(candidate, false));
+    PartResolutionContext resolutionContext = new PartResolutionContext(placeholderResolver,
+            this.prefix, this.suffix, this.ignoreUnresolvablePlaceholders,
+            candidate -> parse(candidate, false));
     return parsedValue.resolve(resolutionContext);
   }
 
@@ -158,28 +152,28 @@ final class PlaceholderParser {
     while (startIndex != -1) {
       int endIndex = nextValidEndPrefix(value, startIndex);
       if (endIndex == -1) { // Not a valid placeholder, consume the prefix and continue
-        addText(value, position, startIndex + placeholderPrefixLength, parts);
-        position = startIndex + placeholderPrefixLength;
+        addText(value, position, startIndex + this.prefix.length(), parts);
+        position = startIndex + this.prefix.length();
         startIndex = nextStartPrefix(value, position);
       }
       else if (isEscaped(value, startIndex)) { // Not a valid index, accumulate and skip the escape character
         addText(value, position, startIndex - 1, parts);
-        addText(value, startIndex, startIndex + placeholderPrefixLength, parts);
-        position = startIndex + placeholderPrefixLength;
+        addText(value, startIndex, startIndex + this.prefix.length(), parts);
+        position = startIndex + this.prefix.length();
         startIndex = nextStartPrefix(value, position);
       }
       else { // Found valid placeholder, recursive parsing
         addText(value, position, startIndex, parts);
-        String placeholder = value.substring(startIndex + placeholderPrefixLength, endIndex);
+        String placeholder = value.substring(startIndex + this.prefix.length(), endIndex);
         List<Part> placeholderParts = parse(placeholder, true);
         parts.addAll(placeholderParts);
-        startIndex = nextStartPrefix(value, endIndex + placeholderSuffixLength);
-        position = endIndex + placeholderSuffixLength;
+        startIndex = nextStartPrefix(value, endIndex + this.suffix.length());
+        position = endIndex + this.suffix.length();
       }
     }
     // Add rest of text if necessary
     addText(value, position, value.length(), parts);
-    return inPlaceholder ? List.of(createNestedPlaceholderPart(value, parts)) : parts;
+    return (inPlaceholder ? List.of(createNestedPlaceholderPart(value, parts)) : parts);
   }
 
   private SimplePlaceholderPart createSimplePlaceholderPart(String text) {
@@ -221,25 +215,24 @@ final class PlaceholderParser {
 
   @Nullable
   private String[] splitKeyAndDefault(String value) {
-    String separator = this.separator;
-    if (separator == null || !value.contains(separator)) {
+    if (this.separator == null || !value.contains(this.separator)) {
       return null;
     }
     int position = 0;
-    int index = value.indexOf(separator, position);
+    int index = value.indexOf(this.separator, position);
     StringBuilder buffer = new StringBuilder();
     while (index != -1) {
       if (isEscaped(value, index)) {
         // Accumulate, without the escape character.
         buffer.append(value, position, index - 1);
-        buffer.append(value, index, index + separator.length());
-        position = index + separator.length();
-        index = value.indexOf(separator, position);
+        buffer.append(value, index, index + this.separator.length());
+        position = index + this.separator.length();
+        index = value.indexOf(this.separator, position);
       }
       else {
         buffer.append(value, position, index);
         String key = buffer.toString();
-        String fallback = value.substring(index + separator.length());
+        String fallback = value.substring(index + this.separator.length());
         return new String[] { key, fallback };
       }
     }
@@ -256,7 +249,7 @@ final class PlaceholderParser {
       if (!parts.isEmpty()) {
         Part current = parts.removeLast();
         if (current instanceof TextPart textPart) {
-          parts.add(new TextPart(textPart.text + text));
+          parts.add(new TextPart(textPart.text() + text));
         }
         else {
           parts.add(current);
@@ -274,13 +267,13 @@ final class PlaceholderParser {
   }
 
   private int nextValidEndPrefix(String value, int startIndex) {
-    int index = startIndex + placeholderPrefixLength;
+    int index = startIndex + this.prefix.length();
     int withinNestedPlaceholder = 0;
     while (index < value.length()) {
       if (StringUtils.substringMatch(value, index, this.suffix)) {
         if (withinNestedPlaceholder > 0) {
           withinNestedPlaceholder--;
-          index = index + placeholderSuffixLength;
+          index = index + this.suffix.length();
         }
         else {
           return index;
@@ -328,6 +321,7 @@ final class PlaceholderParser {
       this.resolver = resolver;
     }
 
+    @Nullable
     @Override
     public String resolvePlaceholder(String placeholderName) {
       String value = this.resolver.resolvePlaceholder(placeholderName);
@@ -365,9 +359,8 @@ final class PlaceholderParser {
     }
 
     public void removePlaceholder(String placeholder) {
-      if (visitedPlaceholders != null) {
-        visitedPlaceholders.remove(placeholder);
-      }
+      Assert.state(this.visitedPlaceholders != null, "Visited placeholders is required");
+      this.visitedPlaceholders.remove(placeholder);
     }
 
   }
@@ -406,7 +399,6 @@ final class PlaceholderParser {
       }
       return sb.toString();
     }
-
   }
 
   /**
@@ -425,57 +417,46 @@ final class PlaceholderParser {
         throw ex.withValue(this.text);
       }
     }
-
   }
 
   /**
-   * A {@link Part} implementation that does not contain a valid placeholder.
-   *
-   * @param text the raw (and resolved) text
+   * A base {@link Part} implementation.
    */
-  record TextPart(String text) implements Part {
+  abstract static class AbstractPart implements Part {
+
+    private final String text;
+
+    protected AbstractPart(String text) {
+      this.text = text;
+    }
 
     @Override
-    public String resolve(PartResolutionContext resolutionContext) {
+    public String text() {
       return this.text;
     }
 
-  }
-
-  /**
-   * A {@link Part} implementation that represents a single placeholder with
-   * a hard-coded fallback.
-   *
-   * @param text the raw text
-   * @param key the key of the placeholder
-   * @param fallback the fallback to use, if any
-   */
-  record SimplePlaceholderPart(String text, String key, @Nullable String fallback) implements Part {
-
-    @Override
-    public String resolve(PartResolutionContext resolutionContext) {
-      String resolvedValue = resolveToText(resolutionContext, this.key);
-      if (resolvedValue != null) {
-        return resolvedValue;
-      }
-      else if (this.fallback != null) {
-        return this.fallback;
-      }
-      return resolutionContext.handleUnresolvablePlaceholder(this.key, this.text);
-    }
-
+    /**
+     * Resolve the placeholder with the given {@code key}. If the result of such
+     * resolution return other placeholders, those are resolved as well until the
+     * resolution no longer contains any placeholders.
+     *
+     * @param resolutionContext the resolution context to use
+     * @param key the initial placeholder
+     * @return the full resolution of the given {@code key} or {@code null} if
+     * the placeholder has no value to begin with
+     */
     @Nullable
-    private String resolveToText(PartResolutionContext resolutionContext, String text) {
-      String resolvedValue = resolutionContext.resolvePlaceholder(text);
+    protected String resolveRecursively(PartResolutionContext resolutionContext, String key) {
+      String resolvedValue = resolutionContext.resolvePlaceholder(key);
       if (resolvedValue != null) {
-        resolutionContext.flagPlaceholderAsVisited(text);
+        resolutionContext.flagPlaceholderAsVisited(key);
         // Let's check if we need to recursively resolve that value
         List<Part> nestedParts = resolutionContext.parse(resolvedValue);
         String value = toText(nestedParts);
         if (!isTextOnly(nestedParts)) {
           value = new ParsedValue(resolvedValue, nestedParts).resolve(resolutionContext);
         }
-        resolutionContext.removePlaceholder(text);
+        resolutionContext.removePlaceholder(key);
         return value;
       }
       // Not found
@@ -491,32 +472,112 @@ final class PlaceholderParser {
       parts.forEach(part -> sb.append(part.text()));
       return sb.toString();
     }
+  }
 
+  /**
+   * A {@link Part} implementation that does not contain a valid placeholder.
+   */
+  static class TextPart extends AbstractPart {
+
+    /**
+     * Create a new instance.
+     *
+     * @param text the raw (and resolved) text
+     */
+    public TextPart(String text) {
+      super(text);
+    }
+
+    @Override
+    public String resolve(PartResolutionContext resolutionContext) {
+      return text();
+    }
+  }
+
+  /**
+   * A {@link Part} implementation that represents a single placeholder with
+   * a hard-coded fallback.
+   */
+  static class SimplePlaceholderPart extends AbstractPart {
+
+    private final String key;
+
+    @Nullable
+    private final String fallback;
+
+    /**
+     * Create a new instance.
+     *
+     * @param text the raw text
+     * @param key the key of the placeholder
+     * @param fallback the fallback to use, if any
+     */
+    public SimplePlaceholderPart(String text, String key, @Nullable String fallback) {
+      super(text);
+      this.key = key;
+      this.fallback = fallback;
+    }
+
+    @Override
+    public String resolve(PartResolutionContext resolutionContext) {
+      String value = resolveRecursively(resolutionContext);
+      if (value != null) {
+        return value;
+      }
+      else if (this.fallback != null) {
+        return this.fallback;
+      }
+      return resolutionContext.handleUnresolvablePlaceholder(this.key, text());
+    }
+
+    @Nullable
+    private String resolveRecursively(PartResolutionContext resolutionContext) {
+      if (!this.text().equals(this.key)) {
+        String value = resolveRecursively(resolutionContext, this.text());
+        if (value != null) {
+          return value;
+        }
+      }
+      return resolveRecursively(resolutionContext, this.key);
+    }
   }
 
   /**
    * A {@link Part} implementation that represents a single placeholder
    * containing nested placeholders.
-   *
-   * @param text the raw text of the root placeholder
-   * @param keyParts the parts of the key
-   * @param defaultParts the parts of the fallback, if any
    */
-  record NestedPlaceholderPart(String text, List<Part> keyParts, @Nullable List<Part> defaultParts) implements Part {
+  static class NestedPlaceholderPart extends AbstractPart {
+
+    private final List<Part> keyParts;
+
+    @Nullable
+    private final List<Part> defaultParts;
+
+    /**
+     * Create a new instance.
+     *
+     * @param text the raw text of the root placeholder
+     * @param keyParts the parts of the key
+     * @param defaultParts the parts of the fallback, if any
+     */
+    NestedPlaceholderPart(String text, List<Part> keyParts, @Nullable List<Part> defaultParts) {
+      super(text);
+      this.keyParts = keyParts;
+      this.defaultParts = defaultParts;
+    }
 
     @Override
     public String resolve(PartResolutionContext resolutionContext) {
       String resolvedKey = Part.resolveAll(this.keyParts, resolutionContext);
-      String value = resolutionContext.resolvePlaceholder(resolvedKey);
+      String value = resolveRecursively(resolutionContext, resolvedKey);
       if (value != null) {
         return value;
       }
       else if (this.defaultParts != null) {
         return Part.resolveAll(this.defaultParts, resolutionContext);
       }
-      return resolutionContext.handleUnresolvablePlaceholder(resolvedKey, this.text);
+      return resolutionContext.handleUnresolvablePlaceholder(resolvedKey, text());
     }
-
   }
 
 }
