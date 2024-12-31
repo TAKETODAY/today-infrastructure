@@ -1772,60 +1772,66 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   @Nullable
   private FactoryBean<?> getFactoryBeanForTypeCheck(String beanName, RootBeanDefinition def) {
     if (def.isSingleton()) {
-      BeanWrapper beanWrapper = this.factoryBeanInstanceCache.get(beanName);
-      if (beanWrapper != null && beanWrapper.getWrappedInstance() instanceof FactoryBean<?> factory) {
-        return factory;
-      }
-      Object instance = getSingleton(beanName, false);
-      if (instance == NullValue.INSTANCE) { // created and its instance is null
-        return null;
-      }
-      if (instance instanceof FactoryBean<?> factory) {
-        return factory;
-      }
-
-      if (isSingletonCurrentlyInCreation(beanName)
-              || (def.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(def.getFactoryBeanName()))) {
-        return null;
-      }
-
+      singletonLock.lock();
       try {
-        // Mark this bean as currently in creation, even if just partially.
-        beforeSingletonCreation(beanName);
-        // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-        instance = resolveBeforeInstantiation(beanName, def);
-        if (instance == null) {
-          beanWrapper = createBeanInstance(beanName, def, null);
-          instance = beanWrapper.getWrappedInstance();
+        BeanWrapper beanWrapper = this.factoryBeanInstanceCache.get(beanName);
+        if (beanWrapper != null && beanWrapper.getWrappedInstance() instanceof FactoryBean<?> factory) {
+          return factory;
         }
-      }
-      catch (UnsatisfiedDependencyException ex) {
-        // Don't swallow, probably misconfiguration...
-        throw ex;
-      }
-      catch (BeanCreationException ex) {
-        // Don't swallow a linkage error since it contains a full stacktrace on
-        // first occurrence... and just a plain NoClassDefFoundError afterwards.
-        if (ex.contains(LinkageError.class)) {
+        Object instance = getSingleton(beanName, false);
+        if (instance == NullValue.INSTANCE) { // created and its instance is null
+          return null;
+        }
+        if (instance instanceof FactoryBean<?> factory) {
+          return factory;
+        }
+
+        if (isSingletonCurrentlyInCreation(beanName)
+                || (def.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(def.getFactoryBeanName()))) {
+          return null;
+        }
+
+        try {
+          // Mark this bean as currently in creation, even if just partially.
+          beforeSingletonCreation(beanName);
+          // Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+          instance = resolveBeforeInstantiation(beanName, def);
+          if (instance == null) {
+            beanWrapper = createBeanInstance(beanName, def, null);
+            instance = beanWrapper.getWrappedInstance();
+          }
+        }
+        catch (UnsatisfiedDependencyException ex) {
+          // Don't swallow, probably misconfiguration...
           throw ex;
         }
-        // Instantiation failure, maybe too early...
-        if (log.isDebugEnabled()) {
-          log.debug("Bean creation exception on singleton FactoryBean type check: {}", ex.toString());
+        catch (BeanCreationException ex) {
+          // Don't swallow a linkage error since it contains a full stacktrace on
+          // first occurrence... and just a plain NoClassDefFoundError afterwards.
+          if (ex.contains(LinkageError.class)) {
+            throw ex;
+          }
+          // Instantiation failure, maybe too early...
+          if (log.isDebugEnabled()) {
+            log.debug("Bean creation exception on singleton FactoryBean type check: {}", ex.toString());
+          }
+          onSuppressedException(ex);
+          return null;
         }
-        onSuppressedException(ex);
-        return null;
+        finally {
+          // Finished partial creation of this bean.
+          afterSingletonCreation(beanName);
+        }
+        // put to factoryBeanInstanceCache
+        FactoryBean<?> factory = getFactoryBean(beanName, instance);
+        if (beanWrapper != null) {
+          factoryBeanInstanceCache.put(beanName, beanWrapper);
+        }
+        return factory;
       }
       finally {
-        // Finished partial creation of this bean.
-        afterSingletonCreation(beanName);
+        singletonLock.unlock();
       }
-      // put to factoryBeanInstanceCache
-      FactoryBean<?> factory = getFactoryBean(beanName, instance);
-      if (beanWrapper != null) {
-        factoryBeanInstanceCache.put(beanName, beanWrapper);
-      }
-      return factory;
     }
     else {
       // prototype

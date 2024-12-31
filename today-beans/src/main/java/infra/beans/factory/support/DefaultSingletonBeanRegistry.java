@@ -86,7 +86,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   /** Flag that indicates whether we're currently within destroySingletons. */
   private boolean singletonsCurrentlyInDestruction = false;
 
-  private final ReentrantLock singletonLock = new ReentrantLock();
+  final ReentrantLock singletonLock = new ReentrantLock();
 
   /** Names of beans that are currently in creation. */
   private final Set<String> singletonsCurrentlyInCreation = ConcurrentHashMap.newKeySet(16);
