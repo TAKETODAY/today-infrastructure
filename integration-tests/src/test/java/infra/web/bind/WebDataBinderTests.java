@@ -115,10 +115,24 @@ public class WebDataBinderTests {
     assertThat(target.isPostProcessed()).isFalse();
   }
 
-  @Test // gh-25836
+  @Test
+  public void testFieldWithArrayIndex() {
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target);
+    binder.setIgnoreUnknownFields(false);
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    request.addParameter("stringArray[0]", "ONE");
+    request.addParameter("stringArray[1]", "TWO");
+    binder.bind(new MockRequestContext(request, null));
+    assertThat(target.getStringArray()).containsExactly("ONE", "TWO");
+  }
+
+  @Test
   public void testFieldWithEmptyArrayIndex() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
+    binder.setIgnoreUnknownFields(false);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addParameter("stringArray[]", "ONE");

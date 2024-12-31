@@ -537,6 +537,10 @@ public class WebDataBinder extends DataBinder {
     @Nullable
     protected Object getRequestParameter(String name, Class<?> type) {
       String[] value = request.getParameters(name);
+
+      if (value == null && !name.endsWith("[]") && (List.class.isAssignableFrom(type) || type.isArray())) {
+        value = this.request.getParameters(name + "[]");
+      }
       if (value == null) {
         HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
         if (matchingMetadata != null) {

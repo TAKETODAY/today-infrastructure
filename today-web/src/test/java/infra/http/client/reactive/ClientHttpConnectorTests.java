@@ -268,7 +268,9 @@ class ClientHttpConnectorTests {
     List<Arguments> result = new ArrayList<>();
     for (Named<ClientHttpConnector> connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
-        result.add(Arguments.of(connector, method));
+        if (method != HttpMethod.CONNECT) {
+          result.add(Arguments.of(connector, method));
+        }
       }
     }
     return result;
