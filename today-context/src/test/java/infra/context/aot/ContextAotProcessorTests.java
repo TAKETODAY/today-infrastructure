@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.aot;
@@ -106,7 +103,7 @@ class ContextAotProcessorTests {
       assertThat(directory.resolve(
               "source/infra/context/aot/ContextAotProcessorTests_SampleApplication__BeanFactoryRegistrations.java"))
               .exists().isRegularFile();
-      assertThat(directory.resolve("resource/META-INF/native-image/com.example/example/reflect-config.json"))
+      assertThat(directory.resolve("resource/META-INF/native-image/com.example/example/reachability-metadata.json"))
               .exists().isRegularFile();
       Path nativeImagePropertiesFile = directory
               .resolve("resource/META-INF/native-image/com.example/example/native-image.properties");

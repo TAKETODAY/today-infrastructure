@@ -19,11 +19,9 @@ package infra.aot.test;
 
 import org.junit.jupiter.api.Test;
 
-import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.test.agent.EnabledIfRuntimeHintsAgent;
 import infra.aot.test.agent.RuntimeHintsInvocations;
-import infra.aot.test.agent.RuntimeHintsRecorder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,9 +31,9 @@ class ReflectionInvocationsTests {
   @Test
   void sampleTest() {
     RuntimeHints hints = new RuntimeHints();
-    hints.reflection().registerType(String.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
+    hints.reflection().registerType(String.class);
 
-    RuntimeHintsInvocations invocations = RuntimeHintsRecorder.record(() -> {
+    RuntimeHintsInvocations invocations = infra.aot.test.agent.RuntimeHintsRecorder.record(() -> {
       SampleReflection sample = new SampleReflection();
       sample.sample(); // does Method[] methods = String.class.getMethods();
     });
@@ -45,9 +43,9 @@ class ReflectionInvocationsTests {
   @Test
   void multipleCallsTest() {
     RuntimeHints hints = new RuntimeHints();
-    hints.reflection().registerType(String.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
-    hints.reflection().registerType(Integer.class, MemberCategory.INTROSPECT_PUBLIC_METHODS);
-    RuntimeHintsInvocations invocations = RuntimeHintsRecorder.record(() -> {
+    hints.reflection().registerType(String.class);
+    hints.reflection().registerType(Integer.class);
+    RuntimeHintsInvocations invocations = infra.aot.test.agent.RuntimeHintsRecorder.record(() -> {
       SampleReflection sample = new SampleReflection();
       sample.multipleCalls(); // does Method[] methods = String.class.getMethods(); methods = Integer.class.getMethods();
     });

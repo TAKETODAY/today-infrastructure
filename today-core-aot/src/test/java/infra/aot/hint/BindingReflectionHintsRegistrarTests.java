@@ -18,7 +18,6 @@
 package infra.aot.hint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -29,7 +28,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.List;
@@ -58,7 +56,7 @@ class BindingReflectionHintsRegistrarTests {
             .satisfies(typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleEmptyClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -72,7 +70,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleEmptyClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -80,7 +78,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleExtendingClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -202,7 +200,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(ResolvableType.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).hasSizeGreaterThan(1);
@@ -445,7 +443,7 @@ class BindingReflectionHintsRegistrarTests {
     }
 
     @Override
-    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) {
       return null;
     }
   }
@@ -458,7 +456,7 @@ class BindingReflectionHintsRegistrarTests {
     }
 
     @Override
-    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) {
       return null;
     }
   }

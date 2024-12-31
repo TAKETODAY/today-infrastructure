@@ -44,8 +44,7 @@ class AspectJAdvisorBeanRegistrationAotProcessor implements BeanRegistrationAotP
           AspectJAdvisorBeanRegistrationAotProcessor.class.getClassLoader());
 
   @Override
-  @Nullable
-  public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
+  public @Nullable BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     if (aspectjPresent) {
       Class<?> beanClass = registeredBean.getBeanClass();
       if (compiledByAjc(beanClass)) {
@@ -74,7 +73,7 @@ class AspectJAdvisorBeanRegistrationAotProcessor implements BeanRegistrationAotP
 
     @Override
     public void applyTo(GenerationContext generationContext, BeanRegistrationCode beanRegistrationCode) {
-      generationContext.getRuntimeHints().reflection().registerType(this.beanClass, MemberCategory.DECLARED_FIELDS);
+      generationContext.getRuntimeHints().reflection().registerType(this.beanClass, MemberCategory.INVOKE_DECLARED_FIELDS);
     }
   }
 

@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * @author Brian Clozel
  */
+@SuppressWarnings("deprecation")
 class ReflectionHintsPredicatesTests {
 
   private static Constructor<?> privateConstructor;

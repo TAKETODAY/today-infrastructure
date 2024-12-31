@@ -114,7 +114,7 @@ class ReflectionHintsAttributes {
     return attributes;
   }
 
-  @SuppressWarnings("removal")
+  @SuppressWarnings("deprecation")
   private void handleCategories(Map<String, Object> attributes, Set<MemberCategory> categories) {
     categories.stream().sorted().forEach(category -> {
               switch (category) {

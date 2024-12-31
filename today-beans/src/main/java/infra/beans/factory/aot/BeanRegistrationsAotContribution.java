@@ -27,9 +27,9 @@ import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
-import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ReflectionHints;
 import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.TypeHint;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.javapoet.ClassName;
@@ -99,8 +99,8 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
     registrations.forEach(registration -> {
       ReflectionHints hints = runtimeHints.reflection();
       Class<?> beanClass = registration.registeredBean.getBeanClass();
-      hints.registerType(beanClass, MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS);
-      hints.registerForInterfaces(beanClass, typeHint -> typeHint.withMembers(MemberCategory.INTROSPECT_PUBLIC_METHODS));
+      hints.registerType(beanClass);
+      hints.registerForInterfaces(beanClass, TypeHint.Builder::withMembers);
     });
   }
 

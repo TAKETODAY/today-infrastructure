@@ -575,7 +575,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 
   private void assertHasDeclaredFieldsHint(Class<?> beanType) {
     assertThat(RuntimeHintsPredicates.reflection()
-            .onType(beanType).withMemberCategory(MemberCategory.DECLARED_FIELDS))
+            .onType(beanType).withMemberCategory(MemberCategory.INVOKE_DECLARED_FIELDS))
             .accepts(this.generationContext.getRuntimeHints());
   }
 
@@ -632,7 +632,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 
   }
 
-public   interface Initializable {
+  public interface Initializable {
 
     void initialize();
   }
@@ -644,7 +644,7 @@ public   interface Initializable {
     }
   }
 
-  public   interface Disposable {
+  public interface Disposable {
 
     void dispose();
   }
@@ -707,15 +707,13 @@ public   interface Initializable {
       this.name = name;
     }
 
-    @Nullable
     @Override
-    public String getObject() {
+    public @Nullable String getObject() {
       return getPrefix() + " " + getName();
     }
 
-    @Nullable
     @Override
-    public Class<?> getObjectType() {
+    public @Nullable Class<?> getObjectType() {
       return String.class;
     }
 

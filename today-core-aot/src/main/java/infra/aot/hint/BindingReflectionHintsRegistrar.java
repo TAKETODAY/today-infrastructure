@@ -94,7 +94,7 @@ public class BindingReflectionHintsRegistrar {
           if (clazz.isEnum()) {
             typeHint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
           }
-          typeHint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+          typeHint.withMembers(MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
           for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             if (methodName.startsWith("set") && method.getParameterCount() == 1) {

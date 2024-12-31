@@ -38,7 +38,6 @@ import javax.lang.model.element.Modifier;
 import infra.aop.framework.autoproxy.AutoProxyUtils;
 import infra.aot.generate.GeneratedMethod;
 import infra.aot.generate.GenerationContext;
-import infra.aot.hint.ExecutableMode;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.ResourceHints;
 import infra.aot.hint.RuntimeHints;
@@ -732,7 +731,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       Executable userExecutable = instantiationDescriptor.executable();
       if (userExecutable instanceof Constructor<?> userConstructor) {
         try {
-          runtimeHints.reflection().registerConstructor(userConstructor, ExecutableMode.INTROSPECT);
+          runtimeHints.reflection().registerType(userConstructor.getDeclaringClass());
           Constructor<?> constructor = this.proxyClass.getConstructor(userExecutable.getParameterTypes());
           return new InstantiationDescriptor(constructor);
         }

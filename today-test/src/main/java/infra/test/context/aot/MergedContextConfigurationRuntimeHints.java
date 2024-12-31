@@ -144,7 +144,7 @@ class MergedContextConfigurationRuntimeHints {
       if (!pattern.endsWith(SLASH)) {
         pattern += SLASH;
       }
-      pattern += "*";
+      pattern += "**";
       runtimeHints.resources().registerPattern(pattern);
     }
   }

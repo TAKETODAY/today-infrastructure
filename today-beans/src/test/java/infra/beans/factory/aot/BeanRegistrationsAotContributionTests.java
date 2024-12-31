@@ -32,7 +32,6 @@ import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
 import infra.aot.generate.ValueCodeGenerationException;
-import infra.aot.hint.MemberCategory;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
 import infra.beans.factory.support.RegisteredBean;
@@ -149,14 +148,11 @@ class BeanRegistrationsAotContributionTests {
             registeredBean, null, List.of());
     BeanRegistrationsAotContribution contribution = createContribution(registeredBean, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
-    assertThat(reflection().onType(Employee.class)
-            .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS))
+    assertThat(reflection().onType(Employee.class))
             .accepts(this.generationContext.getRuntimeHints());
-    assertThat(reflection().onType(ITestBean.class)
-            .withMemberCategory(MemberCategory.INTROSPECT_PUBLIC_METHODS))
+    assertThat(reflection().onType(ITestBean.class))
             .accepts(this.generationContext.getRuntimeHints());
-    assertThat(reflection().onType(AgeHolder.class)
-            .withMemberCategory(MemberCategory.INTROSPECT_PUBLIC_METHODS))
+    assertThat(reflection().onType(AgeHolder.class))
             .accepts(this.generationContext.getRuntimeHints());
   }
 

@@ -44,9 +44,9 @@ class AspectJAdvisorBeanRegistrationAotProcessorTests {
   private final RuntimeHints runtimeHints = this.generationContext.getRuntimeHints();
 
   @Test
-  void shouldProcessesAspectJClass() {
+  void shouldProcessAspectJClass() {
     process(AspectJClass.class);
-    assertThat(reflection().onType(AspectJClass.class).withMemberCategory(MemberCategory.DECLARED_FIELDS))
+    assertThat(reflection().onType(AspectJClass.class).withMemberCategory(MemberCategory.INVOKE_DECLARED_FIELDS))
             .accepts(this.runtimeHints);
   }
 
