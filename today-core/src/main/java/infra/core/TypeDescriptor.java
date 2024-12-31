@@ -560,16 +560,7 @@ public class TypeDescriptor implements Serializable {
     if (!annotationsMatch(otherDesc)) {
       return false;
     }
-    if (isCollection() || isArray()) {
-      return Objects.equals(getElementDescriptor(), otherDesc.getElementDescriptor());
-    }
-    else if (isMap()) {
-      return (Objects.equals(getMapKeyDescriptor(), otherDesc.getMapKeyDescriptor()) &&
-              Objects.equals(getMapValueDescriptor(), otherDesc.getMapValueDescriptor()));
-    }
-    else {
-      return Arrays.equals(getResolvableType().getGenerics(), otherDesc.getResolvableType().getGenerics());
-    }
+    return Arrays.equals(getResolvableType().getGenerics(), otherDesc.getResolvableType().getGenerics());
   }
 
   private boolean annotationsMatch(TypeDescriptor otherDesc) {
@@ -756,6 +747,32 @@ public class TypeDescriptor implements Serializable {
   @Nullable
   public static TypeDescriptor nested(Field field, int nestingLevel) {
     return new TypeDescriptor(field).nested(nestingLevel);
+  }
+
+  /**
+   * Create a type descriptor for a nested type declared within the property.
+   * <p>For example, if the property is a {@code List<String>} and the nesting
+   * level is 1, the nested type descriptor will be {@code String.class}.
+   * <p>If the property is a {@code List<List<String>>} and the nesting level
+   * is 2, the nested type descriptor will also be a {@code String.class}.
+   * <p>If the property is a {@code Map<Integer, String>} and the nesting level
+   * is 1, the nested type descriptor will be String, derived from the map value.
+   * <p>If the property is a {@code List<Map<Integer, String>>} and the nesting
+   * level is 2, the nested type descriptor will be String, derived from the map value.
+   * <p>Returns {@code null} if a nested type cannot be obtained because it was not
+   * declared. For example, if the property is a {@code List<?>}, the nested type
+   * descriptor returned will be {@code null}.
+   *
+   * @param property the property
+   * @param nestingLevel the nesting level of the collection/array element or
+   * map key/value declaration within the property
+   * @return the nested type descriptor at the specified nesting level, or
+   * {@code null} if it could not be obtained
+   * @throws IllegalArgumentException if the types up to the specified nesting
+   * level are not of collection, array, or map types
+   */
+  public static @Nullable TypeDescriptor nested(Property property, int nestingLevel) {
+    return new TypeDescriptor(property).nested(nestingLevel);
   }
 
   /**
