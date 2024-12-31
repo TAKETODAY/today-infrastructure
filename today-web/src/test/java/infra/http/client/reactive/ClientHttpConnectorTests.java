@@ -17,10 +17,11 @@
 
 package infra.http.client.reactive;
 
-import org.assertj.core.api.Assertions;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Named;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -59,12 +60,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.Named.named;
 
 /**
  * @author Arjen Poutsma
  */
-public class ClientHttpConnectorTests {
+class ClientHttpConnectorTests {
 
   private static final int BUF_SIZE = 1024;
 
@@ -130,7 +132,7 @@ public class ClientHttpConnectorTests {
                               s -> assertThat(s).isEqualTo(responseBody),
                               throwable -> {
                                 latch.countDown();
-                                Assertions.fail(throwable.getMessage(), throwable);
+                                fail(throwable.getMessage(), throwable);
                               },
                               latch::countDown);
             })
@@ -197,6 +199,28 @@ public class ClientHttpConnectorTests {
             .verifyComplete();
   }
 
+  @Test
+  void disableCookieWithHttpComponents() {
+    ClientHttpConnector connector = new HttpComponentsClientHttpConnector(
+            HttpAsyncClientBuilder.create().disableCookieManagement().build()
+    );
+
+    prepareResponse(response -> {
+      response.setResponseCode(200);
+      response.addHeader("Set-Cookie", "id=test;");
+    });
+    Mono<ClientHttpResponse> futureResponse =
+            connector.connect(HttpMethod.GET, this.server.url("/").uri(), ReactiveHttpOutputMessage::setComplete);
+    StepVerifier.create(futureResponse)
+            .assertNext(response -> {
+                      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                      assertThat(response.getCookies()).isEmpty();
+                    }
+            )
+            .verifyComplete();
+
+  }
+
   private Buffer randomBody(int size) {
     Buffer responseBody = new Buffer();
     Random rnd = new Random();
@@ -244,9 +268,7 @@ public class ClientHttpConnectorTests {
     List<Arguments> result = new ArrayList<>();
     for (Named<ClientHttpConnector> connector : connectors()) {
       for (HttpMethod method : HttpMethod.values()) {
-        if (method != HttpMethod.CONNECT) {
-          result.add(Arguments.of(connector, method));
-        }
+        result.add(Arguments.of(connector, method));
       }
     }
     return result;
