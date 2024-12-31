@@ -116,19 +116,20 @@ final class ReactorClientHttpRequest extends AbstractStreamingClientHttpRequest 
       entries.set(entry.getKey(), entry.getValue());
     }
 
-    if (body != null) {
-      ByteBufMapper byteMapper = new ByteBufMapper(nettyOutbound.alloc());
-      AtomicReference<Executor> executor = new AtomicReference<>();
+    if (body == null) {
+      // NettyOutbound#subscribe calls then() and that expects a body
+      // Use empty Mono instead for a more optimal send
+      return Mono.empty();
+    }
 
-      return nettyOutbound
-              .withConnection(connection -> executor.set(connection.channel().eventLoop()))
-              .send(FlowAdapters.toPublisher(new OutputStreamPublisher<>(
-                      os -> body.writeTo(StreamUtils.nonClosing(os)), byteMapper,
-                      executor.getAndSet(null), null)));
-    }
-    else {
-      return nettyOutbound;
-    }
+    ByteBufMapper byteMapper = new ByteBufMapper(nettyOutbound.alloc());
+    AtomicReference<Executor> executor = new AtomicReference<>();
+
+    return nettyOutbound
+            .withConnection(connection -> executor.set(connection.channel().eventLoop()))
+            .send(FlowAdapters.toPublisher(new OutputStreamPublisher<>(
+                    os -> body.writeTo(StreamUtils.nonClosing(os)), byteMapper,
+                    executor.getAndSet(null), null)));
   }
 
   static IOException convertException(RuntimeException ex) {

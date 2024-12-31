@@ -123,7 +123,7 @@ class ReactorNetty2ClientHttpRequest extends AbstractClientHttpRequest implement
 
   @Override
   public Mono<Void> setComplete() {
-    return doCommit(this.outbound::then);
+    return doCommit(null);
   }
 
   @Override

@@ -123,7 +123,7 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
 
   @Override
   public Mono<Void> setComplete() {
-    return doCommit(this.outbound::then);
+    return doCommit(null);
   }
 
   @Override
