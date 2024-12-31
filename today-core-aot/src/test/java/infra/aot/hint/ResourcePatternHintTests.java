@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
@@ -33,59 +30,65 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class ResourcePatternHintTests {
 
-	@Test
-	void patternWithLeadingSlashIsRejected() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ResourcePatternHint("/file.properties", null))
-				.withMessage("Resource pattern [/file.properties] must not start with a '/' unless it is the root directory");
-	}
+  @Test
+  void patternWithLeadingSlashIsRejected() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ResourcePatternHint("/file.properties", null))
+            .withMessage("Resource pattern [/file.properties] must not start with a '/' unless it is the root directory");
+  }
 
-	@Test
-	void rootDirectory() {
-		ResourcePatternHint hint = new ResourcePatternHint("/", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("/")
-				.rejects("/com/example", "/file.txt");
-	}
+  @Test
+  void rootDirectory() {
+    ResourcePatternHint hint = new ResourcePatternHint("/", null);
+    assertThat(hint.matches("/")).isTrue();
+    assertThat(hint.matches("/com/example")).isFalse();
+    assertThat(hint.matches("/file.txt")).isFalse();
+  }
 
-	@Test
-	void fileAtRoot() {
-		ResourcePatternHint hint = new ResourcePatternHint("file.properties", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("file.properties")
-				.rejects("com/example/file.properties", "file.prop", "another-file.properties");
-	}
+  @Test
+  void fileAtRoot() {
+    ResourcePatternHint hint = new ResourcePatternHint("file.properties", null);
+    assertThat(hint.matches("file.properties")).isTrue();
+    assertThat(hint.matches("com/example/file.properties")).isFalse();
+    assertThat(hint.matches("file.prop")).isFalse();
+    assertThat(hint.matches("another-file.properties")).isFalse();
+  }
 
-	@Test
-	void fileInDirectory() {
-		ResourcePatternHint hint = new ResourcePatternHint("com/example/file.properties", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("com/example/file.properties")
-				.rejects("file.properties", "com/file.properties", "com/example/another-file.properties");
-	}
+  @Test
+  void fileInDirectory() {
+    ResourcePatternHint hint = new ResourcePatternHint("com/example/file.properties", null);
+    assertThat(hint.matches("com/example/file.properties")).isTrue();
+    assertThat(hint.matches("file.properties")).isFalse();
+    assertThat(hint.matches("com/file.properties")).isFalse();
+    assertThat(hint.matches("com/example/another-file.properties")).isFalse();
+  }
 
-	@Test
-	void extension() {
-		ResourcePatternHint hint = new ResourcePatternHint("*.properties", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("file.properties", "com/example/file.properties")
-				.rejects("file.prop", "com/example/file.prop");
-	}
+  @Test
+  void extension() {
+    ResourcePatternHint hint = new ResourcePatternHint("**/*.properties", null);
+    assertThat(hint.matches("file.properties")).isTrue();
+    assertThat(hint.matches("com/example/file.properties")).isTrue();
+    assertThat(hint.matches("file.prop")).isFalse();
+    assertThat(hint.matches("com/example/file.prop")).isFalse();
+  }
 
-	@Test
-	void extensionInDirectoryAtAnyDepth() {
-		ResourcePatternHint hint = new ResourcePatternHint("com/example/*.properties", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("com/example/file.properties", "com/example/another/file.properties")
-				.rejects("file.properties", "com/file.properties");
-	}
+  @Test
+  void extensionInDirectoryAtAnyDepth() {
+    ResourcePatternHint hint = new ResourcePatternHint("com/example/*.properties", null);
+    assertThat(hint.matches("com/example/file.properties")).isTrue();
+    assertThat(hint.matches("com/example/another/file.properties")).isFalse();
+    assertThat(hint.matches("com/file.properties")).isFalse();
+    assertThat(hint.matches("file.properties")).isFalse();
+  }
 
-	@Test
-	void anyFileInDirectoryAtAnyDepth() {
-		ResourcePatternHint hint = new ResourcePatternHint("com/example/*", null);
-		assertThat(hint.toRegex().asMatchPredicate())
-				.accepts("com/example/file.properties", "com/example/another/file.properties", "com/example/another")
-				.rejects("file.properties", "com/file.properties");
-	}
+  @Test
+  void anyFileInDirectoryAtAnyDepth() {
+    ResourcePatternHint hint = new ResourcePatternHint("com/example/**", null);
+    assertThat(hint.matches("com/example/file.properties")).isTrue();
+    assertThat(hint.matches("com/example/another/file.properties")).isTrue();
+    assertThat(hint.matches("com/example/another")).isTrue();
+    assertThat(hint.matches("file.properties")).isFalse();
+    assertThat(hint.matches("com/file.properties")).isFalse();
+  }
 
 }

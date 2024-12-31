@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,18 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.nativex;
 
 import java.util.function.Consumer;
 
-import infra.aot.hint.ProxyHints;
-import infra.aot.hint.ReflectionHints;
-import infra.aot.hint.ResourceHints;
 import infra.aot.hint.RuntimeHints;
-import infra.aot.hint.SerializationHints;
 
 /**
  * Write {@link RuntimeHints} as GraalVM native configuration.
@@ -43,22 +39,19 @@ public abstract class NativeConfigurationWriter {
    * @param hints the hints to handle
    */
   public void write(RuntimeHints hints) {
-    if (hints.serialization().javaSerializationHints().findAny().isPresent()) {
-      writeSerializationHints(hints.serialization());
+    if (hasAnyHint(hints)) {
+      writeTo("reachability-metadata.json",
+              writer -> new RuntimeHintsWriter().write(writer, hints));
     }
-    if (hints.proxies().jdkProxyHints().findAny().isPresent()) {
-      writeProxyHints(hints.proxies());
-    }
-    if (hints.reflection().typeHints().findAny().isPresent()) {
-      writeReflectionHints(hints.reflection());
-    }
-    if (hints.resources().resourcePatternHints().findAny().isPresent() ||
-            hints.resources().resourceBundleHints().findAny().isPresent()) {
-      writeResourceHints(hints.resources());
-    }
-    if (hints.jni().typeHints().findAny().isPresent()) {
-      writeJniHints(hints.jni());
-    }
+  }
+
+  private boolean hasAnyHint(RuntimeHints hints) {
+    return (hints.serialization().javaSerializationHints().findAny().isPresent()
+            || hints.proxies().jdkProxyHints().findAny().isPresent()
+            || hints.reflection().typeHints().findAny().isPresent()
+            || hints.resources().resourcePatternHints().findAny().isPresent()
+            || hints.resources().resourceBundleHints().findAny().isPresent()
+            || hints.jni().typeHints().findAny().isPresent());
   }
 
   /**
@@ -69,30 +62,5 @@ public abstract class NativeConfigurationWriter {
    * @param writer a consumer for the writer to use
    */
   protected abstract void writeTo(String fileName, Consumer<BasicJsonWriter> writer);
-
-  private void writeSerializationHints(SerializationHints hints) {
-    writeTo("serialization-config.json", writer ->
-            SerializationHintsWriter.write(writer, hints));
-  }
-
-  private void writeProxyHints(ProxyHints hints) {
-    writeTo("proxy-config.json", writer ->
-            ProxyHintsWriter.write(writer, hints));
-  }
-
-  private void writeReflectionHints(ReflectionHints hints) {
-    writeTo("reflect-config.json",
-            writer -> ReflectionHintsWriter.write(writer, hints));
-  }
-
-  private void writeResourceHints(ResourceHints hints) {
-    writeTo("resource-config.json", writer ->
-            ResourceHintsWriter.write(writer, hints));
-  }
-
-  private void writeJniHints(ReflectionHints hints) {
-    writeTo("jni-config.json", writer ->
-            ReflectionHintsWriter.write(writer, hints));
-  }
 
 }

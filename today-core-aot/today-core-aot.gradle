@@ -65,6 +65,7 @@ dependencies {
   testImplementation(project(":today-test"))
   testImplementation("org.awaitility:awaitility")
   testImplementation(testFixtures(project(":today-core")))
+  testImplementation("com.networknt:json-schema-validator");
 
   testFixturesImplementation(testFixtures(project(":today-core")))
   testFixturesImplementation("com.google.code.findbugs:jsr305")

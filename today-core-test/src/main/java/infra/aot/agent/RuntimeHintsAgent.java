@@ -41,6 +41,8 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see InvocationsRecorderClassTransformer
  * @since 4.0
+ * @deprecated in favor of the {@code -XX:MissingRegistrationReportingMode=Warn} and
+ * {@code -XX:MissingRegistrationReportingMode=Exit} JVM flags with GraalVM.
  */
 public final class RuntimeHintsAgent {
 

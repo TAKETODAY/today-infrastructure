@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,16 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import infra.core.AntPathMatcher;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 
@@ -35,16 +30,18 @@ import infra.lang.Nullable;
  * resource on the classpath, or alternatively may contain the special
  * {@code *} character to indicate a wildcard match. For example:
  * <ul>
- *     <li>{@code file.properties}: matches just the {@code file.properties}
+ *     <li>"file.properties": matches just the {@code file.properties}
  *         file at the root of the classpath.</li>
- *     <li>{@code com/example/file.properties}: matches just the
+ *     <li>"com/example/file.properties": matches just the
  *         {@code file.properties} file in {@code com/example/}.</li>
- *     <li>{@code *.properties}: matches all the files with a {@code .properties}
- *         extension anywhere in the classpath.</li>
- *     <li>{@code com/example/*.properties}: matches all the files with a {@code .properties}
- *         extension in {@code com/example/} and its child directories at any depth.</li>
- *     <li>{@code com/example/*}: matches all the files in {@code com/example/}
+ *     <li>"*.properties": matches all the files with a {@code .properties}
+ *         extension at the root of the classpath.</li>
+ *     <li>"com/example/*.properties": matches all the files with a {@code .properties}
+ *         extension in {@code com/example/}.</li>
+ *     <li>"com/example/{@literal **}": matches all the files in {@code com/example/}
  *         and its child directories at any depth.</li>
+ *     <li>"com/example/{@literal **}/*.properties": matches all the files with a {@code .properties}
+ *         extension in {@code com/example/} and its child directories at any depth.</li>
  * </ul>
  *
  * <p>A resource pattern must not start with a slash ({@code /}) unless it is the
@@ -54,14 +51,16 @@ import infra.lang.Nullable;
  * @author Brian Clozel
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public final class ResourcePatternHint implements ConditionalHint {
 
+  private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+
   private final String pattern;
 
-  @Nullable
-  private final TypeReference reachableType;
+  private final @Nullable TypeReference reachableType;
 
   ResourcePatternHint(String pattern, @Nullable TypeReference reachableType) {
     Assert.isTrue(("/".equals(pattern) || !pattern.startsWith("/")),
@@ -73,45 +72,29 @@ public final class ResourcePatternHint implements ConditionalHint {
 
   /**
    * Return the pattern to use for identifying the resources to match.
-   *
-   * @return the pattern
    */
   public String getPattern() {
     return this.pattern;
   }
 
   /**
-   * Return the regex {@link Pattern} to use for identifying the resources to match.
+   * Whether the given path matches the current glob pattern.
    *
-   * @return the regex pattern
+   * @param path the path to match against
    */
-  public Pattern toRegex() {
-    String prefix = (this.pattern.startsWith("*") ? ".*" : "");
-    String suffix = (this.pattern.endsWith("*") ? ".*" : "");
-    String regex = Arrays.stream(this.pattern.split("\\*"))
-            .filter(s -> !s.isEmpty())
-            .map(Pattern::quote)
-            .collect(Collectors.joining(".*", prefix, suffix));
-    return Pattern.compile(regex);
+  public boolean matches(String path) {
+    return PATH_MATCHER.match(this.pattern, path);
   }
 
-  @Nullable
   @Override
-  public TypeReference getReachableType() {
+  public @Nullable TypeReference getReachableType() {
     return this.reachableType;
   }
 
   @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ResourcePatternHint that = (ResourcePatternHint) o;
-    return this.pattern.equals(that.pattern)
-            && Objects.equals(this.reachableType, that.reachableType);
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof ResourcePatternHint that &&
+            this.pattern.equals(that.pattern) && Objects.equals(this.reachableType, that.reachableType)));
   }
 
   @Override

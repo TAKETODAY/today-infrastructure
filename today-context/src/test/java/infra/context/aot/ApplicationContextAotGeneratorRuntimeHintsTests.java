@@ -93,6 +93,7 @@ class ApplicationContextAotGeneratorRuntimeHintsTests {
     compile(context, (hints, invocations) -> assertThat(invocations).match(hints));
   }
 
+  @SuppressWarnings("deprecation")
   private void compile(GenericApplicationContext applicationContext,
           BiConsumer<RuntimeHints, RuntimeHintsInvocations> initializationResult) {
     ApplicationContextAotGenerator generator = new ApplicationContextAotGenerator();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint.support;
@@ -79,7 +79,7 @@ class FilePatternResourceHintsRegistrarTests {
 
   @Test
   void registerWithMultipleClasspathLocations() {
-    FilePatternResourceHintsRegistrar.forClassPathLocations("").withClasspathLocations("META-INF")
+    FilePatternResourceHintsRegistrar.forClassPathLocations("").withClassPathLocations("META-INF")
             .withFilePrefixes("test").withFileExtensions(".txt")
             .registerHints(this.hints, null);
     assertThat(this.hints.resourcePatternHints()).singleElement()
@@ -134,18 +134,15 @@ class FilePatternResourceHintsRegistrarTests {
   @Test
   void registerWithNonExistingLocationDoesNotRegisterHint() {
     FilePatternResourceHintsRegistrar.forClassPathLocations("does-not-exist/")
-            .withClasspathLocations("another-does-not-exist/")
+            .withClassPathLocations("another-does-not-exist/")
             .withFilePrefixes("test").withFileExtensions(".txt")
             .registerHints(this.hints, null);
     assertThat(this.hints.resourcePatternHints()).isEmpty();
   }
 
   private Consumer<ResourcePatternHints> includes(String... patterns) {
-    return hint -> {
-      assertThat(hint.getIncludes().stream().map(ResourcePatternHint::getPattern))
-              .containsExactlyInAnyOrder(patterns);
-      assertThat(hint.getExcludes()).isEmpty();
-    };
+    return hint -> assertThat(hint.getIncludes().stream().map(ResourcePatternHint::getPattern))
+            .containsExactlyInAnyOrder(patterns);
   }
 
 }

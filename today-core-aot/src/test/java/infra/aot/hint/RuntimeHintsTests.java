@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
@@ -33,43 +30,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class RuntimeHintsTests {
 
-	private final RuntimeHints hints = new RuntimeHints();
+  private final RuntimeHints hints = new RuntimeHints();
 
+  @Test
+  void reflectionHintWithClass() {
+    this.hints.reflection().registerType(String.class, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+    assertThat(this.hints.reflection().typeHints()).singleElement().satisfies(typeHint -> {
+      assertThat(typeHint.getType().getCanonicalName()).isEqualTo(String.class.getCanonicalName());
+      assertThat(typeHint.fields()).isEmpty();
+      assertThat(typeHint.constructors()).isEmpty();
+      assertThat(typeHint.methods()).isEmpty();
+      assertThat(typeHint.getMemberCategories()).containsOnly(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+    });
+  }
 
-	@Test
-	void reflectionHintWithClass() {
-		this.hints.reflection().registerType(String.class, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
-		assertThat(this.hints.reflection().typeHints()).singleElement().satisfies(typeHint -> {
-			assertThat(typeHint.getType().getCanonicalName()).isEqualTo(String.class.getCanonicalName());
-			assertThat(typeHint.fields()).isEmpty();
-			assertThat(typeHint.constructors()).isEmpty();
-			assertThat(typeHint.methods()).isEmpty();
-			assertThat(typeHint.getMemberCategories()).containsOnly(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
-		});
-	}
+  @Test
+  void resourceHintWithClass() {
+    this.hints.resources().registerType(String.class);
+    assertThat(this.hints.resources().resourcePatternHints()).singleElement().satisfies(resourceHint ->
+            assertThat(resourceHint.getIncludes()).map(ResourcePatternHint::getPattern)
+                    .containsExactlyInAnyOrder("/", "java", "java/lang", "java/lang/String.class"));
+  }
 
-	@Test
-	void resourceHintWithClass() {
-		this.hints.resources().registerType(String.class);
-		assertThat(this.hints.resources().resourcePatternHints()).singleElement().satisfies(resourceHint -> {
-			assertThat(resourceHint.getIncludes()).map(ResourcePatternHint::getPattern)
-					.containsExactlyInAnyOrder("/", "java", "java/lang", "java/lang/String.class");
-			assertThat(resourceHint.getExcludes()).isEmpty();
-		});
-	}
+  @Test
+  void javaSerializationHintWithClass() {
+    this.hints.serialization().registerType(String.class);
+    assertThat(this.hints.serialization().javaSerializationHints().map(JavaSerializationHint::getType))
+            .containsExactly(TypeReference.of(String.class));
+  }
 
-	@Test
-	void javaSerializationHintWithClass() {
-		this.hints.serialization().registerType(String.class);
-		assertThat(this.hints.serialization().javaSerializationHints().map(JavaSerializationHint::getType))
-				.containsExactly(TypeReference.of(String.class));
-	}
-
-	@Test
-	void jdkProxyWithClass() {
-		this.hints.proxies().registerJdkProxy(Function.class);
-		assertThat(this.hints.proxies().jdkProxyHints()).singleElement().satisfies(jdkProxyHint ->
-				assertThat(jdkProxyHint.getProxiedInterfaces()).containsExactly(TypeReference.of(Function.class)));
-	}
+  @Test
+  void jdkProxyWithClass() {
+    this.hints.proxies().registerJdkProxy(Function.class);
+    assertThat(this.hints.proxies().jdkProxyHints()).singleElement().satisfies(jdkProxyHint ->
+            assertThat(jdkProxyHint.getProxiedInterfaces()).containsExactly(TypeReference.of(Function.class)));
+  }
 
 }

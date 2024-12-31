@@ -34,7 +34,10 @@ import infra.lang.Assert;
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
+ * @deprecated in favor of the {@code -XX:MissingRegistrationReportingMode=Warn} and
+ * {@code -XX:MissingRegistrationReportingMode=Exit} JVM flags with GraalVM.
  */
+@Deprecated
 public final class RuntimeHintsRecorder {
 
   private final RuntimeHintsInvocationsListener listener;

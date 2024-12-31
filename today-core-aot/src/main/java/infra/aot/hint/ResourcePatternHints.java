@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
@@ -40,11 +40,8 @@ public final class ResourcePatternHints {
 
   private final List<ResourcePatternHint> includes;
 
-  private final List<ResourcePatternHint> excludes;
-
   private ResourcePatternHints(Builder builder) {
     this.includes = new ArrayList<>(builder.includes);
-    this.excludes = new ArrayList<>(builder.excludes);
   }
 
   /**
@@ -57,27 +54,17 @@ public final class ResourcePatternHints {
   }
 
   /**
-   * Return the exclude patterns to use to identify the resources to match.
-   *
-   * @return the exclude patterns
-   */
-  public List<ResourcePatternHint> getExcludes() {
-    return this.excludes;
-  }
-
-  /**
    * Builder for {@link ResourcePatternHints}.
    */
   public static class Builder {
 
     private final Set<ResourcePatternHint> includes = new LinkedHashSet<>();
 
-    private final Set<ResourcePatternHint> excludes = new LinkedHashSet<>();
-
-    Builder() { }
+    Builder() {
+    }
 
     /**
-     * Include resources matching the specified patterns.
+     * Include resources matching the specified glob patterns.
      *
      * @param reachableType the type that should be reachable for this hint to apply
      * @param includes the include patterns (see {@link ResourcePatternHint} documentation)
@@ -132,37 +119,13 @@ public final class ResourcePatternHints {
     }
 
     /**
-     * Include resources matching the specified patterns.
+     * Include resources matching the specified glob patterns.
      *
      * @param includes the include patterns (see {@link ResourcePatternHint} documentation)
      * @return {@code this}, to facilitate method chaining
      */
     public Builder includes(String... includes) {
       return includes(null, includes);
-    }
-
-    /**
-     * Exclude resources matching the specified patterns.
-     *
-     * @param reachableType the type that should be reachable for this hint to apply
-     * @param excludes the exclude patterns (see {@link ResourcePatternHint} documentation)
-     * @return {@code this}, to facilitate method chaining
-     */
-    public Builder excludes(@Nullable TypeReference reachableType, String... excludes) {
-      List<ResourcePatternHint> newExcludes = Arrays.stream(excludes)
-              .map(include -> new ResourcePatternHint(include, reachableType)).toList();
-      this.excludes.addAll(newExcludes);
-      return this;
-    }
-
-    /**
-     * Exclude resources matching the specified patterns.
-     *
-     * @param excludes the exclude patterns (see {@link ResourcePatternHint} documentation)
-     * @return {@code this}, to facilitate method chaining
-     */
-    public Builder excludes(String... excludes) {
-      return excludes(null, excludes);
     }
 
     /**

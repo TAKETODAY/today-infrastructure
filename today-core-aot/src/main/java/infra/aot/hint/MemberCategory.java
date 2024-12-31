@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
@@ -31,24 +28,51 @@ import java.lang.reflect.Method;
  * @author Andy Clement
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public enum MemberCategory {
 
   /**
-   * A category that represents public {@linkplain Field fields}.
+   * A category that represents introspection on public {@linkplain Field fields}.
    *
    * @see Class#getFields()
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
+   * Use {@link #INVOKE_PUBLIC_FIELDS} if getting/setting field values is required.
    */
+  @Deprecated
   PUBLIC_FIELDS,
 
   /**
-   * A category that represents {@linkplain Class#getDeclaredFields() declared
+   * A category that represents introspection on {@linkplain Class#getDeclaredFields() declared
    * fields}: all fields defined by the class but not inherited fields.
    *
    * @see Class#getDeclaredFields()
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
+   * Use {@link #INVOKE_DECLARED_FIELDS} if getting/setting field values is required.
    */
+  @Deprecated
   DECLARED_FIELDS,
+
+  /**
+   * A category that represents getting/setting values on public {@linkplain Field fields}.
+   *
+   * @see Field#get(Object)
+   * @see Field#set(Object, Object)
+   * @since 5.0
+   */
+  INVOKE_PUBLIC_FIELDS,
+
+  /**
+   * A category that represents getting/setting values on declared {@linkplain Field fields}.
+   *
+   * @see Field#get(Object)
+   * @see Field#set(Object, Object)
+   * @since 5.0
+   */
+  INVOKE_DECLARED_FIELDS,
 
   /**
    * A category that defines public {@linkplain Constructor constructors} can
@@ -56,7 +80,10 @@ public enum MemberCategory {
    *
    * @see Class#getConstructors()
    * @see ExecutableMode#INTROSPECT
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
+  @Deprecated
   INTROSPECT_PUBLIC_CONSTRUCTORS,
 
   /**
@@ -65,7 +92,10 @@ public enum MemberCategory {
    *
    * @see Class#getDeclaredConstructors()
    * @see ExecutableMode#INTROSPECT
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
+  @Deprecated
   INTROSPECT_DECLARED_CONSTRUCTORS,
 
   /**
@@ -92,7 +122,10 @@ public enum MemberCategory {
    *
    * @see Class#getMethods()
    * @see ExecutableMode#INTROSPECT
+   * @deprecated with no replacement since introspection is added by default
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
+  @Deprecated
   INTROSPECT_PUBLIC_METHODS,
 
   /**
@@ -101,7 +134,10 @@ public enum MemberCategory {
    *
    * @see Class#getDeclaredMethods()
    * @see ExecutableMode#INTROSPECT
+   * @deprecated with no replacement since introspection is added by default
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
+  @Deprecated
   INTROSPECT_DECLARED_METHODS,
 
   /**
@@ -128,7 +164,11 @@ public enum MemberCategory {
    * <p>Contrary to other categories, this does not register any particular
    * reflection for inner classes but rather makes sure they are available
    * via a call to {@link Class#getClasses}.
+   *
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
+  @Deprecated
   PUBLIC_CLASSES,
 
   /**
@@ -137,7 +177,20 @@ public enum MemberCategory {
    * <p>Contrary to other categories, this does not register any particular
    * reflection for inner classes but rather makes sure they are available
    * via a call to {@link Class#getDeclaredClasses}.
+   *
+   * @deprecated with no replacement since introspection is included
+   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  DECLARED_CLASSES;
+  @Deprecated
+  DECLARED_CLASSES,
+
+  /**
+   * A category that represents the need for
+   * {@link sun.misc.Unsafe#allocateInstance(Class) unsafe allocation}
+   * for this type.
+   *
+   * @since 5.0
+   */
+  UNSAFE_ALLOCATED
 
 }
