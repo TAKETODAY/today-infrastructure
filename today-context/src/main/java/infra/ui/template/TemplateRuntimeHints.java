@@ -33,7 +33,7 @@ class TemplateRuntimeHints implements RuntimeHintsRegistrar {
   @Override
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     hints.resources().registerPatternIfPresent(classLoader,
-            "templates", (hint) -> hint.includes("templates/*"));
+            "templates", (hint) -> hint.includes("templates/**"));
   }
 
 }
