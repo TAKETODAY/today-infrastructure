@@ -364,7 +364,7 @@ class ConfigurationClassBeanDefinitionReader {
     // before configuration class processing kicks in...
     if (!bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
       throw new BeanDefinitionOverrideException(beanName, new ConfigurationClassBeanDefinition(configClass, componentMethod.metadata, beanName),
-              existingBeanDef, "@Bean definition illegally overridden by existing bean definition: " + existingBeanDef);
+              existingBeanDef, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
     }
     if (logger.isDebugEnabled()) {
       logger.debug("Skipping bean definition for {}: a definition for bean '{}' " +
