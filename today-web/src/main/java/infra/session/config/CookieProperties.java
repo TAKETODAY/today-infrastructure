@@ -158,7 +158,7 @@ public class CookieProperties {
             .httpOnly(Boolean.TRUE.equals(httpOnly))
             .maxAge(maxAge)
             .sameSite(sameSite.attributeValue())
-            .partitioned(partitioned)
+            .httpOnly(Boolean.TRUE.equals(partitioned))
             .build();
   }
 
