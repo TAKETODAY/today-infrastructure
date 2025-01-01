@@ -41,7 +41,7 @@ public interface ClientResponse extends ClientHttpResponse {
    * @return the body, or {@code null} if no response body was available
    */
   @Nullable
-  <T> T bodyTo(Class<T> bodyType);
+  <T> T bodyTo(Class<T> bodyType) throws RestClientException;
 
   /**
    * Extract the response body as an object of the given type.
@@ -51,5 +51,5 @@ public interface ClientResponse extends ClientHttpResponse {
    * @return the body, or {@code null} if no response body was available
    */
   @Nullable
-  <T> T bodyTo(ParameterizedTypeReference<T> bodyType);
+  <T> T bodyTo(ParameterizedTypeReference<T> bodyType) throws RestClientException;
 }
