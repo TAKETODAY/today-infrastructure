@@ -23,6 +23,7 @@ import java.util.Locale;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationListener;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.FileCopyUtils;
@@ -110,24 +111,20 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
     if (StringUtils.isEmpty(namespace)) {
       return this.file;
     }
-    String name = this.file.getName();
-    String extension = StringUtils.getFilenameExtension(this.file.getName());
-    name = name.substring(0, name.length() - extension.length() - 1);
-    if (isUpperCase(name)) {
-      name = name + "-" + namespace.toUpperCase(Locale.ROOT);
-    }
-    else {
-      name = name + "-" + namespace.toLowerCase(Locale.ROOT);
-    }
-    if (StringUtils.isNotEmpty(extension)) {
-      name = name + "." + extension;
-    }
-    return new File(this.file.getParentFile(), name);
+    String filename = this.file.getName();
+    String extension = StringUtils.getFilenameExtension(filename);
+    String filenameWithoutExtension = (extension != null)
+            ? filename.substring(0, filename.length() - extension.length() - 1) : filename;
+    String suffix = (!isUpperCase(filename)) ? namespace.toLowerCase(Locale.ENGLISH)
+            : namespace.toUpperCase(Locale.ENGLISH);
+    return new File(this.file.getParentFile(),
+            filenameWithoutExtension + "-" + suffix + (StringUtils.isEmpty(extension) ? "" : "." + extension));
   }
 
+  @Nullable
   private String getServerNamespace(ApplicationContext applicationContext) {
-    if (applicationContext instanceof WebServerApplicationContext) {
-      return ((WebServerApplicationContext) applicationContext).getServerNamespace();
+    if (applicationContext instanceof WebServerApplicationContext webServerApplicationContext) {
+      return webServerApplicationContext.getServerNamespace();
     }
     return null;
   }
@@ -148,7 +145,8 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
     }
   }
 
-  public static String getSystemProperties(String... properties) {
+  @Nullable
+  static String getSystemProperties(String... properties) {
     for (String property : properties) {
       try {
         String override = System.getProperty(property);
