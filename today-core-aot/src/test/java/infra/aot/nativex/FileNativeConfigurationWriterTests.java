@@ -39,6 +39,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.SerializationHints;
 import infra.aot.hint.TypeReference;
 import infra.core.codec.StringDecoder;
+import infra.lang.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,12 +73,13 @@ class FileNativeConfigurationWriterTests {
     generator.write(hints);
     assertEquals("""
             {
+              "comment": "Infra Framework %s",
             	"serialization": [
             		{ "type": "java.lang.Integer" },
             		{ "type": "java.lang.Long" }
             	]
             }
-            """);
+            """.formatted(Version.instance.implementationVersion()));
   }
 
   @Test
@@ -90,12 +92,13 @@ class FileNativeConfigurationWriterTests {
     generator.write(hints);
     assertEquals("""
             {
+              "comment": "Infra Framework %s",
             	"reflection": [
             		{ type: {"proxy": [ "java.util.function.Function" ] } },
             		{ type: {"proxy": [ "java.util.function.Function", "java.util.function.Consumer" ] } }
             	]
             }
-            """);
+            """.formatted(Version.instance.implementationVersion()));
   }
 
   @Test
@@ -114,6 +117,7 @@ class FileNativeConfigurationWriterTests {
     generator.write(hints);
     assertEquals("""
             {
+              "comment": "Infra Framework %s",
             	"reflection": [
             		{
             			"type": "infra.core.codec.StringDecoder",
@@ -134,7 +138,7 @@ class FileNativeConfigurationWriterTests {
             		}
             	]
             }
-            """);
+            """.formatted(Version.instance.implementationVersion()));
   }
 
   @Test
@@ -147,13 +151,14 @@ class FileNativeConfigurationWriterTests {
     generator.write(hints);
     assertEquals("""
             {
+              "comment": "Infra Framework %s",
             	"jni": [
             		{
             			"type": "infra.core.codec.StringDecoder",
             			"condition": { "typeReached": "java.lang.String" }
             		}
             	]
-            }""");
+            }""".formatted(Version.instance.implementationVersion()));
   }
 
   @Test
@@ -166,6 +171,7 @@ class FileNativeConfigurationWriterTests {
     generator.write(hints);
     assertEquals("""
             {
+              "comment": "Infra Framework %s",
             	"resources": [
             			{"glob": "com/example/test.properties"},
             			{"glob": "/"},
@@ -173,7 +179,7 @@ class FileNativeConfigurationWriterTests {
             			{"glob": "com/example"},
             			{"glob": "com/example/another.properties"}
             	]
-            }""");
+            }""".formatted(Version.instance.implementationVersion()));
   }
 
   @Test
