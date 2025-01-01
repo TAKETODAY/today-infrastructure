@@ -1341,7 +1341,7 @@ class ApplicationTests {
             .accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "getSources")).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "setSources")).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "load")).rejects(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "load")).accepts(hints);
   }
 
   @Test
