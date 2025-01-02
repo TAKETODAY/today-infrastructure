@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,6 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
 
   @Override
   @Test
-  @SuppressWarnings("deprecation")
   public void canEncode() {
     ResolvableType pojoType = ResolvableType.forClass(Pojo.class);
     assertThat(this.encoder.canEncode(pojoType, APPLICATION_JSON)).isTrue();
@@ -93,11 +92,11 @@ public class Jackson2JsonEncoderTests extends AbstractEncoderTests<Jackson2JsonE
             new Pojo("foofoo", "barbar"),
             new Pojo("foofoofoo", "barbarbar"));
 
-    testEncodeAll(input, ResolvableType.forClass(Pojo.class), APPLICATION_STREAM_JSON, null,
-            step -> step.consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n"))
-                    .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n"))
-                    .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n"))
-                    .verifyComplete()
+    testEncodeAll(input, ResolvableType.forClass(Pojo.class), APPLICATION_NDJSON, null, step -> step
+            .consumeNextWith(expectString("{\"foo\":\"foo\",\"bar\":\"bar\"}\n"))
+            .consumeNextWith(expectString("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}\n"))
+            .consumeNextWith(expectString("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}\n"))
+            .verifyComplete()
     );
   }
 
