@@ -39,13 +39,6 @@ class CookieSessionIdResolverTests {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Cookie name is required");
 
-    CookieProperties config = new CookieProperties();
-    config.setName(null);
-    assertThatThrownBy(() ->
-            SessionIdResolver.forCookie(config))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Cookie name is required");
-
     assertThatThrownBy(() ->
             SessionIdResolver.forCookie((CookieProperties) null))
             .isInstanceOf(IllegalArgumentException.class)
@@ -57,6 +50,9 @@ class CookieSessionIdResolverTests {
     assertThat(new CookieSessionIdResolver().getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
     assertThat(new CookieSessionIdResolver("cookie-name").getCookieName()).isEqualTo("cookie-name");
     assertThat(new CookieSessionIdResolver(new CookieProperties()).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
+    CookieProperties config = new CookieProperties();
+    config.setName(null);
+    assertThat(new CookieSessionIdResolver(config).getCookieName()).isEqualTo(CookieProperties.DEFAULT_COOKIE_NAME);
   }
 
   @Test

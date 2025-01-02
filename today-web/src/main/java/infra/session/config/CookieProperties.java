@@ -46,11 +46,13 @@ public class CookieProperties {
   /**
    * Domain for the cookie.
    */
+  @Nullable
   private String domain;
 
   /**
    * Path of the cookie.
    */
+  @Nullable
   private String path;
 
   /**
@@ -77,34 +79,38 @@ public class CookieProperties {
   /**
    * SameSite setting for the cookie.
    */
+  @Nullable
   private SameSite sameSite;
 
   /**
    * Whether the generated cookie carries the Partitioned attribute.
    */
+  @Nullable
   private Boolean partitioned;
 
   public String getName() {
     return this.name;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setName(@Nullable String name) {
+    this.name = name == null ? DEFAULT_COOKIE_NAME : name;
   }
 
+  @Nullable
   public String getDomain() {
     return this.domain;
   }
 
-  public void setDomain(String domain) {
+  public void setDomain(@Nullable String domain) {
     this.domain = domain;
   }
 
+  @Nullable
   public String getPath() {
     return this.path;
   }
 
-  public void setPath(String path) {
+  public void setPath(@Nullable String path) {
     this.path = path;
   }
 
@@ -134,19 +140,21 @@ public class CookieProperties {
     this.maxAge = maxAge;
   }
 
+  @Nullable
   public SameSite getSameSite() {
     return this.sameSite;
   }
 
-  public void setSameSite(SameSite sameSite) {
+  public void setSameSite(@Nullable SameSite sameSite) {
     this.sameSite = sameSite;
   }
 
+  @Nullable
   public Boolean getPartitioned() {
     return this.partitioned;
   }
 
-  public void setPartitioned(Boolean partitioned) {
+  public void setPartitioned(@Nullable Boolean partitioned) {
     this.partitioned = partitioned;
   }
 
@@ -157,7 +165,7 @@ public class CookieProperties {
             .secure(Boolean.TRUE.equals(secure))
             .httpOnly(Boolean.TRUE.equals(httpOnly))
             .maxAge(maxAge)
-            .sameSite(sameSite.attributeValue())
+            .sameSite(sameSite == null ? null : sameSite.attributeValue())
             .httpOnly(Boolean.TRUE.equals(partitioned))
             .build();
   }
