@@ -26,7 +26,6 @@ import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
-import infra.util.concurrent.Future;
 import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -50,12 +49,10 @@ class WsClientTests {
 
   @Test
   void doHandshake() throws InterruptedException {
-    Application.run(WsServerApp.class);
-
+    var context = Application.run(WsServerApp.class);
     CountDownLatch latch = new CountDownLatch(1);
-    Future<WebSocketSession> sessionFuture = client.connect(new ClientWebSocketHandler(latch), "ws://localhost:8080/websocket");
-
-    sessionFuture.onSuccess(session -> session.sendText("Hello World"))
+    client.connect(new ClientWebSocketHandler(latch), "ws://localhost:8080/websocket")
+            .onSuccess(session -> session.sendText("Hello World"))
             .onFailure(Throwable::printStackTrace)
             .onFailure(e -> {
               latch.countDown();
@@ -63,6 +60,7 @@ class WsClientTests {
             });
 
     latch.await();
+    Application.exit(context);
   }
 
   static class ServerWebSocketHandler extends WebSocketHandler implements HandshakeCapable {
