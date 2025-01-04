@@ -6,6 +6,8 @@ description = "Core for AOT infrastructure."
 def javapoetVersion = "1.13.0"
 
 configurations {
+  java21Api.extendsFrom(api)
+  java21Implementation.extendsFrom(implementation)
   graalvm
   javapoet
 }
@@ -28,13 +30,6 @@ tasks.register('javapoetSourceJar', Jar) {
   archiveVersion = javapoetVersion
   archiveClassifier = 'sources'
   from javapoetSource
-}
-
-configurations {
-  java21Api.extendsFrom(api)
-  java21Implementation.extendsFrom(implementation)
-  graalvm
-  javapoet
 }
 
 dependencies {
