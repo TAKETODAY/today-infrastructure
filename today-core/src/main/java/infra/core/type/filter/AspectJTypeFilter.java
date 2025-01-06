@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,10 +62,7 @@ public class AspectJTypeFilter implements TypeFilter {
   }
 
   @Override
-  public boolean match(
-          MetadataReader metadataReader,
-          MetadataReaderFactory metadataReaderFactory) throws IOException {
-
+  public boolean match(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     String className = metadataReader.getClassMetadata().getClassName();
     ResolvedType resolvedType = this.world.resolve(className);
     return this.typePattern.matchesStatically(resolvedType);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import infra.beans.BeanUtils;
 import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.support.BeanNameGenerator;
 import infra.context.BootstrapContext;
@@ -53,25 +52,23 @@ class ComponentScanAnnotationParser {
   }
 
   public Set<BeanDefinitionHolder> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
-    ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(
+    var scanner = new ClassPathBeanDefinitionScanner(
             context.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
-            context.getEnvironment(), context.getResourceLoader()
-    );
+            context.getEnvironment(), context.getResourceLoader());
 
-    Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
-
+    var generatorClass = componentScan.<BeanNameGenerator>getClass("nameGenerator");
     scanner.setBeanNameGenerator(BeanNameGenerator.class == generatorClass
-                                 ? context.getBeanNameGenerator()
-                                 : BeanUtils.newInstance(generatorClass));
+            ? context.getBeanNameGenerator()
+            : context.instantiate(generatorClass));
 
-    ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy", ScopedProxyMode.class);
+    var scopedProxyMode = componentScan.getEnum("scopedProxy", ScopedProxyMode.class);
     if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
       scanner.setScopedProxyMode(scopedProxyMode);
     }
     else {
       var resolverClass = componentScan.<ScopeMetadataResolver>getClass("scopeResolver");
       if (resolverClass != ScopeMetadataResolver.class) {
-        scanner.setScopeMetadataResolver(BeanUtils.newInstance(resolverClass));
+        scanner.setScopeMetadataResolver(context.instantiate(resolverClass));
       }
     }
 
