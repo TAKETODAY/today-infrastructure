@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.DataSize;
 import infra.util.ExceptionUtils;
-import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
 import infra.web.client.DefaultResponseErrorHandler;
@@ -61,7 +60,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpDecoderConfig;
@@ -70,9 +68,7 @@ import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.HttpStatusClass;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -169,6 +165,11 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    */
   @Nullable
   private SslContext sslContext;
+
+  /**
+   * @since 5.0
+   */
+  private ClientHandshakerFactory handshakerFactory = new DefaultClientHandshakerFactory();
 
   /**
    * @see HttpClientCodec#failOnMissingResponse
@@ -289,6 +290,14 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     this.sslContext = sslContext;
   }
 
+  /**
+   * @since 5.0
+   */
+  public void setHandshakerFactory(ClientHandshakerFactory handshakerFactory) {
+    Assert.notNull(handshakerFactory, "ClientHandshakerFactory is required");
+    this.handshakerFactory = handshakerFactory;
+  }
+
   @Override
   protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions) {
@@ -297,7 +306,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
     // If you change it to V00, ping is not supported and remember to change
     // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-    WebSocketClientHandshaker handshaker = createHandshaker(uri, subProtocols, extensions, createHeaders(headers));
+    WebSocketClientHandshaker handshaker = createHandshaker(uri, subProtocols, extensions, headers);
     MessageHandler handler = new MessageHandler(secure, webSocketHandler, handshaker, uri, headers);
 
     Bootstrap bootstrap = createBootstrap(handler, secure);
@@ -347,9 +356,8 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   }
 
   protected WebSocketClientHandshaker createHandshaker(URI uri, List<String> subProtocols,
-          List<WebSocketExtension> extensions, io.netty.handler.codec.http.HttpHeaders customHeaders) {
-    return WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13,
-            StringUtils.collectionToCommaDelimitedString(subProtocols), true, customHeaders);
+          List<WebSocketExtension> extensions, HttpHeaders customHeaders) {
+    return handshakerFactory.create(uri, subProtocols, extensions, customHeaders);
   }
 
   protected NettyWebSocketSession createSession(Channel channel, boolean secure,
@@ -424,12 +432,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
       this.eventLoopGroup = eventLoopGroup;
     }
     return eventLoopGroup;
-  }
-
-  private DefaultHttpHeaders createHeaders(HttpHeaders headers) {
-    DefaultHttpHeaders entries = new DefaultHttpHeaders();
-    headers.forEach(entries::add);
-    return entries;
   }
 
   final class MessageHandler extends ChannelInboundHandlerAdapter implements ChannelFutureListener {
