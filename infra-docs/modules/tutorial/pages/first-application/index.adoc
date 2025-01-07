@@ -87,7 +87,7 @@ dependencies {
 package demo;
 
 import infra.app.Application;
-import infra.InfraApplication;
+import infra.app.InfraApplication;
 import infra.web.annotation.RestController;
 import infra.web.annotation.GET;
 

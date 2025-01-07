@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ import infra.lang.Nullable;
 @DisableCachingByDefault(because = "Not worth caching")
 public class ResolveMainClassName extends DefaultTask {
 
-  private static final String INFRA_APPLICATION_CLASS_NAME = "infra.InfraApplication";
+  private static final String INFRA_APPLICATION_CLASS_NAME = "infra.app.InfraApplication";
 
   private final RegularFileProperty outputFile;
 
