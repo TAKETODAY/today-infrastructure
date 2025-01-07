@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,6 +109,16 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
    */
   public int toBytesInt() {
     return Math.toIntExact(this.bytes);
+  }
+
+  /**
+   * Return the number of bytes in this instance.
+   *
+   * @return the number of bytes
+   * @since 5.0
+   */
+  public Number bytes() {
+    return this.bytes;
   }
 
   /**

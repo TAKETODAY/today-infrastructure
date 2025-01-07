@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ class NettyWebSocketClientTests {
     assertThat(client).extracting("failOnMissingResponse").isEqualTo(false);
     assertThat(client).extracting("parseHttpAfterConnectRequest").isEqualTo(false);
     assertThat(client).extracting("maxContentLength").isEqualTo(DataSize.ofKilobytes(64).toBytesInt());
+    assertThat(client).extracting("maxContentLength").isEqualTo(DataSize.ofKilobytes(64).bytes().intValue());
     assertThat(client).extracting("closeOnExpectationFailed").isEqualTo(false);
     assertThat(client).extracting("httpDecoderConfig").isNotNull();
     assertThat(client).extracting("channelFactory").isNull();
