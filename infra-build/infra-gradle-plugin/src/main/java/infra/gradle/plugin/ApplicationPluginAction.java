@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,9 @@ import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.JavaApplication;
 import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.application.CreateStartScripts;
@@ -48,6 +50,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 import infra.gradle.tasks.run.InfraRun;
+
+import static infra.gradle.plugin.InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME;
+import static org.gradle.api.plugins.ApplicationPlugin.TASK_RUN_NAME;
 
 /**
  * Action that is executed in response to the {@link ApplicationPlugin} being applied.
@@ -80,10 +85,6 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     distribution.getContents().with(binCopySpec);
     applyApplicationDefaultJvmArgsToRunTasks(project.getTasks(), javaApplication);
 
-//    TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks().named(
-//            InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
-//    javaApplication.getMainClass().convention(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
-
     project.getTasks().named(JavaPlugin.JAR_TASK_NAME, Jar.class).configure(task -> {
       Attributes attributes = task.getManifest().getAttributes();
       String versionString = String.valueOf(project.getVersion());
@@ -95,17 +96,45 @@ final class ApplicationPluginAction implements PluginApplicationAction {
 
     // filter classpath
     FileCollection excludeClasspath = excludeClasspath(project);
-    Spec<File> exclude = JarTypeFileSpec.exclude();
+    Spec<File> excludeSpec = JarTypeFileSpec.exclude();
     distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
             .contents(copySpec -> copySpec.exclude(element -> {
               if (!element.isDirectory()) {
                 File file = element.getFile();
                 if (file.getName().endsWith(".jar")) {
-                  return excludeClasspath.contains(file) || exclude.isSatisfiedBy(file);
+                  return excludeClasspath.contains(file) || excludeSpec.isSatisfiedBy(file);
                 }
               }
               return false;
             }));
+
+    Provider<String> mainClassNameProvider = project.getTasks().named(RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class)
+            .flatMap(ResolveMainClassName::readMainClassName);
+
+    project.getTasks().named(ApplicationPlugin.TASK_START_SCRIPTS_NAME, CreateStartScripts.class, startScripts -> {
+      FileCollection classpath = startScripts.getClasspath();
+      if (classpath != null) {
+        startScripts.setClasspath(classpath.filter(file -> {
+          if (file.getName().endsWith(".jar")) {
+            return !excludeClasspath.contains(file) && !excludeSpec.isSatisfiedBy(file);
+          }
+          return true;
+        }));
+      }
+
+      if (!startScripts.getMainClass().isPresent()) {
+        startScripts.dependsOn(RESOLVE_MAIN_CLASS_NAME_TASK_NAME);
+        startScripts.getMainClass().set(mainClassNameProvider);
+      }
+    });
+
+    project.getTasks().named(TASK_RUN_NAME, JavaExec.class, run -> {
+      if (!run.getMainClass().isPresent()) {
+        run.dependsOn(RESOLVE_MAIN_CLASS_NAME_TASK_NAME);
+        run.getMainClass().set(mainClassNameProvider);
+      }
+    });
+
   }
 
   static FileCollection excludeClasspath(Project project) {
@@ -124,31 +153,28 @@ final class ApplicationPluginAction implements PluginApplicationAction {
   }
 
   private void applyApplicationDefaultJvmArgsToRunTask(TaskContainer tasks, JavaApplication javaApplication, String taskName) {
-    tasks.named(taskName, InfraRun.class)
-            .configure(infraRun -> infraRun.getConventionMapping()
-                    .map("jvmArgs", javaApplication::getApplicationDefaultJvmArgs));
+    tasks.named(taskName, InfraRun.class).configure(infraRun ->
+            infraRun.conventionMapping("jvmArgs", javaApplication::getApplicationDefaultJvmArgs));
   }
 
-  private void configureCreateStartScripts(Project project, JavaApplication javaApplication,
-          Distribution distribution, CreateStartScripts createStartScripts) {
-    createStartScripts.setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
+  private void configureCreateStartScripts(Project project, JavaApplication application, Distribution distribution, CreateStartScripts startScripts) {
+    startScripts.setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
 
-    ((TemplateBasedScriptGenerator) createStartScripts.getUnixStartScriptGenerator())
+    ((TemplateBasedScriptGenerator) startScripts.getUnixStartScriptGenerator())
             .setTemplate(project.getResources().getText().fromString(loadResource("/unixStartScript.txt")));
 
-    ((TemplateBasedScriptGenerator) createStartScripts.getWindowsStartScriptGenerator())
+    ((TemplateBasedScriptGenerator) startScripts.getWindowsStartScriptGenerator())
             .setTemplate(project.getResources().getText().fromString(loadResource("/windowsStartScript.txt")));
 
     project.getConfigurations().all(configuration -> {
       if (InfraApplicationPlugin.INFRA_ARCHIVES_CONFIGURATION_NAME.equals(configuration.getName())) {
         distribution.getContents().with(artifactFilesToLibCopySpec(project, configuration));
-        createStartScripts.setClasspath(configuration.getArtifacts().getFiles());
+        startScripts.setClasspath(configuration.getArtifacts().getFiles());
       }
     });
-    createStartScripts.getConventionMapping()
-            .map("outputDir", () -> project.getLayout().getBuildDirectory().dir("infraScripts").get().getAsFile());
-    createStartScripts.getConventionMapping().map("applicationName", javaApplication::getApplicationName);
-    createStartScripts.getConventionMapping().map("defaultJvmOpts", javaApplication::getApplicationDefaultJvmArgs);
+    startScripts.conventionMapping("outputDir", () -> project.getLayout().getBuildDirectory().dir("infraScripts").get().getAsFile());
+    startScripts.conventionMapping("applicationName", application::getApplicationName);
+    startScripts.conventionMapping("defaultJvmOpts", application::getApplicationDefaultJvmArgs);
   }
 
   private CopySpec artifactFilesToLibCopySpec(Project project, Configuration configuration) {
