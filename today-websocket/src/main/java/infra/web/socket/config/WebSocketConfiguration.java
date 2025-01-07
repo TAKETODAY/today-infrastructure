@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,13 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
+import infra.util.DataSize;
 import infra.web.config.WebMvcConfigurationSupport;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
 import infra.web.socket.server.support.NettyRequestUpgradeStrategy;
 import infra.web.socket.server.support.WebSocketHandlerMapping;
+import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
 /**
  * A Configuration that detects implementations of {@link WebSocketConfigurer} in
@@ -45,7 +47,7 @@ import infra.web.socket.server.support.WebSocketHandlerMapping;
 class WebSocketConfiguration {
 
   @Component
-  static WebSocketHandlerMapping webSocketHandlerMapping(List<WebSocketConfigurer> configurers,
+  public static WebSocketHandlerMapping webSocketHandlerMapping(List<WebSocketConfigurer> configurers,
           @Nullable WebMvcConfigurationSupport support, @Nullable RequestUpgradeStrategy requestUpgradeStrategy) {
     DefaultWebSocketHandlerRegistry registry = new DefaultWebSocketHandlerRegistry();
     if (requestUpgradeStrategy != null) {
@@ -63,11 +65,29 @@ class WebSocketConfiguration {
     return handlerMapping;
   }
 
-  @Component
+  @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
-  @ConditionalOnMissingBean
-  static RequestUpgradeStrategy nettyRequestUpgradeStrategy() {
-    return new NettyRequestUpgradeStrategy();
+  public static class NettyWebSocket {
+
+    @Component
+    @ConditionalOnMissingBean
+    public static RequestUpgradeStrategy nettyRequestUpgradeStrategy(WebSocketDecoderConfig decoderConfig) {
+      return new NettyRequestUpgradeStrategy(decoderConfig);
+    }
+
+    @Component
+    @ConditionalOnMissingBean
+    public static WebSocketDecoderConfig webSocketDecoderConfig() {
+      return WebSocketDecoderConfig.newBuilder()
+              .maxFramePayloadLength(DataSize.ofKilobytes(512).bytes().intValue())
+              .expectMaskedFrames(true)
+              .allowMaskMismatch(false)
+              .allowExtensions(false)
+              .closeOnProtocolViolation(true)
+              .withUTF8Validator(true)
+              .build();
+    }
+
   }
 
 }

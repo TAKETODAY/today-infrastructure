@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.util.Map;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.DataSize;
 import infra.util.ExceptionUtils;
 import infra.web.RequestContext;
 import infra.web.server.support.NettyRequestContext;
@@ -50,21 +51,27 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13" };
 
-  private WebSocketDecoderConfig decoderConfig = WebSocketDecoderConfig.newBuilder()
-          .maxFramePayloadLength(65536)
-          .expectMaskedFrames(true)
-          .allowMaskMismatch(false)
-          .allowExtensions(false)
-          .closeOnProtocolViolation(true)
-          .withUTF8Validator(true)
-          .build();
+  private final WebSocketDecoderConfig decoderConfig;
+
+  public NettyRequestUpgradeStrategy() {
+    this(WebSocketDecoderConfig.newBuilder()
+            .maxFramePayloadLength(DataSize.ofKilobytes(512).bytes().intValue())
+            .expectMaskedFrames(true)
+            .allowMaskMismatch(false)
+            .allowExtensions(false)
+            .closeOnProtocolViolation(true)
+            .withUTF8Validator(true)
+            .build());
+  }
 
   /**
-   * set Frames decoder configuration.
+   * Constructor specifying the websocket frames decoder options.
    *
-   * @param decoderConfig Frames decoder configuration.
+   * @param decoderConfig Frames decoder options.
+   * @since 5.0
    */
-  public void setDecoderConfig(WebSocketDecoderConfig decoderConfig) {
+  public NettyRequestUpgradeStrategy(WebSocketDecoderConfig decoderConfig) {
+    Assert.notNull(decoderConfig, "WebSocketDecoderConfig is required");
     this.decoderConfig = decoderConfig;
   }
 
