@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -544,6 +544,18 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   @Nullable
   public abstract V getNow();
+
+  /**
+   * Returns the result value, if not completed returns the given valueIfAbsent.
+   *
+   * @param valueIfAbsent the value to return if not completed
+   * @return the result value, if completed, else the given valueIfAbsent
+   * @since 5.0
+   */
+  public V getNow(V valueIfAbsent) {
+    V v = getNow();
+    return v == null ? valueIfAbsent : v;
+  }
 
   /**
    * Return the result without blocking.
