@@ -8,10 +8,8 @@ configure(subprojects) {
   group = "cn.taketoday.samples"
 
   apply plugin: 'java'
-  apply plugin: 'application'
   apply plugin: "infra.application"
 //  apply plugin: "infra.application.aot"
-  apply plugin: 'io.spring.dependency-management'
   apply plugin: 'org.graalvm.buildtools.native'
 
   sourceCompatibility = JavaVersion.VERSION_17

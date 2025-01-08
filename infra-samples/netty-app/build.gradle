@@ -1,7 +1,8 @@
 description = "Netty Demo"
 
-dependencies {
+apply plugin: 'application'
 
+dependencies {
   implementation project(":web-api")
   implementation 'cn.taketoday:today-starter-web'
   implementation 'cn.taketoday:today-starter-netty'
@@ -11,12 +12,7 @@ dependencies {
   compileOnly 'org.projectlombok:lombok'
 }
 
-compileJava {
-  options.encoding = 'UTF-8'
-  options.compilerArgs << '-parameters'
 
-}
-
-application {
-  mainClass = "infra.samples.NettyDemoApplication"
-}
+//application {
+//  mainClass = "infra.samples.NettyDemoApplication"
+//}

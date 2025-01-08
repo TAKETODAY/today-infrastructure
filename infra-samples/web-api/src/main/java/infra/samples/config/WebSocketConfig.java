@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,11 @@
 
 package infra.samples.config;
 
-import java.io.IOException;
-
 import infra.context.annotation.Configuration;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.socket.TextMessage;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
@@ -49,14 +47,11 @@ public class WebSocketConfig implements WebSocketConfigurer {
     return new TextWebSocketHandler() {
 
       @Override
-      protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        try {
-          session.sendMessage(message);
-        }
-        catch (IOException e) {
-          log.error("消息 '{}' 发送失败", message, e);
-          throw new RuntimeException(e);
-        }
+      protected void handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+        session.send(message.retain())
+                .onFailure(e -> {
+                  log.error("消息 '{}' 发送失败", message, e);
+                });
       }
     };
   }
