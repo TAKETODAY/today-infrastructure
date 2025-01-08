@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -260,11 +260,11 @@ public interface ServerResponse {
    * body based on an asynchronous result. If only the body is asynchronous,
    * {@link BodyBuilder#body(Object)} can be used instead.
    *
-   * @param asyncResponse a {@code CompletableFuture<ServerResponse>} or
-   * {@code Publisher<ServerResponse>}
+   * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
+   * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
    * @return the asynchronous response
    */
-  static ServerResponse async(Object asyncResponse) {
+  static AsyncServerResponse async(Object asyncResponse) {
     return AsyncServerResponse.create(asyncResponse, null);
   }
 
@@ -280,12 +280,12 @@ public interface ServerResponse {
    * body based on an asynchronous result. If only the body is asynchronous,
    * {@link BodyBuilder#body(Object)} can be used instead.
    *
-   * @param asyncResponse a {@code CompletableFuture<ServerResponse>} or
-   * {@code Publisher<ServerResponse>}
+   * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
+   * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
    * @param timeout maximum time period to wait for before timing out
    * @return the asynchronous response
    */
-  static ServerResponse async(Object asyncResponse, @Nullable Duration timeout) {
+  static AsyncServerResponse async(Object asyncResponse, @Nullable Duration timeout) {
     return AsyncServerResponse.create(asyncResponse, timeout);
   }
 

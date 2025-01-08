@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 
 /**
  * Asynchronous subtype of {@link ServerResponse} that exposes the future
@@ -55,8 +56,8 @@ public interface AsyncServerResponse extends ServerResponse {
    * asynchronous producer of a single {@code ServerResponse} that can be
    * adapted via the {@link ReactiveAdapterRegistry}).
    *
-   * @param asyncResponse a {@code CompletableFuture<ServerResponse>} or
-   * {@code Publisher<ServerResponse>}
+   * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
+   * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
    * @return the asynchronous response
    */
   static AsyncServerResponse create(Object asyncResponse) {
@@ -71,8 +72,8 @@ public interface AsyncServerResponse extends ServerResponse {
    * asynchronous producer of a single {@code ServerResponse} that can be
    * adapted via the {@link ReactiveAdapterRegistry}).
    *
-   * @param asyncResponse a {@code CompletableFuture<ServerResponse>} or
-   * {@code Publisher<ServerResponse>}
+   * @param asyncResponse a {@code Completable/Future<ServerResponse>},
+   * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
    * @param timeout maximum time period to wait for before timing out
    * @return the asynchronous response
    */
@@ -97,7 +98,10 @@ public interface AsyncServerResponse extends ServerResponse {
 
   @SuppressWarnings("unchecked")
   private static CompletableFuture<ServerResponse> toCompletableFuture(Object obj) {
-    if (obj instanceof CompletableFuture<?> futureResponse) {
+    if (obj instanceof Future<?> future) {
+      return (CompletableFuture<ServerResponse>) future.completable();
+    }
+    else if (obj instanceof CompletableFuture<?> futureResponse) {
       return (CompletableFuture<ServerResponse>) futureResponse;
     }
     else if (ReactiveStreams.isPresent) {
