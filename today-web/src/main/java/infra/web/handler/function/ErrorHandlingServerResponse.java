@@ -23,8 +23,6 @@ import java.util.function.Predicate;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.web.RequestContext;
 
 /**
@@ -35,8 +33,6 @@ import infra.web.RequestContext;
  * @since 4.0
  */
 abstract class ErrorHandlingServerResponse implements ServerResponse {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final ArrayList<ErrorHandler<?>> errorHandlers = new ArrayList<>();
 
@@ -71,7 +67,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
   private static class ErrorHandler<T extends ServerResponse> {
 
     private final Predicate<Throwable> predicate;
-    
+
     private final BiFunction<Throwable, ServerRequest, T> responseProvider;
 
     public ErrorHandler(Predicate<Throwable> predicate, BiFunction<Throwable, ServerRequest, T> responseProvider) {
