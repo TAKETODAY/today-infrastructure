@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import infra.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 final class ProfilesParser {
@@ -52,7 +53,7 @@ final class ProfilesParser {
   private static Profiles parseExpression(String expression) {
     if (StringUtils.isBlank(expression)) {
       throw new IllegalArgumentException(
-              "Invalid profile expression [" + expression + "]: must contain text");
+              "Invalid profile expression [%s]: must contain text".formatted(expression));
     }
     StringTokenizer tokens = new StringTokenizer(expression, "()&|!", true);
     return parseTokens(expression, tokens);
@@ -118,7 +119,9 @@ final class ProfilesParser {
   }
 
   private static void assertWellFormed(String expression, boolean wellFormed) {
-    Assert.isTrue(wellFormed, () -> "Malformed profile expression [" + expression + "]");
+    if (!wellFormed) {
+      throw new IllegalArgumentException("Malformed profile expression [%s]".formatted(expression));
+    }
   }
 
   private static Profiles or(Profiles... profiles) {
@@ -141,7 +144,9 @@ final class ProfilesParser {
     return profiles -> profiles.matches(activeProfiles);
   }
 
-  private enum Operator {AND, OR}
+  private enum Operator {
+    AND, OR
+  }
 
   private enum Context {
     NONE, NEGATE, PARENTHESIS
