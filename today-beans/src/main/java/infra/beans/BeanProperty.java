@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@ package infra.beans;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
-import java.io.Serializable;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -46,7 +44,7 @@ import infra.util.ReflectionUtils;
  * @see #isReadable()
  * @since 3.0 2021/1/27 22:28
  */
-public sealed class BeanProperty extends Property implements Member, AnnotatedElement, Serializable permits FieldBeanProperty {
+public sealed class BeanProperty extends Property implements Member permits FieldBeanProperty {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -184,14 +182,6 @@ public sealed class BeanProperty extends Property implements Member, AnnotatedEl
     return PropertyAccessor.forField(field, readMethod, writeMethod);
   }
 
-  public PropertyAccessor getPropertyAccessor() {
-    return propertyAccessor;
-  }
-
-  public void setPropertyAccessor(PropertyAccessor propertyAccessor) {
-    this.propertyAccessor = propertyAccessor;
-  }
-
   //---------------------------------------------------------------------
   // Override method of Object
   //---------------------------------------------------------------------
@@ -202,7 +192,7 @@ public sealed class BeanProperty extends Property implements Member, AnnotatedEl
    * @since 4.0
    */
   public static BeanProperty valueOf(Field field) {
-    Assert.notNull(field, "field is required");
+    Assert.notNull(field, "Field is required");
     return new FieldBeanProperty(field);
   }
 

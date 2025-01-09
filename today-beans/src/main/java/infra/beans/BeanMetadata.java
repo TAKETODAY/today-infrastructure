@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 import infra.beans.support.BeanInstantiator;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
-import infra.reflect.PropertyAccessor;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
@@ -97,16 +96,11 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   }
 
   /**
-   * Get {@link PropertyAccessor}
+   * Get {@link BeanProperty} with given name
    *
-   * @param propertyName Property name
-   * @return {@link PropertyAccessor}
-   * @throws NoSuchPropertyException If no such property
+   * @param propertyName property name
+   * @return target {@link BeanProperty}
    */
-  public PropertyAccessor getPropertyAccessor(String propertyName) {
-    return obtainBeanProperty(propertyName).getPropertyAccessor();
-  }
-
   @Nullable
   public BeanProperty getBeanProperty(String propertyName) {
     return getBeanProperties().get(propertyName);
