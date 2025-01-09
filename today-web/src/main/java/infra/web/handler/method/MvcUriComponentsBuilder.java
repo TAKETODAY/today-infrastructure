@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ import infra.web.util.UriComponentsBuilder;
  * <ul>
  * <li>Static {@code fromXxx(...)} methods to prepare links using information
  * from the current request as determined by a call to
- * {@link infra.web.util.UriComponentsBuilder#fromCurrentRequest()}.
+ * {@link infra.web.util.UriComponentsBuilder#forCurrentRequest()}.
  * <li>Static {@code fromXxx(UriComponentsBuilder,...)} methods can be given
  * a baseUrl when operating outside the context of a request.
  * <li>Instance-based {@code withXxx(...)} methods where an instance of
@@ -540,7 +540,7 @@ public class MvcUriComponentsBuilder {
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     return baseUrl == null ?
-            UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
+            UriComponentsBuilder.forHttpRequest(RequestContextHolder.getRequired()) :
             baseUrl.cloneBuilder();
   }
 
@@ -839,7 +839,7 @@ public class MvcUriComponentsBuilder {
     public MethodArgumentBuilder(@Nullable UriComponentsBuilder baseUrl, Class<?> controllerType, Method method) {
       Assert.notNull(controllerType, "'controllerType' is required");
       Assert.notNull(method, "'method' is required");
-      this.baseUrl = baseUrl != null ? baseUrl : UriComponentsBuilder.fromPath(getPath());
+      this.baseUrl = baseUrl != null ? baseUrl : UriComponentsBuilder.forPath(getPath());
       this.controllerType = controllerType;
       this.method = method;
       this.argumentValues = new Object[method.getParameterCount()];
@@ -847,7 +847,7 @@ public class MvcUriComponentsBuilder {
 
     @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpRequest(RequestContextHolder.get());
+      UriComponentsBuilder builder = UriComponentsBuilder.forHttpRequest(RequestContextHolder.get());
       String path = builder.build().getPath();
       return path != null ? path : "";
     }

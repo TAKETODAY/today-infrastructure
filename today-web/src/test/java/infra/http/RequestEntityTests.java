@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ class RequestEntityTests {
 
   @Test
   void uriVariablesExpansion() throws URISyntaxException {
-    URI uri = UriComponentsBuilder.fromUriString("https://example.com/{foo}").buildAndExpand("bar").toUri();
+    URI uri = UriComponentsBuilder.forURIString("https://example.com/{foo}").buildAndExpand("bar").toURI();
     RequestEntity.get(uri).accept(MediaType.TEXT_PLAIN).build();
 
     String url = "https://www.{host}.com/{path}";
@@ -70,7 +70,7 @@ class RequestEntityTests {
     String path = "foo/bar";
     URI expected = new URI("https://www.example.com/foo/bar");
 
-    uri = UriComponentsBuilder.fromUriString(url).buildAndExpand(host, path).toUri();
+    uri = UriComponentsBuilder.forURIString(url).buildAndExpand(host, path).toURI();
     RequestEntity<?> entity = RequestEntity.get(uri).build();
     assertThat(entity.getURI()).isEqualTo(expected);
 
@@ -78,7 +78,7 @@ class RequestEntityTests {
     uriVariables.put("host", host);
     uriVariables.put("path", path);
 
-    uri = UriComponentsBuilder.fromUriString(url).buildAndExpand(uriVariables).toUri();
+    uri = UriComponentsBuilder.forURIString(url).buildAndExpand(uriVariables).toURI();
     entity = RequestEntity.get(uri).build();
     assertThat(entity.getURI()).isEqualTo(expected);
   }

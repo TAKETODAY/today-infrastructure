@@ -76,7 +76,7 @@ class RequestParamArgumentResolverTests {
     HttpRequestValues values = this.client.getRequestValues();
     String uriTemplate = values.getUriTemplate();
     Map<String, String> uriVariables = values.getUriVariables();
-    UriComponents uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVariables).encode();
+    UriComponents uri = UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(uriVariables).encode();
     assertThat(uri.getQuery()).isEqualTo("param1=value%201&param2=1,2,3");
   }
 

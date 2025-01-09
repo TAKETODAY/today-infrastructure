@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ import infra.web.util.UriComponents.UriTemplateVariables;
  * <p>Typical usage involves:
  * <ol>
  * <li>Create a {@code UriComponentsBuilder} with one of the static factory methods
- * (such as {@link #fromPath(String)} or {@link #fromUri(URI)})</li>
+ * (such as {@link #forPath(String)} or {@link #forURI(URI)})</li>
  * <li>Set the various URI components through the respective methods ({@link #scheme(String)},
  * {@link #userInfo(String)}, {@link #host(String)}, {@link #port(int)}, {@link #path(String)},
  * {@link #pathSegment(String...)}, {@link #queryParam(String, Object...)}, and
@@ -65,9 +65,9 @@ import infra.web.util.UriComponents.UriTemplateVariables;
  * @author Sebastien Deleuze
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #newInstance()
- * @see #fromPath(String)
- * @see #fromUri(URI)
+ * @see #create()
+ * @see #forPath(String)
+ * @see #forURI(URI)
  * @since 4.0
  */
 public class UriComponentsBuilder implements UriBuilder, Cloneable {
@@ -107,9 +107,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   /**
    * Default constructor. Protected to prevent direct instantiation.
    *
-   * @see #newInstance()
-   * @see #fromPath(String)
-   * @see #fromUri(URI)
+   * @see #create()
+   * @see #forPath(String)
+   * @see #forURI(URI)
    */
   protected UriComponentsBuilder() {
     this.pathBuilder = new CompositePathComponentBuilder();
@@ -141,7 +141,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    *
    * @return the new {@code UriComponentsBuilder}
    */
-  public static UriComponentsBuilder newInstance() {
+  public static UriComponentsBuilder create() {
     return new UriComponentsBuilder();
   }
 
@@ -151,10 +151,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @param path the path to initialize with
    * @return the new {@code UriComponentsBuilder}
    */
-  public static UriComponentsBuilder fromPath(String path) {
-    UriComponentsBuilder builder = new UriComponentsBuilder();
-    builder.path(path);
-    return builder;
+  public static UriComponentsBuilder forPath(String path) {
+    return new UriComponentsBuilder().path(path);
   }
 
   /**
@@ -169,22 +167,20 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @param uri the URI to initialize with
    * @return the new {@code UriComponentsBuilder}
    */
-  public static UriComponentsBuilder fromUri(URI uri) {
-    UriComponentsBuilder builder = new UriComponentsBuilder();
-    builder.uri(uri);
-    return builder;
+  public static UriComponentsBuilder forURI(URI uri) {
+    return new UriComponentsBuilder().uri(uri);
   }
 
   /**
-   * Variant of {@link #fromUriString(String, ParserType)} that defaults to
+   * Variant of {@link #forURIString(String, ParserType)} that defaults to
    * the {@link ParserType#RFC} parsing.
    */
-  public static UriComponentsBuilder fromUriString(String uri) throws InvalidUrlException {
+  public static UriComponentsBuilder forURIString(String uri) throws InvalidUrlException {
     Assert.notNull(uri, "URI is required");
     if (uri.isEmpty()) {
       return new UriComponentsBuilder();
     }
-    return fromUriString(uri, ParserType.RFC);
+    return forURIString(uri, ParserType.RFC);
   }
 
   /**
@@ -204,7 +200,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return the new {@code UriComponentsBuilder}
    * @throws InvalidUrlException if {@code uri} cannot be parsed
    */
-  public static UriComponentsBuilder fromUriString(String uri, ParserType parserType) throws InvalidUrlException {
+  public static UriComponentsBuilder forURIString(String uri, ParserType parserType) throws InvalidUrlException {
     Assert.notNull(uri, "URI is required");
     if (uri.isEmpty()) {
       return new UriComponentsBuilder();
@@ -232,12 +228,12 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @param request the source request
    * @return the URI components of the URI
    */
-  public static UriComponentsBuilder fromHttpRequest(HttpRequest request) {
+  public static UriComponentsBuilder forHttpRequest(HttpRequest request) {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
   }
 
-  public static UriComponentsBuilder fromCurrentRequest() {
-    return fromHttpRequest(RequestContextHolder.get());
+  public static UriComponentsBuilder forCurrentRequest() {
+    return forHttpRequest(RequestContextHolder.get());
   }
 
   /**
@@ -245,8 +241,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    *
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454</a>
    */
-  public static UriComponentsBuilder fromOriginHeader(String origin) {
-    return fromUriString(origin);
+  public static UriComponentsBuilder forOriginHeader(String origin) {
+    return forURIString(origin);
   }
 
   // Encode methods
@@ -300,7 +296,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   /**
    * Variant of {@link #build()} to create a {@link UriComponents} instance
    * when components are already fully encoded. This is useful for example if
-   * the builder was created via {@link UriComponentsBuilder#fromUri(URI)}.
+   * the builder was created via {@link UriComponentsBuilder#forURI(URI)}.
    *
    * @param encoded whether the components in this builder are already encoded
    * @return the URI components
@@ -356,12 +352,12 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public URI build(Object... uriVariables) {
-    return buildInternal(EncodingHint.ENCODE_TEMPLATE).expand(uriVariables).toUri();
+    return buildInternal(EncodingHint.ENCODE_TEMPLATE).expand(uriVariables).toURI();
   }
 
   @Override
   public URI build(Map<String, ?> uriVariables) {
-    return buildInternal(EncodingHint.ENCODE_TEMPLATE).expand(uriVariables).toUri();
+    return buildInternal(EncodingHint.ENCODE_TEMPLATE).expand(uriVariables).toURI();
   }
 
   /**
@@ -758,7 +754,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   }
 
   /**
-   * Enum to provide a choice of URI parsers to use in {@link #fromUriString(String, ParserType)}.
+   * Enum to provide a choice of URI parsers to use in {@link #forURIString(String, ParserType)}.
    *
    * @since 5.0
    */
@@ -938,6 +934,8 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     }
   }
 
-  private enum EncodingHint {ENCODE_TEMPLATE, FULLY_ENCODED, NONE}
+  private enum EncodingHint {
+    ENCODE_TEMPLATE, FULLY_ENCODED, NONE
+  }
 
 }

@@ -98,10 +98,10 @@ public abstract class MockMvcResultMatchers {
    *
    * @param urlTemplate a URL template; the expanded URL will be encoded
    * @param uriVars zero or more URI variables to populate the template
-   * @see UriComponentsBuilder#fromUriString(String)
+   * @see UriComponentsBuilder#forURIString(String)
    */
   public static ResultMatcher forwardedUrlTemplate(String urlTemplate, Object... uriVars) {
-    String uri = UriComponentsBuilder.fromUriString(urlTemplate).buildAndExpand(uriVars).encode().toUriString();
+    String uri = UriComponentsBuilder.forURIString(urlTemplate).buildAndExpand(uriVars).encode().toUriString();
     return forwardedUrl(uri);
   }
 
@@ -139,10 +139,10 @@ public abstract class MockMvcResultMatchers {
    *
    * @param urlTemplate a URL template; the expanded URL will be encoded
    * @param uriVars zero or more URI variables to populate the template
-   * @see UriComponentsBuilder#fromUriString(String)
+   * @see UriComponentsBuilder#forURIString(String)
    */
   public static ResultMatcher redirectedUrlTemplate(String urlTemplate, Object... uriVars) {
-    String uri = UriComponentsBuilder.fromUriString(urlTemplate).buildAndExpand(uriVars).encode().toUriString();
+    String uri = UriComponentsBuilder.forURIString(urlTemplate).buildAndExpand(uriVars).encode().toUriString();
     return redirectedUrl(uri);
   }
 

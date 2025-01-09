@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.util;
@@ -43,6 +43,7 @@ import infra.util.StringUtils;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see UriComponentsBuilder
  * @since 4.0
  */
@@ -223,7 +224,7 @@ public abstract class UriComponents implements Serializable {
    * multi-argument {@link URI} constructor which quotes illegal characters
    * that cannot appear in their respective URI component.
    */
-  public abstract URI toUri();
+  public abstract URI toURI();
 
   /**
    * A simple pass-through to {@link #toUriString()}.
@@ -246,9 +247,7 @@ public abstract class UriComponents implements Serializable {
   }
 
   @Nullable
-  static String expandUriComponent(
-          @Nullable String source, UriTemplateVariables uriVariables, @Nullable UnaryOperator<String> encoder) {
-
+  static String expandUriComponent(@Nullable String source, UriTemplateVariables uriVariables, @Nullable UnaryOperator<String> encoder) {
     if (source == null) {
       return null;
     }

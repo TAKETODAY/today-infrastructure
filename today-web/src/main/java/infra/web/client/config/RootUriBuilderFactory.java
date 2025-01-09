@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,12 +43,12 @@ public class RootUriBuilderFactory extends RootUriTemplateHandler implements Uri
 
   @Override
   public UriBuilder uriString(String uriTemplate) {
-    return UriComponentsBuilder.fromUriString(apply(uriTemplate));
+    return UriComponentsBuilder.forURIString(apply(uriTemplate));
   }
 
   @Override
   public UriBuilder builder() {
-    return UriComponentsBuilder.newInstance();
+    return UriComponentsBuilder.create();
   }
 
   /**

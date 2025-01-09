@@ -92,7 +92,7 @@ class HttpRequestValuesTests {
             .containsEntry("queryParam1[0]", "2nd value A")
             .containsEntry("queryParam1[1]", "2nd value B");
 
-    URI uri = UriComponentsBuilder.fromUriString(uriTemplate)
+    URI uri = UriComponentsBuilder.forURIString(uriTemplate)
             .encode()
             .build(requestValues.getUriVariables());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
   /**
    * Constructor with a base URI.
    * <p>The given URI template is parsed via
-   * {@link UriComponentsBuilder#fromUriString} and then applied as a base URI
+   * {@link UriComponentsBuilder#forURIString} and then applied as a base URI
    * to every UriBuilder via {@link UriComponentsBuilder#uriComponents} unless
    * the UriBuilder itself was created with a URI template that already has a
    * target address.
@@ -76,7 +76,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    * @param baseUriTemplate the URI template to use a base URL
    */
   public DefaultUriBuilderFactory(String baseUriTemplate) {
-    this.baseUri = UriComponentsBuilder.fromUriString(baseUriTemplate);
+    this.baseUri = UriComponentsBuilder.forURIString(baseUriTemplate);
   }
 
   /**
@@ -103,7 +103,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    *
    * @param parserType the parser type
    * @see UriComponentsBuilder.ParserType
-   * @see UriComponentsBuilder#fromUriString(String, UriComponentsBuilder.ParserType)
+   * @see UriComponentsBuilder#forURIString(String, UriComponentsBuilder.ParserType)
    * @since 5.0
    */
   public void setParserType(UriComponentsBuilder.ParserType parserType) {
@@ -293,7 +293,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
     private UriComponentsBuilder initUriComponentsBuilder(String uriTemplate) {
       UriComponentsBuilder result;
       if (StringUtils.isEmpty(uriTemplate)) {
-        result = (baseUri != null ? baseUri.cloneBuilder() : UriComponentsBuilder.newInstance());
+        result = (baseUri != null ? baseUri.cloneBuilder() : UriComponentsBuilder.create());
       }
       else if (baseUri != null) {
         UriComponentsBuilder builder = parseUri(uriTemplate);
@@ -312,8 +312,8 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
 
     private UriComponentsBuilder parseUri(String uriTemplate) {
       return (getParserType() != null ?
-              UriComponentsBuilder.fromUriString(uriTemplate, getParserType()) :
-              UriComponentsBuilder.fromUriString(uriTemplate));
+              UriComponentsBuilder.forURIString(uriTemplate, getParserType()) :
+              UriComponentsBuilder.forURIString(uriTemplate));
     }
 
     private void parsePathIfNecessary(UriComponentsBuilder result) {

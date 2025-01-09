@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ public class EncodedUriTests {
   @Test
   public void test() throws Exception {
     String id = "a/b";
-    URI url = UriComponentsBuilder.fromUriString("/circuit").pathSegment(id).build().encode().toUri();
+    URI url = UriComponentsBuilder.forURIString("/circuit").pathSegment(id).build().encode().toURI();
     ResultActions result = mockMvc.perform(get(url));
     result.andExpect(status().isOk())
             .andExpect(model().attribute("receivedId", is(id)));

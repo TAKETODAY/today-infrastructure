@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -219,7 +219,7 @@ class DefaultResponseCreatorTests {
   }
 
   private static ClientHttpResponse createResponse(DefaultResponseCreator creator) throws IOException {
-    URI uri = UriComponentsBuilder.fromUriString("/foo/bar").build().toUri();
+    URI uri = UriComponentsBuilder.forURIString("/foo/bar").build().toURI();
     return creator.createResponse(new MockClientHttpRequest(HttpMethod.POST, uri));
   }
 

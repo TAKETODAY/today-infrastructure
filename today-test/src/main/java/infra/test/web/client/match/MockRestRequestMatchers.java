@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ public abstract class MockRestRequestMatchers {
    */
   public static RequestMatcher requestToUriTemplate(String expectedUri, Object... uriVars) {
     Assert.notNull(expectedUri, "'uri' is required");
-    URI uri = UriComponentsBuilder.fromUriString(expectedUri).buildAndExpand(uriVars).encode().toUri();
+    URI uri = UriComponentsBuilder.forURIString(expectedUri).buildAndExpand(uriVars).encode().toURI();
     return requestTo(uri);
   }
 
@@ -146,7 +146,7 @@ public abstract class MockRestRequestMatchers {
   }
 
   private static MultiValueMap<String, String> getQueryParams(ClientHttpRequest request) {
-    return UriComponentsBuilder.fromUri(request.getURI()).build().getQueryParams();
+    return UriComponentsBuilder.forURI(request.getURI()).build().getQueryParams();
   }
 
   private static void assertValueCount(

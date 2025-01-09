@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ public abstract class ForwardedHeaderUtils {
    * additional updates from forwarded headers
    */
   public static UriComponentsBuilder adaptFromForwardedHeaders(URI uri, HttpHeaders headers) {
-    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri);
+    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.forURI(uri);
     try {
       String forwardedHeader = headers.getFirst("Forwarded");
       if (StringUtils.hasText(forwardedHeader)) {

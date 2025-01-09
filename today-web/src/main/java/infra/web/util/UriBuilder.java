@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import infra.util.MultiValueMap;
  * component configured once and used to create many URLs.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see UriBuilderFactory
  * @see UriComponentsBuilder
  * @since 4.0
@@ -295,4 +296,17 @@ public interface UriBuilder {
    * values to preserve URI template placeholders.
    */
   String toUriString();
+
+  // Static Factory Methods
+
+  /**
+   * Create a new, empty builder.
+   *
+   * @return the new {@code UriComponentsBuilder}
+   * @since 5.0
+   */
+  static UriComponentsBuilder forUriComponents() {
+    return UriComponentsBuilder.create();
+  }
+
 }

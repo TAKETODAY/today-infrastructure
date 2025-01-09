@@ -297,7 +297,7 @@ public class RequestContextUtils {
         manager = getRedirectModelManager(request);
       }
       if (manager != null) {
-        UriComponents uriComponents = UriComponentsBuilder.fromUriString(location).build();
+        UriComponents uriComponents = UriComponentsBuilder.forURIString(location).build();
         redirectModel.setTargetRequestPath(uriComponents.getPath());
         redirectModel.addTargetRequestParams(uriComponents.getQueryParams());
 

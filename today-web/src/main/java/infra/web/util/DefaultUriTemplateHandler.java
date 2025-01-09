@@ -110,7 +110,7 @@ public class DefaultUriTemplateHandler extends AbstractUriTemplateHandler {
    * on whether {@link #setParsePath parsePath} is enabled.
    */
   protected UriComponentsBuilder initUriComponentsBuilder(String uriTemplate) {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(uriTemplate);
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString(uriTemplate);
     if (shouldParsePath() && !isStrictEncoding()) {
       List<String> pathSegments = builder.build().getPathSegments();
       builder.replacePath(null);

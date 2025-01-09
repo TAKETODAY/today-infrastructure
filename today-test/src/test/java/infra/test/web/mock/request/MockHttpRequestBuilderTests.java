@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -541,7 +541,7 @@ class MockHttpRequestBuilderTests {
 
   void arbitraryMethod() {
     String httpMethod = "REPort";
-    URI url = UriComponentsBuilder.fromPath("/foo/{bar}").buildAndExpand(42).toUri();
+    URI url = UriComponentsBuilder.forPath("/foo/{bar}").buildAndExpand(42).toURI();
     this.builder = new MockHttpRequestBuilder(httpMethod, url);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 

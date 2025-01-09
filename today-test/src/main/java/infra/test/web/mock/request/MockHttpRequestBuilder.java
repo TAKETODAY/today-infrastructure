@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
     Assert.isTrue(url.isEmpty() || url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://"),
             () -> "'url' should start with a path or be a complete HTTP URL: " + url);
     String uriString = (url.isEmpty() ? "/" : url);
-    return UriComponentsBuilder.fromUriString(uriString).buildAndExpand(vars).encode().toUri();
+    return UriComponentsBuilder.forURIString(uriString).buildAndExpand(vars).encode().toURI();
   }
 
   /**
@@ -706,13 +706,13 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
 
     String query = this.url.getRawQuery();
     if (!this.queryParams.isEmpty()) {
-      String str = UriComponentsBuilder.newInstance().queryParams(this.queryParams).build().encode().getQuery();
+      String str = UriComponentsBuilder.create().queryParams(this.queryParams).build().encode().getQuery();
       query = StringUtils.isNotEmpty(query) ? (query + "&" + str) : str;
     }
     if (query != null) {
       request.setQueryString(query);
     }
-    addRequestParams(request, UriComponentsBuilder.fromUri(this.url).build().getQueryParams());
+    addRequestParams(request, UriComponentsBuilder.forURI(this.url).build().getQueryParams());
 
     this.parameters.forEach((name, values) -> {
       for (String value : values) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,10 +50,10 @@ public abstract class ConnectionManagerSupport implements SmartLifecycle {
   private final Object lifecycleMonitor = new Object();
 
   public ConnectionManagerSupport(String uriTemplate, Object... uriVariables) {
-    this.uri = UriComponentsBuilder.fromUriString(uriTemplate)
+    this.uri = UriComponentsBuilder.forURIString(uriTemplate)
             .buildAndExpand(uriVariables)
             .encode()
-            .toUri();
+            .toURI();
   }
 
   /**

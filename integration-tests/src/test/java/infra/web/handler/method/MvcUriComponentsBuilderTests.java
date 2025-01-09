@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,7 +120,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromControllerWithCustomBaseURIViaStaticCall() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     UriComponents uriComponents = fromController(builder, PersonControllerImpl.class).build();
 
     assertThat(uriComponents.toString()).isEqualTo("https://example.org:9090/base/people");
@@ -129,7 +129,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromControllerWithCustomBaseURIViaInstance() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents uriComponents = mvcBuilder.withController(PersonControllerImpl.class).build();
 
@@ -202,7 +202,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodNameWithCustomBaseURIViaStaticCall() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     UriComponents uriComponents = fromMethodName(builder, ControllerWithMethods.class,
             "methodWithPathVariable", "1").build();
 
@@ -212,7 +212,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodNameWithCustomBaseURIViaInstance() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents uriComponents = mvcBuilder.withMethodName(ControllerWithMethods.class,
             "methodWithPathVariable", "1").build();
@@ -328,7 +328,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodCallWithCustomBaseURIViaStaticCall() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     UriComponents uriComponents = fromMethodCall(builder, on(ControllerWithMethods.class).myMethod(null)).build();
 
     assertThat(uriComponents.toString()).isEqualTo("https://example.org:9090/base/something/else");
@@ -337,7 +337,7 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodCallWithCustomBaseURIViaInstance() {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://example.org:9090/base");
+    UriComponentsBuilder builder = UriComponentsBuilder.forURIString("https://example.org:9090/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(builder);
     UriComponents result = mvcBuilder.withMethodCall(on(ControllerWithMethods.class).myMethod(null)).build();
 
@@ -350,7 +350,7 @@ class MvcUriComponentsBuilderTests {
     UriComponents uriComponents = fromMethodCall(
             on(BookingControllerWithModelAndView.class).getBooking(21L)).buildAndExpand(42);
 
-    assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
+    assertThat(uriComponents.encode().toURI().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
   @Test
@@ -358,7 +358,7 @@ class MvcUriComponentsBuilderTests {
     UriComponents uriComponents = fromMethodCall(
             on(BookingControllerWithObject.class).getBooking(21L)).buildAndExpand(42);
 
-    assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
+    assertThat(uriComponents.encode().toURI().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
   @Test
@@ -366,7 +366,7 @@ class MvcUriComponentsBuilderTests {
     assertThatIllegalStateException().isThrownBy(() -> {
       UriComponents uriComponents = fromMethodCall(
               on(BookingControllerWithString.class).getBooking(21L)).buildAndExpand(42);
-      uriComponents.encode().toUri().toString();
+      uriComponents.encode().toURI().toString();
     });
   }
 
@@ -375,7 +375,7 @@ class MvcUriComponentsBuilderTests {
     UriComponents uriComponents = fromMethodName(
             BookingControllerWithString.class, "getBooking", 21L).buildAndExpand(42);
 
-    assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
+    assertThat(uriComponents.encode().toURI().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
   @Test  // gh-30210
@@ -384,7 +384,7 @@ class MvcUriComponentsBuilderTests {
             on(BookingControllerWithCharSequence.class).getBooking(21L))
             .buildAndExpand(42);
 
-    assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
+    assertThat(uriComponents.encode().toURI().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
   @Test  // gh-30210
@@ -392,7 +392,7 @@ class MvcUriComponentsBuilderTests {
     UriComponents uriComponents = fromMethodCall(
             on(BookingControllerWithJdbcSavepoint.class).getBooking(21L)).buildAndExpand(42);
 
-    assertThat(uriComponents.encode().toUri().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
+    assertThat(uriComponents.encode().toURI().toString()).isEqualTo("http://localhost/hotels/42/bookings/21");
   }
 
   @Test
@@ -411,7 +411,7 @@ class MvcUriComponentsBuilderTests {
   public void fromMappingNameWithCustomBaseURI() {
     initWebApplicationContext(WebConfig.class);
 
-    UriComponentsBuilder baseUrl = UriComponentsBuilder.fromUriString("https://example.org:9999/base");
+    UriComponentsBuilder baseUrl = UriComponentsBuilder.forURIString("https://example.org:9999/base");
     MvcUriComponentsBuilder mvcBuilder = relativeTo(baseUrl);
     String url = mvcBuilder.withMappingName("PAC#getAddressesForCountry").arg(0, "DE").buildAndExpand(123);
     assertThat(url).isEqualTo("https://example.org:9999/base/people/123/addresses/DE");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ public interface WebSocketClient {
    * @since 5.0
    */
   default Future<WebSocketSession> connect(UriComponents uri, @Nullable HttpHeaders headers, WebSocketHandler handler) {
-    return connect(uri.toUri(), headers, handler);
+    return connect(uri.toURI(), headers, handler);
   }
 
   /**
@@ -78,7 +78,7 @@ public interface WebSocketClient {
    */
   default Future<WebSocketSession> connect(WebSocketHandler handler, String uriTemplate, Object... uriVariables) {
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
-    URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVariables).encode().toUri();
+    URI uri = UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(uriVariables).encode().toURI();
     return connect(uri, null, handler);
   }
 

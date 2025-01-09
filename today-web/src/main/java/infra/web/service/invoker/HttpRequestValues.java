@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -436,10 +436,10 @@ public class HttpRequestValues {
         }
         else if (uri != null) {
           // insert into prepared URI
-          uri = UriComponentsBuilder.fromUri(uri)
+          uri = UriComponentsBuilder.forURI(uri)
                   .queryParams(UriUtils.encodeQueryParams(this.requestParams))
                   .build(true)
-                  .toUri();
+                  .toURI();
         }
         else {
           // append to URI template
@@ -483,7 +483,7 @@ public class HttpRequestValues {
     }
 
     private String appendQueryParams(String uriTemplate, Map<String, String> uriVars, MultiValueMap<String, String> requestParams) {
-      UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(uriTemplate);
+      UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.forURIString(uriTemplate);
       int i = 0;
       for (Map.Entry<String, List<String>> entry : requestParams.entrySet()) {
         String nameVar = "queryParam" + i;

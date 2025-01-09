@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,7 +249,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static URI toUri(String uri, Object[] vars) {
-    return UriComponentsBuilder.fromUriString(uri).buildAndExpand(vars).encode().toUri();
+    return UriComponentsBuilder.forURIString(uri).buildAndExpand(vars).encode().toURI();
   }
 
   /**
@@ -453,7 +453,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
     @Nullable
     private String contextPath;
 
-    private final UriComponentsBuilder queryParamsBuilder = UriComponentsBuilder.newInstance();
+    private final UriComponentsBuilder queryParamsBuilder = UriComponentsBuilder.create();
 
     private final HttpHeaders headers = HttpHeaders.forWritable();
 
@@ -623,7 +623,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
       MultiValueMap<String, String> params =
               this.queryParamsBuilder.buildAndExpand().encode().getQueryParams();
       if (!params.isEmpty()) {
-        return UriComponentsBuilder.fromUri(this.url).queryParams(params).build(true).toUri();
+        return UriComponentsBuilder.forURI(this.url).queryParams(params).build(true).toURI();
       }
       return this.url;
     }

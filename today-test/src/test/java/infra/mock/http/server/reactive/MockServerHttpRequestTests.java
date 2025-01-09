@@ -78,7 +78,7 @@ class MockServerHttpRequestTests {
 	static Stream<Named<ThrowingCallable>> httpMethodNotNullOrEmpty() {
 		String uriTemplate = "/foo bar?a=b";
 		return Stream.of(
-				named("null HttpMethod, URI", () -> MockServerHttpRequest.method(null, UriComponentsBuilder.fromUriString(uriTemplate).build("")).build()),
+				named("null HttpMethod, URI", () -> MockServerHttpRequest.method(null, UriComponentsBuilder.forURIString(uriTemplate).build("")).build()),
 				named("null HttpMethod, uriTemplate", () -> MockServerHttpRequest.method((HttpMethod) null, uriTemplate).build()),
 				named("null String, uriTemplate", () -> MockServerHttpRequest.method((String) null, uriTemplate).build()),
 				named("empty String, uriTemplate", () -> MockServerHttpRequest.method("", uriTemplate).build()),

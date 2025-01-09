@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import infra.web.util.UriComponentsBuilder;
  * Resolvers argument values of type {@link UriComponentsBuilder}.
  *
  * <p>The returned instance is initialized via
- * {@link UriComponentsBuilder#fromHttpRequest(HttpRequest)}
+ * {@link UriComponentsBuilder#forHttpRequest(HttpRequest)}
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -43,7 +43,7 @@ public class UriComponentsBuilderParameterStrategy implements ParameterResolving
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    return UriComponentsBuilder.fromHttpRequest(context);
+    return UriComponentsBuilder.forHttpRequest(context);
   }
 
 }

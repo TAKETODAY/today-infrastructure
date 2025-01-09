@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ public class UriTemplate implements Serializable {
   public UriTemplate(String uriTemplate) {
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
     this.uriTemplate = uriTemplate;
-    this.uriComponents = UriComponentsBuilder.fromUriString(uriTemplate).build();
+    this.uriComponents = UriComponentsBuilder.forURIString(uriTemplate).build();
 
     TemplateInfo info = TemplateInfo.parse(uriTemplate);
     this.variableNames = Collections.unmodifiableList(info.getVariableNames());
@@ -107,7 +107,7 @@ public class UriTemplate implements Serializable {
   public URI expand(Map<String, ?> uriVariables) {
     UriComponents expandedComponents = this.uriComponents.expand(uriVariables);
     UriComponents encodedComponents = expandedComponents.encode();
-    return encodedComponents.toUri();
+    return encodedComponents.toURI();
   }
 
   /**
@@ -128,7 +128,7 @@ public class UriTemplate implements Serializable {
   public URI expand(Object... uriVariableValues) {
     UriComponents expandedComponents = this.uriComponents.expand(uriVariableValues);
     UriComponents encodedComponents = expandedComponents.encode();
-    return encodedComponents.toUri();
+    return encodedComponents.toURI();
   }
 
   /**
