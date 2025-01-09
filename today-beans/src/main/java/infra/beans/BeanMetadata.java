@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
 import infra.lang.Nullable;
+import infra.lang.TodayStrategies;
 import infra.reflect.PropertyAccessor;
 import infra.util.ClassUtils;
 import infra.util.ConcurrentReferenceHashMap;
@@ -46,6 +47,8 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   private static final MapCache<Class<?>, BeanMetadata, ?> metadataMappings = new MapCache<>(
           new ConcurrentReferenceHashMap<>(), BeanMetadata::new);
+
+  private static final boolean shouldIgnoreFields = TodayStrategies.getFlag("infra.beans.fields.ignore", false);
 
   private final Class<?> beanClass;
 
@@ -220,16 +223,17 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
       }
     }
 
-    ReflectionUtils.doWithFields(beanClass, field -> {
-      if (!Modifier.isStatic(field.getModifiers())) {
-        String propertyName = getPropertyName(field);
-        if (!beanPropertyMap.containsKey(propertyName)) {
-          BeanProperty property = new FieldBeanProperty(field);
-          beanPropertyMap.put(propertyName, property);
+    if (!shouldIgnoreFields) {
+      ReflectionUtils.doWithFields(beanClass, field -> {
+        if (!Modifier.isStatic(field.getModifiers())) {
+          String propertyName = getPropertyName(field);
+          if (!beanPropertyMap.containsKey(propertyName)) {
+            BeanProperty property = new FieldBeanProperty(field);
+            beanPropertyMap.put(propertyName, property);
+          }
         }
-      }
-    });
-
+      });
+    }
     return beanPropertyMap;
   }
 
