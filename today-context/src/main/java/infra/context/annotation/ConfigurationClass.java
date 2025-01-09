@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,20 +137,6 @@ final class ConfigurationClass {
    *
    * @param metadata the metadata for the underlying class to represent
    * @param beanName name of the {@code @Configuration} class bean
-   * @see ConfigurationClass#ConfigurationClass(Class, ConfigurationClass)
-   */
-  @Deprecated
-  ConfigurationClass(AnnotationMetadata metadata, @Nullable String beanName) {
-    this.metadata = metadata;
-    this.resource = new DescriptiveResource(metadata.getClassName());
-    this.beanName = beanName;
-  }
-
-  /**
-   * Create a new {@link ConfigurationClass} with the given name.
-   *
-   * @param metadata the metadata for the underlying class to represent
-   * @param beanName name of the {@code @Configuration} class bean
    * @param scanned whether the underlying class has been registered through a scan
    */
   ConfigurationClass(AnnotationMetadata metadata, String beanName, boolean scanned) {
@@ -201,7 +187,7 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     var annotation = metadata.getAnnotation(Configuration.class);
-    if (annotation.isPresent() && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true) && metadata.isFinal()) {
+    if (metadata.isFinal() && annotation.isPresent() && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
       problemReporter.error(new FinalConfigurationProblem());
     }
 
@@ -235,7 +221,7 @@ final class ConfigurationClass {
 
   @Override
   public String toString() {
-    return "ConfigurationClass: beanName '" + this.beanName + "', " + this.resource;
+    return "ConfigurationClass: beanName '%s', %s".formatted(this.beanName, this.resource);
   }
 
   /**
