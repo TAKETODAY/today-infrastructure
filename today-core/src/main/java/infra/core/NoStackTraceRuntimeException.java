@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import java.io.Serial;
+
 import infra.lang.Nullable;
 
 /**
@@ -24,6 +26,9 @@ import infra.lang.Nullable;
  * @since 4.0
  */
 public class NoStackTraceRuntimeException extends NestedRuntimeException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message

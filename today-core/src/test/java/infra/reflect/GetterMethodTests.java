@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,25 +137,25 @@ class GetterMethodTests {
     pojo._volatileFloat = (float) Math.log(93);
     pojo._volatileObj = pojo;
 
-    pojo._staticVolatileBoolean = true;
-    pojo._staticVolatileByte = 17;
-    pojo._staticVolatileShort = 87;
-    pojo._staticVolatileInt = Integer.MIN_VALUE;
-    pojo._staticVolatileLong = 1337;
-    pojo._staticVolatileChar = 'a';
-    pojo._staticVolatileDouble = Math.PI;
-    pojo._staticVolatileFloat = (float) Math.log(93);
-    pojo._staticVolatileObj = pojo;
+    POJO1._staticVolatileBoolean = true;
+    POJO1._staticVolatileByte = 17;
+    POJO1._staticVolatileShort = 87;
+    POJO1._staticVolatileInt = Integer.MIN_VALUE;
+    POJO1._staticVolatileLong = 1337;
+    POJO1._staticVolatileChar = 'a';
+    POJO1._staticVolatileDouble = Math.PI;
+    POJO1._staticVolatileFloat = (float) Math.log(93);
+    POJO1._staticVolatileObj = pojo;
 
-    pojo._staticBoolean = true;
-    pojo._staticByte = 17;
-    pojo._staticShort = 87;
-    pojo._staticInt = Integer.MIN_VALUE;
-    pojo._staticLong = 1337;
-    pojo._staticChar = 'a';
-    pojo._staticDouble = Math.PI;
-    pojo._staticFloat = (float) Math.log(93);
-    pojo._staticObj = pojo;
+    POJO1._staticBoolean = true;
+    POJO1._staticByte = 17;
+    POJO1._staticShort = 87;
+    POJO1._staticInt = Integer.MIN_VALUE;
+    POJO1._staticLong = 1337;
+    POJO1._staticChar = 'a';
+    POJO1._staticDouble = Math.PI;
+    POJO1._staticFloat = (float) Math.log(93);
+    POJO1._staticObj = pojo;
 
     final Field[] declaredFields = pojo.getClass().getDeclaredFields();
     for (Field field : declaredFields) {

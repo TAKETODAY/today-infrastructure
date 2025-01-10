@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,25 +142,25 @@ class SetterMethodTests {
     pojo1._volatileFloat = (float) Math.log(93);
     pojo1._volatileObj = pojo1;
 
-    pojo1._staticVolatileBoolean = true;
-    pojo1._staticVolatileByte = 17;
-    pojo1._staticVolatileShort = 87;
-    pojo1._staticVolatileInt = Integer.MIN_VALUE;
-    pojo1._staticVolatileLong = 1337;
-    pojo1._staticVolatileChar = 'a';
-    pojo1._staticVolatileDouble = Math.PI;
-    pojo1._staticVolatileFloat = (float) Math.log(93);
-    pojo1._staticVolatileObj = pojo1;
+    POJO1._staticVolatileBoolean = true;
+    POJO1._staticVolatileByte = 17;
+    POJO1._staticVolatileShort = 87;
+    POJO1._staticVolatileInt = Integer.MIN_VALUE;
+    POJO1._staticVolatileLong = 1337;
+    POJO1._staticVolatileChar = 'a';
+    POJO1._staticVolatileDouble = Math.PI;
+    POJO1._staticVolatileFloat = (float) Math.log(93);
+    POJO1._staticVolatileObj = pojo1;
 
-    pojo1._staticBoolean = true;
-    pojo1._staticByte = 17;
-    pojo1._staticShort = 87;
-    pojo1._staticInt = Integer.MIN_VALUE;
-    pojo1._staticLong = 1337;
-    pojo1._staticChar = 'a';
-    pojo1._staticDouble = Math.PI;
-    pojo1._staticFloat = (float) Math.log(93);
-    pojo1._staticObj = pojo1;
+    POJO1._staticBoolean = true;
+    POJO1._staticByte = 17;
+    POJO1._staticShort = 87;
+    POJO1._staticInt = Integer.MIN_VALUE;
+    POJO1._staticLong = 1337;
+    POJO1._staticChar = 'a';
+    POJO1._staticDouble = Math.PI;
+    POJO1._staticFloat = (float) Math.log(93);
+    POJO1._staticObj = pojo1;
 
     POJO1 pojo2 = new POJO1();
 

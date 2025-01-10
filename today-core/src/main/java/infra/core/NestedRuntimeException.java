@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.core;
+
+import java.io.Serial;
 
 import infra.lang.Nullable;
 import infra.util.ExceptionUtils;
@@ -36,6 +38,9 @@ import infra.util.ExceptionUtils;
  * @since 3.0 2021/2/2 11:12
  */
 public abstract class NestedRuntimeException extends RuntimeException implements NestedException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   static {
     // Eagerly load the ExceptionUtils class to avoid classloader deadlock
