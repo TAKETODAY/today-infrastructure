@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,10 +57,10 @@ import javax.xml.xpath.XPathFactory;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
-import infra.building.bom.version.DependencyVersion;
-import infra.building.maven.MavenExec;
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import infra.building.bom.version.DependencyVersion;
+import infra.building.maven.MavenExec;
 
 import static org.gradle.api.plugins.JavaPlatformPlugin.API_CONFIGURATION_NAME;
 
@@ -114,36 +114,36 @@ public class BomExtension {
   public void effectiveBomArtifact() {
     Configuration effectiveBomConfiguration = project.getConfigurations().create("effectiveBom");
     project.getTasks().matching(task -> task.getName().equals(GENERATE_POM_TASK_NAME)).forEach(task -> {
-      Sync syncBom = project.getTasks().create("syncBom", Sync.class);
-      syncBom.dependsOn(task);
-      File generatedBomDir = new File(project.getBuildDir(), "generated/bom");
-      syncBom.setDestinationDir(generatedBomDir);
-      syncBom.from(((GenerateMavenPom) task).getDestination(), (pom) -> pom.rename((name) -> "pom.xml"));
-      try {
-        String settingsXmlContent = FileCopyUtils.copyToString(new InputStreamReader(
-                        getClass().getClassLoader().getResourceAsStream("effective-bom-settings.xml"),
-                        StandardCharsets.UTF_8))
-                .replace("localRepositoryPath",
-                        new File(project.getBuildDir(), "local-m2-repository").getAbsolutePath());
-        syncBom.from(project.getResources().getText().fromString(settingsXmlContent),
-                (settingsXml) -> settingsXml.rename((name) -> "settings.xml"));
-      }
-      catch (IOException ex) {
-        throw new GradleException("Failed to prepare settings.xml", ex);
-      }
-      MavenExec generateEffectiveBom = project.getTasks()
-              .create("generateEffectiveBom", MavenExec.class);
-      generateEffectiveBom.setProjectDir(generatedBomDir);
-      File effectiveBom = new File(project.getBuildDir(),
-              "generated/effective-bom/" + project.getName() + "-effective-bom.xml");
-      generateEffectiveBom.args("--settings", "settings.xml", "help:effective-pom",
-              "-Doutput=" + effectiveBom);
-      generateEffectiveBom.dependsOn(syncBom);
-      generateEffectiveBom.getOutputs().file(effectiveBom);
-      generateEffectiveBom.doLast(new StripUnrepeatableOutputAction(effectiveBom));
-      project.getArtifacts()
-              .add(effectiveBomConfiguration.getName(), effectiveBom,
-                      (artifact) -> artifact.builtBy(generateEffectiveBom));
+      project.getTasks().register("syncBom", Sync.class, syncBom -> {
+        syncBom.dependsOn(task);
+        File buildDir = project.getLayout().getBuildDirectory().getAsFile().get();
+        File generatedBomDir = new File(buildDir, "generated/bom");
+        syncBom.setDestinationDir(generatedBomDir);
+        syncBom.from(((GenerateMavenPom) task).getDestination(), (pom) -> pom.rename((name) -> "pom.xml"));
+        try {
+          String settingsXmlContent = FileCopyUtils.copyToString(new InputStreamReader(
+                          getClass().getClassLoader().getResourceAsStream("effective-bom-settings.xml"), StandardCharsets.UTF_8))
+                  .replace("localRepositoryPath", new File(buildDir, "local-m2-repository").getAbsolutePath());
+          syncBom.from(project.getResources().getText().fromString(settingsXmlContent),
+                  settingsXml -> settingsXml.rename(name -> "settings.xml"));
+        }
+        catch (IOException ex) {
+          throw new GradleException("Failed to prepare settings.xml", ex);
+        }
+
+        project.getTasks().register("generateEffectiveBom", MavenExec.class, generateEffectiveBom -> {
+          generateEffectiveBom.setProjectDir(generatedBomDir);
+
+          File effectiveBom = new File(buildDir, "generated/effective-bom/" + project.getName() + "-effective-bom.xml");
+          generateEffectiveBom.args("--settings", "settings.xml", "help:effective-pom", "-Doutput=" + effectiveBom);
+          generateEffectiveBom.dependsOn(syncBom);
+          generateEffectiveBom.getOutputs().file(effectiveBom);
+          generateEffectiveBom.doLast(new StripUnrepeatableOutputAction(effectiveBom));
+          project.getArtifacts()
+                  .add(effectiveBomConfiguration.getName(), effectiveBom,
+                          (artifact) -> artifact.builtBy(generateEffectiveBom));
+        });
+      });
     });
   }
 

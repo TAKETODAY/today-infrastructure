@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,22 +53,20 @@ public class BomPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     PluginContainer plugins = project.getPlugins();
-    project.getPlugins().apply(MavenPublishPlugin.class);
+    plugins.apply(MavenPublishPlugin.class);
     plugins.apply(JavaPlatformPlugin.class);
     createApiEnforcedConfiguration(project);
-    BomExtension bom = project.getExtensions()
-            .create("bom", BomExtension.class, project.getDependencies(), project);
-    project.getTasks().create("bomrCheck", CheckBom.class, bom);
+    BomExtension bom = project.getExtensions().create("bom", BomExtension.class, project.getDependencies(), project);
+    project.getTasks().register("bomrCheck", CheckBom.class, bom);
     new PublishingCustomizer(project, bom).customize();
   }
 
   private void createApiEnforcedConfiguration(Project project) {
-    Configuration apiEnforced = project.getConfigurations()
-            .create(API_ENFORCED_CONFIGURATION_NAME, (configuration) -> {
-              configuration.setCanBeConsumed(false);
-              configuration.setCanBeResolved(false);
-              configuration.setVisible(false);
-            });
+    Configuration apiEnforced = project.getConfigurations().create(API_ENFORCED_CONFIGURATION_NAME, configuration -> {
+      configuration.setCanBeConsumed(false);
+      configuration.setCanBeResolved(false);
+      configuration.setVisible(false);
+    });
     project.getConfigurations()
             .getByName(JavaPlatformPlugin.ENFORCED_API_ELEMENTS_CONFIGURATION_NAME)
             .extendsFrom(apiEnforced);
@@ -243,8 +241,8 @@ public class BomPlugin implements Plugin<Project> {
             plugin.appendNode("artifactId", pluginName);
             String versionProperty = library.getVersionProperty();
             String value = (versionProperty != null)
-                           ? "${" + versionProperty + "}"
-                           : library.getVersion().getVersion().toString();
+                    ? "${" + versionProperty + "}"
+                    : library.getVersion().getVersion().toString();
             plugin.appendNode("version", value);
           }
         }
