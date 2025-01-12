@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import infra.beans.support.BeanInstantiator;
 import infra.core.MethodParameter;
+import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.reflect.Property;
@@ -49,7 +50,7 @@ public sealed class BeanProperty extends Property implements Member permits Fiel
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private transient PropertyAccessor propertyAccessor;
+  private transient PropertyAccessor accessor;
 
   private transient BeanInstantiator instantiator;
 
@@ -108,6 +109,8 @@ public sealed class BeanProperty extends Property implements Member permits Fiel
   }
 
   /**
+   * Set bean property
+   *
    * @throws NotWritablePropertyException If this property is read only
    * @see SetterMethod#set(Object, Object)
    */
@@ -117,6 +120,8 @@ public sealed class BeanProperty extends Property implements Member permits Fiel
   }
 
   /**
+   * Set bean property
+   *
    * @throws NotWritablePropertyException If this property is read only
    * @see SetterMethod#set(Object, Object)
    * @since 4.0
@@ -141,6 +146,33 @@ public sealed class BeanProperty extends Property implements Member permits Fiel
     setDirectly(obj, value);
   }
 
+  /**
+   * Set bean property
+   *
+   * @throws NotWritablePropertyException If this property is read only
+   * @see SetterMethod#set(Object, Object)
+   * @since 5.0
+   */
+  public final void setValue(Object obj, Object value, ConversionService conversionService) {
+    Class<?> propertyType;
+    // write-method parameter type
+    MethodParameter writeMethodParameter = getWriteMethodParameter();
+    if (writeMethodParameter != null) {
+      propertyType = writeMethodParameter.getParameterType();
+    }
+    else {
+      propertyType = getType();
+    }
+    if (value == null && propertyType == Optional.class) {
+      value = Optional.empty();
+    }
+    else if (!ClassUtils.isAssignableValue(propertyType, value)) {
+      Object necessary = conversionService.convert(value, getTypeDescriptor());
+      value = handleOptional(necessary, propertyType);
+    }
+    setDirectly(obj, value);
+  }
+
   // @since 4.0
   @Nullable
   static Object handleOptional(Object value, Class<?> propertyType) {
@@ -157,16 +189,20 @@ public sealed class BeanProperty extends Property implements Member permits Fiel
    * @since 3.0.2
    */
   public final void setDirectly(Object obj, Object value) {
-    obtainAccessor().set(obj, value);
+    var accessor = obtainAccessor();
+    if (accessor.isReadOnly()) {
+      throw new NotWritablePropertyException(getDeclaringClass(), getName());
+    }
+    accessor.set(obj, value);
   }
 
   // PropertyAccessor
 
   public final PropertyAccessor obtainAccessor() {
-    PropertyAccessor accessor = this.propertyAccessor;
+    PropertyAccessor accessor = this.accessor;
     if (accessor == null) {
       accessor = createAccessor();
-      this.propertyAccessor = accessor;
+      this.accessor = accessor;
     }
     return accessor;
   }
