@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,15 +64,15 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
    * returns {@code null}
    */
   @Override
-  public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+  public final String[] selectImports(AnnotationMetadata importMetadata) {
     Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
     Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
 
-    MergedAnnotation<Annotation> attributes = importingClassMetadata.getAnnotation(annType.getName());
+    MergedAnnotation<Annotation> attributes = importMetadata.getAnnotation(annType.getName());
     if (!attributes.isPresent()) {
       throw new IllegalArgumentException(String.format(
               "@%s is not present on importing class '%s' as expected",
-              annType.getSimpleName(), importingClassMetadata.getClassName()));
+              annType.getSimpleName(), importMetadata.getClassName()));
     }
 
     AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName(), AdviceMode.class);

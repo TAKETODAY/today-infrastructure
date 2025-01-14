@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,9 +91,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   @Override
-  public String[] selectImports(AnnotationMetadata annotationMetadata) {
-    if (isEnabled(annotationMetadata)) {
-      AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
+  public String[] selectImports(AnnotationMetadata importMetadata) {
+    if (isEnabled(importMetadata)) {
+      AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(importMetadata);
       return StringUtils.toStringArray(autoConfigurationEntry.configurations);
     }
     return NO_IMPORTS;

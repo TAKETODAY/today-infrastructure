@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.context.index;
 
@@ -30,14 +30,12 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.config.SingletonBeanRegistry;
 import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
-import infra.context.annotation.AnnotationBeanDefinitionRegistrar;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.annotation.AnnotationImportSelector;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
+import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.annotation.ImportSelector;
 import infra.core.type.AnnotationMetadata;
-import infra.lang.Nullable;
 import infra.stereotype.Singleton;
 import jakarta.annotation.PreDestroy;
 
@@ -101,7 +99,7 @@ class ImportTests {
   public static class TESTSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public String[] selectImports(AnnotationMetadata importMetadata) {
       return NO_IMPORTS;
     }
   }
@@ -115,17 +113,15 @@ class ImportTests {
 
   }
 
-  static class AopSelector implements AnnotationImportSelector<EnableAop>, BeanFactoryAware {
+  static class AopSelector implements ImportSelector, BeanFactoryAware {
 
     private EnableAop enableAop;
-    private AnnotationMetadata annotatedMetadata;
+
     SingletonBeanRegistry registry;
 
-    @Nullable
     @Override
-    public String[] selectImports(EnableAop target, AnnotationMetadata annotatedMetadata) {
-      this.enableAop = target;
-      this.annotatedMetadata = annotatedMetadata;
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      this.enableAop = importMetadata.getAnnotation(EnableAop.class).synthesize();
       registry.registerSingleton(this);
       return NO_IMPORTS;
     }
@@ -141,7 +137,7 @@ class ImportTests {
 
   }
 
-  static class BeanDefinitionRegistrar implements AnnotationBeanDefinitionRegistrar<EnableAop> {
+  static class BeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
     private EnableAop enableAop;
 
@@ -153,11 +149,10 @@ class ImportTests {
     }
 
     @Override
-    public void registerBeanDefinitions(EnableAop enableAop, AnnotationMetadata annotatedMetadata, BootstrapContext context) {
-      this.enableAop = enableAop;
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
+      this.enableAop = importMetadata.getAnnotation(EnableAop.class).synthesize();
       this.context.unwrapFactory(SingletonBeanRegistry.class).registerSingleton(this);
     }
-
   }
 
   @Test

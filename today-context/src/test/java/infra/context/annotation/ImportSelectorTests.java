@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -246,7 +246,7 @@ public class ImportSelectorTests {
     }
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public String[] selectImports(AnnotationMetadata importMetadata) {
       return new String[] {};
     }
   }
@@ -266,8 +266,8 @@ public class ImportSelectorTests {
   public static class ImportSelector1 implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { ImportedSelector1.class.getName() };
     }
   }
@@ -275,8 +275,8 @@ public class ImportSelectorTests {
   public static class ImportSelector2 implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { ImportedSelector2.class.getName() };
     }
   }
@@ -289,7 +289,7 @@ public class ImportSelectorTests {
   public static class FilteredImportSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public String[] selectImports(AnnotationMetadata importMetadata) {
       return new String[] { ImportedSelector1.class.getName(), ImportedSelector2.class.getName(), ImportedSelector3.class.getName() };
     }
 
@@ -303,8 +303,8 @@ public class ImportSelectorTests {
   public static class DeferredImportSelector1 implements DeferredImportSelector, Ordered {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportedSelector1.class.getName() };
     }
 
@@ -318,8 +318,8 @@ public class ImportSelectorTests {
   public static class DeferredImportSelector2 implements DeferredImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportedSelector2.class.getName() };
     }
   }
@@ -386,7 +386,7 @@ public class ImportSelectorTests {
   public static class IndirectImportSelector implements ImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+    public String[] selectImports(AnnotationMetadata importMetadata) {
       return new String[] { IndirectImport.class.getName() };
     }
 
@@ -448,8 +448,8 @@ public class ImportSelectorTests {
   public static class ParentDeferredImportSelector1 implements DeferredImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportSelector1.class.getName(), ChildConfiguration1.class.getName() };
     }
 
@@ -469,8 +469,8 @@ public class ImportSelectorTests {
   public static class ParentDeferredImportSelector2 implements DeferredImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportSelector2.class.getName(), ChildConfiguration2.class.getName() };
     }
 
@@ -491,8 +491,8 @@ public class ImportSelectorTests {
   public static class ChildDeferredImportSelector1 implements DeferredImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportedSelector3.class.getName() };
     }
 
@@ -513,8 +513,8 @@ public class ImportSelectorTests {
   public static class ChildDeferredImportSelector2 implements DeferredImportSelector {
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-      ImportSelectorTests.importFrom.put(getClass(), importingClassMetadata.getClassName());
+    public String[] selectImports(AnnotationMetadata importMetadata) {
+      ImportSelectorTests.importFrom.put(getClass(), importMetadata.getClassName());
       return new String[] { DeferredImportSelector2.class.getName() };
     }
 
