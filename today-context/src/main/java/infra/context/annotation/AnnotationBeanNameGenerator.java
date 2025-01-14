@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -79,17 +78,17 @@ import infra.util.StringUtils;
  */
 public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
+  private static final Logger logger = LoggerFactory.getLogger(AnnotationBeanNameGenerator.class);
+
   /**
    * A convenient constant for a default {@code AnnotationBeanNameGenerator} instance,
    * as used for component scanning purposes.
    */
   public static final AnnotationBeanNameGenerator INSTANCE = new AnnotationBeanNameGenerator();
 
-  private static final String COMPONENT_ANNOTATION_CLASSNAME = "infra.stereotype.Component";
+  private static final String COMPONENT_ANNOTATION_CLASSNAME = Component.class.getName();
 
-  private final Map<String, Set<String>> metaAnnotationTypesCache = new ConcurrentHashMap<>();
-
-  private static final Logger logger = LoggerFactory.getLogger(AnnotationBeanNameGenerator.class);
+  private final ConcurrentHashMap<String, Set<String>> metaAnnotationTypesCache = new ConcurrentHashMap<>();
 
   /**
    * Set used to track which stereotype annotations have already been checked

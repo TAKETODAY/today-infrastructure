@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ import infra.util.ClassUtils;
  * @author Ramnivas Laddad
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter {
@@ -81,9 +81,7 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
    * @param considerMetaAnnotations whether to also match on meta-annotations
    * @param considerInterfaces whether to also match interfaces
    */
-  public AnnotationTypeFilter(
-          Class<? extends Annotation> annotationType, boolean considerMetaAnnotations, boolean considerInterfaces) {
-
+  public AnnotationTypeFilter(Class<? extends Annotation> annotationType, boolean considerMetaAnnotations, boolean considerInterfaces) {
     super(annotationType.isAnnotationPresent(Inherited.class), considerInterfaces);
     this.annotationType = annotationType;
     this.considerMetaAnnotations = considerMetaAnnotations;
@@ -100,8 +98,8 @@ public class AnnotationTypeFilter extends AbstractTypeHierarchyTraversingFilter 
   @Override
   protected boolean matchSelf(MetadataReader metadataReader) {
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
-    return metadata.hasAnnotation(annotationType.getName())
-            || (considerMetaAnnotations && metadata.hasMetaAnnotation(annotationType.getName()));
+    return metadata.hasAnnotation(annotationType)
+            || (considerMetaAnnotations && metadata.hasMetaAnnotation(annotationType));
   }
 
   @Override

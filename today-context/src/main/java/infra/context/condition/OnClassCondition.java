@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.context.condition;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import infra.context.annotation.ConditionContext;
 import infra.context.annotation.config.AutoConfigurationMetadata;
 import infra.core.Ordered;
 import infra.core.type.AnnotatedTypeMetadata;
+import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 
@@ -107,8 +109,9 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
     return ConditionOutcome.match(matchMessage);
   }
 
-  private List<String> getCandidates(AnnotatedTypeMetadata metadata, Class<?> annotationType) {
-    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(annotationType.getName(), true);
+  @Nullable
+  private List<String> getCandidates(AnnotatedTypeMetadata metadata, Class<? extends Annotation> annotationType) {
+    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(annotationType, true);
     if (attributes == null) {
       return null;
     }
@@ -192,6 +195,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
       return outcomes;
     }
 
+    @Nullable
     private ConditionOutcome getOutcome(String candidates) {
       try {
         if (!candidates.contains(",")) {
@@ -210,6 +214,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
       return null;
     }
 
+    @Nullable
     private ConditionOutcome getOutcome(String className, ClassLoader classLoader) {
       if (ClassNameFilter.MISSING.matches(className, classLoader)) {
         return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnClass.class)

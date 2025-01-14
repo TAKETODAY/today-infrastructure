@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ class AutoConfigurationSorter {
   private final UnaryOperator<String> replacementMapper;
 
   AutoConfigurationSorter(MetadataReaderFactory metadataReaderFactory,
-          AutoConfigurationMetadata autoConfigurationMetadata, UnaryOperator<String> replacementMapper) {
+          AutoConfigurationMetadata autoConfigurationMetadata, @Nullable UnaryOperator<String> replacementMapper) {
     Assert.notNull(metadataReaderFactory, "MetadataReaderFactory required");
     this.replacementMapper = replacementMapper;
     this.metadataReaderFactory = metadataReaderFactory;
@@ -238,8 +238,7 @@ class AutoConfigurationSorter {
         return this.autoConfigurationMetadata.getInteger(this.className, "AutoConfigureOrder",
                 AutoConfigureOrder.DEFAULT_ORDER);
       }
-      Map<String, Object> attributes = getAnnotationMetadata()
-              .getAnnotationAttributes(AutoConfigureOrder.class.getName());
+      Map<String, Object> attributes = getAnnotationMetadata().getAnnotationAttributes(AutoConfigureOrder.class);
       return (attributes != null) ? (Integer) attributes.get("value") : AutoConfigureOrder.DEFAULT_ORDER;
     }
 
@@ -248,9 +247,8 @@ class AutoConfigurationSorter {
               && this.autoConfigurationMetadata.wasProcessed(this.className));
     }
 
-    private Set<String> getAnnotationValue(Class<?> annotation) {
-      Map<String, Object> attributes = getAnnotationMetadata().getAnnotationAttributes(annotation.getName(),
-              true);
+    private Set<String> getAnnotationValue(Class<? extends Annotation> annotation) {
+      Map<String, Object> attributes = getAnnotationMetadata().getAnnotationAttributes(annotation, true);
       if (attributes == null) {
         return Collections.emptySet();
       }

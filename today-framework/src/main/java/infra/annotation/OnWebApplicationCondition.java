@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import infra.context.condition.FilteringInfraCondition;
 import infra.core.Ordered;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotatedTypeMetadata;
+import infra.lang.Nullable;
 import infra.web.server.context.GenericWebServerApplicationContext;
 import infra.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import infra.web.server.reactive.context.ReactiveWebApplicationContext;
@@ -64,6 +65,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return outcomes;
   }
 
+  @Nullable
   private ConditionOutcome getOutcome(String type) {
     if (type == null) {
       return null;
@@ -89,7 +91,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    boolean required = metadata.isAnnotated(ConditionalOnWebApplication.class.getName());
+    boolean required = metadata.isAnnotated(ConditionalOnWebApplication.class);
     ConditionOutcome outcome = isWebApplication(context, metadata, required);
     if (required && !outcome.isMatch()) {
       return ConditionOutcome.noMatch(outcome.getConditionMessage());

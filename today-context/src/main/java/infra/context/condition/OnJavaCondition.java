@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class OnJavaCondition extends InfraCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class.getName());
+    Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnJava.class);
     ConditionalOnJava.Range range = (ConditionalOnJava.Range) attributes.get("range");
     JavaVersion version = (JavaVersion) attributes.get("value");
     return getMatchOutcome(range, JVM_VERSION, version);

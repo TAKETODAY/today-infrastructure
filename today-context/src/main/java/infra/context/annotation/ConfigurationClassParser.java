@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -258,7 +258,7 @@ class ConfigurationClassParser {
   protected final SourceClass doProcessConfigurationClass(
           ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter) throws IOException {
 
-    if (configClass.metadata.isAnnotated(Component.class.getName())) {
+    if (configClass.metadata.isAnnotated(Component.class)) {
       // Recursively process any member (nested) classes first
       processMemberClasses(configClass, sourceClass, filter);
     }

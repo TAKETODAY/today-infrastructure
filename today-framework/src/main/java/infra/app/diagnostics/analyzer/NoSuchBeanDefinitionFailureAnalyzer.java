@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     }
     String action = String.format("Consider %s %s in your configuration.",
             (!autoConfigurationResults.isEmpty() || !userConfigurationResults.isEmpty())
-            ? "revisiting the entries above or defining" : "defining",
+                    ? "revisiting the entries above or defining" : "defining",
             getBeanDescription(cause));
     return new FailureAnalysis(message.toString(), action, cause);
   }
@@ -239,7 +239,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     }
 
     private boolean hasName(MethodMetadata methodMetadata, String name) {
-      Map<String, Object> attributes = methodMetadata.getAnnotationAttributes(Component.class.getName());
+      Map<String, Object> attributes = methodMetadata.getAnnotationAttributes(Component.class);
       String[] candidates = (attributes != null) ? (String[]) attributes.get("name") : null;
       if (candidates != null) {
         for (String candidate : candidates) {

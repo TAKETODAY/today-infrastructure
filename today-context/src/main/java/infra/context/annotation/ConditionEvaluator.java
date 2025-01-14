@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ public class ConditionEvaluator {
    * @return if the item should be skipped
    */
   public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
-    if (metadata == null || !metadata.isAnnotated(Conditional.class.getName())) {
+    if (metadata == null || !metadata.isAnnotated(Conditional.class)) {
       return false;
     }
 
@@ -153,7 +153,7 @@ public class ConditionEvaluator {
 
   @SuppressWarnings("unchecked")
   private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
-    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);
+    MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class, true);
     Object values = (attributes != null ? attributes.get("value") : null);
     return (List<String[]>) (values != null ? values : Collections.emptyList());
   }

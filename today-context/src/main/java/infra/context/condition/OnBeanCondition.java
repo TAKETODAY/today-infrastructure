@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -604,7 +604,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
 
     private Set<String> deducedBeanType(ConditionContext context, AnnotatedTypeMetadata metadata) {
-      if (metadata instanceof MethodMetadata && metadata.isAnnotated(Component.class.getName())) {
+      if (metadata instanceof MethodMetadata && metadata.isAnnotated(Component.class)) {
         return deducedBeanTypeForBeanMethod(context, (MethodMetadata) metadata);
       }
       return Collections.emptySet();

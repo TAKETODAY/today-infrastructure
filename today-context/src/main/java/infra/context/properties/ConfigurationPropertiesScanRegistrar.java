@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.context.properties;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import infra.context.BootstrapContext;
 import infra.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -76,8 +75,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
     if (packagesToScan.isEmpty()) {
       packagesToScan.add(ClassUtils.getPackageName(metadata.getClassName()));
     }
-
-    packagesToScan.removeIf(Predicate.not(StringUtils::hasText));
+    packagesToScan.removeIf(StringUtils::isBlank);
     return packagesToScan;
   }
 
@@ -117,7 +115,7 @@ class ConfigurationPropertiesScanRegistrar implements ImportBeanDefinitionRegist
 
   private boolean isComponent(AnnotationMetadata annotationMetadata) {
     // MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY).isPresent(Component.class)
-    return annotationMetadata.isAnnotated(Component.class.getName());
+    return annotationMetadata.isAnnotated(Component.class);
   }
 
 }
