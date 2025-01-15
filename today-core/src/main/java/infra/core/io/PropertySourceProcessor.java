@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ public class PropertySourceProcessor {
     Assert.isTrue(!locations.isEmpty(), "At least one @PropertySource(value) location is required");
     boolean ignoreResourceNotFound = descriptor.ignoreResourceNotFound();
     PropertySourceFactory factory = descriptor.propertySourceFactory() != null
-            ? instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
+            ? instantiateClass(descriptor.propertySourceFactory()) : getDefaultPropertySourceFactory();
 
     for (String location : locations) {
       try {
@@ -99,6 +99,13 @@ public class PropertySourceProcessor {
         }
       }
     }
+  }
+
+  /**
+   * @since 5.0
+   */
+  protected PropertySourceFactory getDefaultPropertySourceFactory() {
+    return new DefaultPropertySourceFactory();
   }
 
   private void addPropertySource(PropertySource<?> propertySource) {
@@ -137,7 +144,7 @@ public class PropertySourceProcessor {
     propertySourceNames.add(name);
   }
 
-  private static PropertySourceFactory instantiateClass(Class<? extends PropertySourceFactory> type) {
+  protected PropertySourceFactory instantiateClass(Class<? extends PropertySourceFactory> type) {
     try {
       Constructor<? extends PropertySourceFactory> constructor = type.getDeclaredConstructor();
       ReflectionUtils.makeAccessible(constructor);

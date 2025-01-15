@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import infra.context.BootstrapContext;
 import infra.core.annotation.MergedAnnotation;
+import infra.core.env.ConfigurableEnvironment;
 import infra.core.io.PropertySourceDescriptor;
 import infra.core.io.PropertySourceFactory;
 import infra.core.io.PropertySourceProcessor;
@@ -44,8 +46,8 @@ class PropertySourceRegistry {
 
   private final List<PropertySourceDescriptor> descriptors;
 
-  public PropertySourceRegistry(PropertySourceProcessor propertySourceProcessor) {
-    this.propertySourceProcessor = propertySourceProcessor;
+  public PropertySourceRegistry(ConfigurableEnvironment ce, BootstrapContext context) {
+    this.propertySourceProcessor = new BootstrapPropertySourceProcessor(ce, context);
     this.descriptors = new ArrayList<>();
   }
 
@@ -59,7 +61,7 @@ class PropertySourceRegistry {
    * @param propertySource metadata for the <code>@PropertySource</code> annotation found
    * @throws IOException if loading a property source failed
    */
-  void processPropertySource(MergedAnnotation<PropertySource> propertySource) throws IOException {
+  public void processPropertySource(MergedAnnotation<PropertySource> propertySource) throws IOException {
     String name = propertySource.getString("name");
     if (StringUtils.isEmpty(name)) {
       name = null;
@@ -79,6 +81,27 @@ class PropertySourceRegistry {
             ignoreResourceNotFound, name, factorClassToUse, encoding);
     this.propertySourceProcessor.processPropertySource(descriptor);
     this.descriptors.add(descriptor);
+  }
+
+  private final static class BootstrapPropertySourceProcessor extends PropertySourceProcessor {
+
+    private final BootstrapContext context;
+
+    public BootstrapPropertySourceProcessor(ConfigurableEnvironment environment, BootstrapContext context) {
+      super(environment, context.getResourceLoader());
+      this.context = context;
+    }
+
+    @Override
+    protected PropertySourceFactory getDefaultPropertySourceFactory() {
+      return context.getPropertySourceFactory();
+    }
+
+    @Override
+    protected PropertySourceFactory instantiateClass(Class<? extends PropertySourceFactory> type) {
+      return context.instantiate(type);
+    }
+
   }
 
 }

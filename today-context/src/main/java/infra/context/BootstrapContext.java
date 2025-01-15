@@ -20,7 +20,6 @@ package infra.context;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.util.Set;
 
 import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
@@ -253,14 +252,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     registry.registerAlias(beanName, alias);
   }
 
-  public boolean containsBeanDefinition(Class<?> beanClass) {
-    return registry.containsBeanDefinition(beanClass);
-  }
-
-  public boolean containsBeanDefinition(Class<?> type, boolean equals) {
-    return registry.containsBeanDefinition(type, equals);
-  }
-
   public boolean containsBeanDefinition(String beanName) {
     return registry.containsBeanDefinition(beanName);
   }
@@ -457,10 +448,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return getResourceLoader().getResource(location);
   }
 
-  public Set<Resource> getResources(String locationPattern) throws IOException {
-    return getResourceLoader().getResources(locationPattern);
-  }
-
   /**
    * Set the {@link MetadataReaderFactory} to use.
    * <p>Default is a {@link CachingMetadataReaderFactory} for the specified
@@ -653,7 +640,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   // static
 
   // this method mainly for internal use
-  public static BootstrapContext from(BeanFactory beanFactory) {
+  public static BootstrapContext obtain(BeanFactory beanFactory) {
     Assert.notNull(beanFactory, "beanFactory is required");
     BootstrapContext context = findContext(beanFactory);
     if (context == null) {

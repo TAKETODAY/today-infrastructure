@@ -143,7 +143,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
     configBeanDef.setScope(scopeMetadata.getScopeName());
-    String configBeanName = importBeanNameGenerator.generateBeanName(configBeanDef, bootstrapContext.getRegistry());
+    String configBeanName = bootstrapContext.generateBeanName(configBeanDef);
     AnnotationConfigUtils.applyAnnotationMetadata(configBeanDef, false);
 
     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
@@ -224,8 +224,8 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setUniqueFactoryMethodName(methodName);
     }
 
-    if (methodMetadata instanceof StandardMethodMetadata smm &&
-            configClass.metadata instanceof StandardAnnotationMetadata sam) {
+    if (methodMetadata instanceof StandardMethodMetadata smm
+            && configClass.metadata instanceof StandardAnnotationMetadata sam) {
       Method method = ReflectionUtils.getMostSpecificMethod(smm.getIntrospectedMethod(), sam.getIntrospectedClass());
       if (method == smm.getIntrospectedMethod()) {
         beanDef.setResolvedFactoryMethod(method);
@@ -243,7 +243,7 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setDefaultCandidate(false);
     }
 
-    Component.Bootstrap instantiation = component.getEnum("bootstrap", Component.Bootstrap.class);
+    var instantiation = component.getEnum("bootstrap", Component.Bootstrap.class);
     if (instantiation == Component.Bootstrap.BACKGROUND) {
       beanDef.setBackgroundInit(true);
     }
@@ -270,8 +270,8 @@ class ConfigurationClassBeanDefinitionReader {
     // Replace the original bean definition with the target one, if necessary
     BeanDefinition beanDefToRegister;
     if (proxyMode != ScopedProxyMode.NO) {
-      BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(
-              new BeanDefinitionHolder(beanDef, beanName), bootstrapContext.getRegistry(), proxyMode == ScopedProxyMode.TARGET_CLASS);
+      BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(new BeanDefinitionHolder(beanDef, beanName),
+              bootstrapContext.getRegistry(), proxyMode == ScopedProxyMode.TARGET_CLASS);
       beanDefToRegister = new ConfigurationClassBeanDefinition(
               (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, methodMetadata, beanName);
     }

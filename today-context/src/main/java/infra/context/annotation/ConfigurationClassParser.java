@@ -56,7 +56,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
 import infra.core.io.PropertySourceDescriptor;
-import infra.core.io.PropertySourceProcessor;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.StandardAnnotationMetadata;
@@ -135,7 +134,7 @@ class ConfigurationClassParser {
     this.bootstrapContext = bootstrapContext;
     this.componentScanParser = new ComponentScanAnnotationParser(bootstrapContext);
     this.propertySourceRegistry = bootstrapContext.getEnvironment() instanceof ConfigurableEnvironment ce ?
-            new PropertySourceRegistry(new PropertySourceProcessor(ce, bootstrapContext.getResourceLoader())) : null;
+            new PropertySourceRegistry(ce, bootstrapContext) : null;
   }
 
   public void parse(Set<BeanDefinitionHolder> configCandidates) {
@@ -507,9 +506,7 @@ class ConfigurationClassParser {
    * @param visited used to track visited classes to prevent infinite recursion
    * @throws IOException if there is any problem reading metadata from the named class
    */
-  private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited)
-          throws IOException //
-  {
+  private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited) throws IOException {
     if (visited.add(sourceClass)) {
       for (SourceClass annotation : sourceClass.getAnnotationsAsSourceClass()) {
         String annName = annotation.metadata.getClassName();
@@ -521,10 +518,8 @@ class ConfigurationClassParser {
     }
   }
 
-  private void processImports(ConfigurationClass configClass,
-          SourceClass currentSourceClass, Collection<SourceClass> importCandidates,
-          Predicate<String> exclusionFilter, boolean checkForCircularImports) //
-  {
+  private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
+          Collection<SourceClass> importCandidates, Predicate<String> exclusionFilter, boolean checkForCircularImports) {
     if (importCandidates.isEmpty()) {
       return;
     }
@@ -734,6 +729,7 @@ class ConfigurationClassParser {
   private class DeferredImportSelectorGroupingHandler {
 
     private final HashMap<AnnotationMetadata, ConfigurationClass> configurationClasses = new HashMap<>();
+
     private final LinkedHashMap<Object, DeferredImportSelectorGrouping> groupings = new LinkedHashMap<>();
 
     public void register(DeferredImportSelectorHolder deferredImport) {
@@ -777,6 +773,7 @@ class ConfigurationClassParser {
   private static class DeferredImportSelectorHolder {
 
     public final ConfigurationClass configurationClass;
+
     public final DeferredImportSelector importSelector;
 
     public DeferredImportSelectorHolder(ConfigurationClass configClass, DeferredImportSelector selector) {
@@ -788,6 +785,7 @@ class ConfigurationClassParser {
   private static class DeferredImportSelectorGrouping {
 
     private final DeferredImportSelector.Group group;
+
     private final List<DeferredImportSelectorHolder> deferredImports = new ArrayList<>();
 
     DeferredImportSelectorGrouping(Group group) {
@@ -846,6 +844,7 @@ class ConfigurationClassParser {
   private class SourceClass implements Ordered {
 
     public final Object source;  // Class or MetadataReader
+
     public final AnnotationMetadata metadata;
 
     public SourceClass(Object source) {

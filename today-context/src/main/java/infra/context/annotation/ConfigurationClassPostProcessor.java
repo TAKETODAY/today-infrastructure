@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,8 +63,6 @@ import infra.beans.factory.config.BeanDefinitionHolder;
 import infra.beans.factory.config.BeanFactoryPostProcessor;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.SingletonBeanRegistry;
-import infra.beans.factory.parsing.FailFastProblemReporter;
-import infra.beans.factory.parsing.ProblemReporter;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -148,7 +146,9 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   @Nullable
   private List<PropertySourceDescriptor> propertySourceDescriptors;
 
-  public ConfigurationClassPostProcessor() { }
+  public ConfigurationClassPostProcessor() {
+
+  }
 
   public ConfigurationClassPostProcessor(BootstrapContext bootstrapContext) {
     setBootstrapContext(bootstrapContext);
@@ -172,16 +172,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   }
 
   /**
-   * Set the {@link ProblemReporter} to use.
-   * <p>Used to register any problems detected with {@link Configuration} or {@link Component}
-   * declarations. For instance, an @Component method marked as {@code final} is illegal
-   * and would be reported as a problem. Defaults to {@link FailFastProblemReporter}.
-   */
-  public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
-    obtainBootstrapContext().setProblemReporter(problemReporter);
-  }
-
-  /**
    * Set the {@link BeanNameGenerator} to be used when triggering component scanning
    * from {@link Configuration} classes and when registering {@link Import}'ed
    * configuration classes. The default is a standard {@link AnnotationBeanNameGenerator}
@@ -200,8 +190,8 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
     Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
     this.localBeanNameGeneratorSet = true;
-    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
     this.importBeanNameGenerator = beanNameGenerator;
+    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
   }
 
   @Override
@@ -235,7 +225,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   @Override
   public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     if (bootstrapContext == null) {
-      bootstrapContext = BootstrapContext.from(beanFactory);
+      this.bootstrapContext = BootstrapContext.obtain(beanFactory);
     }
     int factoryId = System.identityHashCode(beanFactory);
     if (this.factoriesPostProcessed.contains(factoryId)) {
@@ -333,10 +323,9 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     if (registry instanceof SingletonBeanRegistry) {
       sbr = (SingletonBeanRegistry) registry;
       if (!this.localBeanNameGeneratorSet) {
-        BeanNameGenerator populator = (BeanNameGenerator) sbr.getSingleton(
-                AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
-        if (populator != null) {
-          this.importBeanNameGenerator = populator;
+        BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
+        if (generator != null) {
+          setBeanNameGenerator(generator);
         }
       }
     }
@@ -355,8 +344,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
       // Read the model and create bean definitions based on its content
       if (reader == null) {
-        this.reader = new ConfigurationClassBeanDefinitionReader(
-                bootstrapContext, importBeanNameGenerator, parser.importRegistry);
+        this.reader = new ConfigurationClassBeanDefinitionReader(bootstrapContext, importBeanNameGenerator, parser.importRegistry);
       }
       reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);

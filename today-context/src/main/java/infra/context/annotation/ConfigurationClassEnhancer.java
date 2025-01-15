@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,6 +187,7 @@ class ConfigurationClassEnhancer {
   private static class ConditionalCallbackFilter implements CallbackFilter {
 
     private final Callback[] callbacks;
+
     private final Class<?>[] callbackTypes;
 
     public ConditionalCallbackFilter(Callback[] callbacks) {
@@ -318,7 +319,7 @@ class ConfigurationClassEnhancer {
         if (factoryBean instanceof ScopedProxyFactoryBean) {
           // Scoped proxy factory beans are a special case and should not be further proxied
         }
-        else {
+        else if (factoryBean != null) {
           // It is a candidate FactoryBean - go ahead with enhancement
           return enhanceFactoryBean(factoryBean, beanMethod.getReturnType(), beanFactory, beanName);
         }
@@ -345,6 +346,7 @@ class ConfigurationClassEnhancer {
       return resolveBeanReference(beanMethod, beanMethodArgs, beanFactory, beanName);
     }
 
+    @Nullable
     private Object resolveBeanReference(Method beanMethod, Object[] beanMethodArgs,
             ConfigurableBeanFactory beanFactory, String beanName) {
 

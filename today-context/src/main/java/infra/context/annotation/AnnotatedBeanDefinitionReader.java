@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,7 +179,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    */
   @SuppressWarnings("unchecked")
   public void registerBean(Class<?> beanClass, Class<? extends Annotation>... qualifiers) {
-    doRegisterBean(beanClass, null, qualifiers, null, null);
+    doRegisterBean(beanClass, null, null, qualifiers, null);
   }
 
   /**
@@ -194,10 +194,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @throws BeanDefinitionStoreException if registration failed
    */
   @SuppressWarnings("unchecked")
-  public void registerBean(Class<?> beanClass, @Nullable String name,
-          Class<? extends Annotation>... qualifiers) {
-
-    doRegisterBean(beanClass, name, qualifiers, null, null);
+  public void registerBean(Class<?> beanClass, @Nullable String name, Class<? extends Annotation>... qualifiers) {
+    doRegisterBean(beanClass, name, null, qualifiers, null);
   }
 
   /**
@@ -211,7 +209,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @throws BeanDefinitionStoreException if registration failed
    */
   public <T> void registerBean(Class<T> beanClass, @Nullable Supplier<T> supplier) {
-    doRegisterBean(beanClass, null, null, supplier, null);
+    doRegisterBean(beanClass, null, supplier, null, null);
   }
 
   /**
@@ -227,7 +225,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @throws BeanDefinitionStoreException if registration failed
    */
   public <T> void registerBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier) {
-    doRegisterBean(beanClass, name, null, supplier, null);
+    doRegisterBean(beanClass, name, supplier, null, null);
   }
 
   /**
@@ -243,10 +241,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    * @throws BeanDefinitionStoreException if registration failed
    */
-  public <T> void registerBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier,
-          BeanDefinitionCustomizer... customizers) {
-
-    doRegisterBean(beanClass, name, null, supplier, customizers);
+  public <T> void registerBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
+    doRegisterBean(beanClass, name, supplier, null, customizers);
   }
 
   /**
@@ -263,9 +259,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    * @throws BeanDefinitionStoreException if registration failed
    */
-  private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name,
-          @Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
-          @Nullable BeanDefinitionCustomizer[] customizers) {
+  private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier,
+          @Nullable Class<? extends Annotation>[] qualifiers, @Nullable BeanDefinitionCustomizer[] customizers) {
 
     var definition = new AnnotatedGenericBeanDefinition(beanClass);
     if (this.conditionEvaluator.shouldSkip(definition.getMetadata())) {
@@ -299,8 +294,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     applyDynamicCustomizers(definition, customizers);
 
     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(definition, beanName);
-    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(
-            scopeMetadata, definitionHolder, this.registry);
+    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
     BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
   }
 
@@ -316,9 +310,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     return new StandardEnvironment();
   }
 
-  private void applyDynamicCustomizers(BeanDefinition definition,
-          @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
-
+  private void applyDynamicCustomizers(BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
       for (BeanDefinitionCustomizer dynamicCustomizer : dynamicCustomizers) {
