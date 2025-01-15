@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ public abstract class DurationFormatterUtils {
    * @return a duration
    */
   public static Duration parse(String value, DurationFormat.Style style, @Nullable DurationFormat.Unit unit) {
-    Assert.hasText(value, () -> "Value must not be empty");
+    Assert.hasText(value, "Value must not be empty");
     return switch (style) {
       case ISO8601 -> parseIso8601(value);
       case SIMPLE -> parseSimple(value, unit);
