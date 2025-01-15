@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.beans.factory.support;
 
 import infra.beans.factory.BeanDefinitionStoreException;
@@ -26,11 +27,11 @@ import infra.lang.Nullable;
  * Interface for registries that hold bean definitions, for example BeanDefinition.
  * Typically implemented by BeanFactories that internally work with the BeanDefinition hierarchy.
  *
- * <p>This is the only interface in Framework's bean factory packages that encapsulates
+ * <p>This is the only interface in Infra bean factory packages that encapsulates
  * <i>registration</i> of bean definitions. The standard BeanFactory interfaces
  * only cover access to a <i>fully configured factory instance</i>.
  *
- * <p>Framework's bean definition readers expect to work on an implementation of this
+ * <p>Infra bean definition readers expect to work on an implementation of this
  * interface. Known implementors within the Framework core are StandardBeanFactory
  * and DefaultApplicationContext.
  *

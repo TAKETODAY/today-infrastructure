@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void trace(String msg, Throwable t) {
+  public void trace(String msg, @Nullable Throwable t) {
     logInternal(Level.TRACE, msg, t);
   }
 
@@ -284,7 +284,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void info(String msg, Throwable t) {
+  public void info(String msg, @Nullable Throwable t) {
     logInternal(Level.INFO, msg, t, null);
   }
 
@@ -363,7 +363,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message accompanying the exception
    * @param t the exception (throwable) to log
    */
-  public void warn(String msg, Throwable t) {
+  public void warn(String msg, @Nullable Throwable t) {
     logInternal(Level.WARN, msg, t, null);
   }
 
@@ -399,7 +399,7 @@ public abstract class Logger implements Serializable {
     logInternal(Level.ERROR, format, null, new Object[] { arg });
   }
 
-  public void error(String format, Object arg, Throwable throwable) {
+  public void error(String format, Object arg, @Nullable Throwable throwable) {
     logInternal(Level.ERROR, format, throwable, new Object[] { arg });
   }
 
@@ -490,7 +490,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void warn(Object message, Throwable t) {
+  public void warn(Object message, @Nullable Throwable t) {
     logInternal(Level.WARN, message, t);
   }
 
@@ -509,7 +509,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void info(Object message, Throwable t) {
+  public void info(Object message, @Nullable Throwable t) {
     logInternal(Level.INFO, message, t);
   }
 
@@ -528,7 +528,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void debug(Object message, Throwable t) {
+  public void debug(Object message, @Nullable Throwable t) {
     logInternal(Level.DEBUG, message, t);
   }
 
@@ -547,7 +547,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    * @param t log this cause
    */
-  public void trace(Object message, Throwable t) {
+  public void trace(Object message, @Nullable Throwable t) {
     logInternal(Level.TRACE, message, t);
   }
 
@@ -563,7 +563,7 @@ public abstract class Logger implements Serializable {
     }
   }
 
-  protected void logInternal(Level level, Object msg, Throwable t) {
+  protected void logInternal(Level level, Object msg, @Nullable Throwable t) {
     if (isEnabled(level)) {
       String message = String.valueOf(msg);
       logInternal(level, message, t, null);
@@ -580,6 +580,6 @@ public abstract class Logger implements Serializable {
     };
   }
 
-  protected abstract void logInternal(Level level, String msg, Throwable t, @Nullable Object[] args);
+  protected abstract void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args);
 
 }

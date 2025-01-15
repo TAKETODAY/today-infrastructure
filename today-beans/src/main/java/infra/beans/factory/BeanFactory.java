@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -956,7 +956,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
     if (requiredType.isInstance(this)) {
       return (T) this;
     }
-    throw new IllegalArgumentException("This BeanFactory '" + this + "' is not a " + requiredType);
+    throw new IllegalArgumentException("This BeanFactory '%s' is not a %s".formatted(this, requiredType));
   }
 
 }

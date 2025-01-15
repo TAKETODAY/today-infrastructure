@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.logging;
 
 import java.io.Serial;
 import java.util.List;
+
+import infra.lang.Nullable;
 
 /**
  * Implementation of {@link Logger} that wraps a list of loggers and delegates
@@ -105,7 +107,7 @@ final class CompositeLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String msg, Throwable t, Object[] args) {
+  protected void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args) {
     logger(level).logInternal(level, msg, t, args);
   }
 

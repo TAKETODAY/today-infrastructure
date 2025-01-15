@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
 
 import java.io.Serial;
+
+import infra.lang.Nullable;
 
 /**
  * @author TODAY <br>
@@ -79,7 +81,7 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object message, Throwable t) {
+  protected void logInternal(Level level, Object message, @Nullable Throwable t) {
     if (message instanceof String) {
       // Explicitly pass a String argument, avoiding Log4j's argument expansion
       // for message objects in case of "{}" sequences
@@ -96,22 +98,28 @@ final class Log4j2Logger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
     final Message message = new Message() {
+
       @Serial
       private static final long serialVersionUID = 1L;
+
+      @Nullable
       private String msg;
 
+      @Nullable
       @Override
       public Throwable getThrowable() {
         return t;
       }
 
+      @Nullable
       @Override
       public Object[] getParameters() {
         return args;
       }
 
+      @Nullable
       @Override
       public String getFormattedMessage() {
         if (msg == null) {
@@ -120,6 +128,7 @@ final class Log4j2Logger extends Logger {
         return msg;
       }
 
+      @Nullable
       @Override
       public String getFormat() {
         return msg;

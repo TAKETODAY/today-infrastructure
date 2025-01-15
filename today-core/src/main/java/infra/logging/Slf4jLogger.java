@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,16 +21,19 @@ import org.slf4j.spi.LocationAwareLogger;
 
 import java.io.Serial;
 
+import infra.lang.Nullable;
+
 /**
- * @author TODAY <br>
- * 2019-11-03 13:55
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-11-03 13:55
  */
 class Slf4jLogger extends Logger {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  protected final String name;
+  private final String name;
+
   private final transient org.slf4j.Logger target;
 
   Slf4jLogger(org.slf4j.Logger target) {
@@ -65,7 +68,7 @@ class Slf4jLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
     final String msg = MessageFormatter.format(format, args);
     switch (level) {
       case DEBUG -> target.debug(msg, t);
@@ -105,7 +108,7 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
     log.log(null, FQCN, getLevel(level), format, args, t);
   }
 }
@@ -125,7 +128,7 @@ final class Slf4jLoggerFactory extends LoggerFactory {
   static Logger createLog(String name) {
     org.slf4j.Logger target = org.slf4j.LoggerFactory.getLogger(name);
     return target instanceof LocationAwareLogger ?
-           new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
+            new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
   }
 
 }

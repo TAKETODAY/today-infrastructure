@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.logging;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import infra.lang.Nullable;
 
 //contributors: lizongbo: proposed special treatment of array parameter values
 //Joern Huxhorn: pointed out double[] omission, suggested deep array copy
@@ -89,8 +92,8 @@ import java.util.Map;
  *
  * @author Ceki G&uuml;lc&uuml;
  * @author Joern Huxhorn
- * @author TODAY <br>
- * 2019-11-11 21:40
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-11-11 21:40
  */
 public final class MessageFormatter {
 
@@ -115,12 +118,13 @@ public final class MessageFormatter {
    * @param arg The argument to be substituted in place of the formatting anchor
    * @return The formatted message
    */
+  @Nullable
   public static String format(String messagePattern, Object arg) {
     return format(messagePattern, new Object[] { arg });
   }
 
-  public static String format(final String messagePattern, final Object[] argArray) {
-
+  @Nullable
+  public static String format(@Nullable String messagePattern, @Nullable final Object[] argArray) {
     if (messagePattern == null || argArray == null) {
       return messagePattern;
     }
@@ -184,7 +188,7 @@ public final class MessageFormatter {
   }
 
   // special treatment of array values was suggested by 'lizongbo'
-  private static void deeplyAppendParameter(StringBuilder sbuf, Object o, Map<Object[], Object> seenMap) {
+  private static void deeplyAppendParameter(StringBuilder sbuf, @Nullable Object o, Map<Object[], Object> seenMap) {
     if (o == null) {
       sbuf.append((String) null);
       return;
@@ -227,7 +231,7 @@ public final class MessageFormatter {
 
   private static void safeObjectAppend(StringBuilder sbuf, Object o) {
     try {
-      sbuf.append(o.toString());
+      sbuf.append(o);
     }
     catch (Throwable t) {
       System.err.printf("LOGGER: Failed toString() invocation on an object of type [%s]%n", o.getClass().getName());

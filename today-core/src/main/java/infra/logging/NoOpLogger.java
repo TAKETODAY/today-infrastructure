@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.logging;
 
 import java.io.Serial;
 
+import infra.lang.Nullable;
+
 /**
  * @author TODAY 2021/11/5 22:53
  * @since 4.0
@@ -28,7 +30,9 @@ public class NoOpLogger extends Logger {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public NoOpLogger() { super(false); }
+  public NoOpLogger() {
+    super(false);
+  }
 
   @Override
   public String getName() {
@@ -56,8 +60,12 @@ public class NoOpLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object msg, Throwable t) { }
+  protected void logInternal(Level level, Object msg, @Nullable Throwable t) {
+
+  }
 
   @Override
-  protected void logInternal(Level level, String msg, Throwable t, Object[] args) { }
+  protected void logInternal(Level level, String msg, @Nullable Throwable t, @Nullable Object[] args) {
+
+  }
 }

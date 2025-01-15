@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.logging;
 
 import java.io.IOException;
@@ -27,9 +28,11 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import infra.lang.Nullable;
+
 /**
- * @author TODAY <br>
- * 2019-11-03 14:45
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2019-11-03 14:45
  */
 final class JavaLoggingLogger extends infra.logging.Logger {
 
@@ -79,7 +82,7 @@ final class JavaLoggingLogger extends infra.logging.Logger {
   }
 
   @Override
-  protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+  protected void logInternal(Level level, String format, @Nullable Throwable t, @Nullable Object[] args) {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
     if (logger.isLoggable(levelToJavaLevel)) {
       String message = MessageFormatter.format(format, args);
