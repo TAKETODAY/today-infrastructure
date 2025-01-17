@@ -325,7 +325,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       if (!this.localBeanNameGeneratorSet) {
         BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
         if (generator != null) {
-          setBeanNameGenerator(generator);
+          this.importBeanNameGenerator = generator;
         }
       }
     }

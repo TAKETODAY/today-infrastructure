@@ -87,11 +87,11 @@ class ConfigurationClassBeanDefinitionReader {
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
   ConfigurationClassBeanDefinitionReader(BootstrapContext bootstrapContext,
-          BeanNameGenerator beanNameGenerator, ImportRegistry importRegistry) {
+          BeanNameGenerator importBeanNameGenerator, ImportRegistry importRegistry) {
 
     this.bootstrapContext = bootstrapContext;
     this.importRegistry = importRegistry;
-    this.importBeanNameGenerator = beanNameGenerator;
+    this.importBeanNameGenerator = importBeanNameGenerator;
   }
 
   /**
@@ -143,12 +143,12 @@ class ConfigurationClassBeanDefinitionReader {
 
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
     configBeanDef.setScope(scopeMetadata.getScopeName());
-    String configBeanName = bootstrapContext.generateBeanName(configBeanDef);
+    // import bean name
+    String configBeanName = importBeanNameGenerator.generateBeanName(configBeanDef, bootstrapContext.getRegistry());
     AnnotationConfigUtils.applyAnnotationMetadata(configBeanDef, false);
 
     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
-    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(
-            scopeMetadata, definitionHolder, bootstrapContext.getRegistry());
+    definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, bootstrapContext.getRegistry());
     bootstrapContext.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
     configClass.setBeanName(configBeanName);
 
