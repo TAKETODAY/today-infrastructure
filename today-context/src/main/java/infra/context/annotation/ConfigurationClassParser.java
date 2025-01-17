@@ -43,8 +43,10 @@ import infra.beans.factory.parsing.Problem;
 import infra.beans.factory.parsing.ProblemReporter;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.BeanDefinitionReader;
+import infra.beans.factory.support.BeanNameGenerator;
 import infra.context.ApplicationContextException;
 import infra.context.BootstrapContext;
+import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import infra.context.annotation.DeferredImportSelector.Group;
 import infra.core.OrderComparator;
@@ -60,7 +62,9 @@ import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.StandardAnnotationMetadata;
 import infra.core.type.classreading.MetadataReader;
+import infra.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import infra.core.type.filter.AssignableTypeFilter;
+import infra.core.type.filter.TypeFilter;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.logging.Logger;
@@ -109,8 +113,6 @@ class ConfigurationClassParser {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final ComponentScanAnnotationParser componentScanParser;
-
   private final LinkedHashMap<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
 
   private final MultiValueMap<String, ConfigurationClass> knownSuperclasses = new LinkedMultiValueMap<>();
@@ -132,7 +134,6 @@ class ConfigurationClassParser {
    */
   public ConfigurationClassParser(BootstrapContext bootstrapContext) {
     this.bootstrapContext = bootstrapContext;
-    this.componentScanParser = new ComponentScanAnnotationParser(bootstrapContext);
     this.propertySourceRegistry = bootstrapContext.getEnvironment() instanceof ConfigurableEnvironment ce ?
             new PropertySourceRegistry(ce, bootstrapContext) : null;
   }
@@ -297,8 +298,7 @@ class ConfigurationClassParser {
       }
       for (MergedAnnotation<ComponentScan> componentScan : componentScans) {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
-        Set<BeanDefinitionHolder> scannedBeanDefinitions =
-                componentScanParser.parse(componentScan, sourceClass.metadata.getClassName());
+        Set<BeanDefinitionHolder> scannedBeanDefinitions = parseComponentScan(componentScan, sourceClass.metadata.getClassName());
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
         for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
           BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
@@ -677,6 +677,79 @@ class ConfigurationClassParser {
               .orElse(null);
     }
     return null;
+  }
+
+  /**
+   * Parse for the @{@link ComponentScan} annotation.
+   *
+   * @see ClassPathBeanDefinitionScanner#scan(String...)
+   * @since 5.0
+   */
+  Set<BeanDefinitionHolder> parseComponentScan(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
+    var scanner = new ClassPathBeanDefinitionScanner(
+            bootstrapContext.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
+            bootstrapContext.getEnvironment(), bootstrapContext.getResourceLoader());
+
+    var generatorClass = componentScan.<BeanNameGenerator>getClass("nameGenerator");
+    scanner.setBeanNameGenerator(BeanNameGenerator.class == generatorClass
+            ? bootstrapContext.getBeanNameGenerator()
+            : bootstrapContext.instantiate(generatorClass));
+
+    var scopedProxyMode = componentScan.getEnum("scopedProxy", ScopedProxyMode.class);
+    if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
+      scanner.setScopedProxyMode(scopedProxyMode);
+    }
+    else {
+      var resolverClass = componentScan.<ScopeMetadataResolver>getClass("scopeResolver");
+      if (resolverClass != ScopeMetadataResolver.class) {
+        scanner.setScopeMetadataResolver(bootstrapContext.instantiate(resolverClass));
+      }
+    }
+
+    scanner.setResourcePattern(componentScan.getString("resourcePattern"));
+
+    for (var includeFilter : componentScan.getAnnotationArray("includeFilters", ComponentScan.Filter.class)) {
+      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(includeFilter, bootstrapContext);
+      for (TypeFilter typeFilter : typeFilters) {
+        scanner.addIncludeFilter(typeFilter);
+      }
+    }
+    for (var excludeFilter : componentScan.getAnnotationArray("excludeFilters", ComponentScan.Filter.class)) {
+      List<TypeFilter> typeFilters = TypeFilterUtils.createTypeFiltersFor(excludeFilter, bootstrapContext);
+      for (TypeFilter typeFilter : typeFilters) {
+        scanner.addExcludeFilter(typeFilter);
+      }
+    }
+
+    boolean lazyInit = componentScan.getBoolean("lazyInit");
+    if (lazyInit) {
+      scanner.getBeanDefinitionDefaults().setLazyInit(true);
+    }
+
+    LinkedHashSet<String> basePackages = new LinkedHashSet<>();
+    String[] basePackagesArray = componentScan.getStringArray("basePackages");
+    for (String pkg : basePackagesArray) {
+      String[] tokenized = StringUtils.tokenizeToStringArray(
+              bootstrapContext.evaluateExpression(pkg), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+      Collections.addAll(basePackages, tokenized);
+    }
+    for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {
+      basePackages.add(ClassUtils.getPackageName(clazz));
+    }
+    if (basePackages.isEmpty()) {
+      basePackages.add(ClassUtils.getPackageName(declaringClass));
+    }
+
+    scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
+
+      @Override
+      protected boolean matchClassName(String className) {
+        return declaringClass.equals(className);
+      }
+    });
+
+    scanner.setMetadataReaderFactory(bootstrapContext.getMetadataReaderFactory());
+    return scanner.collectHolders(StringUtils.toStringArray(basePackages));
   }
 
   private class DeferredImportSelectorHandler {
