@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,11 @@
 
 package infra.app.io;
 
-import java.util.Base64;
-
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ProtocolResolver;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
+import infra.util.Base64Utils;
 
 /**
  * {@link ProtocolResolver} for resources containing base 64 encoded text.
@@ -39,13 +38,9 @@ class Base64ProtocolResolver implements ProtocolResolver {
   public Resource resolve(String location, ResourceLoader resourceLoader) {
     if (location.startsWith(BASE64_PREFIX)) {
       String value = location.substring(BASE64_PREFIX.length());
-      return new ByteArrayResource(decode(value));
+      return new ByteArrayResource(Base64Utils.decodeFromString(value));
     }
     return null;
-  }
-
-  private static byte[] decode(String location) {
-    return Base64.getDecoder().decode(location);
   }
 
 }
