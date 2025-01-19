@@ -160,8 +160,8 @@ final class HttpRequestValuesInitializer {
     if (value2 instanceof String m && StringUtils.hasText(m)) {
       return HttpMethod.valueOf(m);
     }
-    else if (value2 instanceof HttpMethod m) {
-      return m;
+    else if (value2 instanceof HttpMethod[] m && m.length > 0) {
+      return m[0];
     }
 
     if (typeAnnot != null) {
@@ -169,8 +169,8 @@ final class HttpRequestValuesInitializer {
       if (value1 instanceof String m && StringUtils.hasText(m)) {
         return HttpMethod.valueOf(m);
       }
-      else if (value1 instanceof HttpMethod m) {
-        return m;
+      else if (value1 instanceof HttpMethod[] m && m.length > 0) {
+        return m[0];
       }
     }
     return null;

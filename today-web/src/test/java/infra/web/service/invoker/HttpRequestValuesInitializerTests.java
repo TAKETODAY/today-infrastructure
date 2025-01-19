@@ -19,14 +19,17 @@ package infra.web.service.invoker;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import infra.core.StringValueResolver;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
+import infra.http.HttpMethod;
 import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 import infra.web.annotation.GET;
+import infra.web.annotation.POST;
 import infra.web.annotation.RequestMapping;
 import infra.web.service.annotation.GetExchange;
 import infra.web.service.annotation.HttpExchange;
@@ -93,6 +96,30 @@ class HttpRequestValuesInitializerTests {
 
   }
 
+  @Test
+  void initHttpMethod() throws Exception {
+    Method execute = MethodService.class.getDeclaredMethod("execute");
+    var initializer = HttpRequestValuesInitializer.create(execute, MethodService.class, null, HttpRequestValues::builder);
+    assertThat(initializer).extracting("httpMethod").isEqualTo(HttpMethod.POST);
+    assertThat(initializer).extracting("url").isNull();
+    assertThat(initializer).extracting("contentType").isNull();
+    assertThat(initializer).extracting("acceptMediaTypes").isNull();
+    assertThat(initializer).extracting("otherHeaders").isNull();
+    assertThat(initializer).extracting("params").isNull();
+    assertThat(initializer).extracting("requestValuesSupplier").isNotNull();
+
+    Method executePath = MethodService.class.getDeclaredMethod("executePath");
+    initializer = HttpRequestValuesInitializer.create(executePath, MethodService.class, null, HttpRequestValues::builder);
+    assertThat(initializer).extracting("httpMethod").isEqualTo(HttpMethod.POST);
+    assertThat(initializer).extracting("url").isNull();
+    assertThat(initializer).extracting("contentType").isNull();
+    assertThat(initializer).extracting("acceptMediaTypes").isNull();
+    assertThat(initializer).extracting("otherHeaders").isNull();
+    assertThat(initializer).extracting("params").isNull();
+    assertThat(initializer).extracting("requestValuesSupplier").isNotNull();
+
+  }
+
   @Nullable
   MultiValueMap<String, String> initParams(@Nullable MergedAnnotation<?> typeAnnotation,
           MergedAnnotation<?> methodAnnotation, @Nullable StringValueResolver embeddedValueResolver) {
@@ -120,4 +147,16 @@ class HttpRequestValuesInitializerTests {
     void headers();
 
   }
+
+  @HttpExchange
+  interface MethodService {
+
+    @POST
+    void execute();
+
+    @POST("")
+    void executePath();
+
+  }
+
 }
