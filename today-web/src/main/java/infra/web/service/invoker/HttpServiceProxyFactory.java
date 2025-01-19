@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,11 +34,14 @@ import infra.aop.framework.ProxyFactory;
 import infra.core.MethodIntrospector;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.StringValueResolver;
-import infra.core.annotation.AnnotatedElementUtils;
+import infra.core.annotation.MergedAnnotations;
+import infra.core.annotation.MergedAnnotations.SearchStrategy;
+import infra.core.annotation.RepeatableContainers;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.web.annotation.RequestMapping;
 import infra.web.client.reactive.support.WebClientAdapter;
 import infra.web.service.annotation.HttpExchange;
 
@@ -64,8 +67,7 @@ public final class HttpServiceProxyFactory {
   private final StringValueResolver embeddedValueResolver;
 
   private HttpServiceProxyFactory(HttpExchangeAdapter exchangeAdapter,
-          List<HttpServiceArgumentResolver> argumentResolvers,
-          @Nullable StringValueResolver embeddedValueResolver) {
+          List<HttpServiceArgumentResolver> argumentResolvers, @Nullable StringValueResolver embeddedValueResolver) {
 
     this.exchangeAdapter = exchangeAdapter;
     this.argumentResolvers = argumentResolvers;
@@ -90,7 +92,9 @@ public final class HttpServiceProxyFactory {
   }
 
   private boolean isExchangeMethod(Method method) {
-    return AnnotatedElementUtils.hasAnnotation(method, HttpExchange.class);
+    var annotations = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE);
+    return annotations.isPresent(HttpExchange.class)
+            || annotations.isPresent(RequestMapping.class);
   }
 
   private <S> HttpServiceMethod createHttpServiceMethod(Class<S> serviceType, Method method) {
@@ -238,7 +242,7 @@ public final class HttpServiceProxyFactory {
       List<HttpServiceArgumentResolver> resolvers = new ArrayList<>(customArgumentResolvers);
 
       ConversionService service = (conversionService != null ?
-                                   conversionService : new DefaultFormattingConversionService());
+              conversionService : new DefaultFormattingConversionService());
 
       // Annotation-based
       resolvers.add(new RequestHeaderArgumentResolver(service));

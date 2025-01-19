@@ -20,7 +20,6 @@ package infra.web.service.invoker;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +35,7 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.lang.VisibleForTesting;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -58,12 +58,16 @@ final class HttpRequestValuesInitializer {
 
   @Nullable
   private final String url;
+
   @Nullable
   private final MediaType contentType;
+
   @Nullable
   private final List<MediaType> acceptMediaTypes;
+
   @Nullable
   private final MultiValueMap<String, String> otherHeaders;
+
   @Nullable
   private final MultiValueMap<String, String> params;
 
@@ -143,8 +147,8 @@ final class HttpRequestValuesInitializer {
     MediaType contentType = initContentType(typeAnnotation, methodAnnotation);
     List<MediaType> acceptableMediaTypes = initAccept(typeAnnotation, methodAnnotation);
 
-    MultiValueMap<String, String> params = initParams(typeAnnotation, methodAnnotation, embeddedValueResolver);
-    MultiValueMap<String, String> headers = initHeaders(typeAnnotation, methodAnnotation, embeddedValueResolver);
+    var params = initKeyValues("params", typeAnnotation, methodAnnotation, embeddedValueResolver);
+    var headers = initKeyValues("headers", typeAnnotation, methodAnnotation, embeddedValueResolver);
 
     return new HttpRequestValuesInitializer(
             httpMethod, url, contentType, acceptableMediaTypes, headers, params, requestValuesSupplier);
@@ -186,7 +190,7 @@ final class HttpRequestValuesInitializer {
 
     String url2 = annot.getValue("url", String.class);
     if (url2 == null) {
-      url2 = annot.getString("path");
+      url2 = annot.getValue("path", String.class, "");
     }
 
     if (embeddedValueResolver != null) {
@@ -222,7 +226,7 @@ final class HttpRequestValuesInitializer {
 
     String value2 = annot.getValue("contentType", String.class);
     if (value2 == null) {
-      value2 = annot.getString("consumes");
+      value2 = annot.getValue("consumes", String.class);
     }
 
     if (StringUtils.hasText(value2)) {
@@ -248,7 +252,7 @@ final class HttpRequestValuesInitializer {
 
     String[] value2 = annot.getValue("accept", String[].class);
     if (value2 == null) {
-      value2 = annot.getStringArray("produces");
+      value2 = annot.getValue("produces", String[].class);
     }
 
     if (ObjectUtils.isNotEmpty(value2)) {
@@ -263,43 +267,31 @@ final class HttpRequestValuesInitializer {
   }
 
   @Nullable
-  private static MultiValueMap<String, String> initHeaders(@Nullable MergedAnnotation<?> typeAnnotation,
+  @VisibleForTesting
+  static MultiValueMap<String, String> initKeyValues(String attributeName, @Nullable MergedAnnotation<?> typeAnnotation,
           MergedAnnotation<?> methodAnnotation, @Nullable StringValueResolver embeddedValueResolver) {
 
-    var methodLevelHeaders = parseKeyValuePair(methodAnnotation.getStringArray("headers"), embeddedValueResolver);
-    if (CollectionUtils.isNotEmpty(methodLevelHeaders)) {
-      return methodLevelHeaders;
-    }
-
-    MultiValueMap<String, String> typeLevelHeaders = typeAnnotation != null ?
-            parseKeyValuePair(typeAnnotation.getStringArray("headers"), embeddedValueResolver) : null;
-    if (CollectionUtils.isNotEmpty(typeLevelHeaders)) {
-      return typeLevelHeaders;
-    }
-
-    return null;
-  }
-
-  @Nullable
-  private static MultiValueMap<String, String> initParams(@Nullable MergedAnnotation<?> typeAnnotation,
-          MergedAnnotation<?> methodAnnotation, @Nullable StringValueResolver embeddedValueResolver) {
-    String[] params = methodAnnotation.getValue("params", String[].class);
-
-    if (params != null) {
-      var methodLevelHeaders = parseKeyValuePair(params, embeddedValueResolver);
-      if (CollectionUtils.isNotEmpty(methodLevelHeaders)) {
-        return methodLevelHeaders;
-      }
-    }
-
+    MultiValueMap<String, String> paramsMap = null;
     if (typeAnnotation != null) {
-      params = typeAnnotation.getValue("params", String[].class);
-      if (params != null) {
-        var methodLevelHeaders = parseKeyValuePair(params, embeddedValueResolver);
-        if (CollectionUtils.isNotEmpty(methodLevelHeaders)) {
-          return methodLevelHeaders;
-        }
+      String[] params = typeAnnotation.getValue(attributeName, String[].class);
+      if (ObjectUtils.isNotEmpty(params)) {
+        paramsMap = parseKeyValuePair(params, embeddedValueResolver);
       }
+    }
+
+    String[] params = methodAnnotation.getValue(attributeName, String[].class);
+    if (ObjectUtils.isNotEmpty(params)) {
+      var methodLevelParams = parseKeyValuePair(params, embeddedValueResolver);
+      if (paramsMap != null) {
+        paramsMap.setAll(methodLevelParams);
+      }
+      else {
+        paramsMap = methodLevelParams;
+      }
+    }
+
+    if (CollectionUtils.isNotEmpty(paramsMap)) {
+      return paramsMap;
     }
     return null;
   }
@@ -310,19 +302,19 @@ final class HttpRequestValuesInitializer {
       String[] kvPair = StringUtils.split(string, "=");
       if (kvPair != null) {
         String name = kvPair[0].trim();
-        ArrayList<String> values = new ArrayList<>();
         Set<String> parsedValues = StringUtils.commaDelimitedListToSet(kvPair[1]);
-        for (String value : parsedValues) {
-          if (embeddedValueResolver != null) {
-            value = embeddedValueResolver.resolveStringValue(value);
-          }
-          if (value != null) {
-            value = value.trim();
-            values.add(value);
-          }
+        if (parsedValues.isEmpty()) {
+          kv.add(name, "");
         }
-        if (!values.isEmpty()) {
-          kv.addAll(name, values);
+        else {
+          for (String value : parsedValues) {
+            if (embeddedValueResolver != null) {
+              value = embeddedValueResolver.resolveStringValue(value);
+            }
+            if (value != null) {
+              kv.add(name, value.trim());
+            }
+          }
         }
       }
       else if (StringUtils.hasText(string)) {
