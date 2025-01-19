@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,56 +45,56 @@ class MergedAnnotationMetadataVisitorTests {
   void visitWhenHasSimpleTypesCreatesAnnotation() {
     loadFrom(WithSimpleTypesAnnotation.class);
     assertThat(this.annotation.getType()).isEqualTo(SimpleTypesAnnotation.class);
-    assertThat(this.annotation.getValue("stringValue")).contains("string");
-    assertThat(this.annotation.getValue("byteValue")).contains((byte) 1);
-    assertThat(this.annotation.getValue("shortValue")).contains((short) 2);
-    assertThat(this.annotation.getValue("intValue")).contains(3);
-    assertThat(this.annotation.getValue("longValue")).contains(4L);
-    assertThat(this.annotation.getValue("booleanValue")).contains(true);
-    assertThat(this.annotation.getValue("charValue")).contains('c');
-    assertThat(this.annotation.getValue("doubleValue")).contains(5.0);
-    assertThat(this.annotation.getValue("floatValue")).contains(6.0f);
+    assertThat(this.annotation.getValue("stringValue")).isEqualTo("string");
+    assertThat(this.annotation.getValue("byteValue")).isEqualTo((byte) 1);
+    assertThat(this.annotation.getValue("shortValue")).isEqualTo((short) 2);
+    assertThat(this.annotation.getValue("intValue")).isEqualTo(3);
+    assertThat(this.annotation.getValue("longValue")).isEqualTo(4L);
+    assertThat(this.annotation.getValue("booleanValue")).isEqualTo(true);
+    assertThat(this.annotation.getValue("charValue")).isEqualTo('c');
+    assertThat(this.annotation.getValue("doubleValue")).isEqualTo(5.0);
+    assertThat(this.annotation.getValue("floatValue")).isEqualTo(6.0f);
   }
 
   @Test
   void visitWhenHasSimpleArrayTypesCreatesAnnotation() {
     loadFrom(WithSimpleArrayTypesAnnotation.class);
     assertThat(this.annotation.getType()).isEqualTo(SimpleArrayTypesAnnotation.class);
-    assertThat(this.annotation.getValue("stringValue")).contains(
+    assertThat(this.annotation.getValue("stringValue")).isEqualTo(
             new String[] { "string" });
-    assertThat(this.annotation.getValue("byteValue")).contains(new byte[] { 1 });
-    assertThat(this.annotation.getValue("shortValue")).contains(new short[] { 2 });
-    assertThat(this.annotation.getValue("intValue")).contains(new int[] { 3 });
-    assertThat(this.annotation.getValue("longValue")).contains(new long[] { 4 });
-    assertThat(this.annotation.getValue("booleanValue")).contains(
+    assertThat(this.annotation.getValue("byteValue")).isEqualTo(new byte[] { 1 });
+    assertThat(this.annotation.getValue("shortValue")).isEqualTo(new short[] { 2 });
+    assertThat(this.annotation.getValue("intValue")).isEqualTo(new int[] { 3 });
+    assertThat(this.annotation.getValue("longValue")).isEqualTo(new long[] { 4 });
+    assertThat(this.annotation.getValue("booleanValue")).isEqualTo(
             new boolean[] { true });
-    assertThat(this.annotation.getValue("charValue")).contains(new char[] { 'c' });
-    assertThat(this.annotation.getValue("doubleValue")).contains(
+    assertThat(this.annotation.getValue("charValue")).isEqualTo(new char[] { 'c' });
+    assertThat(this.annotation.getValue("doubleValue")).isEqualTo(
             new double[] { 5.0 });
-    assertThat(this.annotation.getValue("floatValue")).contains(new float[] { 6.0f });
+    assertThat(this.annotation.getValue("floatValue")).isEqualTo(new float[] { 6.0f });
   }
 
   @Test
   void visitWhenHasEmptySimpleArrayTypesCreatesAnnotation() {
     loadFrom(WithSimpleEmptyArrayTypesAnnotation.class);
     assertThat(this.annotation.getType()).isEqualTo(SimpleArrayTypesAnnotation.class);
-    assertThat(this.annotation.getValue("stringValue")).contains(new String[] {});
-    assertThat(this.annotation.getValue("byteValue")).contains(new byte[] {});
-    assertThat(this.annotation.getValue("shortValue")).contains(new short[] {});
-    assertThat(this.annotation.getValue("intValue")).contains(new int[] {});
-    assertThat(this.annotation.getValue("longValue")).contains(new long[] {});
-    assertThat(this.annotation.getValue("booleanValue")).contains(new boolean[] {});
-    assertThat(this.annotation.getValue("charValue")).contains(new char[] {});
-    assertThat(this.annotation.getValue("doubleValue")).contains(new double[] {});
-    assertThat(this.annotation.getValue("floatValue")).contains(new float[] {});
+    assertThat(this.annotation.getValue("stringValue")).isEqualTo(new String[] {});
+    assertThat(this.annotation.getValue("byteValue")).isEqualTo(new byte[] {});
+    assertThat(this.annotation.getValue("shortValue")).isEqualTo(new short[] {});
+    assertThat(this.annotation.getValue("intValue")).isEqualTo(new int[] {});
+    assertThat(this.annotation.getValue("longValue")).isEqualTo(new long[] {});
+    assertThat(this.annotation.getValue("booleanValue")).isEqualTo(new boolean[] {});
+    assertThat(this.annotation.getValue("charValue")).isEqualTo(new char[] {});
+    assertThat(this.annotation.getValue("doubleValue")).isEqualTo(new double[] {});
+    assertThat(this.annotation.getValue("floatValue")).isEqualTo(new float[] {});
   }
 
   @Test
   void visitWhenHasEnumAttributesCreatesAnnotation() {
     loadFrom(WithEnumAnnotation.class);
     assertThat(this.annotation.getType()).isEqualTo(EnumAnnotation.class);
-    assertThat(this.annotation.getValue("enumValue")).contains(ExampleEnum.ONE);
-    assertThat(this.annotation.getValue("enumArrayValue")).contains(
+    assertThat(this.annotation.getValue("enumValue")).isEqualTo(ExampleEnum.ONE);
+    assertThat(this.annotation.getValue("enumArrayValue")).isEqualTo(
             new ExampleEnum[] { ExampleEnum.ONE, ExampleEnum.TWO });
   }
 
@@ -119,9 +119,9 @@ class MergedAnnotationMetadataVisitorTests {
     assertThat(this.annotation.getType()).isEqualTo(ClassAnnotation.class);
     assertThat(this.annotation.getString("classValue")).isEqualTo(InputStream.class.getName());
     assertThat(this.annotation.getClass("classValue")).isEqualTo(InputStream.class);
-    assertThat(this.annotation.getValue("classValue")).contains(InputStream.class);
+    assertThat(this.annotation.getValue("classValue")).isEqualTo(InputStream.class);
     assertThat(this.annotation.getStringArray("classArrayValue")).containsExactly(OutputStream.class.getName());
-    assertThat(this.annotation.getValue("classArrayValue")).contains(new Class<?>[] { OutputStream.class });
+    assertThat(this.annotation.getValue("classArrayValue")).isEqualTo(new Class<?>[] { OutputStream.class });
   }
 
   private void loadFrom(Class<?> type) {

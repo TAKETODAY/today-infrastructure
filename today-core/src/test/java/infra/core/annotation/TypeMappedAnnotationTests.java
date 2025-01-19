@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,18 +79,18 @@ class TypeMappedAnnotationTests {
     }
     MergedAnnotation<ArrayTypes> annotation = TypeMappedAnnotation.of(null, null,
             ArrayTypes.class, attributes);
-    assertThat(annotation.getValue("stringValue")).contains(new String[] {});
-    assertThat(annotation.getValue("byteValue")).contains(new byte[] {});
-    assertThat(annotation.getValue("shortValue")).contains(new short[] {});
-    assertThat(annotation.getValue("intValue")).contains(new int[] {});
-    assertThat(annotation.getValue("longValue")).contains(new long[] {});
-    assertThat(annotation.getValue("booleanValue")).contains(new boolean[] {});
-    assertThat(annotation.getValue("charValue")).contains(new char[] {});
-    assertThat(annotation.getValue("doubleValue")).contains(new double[] {});
-    assertThat(annotation.getValue("floatValue")).contains(new float[] {});
-    assertThat(annotation.getValue("classValue")).contains(new Class<?>[] {});
-    assertThat(annotation.getValue("annotationValue")).contains(new MergedAnnotation<?>[] {});
-    assertThat(annotation.getValue("enumValue")).contains(new ExampleEnum[] {});
+    assertThat(annotation.getValue("stringValue")).isEqualTo(new String[] {});
+    assertThat(annotation.getValue("byteValue")).isEqualTo(new byte[] {});
+    assertThat(annotation.getValue("shortValue")).isEqualTo(new short[] {});
+    assertThat(annotation.getValue("intValue")).isEqualTo(new int[] {});
+    assertThat(annotation.getValue("longValue")).isEqualTo(new long[] {});
+    assertThat(annotation.getValue("booleanValue")).isEqualTo(new boolean[] {});
+    assertThat(annotation.getValue("charValue")).isEqualTo(new char[] {});
+    assertThat(annotation.getValue("doubleValue")).isEqualTo(new double[] {});
+    assertThat(annotation.getValue("floatValue")).isEqualTo(new float[] {});
+    assertThat(annotation.getValue("classValue")).isEqualTo(new Class<?>[] {});
+    assertThat(annotation.getValue("annotationValue")).isEqualTo(new MergedAnnotation<?>[] {});
+    assertThat(annotation.getValue("enumValue")).isEqualTo(new ExampleEnum[] {});
   }
 
   @Test

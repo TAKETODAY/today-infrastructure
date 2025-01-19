@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -794,7 +794,6 @@ class StringUtilsTests {
   }
 
   @Test
-
   void parseLocaleWithVariantContainingCountryCode() {
     String variant = "GBtest";
     String localeString = "en_GB_" + variant;
@@ -808,7 +807,6 @@ class StringUtilsTests {
   }
 
   @Test
-
   void availableLocalesWithLocaleString() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocaleString(locale.toString());
@@ -822,7 +820,6 @@ class StringUtilsTests {
   }
 
   @Test
-
   void availableLocalesWithLanguageTag() {
     for (Locale locale : Locale.getAvailableLocales()) {
       Locale parsedLocale = StringUtils.parseLocale(locale.toLanguageTag());
@@ -857,6 +854,8 @@ class StringUtilsTests {
     assertThat(StringUtils.split(",Hello world", ",")).containsExactly("", "Hello world");
     assertThat(StringUtils.split("Hello world,", ",")).containsExactly("Hello world", "");
     assertThat(StringUtils.split("Hello, world,", ",")).containsExactly("Hello", " world,");
+    assertThat(StringUtils.split("key=", "=")).containsExactly("key", "");
+    assertThat(StringUtils.split("key", "=")).isNull();
   }
 
   @Test
