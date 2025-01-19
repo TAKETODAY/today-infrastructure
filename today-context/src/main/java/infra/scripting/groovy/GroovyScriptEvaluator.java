@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.groovy;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
@@ -36,6 +37,7 @@ import infra.scripting.support.ResourceScriptSource;
  * Groovy-based implementation of Framework's {@link ScriptEvaluator} strategy interface.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see GroovyShell#evaluate(String, String)
  * @since 4.0
  */
@@ -107,7 +109,7 @@ public class GroovyScriptEvaluator implements ScriptEvaluator, BeanClassLoaderAw
             this.classLoader, new Binding(arguments), this.compilerConfiguration);
     try {
       String filename = script instanceof ResourceScriptSource ?
-                        ((ResourceScriptSource) script).getResource().getName() : null;
+              ((ResourceScriptSource) script).getResource().getName() : null;
       if (filename != null) {
         return groovyShell.evaluate(script.getScriptAsString(), filename);
       }

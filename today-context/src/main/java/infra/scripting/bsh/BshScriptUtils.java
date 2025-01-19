@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.bsh;
 
 import java.lang.reflect.InvocationHandler;
@@ -36,6 +37,7 @@ import infra.util.ReflectionUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class BshScriptUtils {
@@ -152,10 +154,7 @@ public abstract class BshScriptUtils {
    * @return the scripted Java class or Java object
    * @throws EvalError in case of BeanShell parsing failure
    */
-  static Object evaluateBshScript(
-          String scriptSource, @Nullable Class<?>[] scriptInterfaces, @Nullable ClassLoader classLoader)
-          throws EvalError {
-
+  static Object evaluateBshScript(String scriptSource, @Nullable Class<?>[] scriptInterfaces, @Nullable ClassLoader classLoader) throws EvalError {
     Assert.hasText(scriptSource, "Script source must not be empty");
     Interpreter interpreter = new Interpreter();
     interpreter.setClassLoader(classLoader);
@@ -189,7 +188,7 @@ public abstract class BshScriptUtils {
         return this.xt.hashCode();
       }
       else if (ReflectionUtils.isToStringMethod(method)) {
-        return "BeanShell object [" + this.xt + "]";
+        return "BeanShell object [%s]".formatted(this.xt);
       }
       try {
         Object result = this.xt.invokeMethod(method.getName(), args);

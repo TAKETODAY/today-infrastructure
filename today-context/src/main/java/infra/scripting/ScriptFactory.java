@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import infra.scripting.support.ScriptFactoryPostProcessor;
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #getScriptSourceLocator
  * @see #getScriptedObject
  * @since 4.0
@@ -100,7 +102,6 @@ public interface ScriptFactory {
    * if none could be determined
    * @throws IOException if script retrieval failed
    * @throws ScriptCompilationException if script compilation failed
-   * @since 4.0
    */
   @Nullable
   Class<?> getScriptedObjectType(ScriptSource scriptSource)
@@ -114,7 +115,6 @@ public interface ScriptFactory {
    * the script source text from (never {@code null})
    * @return whether a fresh {@link #getScriptedObject} call is required
    * @see ScriptSource#isModified()
-   * @since 4.0
    */
   boolean requiresScriptedObjectRefresh(ScriptSource scriptSource);
 

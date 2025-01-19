@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.support;
 
 import java.util.LinkedHashSet;
@@ -31,6 +32,7 @@ import javax.script.SimpleBindings;
  * Common operations for dealing with a JSR-223 {@link ScriptEngine}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class StandardScriptUtils {
@@ -62,13 +64,13 @@ public abstract class StandardScriptUtils {
           }
           catch (Throwable ex) {
             throw new IllegalStateException(
-                    "Script engine with name '" + engineName + "' failed to initialize", ex);
+                    "Script engine with name '%s' failed to initialize".formatted(engineName), ex);
           }
         }
         engineNames.addAll(factoryNames);
       }
-      throw new IllegalArgumentException("Script engine with name '" + engineName +
-              "' not found; registered engine names: " + engineNames);
+      throw new IllegalArgumentException("Script engine with name '%s' not found; registered engine names: %s"
+              .formatted(engineName, engineNames));
     }
     return engine;
   }

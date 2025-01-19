@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.groovy;
 
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -55,6 +56,7 @@ import infra.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see groovy.lang.GroovyClassLoader
  * @see ScriptFactoryPostProcessor
  * @since 4.0
@@ -189,7 +191,7 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    */
   protected GroovyClassLoader buildGroovyClassLoader(@Nullable ClassLoader classLoader) {
     return compilerConfiguration != null ?
-           new GroovyClassLoader(classLoader, this.compilerConfiguration) : new GroovyClassLoader(classLoader);
+            new GroovyClassLoader(classLoader, this.compilerConfiguration) : new GroovyClassLoader(classLoader);
   }
 
   @Override
@@ -364,9 +366,6 @@ public class GroovyScriptFactory implements ScriptFactory, BeanFactoryAware, Bea
    */
   private record CachedResultHolder(@Nullable Object object) {
 
-    private CachedResultHolder(@Nullable Object object) {
-      this.object = object;
-    }
   }
 
 }

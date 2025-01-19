@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.support;
 
 import infra.aop.target.BeanFactoryRefreshableTargetSource;
@@ -29,6 +30,7 @@ import infra.scripting.ScriptSource;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Mark Fisher
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class RefreshableScriptTargetSource extends BeanFactoryRefreshableTargetSource {
@@ -49,8 +51,7 @@ public class RefreshableScriptTargetSource extends BeanFactoryRefreshableTargetS
    * @param scriptSource the ScriptSource for the script definition
    * @param isFactoryBean whether the target script defines a FactoryBean
    */
-  public RefreshableScriptTargetSource(
-          BeanFactory beanFactory, String beanName,
+  public RefreshableScriptTargetSource(BeanFactory beanFactory, String beanName,
           ScriptFactory scriptFactory, ScriptSource scriptSource, boolean isFactoryBean) {
 
     super(beanFactory, beanName);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,10 +117,10 @@ import infra.util.StringUtils;
  * @author Rick Evans
  * @author Mark Fisher
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-public class ScriptFactoryPostProcessor
-        implements SmartInstantiationAwareBeanPostProcessor,
+public class ScriptFactoryPostProcessor implements SmartInstantiationAwareBeanPostProcessor,
         BeanClassLoaderAware, BeanFactoryAware, ResourceLoaderAware, DisposableBean, Ordered {
 
   /**
@@ -339,8 +339,7 @@ public class ScriptFactoryPostProcessor
    * @param scriptFactoryBeanName the name of the internal ScriptFactory bean
    * @param scriptedObjectBeanName the name of the internal scripted object bean
    */
-  protected void prepareScriptBeans(
-          BeanDefinition bd, String scriptFactoryBeanName, String scriptedObjectBeanName) {
+  protected void prepareScriptBeans(BeanDefinition bd, String scriptFactoryBeanName, String scriptedObjectBeanName) {
     // Avoid recreation of the script bean definition in case of a prototype.
     synchronized(scriptBeanFactory) {
       if (!scriptBeanFactory.containsBeanDefinition(scriptedObjectBeanName)) {
@@ -410,9 +409,8 @@ public class ScriptFactoryPostProcessor
       proxyTargetClass = Boolean.parseBoolean((String) attributeValue);
     }
     else if (attributeValue != null) {
-      throw new BeanDefinitionStoreException("Invalid proxy target class attribute [" +
-              PROXY_TARGET_CLASS_ATTRIBUTE + "] with value '" + attributeValue +
-              "': needs to be of type Boolean or String");
+      throw new BeanDefinitionStoreException("Invalid proxy target class attribute [%s] with value '%s': needs to be of type Boolean or String"
+              .formatted(PROXY_TARGET_CLASS_ATTRIBUTE, attributeValue));
     }
     return proxyTargetClass;
   }
@@ -458,9 +456,7 @@ public class ScriptFactoryPostProcessor
    * @param resourceLoader the ResourceLoader to use (if necessary)
    * @return the ScriptSource instance
    */
-  protected ScriptSource convertToScriptSource(
-          String beanName, String scriptSourceLocator, ResourceLoader resourceLoader) {
-
+  protected ScriptSource convertToScriptSource(String beanName, String scriptSourceLocator, ResourceLoader resourceLoader) {
     if (scriptSourceLocator.startsWith(INLINE_SCRIPT_PREFIX)) {
       return new StaticScriptSource(scriptSourceLocator.substring(INLINE_SCRIPT_PREFIX.length()), beanName);
     }
@@ -552,9 +548,8 @@ public class ScriptFactoryPostProcessor
    * @return the extracted ScriptFactory bean definition
    * @see ScriptFactory#getScriptedObject
    */
-  protected BeanDefinition createScriptedObjectBeanDefinition(
-          BeanDefinition bd, String scriptFactoryBeanName,
-          ScriptSource scriptSource, @Nullable Class<?>[] interfaces) {
+  protected BeanDefinition createScriptedObjectBeanDefinition(BeanDefinition bd,
+          String scriptFactoryBeanName, ScriptSource scriptSource, @Nullable Class<?>[] interfaces) {
 
     BeanDefinition objectBd = bd.cloneBeanDefinition();
     objectBd.setFactoryBeanName(scriptFactoryBeanName);

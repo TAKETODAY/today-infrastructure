@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.scripting.support;
 
 import java.io.IOException;
@@ -45,6 +46,7 @@ import infra.util.StringUtils;
  * see the latter's javadoc for a configuration example.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ScriptFactoryPostProcessor
  * @since 4.0
  */
@@ -108,8 +110,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
    * @param scriptInterfaces the Java interfaces that the scripted object
    * is supposed to implement
    */
-  public StandardScriptFactory(
-          @Nullable String scriptEngineName, String scriptSourceLocator, @Nullable Class<?>... scriptInterfaces) {
+  public StandardScriptFactory(@Nullable String scriptEngineName, String scriptSourceLocator, @Nullable Class<?>... scriptInterfaces) {
     Assert.hasText(scriptSourceLocator, "'scriptSourceLocator' must not be empty");
     this.scriptEngineName = scriptEngineName;
     this.scriptSourceLocator = scriptSourceLocator;
@@ -151,7 +152,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
       boolean adaptationRequired = false;
       for (Class<?> requestedIfc : actualInterfaces) {
         if (script instanceof Class ? !requestedIfc.isAssignableFrom((Class<?>) script) :
-            !requestedIfc.isInstance(script)) {
+                !requestedIfc.isInstance(script)) {
           adaptationRequired = true;
           break;
         }
@@ -225,9 +226,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
   }
 
   @Nullable
-  protected Object adaptToInterfaces(
-          @Nullable Object script, ScriptSource scriptSource, Class<?>... actualInterfaces) {
-
+  protected Object adaptToInterfaces(@Nullable Object script, ScriptSource scriptSource, Class<?>... actualInterfaces) {
     Class<?> adaptedIfc;
     if (actualInterfaces.length == 1) {
       adaptedIfc = actualInterfaces[0];
@@ -249,7 +248,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
         script = invocable.getInterface(adaptedIfc);
         if (script == null) {
           throw new ScriptCompilationException(scriptSource,
-                  "Could not adapt script to interface [" + adaptedIfc.getName() + "]");
+                  "Could not adapt script to interface [%s]".formatted(adaptedIfc.getName()));
         }
       }
     }
@@ -272,7 +271,7 @@ public class StandardScriptFactory implements ScriptFactory, BeanClassLoaderAwar
 
   @Override
   public String toString() {
-    return "StandardScriptFactory: script source locator [" + this.scriptSourceLocator + "]";
+    return "StandardScriptFactory: script source locator [%s]".formatted(this.scriptSourceLocator);
   }
 
 }
