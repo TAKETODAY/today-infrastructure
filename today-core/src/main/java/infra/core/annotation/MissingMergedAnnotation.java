@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -98,13 +97,13 @@ final class MissingMergedAnnotation<A extends Annotation> extends AbstractMerged
   }
 
   @Override
-  public <T> Optional<T> getValue(String attributeName, Class<T> type) {
-    return Optional.empty();
+  public <T> T getValue(String attributeName, Class<T> type) {
+    return null;
   }
 
   @Override
-  public <T> Optional<T> getDefaultValue(@Nullable String attributeName, Class<T> type) {
-    return Optional.empty();
+  public <T> T getDefaultValue(@Nullable String attributeName, Class<T> type) {
+    return null;
   }
 
   @Override

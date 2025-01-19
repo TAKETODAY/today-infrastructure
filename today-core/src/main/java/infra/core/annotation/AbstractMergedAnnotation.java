@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import infra.lang.Assert;
@@ -31,6 +30,7 @@ import infra.lang.Nullable;
  * @param <A> the annotation type
  * @author Phillip Webb
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedAnnotation<A> {
@@ -169,17 +169,17 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   }
 
   @Override
-  public Optional<Object> getValue(String attributeName) {
+  public Object getValue(String attributeName) {
     return getValue(attributeName, Object.class);
   }
 
   @Override
-  public <T> Optional<T> getValue(String attributeName, Class<T> type) {
-    return Optional.ofNullable(getAttributeValue(attributeName, type));
+  public <T> T getValue(String attributeName, Class<T> type) {
+    return getAttributeValue(attributeName, type);
   }
 
   @Override
-  public Optional<Object> getDefaultValue(String attributeName) {
+  public Object getDefaultValue(String attributeName) {
     return getDefaultValue(attributeName, Object.class);
   }
 
@@ -194,8 +194,8 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   }
 
   @Override
-  public Optional<A> synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException {
-    return (condition.test(this) ? Optional.of(synthesize()) : Optional.empty());
+  public A synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException {
+    return condition.test(this) ? synthesize() : null;
   }
 
   @Override
@@ -219,8 +219,8 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   private <T> T getRequiredAttributeValue(String attributeName, Class<T> type) {
     T value = getAttributeValue(attributeName, type);
     if (value == null) {
-      throw new NoSuchElementException("No attribute named '" + attributeName +
-              "' present in merged annotation " + getType().getName());
+      throw new NoSuchElementException("No attribute named '%s' present in merged annotation %s"
+              .formatted(attributeName, getType().getName()));
     }
     return value;
   }

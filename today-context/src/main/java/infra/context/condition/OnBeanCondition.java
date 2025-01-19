@@ -523,7 +523,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       this.annotations = extract(attributes, "annotation");
       this.ignoredTypes = extract(attributes, "ignored", "ignoredType");
       this.parameterizedContainers = resolveWhenPossible(extract(attributes, "parameterizedContainer"));
-      this.strategy = annotations.get(annotationType).getValue("search", SearchStrategy.class).orElse(null);
+      this.strategy = annotations.get(annotationType).getValue("search", SearchStrategy.class);
       Set<String> types = extractTypes(attributes);
       BeanTypeDeductionException deductionException = null;
       if (types.isEmpty() && this.names.isEmpty()) {

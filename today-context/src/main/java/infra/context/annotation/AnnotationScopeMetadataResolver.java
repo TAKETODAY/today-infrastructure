@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package infra.context.annotation;
 
 import java.lang.annotation.Annotation;
-import java.util.Optional;
 
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
@@ -36,13 +35,14 @@ import infra.lang.Assert;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2021/10/26 15:57
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Scope
- * @since 4.0
+ * @since 4.0 2021/10/26 15:57
  */
 public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
 
   private final ScopedProxyMode defaultProxyMode;
+
   protected Class<? extends Annotation> scopeAnnotationType = Scope.class;
 
   /**
@@ -90,9 +90,8 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
         annotation = annDef.getMetadata().getAnnotation(scopeAnnotationType);
       }
       if (annotation.isPresent()) {
-        Optional<ScopedProxyMode> optional = annotation.getValue("proxyMode", ScopedProxyMode.class);
-        if (optional.isPresent()) {
-          ScopedProxyMode proxyMode = optional.get();
+        ScopedProxyMode proxyMode = annotation.getValue("proxyMode", ScopedProxyMode.class);
+        if (proxyMode != null) {
           if (proxyMode == ScopedProxyMode.DEFAULT) {
             proxyMode = this.defaultProxyMode;
           }

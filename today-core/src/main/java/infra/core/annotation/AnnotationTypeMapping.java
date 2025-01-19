@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -311,10 +311,9 @@ final class AnnotationTypeMapping {
     }
     int[] mappings = this.conventionMappings;
     Method[] attributes = this.methods.attributes;
-    AttributeMethods rootMethods = this.root.methods;
     for (int i = 0; i < mappings.length; i++) {
       String name = attributes[i].getName();
-      int mapped = rootMethods.indexOf(name);
+      int mapped = this.root.methods.indexOf(name);
       if (!MergedAnnotation.VALUE.equals(name) && mapped != -1) {
         MirrorSets.MirrorSet mirrors = mirrorSets.getAssigned(i);
         mappings[i] = mapped;
@@ -573,7 +572,7 @@ final class AnnotationTypeMapping {
       Object value1 = AnnotationUtils.invokeAnnotationMethod(attribute, annotation);
       Object value2;
       if (extractedValue instanceof TypeMappedAnnotation<?> typeMappedAnno) {
-        value2 = typeMappedAnno.getValue(attribute.getName()).orElse(null);
+        value2 = typeMappedAnno.getValue(attribute.getName());
       }
       else {
         value2 = valueExtractor.extract(attribute, extractedValue);

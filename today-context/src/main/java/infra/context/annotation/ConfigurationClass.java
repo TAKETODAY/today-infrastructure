@@ -187,7 +187,7 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     var annotation = metadata.getAnnotation(Configuration.class);
-    if (metadata.isFinal() && annotation.isPresent() && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
+    if (metadata.isFinal() && annotation.isPresent() && annotation.getBoolean("proxyBeanMethods")) {
       problemReporter.error(new FinalConfigurationProblem());
     }
 

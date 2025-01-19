@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,7 +249,7 @@ class MergedAnnotationsRepeatableAnnotationTests {
     MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, TYPE_HIERARCHY, RepeatableContainers.none());
     ContainerWithMultipleAttributes container = mergedAnnotations
             .get(ContainerWithMultipleAttributes.class)
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
     assertThat(container).as("container").isNotNull();
     assertThat(container.name()).isEqualTo("enigma");
     RepeatableWithContainerWithMultipleAttributes[] repeatedAnnotations = container.value();
@@ -266,7 +266,7 @@ class MergedAnnotationsRepeatableAnnotationTests {
     mergedAnnotations = MergedAnnotations.from(clazz, TYPE_HIERARCHY, RepeatableContainers.standard());
     container = mergedAnnotations
             .get(ContainerWithMultipleAttributes.class)
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
     assertThat(container).as("container").isNotNull();
     assertThat(container.name()).isEqualTo("enigma");
     repeatedAnnotations = container.value();

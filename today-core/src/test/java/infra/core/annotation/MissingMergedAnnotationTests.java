@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -247,12 +247,12 @@ class MissingMergedAnnotationTests {
 
   @Test
   void getValueReturnsEmpty() {
-    assertThat(this.missing.getValue(Integer.class)).isEmpty();
+    assertThat(this.missing.getValue(Integer.class)).isNull();
   }
 
   @Test
   void getDefaultValueReturnsEmpty() {
-    assertThat(this.missing.getDefaultValue("value", Integer.class)).isEmpty();
+    assertThat(this.missing.getDefaultValue("value", Integer.class)).isNull();
   }
 
   @Test
@@ -262,7 +262,7 @@ class MissingMergedAnnotationTests {
 
   @Test
   void synthesizeThrowsNoSuchElementException() {
-    assertThatNoSuchElementException().isThrownBy(() -> this.missing.synthesize());
+    assertThatNoSuchElementException().isThrownBy(this.missing::synthesize);
   }
 
   @Test
@@ -273,7 +273,7 @@ class MissingMergedAnnotationTests {
 
   @Test
   void synthesizeWithPredicateWhenPredicateDoesNotMatchReturnsEmpty() {
-    assertThat(this.missing.synthesize(annotation -> false)).isEmpty();
+    assertThat(this.missing.synthesize(annotation -> false)).isNull();
   }
 
   @Test

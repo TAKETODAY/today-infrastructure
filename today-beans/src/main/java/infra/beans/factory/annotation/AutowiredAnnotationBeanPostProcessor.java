@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -622,9 +622,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    * @return whether the annotation indicates that a dependency is required
    */
   protected boolean determineRequiredStatus(MergedAnnotation<?> ann) {
-    return ann.getValue(requiredParameterName, boolean.class)
-            .map(value -> requiredParameterValue == value)
-            .orElse(true);
+    Boolean value = ann.getValue(requiredParameterName, boolean.class);
+    if (value != null) {
+      return requiredParameterValue == value;
+    }
+    return true;
   }
 
   /**

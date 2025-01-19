@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -166,9 +165,8 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
   @Nullable
   private BeanNameHolder getBeanNameHolder(MergedAnnotation<?> annotation) {
-    Optional<Object> value = annotation.getValue(MergedAnnotation.VALUE);
-    if (value.isPresent()) {
-      Object attribute = value.get();
+    Object attribute = annotation.getValue(MergedAnnotation.VALUE);
+    if (attribute != null) {
       if (attribute instanceof String beanName) {
         return new BeanNameHolder(beanName, null);
       }

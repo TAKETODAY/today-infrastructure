@@ -23,7 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -505,46 +505,60 @@ public interface MergedAnnotation<A extends Annotation> {
           throws NoSuchElementException;
 
   /**
-   * Get an optional attribute value from the annotation.
+   * Get an attribute value from the annotation.
    *
    * @param attributeName the attribute name
-   * @return an optional value or {@link Optional#empty()} if there is no
-   * matching attribute
+   * @return a value or {@code null} if there is no matching attribute
    */
-  Optional<Object> getValue(String attributeName);
+  @Nullable
+  Object getValue(String attributeName);
 
   /**
-   * Get an optional attribute value from the annotation.
+   * Get an attribute value from the annotation.
    *
    * @param type the attribute type. Must be compatible with the underlying
    * attribute type or {@code Object.class}.
-   * @return an optional value or {@link Optional#empty()} if there is no
-   * matching attribute
+   * @return a value or {@code null} if there is no matching attribute
    */
-  default <T> Optional<T> getValue(Class<T> type) {
+  @Nullable
+  default <T> T getValue(Class<T> type) {
     return getValue(VALUE, type);
   }
 
   /**
-   * Get an optional attribute value from the annotation.
+   * Get an attribute value from the annotation.
    *
    * @param attributeName the attribute name
    * @param type the attribute type. Must be compatible with the underlying
    * attribute type or {@code Object.class}.
-   * @return an optional value or {@link Optional#empty()} if there is no
-   * matching attribute
+   * @return a value or {@code null} if there is no matching attribute
    */
-  <T> Optional<T> getValue(String attributeName, Class<T> type);
+  @Nullable
+  <T> T getValue(String attributeName, Class<T> type);
+
+  /**
+   * Get an attribute value from the annotation.
+   *
+   * @param attributeName the attribute name
+   * @param type the attribute type. Must be compatible with the underlying
+   * attribute type or {@code Object.class}.
+   * @return a value or {@code defaultValue} if there is no matching attribute
+   * @since 5.0
+   */
+  default <T> T getValue(String attributeName, Class<T> type, T defaultValue) {
+    return Objects.requireNonNullElse(getValue(attributeName, type), defaultValue);
+  }
 
   /**
    * Get the default attribute value from the annotation as specified in
    * the annotation declaration.
    *
    * @param attributeName the attribute name
-   * @return an optional of the default value or {@link Optional#empty()} if
+   * @return the default value or {@code null} if
    * there is no matching attribute or no defined default
    */
-  Optional<Object> getDefaultValue(String attributeName);
+  @Nullable
+  Object getDefaultValue(String attributeName);
 
   /**
    * Get the default attribute value from the annotation as specified in
@@ -553,10 +567,11 @@ public interface MergedAnnotation<A extends Annotation> {
    * @param attributeName the attribute name
    * @param type the attribute type. Must be compatible with the underlying
    * attribute type or {@code Object.class}.
-   * @return an optional of the default value or {@link Optional#empty()} if
-   * there is no matching attribute or no defined default
+   * @return the default value or {@code null} if there is no
+   * matching attribute or no defined default
    */
-  <T> Optional<T> getDefaultValue(String attributeName, Class<T> type);
+  @Nullable
+  <T> T getDefaultValue(String attributeName, Class<T> type);
 
   /**
    * Create a new view of the annotation with all attributes that have default
@@ -664,12 +679,13 @@ public interface MergedAnnotation<A extends Annotation> {
    * of what is considered synthesizable.
    *
    * @param condition the test to determine if the annotation can be synthesized
-   * @return an optional containing the synthesized version of the annotation or
-   * an empty optional if the condition doesn't match
+   * @return a containing the synthesized version of the annotation or
+   * {@code null} if the condition doesn't match
    * @throws NoSuchElementException on a missing annotation
    * @see MergedAnnotationPredicates
    */
-  Optional<A> synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException;
+  @Nullable
+  A synthesize(Predicate<? super MergedAnnotation<A>> condition) throws NoSuchElementException;
 
   /**
    * Create a {@link MergedAnnotation} that represents a missing annotation

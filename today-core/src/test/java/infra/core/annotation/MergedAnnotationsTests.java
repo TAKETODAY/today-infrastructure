@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -975,7 +975,6 @@ class MergedAnnotationsTests {
   }
 
   @Test
-
   void getFromMethodWithGenericInterface() throws Exception {
     Method method = ImplementsInterfaceWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     assertThat(MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(
@@ -983,7 +982,6 @@ class MergedAnnotationsTests {
   }
 
   @Test
-
   void getFromMethodWithGenericSuperclass() throws Exception {
     Method method = ExtendsBaseClassWithGenericAnnotatedMethod.class.getMethod("foo", String.class);
     assertThat(MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(
@@ -1374,7 +1372,7 @@ class MergedAnnotationsTests {
     Method method = TransactionalStringGeneric.class.getMethod("something", Object.class);
     MergedAnnotation<Order> annotation =
             MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(Order.class);
-    assertThat(annotation.getDefaultValue("value")).contains(Ordered.LOWEST_PRECEDENCE);
+    assertThat(annotation.getDefaultValue("value")).isEqualTo(Ordered.LOWEST_PRECEDENCE);
   }
 
   @Test
@@ -1385,13 +1383,13 @@ class MergedAnnotationsTests {
     MergedAnnotation<?> annotation = MergedAnnotation.from(declaredAnnotation);
     assertThat(annotation.getType().getName()).isEqualTo(
             "infra.core.annotation.subpackage.NonPublicAnnotation");
-    assertThat(annotation.getDefaultValue("value")).contains(-1);
+    assertThat(annotation.getDefaultValue("value")).isEqualTo(-1);
   }
 
   @Test
   void getDefaultValueFromAnnotationType() {
     MergedAnnotation<?> annotation = MergedAnnotation.valueOf(Order.class);
-    assertThat(annotation.getDefaultValue("value")).contains(Ordered.LOWEST_PRECEDENCE);
+    assertThat(annotation.getDefaultValue("value")).isEqualTo(Ordered.LOWEST_PRECEDENCE);
   }
 
   @Test

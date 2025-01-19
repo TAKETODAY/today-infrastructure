@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -276,7 +276,7 @@ public abstract class AnnotationUtils {
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(annotation, new Annotation[] { annotation }, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
-            .synthesize(AnnotationUtils::isSingleLevelPresent).orElse(null);
+            .synthesize(AnnotationUtils::isSingleLevelPresent);
   }
 
   /**
@@ -302,8 +302,7 @@ public abstract class AnnotationUtils {
     return MergedAnnotations.from(annotatedElement, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE)
             .get(annotationType)
             .withNonMergedAttributes()
-            .synthesize(AnnotationUtils::isSingleLevelPresent)
-            .orElse(null);
+            .synthesize(AnnotationUtils::isSingleLevelPresent);
   }
 
   private static <A extends Annotation> boolean isSingleLevelPresent(MergedAnnotation<A> mergedAnnotation) {
@@ -561,7 +560,7 @@ public abstract class AnnotationUtils {
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(annotatedElement, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
   }
 
   /**
@@ -595,7 +594,7 @@ public abstract class AnnotationUtils {
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
   }
 
   /**
@@ -646,7 +645,7 @@ public abstract class AnnotationUtils {
     // Exhaustive retrieval of merged annotations...
     return MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
   }
 
   /**
@@ -1208,7 +1207,7 @@ public abstract class AnnotationUtils {
     if (annotationType == null || StringUtils.isBlank(attributeName)) {
       return null;
     }
-    return MergedAnnotation.valueOf(annotationType).getDefaultValue(attributeName).orElse(null);
+    return MergedAnnotation.valueOf(annotationType).getDefaultValue(attributeName);
   }
 
   /**

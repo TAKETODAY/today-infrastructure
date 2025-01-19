@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionStage;
 
@@ -133,9 +134,13 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     MergedAnnotation<EventListener> annotation = annotations.get(EventListener.class);
     this.declaredEventTypes = resolveDeclaredEventTypes(method, annotation);
 
-    this.condition = annotation.getValue("condition", String.class)
-            .filter(StringUtils::hasText)
-            .orElse(null);
+    String condition = annotation.getString("condition");
+    if (StringUtils.hasText(condition)) {
+      this.condition = condition;
+    }
+    else {
+      this.condition = null;
+    }
 
     this.defaultExecution = annotation.getBoolean("defaultExecution");
     if (annotation.isPresent()) {
@@ -143,10 +148,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       this.listenerId = !id.isEmpty() ? id : null;
     }
 
-    MergedAnnotation<Order> order = annotations.get(Order.class);
-    this.order = order.getValue(Integer.class)
-            .orElse(Ordered.LOWEST_PRECEDENCE);
-
+    this.order = Objects.requireNonNullElse(
+            annotations.get(Order.class).getValue(int.class), Ordered.LOWEST_PRECEDENCE);
   }
 
   protected void init(ApplicationContext context, @Nullable EventExpressionEvaluator evaluator) {
@@ -154,8 +157,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     this.evaluator = evaluator;
   }
 
-  private static List<ResolvableType> resolveDeclaredEventTypes(
-          Method method, @Nullable MergedAnnotation<EventListener> ann) {
+  private static List<ResolvableType> resolveDeclaredEventTypes(Method method, @Nullable MergedAnnotation<EventListener> ann) {
     int count = method.getParameterCount();
     if (count > 1) {
       throw new IllegalStateException(

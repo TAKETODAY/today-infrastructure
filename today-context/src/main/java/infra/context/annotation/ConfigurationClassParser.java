@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -1052,9 +1051,8 @@ class ConfigurationClassParser {
     public Collection<SourceClass> getAnnotationAttributes(String annType, String attribute) throws IOException {
       MergedAnnotation<Annotation> annotation = metadata.getAnnotation(annType);
       if (annotation.isPresent()) {
-        Optional<String[]> optional = annotation.getValue(attribute, String[].class);
-        if (optional.isPresent()) {
-          String[] classNames = optional.get();
+        String[] classNames = annotation.getValue(attribute, String[].class);
+        if (classNames != null) {
           LinkedHashSet<SourceClass> result = new LinkedHashSet<>();
           for (String className : classNames) {
             result.add(getRelated(className));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -519,7 +519,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   @Override
   public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
     return findAnnotationOnBean(beanName, annotationType)
-            .synthesize(MergedAnnotation::isPresent).orElse(null);
+            .synthesize(MergedAnnotation::isPresent);
   }
 
   @Override

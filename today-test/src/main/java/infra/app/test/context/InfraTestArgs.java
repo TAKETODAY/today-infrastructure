@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class InfraTestArgs implements ContextCustomizer {
 
   InfraTestArgs(Class<?> testClass) {
     this.args = MergedAnnotations.from(testClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
-            .get(InfraTest.class).getValue("args", String[].class).orElse(NO_ARGS);
+            .get(InfraTest.class).getValue("args", String[].class, NO_ARGS);
   }
 
   @Override

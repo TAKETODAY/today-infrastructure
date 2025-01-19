@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -67,6 +66,7 @@ import infra.util.ReflectionUtils;
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see TypeMappedAnnotations
  * @since 4.0
  */
@@ -109,8 +109,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   private final int[] resolvedMirrors;
 
   private TypeMappedAnnotation(AnnotationTypeMapping mapping, @Nullable ClassLoader classLoader,
-          @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor,
-          int aggregateIndex) {
+          @Nullable Object source, @Nullable Object rootAttributes, ValueExtractor valueExtractor, int aggregateIndex) {
     this(mapping, classLoader, source, rootAttributes, valueExtractor, aggregateIndex, null);
   }
 
@@ -220,7 +219,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     int attributeIndex = getAttributeIndex(attributeName, true);
     Method attribute = mapping.methods.get(attributeIndex);
     if (!type.isAssignableFrom(attribute.getReturnType())) {
-      throw new IllegalArgumentException("Attribute " + attributeName + " type mismatch:");
+      throw new IllegalArgumentException("Attribute %s type mismatch:".formatted(attributeName));
     }
     return (MergedAnnotation<T>) getRequiredValue(attributeIndex, attributeName);
   }
@@ -234,22 +233,22 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     Method attribute = mapping.methods.get(attributeIndex);
     Class<?> componentType = attribute.getReturnType().getComponentType();
     if (componentType == null) {
-      throw new IllegalArgumentException("Attribute " + attributeName + " is not an array");
+      throw new IllegalArgumentException("Attribute %s is not an array".formatted(attributeName));
     }
     if (!type.isAssignableFrom(componentType)) {
-      throw new IllegalArgumentException("Attribute " + attributeName + " component type mismatch:");
+      throw new IllegalArgumentException("Attribute %s component type mismatch:".formatted(attributeName));
     }
     return (MergedAnnotation<T>[]) getRequiredValue(attributeIndex, attributeName);
   }
 
   @Override
-  public <T> Optional<T> getDefaultValue(String attributeName, Class<T> type) {
+  public <T> T getDefaultValue(String attributeName, Class<T> type) {
     int attributeIndex = getAttributeIndex(attributeName, false);
     if (attributeIndex == -1) {
-      return Optional.empty();
+      return null;
     }
     Method attribute = mapping.methods.get(attributeIndex);
-    return Optional.ofNullable(adapt(attribute, attribute.getDefaultValue(), type));
+    return adapt(attribute, attribute.getDefaultValue(), type);
   }
 
   @Override
@@ -385,7 +384,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     Object value = getValue(attributeIndex, Object.class);
     if (value == null) {
       throw new NoSuchElementException(
-              "No element at attribute index " + attributeIndex + " for name " + attributeName);
+              "No element at attribute index %d for name %s".formatted(attributeIndex, attributeName));
     }
     return value;
   }
@@ -499,16 +498,14 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       }
       else {
         throw new IllegalArgumentException(
-                "Unable to adapt value of type " +
-                        value.getClass().getName() + " to " +
-                        type.getName() + " cause incorrect array length: " + length);
+                "Unable to adapt value of type %s to %s cause incorrect array length: %d"
+                        .formatted(value.getClass().getName(), type.getName(), length));
       }
     }
 
     if (!ClassUtils.isAssignableValue(type, value)) {
-      throw new IllegalArgumentException(
-              "Unable to adapt value of type " +
-                      value.getClass().getName() + " to " + type.getName());
+      throw new IllegalArgumentException("Unable to adapt value of type %s to %s"
+              .formatted(value.getClass().getName(), type.getName()));
     }
     return (T) value;
   }
@@ -543,11 +540,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       return emptyArray(attributeType.getComponentType());
     }
     if (!attributeType.isInstance(value)) {
-      throw new IllegalStateException(
-              "Attribute '" + attribute.getName() +
-                      "' in annotation " + getType().getName() + " should be compatible with " +
-                      attributeType.getName() + " but a " + value.getClass().getName() +
-                      " value was returned");
+      throw new IllegalStateException("Attribute '%s' in annotation %s should be compatible with %s but a %s value was returned"
+              .formatted(attribute.getName(), getType().getName(), attributeType.getName(), value.getClass().getName()));
     }
     return value;
   }
@@ -602,8 +596,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     Assert.hasText(attributeName, "Attribute name is required");
     int attributeIndex = isFiltered(attributeName) ? -1 : mapping.methods.indexOf(attributeName);
     if (attributeIndex == -1 && required) {
-      throw new NoSuchElementException(
-              "No attribute named '" + attributeName + "' present in merged annotation " + getType().getName());
+      throw new NoSuchElementException("No attribute named '%s' present in merged annotation %s"
+              .formatted(attributeName, getType().getName()));
     }
     return attributeIndex;
   }
@@ -684,7 +678,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       if (logger.isEnabled()) {
         String type = mapping.annotationType.getName();
         String item = (mapping.distance == 0 ? "annotation " + type :
-                "meta-annotation " + type + " from " + mapping.root.annotationType.getName());
+                "meta-annotation %s from %s".formatted(type, mapping.root.annotationType.getName()));
         logger.log("Failed to introspect " + item, source, ex);
       }
       return null;

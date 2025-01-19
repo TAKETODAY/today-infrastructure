@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -242,8 +242,7 @@ class ValueObjectBinder implements DataObjectBinder {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    static <T> ValueObject<T> get(Constructor<?> bindConstructor, ResolvableType type,
-            ParameterNameDiscoverer parameterNameDiscoverer) {
+    static <T> ValueObject<T> get(Constructor<?> bindConstructor, ResolvableType type, ParameterNameDiscoverer parameterNameDiscoverer) {
       String[] names = parameterNameDiscoverer.getParameterNames(bindConstructor);
       if (names == null) {
         return null;
@@ -252,15 +251,13 @@ class ValueObjectBinder implements DataObjectBinder {
       return new DefaultValueObject<>((Constructor<T>) bindConstructor, constructorParameters);
     }
 
-    private static List<ConstructorParameter> parseConstructorParameters(
-            Constructor<?> constructor, ResolvableType type, String[] names) {
+    private static List<ConstructorParameter> parseConstructorParameters(Constructor<?> constructor, ResolvableType type, String[] names) {
       Parameter[] parameters = constructor.getParameters();
       List<ConstructorParameter> result = new ArrayList<>(parameters.length);
       for (int i = 0; i < parameters.length; i++) {
         String name = MergedAnnotations.from(parameters[i])
                 .get(Name.class)
-                .getValue(MergedAnnotation.VALUE, String.class)
-                .orElse(names[i]);
+                .getValue(MergedAnnotation.VALUE, String.class, names[i]);
         ResolvableType parameterType = ResolvableType.forMethodParameter(new MethodParameter(constructor, i), type);
         Annotation[] annotations = parameters[i].getDeclaredAnnotations();
         result.add(new ConstructorParameter(name, parameterType, annotations));
@@ -276,7 +273,9 @@ class ValueObjectBinder implements DataObjectBinder {
   private final static class ConstructorParameter {
 
     public final String name;
+
     public final ResolvableType type;
+
     public final Annotation[] annotations;
 
     private ConstructorParameter(String name, ResolvableType type, Annotation[] annotations) {

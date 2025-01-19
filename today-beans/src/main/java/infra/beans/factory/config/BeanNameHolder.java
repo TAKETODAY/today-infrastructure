@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import infra.util.StringUtils;
  * @since 4.0 2022/3/12 22:50
  */
 public class BeanNameHolder {
+
   public static final String AttributeName = "beanNameHolder";
 
   protected final String beanName;
@@ -97,9 +98,9 @@ public class BeanNameHolder {
   @Override
   public String toString() {
     if (aliases == null) {
-      return "Bean name '" + beanName + "'";
+      return "Bean name '%s'".formatted(beanName);
     }
-    return "Bean name '" + beanName + "' and aliases [" + StringUtils.arrayToCommaDelimitedString(aliases) + ']';
+    return "Bean name '%s' and aliases [%s]".formatted(beanName, StringUtils.arrayToCommaDelimitedString(aliases));
   }
 
   // static
