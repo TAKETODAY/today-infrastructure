@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,14 +177,16 @@ final class HttpServiceMethod {
         requestValues.setAccept(this.acceptMediaTypes);
       }
       if (this.otherHeaders != null) {
-        this.otherHeaders.forEach((name, values) -> {
+        for (var entry : otherHeaders.entrySet()) {
+          var name = entry.getKey();
+          var values = entry.getValue();
           if (values.size() == 1) {
             requestValues.addHeader(name, values.get(0));
           }
           else {
-            requestValues.addHeader(name, values.toArray(new String[0]));
+            requestValues.addHeader(name, StringUtils.toStringArray(values));
           }
-        });
+        }
       }
       return requestValues;
     }
@@ -212,12 +214,11 @@ final class HttpServiceMethod {
       Assert.notNull(methodAnnotation, "Expected HttpRequest annotation");
 
       HttpMethod httpMethod = initHttpMethod(typeAnnotation, methodAnnotation);
-      String url = initUrl(typeAnnotation, methodAnnotation, embeddedValueResolver);
+      String url = initURL(typeAnnotation, methodAnnotation, embeddedValueResolver);
       MediaType contentType = initContentType(typeAnnotation, methodAnnotation);
       List<MediaType> acceptableMediaTypes = initAccept(typeAnnotation, methodAnnotation);
 
-      MultiValueMap<String, String> headers = initHeaders(typeAnnotation, methodAnnotation,
-              embeddedValueResolver);
+      MultiValueMap<String, String> headers = initHeaders(typeAnnotation, methodAnnotation, embeddedValueResolver);
 
       return new HttpRequestValuesInitializer(
               httpMethod, url, contentType, acceptableMediaTypes, headers, requestValuesSupplier);
@@ -241,7 +242,7 @@ final class HttpServiceMethod {
     }
 
     @Nullable
-    private static String initUrl(@Nullable HttpExchange typeAnnot,
+    private static String initURL(@Nullable HttpExchange typeAnnot,
             HttpExchange annot, @Nullable StringValueResolver embeddedValueResolver) {
 
       String url1 = (typeAnnot != null ? typeAnnot.url() : null);
