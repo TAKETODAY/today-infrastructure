@@ -19,17 +19,12 @@ package infra.web.service.invoker;
 
 import org.reactivestreams.Publisher;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
@@ -38,24 +33,13 @@ import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
 import infra.core.StringValueResolver;
-import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotationPredicates;
-import infra.core.annotation.MergedAnnotations;
-import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.core.annotation.RepeatableContainers;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.http.HttpHeaders;
-import infra.http.HttpMethod;
-import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpResponse;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
-import infra.util.LinkedMultiValueMap;
-import infra.util.MultiValueMap;
-import infra.util.ObjectUtils;
-import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.web.client.ClientResponse;
 import infra.web.service.annotation.HttpExchange;
@@ -150,237 +134,6 @@ final class HttpServiceMethod {
                 .formatted(this.parameters[i].getParameterIndex(), this.parameters[i].getExecutable().toGenericString()));
       }
     }
-  }
-
-  /**
-   * Factory for {@link HttpRequestValues} with values extracted from the type
-   * and method-level {@link HttpExchange @HttpRequest} annotations.
-   */
-  private record HttpRequestValuesInitializer(
-          @Nullable HttpMethod httpMethod, @Nullable String url,
-          @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes,
-          @Nullable MultiValueMap<String, String> otherHeaders,
-          Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
-
-    public HttpRequestValues.Builder initializeRequestValuesBuilder() {
-      HttpRequestValues.Builder requestValues = this.requestValuesSupplier.get();
-      if (this.httpMethod != null) {
-        requestValues.setHttpMethod(this.httpMethod);
-      }
-      if (this.url != null) {
-        requestValues.setUriTemplate(this.url);
-      }
-      if (this.contentType != null) {
-        requestValues.setContentType(this.contentType);
-      }
-      if (this.acceptMediaTypes != null) {
-        requestValues.setAccept(this.acceptMediaTypes);
-      }
-      if (this.otherHeaders != null) {
-        for (var entry : otherHeaders.entrySet()) {
-          var name = entry.getKey();
-          var values = entry.getValue();
-          if (values.size() == 1) {
-            requestValues.addHeader(name, values.get(0));
-          }
-          else {
-            requestValues.addHeader(name, StringUtils.toStringArray(values));
-          }
-        }
-      }
-      return requestValues;
-    }
-
-    /**
-     * Introspect the method and create the request factory for it.
-     */
-    public static HttpRequestValuesInitializer create(Method method, Class<?> containingClass,
-            @Nullable StringValueResolver embeddedValueResolver, Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
-
-      List<AnnotationDescriptor> methodHttpExchanges = getAnnotationDescriptors(method);
-      Assert.state(!methodHttpExchanges.isEmpty(), () -> "Expected @HttpExchange annotation on method " + method);
-      Assert.state(methodHttpExchanges.size() == 1,
-              () -> "Multiple @HttpExchange annotations found on method %s, but only one is allowed: %s"
-                      .formatted(method, methodHttpExchanges));
-
-      List<AnnotationDescriptor> typeHttpExchanges = getAnnotationDescriptors(containingClass);
-      Assert.state(typeHttpExchanges.size() <= 1,
-              () -> "Multiple @HttpExchange annotations found on %s, but only one is allowed: %s"
-                      .formatted(containingClass, typeHttpExchanges));
-
-      HttpExchange methodAnnotation = methodHttpExchanges.get(0).httpExchange;
-      HttpExchange typeAnnotation = !typeHttpExchanges.isEmpty() ? typeHttpExchanges.get(0).httpExchange : null;
-
-      Assert.notNull(methodAnnotation, "Expected HttpRequest annotation");
-
-      HttpMethod httpMethod = initHttpMethod(typeAnnotation, methodAnnotation);
-      String url = initURL(typeAnnotation, methodAnnotation, embeddedValueResolver);
-      MediaType contentType = initContentType(typeAnnotation, methodAnnotation);
-      List<MediaType> acceptableMediaTypes = initAccept(typeAnnotation, methodAnnotation);
-
-      MultiValueMap<String, String> headers = initHeaders(typeAnnotation, methodAnnotation, embeddedValueResolver);
-
-      return new HttpRequestValuesInitializer(
-              httpMethod, url, contentType, acceptableMediaTypes, headers, requestValuesSupplier);
-    }
-
-    @Nullable
-    private static HttpMethod initHttpMethod(@Nullable HttpExchange typeAnnot, HttpExchange annot) {
-
-      String value1 = (typeAnnot != null ? typeAnnot.method() : null);
-      String value2 = annot.method();
-
-      if (StringUtils.hasText(value2)) {
-        return HttpMethod.valueOf(value2);
-      }
-
-      if (StringUtils.hasText(value1)) {
-        return HttpMethod.valueOf(value1);
-      }
-
-      return null;
-    }
-
-    @Nullable
-    private static String initURL(@Nullable HttpExchange typeAnnot,
-            HttpExchange annot, @Nullable StringValueResolver embeddedValueResolver) {
-
-      String url1 = (typeAnnot != null ? typeAnnot.url() : null);
-      String url2 = annot.url();
-
-      if (embeddedValueResolver != null) {
-        url1 = (url1 != null ? embeddedValueResolver.resolveStringValue(url1) : null);
-        url2 = embeddedValueResolver.resolveStringValue(url2);
-      }
-
-      boolean hasUrl1 = StringUtils.hasText(url1);
-      boolean hasUrl2 = StringUtils.hasText(url2);
-
-      if (hasUrl1 && hasUrl2) {
-        return (url1 + (!url1.endsWith("/") && !url2.startsWith("/") ? "/" : "") + url2);
-      }
-
-      if (!hasUrl1 && !hasUrl2) {
-        return null;
-      }
-
-      return (hasUrl2 ? url2 : url1);
-    }
-
-    @Nullable
-    private static MediaType initContentType(@Nullable HttpExchange typeAnnot, HttpExchange annot) {
-
-      String value1 = (typeAnnot != null ? typeAnnot.contentType() : null);
-      String value2 = annot.contentType();
-
-      if (StringUtils.hasText(value2)) {
-        return MediaType.parseMediaType(value2);
-      }
-
-      if (StringUtils.hasText(value1)) {
-        return MediaType.parseMediaType(value1);
-      }
-
-      return null;
-    }
-
-    @Nullable
-    private static List<MediaType> initAccept(@Nullable HttpExchange typeAnnot, HttpExchange annot) {
-
-      String[] value1 = (typeAnnot != null ? typeAnnot.accept() : null);
-      String[] value2 = annot.accept();
-
-      if (ObjectUtils.isNotEmpty(value2)) {
-        return MediaType.parseMediaTypes(Arrays.asList(value2));
-      }
-
-      if (ObjectUtils.isNotEmpty(value1)) {
-        return MediaType.parseMediaTypes(Arrays.asList(value1));
-      }
-
-      return null;
-    }
-
-    @Nullable
-    private static MultiValueMap<String, String> initHeaders(@Nullable HttpExchange typeAnnotation, HttpExchange methodAnnotation,
-            @Nullable StringValueResolver embeddedValueResolver) {
-      MultiValueMap<String, String> methodLevelHeaders = parseHeaders(methodAnnotation.headers(),
-              embeddedValueResolver);
-      if (!ObjectUtils.isEmpty(methodLevelHeaders)) {
-        return methodLevelHeaders;
-      }
-
-      MultiValueMap<String, String> typeLevelHeaders = (typeAnnotation != null ?
-              parseHeaders(typeAnnotation.headers(), embeddedValueResolver) : null);
-      if (!ObjectUtils.isEmpty(typeLevelHeaders)) {
-        return typeLevelHeaders;
-      }
-
-      return null;
-    }
-
-    private static MultiValueMap<String, String> parseHeaders(String[] headersArray,
-            @Nullable StringValueResolver embeddedValueResolver) {
-      MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-      for (String h : headersArray) {
-        String[] headerPair = StringUtils.split(h, "=");
-        if (headerPair != null) {
-          String headerName = headerPair[0].trim();
-          List<String> headerValues = new ArrayList<>();
-          Set<String> parsedValues = StringUtils.commaDelimitedListToSet(headerPair[1]);
-          for (String headerValue : parsedValues) {
-            if (embeddedValueResolver != null) {
-              headerValue = embeddedValueResolver.resolveStringValue(headerValue);
-            }
-            if (headerValue != null) {
-              headerValue = headerValue.trim();
-              headerValues.add(headerValue);
-            }
-          }
-          if (!headerValues.isEmpty()) {
-            headers.addAll(headerName, headerValues);
-          }
-        }
-      }
-      return headers;
-    }
-
-    private static List<AnnotationDescriptor> getAnnotationDescriptors(AnnotatedElement element) {
-      return MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
-              .stream(HttpExchange.class)
-              .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
-              .map(AnnotationDescriptor::new)
-              .distinct()
-              .toList();
-    }
-
-    private static class AnnotationDescriptor {
-
-      private final HttpExchange httpExchange;
-
-      private final MergedAnnotation<?> root;
-
-      AnnotationDescriptor(MergedAnnotation<HttpExchange> mergedAnnotation) {
-        this.httpExchange = mergedAnnotation.synthesize();
-        this.root = mergedAnnotation.getRoot();
-      }
-
-      @Override
-      public boolean equals(Object obj) {
-        return (obj instanceof AnnotationDescriptor that && this.httpExchange.equals(that.httpExchange));
-      }
-
-      @Override
-      public int hashCode() {
-        return this.httpExchange.hashCode();
-      }
-
-      @Override
-      public String toString() {
-        return this.root.synthesize().toString();
-      }
-    }
-
   }
 
   /**

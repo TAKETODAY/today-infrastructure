@@ -259,7 +259,7 @@ public class HttpRequestValues {
      * {@linkplain #setUriTemplate(String) URI template} from the
      * {@code HttpExchange} annotation.
      */
-    public Builder setUri(URI uri) {
+    public Builder setURI(URI uri) {
       this.uri = uri;
       return this;
     }
