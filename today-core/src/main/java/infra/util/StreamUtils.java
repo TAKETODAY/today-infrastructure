@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ public abstract class StreamUtils {
    * @param in the stream to copy from (may be {@code null} or empty)
    * @return the new byte array that has been copied to (possibly empty)
    * @throws IOException in case of I/O errors
+   * @see FileCopyUtils#copyToByteArray(InputStream)
    */
   public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
     if (in == null) {
