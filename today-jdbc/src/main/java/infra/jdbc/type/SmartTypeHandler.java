@@ -17,37 +17,14 @@
 
 package infra.jdbc.type;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import infra.beans.BeanProperty;
 
 /**
- * The annotation that specify java types to map {@link TypeHandler}.
- *
- * <p>
- * <b>How to use:</b>
- * <pre>{@code
- * @MappedTypes(String.class)
- * public class StringTrimmingTypeHandler implements TypeHandler<String> {
- *   // ...
- * }
- * }</pre>
- *
- * @author Eduardo Macarron
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/1/23 14:54
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface MappedTypes {
+public interface SmartTypeHandler<T> extends TypeHandler<T> {
 
-  /**
-   * Returns java types to map {@link TypeHandler}.
-   *
-   * @return java types
-   */
-  Class<?>[] value();
+  boolean supportsProperty(BeanProperty property);
 
 }

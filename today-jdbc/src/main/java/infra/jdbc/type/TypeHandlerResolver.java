@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,10 +39,10 @@ public interface TypeHandlerResolver {
   /**
    * BeanProperty {@link TypeHandler} resolver
    *
-   * @param beanProperty target property
+   * @param property target property
    */
   @Nullable
-  TypeHandler<?> resolve(BeanProperty beanProperty);
+  TypeHandler<?> resolve(BeanProperty property);
 
   /**
    * returns a new resolving chain
@@ -51,10 +51,10 @@ public interface TypeHandlerResolver {
    * @return returns a new resolving chain
    */
   default TypeHandlerResolver and(TypeHandlerResolver next) {
-    return beanProperty -> {
-      TypeHandler<?> resolved = resolve(beanProperty);
+    return property -> {
+      TypeHandler<?> resolved = resolve(property);
       if (resolved == null) {
-        resolved = next.resolve(beanProperty);
+        resolved = next.resolve(property);
       }
       return resolved;
     };
@@ -67,9 +67,9 @@ public interface TypeHandlerResolver {
 
   static TypeHandlerResolver composite(List<TypeHandlerResolver> resolvers) {
     Assert.notNull(resolvers, "TypeHandlerResolver is required");
-    return beanProperty -> {
+    return property -> {
       for (TypeHandlerResolver resolver : resolvers) {
-        TypeHandler<?> resolved = resolver.resolve(beanProperty);
+        TypeHandler<?> resolved = resolver.resolve(property);
         if (resolved != null) {
           return resolved;
         }
@@ -113,8 +113,7 @@ public interface TypeHandlerResolver {
     Assert.notNull(annotationType, "annotationType is required");
 
     return (BeanProperty property) -> {
-      var mappedTypeHandler = MergedAnnotations.from(
-              property, property.getAnnotations()).get(annotationType);
+      var mappedTypeHandler = MergedAnnotations.from(property, property.getAnnotations()).get(annotationType);
       if (mappedTypeHandler.isPresent()) {
         // user defined TypeHandler
         Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClass(attributeName);

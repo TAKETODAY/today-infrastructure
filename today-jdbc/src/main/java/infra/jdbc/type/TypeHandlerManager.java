@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import java.time.OffsetTime;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -51,7 +52,10 @@ import infra.lang.Nullable;
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see Enumerated
+ * @see MappedTypes
+ * @see MappedTypeHandler
  * @since 4.0
  */
 @SuppressWarnings("rawtypes")
@@ -62,6 +66,11 @@ public class TypeHandlerManager implements TypeHandlerResolver {
   private final TypeHandler<Object> unknownTypeHandler;
 
   private final HashMap<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
+
+  /**
+   * @since 5.0
+   */
+  private final ArrayList<SmartTypeHandler> smartTypeHandlers = new ArrayList<>();
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumerationValueTypeHandler.class;
 
@@ -114,8 +123,8 @@ public class TypeHandlerManager implements TypeHandlerResolver {
 
   @Nullable
   @Override
-  public TypeHandler<?> resolve(BeanProperty beanProperty) {
-    return getTypeHandler(beanProperty);
+  public TypeHandler<?> resolve(BeanProperty property) {
+    return getTypeHandler(property);
   }
 
   /**
@@ -123,6 +132,12 @@ public class TypeHandlerManager implements TypeHandlerResolver {
    */
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {
+    for (SmartTypeHandler typeHandler : smartTypeHandlers) {
+      if (typeHandler.supportsProperty(property)) {
+        return typeHandler;
+      }
+    }
+
     TypeHandler<?> typeHandler = typeHandlerResolver.resolve(property);
     if (typeHandler == null) {
       // fallback to default
@@ -173,6 +188,10 @@ public class TypeHandlerManager implements TypeHandlerResolver {
 
   @SuppressWarnings("unchecked")
   public <T> void register(TypeHandler<T> typeHandler) {
+    if (typeHandler instanceof SmartTypeHandler<T> smartTypeHandler) {
+      smartTypeHandlers.add(smartTypeHandler);
+      return;
+    }
     boolean mappedTypeFound = false;
     var mappedTypes = MergedAnnotations.from(typeHandler.getClass()).get(MappedTypes.class);
     if (mappedTypes.isPresent()) {
