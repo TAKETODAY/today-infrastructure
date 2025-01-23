@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.context.properties.source.ConfigurationPropertyState;
 import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
+import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
@@ -114,7 +115,7 @@ class JavaBeanBinder implements DataObjectBinder {
 
   private String determinePropertyName(BeanProperty property) {
     Annotation[] annotations = property.getAnnotations();
-    return Arrays.stream((annotations != null) ? annotations : new Annotation[0])
+    return Arrays.stream((annotations != null) ? annotations : Constant.EMPTY_ANNOTATIONS)
             .filter(annotation -> annotation.annotationType() == Name.class)
             .findFirst()
             .map(Name.class::cast)

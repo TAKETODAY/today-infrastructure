@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import infra.lang.Constant;
 import infra.lang.Nullable;
 
 /**
@@ -46,7 +47,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
    * Shared instance that can be used when there are no annotations.
    */
   static final MergedAnnotations NONE = new TypeMappedAnnotations(
-          null, new Annotation[0], RepeatableContainers.NONE, AnnotationFilter.ALL);
+          null, Constant.EMPTY_ANNOTATIONS, RepeatableContainers.NONE, AnnotationFilter.ALL);
 
   @Nullable
   private final Object source;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,9 @@ abstract class AnnotationsScanner {
   private static final ConcurrentReferenceHashMap<Class<?>, Method[]>
           baseTypeMethodsCache = new ConcurrentReferenceHashMap<>(256);
 
-  private AnnotationsScanner() { }
+  private AnnotationsScanner() {
+
+  }
 
   /**
    * Scan the hierarchy of the specified element for relevant annotations and
@@ -492,8 +494,8 @@ abstract class AnnotationsScanner {
     if (source instanceof Class<?> sourceClass) {
       boolean noSuperTypes = sourceClass.getSuperclass() == Object.class && sourceClass.getInterfaces().length == 0;
       return searchEnclosingClass.test(sourceClass)
-             ? noSuperTypes && sourceClass.getEnclosingClass() == null
-             : noSuperTypes;
+              ? noSuperTypes && sourceClass.getEnclosingClass() == null
+              : noSuperTypes;
     }
     if (source instanceof Method sourceMethod) {
       return Modifier.isPrivate(sourceMethod.getModifiers())
