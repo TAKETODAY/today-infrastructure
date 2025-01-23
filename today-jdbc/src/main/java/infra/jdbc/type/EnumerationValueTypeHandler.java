@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,17 +35,20 @@ import infra.lang.TodayStrategies;
  * resolve EnumerationValue
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see EnumerationValue
  * @since 4.0 2022/8/2 20:42
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandler<T> {
+
   public static final String fallbackValueBeanPropertyKey = "jdbc.type-handler.enum-value-property-name";
 
-  private static final String fallbackValueBeanProperty = TodayStrategies.getProperty(
-          fallbackValueBeanPropertyKey, "value");
+  private static final String fallbackValueBeanProperty = TodayStrategies.getProperty(fallbackValueBeanPropertyKey, "value");
 
   private final T[] enumConstants;
+
   private final TypeHandler delegate;
+
   private final Function<T, Object> valueSupplier;
 
   public EnumerationValueTypeHandler(Class<T> type, TypeHandlerManager registry) {
@@ -82,8 +85,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   }
 
   @Override
-  public void setParameter(PreparedStatement ps,
-          int parameterIndex, @Nullable T parameter) throws SQLException {
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
     if (parameter != null) {
       Object propertyValue = valueSupplier.apply(parameter);
       delegate.setParameter(ps, parameterIndex, propertyValue);
@@ -138,17 +140,13 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   private T convertToEnum(Object propertyValueInDb) {
     for (T enumConstant : enumConstants) {
       Object propertyValue = valueSupplier.apply(enumConstant);
-      if (equals(propertyValueInDb, propertyValue)) {
+      if (Objects.equals(propertyValueInDb, propertyValue)) {
         // found
         return enumConstant;
       }
     }
 
     return null;
-  }
-
-  private static boolean equals(Object propertyValueInDb, Object propertyValue) {
-    return Objects.equals(propertyValue, propertyValueInDb);
   }
 
 }

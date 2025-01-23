@@ -148,7 +148,7 @@ public interface TypeHandlerResolver {
       return beanProperty;
     }
     throw new IllegalArgumentException(
-            "TypeHandler Constructor parameterType '" + parameterType.getName() + "' currently not supported");
+            "TypeHandler Constructor parameterType '%s' currently not supported".formatted(parameterType.getName()));
   }
 
 }

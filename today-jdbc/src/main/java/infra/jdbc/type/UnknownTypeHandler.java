@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import infra.util.ClassUtils;
 public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private boolean useColumnLabel = true;
+
   private final TypeHandlerManager registry;
 
   /**
@@ -103,7 +104,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
       return handler;
     }
     catch (SQLException e) {
-      throw new TypeException("Error determining JDBC type for column " + column + ".  Cause: " + e, e);
+      throw new TypeException("Error determining JDBC type for column %s.  Cause: %s".formatted(column, e), e);
     }
   }
 

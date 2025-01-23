@@ -295,11 +295,13 @@ public class TypeHandlerManager implements TypeHandlerResolver {
       return this;
     }
     throw new IllegalArgumentException(
-            "TypeHandler Constructor parameterType '" + parameterType.getName() + "' currently not supported");
+            "TypeHandler Constructor parameterType '%s' currently not supported".formatted(parameterType.getName()));
   }
 
   public void clear() {
     typeHandlers.clear();
+    smartTypeHandlers.clear();
+    setHandlerResolver(null);
   }
 
   // static
