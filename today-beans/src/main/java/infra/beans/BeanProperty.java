@@ -20,7 +20,6 @@ package infra.beans;
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -45,7 +44,7 @@ import infra.util.ReflectionUtils;
  * @see #isReadable()
  * @since 3.0 2021/1/27 22:28
  */
-public sealed class BeanProperty extends Property implements Member permits FieldBeanProperty {
+public sealed class BeanProperty extends Property permits FieldBeanProperty {
 
   @Serial
   private static final long serialVersionUID = 1L;
