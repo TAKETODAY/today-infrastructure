@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,17 +55,6 @@ public enum ApplicationType {
   public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
 
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
-
-  public static ApplicationType forClasspath() {
-    ClassLoader classLoader = ApplicationType.class.getClassLoader();
-    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader) && ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
-      if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS, classLoader)) {
-        return ApplicationType.REACTIVE_WEB;
-      }
-      return ApplicationType.NETTY_WEB;
-    }
-    return ApplicationType.NORMAL;
-  }
 
   public static ApplicationType forDefaults() {
     ClassLoader classLoader = ApplicationType.class.getClassLoader();
