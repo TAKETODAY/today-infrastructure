@@ -17,6 +17,9 @@ dependencies {
 
 infraJar {
   enabled = false
+  layered {
+    includeLayerTools = false
+  }
 }
 
 compileJava {

@@ -1,0 +1,24 @@
+plugins {
+  id 'java-gradle-plugin'
+}
+
+repositories {
+  mavenLocal()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  mavenCentral()
+  gradlePluginPortal()
+}
+
+Properties properties = new Properties()
+
+try (def reader = new FileReader(file("../../gradle.properties"))) {
+  properties.load(reader)
+}
+
+def infraVersion = properties['version']
+
+dependencies {
+  implementation "cn.taketoday:today-core:$infraVersion"
+  implementation "cn.taketoday:infra-gradle-plugin:$infraVersion"
+}
+
