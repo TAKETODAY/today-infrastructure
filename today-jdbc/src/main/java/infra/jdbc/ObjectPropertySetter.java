@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import infra.beans.BeanProperty;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
+import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -34,30 +35,28 @@ import infra.lang.Nullable;
  * @see #setTo(Object, ResultSet, int)
  * @since 2021/1/7 22:49
  */
+
 public class ObjectPropertySetter {
 
   @Nullable
   private final PropertyPath propertyPath;
+
   private final BeanProperty beanProperty; // cache
 
   private final TypeHandler<?> typeHandler;
+
   private final ConversionService conversionService;
 
   @Nullable
   private final PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  public ObjectPropertySetter(
-          @Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
-    this(propertyPath, beanProperty,
-            manager.getConversionService(),
-            manager.getTypeHandler(beanProperty),
-            manager.getPrimitiveTypeNullHandler());
+  public ObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
+    this(propertyPath, beanProperty, manager.getConversionService(),
+            manager.getTypeHandler(beanProperty), manager.getPrimitiveTypeNullHandler());
   }
 
-  public ObjectPropertySetter(
-          @Nullable PropertyPath propertyPath, BeanProperty beanProperty,
-          ConversionService conversionService, TypeHandler<?> typeHandler,
-          @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
+  public ObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty,
+          ConversionService conversionService, TypeHandler<?> typeHandler, @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     Assert.notNull(typeHandler, "TypeHandler is required");
     Assert.notNull(beanProperty, "BeanProperty is required");
     Assert.notNull(conversionService, "ConversionService is required");
@@ -76,23 +75,34 @@ public class ObjectPropertySetter {
    * @param columnIndex current column index
    * @throws SQLException when data fetch failed
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setTo(Object obj, ResultSet resultSet, int columnIndex) throws SQLException {
-    Object result = getResult(resultSet, columnIndex);
-    if (result == null && beanProperty.isPrimitive()) {
-      if (primitiveTypeNullHandler != null) {
-        if (propertyPath != null) {
-          obj = propertyPath.getNestedObject(obj);
+    if (beanProperty.isWriteable()) {
+      Object result = getResult(resultSet, columnIndex);
+      if (result == null && beanProperty.isPrimitive()) {
+        if (primitiveTypeNullHandler != null) {
+          if (propertyPath != null) {
+            obj = propertyPath.getNestedObject(obj);
+          }
+          primitiveTypeNullHandler.handleNull(beanProperty, obj);
         }
-        primitiveTypeNullHandler.handleNull(beanProperty, obj);
-      }
-    }
-    else {
-      if (propertyPath != null) {
-        propertyPath.set(obj, result);
       }
       else {
-        beanProperty.setValue(obj, result);
+        if (propertyPath != null) {
+          propertyPath.set(obj, result);
+        }
+        else {
+          beanProperty.setValue(obj, result);
+        }
       }
+    }
+    else if (typeHandler instanceof SmartTypeHandler handler) {
+      Object value = beanProperty.getValue(obj);
+      handler.applyResult(value, resultSet, columnIndex);
+    }
+    else {
+      throw new IllegalStateException("Entity property %s.%s is not writable"
+              .formatted(beanProperty.getDeclaringClass(), beanProperty.getName()));
     }
   }
 

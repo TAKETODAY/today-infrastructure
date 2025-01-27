@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ import java.sql.SQLException;
 public class BytesInputStreamTypeHandler extends BaseTypeHandler<InputStream> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, InputStream parameter) throws SQLException {
-    ps.setBinaryStream(parameterIndex, parameter);
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, InputStream arg) throws SQLException {
+    ps.setBinaryStream(parameterIndex, arg);
   }
 
   @Override

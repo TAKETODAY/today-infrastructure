@@ -99,7 +99,7 @@ class TypeHandlerManagerTests {
     }
 
     @Override
-    public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Integer parameter) throws SQLException {
+    public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Integer arg) throws SQLException {
 
     }
 

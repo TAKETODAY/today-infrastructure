@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ import java.time.Month;
 public class MonthTypeHandler extends BaseTypeHandler<Month> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Month month) throws SQLException {
-    ps.setInt(i, month.getValue());
+  public void setNonNullParameter(PreparedStatement ps, int i, Month arg) throws SQLException {
+    ps.setInt(i, arg.getValue());
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ import infra.util.StringUtils;
 public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, UUID parameter) throws SQLException {
-    ps.setString(parameterIndex, parameter.toString());
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, UUID arg) throws SQLException {
+    ps.setString(parameterIndex, arg.toString());
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,12 +68,12 @@ public class EnumerableEnumTypeHandler<V> implements TypeHandler<Enumerable<V>> 
 
   @Override
   public void setParameter(PreparedStatement ps,
-          int parameterIndex, @Nullable Enumerable<V> parameter) throws SQLException {
-    if (parameter == null) {
+          int parameterIndex, @Nullable Enumerable<V> arg) throws SQLException {
+    if (arg == null) {
       delegate.setParameter(ps, parameterIndex, null);
     }
     else {
-      delegate.setParameter(ps, parameterIndex, parameter.getValue());
+      delegate.setParameter(ps, parameterIndex, arg.getValue());
     }
   }
 

@@ -85,9 +85,9 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
   }
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
-    if (parameter != null) {
-      Object propertyValue = valueSupplier.apply(parameter);
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T arg) throws SQLException {
+    if (arg != null) {
+      Object propertyValue = valueSupplier.apply(arg);
       delegate.setParameter(ps, parameterIndex, propertyValue);
     }
     else {

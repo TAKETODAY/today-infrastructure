@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -374,6 +374,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     return new PersistenceException("Database read error: " + ex.getMessage(), ex);
   }
 
+  @Nullable
   protected abstract T readNext(ResultSet resultSet) throws SQLException;
 
   static final class ResultSetValue<T> {

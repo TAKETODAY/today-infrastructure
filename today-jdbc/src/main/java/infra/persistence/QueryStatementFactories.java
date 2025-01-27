@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ final class QueryStatementFactories implements QueryStatementFactory {
 
   final List<QueryStatementFactory> factories;
 
-  QueryStatementFactories(EntityMetadataFactory entityMetadataFactory) {
+  QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
     List<QueryStatementFactory> list = TodayStrategies.find(QueryStatementFactory.class);
     list.add(new MapQueryStatementFactory());
-    list.add(new DefaultQueryStatementFactory(entityMetadataFactory));
+    list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
     this.factories = List.copyOf(list);
   }
 

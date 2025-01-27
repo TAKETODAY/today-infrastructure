@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,12 +40,12 @@ import infra.lang.Nullable;
 public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
-    if (parameter == null) {
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T arg) throws SQLException {
+    if (arg == null) {
       setNullParameter(ps, parameterIndex);
     }
     else {
-      setNonNullParameter(ps, parameterIndex, parameter);
+      setNonNullParameter(ps, parameterIndex, arg);
     }
   }
 
@@ -53,8 +53,8 @@ public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
     ps.setObject(parameterIndex, null);
   }
 
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, T parameter) throws SQLException {
-    ps.setObject(parameterIndex, parameter);
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, T arg) throws SQLException {
+    ps.setObject(parameterIndex, arg);
   }
 
 }

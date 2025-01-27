@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import infra.lang.Nullable;
  * @since 4.0 2022/9/7 22:46
  */
 public class EntityProperty {
+
   public final String columnName;
 
   public final boolean isIdProperty;
@@ -65,6 +66,12 @@ public class EntityProperty {
     return property.getValue(entity);
   }
 
+  /**
+   * Set the property value to entity
+   *
+   * @param entity entity instance
+   * @param propertyValue value
+   */
   public void setValue(Object entity, @Nullable Object propertyValue) {
     property.setDirectly(entity, propertyValue);
   }
@@ -116,14 +123,14 @@ public class EntityProperty {
    * object is of a class implementing more than one of the interfaces named above.
    *
    * @param parameterIndex the first parameter is 1, the second is 2, ...
-   * @param parameter the object containing the input parameter value
+   * @param arg the object containing the input parameter value
    * @throws SQLException if parameterIndex does not correspond to a parameter
    * marker in the SQL statement; if a database access error occurs;
    * this method is called on a closed {@code PreparedStatement}
    * or the type of the given object is ambiguous
    */
-  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Object parameter) throws SQLException {
-    typeHandler.setParameter(ps, parameterIndex, parameter);
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable Object arg) throws SQLException {
+    typeHandler.setParameter(ps, parameterIndex, arg);
   }
 
   /**
@@ -137,8 +144,11 @@ public class EntityProperty {
     return typeHandler.getResult(rs, columnIndex);
   }
 
+  /**
+   * Set property
+   */
   public void setProperty(Object entity, ResultSet rs, int columnIndex) throws SQLException {
-    Object propertyValue = typeHandler.getResult(rs, columnIndex);
+    Object propertyValue = getResult(rs, columnIndex);
     property.setDirectly(entity, propertyValue);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ import infra.lang.Nullable;
 public class DurationTypeHandler extends BaseTypeHandler<Duration> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Duration parameter) throws SQLException {
-    ps.setLong(parameterIndex, parameter.toNanos());
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Duration arg) throws SQLException {
+    ps.setLong(parameterIndex, arg.toNanos());
   }
 
   @Nullable

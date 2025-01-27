@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,9 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
 
   @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
-    if (propertyValue instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
-      propertyValue = string.trim();
+  public Condition resolve(EntityProperty entityProperty, Object extracted) {
+    if (extracted instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
+      extracted = string.trim();
     }
 
     // render where clause
@@ -44,12 +44,12 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
     if (annotation.isPresent()) {
       String value = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(value)) {
-        return new Condition(propertyValue, Restriction.plain(value), entityProperty);
+        return new Condition(extracted, Restriction.plain(value), entityProperty);
       }
       else {
         String condition = annotation.getString("condition");
         if (Constant.DEFAULT_NONE.equals(condition)) {
-          return new Condition(propertyValue, Restriction.equal(entityProperty.columnName), entityProperty);
+          return new Condition(extracted, Restriction.equal(entityProperty.columnName), entityProperty);
         }
       }
     }
