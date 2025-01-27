@@ -10,7 +10,7 @@ repositories {
 
 
 dependencies {
-  implementation 'org.yaml:snakeyaml:1.33'
+  implementation 'org.yaml:snakeyaml:2.0'
   implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
