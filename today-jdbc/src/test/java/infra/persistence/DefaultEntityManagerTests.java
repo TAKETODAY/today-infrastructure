@@ -595,6 +595,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   void addConditionPropertyExtractor(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     try (NamedQuery query = repositoryManager.createNamedQuery("""
+            drop table if exists t_option;
             create table t_option (
                 `name`  varchar(255) default null,
                 `value` varchar(255) default null
@@ -625,6 +626,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
   void setConditionPropertyExtractors(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     try (NamedQuery query = repositoryManager.createNamedQuery("""
+            drop table if exists t_option;
             create table t_option (
                 `name`  varchar(255) default null,
                 `value` varchar(255) default null
