@@ -21,7 +21,6 @@ configurations {
 dependencies {
   api 'org.apache.commons:commons-compress'
   api(project(":today-core"))
-
   compileOnly("ch.qos.logback:logback-classic")
 
   loader(project(":infra-build:infra-app-loader"))
@@ -32,6 +31,7 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")
   testImplementation("org.zeroturnaround:zt-zip:1.13")
+  testImplementation 'commons-io:commons-io'
 }
 
 tasks.register('reproducibleLoaderJar', Jar) {
