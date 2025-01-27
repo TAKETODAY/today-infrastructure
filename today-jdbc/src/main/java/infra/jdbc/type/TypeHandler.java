@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,13 +62,13 @@ public interface TypeHandler<T> {
    * object is of a class implementing more than one of the interfaces named above.
    *
    * @param parameterIndex the first parameter is 1, the second is 2, ...
-   * @param parameter the object containing the input parameter value
+   * @param arg the object containing the input parameter value
    * @throws SQLException if parameterIndex does not correspond to a parameter
    * marker in the SQL statement; if a database access error occurs;
    * this method is called on a closed {@code PreparedStatement}
    * or the type of the given object is ambiguous
    */
-  void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter)
+  void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T arg)
           throws SQLException;
 
   /**

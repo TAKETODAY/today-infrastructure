@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,12 +75,17 @@ public class DefaultEntityManager implements EntityManager {
 
   private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
 
+  private final DataSource dataSource;
+
   private final RepositoryManager repositoryManager;
 
-  private int maxBatchRecords = 0;
+  @SuppressWarnings("rawtypes")
+  private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
 
   @Nullable
   private ArrayList<BatchPersistListener> batchPersistListeners;
+
+  private int maxBatchRecords = 0;
 
   /**
    * a flag indicating whether auto-generated keys should be returned;
@@ -98,9 +103,7 @@ public class DefaultEntityManager implements EntityManager {
   @Nullable
   private TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private QueryStatementFactories handlerFactories = new QueryStatementFactories(entityMetadataFactory);
-
-  private final DataSource dataSource;
+  private QueryStatementFactories handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.forClasspath());
@@ -127,9 +130,9 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
-    Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
+    Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
-    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory);
+    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors);
   }
 
   /**
@@ -208,6 +211,32 @@ public class DefaultEntityManager implements EntityManager {
    */
   public void setTransactionConfig(@Nullable TransactionDefinition definition) {
     this.transactionConfig = definition;
+  }
+
+  /**
+   * Add ConditionPropertyExtractor
+   *
+   * @param extractor ConditionPropertyExtractor
+   * @since 5.0
+   */
+  @SuppressWarnings("rawtypes")
+  public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
+    Assert.notNull(extractor, "ConditionPropertyExtractor is required");
+    this.propertyExtractors.add(extractor);
+  }
+
+  /**
+   * Set ConditionPropertyExtractors
+   *
+   * @param extractors ConditionPropertyExtractor list
+   * @since 5.0
+   */
+  @SuppressWarnings("rawtypes")
+  public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
+    propertyExtractors.clear();
+    if (extractors != null) {
+      this.propertyExtractors.addAll(extractors);
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -606,7 +635,7 @@ public class DefaultEntityManager implements EntityManager {
       sql.append("` = ? ");
     }
     else {
-      exampleQuery = new ExampleQuery(entityOrExample, metadata);
+      exampleQuery = new ExampleQuery(entityOrExample, metadata, propertyExtractors);
       exampleQuery.renderWhereClause(sql);
     }
 

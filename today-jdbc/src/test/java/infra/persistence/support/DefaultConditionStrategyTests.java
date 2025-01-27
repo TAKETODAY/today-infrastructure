@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class DefaultConditionStrategyTests {
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(name);
-    assertThat(condition.propertyValue).isEqualTo("name");
+    assertThat(condition.value).isEqualTo("name");
     assertThat(condition.restriction).isEqualTo(Restriction.equal("name"));
 
   }
@@ -71,7 +71,7 @@ class DefaultConditionStrategyTests {
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(number);
-    assertThat(condition.propertyValue).isEqualTo(2);
+    assertThat(condition.value).isEqualTo(2);
     assertThat(condition.restriction).isEqualTo(Restriction.equal("number"));
   }
 

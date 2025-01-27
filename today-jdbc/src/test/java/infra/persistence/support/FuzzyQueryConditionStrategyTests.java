@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(trimLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
-    assertThat(condition.propertyValue).isEqualTo("%f%");
+    assertThat(condition.value).isEqualTo("%f%");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -80,7 +80,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(notTrimLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimLike);
-    assertThat(condition.propertyValue).isEqualTo("% f %");
+    assertThat(condition.value).isEqualTo("% f %");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -97,7 +97,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(trimPrefixLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
-    assertThat(condition.propertyValue).isEqualTo("f%");
+    assertThat(condition.value).isEqualTo("f%");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -116,7 +116,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(notTrimPrefixLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimPrefixLike);
-    assertThat(condition.propertyValue).isEqualTo(" f %");
+    assertThat(condition.value).isEqualTo(" f %");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -133,7 +133,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(trimSuffixLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
-    assertThat(condition.propertyValue).isEqualTo("%f");
+    assertThat(condition.value).isEqualTo("%f");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -152,7 +152,7 @@ class FuzzyQueryConditionStrategyTests {
     var condition = strategy.resolve(notTrimSuffixLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimSuffixLike);
-    assertThat(condition.propertyValue).isEqualTo("% f ");
+    assertThat(condition.value).isEqualTo("% f ");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -173,7 +173,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(column);
-    assertThat(condition.propertyValue).isEqualTo("%f%");
+    assertThat(condition.value).isEqualTo("%f%");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.persistence;
 
+import java.util.List;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 16:53
@@ -25,18 +27,21 @@ final class DefaultQueryStatementFactory implements QueryStatementFactory {
 
   private final EntityMetadataFactory factory;
 
-  public DefaultQueryStatementFactory(EntityMetadataFactory factory) {
+  private final List<ConditionPropertyExtractor> extractors;
+
+  public DefaultQueryStatementFactory(EntityMetadataFactory factory, List<ConditionPropertyExtractor> extractors) {
     this.factory = factory;
+    this.extractors = extractors;
   }
 
   @Override
   public QueryStatement createQuery(Object example) {
-    return new ExampleQuery(factory, example);
+    return new ExampleQuery(factory, example, extractors);
   }
 
   @Override
   public ConditionStatement createCondition(Object example) {
-    return new ExampleQuery(factory, example);
+    return new ExampleQuery(factory, example, extractors);
   }
 
 }

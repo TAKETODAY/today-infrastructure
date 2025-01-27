@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,11 @@ public final class FieldBeanProperty extends BeanProperty {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  private final boolean writeable;
+
   FieldBeanProperty(Field field) {
     super(field);
+    this.writeable = !Modifier.isFinal(field.getModifiers());
   }
 
   @Override
@@ -68,7 +71,7 @@ public final class FieldBeanProperty extends BeanProperty {
 
   @Override
   public boolean isReadOnly() {
-    return Modifier.isFinal(field.getModifiers());
+    return !writeable;
   }
 
   @Override
@@ -78,7 +81,7 @@ public final class FieldBeanProperty extends BeanProperty {
 
   @Override
   public boolean isWriteable() {
-    return !isReadOnly();
+    return writeable;
   }
 
   @Override

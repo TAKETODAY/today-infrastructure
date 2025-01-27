@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,19 +20,28 @@ package infra.persistence;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.TestInstance;
 
+import java.io.Serializable;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import infra.beans.BeanProperty;
 import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
+import infra.jdbc.type.BaseTypeHandler;
+import infra.jdbc.type.SmartTypeHandler;
 import infra.lang.Nullable;
 import infra.persistence.model.Gender;
 import infra.persistence.model.NoIdModel;
@@ -41,7 +50,6 @@ import infra.test.util.ReflectionTestUtils;
 import infra.util.CollectionUtils;
 
 import static infra.persistence.PropertyUpdateStrategy.noneNull;
-import static infra.persistence.QueryCondition.between;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -50,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @since 4.0 2022/8/16 22:48
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class EntityManagerTests extends AbstractRepositoryManagerTests {
+class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
@@ -583,6 +591,64 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     assertThat(entityManager.findById(UserModel.class, 1)).isNull();
   }
 
+  @ParameterizedRepositoryManagerTest
+  void addConditionPropertyExtractor(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    try (NamedQuery query = repositoryManager.createNamedQuery("""
+            drop table if exists t_option;
+            create table t_option (
+                `name`  varchar(255) default null,
+                `value` varchar(255) default null
+            );
+            """)) {
+
+      query.executeUpdate();
+    }
+
+    assertThatThrownBy(() -> entityManager.addConditionPropertyExtractor(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("ConditionPropertyExtractor is required");
+
+    entityManager.addConditionPropertyExtractor(new Base64ValueExtractor());
+    repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
+
+    Option entity = Option.of("k", "v");
+    entityManager.persist(entity);
+
+    Option unique = entityManager.findUnique(Option.of("k", "v"));
+    assertThat(unique).isEqualTo(entity);
+
+    assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
+    assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void setConditionPropertyExtractors(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    try (NamedQuery query = repositoryManager.createNamedQuery("""
+            drop table if exists t_option;
+            create table t_option (
+                `name`  varchar(255) default null,
+                `value` varchar(255) default null
+            );
+            """)) {
+
+      query.executeUpdate();
+    }
+
+    repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
+
+    Option entity = Option.of("k", "v");
+    entityManager.persist(entity);
+
+    assertThat(entityManager.findUnique(Option.of("k", null))).isNull();
+
+    entityManager.setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
+
+    assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
+    assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
+  }
+
   public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 
@@ -638,6 +704,130 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   @EntityRef(UserModel.class)
   static class UserFailed {
     String name;
+  }
+
+  @Table("t_option")
+  static class Option {
+
+    public final Base64Value name = new Base64Value();
+
+    public final Base64Value value = new Base64Value();
+
+    static Option of(@Nullable String name, @Nullable String value) {
+      Option option = new Option();
+      option.name.set(name);
+      option.value.set(value);
+      return option;
+    }
+
+    @Override
+    public boolean equals(Object param) {
+      if (this == param)
+        return true;
+      if (!(param instanceof Option option))
+        return false;
+      return Objects.equals(name, option.name)
+              && Objects.equals(value, option.value);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(name, value);
+    }
+
+  }
+
+  static class Base64Value implements Serializable {
+
+    @Nullable
+    private String value;
+
+    Base64Value() {
+
+    }
+
+    Base64Value(@Nullable String value) {
+      this.value = value;
+    }
+
+    public void set(@Nullable String value) {
+      this.value = value;
+    }
+
+    @Nullable
+    public String get() {
+      return value;
+    }
+
+    @Override
+    public boolean equals(Object param) {
+      if (this == param)
+        return true;
+      if (!(param instanceof Base64Value that))
+        return false;
+      return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(value);
+    }
+
+  }
+
+  static class Base64ValueExtractor implements ConditionPropertyExtractor<String> {
+
+    @Nullable
+    @Override
+    public Object extract(Object entityOrExample, EntityProperty property, @Nullable Object value) {
+      if (value instanceof Base64Value base64Value) {
+        return base64Value.value;
+      }
+      return value;
+    }
+
+    @Override
+    public Object wrap(String extracted) {
+      return new Base64Value(extracted);
+    }
+
+  }
+
+  static class Base64ValueHandler extends BaseTypeHandler<Base64Value> implements SmartTypeHandler<Base64Value> {
+
+    @Override
+    public boolean supportsProperty(BeanProperty property) {
+      return property.getTypeDescriptor().is(Base64Value.class);
+    }
+
+    @Override
+    public void applyResult(Base64Value value, ResultSet rs, int columnIndex) throws SQLException {
+      value.set(rs.getString(columnIndex));
+    }
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Base64Value arg) throws SQLException {
+      ps.setString(parameterIndex, arg.value);
+    }
+
+    @Nullable
+    @Override
+    public Base64Value getResult(ResultSet rs, String columnName) throws SQLException {
+      return new Base64Value(rs.getString(columnName));
+    }
+
+    @Nullable
+    @Override
+    public Base64Value getResult(ResultSet rs, int columnIndex) throws SQLException {
+      return new Base64Value(rs.getString(columnIndex));
+    }
+
+    @Nullable
+    @Override
+    public Base64Value getResult(CallableStatement cs, int columnIndex) throws SQLException {
+      return new Base64Value(cs.getString(columnIndex));
+    }
+
   }
 }
 

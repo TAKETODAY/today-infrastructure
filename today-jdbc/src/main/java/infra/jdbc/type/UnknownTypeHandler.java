@@ -48,9 +48,9 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void setNonNullParameter(PreparedStatement ps, int i, Object parameter) throws SQLException {
-    TypeHandler handler = resolveTypeHandler(parameter);
-    handler.setParameter(ps, i, parameter);
+  public void setNonNullParameter(PreparedStatement ps, int i, Object arg) throws SQLException {
+    TypeHandler handler = resolveTypeHandler(arg);
+    handler.setParameter(ps, i, arg);
   }
 
   @Override

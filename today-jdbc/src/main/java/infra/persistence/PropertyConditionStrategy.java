@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,24 +24,39 @@ import infra.lang.Nullable;
 import infra.persistence.sql.Restriction;
 
 /**
+ * SQL where condition resolver
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:58
  */
 public interface PropertyConditionStrategy {
 
+  /**
+   * Resolve SQL where condition
+   *
+   * @param entityProperty metadata source
+   * @param value value maybe is type of {@code entityProperty} or
+   * a value from a wrapped value
+   * @return SQL where condition
+   */
   @Nullable
-  Condition resolve(EntityProperty entityProperty, Object propertyValue);
+  Condition resolve(EntityProperty entityProperty, Object value);
 
+  /**
+   * SQL where condition
+   *
+   * @since 4.0
+   */
   class Condition implements Restriction {
 
-    public final Object propertyValue;
+    public final Object value;
 
     public final Restriction restriction;
 
     public final EntityProperty entityProperty;
 
-    public Condition(Object propertyValue, Restriction restriction, EntityProperty entityProperty) {
-      this.propertyValue = propertyValue;
+    public Condition(Object value, Restriction restriction, EntityProperty entityProperty) {
+      this.value = value;
       this.restriction = restriction;
       this.entityProperty = entityProperty;
     }
@@ -55,6 +70,16 @@ public interface PropertyConditionStrategy {
     }
 
     /**
+     * Creates a new Condition with new property value
+     *
+     * @param propertyValue a new value
+     * @since 5.0
+     */
+    public Condition withValue(Object propertyValue) {
+      return new Condition(propertyValue, restriction, entityProperty);
+    }
+
+    /**
      * <p>Sets the value of the designated parameter using the given object.
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
@@ -65,7 +90,7 @@ public interface PropertyConditionStrategy {
      * or the type of the given object is ambiguous
      */
     public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
-      entityProperty.setParameter(ps, parameterIndex++, propertyValue);
+      entityProperty.setParameter(ps, parameterIndex++, value);
       return parameterIndex;
     }
 

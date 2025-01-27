@@ -15,27 +15,19 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.persistence.support;
+package infra.persistence;
 
 import infra.lang.Nullable;
-import infra.persistence.EntityProperty;
-import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.sql.Restriction;
-import infra.util.StringUtils;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/28 22:43
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/1/25 22:51
  */
-public class DefaultConditionStrategy implements PropertyConditionStrategy {
+public interface ConditionPropertyExtractor<T> {
 
   @Nullable
-  @Override
-  public Condition resolve(EntityProperty entityProperty, Object value) {
-    if (value instanceof String string && StringUtils.isBlank(string)) {
-      return null;
-    }
-    return new Condition(value, Restriction.equal(entityProperty.columnName), entityProperty);
-  }
+  Object extract(Object entityOrExample, EntityProperty property, @Nullable Object value);
+
+  Object wrap(T extracted);
 
 }

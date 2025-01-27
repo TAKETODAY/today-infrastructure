@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,12 +36,12 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
+  public Condition resolve(EntityProperty entityProperty, Object value) {
     MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
     if (annotation.isPresent()) {
       // handle string
 
-      if (propertyValue instanceof String string) {
+      if (value instanceof String string) {
         // trim
         if (annotation.getBoolean("trim")) {
           string = string.trim();
@@ -63,8 +63,8 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
             string = '%' + string + '%';
           }
 
-          propertyValue = string;
-          return new Condition(propertyValue, new LikeRestriction(column), entityProperty);
+          value = string;
+          return new Condition(value, new LikeRestriction(column), entityProperty);
         }
       }
     }

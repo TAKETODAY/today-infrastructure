@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ import java.sql.SQLException;
 public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Boolean parameter) throws SQLException {
-    ps.setBoolean(i, parameter);
+  public void setNonNullParameter(PreparedStatement ps, int i, Boolean arg) throws SQLException {
+    ps.setBoolean(i, arg);
   }
 
   @Override

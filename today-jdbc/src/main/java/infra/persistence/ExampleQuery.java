@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
@@ -42,6 +43,7 @@ import infra.persistence.support.WhereAnnotationConditionStrategy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/19 19:56
  */
+@SuppressWarnings("rawtypes")
 final class ExampleQuery extends SimpleSelectQueryStatement implements ConditionStatement, DebugDescriptive {
 
   static final List<PropertyConditionStrategy> strategies;
@@ -58,19 +60,23 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
 
   private final EntityMetadata exampleMetadata;
 
+  private final List<ConditionPropertyExtractor> extractors;
+
   @Nullable
   private ArrayList<Condition> conditions;
 
   @Nullable
   private OrderByClause orderByClause;
 
-  ExampleQuery(Object example, EntityMetadata exampleMetadata) {
+  ExampleQuery(Object example, EntityMetadata exampleMetadata, List<ConditionPropertyExtractor> extractors) {
     this.example = example;
     this.exampleMetadata = exampleMetadata;
+    this.extractors = extractors;
   }
 
-  ExampleQuery(EntityMetadataFactory factory, Object example) {
+  ExampleQuery(EntityMetadataFactory factory, Object example, List<ConditionPropertyExtractor> extractors) {
     this.example = example;
+    this.extractors = extractors;
     this.exampleMetadata = factory.getEntityMetadata(example.getClass());
   }
 
@@ -121,6 +127,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
     return LogMessage.format("Query entity using example: {}", example);
   }
 
+  @SuppressWarnings("unchecked")
   private ArrayList<Condition> scan(@Nullable Consumer<Condition> consumer) {
     ArrayList<Condition> conditions = this.conditions;
     if (conditions == null) {
@@ -128,22 +135,44 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
       // apply class level order by
       applyOrderByClause();
 
-      for (EntityProperty entityProperty : exampleMetadata.entityProperties) {
-        Object propertyValue = entityProperty.getValue(example);
+      for (EntityProperty property : exampleMetadata.entityProperties) {
+        Object propertyValue = property.getValue(example);
         if (propertyValue != null) {
-          for (var strategy : strategies) {
-            var condition = strategy.resolve(entityProperty, propertyValue);
-            if (condition != null) {
-              if (consumer != null) {
-                consumer.accept(condition);
-              }
-              conditions.add(condition);
+          Object extracted = propertyValue;
+          ConditionPropertyExtractor selected = null;
+          for (ConditionPropertyExtractor extractor : extractors) {
+            Object extract = extractor.extract(example, property, propertyValue);
+            if (extract != propertyValue) {
+              selected = extractor;
+              extracted = extract;
               break;
+            }
+          }
+
+          if (extracted != null) {
+            for (var strategy : strategies) {
+              var condition = strategy.resolve(property, extracted);
+              if (condition != null) {
+                if (selected != null) {
+                  if (Objects.equals(condition.value, extracted)) {
+                    condition = condition.withValue(propertyValue);
+                  }
+                  else {
+                    condition = condition.withValue(selected.wrap(extracted));
+                  }
+                }
+
+                if (consumer != null) {
+                  consumer.accept(condition);
+                }
+                conditions.add(condition);
+                break;
+              }
             }
           }
         }
 
-        applyOrderByClause(entityProperty);
+        applyOrderByClause(property);
       }
       this.conditions = conditions;
     }

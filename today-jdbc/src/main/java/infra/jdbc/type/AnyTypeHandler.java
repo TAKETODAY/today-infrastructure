@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ public final class AnyTypeHandler<T> implements TypeHandler<T> {
   }
 
   @Override
-  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {
-    ps.setObject(parameterIndex, parameter);
+  public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T arg) throws SQLException {
+    ps.setObject(parameterIndex, arg);
   }
 
   @Nullable

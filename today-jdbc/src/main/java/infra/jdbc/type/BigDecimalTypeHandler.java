@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ import java.sql.SQLException;
 public class BigDecimalTypeHandler extends BaseTypeHandler<BigDecimal> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal parameter) throws SQLException {
-    ps.setBigDecimal(i, parameter);
+  public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal arg) throws SQLException {
+    ps.setBigDecimal(i, arg);
   }
 
   @Override
