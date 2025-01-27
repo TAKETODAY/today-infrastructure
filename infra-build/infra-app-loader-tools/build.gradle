@@ -5,7 +5,7 @@ plugins {
 
 description = "Infra Application Loader Tools"
 
-def generatedResources = "${layout.buildDirectory}/generated-resources/main"
+def generatedResources = "$buildDir/generated-resources/main"
 
 configurations {
   loader {
