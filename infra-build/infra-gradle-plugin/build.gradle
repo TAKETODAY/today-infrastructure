@@ -45,7 +45,6 @@ dependencies {
   api("org.tomlj:tomlj:1.0.0")
   implementation(project(":today-aop"))
 
-
   implementation(project(":today-core"))
   implementation(project(":today-test-support"))
   implementation(project(":infra-build:infra-app-loader"))
@@ -71,6 +70,7 @@ dependencies {
   testImplementation("org.hamcrest:hamcrest")
   testImplementation("org.mockito:mockito-junit-jupiter")
   testImplementation("org.skyscreamer:jsonassert")
+  testImplementation "commons-io:commons-io"
 }
 
 gradlePlugin {

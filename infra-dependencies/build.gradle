@@ -141,7 +141,7 @@ bom {
       ]
     }
   }
-  library("Commons Lang3", "3.14.0") {
+  library("Commons Lang3", "3.17.0") {
     group("org.apache.commons") {
       modules = [
           "commons-lang3"
@@ -582,7 +582,6 @@ dependencies {
     api("com.sun.xml.bind:jaxb-xjc:3.0.2")
     api("com.thoughtworks.qdox:qdox:2.0.3")
     api("com.thoughtworks.xstream:xstream:1.4.20")
-    api("commons-io:commons-io:2.18.0")
     api("de.bechte.junit:junit-hierarchicalcontextrunner:4.12.2")
     api("info.picocli:picocli:4.7.4")
     api("io.micrometer:context-propagation:1.0.3")
@@ -621,7 +620,8 @@ dependencies {
     api("net.sf.jopt-simple:jopt-simple:5.0.4")
     api("org.apache-extras.beanshell:bsh:2.0b6")
     api("org.apache.poi:poi-ooxml:5.2.3")
-    api "org.apache.commons:commons-compress:1.27.1"
+    api("org.apache.commons:commons-compress:1.27.1")
+    api("commons-io:commons-io:2.18.0")
     api("org.bouncycastle:bcpkix-jdk18on:1.72")
     api("org.codehaus.jettison:jettison:1.5.4")
     api("org.crac:crac:1.4.0")

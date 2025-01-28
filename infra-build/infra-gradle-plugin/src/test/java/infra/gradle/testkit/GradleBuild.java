@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.util.GradleVersion;
+import org.apache.commons.io.Charsets;
 import org.tomlj.Toml;
 
 import java.io.File;
@@ -133,6 +134,7 @@ public class GradleBuild {
             new File(pathOfJarContaining(Platform.class)),
             new File(pathOfJarContaining(Toml.class)),
             new File(pathOfJarContaining(Lexer.class)),
+            new File(pathOfJarContaining(Charsets.class)),
             new File(pathOfJarContaining("org.graalvm.buildtools.gradle.NativeImagePlugin")),
             new File(pathOfJarContaining("org.graalvm.reachability.GraalVMReachabilityMetadataRepository")),
             new File(pathOfJarContaining("org.graalvm.buildtools.utils.SharedConstants")));
