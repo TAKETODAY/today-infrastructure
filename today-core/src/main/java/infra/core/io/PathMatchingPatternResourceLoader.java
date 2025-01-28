@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -585,13 +585,15 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
         }
         if (currentPrefix != null) {
-          // A prefix match found, potentially to be turned into a common parent cache entry.
-          if (commonPrefix == null || !commonUnique || currentPrefix.length() > commonPrefix.length()) {
-            commonPrefix = currentPrefix;
-            existingPath = path;
-          }
-          else if (currentPrefix.equals(commonPrefix)) {
-            commonUnique = false;
+          if (checkPathWithinPackage(path.substring(currentPrefix.length()))) {
+            // A prefix match found, potentially to be turned into a common parent cache entry.
+            if (commonPrefix == null || !commonUnique || currentPrefix.length() > commonPrefix.length()) {
+              commonPrefix = currentPrefix;
+              existingPath = path;
+            }
+            else if (currentPrefix.equals(commonPrefix)) {
+              commonUnique = false;
+            }
           }
         }
         else if (actualRootPath == null || path.length() > actualRootPath.length()) {
@@ -1029,6 +1031,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   private static String stripLeadingSlash(String path) {
     return path.startsWith("/") ? path.substring(1) : path;
+  }
+
+  private static boolean checkPathWithinPackage(String path) {
+    return (path.contains("/") && !path.contains(ResourceUtils.JAR_URL_SEPARATOR));
   }
 
   /**
