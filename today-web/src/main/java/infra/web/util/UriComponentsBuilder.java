@@ -603,7 +603,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   @Override
   public UriComponentsBuilder queryParam(String name, @Nullable Object... values) {
     Assert.notNull(name, "Name is required");
-    if (!ObjectUtils.isEmpty(values)) {
+    if (ObjectUtils.isNotEmpty(values)) {
       for (Object value : values) {
         String valueAsString = getQueryParamValue(value);
         this.queryParams.add(name, valueAsString);
@@ -660,7 +660,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   public UriComponentsBuilder replaceQueryParam(String name, Object... values) {
     Assert.notNull(name, "Name is required");
     this.queryParams.remove(name);
-    if (!ObjectUtils.isEmpty(values)) {
+    if (ObjectUtils.isNotEmpty(values)) {
       queryParam(name, values);
     }
     resetSchemeSpecificPart();
@@ -791,7 +791,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     private final Deque<PathComponentBuilder> builders = new ArrayDeque<>();
 
     public void addPathSegments(String... pathSegments) {
-      if (!ObjectUtils.isEmpty(pathSegments)) {
+      if (ObjectUtils.isNotEmpty(pathSegments)) {
         PathSegmentComponentBuilder psBuilder = getLastBuilder(PathSegmentComponentBuilder.class);
         FullPathComponentBuilder fpBuilder = getLastBuilder(FullPathComponentBuilder.class);
         if (psBuilder == null) {

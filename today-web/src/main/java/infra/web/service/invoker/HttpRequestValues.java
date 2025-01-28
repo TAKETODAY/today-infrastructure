@@ -484,17 +484,15 @@ public class HttpRequestValues {
 
     private String appendQueryParams(String uriTemplate, Map<String, String> uriVars, MultiValueMap<String, String> requestParams) {
       UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.forURIString(uriTemplate);
-      int i = 0;
+
       for (Map.Entry<String, List<String>> entry : requestParams.entrySet()) {
-        String nameVar = "queryParam" + i;
+        String nameVar = entry.getKey();
         uriVars.put(nameVar, entry.getKey());
-        List<String> value = entry.getValue();
-        for (int j = 0; j < value.size(); j++) {
+        for (int j = 0; j < entry.getValue().size(); j++) {
           String valueVar = nameVar + "[" + j + "]";
-          uriVars.put(valueVar, value.get(j));
+          uriVars.put(valueVar, entry.getValue().get(j));
           uriComponentsBuilder.queryParam("{" + nameVar + "}", "{" + valueVar + "}");
         }
-        i++;
       }
       return uriComponentsBuilder.build().toUriString();
     }

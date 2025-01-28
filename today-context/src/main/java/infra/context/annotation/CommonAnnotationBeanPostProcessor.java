@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -329,7 +329,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
             beanDefinition.getPropertyValues());
     Collection<LookupElement> injectedElements = getInjectedElements(metadata,
             beanDefinition.getPropertyValues());
-    if (!ObjectUtils.isEmpty(injectedElements)) {
+    if (ObjectUtils.isNotEmpty(injectedElements)) {
       AotContribution aotContribution = new AotContribution(beanClass, injectedElements,
               getAutowireCandidateResolver(registeredBean));
       return BeanRegistrationAotContribution.concat(parentAotContribution, aotContribution);
