@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,11 @@ package infra.http.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.function.Predicate;
 
 import infra.http.HttpMethod;
+import infra.http.HttpRequest;
+import infra.lang.Nullable;
 
 /**
  * Wrapper for a {@link ClientHttpRequestFactory} that buffers
@@ -35,19 +38,33 @@ import infra.http.HttpMethod;
  */
 public class BufferingClientHttpRequestFactory extends ClientHttpRequestFactoryWrapper {
 
+  private final Predicate<HttpRequest> bufferingPredicate;
+
   /**
    * Create a buffering wrapper for the given {@link ClientHttpRequestFactory}.
    *
    * @param requestFactory the target request factory to wrap
    */
   public BufferingClientHttpRequestFactory(ClientHttpRequestFactory requestFactory) {
+    this(requestFactory, null);
+  }
+
+  /**
+   * Constructor variant with an additional predicate to decide whether to
+   * buffer the response.
+   *
+   * @since 5.0
+   */
+  public BufferingClientHttpRequestFactory(ClientHttpRequestFactory requestFactory,
+          @Nullable Predicate<HttpRequest> bufferingPredicate) {
     super(requestFactory);
+    this.bufferingPredicate = bufferingPredicate != null ? bufferingPredicate : request -> true;
   }
 
   @Override
   protected ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod, ClientHttpRequestFactory requestFactory) throws IOException {
     ClientHttpRequest request = requestFactory.createRequest(uri, httpMethod);
-    if (shouldBuffer(uri, httpMethod)) {
+    if (shouldBuffer(request)) {
       return new BufferingClientHttpRequestWrapper(request);
     }
     else {
@@ -61,12 +78,11 @@ public class BufferingClientHttpRequestFactory extends ClientHttpRequestFactoryW
    * <p>The default implementation returns {@code true} for all URIs and methods.
    * Subclasses can override this method to change this behavior.
    *
-   * @param uri the URI
-   * @param httpMethod the method
+   * @param request the request
    * @return {@code true} if the exchange should be buffered; {@code false} otherwise
    */
-  protected boolean shouldBuffer(URI uri, HttpMethod httpMethod) {
-    return true;
+  protected boolean shouldBuffer(HttpRequest request) {
+    return this.bufferingPredicate.test(request);
   }
 
 }

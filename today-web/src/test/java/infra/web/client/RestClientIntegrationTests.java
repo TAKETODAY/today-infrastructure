@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.util.CollectionUtils;
+import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.concurrent.Future;
@@ -59,6 +60,7 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -814,6 +816,57 @@ class RestClientIntegrationTests {
 
     expectRequestCount(1);
     expectRequest(request -> assertThat(request.getHeader("foo")).isEqualTo("bar"));
+  }
+
+  @ParameterizedRestClientTest
+  void requestInterceptorWithResponseBuffering(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response ->
+            response.setHeader("Content-Type", "text/plain").setBody("Hello Infra!"));
+
+    RestClient interceptedClient = this.restClient.mutate()
+            .requestInterceptor((request, body, execution) -> {
+              ClientHttpResponse response = execution.execute(request, body);
+              byte[] result = FileCopyUtils.copyToByteArray(response.getBody());
+              assertThat(result).isEqualTo("Hello Infra!".getBytes(UTF_8));
+              return response;
+            })
+            .bufferContent(request -> true)
+            .build();
+
+    String result = interceptedClient.get()
+            .uri("/greeting")
+            .retrieve()
+            .body(String.class);
+
+    expectRequestCount(1);
+    assertThat(result).isEqualTo("Hello Infra!");
+  }
+
+  @ParameterizedRestClientTest
+  void bufferContent(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response ->
+            response.setHeader("Content-Type", "text/plain").setBody("Hello Infra!"));
+
+    RestClient bufferingClient = this.restClient.mutate()
+            .bufferContent(request -> true)
+            .build();
+
+    String result = bufferingClient.get()
+            .uri("/greeting")
+            .exchange((request, response) -> {
+              byte[] bytes = FileCopyUtils.copyToByteArray(response.getBody());
+              assertThat(bytes).isEqualTo("Hello Infra!".getBytes(UTF_8));
+              bytes = FileCopyUtils.copyToByteArray(response.getBody());
+              assertThat(bytes).isEqualTo("Hello Infra!".getBytes(UTF_8));
+              return new String(bytes, UTF_8);
+            });
+
+    expectRequestCount(1);
+    assertThat(result).isEqualTo("Hello Infra!");
   }
 
   @ParameterizedRestClientTest

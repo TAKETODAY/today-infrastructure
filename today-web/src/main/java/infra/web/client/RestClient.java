@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -495,6 +495,16 @@ public interface RestClient {
      * @return this builder
      */
     Builder requestInterceptors(Consumer<List<ClientHttpRequestInterceptor>> interceptorsConsumer);
+
+    /**
+     * Enable buffering of request and response, aggregating all content before
+     * it is sent, and making it possible to read the response body repeatedly.
+     *
+     * @param predicate to determine whether to buffer for the given request
+     * @return this builder
+     * @since 5.0
+     */
+    Builder bufferContent(Predicate<HttpRequest> predicate);
 
     /**
      * Add the given request initializer to the end of the initializer chain.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.StreamingHttpOutputMessage;
+import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInitializer;
@@ -110,6 +111,9 @@ final class DefaultRestClient implements RestClient {
 
   private final boolean detectEmptyMessageBody;
 
+  @Nullable
+  private final Predicate<HttpRequest> bufferingPredicate;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
@@ -117,6 +121,7 @@ final class DefaultRestClient implements RestClient {
           @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable List<ResponseErrorHandler> statusHandlers,
+          @Nullable Predicate<HttpRequest> bufferingPredicate,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder,
           boolean ignoreStatusHandlers, boolean detectEmptyMessageBody) {
 
@@ -128,6 +133,7 @@ final class DefaultRestClient implements RestClient {
     this.defaultCookies = defaultCookies;
     this.defaultRequest = defaultRequest;
     this.defaultStatusHandlers = statusHandlers;
+    this.bufferingPredicate = bufferingPredicate;
     this.messageConverters = messageConverters;
     this.builder = builder;
     this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
@@ -603,9 +609,13 @@ final class DefaultRestClient implements RestClient {
       if (interceptors != null) {
         factory = interceptingRequestFactory;
         if (factory == null) {
-          factory = new InterceptingClientHttpRequestFactory(clientRequestFactory, interceptors);
+          factory = new InterceptingClientHttpRequestFactory(
+                  clientRequestFactory, interceptors, bufferingPredicate);
           interceptingRequestFactory = factory;
         }
+      }
+      else if (bufferingPredicate != null) {
+        factory = new BufferingClientHttpRequestFactory(clientRequestFactory, bufferingPredicate);
       }
       else {
         factory = clientRequestFactory;

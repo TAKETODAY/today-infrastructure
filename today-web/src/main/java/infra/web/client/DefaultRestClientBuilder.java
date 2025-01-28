@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import infra.http.HttpHeaders;
+import infra.http.HttpRequest;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInitializer;
@@ -135,6 +136,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private List<ClientHttpRequestInitializer> initializers;
 
+  @Nullable
+  private Predicate<HttpRequest> bufferingPredicate;
+
   private boolean ignoreStatus = false;
 
   private boolean detectEmptyMessageBody = true;
@@ -150,6 +154,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.defaultRequest = other.defaultRequest;
     this.requestFactory = other.requestFactory;
     this.uriBuilderFactory = other.uriBuilderFactory;
+    this.bufferingPredicate = other.bufferingPredicate;
 
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
@@ -169,6 +174,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     this.requestFactory = getRequestFactory(restTemplate);
     this.messageConverters = new ArrayList<>(restTemplate.getMessageConverters());
+    this.bufferingPredicate = restTemplate.getBufferingPredicate();
 
     if (CollectionUtils.isNotEmpty(restTemplate.getInterceptors())) {
       this.interceptors = new ArrayList<>(restTemplate.getInterceptors());
@@ -346,6 +352,12 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return this;
   }
 
+  @Override
+  public RestClient.Builder bufferContent(Predicate<HttpRequest> predicate) {
+    bufferingPredicate = predicate;
+    return this;
+  }
+
   private List<ClientHttpRequestInterceptor> initInterceptors() {
     if (this.interceptors == null) {
       this.interceptors = new ArrayList<>();
@@ -452,7 +464,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
-            defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers,
+            defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers, bufferingPredicate,
             messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody);
   }
 

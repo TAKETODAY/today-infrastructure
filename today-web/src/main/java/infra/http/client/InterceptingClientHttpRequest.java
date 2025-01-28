@@ -20,6 +20,7 @@ package infra.http.client;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.function.Predicate;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -43,13 +44,16 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
 
   private final List<ClientHttpRequestInterceptor> interceptors;
 
+  private final Predicate<HttpRequest> bufferingPredicate;
+
   InterceptingClientHttpRequest(ClientHttpRequestFactory requestFactory,
-          List<ClientHttpRequestInterceptor> interceptors, URI uri, HttpMethod method) {
+          List<ClientHttpRequestInterceptor> interceptors, URI uri, HttpMethod method, Predicate<HttpRequest> bufferingPredicate) {
 
     this.requestFactory = requestFactory;
     this.interceptors = interceptors;
     this.method = method;
     this.uri = uri;
+    this.bufferingPredicate = bufferingPredicate;
   }
 
   @Override
@@ -103,7 +107,7 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
   }
 
   private boolean shouldBufferResponse(HttpRequest request) {
-    return false;
+    return bufferingPredicate.test(request);
   }
 
 }

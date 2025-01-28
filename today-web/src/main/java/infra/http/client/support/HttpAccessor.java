@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +21,18 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.http.HttpMethod;
+import infra.http.HttpRequest;
+import infra.http.client.BufferingClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInitializer;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -54,9 +58,12 @@ public abstract class HttpAccessor {
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+  private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
+
   private ClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
 
-  private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
+  @Nullable
+  private Predicate<HttpRequest> bufferingPredicate;
 
   /**
    * Set the request factory that this accessor uses for obtaining client request handles.
@@ -78,7 +85,8 @@ public abstract class HttpAccessor {
    * Return the request factory that this accessor uses for obtaining client request handles.
    */
   public ClientHttpRequestFactory getRequestFactory() {
-    return this.requestFactory;
+    return this.bufferingPredicate != null ? new BufferingClientHttpRequestFactory(
+            this.requestFactory, this.bufferingPredicate) : this.requestFactory;
   }
 
   /**
@@ -87,7 +95,6 @@ public abstract class HttpAccessor {
    * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
    */
   public void setHttpRequestInitializers(List<ClientHttpRequestInitializer> requestInitializers) {
-
     if (this.httpRequestInitializers != requestInitializers) {
       this.httpRequestInitializers.clear();
       this.httpRequestInitializers.addAll(requestInitializers);
@@ -107,6 +114,28 @@ public abstract class HttpAccessor {
    */
   public List<ClientHttpRequestInitializer> getHttpRequestInitializers() {
     return this.httpRequestInitializers;
+  }
+
+  /**
+   * Enable buffering of request and response, aggregating all content before
+   * it is sent, and making it possible to read the response body repeatedly.
+   *
+   * @param predicate to determine whether to buffer for the given request
+   * @since 5.0
+   */
+  public void setBufferingPredicate(@Nullable Predicate<HttpRequest> predicate) {
+    this.bufferingPredicate = predicate;
+  }
+
+  /**
+   * Return the {@link #setBufferingPredicate(Predicate) configured} predicate
+   * to determine whether to buffer request and response content.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public Predicate<HttpRequest> getBufferingPredicate() {
+    return this.bufferingPredicate;
   }
 
   /**
