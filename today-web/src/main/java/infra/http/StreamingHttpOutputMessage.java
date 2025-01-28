@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,22 +41,33 @@ public interface StreamingHttpOutputMessage extends HttpOutputMessage {
   void setBody(Body body);
 
   /**
+   * Variant of {@link #setBody(Body)} for a non-streaming write.
+   *
+   * @param body the content to write
+   * @throws IOException if an I/O exception occurs
+   * @since 5.0
+   */
+  default void setBody(byte[] body) throws IOException {
+    setBody(new Body() {
+      
+      @Override
+      public void writeTo(OutputStream outputStream) throws IOException {
+        StreamUtils.copy(body, outputStream);
+      }
+
+      @Override
+      public boolean repeatable() {
+        return true;
+      }
+    });
+  }
+
+  /**
    * write body
    */
   static void writeBody(HttpOutputMessage outputMessage, byte[] body) throws IOException {
     if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
-      streaming.setBody(new Body() {
-
-        @Override
-        public void writeTo(OutputStream outputStream) throws IOException {
-          StreamUtils.copy(body, outputStream);
-        }
-
-        @Override
-        public boolean repeatable() {
-          return true;
-        }
-      });
+      streaming.setBody(body);
     }
     else {
       StreamUtils.copy(body, outputMessage.getBody());

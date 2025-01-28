@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import infra.http.HttpHeaders;
+import infra.http.StreamingHttpOutputMessage;
 import infra.util.FastByteArrayOutputStream;
 
 /**
@@ -60,5 +61,30 @@ public abstract class AbstractBufferingClientHttpRequest extends AbstractClientH
    */
   protected abstract ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput)
           throws IOException;
+
+  /**
+   * Execute with the given request and body.
+   *
+   * @param request the request to execute with
+   * @param bufferedOutput the body to write
+   * @param bufferResponse whether to buffer the response
+   * @return the resulting response
+   * @throws IOException in case of I/O errors from execution
+   * @since 5.0
+   */
+  protected ClientHttpResponse executeWithRequest(ClientHttpRequest request, byte[] bufferedOutput, boolean bufferResponse)
+          throws IOException //
+  {
+    if (bufferedOutput.length > 0) {
+      long contentLength = request.getHeaders().getContentLength();
+      if (contentLength > -1 && contentLength != bufferedOutput.length) {
+        request.getHeaders().setContentLength(bufferedOutput.length);
+      }
+      StreamingHttpOutputMessage.writeBody(request, bufferedOutput);
+    }
+
+    ClientHttpResponse response = request.execute();
+    return bufferResponse ? new BufferingClientHttpResponseWrapper(response) : response;
+  }
 
 }

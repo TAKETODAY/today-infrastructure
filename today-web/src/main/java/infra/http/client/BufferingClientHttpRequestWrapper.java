@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.net.URI;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.http.StreamingHttpOutputMessage;
 
 /**
  * Simple implementation of {@link ClientHttpRequest} that wraps another request.
@@ -57,13 +56,7 @@ final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHtt
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
     request.getHeaders().putAll(headers);
-
-    if (bufferedOutput.length > 0) {
-      StreamingHttpOutputMessage.writeBody(request, bufferedOutput);
-    }
-
-    ClientHttpResponse response = request.execute();
-    return new BufferingClientHttpResponseWrapper(response);
+    return executeWithRequest(request, bufferedOutput, true);
   }
 
 }

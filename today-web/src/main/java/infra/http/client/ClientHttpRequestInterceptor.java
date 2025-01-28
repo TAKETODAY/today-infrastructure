@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.client;
@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import infra.http.HttpRequest;
 import infra.http.client.support.HttpRequestDecorator;
+import infra.lang.Assert;
 
 /**
  * Contract to intercept client-side HTTP requests. Implementations can be
@@ -65,5 +66,35 @@ public interface ClientHttpRequestInterceptor {
    */
   ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
           throws IOException;
+
+  /**
+   * Return a new interceptor that invokes {@code this} interceptor first, and
+   * then the one that's passed in.
+   *
+   * @param interceptor the next interceptor
+   * @return a new interceptor that chains the two
+   * @since 5.0
+   */
+  default ClientHttpRequestInterceptor andThen(ClientHttpRequestInterceptor interceptor) {
+    Assert.notNull(interceptor, "ClientHttpRequestInterceptor is required");
+    return (request, body, execution) -> {
+      ClientHttpRequestExecution nextExecution = (nextRequest, nextBody)
+              -> interceptor.intercept(nextRequest, nextBody, execution);
+      return intercept(request, body, nextExecution);
+    };
+  }
+
+  /**
+   * Return a new execution that invokes {@code this} interceptor, and then
+   * delegates to the given execution.
+   *
+   * @param execution the execution to delegate to
+   * @return a new execution instance
+   * @since 5.0
+   */
+  default ClientHttpRequestExecution apply(ClientHttpRequestExecution execution) {
+    Assert.notNull(execution, "ClientHttpRequestExecution is required");
+    return (request, body) -> intercept(request, body, execution);
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +19,11 @@ package infra.http.client;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
-import infra.http.StreamingHttpOutputMessage;
 
 /**
  * Wrapper for a {@link ClientHttpRequest} that has support for {@link ClientHttpRequestInterceptor
@@ -66,25 +64,33 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
-    InterceptingRequestExecution requestExecution = new InterceptingRequestExecution();
-    return requestExecution.execute(this, bufferedOutput);
+    return getExecution().execute(this, bufferedOutput);
   }
 
-  private class InterceptingRequestExecution implements ClientHttpRequestExecution {
+  private ClientHttpRequestExecution getExecution() {
+    ClientHttpRequestExecution execution = new EndOfChainRequestExecution(this.requestFactory);
+    if (interceptors.isEmpty()) {
+      return execution;
+    }
 
-    private final Iterator<ClientHttpRequestInterceptor> iterator;
+    ClientHttpRequestInterceptor interceptor = null;
+    for (ClientHttpRequestInterceptor current : interceptors) {
+      interceptor = interceptor == null ? current : interceptor.andThen(current);
+    }
 
-    public InterceptingRequestExecution() {
-      this.iterator = interceptors.iterator();
+    return interceptor.apply(execution);
+  }
+
+  private class EndOfChainRequestExecution implements ClientHttpRequestExecution {
+
+    private final ClientHttpRequestFactory requestFactory;
+
+    public EndOfChainRequestExecution(ClientHttpRequestFactory requestFactory) {
+      this.requestFactory = requestFactory;
     }
 
     @Override
     public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
-      if (iterator.hasNext()) {
-        var nextInterceptor = iterator.next();
-        return nextInterceptor.intercept(request, body, this);
-      }
-
       ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), request.getMethod());
       delegate.getHeaders().addAll(request.getHeaders());
 
@@ -92,15 +98,12 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
         delegate.copyFrom(request);
       }
 
-      if (body.length > 0) {
-        long contentLength = delegate.getHeaders().getContentLength();
-        if (contentLength > -1 && contentLength != body.length) {
-          delegate.getHeaders().setContentLength(body.length);
-        }
-        StreamingHttpOutputMessage.writeBody(delegate, body);
-      }
-      return delegate.execute();
+      return executeWithRequest(delegate, body, shouldBufferResponse(request));
     }
+  }
+
+  private boolean shouldBufferResponse(HttpRequest request) {
+    return false;
   }
 
 }
