@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -323,11 +323,18 @@ final class ReactiveTypeHandler {
           subscription.request(1);
         }
         catch (final Throwable ex) {
-          if (log.isTraceEnabled()) {
-            log.trace("Send for {} failed: {}", emitter, ex);
+          if (log.isDebugEnabled()) {
+            log.debug("Send for %s failed: %s".formatted(emitter, ex));
           }
           terminate();
-          this.emitter.completeWithError(ex);
+          try {
+            emitter.completeWithError(ex);
+          }
+          catch (Exception ex2) {
+            if (log.isDebugEnabled()) {
+              log.debug("Failure from emitter completeWithError: " + ex2);
+            }
+          }
           return;
         }
       }
@@ -337,16 +344,30 @@ final class ReactiveTypeHandler {
         Throwable ex = this.error;
         this.error = null;
         if (ex != null) {
-          if (log.isTraceEnabled()) {
-            log.trace("Publisher for {} failed: {}", emitter, ex);
+          if (log.isDebugEnabled()) {
+            log.debug("Publisher for {} failed: {}", emitter, ex.toString());
           }
-          emitter.completeWithError(ex);
+          try {
+            this.emitter.completeWithError(ex);
+          }
+          catch (Exception ex2) {
+            if (log.isDebugEnabled()) {
+              log.debug("Failure from emitter completeWithError: " + ex2);
+            }
+          }
         }
         else {
           if (log.isTraceEnabled()) {
             log.trace("Publisher for {} completed", emitter);
           }
-          emitter.complete();
+          try {
+            this.emitter.complete();
+          }
+          catch (Exception ex2) {
+            if (log.isDebugEnabled()) {
+              log.debug("Failure from emitter complete: " + ex2);
+            }
+          }
         }
         return;
       }
