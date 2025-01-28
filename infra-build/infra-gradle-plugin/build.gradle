@@ -71,7 +71,6 @@ dependencies {
   testImplementation("org.hamcrest:hamcrest")
   testImplementation("org.mockito:mockito-junit-jupiter")
   testImplementation("org.skyscreamer:jsonassert")
-
 }
 
 gradlePlugin {
