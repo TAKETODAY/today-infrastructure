@@ -766,11 +766,17 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (con instanceof JarURLConnection jarCon) {
       // Should usually be the case for traditional JAR files.
-      jarFile = jarCon.getJarFile();
-      jarFileUrl = jarCon.getJarFileURL().toExternalForm();
-      JarEntry jarEntry = jarCon.getJarEntry();
-      rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
-      closeJarFile = !jarCon.getUseCaches();
+      try {
+        jarFile = jarCon.getJarFile();
+        jarFileUrl = jarCon.getJarFileURL().toExternalForm();
+        JarEntry jarEntry = jarCon.getJarEntry();
+        rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
+        closeJarFile = !jarCon.getUseCaches();
+      }
+      catch (FileNotFoundException ex) {
+        // Happens in case of cached root directory without specific subdirectory present.
+        return;
+      }
     }
     else {
       // No JarURLConnection -> need to resort to URL file parsing.
