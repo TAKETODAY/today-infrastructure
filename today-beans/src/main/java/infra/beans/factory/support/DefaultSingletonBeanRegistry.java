@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -283,7 +283,25 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
         if (log.isDebugEnabled()) {
           log.debug("Creating shared instance of singleton bean '{}'", beanName);
         }
-        beforeSingletonCreation(beanName);
+
+        try {
+          beforeSingletonCreation(beanName);
+        }
+        catch (BeanCurrentlyInCreationException ex) {
+          if (locked) {
+            throw ex;
+          }
+          // Try late locking for waiting on specific bean to be finished.
+          this.singletonLock.lock();
+          locked = true;
+          // Singleton object should have appeared in the meantime.
+          singletonObject = this.singletonObjects.get(beanName);
+          if (singletonObject != null) {
+            return singletonObject;
+          }
+          beforeSingletonCreation(beanName);
+        }
+
         boolean newSingleton = false;
         boolean recordSuppressedExceptions = (locked && this.suppressedExceptions == null);
         if (recordSuppressedExceptions) {

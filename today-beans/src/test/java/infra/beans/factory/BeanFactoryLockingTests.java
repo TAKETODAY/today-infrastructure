@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Juergen Hoeller
@@ -55,9 +54,6 @@ class BeanFactoryLockingTests {
     @Override
     public void afterPropertiesSet() throws Exception {
       Thread thread = new Thread(() -> {
-        // Fail for circular reference from other thread
-        assertThatExceptionOfType(BeanCurrentlyInCreationException.class).isThrownBy(() ->
-                beanFactory.getBean(ThreadDuringInitialization.class));
         // Leniently create unrelated other bean outside of singleton lock
         assertThat(beanFactory.getBean(TestBean.class).getName()).isEqualTo("tb");
         // Creation attempt in other thread was successful
