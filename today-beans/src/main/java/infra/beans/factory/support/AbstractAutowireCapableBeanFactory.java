@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1772,7 +1772,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   @Nullable
   private FactoryBean<?> getFactoryBeanForTypeCheck(String beanName, RootBeanDefinition def) {
     if (def.isSingleton()) {
-      singletonLock.lock();
+      boolean locked = singletonLock.tryLock();
+      if (!locked) {
+        return null;
+      }
       try {
         BeanWrapper beanWrapper = this.factoryBeanInstanceCache.get(beanName);
         if (beanWrapper != null && beanWrapper.getWrappedInstance() instanceof FactoryBean<?> factory) {
