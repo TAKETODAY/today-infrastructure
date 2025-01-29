@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +156,6 @@ public class GenericTypeResolverTests {
   }
 
   @Test
-
   void getGenericsOnArrayFromReturnCannotBeResolved() throws Exception {
     Class<?> resolved = GenericTypeResolver.resolveReturnType(
             WithArrayBase.class.getDeclaredMethod("array", Object[].class), WithArray.class);
@@ -164,7 +163,6 @@ public class GenericTypeResolverTests {
   }
 
   @Test
-
   void resolveIncompleteTypeVariables() {
     Class<?>[] resolved = GenericTypeResolver.resolveTypeArguments(IdFixingRepository.class, Repository.class);
     assertThat(resolved).isNotNull();
@@ -199,6 +197,14 @@ public class GenericTypeResolverTests {
     Type resolved = resolveType(ListOfListSupplier.class.getMethod("get").getGenericReturnType(),
             StringListOfListSupplier.class);
     assertThat(ResolvableType.forType(resolved).getGeneric(0).getGeneric(0).resolve()).isEqualTo(String.class);
+  }
+
+  @Test
+  void resolvedTypeWithBase() {
+    Type type = method(WithBaseTypes.class, "get").getGenericReturnType();
+    Type resolvedType = resolveType(type, WithBaseTypes.class);
+    ParameterizedTypeReference<List<A>> reference = new ParameterizedTypeReference<>() { };
+    assertThat(resolvedType).isEqualTo(reference.getType());
   }
 
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {
@@ -408,4 +414,11 @@ public class GenericTypeResolverTests {
   public interface StringListOfListSupplier extends ListOfListSupplier<String> {
   }
 
+  static class WithBaseTypes {
+
+    <T extends A> List<T> get() {
+      return List.of();
+    }
+
+  }
 }
