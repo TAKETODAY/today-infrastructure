@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1954,6 +1954,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    */
   protected abstract void setHeader(String name, String value);
 
+  /**
+   * Get the list of values associated with the given header name, or null.
+   * <p>To ensure support for double-quoted values, see also
+   * {@link #getValuesAsList(String)}.
+   *
+   * @param name the header name
+   * @see #getValuesAsList(String)
+   */
   @Nullable
   @Override
   public abstract List<String> get(Object name);
