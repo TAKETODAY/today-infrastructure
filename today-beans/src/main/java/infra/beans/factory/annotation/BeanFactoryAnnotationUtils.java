@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,13 +97,14 @@ public abstract class BeanFactoryAnnotationUtils {
     if (matchingBean != null) {
       return bf.getBean(matchingBean, beanType);
     }
-    else if (bf.containsBean(qualifier)) {
-      // Fallback: target bean at least found by bean name - probably a manually registered singleton.
+    else if (bf.containsBean(qualifier) && bf.isTypeMatch(qualifier, beanType)) {
+      // Fallback: target bean at least found by bean name.
       return bf.getBean(qualifier, beanType);
     }
     else {
-      throw new NoSuchBeanDefinitionException(qualifier, "No matching " + beanType.getSimpleName() +
-              " bean found for qualifier '" + qualifier + "' - neither qualifier match nor bean name match!");
+      throw new NoSuchBeanDefinitionException(qualifier,
+              "No matching %s bean found for qualifier '%s' - neither qualifier match nor bean name match!"
+                      .formatted(beanType.getSimpleName(), qualifier));
     }
   }
 
@@ -117,8 +118,7 @@ public abstract class BeanFactoryAnnotationUtils {
    * or the bean's factory method (in the {@code @Bean} case) defines a matching
    * qualifier value (through {@code <qualifier>} or {@code @Qualifier})
    */
-  public static boolean isQualifierMatch(
-          Predicate<String> qualifier, String beanName, @Nullable BeanFactory beanFactory) {
+  public static boolean isQualifierMatch(Predicate<String> qualifier, String beanName, @Nullable BeanFactory beanFactory) {
 
     // Try quick bean name or alias match first...
     if (qualifier.test(beanName)) {
