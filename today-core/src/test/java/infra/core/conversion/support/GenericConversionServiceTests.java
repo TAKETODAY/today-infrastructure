@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,18 +41,6 @@ import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterFactory;
 import infra.core.conversion.ConverterNotFoundException;
 import infra.core.conversion.GenericConverter;
-import infra.core.conversion.support.ArrayToArrayConverter;
-import infra.core.conversion.support.CollectionToArrayConverter;
-import infra.core.conversion.support.CollectionToObjectConverter;
-import infra.core.conversion.support.EnumToStringConverter;
-import infra.core.conversion.support.GenericConversionService;
-import infra.core.conversion.support.ObjectToArrayConverter;
-import infra.core.conversion.support.ObjectToStringConverter;
-import infra.core.conversion.support.StringToArrayConverter;
-import infra.core.conversion.support.StringToBooleanConverter;
-import infra.core.conversion.support.StringToCollectionConverter;
-import infra.core.conversion.support.StringToEnumConverterFactory;
-import infra.core.conversion.support.StringToNumberConverterFactory;
 import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
 import infra.lang.Nullable;
@@ -583,6 +571,22 @@ class GenericConversionServiceTests {
     assertThat(conversionService.convert("test", TypeDescriptor.valueOf(String.class), new TypeDescriptor(getClass().getField("integerCollection")))).isEqualTo(Collections.singleton("testX"));
   }
 
+  @Test
+  void stringListToListOfSubclassOfUnboundGenericClass() {
+    conversionService.addConverter(new StringListToAListConverter());
+    conversionService.addConverter(new StringListToBListConverter());
+
+    List<?> aList = (List<?>) conversionService.convert(List.of("foo"),
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)),
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(ARaw.class)));
+    assertThat(aList).allMatch(e -> e instanceof ARaw);
+
+    List<?> bList = (List<?>) conversionService.convert(List.of("foo"),
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)),
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(BRaw.class)));
+    assertThat(bList).allMatch(e -> e instanceof BRaw);
+  }
+
   @ExampleAnnotation(active = true)
   public String annotatedString;
 
@@ -914,4 +918,32 @@ class GenericConversionServiceTests {
       return Color.decode(source.substring(0, 6));
     }
   }
+
+  private static class GenericBaseClass<T> {
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static class ARaw extends GenericBaseClass {
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static class BRaw extends GenericBaseClass {
+  }
+
+  private static class StringListToAListConverter implements Converter<List<String>, List<ARaw>> {
+
+    @Override
+    public List<ARaw> convert(List<String> source) {
+      return List.of(new ARaw());
+    }
+  }
+
+  private static class StringListToBListConverter implements Converter<List<String>, List<BRaw>> {
+
+    @Override
+    public List<BRaw> convert(List<String> source) {
+      return List.of(new BRaw());
+    }
+  }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -343,7 +343,9 @@ public class GenericConversionService implements ConfigurableConversionService {
   private final class ConverterAdapter implements ConditionalGenericConverter {
 
     private final ConvertiblePair typeInfo;
+
     private final ResolvableType targetType;
+
     private final Converter<Object, Object> converter;
 
     public ConverterAdapter(Converter<?, ?> converter, ResolvableType sourceType, ResolvableType targetType) {
@@ -365,17 +367,15 @@ public class GenericConversionService implements ConfigurableConversionService {
       }
       // Full check for complex generic type match required?
       ResolvableType rt = targetType.getResolvableType();
-      if (!(rt.getType() instanceof Class)
-              && !rt.isAssignableFrom(this.targetType)
-              && !this.targetType.hasUnresolvableGenerics()) {
+      if (!(rt.getType() instanceof Class) && !rt.isAssignableFromResolvedPart(this.targetType)) {
         return false;
       }
-      return !(this.converter instanceof ConditionalConverter conditionalConverter)
-              || conditionalConverter.matches(sourceType, targetType);
+      return !(this.converter instanceof ConditionalConverter conditionalConverter) ||
+              conditionalConverter.matches(sourceType, targetType);
     }
 
-    @Override
     @Nullable
+    @Override
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
       if (source == null) {
         return convertNullSource(sourceType, targetType);
