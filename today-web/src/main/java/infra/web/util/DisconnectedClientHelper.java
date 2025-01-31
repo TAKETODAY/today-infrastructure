@@ -28,10 +28,11 @@ import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
 
 /**
- * Utility methods to assist with identifying and logging exceptions that indicate
- * the client has gone away. Such exceptions fill logs with unnecessary stack
- * traces. The utility methods help to log a single line message at DEBUG level,
- * and a full stacktrace at TRACE level.
+ * Utility methods to assist with identifying and logging exceptions that
+ * indicate the server response connection is lost, for example because the
+ * client has gone away. This class helps to identify such exceptions and
+ * minimize logging to a single line at DEBUG level, while making the full
+ * error stacktrace at TRACE level.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
