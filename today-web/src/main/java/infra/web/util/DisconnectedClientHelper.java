@@ -17,12 +17,14 @@
 
 package infra.web.util;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.ClassUtils;
 import infra.util.ExceptionUtils;
 
 /**
@@ -42,6 +44,21 @@ public class DisconnectedClientHelper {
 
   private static final Set<String> EXCEPTION_TYPE_NAMES =
           Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
+
+  private static final Set<Class<?>> CLIENT_EXCEPTION_TYPES = new HashSet<>(2);
+
+  static {
+    try {
+      ClassLoader classLoader = DisconnectedClientHelper.class.getClassLoader();
+      CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
+              "infra.web.client.RestClientException", classLoader));
+      CLIENT_EXCEPTION_TYPES.add(ClassUtils.forName(
+              "infra.web.client.reactive.WebClientException", classLoader));
+    }
+    catch (ClassNotFoundException ex) {
+      // ignore
+    }
+  }
 
   private final Logger logger;
 
@@ -76,10 +93,25 @@ public class DisconnectedClientHelper {
    * <li>ClientAbortException or EOFException for Tomcat
    * <li>EofException for Jetty
    * <li>IOException "Broken pipe" or "connection reset by peer"
-   * <li>SocketException "Connection reset"
    * </ul>
    */
   public static boolean isClientDisconnectedException(Throwable ex) {
+    Throwable currentEx = ex;
+    Throwable lastEx = null;
+    while (currentEx != null && currentEx != lastEx) {
+      // Ignore onward connection issues to other servers (500 error)
+      for (Class<?> exceptionType : CLIENT_EXCEPTION_TYPES) {
+        if (exceptionType.isInstance(currentEx)) {
+          return false;
+        }
+      }
+      if (EXCEPTION_TYPE_NAMES.contains(currentEx.getClass().getSimpleName())) {
+        return true;
+      }
+      lastEx = currentEx;
+      currentEx = currentEx.getCause();
+    }
+
     String message = ExceptionUtils.getMostSpecificCause(ex).getMessage();
     if (message != null) {
       String text = message.toLowerCase(Locale.ROOT);
@@ -89,7 +121,8 @@ public class DisconnectedClientHelper {
         }
       }
     }
-    return EXCEPTION_TYPE_NAMES.contains(ex.getClass().getSimpleName());
+
+    return false;
   }
 
 }
