@@ -127,6 +127,8 @@ dependencies {
   testImplementation("org.skyscreamer:jsonassert")
   testImplementation("org.xmlunit:xmlunit-assertj")
   testImplementation("org.xmlunit:xmlunit-matchers")
+  testImplementation("org.eclipse.jetty:jetty-io:12.1.0.alpha1")
+  testImplementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.1")
   testRuntimeOnly("org.apache.httpcomponents.client5:httpclient5")
   testRuntimeOnly("org.jruby:jruby")
   testRuntimeOnly("org.python:jython-standalone")

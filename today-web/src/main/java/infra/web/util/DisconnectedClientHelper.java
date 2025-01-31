@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ import infra.util.ExceptionUtils;
 public class DisconnectedClientHelper {
 
   private static final Set<String> EXCEPTION_PHRASES =
-          Set.of("broken pipe", "connection reset");
+          Set.of("broken pipe", "connection reset by peer");
 
   private static final Set<String> EXCEPTION_TYPE_NAMES =
           Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
