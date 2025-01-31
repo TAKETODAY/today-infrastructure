@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -386,20 +386,6 @@ public abstract class ClassUtils {
       return elementClass.arrayType();
     }
 
-    // "[Ljava.lang.String;" style arrays
-    if (name.startsWith(NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
-      Class<?> elementClass = doForName(
-              name.substring(NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1), classLoader);
-      return elementClass.arrayType();
-    }
-
-    // "[[I" or "[[Ljava.lang.String;" style arrays
-    if (name.startsWith(INTERNAL_ARRAY_PREFIX)) {
-      Class<?> elementClass = doForName(
-              name.substring(INTERNAL_ARRAY_PREFIX.length()), classLoader);
-      return elementClass.arrayType();
-    }
-
     if (classLoader == null) {
       classLoader = getDefaultClassLoader();
     }
@@ -766,8 +752,8 @@ public abstract class ClassUtils {
    */
   public static Class<?>[] toClassArray(Collection<Class<?>> collection) {
     return CollectionUtils.isEmpty(collection)
-           ? Constant.EMPTY_CLASSES
-           : collection.toArray(Constant.EMPTY_CLASSES);
+            ? Constant.EMPTY_CLASSES
+            : collection.toArray(Constant.EMPTY_CLASSES);
   }
 
   /**
@@ -1345,8 +1331,8 @@ public abstract class ClassUtils {
   public static Class<?> resolvePrimitiveIfNecessary(Class<?> clazz) {
     Assert.notNull(clazz, "Class is required");
     return clazz.isPrimitive() && clazz != void.class
-           ? primitiveTypeToWrapperMap.get(clazz)
-           : clazz;
+            ? primitiveTypeToWrapperMap.get(clazz)
+            : clazz;
   }
 
   /**
