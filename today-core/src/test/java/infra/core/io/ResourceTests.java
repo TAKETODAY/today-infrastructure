@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -299,7 +299,9 @@ class ResourceTests {
   @Nested
   class UrlResourceTests {
 
-    private MockWebServer server = new MockWebServer();
+    private static final String LAST_MODIFIED = "Wed, 09 Apr 2014 09:57:42 GMT";
+
+    private final MockWebServer server = new MockWebServer();
 
     @Test
     void sameResourceWithRelativePathIsEqual() throws Exception {
@@ -378,50 +380,72 @@ class ResourceTests {
 
     @Test
     void missingRemoteResourceDoesNotExist() throws Exception {
-      String baseUrl = startServer();
+      String baseUrl = startServer(true);
       UrlResource resource = new UrlResource(baseUrl + "/missing");
       assertThat(resource.exists()).isFalse();
     }
 
     @Test
     void remoteResourceExists() throws Exception {
-      String baseUrl = startServer();
+      String baseUrl = startServer(true);
       UrlResource resource = new UrlResource(baseUrl + "/resource");
       assertThat(resource.exists()).isTrue();
+      assertThat(resource.isReadable()).isTrue();
       assertThat(resource.contentLength()).isEqualTo(6);
+      assertThat(resource.lastModified()).isGreaterThan(0);
+    }
+
+    @Test
+    void remoteResourceExistsFallback() throws Exception {
+      String baseUrl = startServer(false);
+      UrlResource resource = new UrlResource(baseUrl + "/resource");
+      assertThat(resource.exists()).isTrue();
+      assertThat(resource.isReadable()).isTrue();
+      assertThat(resource.contentLength()).isEqualTo(6);
+      assertThat(resource.lastModified()).isGreaterThan(0);
     }
 
     @Test
     void canCustomizeHttpUrlConnectionForExists() throws Exception {
-      String baseUrl = startServer();
+      String baseUrl = startServer(true);
       CustomResource resource = new CustomResource(baseUrl + "/resource");
       assertThat(resource.exists()).isTrue();
       RecordedRequest request = this.server.takeRequest();
       assertThat(request.getMethod()).isEqualTo("HEAD");
-      assertThat(request.getHeader("Framework-Name")).isEqualTo("Spring");
+      assertThat(request.getHeader("Framework-Name")).isEqualTo("Infra");
+    }
+
+    @Test
+    void canCustomizeHttpUrlConnectionForExistsFallback() throws Exception {
+      String baseUrl = startServer(false);
+      CustomResource resource = new CustomResource(baseUrl + "/resource");
+      assertThat(resource.exists()).isTrue();
+      RecordedRequest request = this.server.takeRequest();
+      assertThat(request.getMethod()).isEqualTo("HEAD");
+      assertThat(request.getHeader("Framework-Name")).isEqualTo("Infra");
     }
 
     @Test
     void canCustomizeHttpUrlConnectionForRead() throws Exception {
-      String baseUrl = startServer();
+      String baseUrl = startServer(true);
       CustomResource resource = new CustomResource(baseUrl + "/resource");
       assertThat(resource.getInputStream()).hasContent("Spring");
       RecordedRequest request = this.server.takeRequest();
       assertThat(request.getMethod()).isEqualTo("GET");
-      assertThat(request.getHeader("Framework-Name")).isEqualTo("Spring");
+      assertThat(request.getHeader("Framework-Name")).isEqualTo("Infra");
     }
 
     @Test
     void useUserInfoToSetBasicAuth() throws Exception {
-      startServer();
-      UrlResource resource = new UrlResource("http://alice:secret@localhost:"
-              + this.server.getPort() + "/resource");
+      startServer(true);
+      UrlResource resource = new UrlResource(
+              "http://alice:secret@localhost:" + this.server.getPort() + "/resource");
       assertThat(resource.getInputStream()).hasContent("Spring");
       RecordedRequest request = this.server.takeRequest();
       String authorization = request.getHeader("Authorization");
       assertThat(authorization).isNotNull().startsWith("Basic ");
-      assertThat(new String(Base64.getDecoder().decode(
-              authorization.substring(6)), StandardCharsets.ISO_8859_1)).isEqualTo("alice:secret");
+      assertThat(new String(Base64.getDecoder().decode(authorization.substring(6)),
+              StandardCharsets.ISO_8859_1)).isEqualTo("alice:secret");
     }
 
     @AfterEach
@@ -429,8 +453,8 @@ class ResourceTests {
       this.server.shutdown();
     }
 
-    private String startServer() throws Exception {
-      this.server.setDispatcher(new ResourceDispatcher());
+    private String startServer(boolean withHeadSupport) throws Exception {
+      this.server.setDispatcher(new ResourceDispatcher(withHeadSupport));
       this.server.start();
       return "http://localhost:" + this.server.getPort();
     }
@@ -443,22 +467,33 @@ class ResourceTests {
 
       @Override
       protected void customizeConnection(HttpURLConnection con) {
-        con.setRequestProperty("Framework-Name", "Spring");
+        con.setRequestProperty("Framework-Name", "Infra");
       }
     }
 
     class ResourceDispatcher extends Dispatcher {
 
+      boolean withHeadSupport;
+
+      public ResourceDispatcher(boolean withHeadSupport) {
+        this.withHeadSupport = withHeadSupport;
+      }
+
       @Override
       public MockResponse dispatch(RecordedRequest request) {
         if (request.getPath().equals("/resource")) {
           return switch (request.getMethod()) {
-            case "HEAD" -> new MockResponse()
-                    .addHeader("Content-Length", "6");
+            case "HEAD" -> (this.withHeadSupport ?
+                    new MockResponse()
+                            .addHeader("Content-Type", "text/plain")
+                            .addHeader("Content-Length", "6")
+                            .addHeader("Last-Modified", LAST_MODIFIED) :
+                    new MockResponse().setResponseCode(405));
             case "GET" -> new MockResponse()
-                    .addHeader("Content-Length", "6")
                     .addHeader("Content-Type", "text/plain")
-                    .setBody("Spring");
+                    .addHeader("Content-Length", "6")
+                    .addHeader("Last-Modified", LAST_MODIFIED)
+                    .setBody("Infra");
             default -> new MockResponse().setResponseCode(404);
           };
         }

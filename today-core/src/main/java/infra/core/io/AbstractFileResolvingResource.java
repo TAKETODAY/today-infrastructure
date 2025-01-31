@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,20 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
           }
           else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
             return false;
+          }
+          else if (code == HttpURLConnection.HTTP_BAD_METHOD) {
+            con = url.openConnection();
+            customizeConnection(con);
+            if (con instanceof HttpURLConnection newHttpCon) {
+              code = newHttpCon.getResponseCode();
+              if (code == HttpURLConnection.HTTP_OK) {
+                return true;
+              }
+              else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+                return false;
+              }
+              httpCon = newHttpCon;
+            }
           }
         }
         if (con.getContentLengthLong() > 0) {
