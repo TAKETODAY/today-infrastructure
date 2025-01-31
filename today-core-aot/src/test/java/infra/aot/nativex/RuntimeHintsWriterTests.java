@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ class RuntimeHintsWriterTests {
       RuntimeHints hints = new RuntimeHints();
       hints.reflection().registerType(StringDecoder.class, builder -> builder
               .onReachableType(String.class)
-              .withMembers(MemberCategory.INVOKE_PUBLIC_FIELDS, MemberCategory.INVOKE_DECLARED_FIELDS,
+              .withMembers(MemberCategory.ACCESS_PUBLIC_FIELDS, MemberCategory.ACCESS_DECLARED_FIELDS,
                       MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
                       MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS,
                       MemberCategory.UNSAFE_ALLOCATED)

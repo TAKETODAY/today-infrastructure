@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -239,10 +239,10 @@ class BeanDefinitionPropertiesCodeGenerator {
     // ReflectionUtils#findField searches recursively in the type hierarchy
     Class<?> searchType = beanDefinition.getTargetType();
     while (searchType != null && searchType != writeMethod.getDeclaringClass()) {
-      this.hints.reflection().registerType(searchType, MemberCategory.INVOKE_DECLARED_FIELDS);
+      this.hints.reflection().registerType(searchType, MemberCategory.ACCESS_DECLARED_FIELDS);
       searchType = searchType.getSuperclass();
     }
-    this.hints.reflection().registerType(writeMethod.getDeclaringClass(), MemberCategory.INVOKE_DECLARED_FIELDS);
+    this.hints.reflection().registerType(writeMethod.getDeclaringClass(), MemberCategory.ACCESS_DECLARED_FIELDS);
   }
 
   private void addQualifiers(CodeBlock.Builder code, RootBeanDefinition beanDefinition) {

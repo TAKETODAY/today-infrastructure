@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ class BindingReflectionHintsRegistrarTests {
             .satisfies(typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleEmptyClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -70,7 +70,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleEmptyClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -78,7 +78,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleExtendingClass.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).isEmpty();
@@ -200,7 +200,7 @@ class BindingReflectionHintsRegistrarTests {
             typeHint -> {
               assertThat(typeHint.getType()).isEqualTo(TypeReference.of(ResolvableType.class));
               assertThat(typeHint.getMemberCategories()).containsExactlyInAnyOrder(
-                      MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+                      MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
               assertThat(typeHint.constructors()).isEmpty();
               assertThat(typeHint.fields()).isEmpty();
               assertThat(typeHint.methods()).hasSizeGreaterThan(1);
@@ -256,7 +256,7 @@ class BindingReflectionHintsRegistrarTests {
   @Test
   void registerTypeForSerializationWithRecordWithProperty() {
     bindingRegistrar.registerReflectionHints(this.hints.reflection(), SampleRecordWithProperty.class);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(SampleRecordWithProperty.class, "getNameProperty"))
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(SampleRecordWithProperty.class, "getNameProperty"))
             .accepts(this.hints);
   }
 
@@ -269,18 +269,18 @@ class BindingReflectionHintsRegistrarTests {
   @Test
   void registerTypeForJacksonAnnotations() {
     bindingRegistrar.registerReflectionHints(this.hints.reflection(), SampleClassWithJsonProperty.class);
-    assertThat(RuntimeHintsPredicates.reflection().onField(SampleClassWithJsonProperty.class, "privateField"))
+    assertThat(RuntimeHintsPredicates.reflection().onFieldAccess(SampleClassWithJsonProperty.class, "privateField"))
             .accepts(this.hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(SampleClassWithJsonProperty.class, "packagePrivateMethod").invoke())
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(SampleClassWithJsonProperty.class, "packagePrivateMethod"))
             .accepts(this.hints);
   }
 
   @Test
   void registerTypeForInheritedJacksonAnnotations() {
     bindingRegistrar.registerReflectionHints(this.hints.reflection(), SampleClassWithInheritedJsonProperty.class);
-    assertThat(RuntimeHintsPredicates.reflection().onField(SampleClassWithJsonProperty.class, "privateField"))
+    assertThat(RuntimeHintsPredicates.reflection().onFieldAccess(SampleClassWithJsonProperty.class, "privateField"))
             .accepts(this.hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(SampleClassWithJsonProperty.class, "packagePrivateMethod").invoke())
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(SampleClassWithJsonProperty.class, "packagePrivateMethod"))
             .accepts(this.hints);
   }
 

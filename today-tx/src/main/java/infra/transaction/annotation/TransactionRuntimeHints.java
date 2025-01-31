@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
+import infra.lang.Nullable;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that registers runtime hints for
@@ -35,9 +36,9 @@ import infra.aot.hint.TypeReference;
 class TransactionRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
-  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     hints.reflection().registerTypes(TypeReference.listOf(Isolation.class, Propagation.class),
-        TypeHint.builtWith(MemberCategory.INVOKE_DECLARED_FIELDS));
+            TypeHint.builtWith(MemberCategory.ACCESS_DECLARED_FIELDS));
   }
 
 }

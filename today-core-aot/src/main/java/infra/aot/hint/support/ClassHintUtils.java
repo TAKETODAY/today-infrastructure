@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,12 +45,10 @@ public abstract class ClassHintUtils {
 
   private static final Consumer<TypeHint.Builder> asClassBasedProxy = hint ->
           hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-                  MemberCategory.INVOKE_DECLARED_METHODS,
-                  MemberCategory.INVOKE_DECLARED_FIELDS);
+                  MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS);
 
   private static final Consumer<TypeHint.Builder> asProxiedUserClass = hint ->
-          hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS,
-                  MemberCategory.INVOKE_DECLARED_METHODS);
+          hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS);
 
   /**
    * Register a proxy hint for a JDK proxy or corresponding reflection hints

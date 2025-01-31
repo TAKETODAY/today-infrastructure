@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,45 +34,48 @@ import java.lang.reflect.Method;
 public enum MemberCategory {
 
   /**
-   * A category that represents introspection on public {@linkplain Field fields}.
+   * A category that represents reflective field access on public {@linkplain Field fields}.
    *
-   * @see Class#getFields()
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   * Use {@link #INVOKE_PUBLIC_FIELDS} if getting/setting field values is required.
+   * @see Field#get(Object)
+   * @see Field#set(Object, Object)
+   * @deprecated in favor of {@link #ACCESS_PUBLIC_FIELDS} with similar semantics.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   PUBLIC_FIELDS,
 
   /**
-   * A category that represents introspection on {@linkplain Class#getDeclaredFields() declared
-   * fields}: all fields defined by the class but not inherited fields.
+   * A category that represents reflective field access on
+   * {@linkplain Class#getDeclaredFields() declared fields}: all fields defined by the
+   * class but not inherited fields.
    *
    * @see Class#getDeclaredFields()
-   * @deprecated with no replacement since introspection is included
-   * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
-   * Use {@link #INVOKE_DECLARED_FIELDS} if getting/setting field values is required.
+   * @see Field#get(Object)
+   * @see Field#set(Object, Object)
+   * @deprecated in favor of {@link #ACCESS_DECLARED_FIELDS} with similar semantics.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   DECLARED_FIELDS,
 
   /**
-   * A category that represents getting/setting values on public {@linkplain Field fields}.
+   * A category that represents reflective field access on public {@linkplain Field fields}..
    *
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @since 5.0
    */
-  INVOKE_PUBLIC_FIELDS,
+  ACCESS_PUBLIC_FIELDS,
 
   /**
-   * A category that represents getting/setting values on declared {@linkplain Field fields}.
+   * A category that represents reflective field access on
+   * {@linkplain Class#getDeclaredFields() declared fields}: all fields defined by the
+   * class but not inherited fields.
    *
+   * @see Class#getDeclaredFields()
    * @see Field#get(Object)
    * @see Field#set(Object, Object)
    * @since 5.0
    */
-  INVOKE_DECLARED_FIELDS,
+  ACCESS_DECLARED_FIELDS,
 
   /**
    * A category that defines public {@linkplain Constructor constructors} can
@@ -83,7 +86,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is included
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   INTROSPECT_PUBLIC_CONSTRUCTORS,
 
   /**
@@ -95,7 +98,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is included
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   INTROSPECT_DECLARED_CONSTRUCTORS,
 
   /**
@@ -125,7 +128,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is added by default
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   INTROSPECT_PUBLIC_METHODS,
 
   /**
@@ -137,7 +140,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is added by default
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   INTROSPECT_DECLARED_METHODS,
 
   /**
@@ -168,7 +171,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is included
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   PUBLIC_CLASSES,
 
   /**
@@ -181,7 +184,7 @@ public enum MemberCategory {
    * @deprecated with no replacement since introspection is included
    * when {@link ReflectionHints#registerType(Class, MemberCategory...) adding a reflection hint for a type}.
    */
-  @Deprecated
+  @Deprecated(since = "5.0", forRemoval = true)
   DECLARED_CLASSES,
 
   /**
@@ -189,7 +192,6 @@ public enum MemberCategory {
    * {@link sun.misc.Unsafe#allocateInstance(Class) unsafe allocation}
    * for this type.
    *
-   * @since 5.0
    */
   UNSAFE_ALLOCATED
 

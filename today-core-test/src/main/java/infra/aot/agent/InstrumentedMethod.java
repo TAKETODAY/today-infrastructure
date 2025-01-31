@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,8 +181,7 @@ enum InstrumentedMethod {
             if (field == null) {
               return runtimeHints -> false;
             }
-            return reflection().onType(field.getDeclaringClass())
-                    .or(reflection().onField(field));
+            return reflection().onType(field.getDeclaringClass());
           }),
 
   /**
@@ -234,25 +233,25 @@ enum InstrumentedMethod {
    * {@link Constructor#newInstance(Object...)}.
    */
   CONSTRUCTOR_NEWINSTANCE(Constructor.class, "newInstance", HintType.REFLECTION,
-          invocation -> reflection().onConstructor(invocation.getInstance()).invoke()),
+          invocation -> reflection().onConstructorInvocation(invocation.getInstance())),
 
   /**
    * {@link Method#invoke(Object, Object...)}.
    */
   METHOD_INVOKE(Method.class, "invoke", HintType.REFLECTION,
-          invocation -> reflection().onMethod(invocation.getInstance()).invoke()),
+          invocation -> reflection().onMethodInvocation(invocation.getInstance())),
 
   /**
    * {@link Field#get(Object)}.
    */
   FIELD_GET(Field.class, "get", HintType.REFLECTION,
-          invocation -> reflection().onField(invocation.getInstance())),
+          invocation -> reflection().onFieldAccess(invocation.getInstance())),
 
   /**
    * {@link Field#set(Object, Object)}.
    */
   FIELD_SET(Field.class, "set", HintType.REFLECTION,
-          invocation -> reflection().onField(invocation.getInstance())),
+          invocation -> reflection().onFieldAccess(invocation.getInstance())),
 
 
   /*

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ class AspectJAdvisorBeanRegistrationAotProcessorTests {
   @Test
   void shouldProcessAspectJClass() {
     process(AspectJClass.class);
-    assertThat(reflection().onType(AspectJClass.class).withMemberCategory(MemberCategory.INVOKE_DECLARED_FIELDS))
+    assertThat(reflection().onType(AspectJClass.class).withMemberCategory(MemberCategory.ACCESS_DECLARED_FIELDS))
             .accepts(this.runtimeHints);
   }
 

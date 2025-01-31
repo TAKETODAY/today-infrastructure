@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -510,7 +510,7 @@ public class AnnotationConfigApplicationContextTests {
     TypeReference cglibType = TypeReference.of(CglibConfiguration.class.getName() + "$$Infra$$0");
     assertThat(RuntimeHintsPredicates.reflection().onType(cglibType)
             .withMemberCategories(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-                    MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_FIELDS))
+                    MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS))
             .accepts(runtimeHints);
     assertThat(RuntimeHintsPredicates.reflection().onType(CglibConfiguration.class)
             .withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS))

@@ -94,15 +94,14 @@ public class BindingReflectionHintsRegistrar {
           if (clazz.isEnum()) {
             typeHint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
           }
-          typeHint.withMembers(MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+          typeHint.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
           for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             if (methodName.startsWith("set") && method.getParameterCount() == 1) {
               registerPropertyHints(hints, seen, method, 0);
             }
             else if ((methodName.startsWith("get") && method.getParameterCount() == 0 && method.getReturnType() != void.class)
-                    || (methodName.startsWith("is") && method.getParameterCount() == 0
-                    && ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType()) == Boolean.class)) {
+                    || (methodName.startsWith("is") && method.getParameterCount() == 0 && ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType()) == Boolean.class)) {
               registerPropertyHints(hints, seen, method, -1);
             }
           }
@@ -125,8 +124,7 @@ public class BindingReflectionHintsRegistrar {
   }
 
   private void registerPropertyHints(ReflectionHints hints, Set<Type> seen, @Nullable Method method, int parameterIndex) {
-    if (method != null && method.getDeclaringClass() != Object.class &&
-            method.getDeclaringClass() != Enum.class) {
+    if (method != null && method.getDeclaringClass() != Object.class && method.getDeclaringClass() != Enum.class) {
       hints.registerMethod(method, ExecutableMode.INVOKE);
       MethodParameter methodParameter = MethodParameter.forExecutable(method, parameterIndex);
       Type methodParameterType = methodParameter.getGenericParameterType();
