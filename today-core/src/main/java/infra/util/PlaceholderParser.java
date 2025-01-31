@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ final class PlaceholderParser {
    * @param value the value containing the placeholders to be replaced
    * @return the different parts that have been identified
    */
-  public ParsedValue parse(String value) {
+  ParsedValue parse(String value) {
     List<Part> parts = parse(value, false);
     return new ParsedValue(value, parts);
   }
@@ -173,21 +173,20 @@ final class PlaceholderParser {
     }
     // Add rest of text if necessary
     addText(value, position, value.length(), parts);
-    return (inPlaceholder ? List.of(createNestedPlaceholderPart(value, parts)) : parts);
+    return inPlaceholder ? List.of(createNestedPlaceholderPart(value, parts)) : parts;
   }
 
   private SimplePlaceholderPart createSimplePlaceholderPart(String text) {
-    String[] keyAndDefault = splitKeyAndDefault(text);
-    return ((keyAndDefault != null) ? new SimplePlaceholderPart(text, keyAndDefault[0], keyAndDefault[1]) :
-            new SimplePlaceholderPart(text, text, null));
+    ParsedSection section = parseSection(text);
+    return new SimplePlaceholderPart(text, section.key, section.fallback);
   }
 
   private NestedPlaceholderPart createNestedPlaceholderPart(String text, List<Part> parts) {
     if (this.separator == null) {
       return new NestedPlaceholderPart(text, parts, null);
     }
-    List<Part> keyParts = new ArrayList<>();
-    List<Part> defaultParts = new ArrayList<>();
+    ArrayList<Part> keyParts = new ArrayList<>();
+    ArrayList<Part> defaultParts = new ArrayList<>();
     for (int i = 0; i < parts.size(); i++) {
       Part part = parts.get(i);
       if (!(part instanceof TextPart)) {
@@ -195,49 +194,55 @@ final class PlaceholderParser {
       }
       else {
         String candidate = part.text();
-        String[] keyAndDefault = splitKeyAndDefault(candidate);
-        if (keyAndDefault != null) {
-          keyParts.add(new TextPart(keyAndDefault[0]));
-          if (keyAndDefault[1] != null) {
-            defaultParts.add(new TextPart(keyAndDefault[1]));
-          }
+        ParsedSection section = parseSection(candidate);
+        keyParts.add(new TextPart(section.key));
+        if (section.fallback != null) {
+          defaultParts.add(new TextPart(section.fallback));
           defaultParts.addAll(parts.subList(i + 1, parts.size()));
           return new NestedPlaceholderPart(text, keyParts, defaultParts);
         }
-        else {
-          keyParts.add(part);
-        }
       }
     }
-    // No separator found
-    return new NestedPlaceholderPart(text, parts, null);
+    return new NestedPlaceholderPart(text, keyParts, null);
   }
 
-  @Nullable
-  private String[] splitKeyAndDefault(String value) {
-    if (this.separator == null || !value.contains(this.separator)) {
-      return null;
+  /**
+   * Parse an input value that may contain a separator character and return a
+   * {@link ParsedValue}. If a valid separator character has been identified, the
+   * given {@code value} is split between a {@code key} and a {@code fallback}. If not,
+   * only the {@code key} is set.
+   * <p>
+   * The returned key may be different from the original value as escaped
+   * separators, if any, are resolved.
+   *
+   * @param value the value to parse
+   * @return the parsed section
+   */
+  private ParsedSection parseSection(String value) {
+    String separator = this.separator;
+    if (separator == null || !value.contains(separator)) {
+      return new ParsedSection(value, null);
     }
     int position = 0;
-    int index = value.indexOf(this.separator, position);
+    int index = value.indexOf(separator, position);
     StringBuilder buffer = new StringBuilder();
     while (index != -1) {
       if (isEscaped(value, index)) {
         // Accumulate, without the escape character.
         buffer.append(value, position, index - 1);
-        buffer.append(value, index, index + this.separator.length());
-        position = index + this.separator.length();
-        index = value.indexOf(this.separator, position);
+        buffer.append(value, index, index + separator.length());
+        position = index + separator.length();
+        index = value.indexOf(separator, position);
       }
       else {
         buffer.append(value, position, index);
         String key = buffer.toString();
-        String fallback = value.substring(index + this.separator.length());
-        return new String[] { key, fallback };
+        String fallback = value.substring(index + separator.length());
+        return new ParsedSection(key, fallback);
       }
     }
     buffer.append(value, position, value.length());
-    return new String[] { buffer.toString(), null };
+    return new ParsedSection(buffer.toString(), null);
   }
 
   private static void addText(String value, int start, int end, LinkedList<Part> parts) {
@@ -294,6 +299,20 @@ final class PlaceholderParser {
     return (this.escape != null && index > 0 && value.charAt(index - 1) == this.escape);
   }
 
+  static final class ParsedSection {
+
+    public final String key;
+
+    @Nullable
+    public final String fallback;
+
+    ParsedSection(String key, @Nullable String fallback) {
+      this.key = key;
+      this.fallback = fallback;
+    }
+
+  }
+
   /**
    * Provide the necessary context to handle and resolve underlying placeholders.
    */
@@ -326,7 +345,7 @@ final class PlaceholderParser {
     public String resolvePlaceholder(String placeholderName) {
       String value = this.resolver.resolvePlaceholder(placeholderName);
       if (value != null && logger.isTraceEnabled()) {
-        logger.trace("Resolved placeholder '{}'", placeholderName);
+        logger.trace("Resolved placeholder '" + placeholderName + "'");
       }
       return value;
     }
@@ -359,7 +378,7 @@ final class PlaceholderParser {
     }
 
     public void removePlaceholder(String placeholder) {
-      Assert.state(this.visitedPlaceholders != null, "Visited placeholders is required");
+      Assert.state(this.visitedPlaceholders != null, "Visited placeholders must not be null");
       this.visitedPlaceholders.remove(placeholder);
     }
 
