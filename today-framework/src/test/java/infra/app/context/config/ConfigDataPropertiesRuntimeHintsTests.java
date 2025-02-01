@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class ConfigDataPropertiesRuntimeHintsTests {
     assertThat(RuntimeHintsPredicates.reflection().onType(ConfigDataProperties.class)).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onType(ConfigDataLocation.class)).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onType(Activate.class)).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(ConfigDataLocation.class, "valueOf")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(ConfigDataLocation.class, "valueOf")).accepts(hints);
   }
 
 }

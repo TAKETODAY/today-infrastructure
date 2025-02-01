@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,12 @@ import infra.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.ReflectionHintsPredicates;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
+import infra.app.jackson.JsonComponent;
+import infra.app.jackson.JsonMixin;
+import infra.app.jackson.JsonMixinModule;
+import infra.app.jackson.JsonMixinModuleEntries;
+import infra.app.jackson.JsonObjectSerializer;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -64,12 +70,6 @@ import infra.context.annotation.Import;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.AutoConfigurationPackage;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.jackson.JsonComponent;
-import infra.app.jackson.JsonMixin;
-import infra.app.jackson.JsonMixinModule;
-import infra.app.jackson.JsonMixinModuleEntries;
-import infra.app.jackson.JsonObjectSerializer;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import static infra.annotation.config.jackson.JacksonAutoConfiguration.Hints;
@@ -481,6 +481,7 @@ class JacksonAutoConfigurationTests {
             "UPPER_CAMEL_CASE", "SNAKE_CASE", "UPPER_SNAKE_CASE", "LOWER_CASE", "KEBAB_CASE", "LOWER_DOT_CASE");
   }
 
+  @SuppressWarnings("removal")
   private void shouldRegisterPropertyNamingStrategyHints(Class<?> type, String... fieldNames) {
     RuntimeHints hints = new RuntimeHints();
     new Hints().registerHints(hints, getClass().getClassLoader());

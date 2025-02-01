@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,13 +59,14 @@ class JsonMixinModuleEntriesBeanRegistrationAotProcessorTests {
   private final GenericApplicationContext applicationContext = new AnnotationConfigApplicationContext();
 
   @Test
+  @SuppressWarnings("removal")
   void processAheadOfTimeShouldRegisterBindingHintsForMixins() {
     registerEntries(RenameMixInClass.class);
     processAheadOfTime();
     RuntimeHints runtimeHints = this.generationContext.getRuntimeHints();
     assertThat(RuntimeHintsPredicates.reflection()
             .onType(RenameMixInClass.class)
-            .withMemberCategories(MemberCategory.INVOKE_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
+            .withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS))
             .accepts(runtimeHints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(RenameMixInClass.class, "getName").introspect())
             .accepts(runtimeHints);

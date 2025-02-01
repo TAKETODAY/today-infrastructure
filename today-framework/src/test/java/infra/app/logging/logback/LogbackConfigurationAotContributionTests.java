@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -210,11 +210,12 @@ class LogbackConfigurationAotContributionTests {
             .withMemberCategory(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
   }
 
+  @SuppressWarnings("removal")
   private Predicate<RuntimeHints> invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Class<?> type) {
     return RuntimeHintsPredicates.reflection()
             .onType(TypeReference.of(type))
-            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INTROSPECT_PUBLIC_METHODS,
-                    MemberCategory.INVOKE_PUBLIC_METHODS);
+            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
+                    MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_METHODS);
   }
 
   private Properties load(InputStreamSource source) {
