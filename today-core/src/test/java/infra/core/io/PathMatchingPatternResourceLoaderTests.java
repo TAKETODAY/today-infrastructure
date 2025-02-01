@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ class PathMatchingPatternResourceLoaderTests {
   };
 
   private static final String[] CLASSES_IN_REACTOR_UTIL_ANNOTATION = {
-          "NonNull.class", "NonNullApi.class", "Nullable.class"
+          "Incubating.class", "NonNull.class", "NonNullApi.class", "Nullable.class"
   };
 
   // Fails in a native image -- https://github.com/oracle/graal/issues/5020
