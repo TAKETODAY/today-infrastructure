@@ -401,7 +401,7 @@ class ResourceTests {
       UrlResource resource = new UrlResource(baseUrl + "/resource");
       assertThat(resource.exists()).isTrue();
       assertThat(resource.isReadable()).isTrue();
-      assertThat(resource.contentLength()).isEqualTo(6);
+      assertThat(resource.contentLength()).isEqualTo(5);
       assertThat(resource.lastModified()).isGreaterThan(0);
     }
 
@@ -429,7 +429,7 @@ class ResourceTests {
     void canCustomizeHttpUrlConnectionForRead() throws Exception {
       String baseUrl = startServer(true);
       CustomResource resource = new CustomResource(baseUrl + "/resource");
-      assertThat(resource.getInputStream()).hasContent("Spring");
+      assertThat(resource.getInputStream()).hasContent("Infra");
       RecordedRequest request = this.server.takeRequest();
       assertThat(request.getMethod()).isEqualTo("GET");
       assertThat(request.getHeader("Framework-Name")).isEqualTo("Infra");
@@ -440,7 +440,7 @@ class ResourceTests {
       startServer(true);
       UrlResource resource = new UrlResource(
               "http://alice:secret@localhost:" + this.server.getPort() + "/resource");
-      assertThat(resource.getInputStream()).hasContent("Spring");
+      assertThat(resource.getInputStream()).hasContent("Infra");
       RecordedRequest request = this.server.takeRequest();
       String authorization = request.getHeader("Authorization");
       assertThat(authorization).isNotNull().startsWith("Basic ");
