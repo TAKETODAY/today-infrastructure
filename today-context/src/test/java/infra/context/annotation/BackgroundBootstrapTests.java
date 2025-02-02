@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,14 @@ package infra.context.annotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import infra.beans.factory.BeanCurrentlyInCreationException;
+import infra.beans.factory.ObjectProvider;
 import infra.beans.testfixture.beans.TestBean;
+import infra.context.ConfigurableApplicationContext;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static infra.stereotype.Component.Bootstrap.BACKGROUND;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Juergen Hoeller
@@ -32,15 +36,52 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(5)
+  void bootstrapWithUnmanagedThread() {
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(UnmanagedThreadBeanConfig.class);
+    ctx.getBean("testBean1", TestBean.class);
+    assertThatExceptionOfType(BeanCurrentlyInCreationException.class).isThrownBy(  // late - not during refresh
+            () -> ctx.getBean("testBean2", TestBean.class));
+    ctx.close();
+  }
+
+  @Test
+  @Timeout(5)
   void bootstrapWithCustomExecutor() {
-    var ctx = new AnnotationConfigApplicationContext(CustomExecutorBeanConfig.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorBeanConfig.class);
     ctx.getBean("testBean1", TestBean.class);
     ctx.getBean("testBean2", TestBean.class);
     ctx.getBean("testBean3", TestBean.class);
     ctx.close();
   }
 
-  @Configuration
+  @Configuration(proxyBeanMethods = false)
+  static class UnmanagedThreadBeanConfig {
+
+    @Bean
+    public TestBean testBean1(ObjectProvider<TestBean> testBean2) {
+      new Thread(testBean2::get).start();
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return new TestBean();
+    }
+
+    @Bean
+    public TestBean testBean2() {
+      try {
+        Thread.sleep(2000);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
   static class CustomExecutorBeanConfig {
 
     @Bean

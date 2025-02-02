@@ -576,7 +576,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
     if (!mbd.isLazyInit()) {
-      instantiateSingleton(beanName);
+      try {
+        instantiateSingleton(beanName);
+      }
+      catch (BeanCurrentlyInCreationException ex) {
+        log.info("Bean '{}' marked for pre-instantiation (not lazy-init) " +
+                "but currently initialized by other thread - skipping it in mainline thread", beanName);
+      }
     }
     return null;
   }

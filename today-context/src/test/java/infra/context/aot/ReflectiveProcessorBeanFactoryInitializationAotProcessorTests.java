@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +71,8 @@ class ReflectiveProcessorBeanFactoryInitializationAotProcessorTests {
     ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
     process(SampleTypeAnnotatedBean.class, SampleConstructorAnnotatedBean.class);
     Constructor<?> constructor = SampleConstructorAnnotatedBean.class.getDeclaredConstructor(String.class);
-    assertThat(reflection.onType(SampleTypeAnnotatedBean.class).and(reflection.onConstructor(constructor)))
+    assertThat(reflection.onType(SampleTypeAnnotatedBean.class)
+            .and(reflection.onConstructorInvocation(constructor)))
             .accepts(this.generationContext.getRuntimeHints());
   }
 
