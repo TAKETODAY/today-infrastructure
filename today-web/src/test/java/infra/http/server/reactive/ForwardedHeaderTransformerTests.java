@@ -220,7 +220,7 @@ class ForwardedHeaderTransformerTests {
 
     request = this.requestMutator.apply(request);
     assertThat(request.getRemoteAddress()).isNotNull();
-    assertThat(request.getRemoteAddress().getHostName()).isEqualTo("[203.0.113.195]");
+    assertThat(request.getRemoteAddress().getHostName()).isEqualTo("203.0.113.195");
   }
 
   private MockServerHttpRequest getRequest(HttpHeaders headers) {
