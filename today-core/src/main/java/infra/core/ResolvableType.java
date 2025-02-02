@@ -344,9 +344,6 @@ public class ResolvableType implements Serializable {
               other.getComponentType(), true, matchedBefore, upUntilUnresolvable));
     }
 
-    // We're checking nested generic variables now...
-    boolean exactMatch = strict && matchedBefore != null;
-
     // Deal with wildcard bounds
     WildcardBounds ourBounds = WildcardBounds.get(this);
     WildcardBounds otherBounds = WildcardBounds.get(other);
@@ -360,8 +357,9 @@ public class ResolvableType implements Serializable {
       else if (upUntilUnresolvable) {
         return otherBounds.isAssignableFrom(this, matchedBefore);
       }
-      else if (!exactMatch) {
-        return otherBounds.isAssignableTo(this, matchedBefore);
+      else if (!strict) {
+        return (matchedBefore != null ? otherBounds.equalsType(this) :
+                otherBounds.isAssignableTo(this, matchedBefore));
       }
       else {
         return false;
@@ -374,6 +372,7 @@ public class ResolvableType implements Serializable {
     }
 
     // Main assignability check about to follow
+    boolean exactMatch = (strict && matchedBefore != null);
     boolean checkGenerics = true;
     Class<?> ourResolved = null;
     if (this.type instanceof TypeVariable<?> variable) {
@@ -1957,6 +1956,22 @@ public class ResolvableType implements Serializable {
       else {
         return (type.resolve() == Object.class);
       }
+    }
+
+    /**
+     * Return {@code true} if these bounds are equal to the specified type.
+     *
+     * @param type the type to test against
+     * @return {@code true} if these bounds are equal to the type
+     * @since 5.0
+     */
+    public boolean equalsType(ResolvableType type) {
+      for (ResolvableType bound : this.bounds) {
+        if (!type.equalsType(bound)) {
+          return false;
+        }
+      }
+      return true;
     }
 
     /**

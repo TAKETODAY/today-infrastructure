@@ -71,7 +71,7 @@ import static org.mockito.Mockito.verify;
  */
 @SuppressWarnings("rawtypes")
 @ExtendWith(MockitoExtension.class)
-public class ResolvableTypeTests {
+class ResolvableTypeTests {
 
   @Captor
   private ArgumentCaptor<TypeVariable<?>> typeVariableCaptor;
@@ -1227,6 +1227,8 @@ public class ResolvableTypeTests {
     ResolvableType consumerUnresolved = ResolvableType.forClass(Consumer.class);
     ResolvableType consumerObject = ResolvableType.forClassWithGenerics(Consumer.class, Object.class);
     ResolvableType consumerNestedUnresolved = ResolvableType.forClassWithGenerics(Consumer.class, ResolvableType.forClass(Consumer.class));
+    ResolvableType consumerNumber = ResolvableType.forClassWithGenerics(Consumer.class, Number.class);
+    ResolvableType consumerExtendsNumber = ResolvableType.forClass(SubConsumer.class);
 
     assertThat(consumerUnresolved.isAssignableFrom(consumerObject)).isTrue();
     assertThat(consumerUnresolved.isAssignableFromResolvedPart(consumerObject)).isTrue();
@@ -1236,6 +1238,10 @@ public class ResolvableTypeTests {
     assertThat(consumerUnresolved.isAssignableFromResolvedPart(consumerNestedUnresolved)).isTrue();
     assertThat(consumerObject.isAssignableFrom(consumerNestedUnresolved)).isFalse();
     assertThat(consumerObject.isAssignableFromResolvedPart(consumerNestedUnresolved)).isFalse();
+    assertThat(consumerObject.isAssignableFrom(consumerNumber)).isFalse();
+    assertThat(consumerObject.isAssignableFromResolvedPart(consumerNumber)).isFalse();
+    assertThat(consumerObject.isAssignableFrom(consumerExtendsNumber)).isFalse();
+    assertThat(consumerObject.isAssignableFromResolvedPart(consumerExtendsNumber)).isTrue();
   }
 
   @Test
@@ -1767,6 +1773,9 @@ public class ResolvableTypeTests {
   }
 
   public interface Consumer<T> {
+  }
+
+  private static class SubConsumer<N extends Number> implements Consumer<N> {
   }
 
   public class Wildcard<T extends CharSequence> {
