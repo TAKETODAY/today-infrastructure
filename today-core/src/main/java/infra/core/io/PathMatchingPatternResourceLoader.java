@@ -204,6 +204,7 @@ import infra.util.StringUtils;
  * @since 2.1.7 2019-12-05 12:51
  */
 public class PathMatchingPatternResourceLoader implements PatternResourceLoader {
+
   private static final Logger log = LoggerFactory.getLogger(PathMatchingPatternResourceLoader.class);
 
   /**
@@ -745,6 +746,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       NavigableSet<String> entriesCache = this.jarEntriesCache.get(jarFileUrl);
       if (entriesCache != null) {
         PathMatcher pathMatcher = getPathMatcher();
+        // Clean root entry path to match jar entries format without "!" separators
+        rootEntryPath = rootEntryPath.replace(ResourceUtils.JAR_URL_SEPARATOR, "/");
         // Search sorted entries from first entry with rootEntryPath prefix
         for (String entryPath : entriesCache.tailSet(rootEntryPath, false)) {
           if (!entryPath.startsWith(rootEntryPath)) {
