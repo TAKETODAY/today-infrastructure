@@ -37,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 
 import infra.beans.factory.BeanFactoryUtils;
@@ -546,18 +547,18 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected abstract MultiValueMap<String, String> doGetParameters();
 
   /**
-   * Returns an <code>Iterator</code> of <code>String</code> objects containing
+   * Returns an <code>Set</code> of <code>String</code> objects containing
    * the names of the parameters contained in this request. If the request has no
-   * parameters, the method returns an empty <code>Iterator</code>.
+   * parameters, the method returns an empty {@link Collections#emptySet() Set}.
    *
-   * @return an <code>Iterator</code> of <code>String</code> objects, each
+   * @return an <code>Set</code> of <code>String</code> objects, each
    * <code>String</code> containing the name of a request parameter; or an
-   * empty <code>Iterator</code> if the request has no parameters
+   * empty {@link Collections#emptySet() Set} if the request has no parameters
    */
-  public Iterable<String> getParameterNames() {
+  public Set<String> getParameterNames() {
     MultiValueMap<String, String> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     }
     return new LinkedHashSet<>(parameters.keySet());
   }

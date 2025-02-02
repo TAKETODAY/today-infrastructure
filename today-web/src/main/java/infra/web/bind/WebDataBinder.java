@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.web.bind;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,7 @@ import infra.beans.PropertyValues;
 import infra.core.MethodParameter;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
+import infra.util.StringUtils;
 import infra.validation.BindException;
 import infra.validation.DataBinder;
 import infra.web.HandlerMatchingMetadata;
@@ -500,6 +500,10 @@ public class WebDataBinder extends DataBinder {
     }
   }
 
+  private static String normalizeHeaderName(String name) {
+    return StringUtils.uncapitalize(name.replace("-", ""));
+  }
+
   /**
    * Resolver that looks up values to bind in a {@link RequestContext}.
    */
@@ -573,7 +577,7 @@ public class WebDataBinder extends DataBinder {
     }
 
     protected Set<String> initParameterNames(RequestContext request) {
-      return new LinkedHashSet<>(request.getParameters().keySet());
+      return request.getParameterNames();
     }
 
   }
