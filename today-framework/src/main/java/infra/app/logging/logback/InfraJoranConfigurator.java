@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -178,6 +178,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
       this.modelInterpretationContext = modelInterpretationContext;
     }
 
+    @SuppressWarnings("removal")
     private void writeTo(GenerationContext generationContext) {
       byte[] serializedModel = serializeModel();
       generationContext.getGeneratedFiles().handleFile(Kind.RESOURCE, MODEL_RESOURCE_LOCATION,
