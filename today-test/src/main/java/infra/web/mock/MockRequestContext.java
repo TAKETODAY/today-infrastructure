@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,29 +140,29 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected OutputStream doGetOutputStream() throws IOException {
+  protected OutputStream createOutputStream() throws IOException {
     this.bodyUsed = true;
     writeHeaders();
     return response.getOutputStream();
   }
 
   @Override
-  protected InputStream doGetInputStream() throws IOException {
+  protected InputStream createInputStream() throws IOException {
     return request.getInputStream();
   }
 
   @Override
-  protected PrintWriter doGetWriter() throws IOException {
+  protected PrintWriter createWriter() throws IOException {
     return response.getWriter();
   }
 
   @Override
-  public BufferedReader doGetReader() throws IOException {
+  public BufferedReader createReader() throws IOException {
     return request.getReader();
   }
 
   @Override
-  public String doGetRequestURI() {
+  public String readRequestURI() {
     return request.getRequestURI();
   }
 
@@ -172,12 +172,12 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  public String doGetQueryString() {
+  public String readQueryString() {
     return request.getQueryString();
   }
 
   @Override
-  protected HttpCookie[] doGetCookies() {
+  protected HttpCookie[] readCookies() {
     LinkedHashSet<HttpCookie> requestCookies = new LinkedHashSet<>(this.requestCookies);
     Cookie[] servletCookies = request.getCookies();
     if (servletCookies != null) {
@@ -209,7 +209,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected MultiValueMap<String, String> doGetParameters() {
+  protected MultiValueMap<String, String> readParameters() {
     var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
     for (var entry : request.getParameterMap().entrySet()) {
       ret.addAll(entry.getKey(), entry.getValue());
@@ -218,7 +218,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected String doGetMethod() {
+  protected String readMethod() {
     return request.getMethod();
   }
 
@@ -263,7 +263,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   }
 
   @Override
-  protected Locale doGetLocale() {
+  protected Locale readLocale() {
     return request.getLocale();
   }
 

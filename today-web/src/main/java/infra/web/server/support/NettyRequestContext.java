@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -201,7 +201,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected final String doGetRequestURI() {
+  protected final String readRequestURI() {
     String uri = request.uri();
     int index = queryStringIndex(uri);
     if (index == -1) {
@@ -213,7 +213,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public final String doGetQueryString() {
+  public final String readQueryString() {
     String uri = request.uri();
     int index = queryStringIndex(uri);
     if (index == -1) {
@@ -252,17 +252,17 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public final String doGetMethod() {
+  public final String readMethod() {
     return request.method().name();
   }
 
   @Override
-  protected PrintWriter doGetWriter() throws IOException {
+  protected PrintWriter createWriter() throws IOException {
     return new PrintWriter(getOutputStream(), true, config.writerCharset);
   }
 
   @Override
-  protected InputStream doGetInputStream() {
+  protected InputStream createInputStream() {
     return new ByteBufInputStream(request.content());
   }
 
@@ -305,7 +305,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public HttpCookie[] doGetCookies() {
+  public HttpCookie[] readCookies() {
     List<String> allCookie = request.headers().getAll(DefaultHttpHeaders.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
@@ -335,7 +335,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected MultiValueMap<String, String> doGetParameters() {
+  protected MultiValueMap<String, String> readParameters() {
     String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
     MultiValueMap<String, String> parameters = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
     RequestContextUtils.parseParameters(parameters, queryString);
@@ -439,7 +439,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected OutputStream doGetOutputStream() {
+  protected OutputStream createOutputStream() {
     return getMethod() == HttpMethod.HEAD ? new NoBodyOutputStream() : new ResponseBodyOutputStream();
   }
 

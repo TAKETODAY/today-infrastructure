@@ -132,8 +132,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected String doGetRequestURI() {
-    return getDelegate().doGetRequestURI();
+  protected String readRequestURI() {
+    return getDelegate().readRequestURI();
   }
 
   @Override
@@ -147,8 +147,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected String doGetQueryString() {
-    return getDelegate().doGetQueryString();
+  protected String readQueryString() {
+    return getDelegate().readQueryString();
   }
 
   @Override
@@ -157,8 +157,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected HttpCookie[] doGetCookies() {
-    return getDelegate().doGetCookies();
+  protected HttpCookie[] readCookies() {
+    return getDelegate().readCookies();
   }
 
   @Override
@@ -198,8 +198,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected MultiValueMap<String, String> doGetParameters() {
-    return getDelegate().doGetParameters();
+  protected MultiValueMap<String, String> readParameters() {
+    return getDelegate().readParameters();
   }
 
   @Override
@@ -220,8 +220,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected String doGetMethod() {
-    return getDelegate().doGetMethod();
+  protected String readMethod() {
+    return getDelegate().readMethod();
   }
 
   @Override
@@ -250,8 +250,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected InputStream doGetInputStream() throws IOException {
-    return getDelegate().doGetInputStream();
+  protected InputStream createInputStream() throws IOException {
+    return getDelegate().createInputStream();
   }
 
   @Override
@@ -260,8 +260,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected BufferedReader doGetReader() throws IOException {
-    return getDelegate().doGetReader();
+  protected BufferedReader createReader() throws IOException {
+    return getDelegate().createReader();
   }
 
   @Override
@@ -290,8 +290,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected Locale doGetLocale() {
-    return getDelegate().doGetLocale();
+  protected Locale readLocale() {
+    return getDelegate().readLocale();
   }
 
   @Override
@@ -375,8 +375,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected OutputStream doGetOutputStream() throws IOException {
-    return getDelegate().doGetOutputStream();
+  protected OutputStream createOutputStream() throws IOException {
+    return getDelegate().createOutputStream();
   }
 
   @Override
@@ -385,8 +385,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected PrintWriter doGetWriter() throws IOException {
-    return getDelegate().doGetWriter();
+  protected PrintWriter createWriter() throws IOException {
+    return getDelegate().createWriter();
   }
 
   @Override
@@ -625,8 +625,8 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  protected RequestPath doGetRequestPath() {
-    return getDelegate().doGetRequestPath();
+  protected RequestPath readRequestPath() {
+    return getDelegate().readRequestPath();
   }
 
   public abstract RequestContext getDelegate();

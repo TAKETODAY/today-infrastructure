@@ -406,7 +406,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected MultiValueMap<String, String> doGetParameters() {
+    protected MultiValueMap<String, String> readParameters() {
       throw new UnsupportedOperationException();
     }
 
@@ -446,7 +446,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected OutputStream doGetOutputStream() throws IOException {
+    protected OutputStream createOutputStream() throws IOException {
       throw new UnsupportedOperationException();
     }
 
@@ -471,7 +471,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected String doGetRequestURI() {
+    protected String readRequestURI() {
       throw new UnsupportedOperationException();
     }
 
@@ -481,17 +481,17 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected String doGetQueryString() {
+    protected String readQueryString() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    protected HttpCookie[] doGetCookies() {
+    protected HttpCookie[] readCookies() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    protected String doGetMethod() {
+    protected String readMethod() {
       throw new UnsupportedOperationException();
     }
 
@@ -506,7 +506,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected InputStream doGetInputStream() throws IOException {
+    protected InputStream createInputStream() throws IOException {
       throw new UnsupportedOperationException();
     }
 

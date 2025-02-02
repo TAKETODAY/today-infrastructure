@@ -346,7 +346,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public String getRequestURI() {
     String requestURI = this.requestURI;
     if (requestURI == null) {
-      requestURI = doGetRequestURI();
+      requestURI = readRequestURI();
       this.requestURI = requestURI;
     }
     return requestURI;
@@ -358,13 +358,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public RequestPath getRequestPath() {
     RequestPath requestPath = this.requestPath;
     if (requestPath == null) {
-      requestPath = doGetRequestPath();
+      requestPath = readRequestPath();
       this.requestPath = requestPath;
     }
     return requestPath;
   }
 
-  protected RequestPath doGetRequestPath() {
+  protected RequestPath readRequestPath() {
     return RequestPath.parse(getRequestURI(), null);
   }
 
@@ -391,7 +391,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return matchingMetadata != null;
   }
 
-  protected abstract String doGetRequestURI();
+  protected abstract String readRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -419,13 +419,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public String getQueryString() {
     String queryString = this.queryString;
     if (queryString == null) {
-      queryString = doGetQueryString();
+      queryString = readQueryString();
       this.queryString = queryString;
     }
     return queryString;
   }
 
-  protected abstract String doGetQueryString();
+  protected abstract String readQueryString();
 
   /**
    * Returns an array containing all of the <code>Cookie</code> objects the client
@@ -438,7 +438,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public HttpCookie[] getCookies() {
     var cookies = this.cookies;
     if (cookies == null) {
-      cookies = doGetCookies();
+      cookies = readCookies();
       this.cookies = cookies;
     }
     return cookies;
@@ -448,7 +448,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return an array of all the Cookies included with this request,or
    * {@link #EMPTY_COOKIES} if the request has no cookies
    */
-  protected abstract HttpCookie[] doGetCookies();
+  protected abstract HttpCookie[] readCookies();
 
   /**
    * Returns a {@link HttpCookie} object the client sent with this request. This
@@ -538,13 +538,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public MultiValueMap<String, String> getParameters() {
     var parameters = this.parameters;
     if (parameters == null) {
-      parameters = doGetParameters();
+      parameters = readParameters();
       this.parameters = parameters;
     }
     return parameters;
   }
 
-  protected abstract MultiValueMap<String, String> doGetParameters();
+  protected abstract MultiValueMap<String, String> readParameters();
 
   /**
    * Returns an <code>Set</code> of <code>String</code> objects containing
@@ -556,11 +556,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * empty {@link Collections#emptySet() Set} if the request has no parameters
    */
   public Set<String> getParameterNames() {
-    MultiValueMap<String, String> parameters = getParameters();
-    if (CollectionUtils.isEmpty(parameters)) {
-      return Collections.emptySet();
-    }
-    return new LinkedHashSet<>(parameters.keySet());
+    return new LinkedHashSet<>(getParameters().keySet());
   }
 
   /**
@@ -640,7 +636,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
     if (httpMethod == null) {
-      httpMethod = HttpMethod.valueOf(doGetMethod());
+      httpMethod = HttpMethod.valueOf(readMethod());
       this.httpMethod = httpMethod;
     }
     return httpMethod;
@@ -649,7 +645,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * @return upper-case http method
    */
-  protected abstract String doGetMethod();
+  protected abstract String readMethod();
 
   /**
    * Returns the Internet Protocol (IP) address of the client or last proxy that
@@ -693,13 +689,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public InputStream getInputStream() throws IOException {
     InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      inputStream = doGetInputStream();
+      inputStream = createInputStream();
       this.inputStream = inputStream;
     }
     return inputStream;
   }
 
-  protected abstract InputStream doGetInputStream() throws IOException;
+  protected abstract InputStream createInputStream() throws IOException;
 
   /**
    * Retrieves the body of the request as character data using a
@@ -717,14 +713,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public BufferedReader getReader() throws IOException {
     BufferedReader reader = this.reader;
     if (reader == null) {
-      reader = doGetReader();
+      reader = createReader();
       this.reader = reader;
     }
     return reader;
   }
 
   /** template method for get reader */
-  protected BufferedReader doGetReader() throws IOException {
+  protected BufferedReader createReader() throws IOException {
     return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
   }
 
@@ -1014,13 +1010,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public Locale getLocale() {
     if (locale == null) {
-      locale = doGetLocale();
+      locale = readLocale();
     }
     return locale;
   }
 
   // @since 4.0
-  protected Locale doGetLocale() {
+  protected Locale readLocale() {
     List<Locale> locales = requestHeaders().getAcceptLanguageAsLocales();
     Locale locale = CollectionUtils.firstElement(locales);
     if (locale == null) {
@@ -1627,14 +1623,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public OutputStream getOutputStream() throws IOException {
     OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      outputStream = doGetOutputStream();
+      outputStream = createOutputStream();
       this.outputStream = outputStream;
     }
     return outputStream;
   }
 
-  /** template method for get OutputStream */
-  protected abstract OutputStream doGetOutputStream() throws IOException;
+  /**
+   * template method for create OutputStream
+   */
+  protected abstract OutputStream createOutputStream() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
@@ -1659,7 +1657,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public PrintWriter getWriter() throws IOException {
     PrintWriter writer = this.writer;
     if (writer == null) {
-      writer = doGetWriter();
+      writer = createWriter();
       this.writer = writer;
     }
     return writer;
@@ -1668,7 +1666,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * template method for get writer
    */
-  protected PrintWriter doGetWriter() throws IOException {
+  protected PrintWriter createWriter() throws IOException {
     return new PrintWriter(getOutputStream(), true);
   }
 
