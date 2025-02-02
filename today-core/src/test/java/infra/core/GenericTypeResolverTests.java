@@ -200,6 +200,21 @@ public class GenericTypeResolverTests {
   }
 
   @Test
+  void resolveTypeWithElementBounds() {
+    Type type = method(WithElementBounds.class, "get").getGenericReturnType();
+    Type resolvedType = resolveType(type, WithElementBounds.class);
+    ParameterizedTypeReference<List<A>> reference = new ParameterizedTypeReference<>() { };
+    assertThat(resolvedType).isEqualTo(reference.getType());
+  }
+
+  @Test
+  void resolveTypeWithUnresolvableElement() {
+    Type type = method(WithUnresolvableElement.class, "get").getGenericReturnType();
+    Type resolvedType = resolveType(type, WithUnresolvableElement.class);
+    assertThat(resolvedType.toString()).isEqualTo("java.util.List<E>");
+  }
+
+  @Test
   void resolvedTypeWithBase() {
     Type type = method(WithBaseTypes.class, "get").getGenericReturnType();
     Type resolvedType = resolveType(type, WithBaseTypes.class);
@@ -421,4 +436,19 @@ public class GenericTypeResolverTests {
     }
 
   }
+
+  static class WithElementBounds {
+
+    <T extends A> List<T> get() {
+      return List.of();
+    }
+  }
+
+  static class WithUnresolvableElement<T> {
+
+    List<T> get() {
+      return List.of();
+    }
+  }
+
 }

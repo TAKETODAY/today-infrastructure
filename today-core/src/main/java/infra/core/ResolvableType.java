@@ -92,6 +92,7 @@ import static infra.core.SerializableTypeWrapper.FieldTypeProvider;
  * @since 3.0
  */
 public class ResolvableType implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -1022,14 +1023,6 @@ public class ResolvableType implements Serializable {
   }
 
   @Nullable
-  private Type resolveBounds(Type[] bounds) {
-    if (bounds.length == 0 || bounds[0] == Object.class) {
-      return null;
-    }
-    return bounds[0];
-  }
-
-  @Nullable
   private ResolvableType resolveVariable(TypeVariable<?> variable) {
     Type type = this.type;
     if (type instanceof TypeVariable) {
@@ -1646,6 +1639,25 @@ public class ResolvableType implements Serializable {
     Assert.notNull(componentType, "Component type is required");
     Class<?> arrayType = componentType.toClass().arrayType();
     return new ResolvableType(arrayType, null, null, componentType);
+  }
+
+  /**
+   * Return a {@code ResolvableType} for the bounds of the specified {@link TypeVariable}.
+   *
+   * @param typeVariable the type variable
+   * @return a {@code ResolvableType} for the specified bounds
+   * @since 5.0
+   */
+  static ResolvableType forVariableBounds(TypeVariable<?> typeVariable) {
+    return forType(resolveBounds(typeVariable.getBounds()));
+  }
+
+  @Nullable
+  private static Type resolveBounds(Type[] bounds) {
+    if (bounds.length == 0 || bounds[0] == Object.class) {
+      return null;
+    }
+    return bounds[0];
   }
 
   /**
