@@ -20,14 +20,17 @@ package infra.web.bind;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
 import infra.core.MethodParameter;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
@@ -109,6 +112,12 @@ public class WebDataBinder extends DataBinder {
    * @see #setFieldDefaultPrefix
    */
   public static final String DEFAULT_FIELD_DEFAULT_PREFIX = "!";
+
+  private static final Set<String> FILTERED_HEADER_NAMES = Set.of("accept", "authorization", "connection",
+          "cookie", "from", "host", "origin", "priority", "range", "referer", "upgrade");
+
+  // @since 5.0
+  private Predicate<String> headerPredicate = name -> !FILTERED_HEADER_NAMES.contains(name.toLowerCase(Locale.ROOT));
 
   @Nullable
   private String fieldMarkerPrefix = DEFAULT_FIELD_MARKER_PREFIX;
@@ -219,6 +228,31 @@ public class WebDataBinder extends DataBinder {
    */
   public boolean isBindEmptyMultipartFiles() {
     return this.bindEmptyMultipartFiles;
+  }
+
+  /**
+   * Add a Predicate that filters the header names to use for data binding.
+   * Multiple predicates are combined with {@code AND}.
+   *
+   * @param predicate the predicate to add
+   * @since 5.0
+   */
+  public void addHeaderPredicate(Predicate<String> predicate) {
+    this.headerPredicate = this.headerPredicate.and(predicate);
+  }
+
+  /**
+   * Set the Predicate that filters the header names to use for data binding.
+   * <p>Note that this method resets any previous predicates that may have been
+   * set, including headers excluded by default such as the RFC 9218 defined
+   * "Priority" header.
+   *
+   * @param predicate the predicate to add
+   * @since 5.0
+   */
+  public void setHeaderPredicate(Predicate<String> predicate) {
+    Assert.notNull(predicate, "header predicate is required");
+    this.headerPredicate = predicate;
   }
 
   /**
@@ -443,21 +477,18 @@ public class WebDataBinder extends DataBinder {
    * @return a map of bind values
    */
   public PropertyValues getValuesToBind(RequestContext request) {
-    PropertyValues propertyValues = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
+    PropertyValues pv = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
       var multipartFiles = request.getMultipartRequest().getMultipartFiles();
       if (!multipartFiles.isEmpty()) {
-        bindMultipart(multipartFiles, propertyValues);
+        bindMultipart(multipartFiles, pv);
       }
     }
 
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-    if (matchingMetadata != null) {
-      Map<String, String> uriVariables = matchingMetadata.getUriVariables();
-      propertyValues.add(uriVariables);
-    }
+    pv.add(getUriVars(request));
 
-    return propertyValues;
+    addBindValues(pv, request);
+    return pv;
   }
 
   /**
@@ -500,14 +531,72 @@ public class WebDataBinder extends DataBinder {
     }
   }
 
+  /**
+   * Merge URI variables into the property values to use for data binding.
+   */
+  protected void addBindValues(PropertyValues pv, RequestContext request) {
+    Map<String, String> uriVars = getUriVars(request);
+    if (uriVars != null) {
+      for (var entry : uriVars.entrySet()) {
+        addValueIfNotPresent(pv, "URI variable", entry.getKey(), entry.getValue());
+      }
+    }
+
+    for (String name : request.getHeaders().keySet()) {
+      Object value = getHeaderValue(request, name);
+      if (value != null) {
+        name = normalizeHeaderName(name);
+        addValueIfNotPresent(pv, "Header", name, value);
+      }
+    }
+  }
+
   private static String normalizeHeaderName(String name) {
     return StringUtils.uncapitalize(name.replace("-", ""));
+  }
+
+  @Nullable
+  private static Map<String, String> getUriVars(RequestContext request) {
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariables();
+    }
+    return null;
+  }
+
+  private static void addValueIfNotPresent(PropertyValues pv, String label, String name, Object value) {
+    if (pv.contains(name)) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("{} '{}' overridden by request bind value.", label, name);
+      }
+    }
+    else {
+      pv.add(name, value);
+    }
+  }
+
+  @Nullable
+  private Object getHeaderValue(RequestContext request, String name) {
+    if (!this.headerPredicate.test(name)) {
+      return null;
+    }
+
+    List<String> values = request.getHeaders().getValuesAsList(name);
+    if (values.isEmpty()) {
+      return null;
+    }
+
+    if (values.size() == 1) {
+      return values.get(0);
+    }
+
+    return values;
   }
 
   /**
    * Resolver that looks up values to bind in a {@link RequestContext}.
    */
-  protected static class RequestValueResolver implements ValueResolver {
+  protected class RequestValueResolver implements ValueResolver {
 
     private final RequestContext request;
 
@@ -540,19 +629,22 @@ public class WebDataBinder extends DataBinder {
 
     @Nullable
     protected Object getRequestParameter(String name, Class<?> type) {
-      String[] value = request.getParameters(name);
+      Object value = request.getParameters(name);
 
       if (value == null && !name.endsWith("[]") && (List.class.isAssignableFrom(type) || type.isArray())) {
         value = this.request.getParameters(name + "[]");
       }
       if (value == null) {
-        HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-        if (matchingMetadata != null) {
-          return matchingMetadata.getUriVariables().get(name);
+        Map<String, String> uriVars = getUriVars(getRequest());
+        if (uriVars != null) {
+          value = uriVars.get(name);
+        }
+        if (value == null) {
+          value = getHeaderValue(request, name);
         }
       }
-      else if (value.length == 1) {
-        return value[0];
+      else if (((String[]) value).length == 1) {
+        return ((String[]) value)[0];
       }
       return value;
     }
@@ -576,8 +668,20 @@ public class WebDataBinder extends DataBinder {
       return this.parameterNames;
     }
 
-    protected Set<String> initParameterNames(RequestContext request) {
-      return request.getParameterNames();
+    private Set<String> initParameterNames(RequestContext request) {
+      Set<String> set = request.getParameterNames();
+      Map<String, String> uriVars = getUriVars(getRequest());
+      if (uriVars != null) {
+        set.addAll(uriVars.keySet());
+      }
+
+      for (String name : request.getHeaders().keySet()) {
+        if (headerPredicate.test(name)) {
+          set.add(normalizeHeaderName(name));
+        }
+      }
+
+      return set;
     }
 
   }
