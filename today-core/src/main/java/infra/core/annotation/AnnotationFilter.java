@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,6 @@ package infra.core.annotation;
 
 import java.lang.annotation.Annotation;
 
-import infra.lang.NonNull;
-import infra.lang.Nullable;
-
 /**
  * Callback interface that can be used to filter specific annotation types.
  *
@@ -32,6 +29,7 @@ import infra.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MergedAnnotations
  * @since 4.0
  */
@@ -44,20 +42,7 @@ public interface AnnotationFilter {
    * {@code infra.lang.NonNull}
    * <p>This is the default filter in the {@link MergedAnnotations} model.
    */
-  AnnotationFilter PLAIN = new AnnotationFilter() {
-
-    @Override
-    public boolean matches(Class<?> type) {
-      return type == Nullable.class
-              || type == NonNull.class
-              || matches(type.getName());
-    }
-
-    @Override
-    public boolean matches(String typeName) {
-      return typeName.startsWith("java.lang.");
-    }
-  };
+  AnnotationFilter PLAIN = packages("java.lang.");
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
@@ -70,6 +55,7 @@ public interface AnnotationFilter {
    * relevant annotation types are expected to be present at all.
    */
   AnnotationFilter ALL = new AnnotationFilter() {
+
     @Override
     public boolean matches(Annotation annotation) {
       return true;
@@ -98,6 +84,7 @@ public interface AnnotationFilter {
    * @see #PLAIN
    */
   AnnotationFilter NONE = new AnnotationFilter() {
+
     @Override
     public boolean matches(Annotation annotation) {
       return false;
