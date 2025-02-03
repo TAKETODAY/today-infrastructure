@@ -581,6 +581,19 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  public int saveOrUpdate(Object entity) throws DataAccessException {
+    return saveOrUpdate(entity, null);
+  }
+
+  @Override
+  public int saveOrUpdate(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    if (isNew(entity)) {
+      return persist(entity, strategy);
+    }
+    return update(entity, strategy);
+  }
+
+  @Override
   public int delete(Class<?> entityClass, Object id) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
@@ -1137,6 +1150,17 @@ public class DefaultEntityManager implements EntityManager {
       return LogMessage.format(((Descriptive) handler).getDescription());
     }
     return NoConditionsQuery.instance.getDebugLogMessage();
+  }
+
+  private boolean isNew(Object entity) throws IllegalEntityException {
+    if (entity instanceof NewEntityIndicator e) {
+      return e.isNew();
+    }
+    EntityProperty idProperty = entityMetadataFactory.getEntityMetadata(entity.getClass()).idProperty;
+    if (idProperty != null) {
+      return idProperty.getValue(entity) == null;
+    }
+    return false;
   }
 
   //

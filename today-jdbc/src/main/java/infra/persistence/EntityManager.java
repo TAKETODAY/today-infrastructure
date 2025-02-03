@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,11 +99,11 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param autoGenerateId a flag indicating whether auto-generated keys should be returned;
    * @param entities entities instances
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities, boolean returnGeneratedKeys)
+  void persist(Iterable<?> entities, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -262,6 +262,31 @@ public interface EntityManager {
    */
   int updateBy(Object entityOrExample, String where, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
+
+  /**
+   * Persist or update entity to underlying repository
+   *
+   * @param entity entity instance
+   * @return update count
+   * @throws IllegalEntityException entity is legal entity
+   * @see #persist(Object)
+   * @see #update(Object)
+   * @since 5.0
+   */
+  int saveOrUpdate(Object entity) throws DataAccessException;
+
+  /**
+   * Persist or update entity to underlying repository
+   *
+   * @param entity entity instance
+   * @param strategy determine which property can update or persist
+   * @return update count
+   * @throws IllegalEntityException entity is legal entity
+   * @see #persist(Object, PropertyUpdateStrategy)
+   * @see #update(Object, PropertyUpdateStrategy)
+   * @since 5.0
+   */
+  int saveOrUpdate(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException;
 
   /**
    * Delete an entity.

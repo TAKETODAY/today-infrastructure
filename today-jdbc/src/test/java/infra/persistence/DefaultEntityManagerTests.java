@@ -649,6 +649,18 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
   }
 
+  @ParameterizedRepositoryManagerTest
+  void saveOrUpdate(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    UserModel model = UserModel.male("TODAY", 2);
+    entityManager.saveOrUpdate(model);
+
+    List<UserModel> userModels = entityManager.find(model);
+    assertThat(userModels).contains(model).hasSize(1);
+
+  }
+
   public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 
