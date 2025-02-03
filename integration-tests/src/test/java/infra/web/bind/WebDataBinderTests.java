@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 package infra.web.bind;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
@@ -30,8 +32,15 @@ import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
+import infra.core.ResolvableType;
+import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockMultipartHttpMockRequest;
+import infra.validation.BindingResult;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.RequestContext;
+import infra.web.bind.annotation.BindParam;
+import infra.web.bind.support.BindParamNameResolver;
 import infra.web.mock.MockMultipartMockRequestContext;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.bind.MockRequestParameterPropertyValues;
@@ -44,10 +53,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:39
  */
-public class WebDataBinderTests {
+class WebDataBinderTests {
+
+  HttpMockRequestImpl request = new HttpMockRequestImpl();
+
+  MockRequestContext context = new MockRequestContext(request, null);
 
   @Test
-  public void testBindingWithNestedObjectCreation() throws Exception {
+  void testBindingWithNestedObjectCreation() throws Exception {
     TestBean tb = new TestBean();
 
     WebDataBinder binder = new WebDataBinder(tb, "person");
@@ -68,7 +81,7 @@ public class WebDataBinderTests {
   }
 
   @Test
-  public void testBindingWithNestedObjectCreationThroughAutoGrow() throws Exception {
+  void testBindingWithNestedObjectCreationThroughAutoGrow() throws Exception {
     TestBean tb = new TestBeanWithConcreteSpouse();
 
     WebDataBinder binder = new WebDataBinder(tb, "person");
@@ -83,7 +96,7 @@ public class WebDataBinderTests {
   }
 
   @Test
-  public void testFieldPrefixCausesFieldReset() throws Exception {
+  void testFieldPrefixCausesFieldReset() throws Exception {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
 
@@ -99,7 +112,7 @@ public class WebDataBinderTests {
   }
 
   @Test
-  public void testFieldPrefixCausesFieldResetWithIgnoreUnknownFields() throws Exception {
+  void testFieldPrefixCausesFieldResetWithIgnoreUnknownFields() throws Exception {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
     binder.setIgnoreUnknownFields(false);
@@ -116,7 +129,7 @@ public class WebDataBinderTests {
   }
 
   @Test
-  public void testFieldWithArrayIndex() {
+  void testFieldWithArrayIndex() {
     TestBean target = new TestBean();
     WebDataBinder binder = new WebDataBinder(target);
     binder.setIgnoreUnknownFields(false);
@@ -379,6 +392,136 @@ public class WebDataBinderTests {
     assertThat(Arrays.asList(original)).as("Correct values").isEqualTo(Arrays.asList(values));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = { "Accept", "Authorization", "Connection",
+          "Cookie", "From", "Host", "Origin", "Priority", "Range", "Referer", "Upgrade" })
+  void filteredHeaders(String headerName) {
+    TestBinder binder = new TestBinder();
+
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+
+    PropertyValues mpvs = new PropertyValues();
+    request.addHeader(headerName, "u1");
+
+    MockRequestContext context = new MockRequestContext(request, null);
+
+    binder.addBindValues(mpvs, context);
+    assertThat(mpvs).isEmpty();
+  }
+
+  @Test
+  void headerPredicateWithConstructorArgs() {
+    WebDataBinder binder = new WebDataBinder(null);
+    binder.addHeaderPredicate(name -> !name.equalsIgnoreCase("Some-Int-Array"));
+    binder.setTargetType(ResolvableType.forClass(DataBean.class));
+    binder.setNameResolver(new BindParamNameResolver());
+
+    request.addHeader("Some-Int-Array", "1");
+    request.addHeader("Some-Int-Array", "2");
+
+    MockRequestContext context = new MockRequestContext(request, null);
+    binder.construct(context);
+
+    DataBean bean = (DataBean) binder.getTarget();
+    assertThat(bean).isNotNull();
+    assertThat(bean.someIntArray()).isNull();
+  }
+
+  @Test
+  void filteredPriorityHeaderForConstructorBinding() {
+    TestBinder binder = new TestBinder();
+    binder.setTargetType(ResolvableType.forClass(TestTarget.class));
+    request.addHeader("Priority", "u1");
+
+    binder.construct(context);
+    BindingResult result = binder.getBindingResult();
+    TestTarget target = (TestTarget) result.getTarget();
+
+    assertThat(target.priority).isNull();
+  }
+
+  @Test
+  void headerPredicate() {
+    TestBinder binder = new TestBinder();
+    binder.addHeaderPredicate(name -> !name.equalsIgnoreCase("Another-Int-Array"));
+
+    PropertyValues mpvs = new PropertyValues();
+    request.addHeader("Priority", "u1");
+    request.addHeader("Some-Int-Array", "1");
+    request.addHeader("Another-Int-Array", "1");
+
+    binder.addBindValues(mpvs, context);
+
+    assertThat(mpvs.size()).isEqualTo(1);
+    assertThat(mpvs.getPropertyValue("someIntArray")).isEqualTo("1");
+  }
+
+  @Test
+  void noUriTemplateVars() {
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target, "");
+
+    binder.bind(context);
+
+    assertThat(target.getName()).isNull();
+    assertThat(target.getAge()).isEqualTo(0);
+  }
+
+  @Test
+  void createBinderViaSetters() {
+    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context,
+            Map.of("name", "John", "age", "25")));
+
+    request.addHeader("Some-Int-Array", "1");
+    request.addHeader("Some-Int-Array", "2");
+
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target, "");
+    binder.bind(context);
+
+    assertThat(target.getName()).isEqualTo("John");
+    assertThat(target.getAge()).isEqualTo(25);
+    assertThat(target.getSomeIntArray()).containsExactly(1, 2);
+  }
+
+  @Test
+  void createBinderViaConstructor() {
+    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context,
+            Map.of("name", "John", "age", "25")));
+
+    request.addHeader("Some-Int-Array", "1");
+    request.addHeader("Some-Int-Array", "2");
+
+    WebDataBinder binder = new WebDataBinder(null);
+    binder.setTargetType(ResolvableType.forClass(DataBean.class));
+    binder.setNameResolver(new BindParamNameResolver());
+    binder.construct(context);
+
+    DataBean bean = (DataBean) binder.getTarget();
+
+    assertThat(bean.name()).isEqualTo("John");
+    assertThat(bean.age()).isEqualTo(25);
+    assertThat(bean.someIntArray()).containsExactly(1, 2);
+  }
+
+  @Test
+  void uriVarsAndHeadersAddedConditionally() {
+    request.addParameter("name", "John");
+    request.addParameter("age", "25");
+    request.addHeader("name", "Johnny");
+
+    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context, Map.of("age", "26")));
+
+    TestBean target = new TestBean();
+    WebDataBinder binder = new WebDataBinder(target, "");
+    binder.bind(context);
+
+    assertThat(target.getName()).isEqualTo("John");
+    assertThat(target.getAge()).isEqualTo(25);
+  }
+
+
+
   public static class EnumHolder {
 
     private MyEnum myEnum;
@@ -404,6 +547,49 @@ public class WebDataBinderTests {
     public TestBean getConcreteSpouse() {
       return (TestBean) getSpouse();
     }
+  }
+
+  record DataBean(String name, int age, @Nullable @BindParam("Some-Int-Array") Integer[] someIntArray) {
+
+  }
+
+  static class TestTarget {
+
+    final String priority;
+
+    public TestTarget(String priority) {
+      this.priority = priority;
+    }
+
+  }
+
+  private static class TestBinder extends WebDataBinder {
+
+    public TestBinder() {
+      super(null);
+    }
+
+    @Override
+    protected void addBindValues(PropertyValues pv, RequestContext request) {
+      super.addBindValues(pv, request);
+    }
+
+  }
+
+  static class UriVariablesMatchingMetadata extends HandlerMatchingMetadata {
+
+    public UriVariablesMatchingMetadata(RequestContext request, Map<String, String> uriVariables) {
+      super(request);
+      this.uriVariables = uriVariables;
+    }
+
+    private final Map<String, String> uriVariables;
+
+    @Override
+    public Map<String, String> getUriVariables() {
+      return uriVariables;
+    }
+
   }
 
 }

@@ -485,8 +485,6 @@ public class WebDataBinder extends DataBinder {
       }
     }
 
-    pv.add(getUriVars(request));
-
     addBindValues(pv, request);
     return pv;
   }
