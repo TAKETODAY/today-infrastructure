@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -474,8 +474,25 @@ public class Property implements Member, AnnotatedElement, Serializable {
     Annotation[] annotations = annotationCache.get(this);
     if (annotations == null) {
       var annotationMap = new LinkedHashMap<Class<? extends Annotation>, Annotation>();
-      addAnnotationsToMap(annotationMap, getReadMethod());
-      addAnnotationsToMap(annotationMap, getWriteMethod());
+      Method readMethod = getReadMethod();
+      Method writeMethod = getWriteMethod();
+
+      if (readMethod != null) {
+        Method method = ReflectionUtils.getInterfaceMethodIfPossible(readMethod, getDeclaringClass());
+        if (method != readMethod) {
+          addAnnotationsToMap(annotationMap, method);
+        }
+      }
+
+      if (writeMethod != null) {
+        Method method = ReflectionUtils.getInterfaceMethodIfPossible(writeMethod, getDeclaringClass());
+        if (method != writeMethod) {
+          addAnnotationsToMap(annotationMap, method);
+        }
+      }
+
+      addAnnotationsToMap(annotationMap, readMethod);
+      addAnnotationsToMap(annotationMap, writeMethod);
       addAnnotationsToMap(annotationMap, getField());
       annotations = annotationMap.isEmpty() ? Constant.EMPTY_ANNOTATIONS
               : annotationMap.values().toArray(Constant.EMPTY_ANNOTATIONS);
