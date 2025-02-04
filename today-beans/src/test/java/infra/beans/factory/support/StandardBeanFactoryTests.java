@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1494,12 +1494,16 @@ class StandardBeanFactoryTests {
     bd1.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.LOWEST_PRECEDENCE);
     lbf.registerBeanDefinition("bean1", bd1);
     GenericBeanDefinition bd2 = new GenericBeanDefinition();
-    bd2.setBeanClass(TestBean.class);
+    bd2.setBeanClass(DerivedTestBean.class);
     bd2.setPropertyValues(new PropertyValues(List.of(new PropertyValue("name", "highest"))));
     bd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
     lbf.registerBeanDefinition("bean2", bd2);
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
             .containsExactly("highest", "lowest");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
+            .containsExactly("highest", "lowest");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(clazz -> !DerivedTestBean.class.isAssignableFrom(clazz))
+            .map(TestBean::getName)).containsExactly("lowest");
   }
 
   @Test
@@ -1518,6 +1522,8 @@ class StandardBeanFactoryTests {
     bd2.setFactoryBeanName("lowestPrecedenceFactory");
     lbf.registerBeanDefinition("bean2", bd2);
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
+            .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
   }
 
@@ -1867,6 +1873,7 @@ class StandardBeanFactoryTests {
     bd2.getConstructorArgumentValues().addGenericArgumentValue("43");
     lbf.registerBeanDefinition("bd1", bd1);
     lbf.registerBeanDefinition("bd2", bd2);
+
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(ConstructorDependency.class));
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
@@ -1884,20 +1891,25 @@ class StandardBeanFactoryTests {
     for (ConstructorDependency instance : provider) {
       resolved.add(instance);
     }
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
 
     resolved = new HashSet<>();
     provider.forEach(resolved::add);
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
 
     resolved = provider.stream().collect(Collectors.toSet());
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
+
+    resolved = provider.stream(ObjectProvider.UNFILTERED).collect(Collectors.toSet());
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
   }
 
   @Test
@@ -1933,20 +1945,25 @@ class StandardBeanFactoryTests {
     for (ConstructorDependency instance : provider) {
       resolved.add(instance);
     }
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
 
     resolved = new HashSet<>();
     provider.forEach(resolved::add);
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
 
     resolved = provider.stream().collect(Collectors.toSet());
-    assertThat(resolved.size()).isEqualTo(2);
-    assertThat(resolved.contains(lbf.getBean("bd1"))).isTrue();
-    assertThat(resolved.contains(lbf.getBean("bd2"))).isTrue();
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
+
+    resolved = provider.stream(ObjectProvider.UNFILTERED).collect(Collectors.toSet());
+    assertThat(resolved).hasSize(2);
+    assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
   }
 
   @Test
@@ -2331,11 +2348,20 @@ class StandardBeanFactoryTests {
     parentBf.registerBeanDefinition("highPriorityTestBean", bd2);
 
     ObjectProvider<TestBean> testBeanProvider = lbf.getBeanProvider(ResolvableType.forClass(TestBean.class));
-    List<TestBean> resolved = testBeanProvider.orderedStream().toList();
-    assertThat(resolved.size()).isEqualTo(3);
-    assertThat(resolved.get(0)).isSameAs(lbf.getBean("highPriorityTestBean"));
-    assertThat(resolved.get(1)).isSameAs(lbf.getBean("lowPriorityTestBean"));
-    assertThat(resolved.get(2)).isSameAs(lbf.getBean("plainTestBean"));
+    assertThat(testBeanProvider.orderedStream()).containsExactly(
+            lbf.getBean("highPriorityTestBean", TestBean.class),
+            lbf.getBean("lowPriorityTestBean", TestBean.class),
+            lbf.getBean("plainTestBean", TestBean.class));
+    assertThat(testBeanProvider.orderedStream(clazz -> clazz != TestBean.class).toList()).containsExactly(
+            lbf.getBean("highPriorityTestBean", TestBean.class),
+            lbf.getBean("lowPriorityTestBean", TestBean.class));
+    assertThat(testBeanProvider.stream()).containsExactly(
+            lbf.getBean("plainTestBean", TestBean.class),
+            lbf.getBean("lowPriorityTestBean", TestBean.class),
+            lbf.getBean("highPriorityTestBean", TestBean.class));
+    assertThat(testBeanProvider.orderedStream(clazz -> clazz != TestBean.class).toList()).containsExactly(
+            lbf.getBean("lowPriorityTestBean", TestBean.class),
+            lbf.getBean("highPriorityTestBean", TestBean.class));
   }
 
   @Test

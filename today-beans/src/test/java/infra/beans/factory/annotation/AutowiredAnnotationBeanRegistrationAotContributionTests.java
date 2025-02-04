@@ -161,6 +161,7 @@ class AutowiredAnnotationBeanRegistrationAotContributionTests {
   }
 
   @Test
+  @SuppressWarnings("removal")
   @CompileWithForkedClassLoader
   void contributeWhenPackagePrivateMethodInjectionInjectsUsingConsumer() {
     Environment environment = new StandardEnvironment();

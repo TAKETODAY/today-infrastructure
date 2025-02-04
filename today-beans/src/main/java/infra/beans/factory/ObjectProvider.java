@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -60,6 +61,15 @@ import infra.lang.Nullable;
  * @since 3.0 2021/3/6 11:18
  */
 public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
+
+  /**
+   * A predicate for unfiltered type matches.
+   *
+   * @see #stream(Predicate)
+   * @see #orderedStream(Predicate)
+   * @since 5.0
+   */
+  Predicate<Class<?>> UNFILTERED = (clazz -> true);
 
   /**
    * Return an instance (possibly shared or independent) of the object
@@ -231,6 +241,10 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
   /**
    * Return a sequential {@link Stream} over all matching object instances,
    * without specific ordering guarantees (but typically in registration order).
+   * <p>Note: The result may be filtered by default according to qualifiers on the
+   * injection point versus target beans and the general autowire candidate status
+   * of matching beans. For custom filtering against the raw type matches, use
+   * {@link #stream(Predicate)} instead (potentially with {@link #UNFILTERED}).
    *
    * @see #iterator()
    * @see #orderedStream()
@@ -248,12 +262,46 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * and in case of annotation-based configuration also considering the
    * {@link Order} annotation,
    * analogous to multi-element injection points of list/array type.
+   * <p>Note: The result may be filtered by default according to qualifiers on the
+   * injection point versus target beans and the general autowire candidate status
+   * of matching beans. For custom filtering against the raw type matches, use
+   * {@link #stream(Predicate)} instead (potentially with {@link #UNFILTERED}).
    *
    * @see #stream()
    * @see OrderComparator
    */
   default Stream<T> orderedStream() {
     return stream().sorted(OrderComparator.INSTANCE);
+  }
+
+  /**
+   * Return a custom-filtered {@link Stream} over all matching object instances,
+   * without specific ordering guarantees (but typically in registration order).
+   *
+   * @param customFilter a custom type filter for selecting beans among the raw
+   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
+   * any default filtering)
+   * @see #stream()
+   * @see #orderedStream(Predicate)
+   * @since 5.0
+   */
+  default Stream<T> stream(Predicate<Class<?>> customFilter) {
+    return stream().filter(obj -> customFilter.test(obj.getClass()));
+  }
+
+  /**
+   * Return a custom-filtered {@link Stream} over all matching object instances,
+   * pre-ordered according to the factory's common order comparator.
+   *
+   * @param customFilter a custom type filter for selecting beans among the raw
+   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
+   * any default filtering)
+   * @see #orderedStream()
+   * @see #stream(Predicate)
+   * @since 5.0
+   */
+  default Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
+    return orderedStream().filter(obj -> customFilter.test(obj.getClass()));
   }
 
   /**

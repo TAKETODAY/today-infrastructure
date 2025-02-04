@@ -1078,32 +1078,26 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         return false;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public Stream<T> stream() {
-        return getBeanNamesForTypedStream(requiredType, allowEagerInit)
-                .stream()
-                .map(name -> (T) getBean(name))
-                .filter(Objects::nonNull);
+        return StandardBeanFactory.this.stream(requiredType, allowEagerInit, null);
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public Stream<T> orderedStream() {
-        Set<String> beanNames = getBeanNamesForTypedStream(requiredType, allowEagerInit);
-        if (beanNames.isEmpty()) {
-          return Stream.empty();
-        }
-        Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
-        for (String beanName : beanNames) {
-          Object beanInstance = getBean(beanName);
-          if (beanInstance != null) {
-            matchingBeans.put(beanName, (T) beanInstance);
-          }
-        }
-        Stream<T> stream = matchingBeans.values().stream();
-        return stream.sorted(adaptOrderComparator(matchingBeans));
+        return StandardBeanFactory.this.orderedStream(requiredType, allowEagerInit, null);
       }
+
+      @Override
+      public Stream<T> stream(Predicate<Class<?>> customFilter) {
+        return StandardBeanFactory.this.stream(requiredType, allowEagerInit, customFilter);
+      }
+
+      @Override
+      public Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
+        return StandardBeanFactory.this.orderedStream(requiredType, allowEagerInit, customFilter);
+      }
+
     };
   }
 
@@ -2441,7 +2435,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     @Nullable
     private final String beanName;
+
     private final boolean optional;
+
     private final DependencyDescriptor descriptor;
 
     public DependencyObjectProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
@@ -2606,6 +2602,51 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return result instanceof Stream ? (Stream<Object>) result : Stream.of(result);
     }
 
+    @Override
+    public Stream<Object> stream(Predicate<Class<?>> customFilter) {
+      return StandardBeanFactory.this.stream(
+              this.descriptor.getResolvableType(), true, customFilter);
+    }
+
+    @Override
+    public Stream<Object> orderedStream(Predicate<Class<?>> customFilter) {
+      return StandardBeanFactory.this.orderedStream(
+              this.descriptor.getResolvableType(), true, customFilter);
+    }
+
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> Stream<T> stream(ResolvableType requiredType, boolean allowEagerInit, @Nullable Predicate<Class<?>> customFilter) {
+    if (customFilter != null) {
+      return getBeanNamesForTypedStream(requiredType, allowEagerInit)
+              .stream()
+              .filter(name -> customFilter.test(getType(name)))
+              .map(name -> (T) getBean(name))
+              .filter(Objects::nonNull);
+    }
+    return getBeanNamesForTypedStream(requiredType, allowEagerInit)
+            .stream()
+            .map(name -> (T) getBean(name))
+            .filter(Objects::nonNull);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> Stream<T> orderedStream(ResolvableType requiredType, boolean allowEagerInit, @Nullable Predicate<Class<?>> customFilter) {
+    var beanNames = getBeanNamesForTypedStream(requiredType, allowEagerInit);
+    if (beanNames.isEmpty()) {
+      return Stream.empty();
+    }
+    Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
+    for (String beanName : beanNames) {
+      if (customFilter == null || customFilter.test(getType(beanName))) {
+        Object beanInstance = getBean(beanName);
+        if (beanInstance != null) {
+          matchingBeans.put(beanName, (T) beanInstance);
+        }
+      }
+    }
+    return matchingBeans.values().stream().sorted(adaptOrderComparator(matchingBeans));
   }
 
   /**
