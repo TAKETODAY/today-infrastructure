@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -133,11 +134,12 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
       logger.trace("Processing request {} with headers={}", request.getURI(), headers);
     }
     try {
-      if (HttpMethod.GET != request.getMethod()) {
+      HttpMethod method = request.getMethod();
+      if (HttpMethod.GET != method && method != HttpMethod.CONNECT) {
         request.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
-        request.responseHeaders().setAllow(Collections.singleton(HttpMethod.GET));
+        request.responseHeaders().setAllow(Set.of(HttpMethod.GET, HttpMethod.CONNECT));
         if (logger.isErrorEnabled()) {
-          logger.error("Handshake failed due to unexpected HTTP method: {}", request.getMethod());
+          logger.error("Handshake failed due to unexpected HTTP method: {}", method);
         }
         return null;
       }
