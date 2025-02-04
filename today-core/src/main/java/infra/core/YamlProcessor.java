@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,15 +56,19 @@ import infra.util.StringUtils;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author Brian Clozel
- * @author TODAY 2021/9/30 23:33
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 4.0 2021/9/30 23:33
  */
 public class YamlProcessor {
+
   private static final Logger log = LoggerFactory.getLogger(YamlProcessor.class);
 
   private boolean matchDefault = true;
+
   private Resource[] resources = Resource.EMPTY_ARRAY;
+
   private ResolutionMethod resolutionMethod = ResolutionMethod.OVERRIDE;
+
   private List<DocumentMatcher> documentMatchers = Collections.emptyList();
 
   private Set<String> supportedTypes = Collections.emptySet();
@@ -74,7 +78,7 @@ public class YamlProcessor {
    * some of the documents in a YAML resource. In YAML documents are
    * separated by {@code ---} lines, and each document is converted
    * to properties before the match is made. E.g.
-   * <pre class="code">
+   * <pre>{@code
    * environment: dev
    * url: https://dev.bar.com
    * name: Developer Setup
@@ -82,18 +86,18 @@ public class YamlProcessor {
    * environment: prod
    * url:https://foo.bar.com
    * name: My Cool App
-   * </pre>
+   * }</pre>
    * when mapped with
-   * <pre class="code">
-   * setDocumentMatchers(properties -&gt;
+   * <pre>{@code
+   * setDocumentMatchers(properties ->
    *     ("prod".equals(properties.getProperty("environment")) ? MatchStatus.FOUND : MatchStatus.NOT_FOUND));
-   * </pre>
+   * }</pre>
    * would end up as
-   * <pre class="code">
+   * <pre>{@code
    * environment=prod
    * url=https://foo.bar.com
    * name=My Cool App
-   * </pre>
+   * }</pre>
    */
   public void setDocumentMatchers(DocumentMatcher... matchers) {
     this.documentMatchers = Arrays.asList(matchers);
@@ -298,9 +302,8 @@ public class YamlProcessor {
     return result;
   }
 
-  private void buildFlattenedMap(
-          Map<String, Object> result, Map<String, Object> source, @Nullable String path) {
-
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, @Nullable String path) {
     for (Map.Entry<String, Object> entry : source.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
@@ -315,16 +318,12 @@ public class YamlProcessor {
       if (value instanceof String) {
         result.put(key, value);
       }
-      else if (value instanceof Map) {
+      else if (value instanceof Map map) {
         // Need a compound key
-        @SuppressWarnings("unchecked")
-        Map<String, Object> map = (Map<String, Object>) value;
         buildFlattenedMap(result, map, key);
       }
-      else if (value instanceof Collection) {
+      else if (value instanceof Collection<?> collection) {
         // Need a compound key
-        @SuppressWarnings("unchecked")
-        Collection<Object> collection = (Collection<Object>) value;
         if (collection.isEmpty()) {
           result.put(key, Constant.BLANK);
         }

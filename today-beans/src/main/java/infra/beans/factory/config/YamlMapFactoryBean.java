@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.beans.factory.config;
 
 import java.util.LinkedHashMap;
@@ -36,31 +37,31 @@ import infra.lang.Nullable;
  * the earlier ones hierarchically; that is, all entries with the same nested key
  * of type {@code Map} at any depth are merged. For example:
  *
- * <pre class="code">
+ * <pre>{@code
  * foo:
  *   bar:
  *    one: two
  * three: four
- * </pre>
+ * }</pre>
  *
  * plus (later in the list)
  *
- * <pre class="code">
+ * <pre>{@code
  * foo:
  *   bar:
  *    one: 2
  * five: six
- * </pre>
+ * }</pre>
  *
  * results in an effective input of
  *
- * <pre class="code">
+ * <pre>{@code
  * foo:
  *   bar:
  *    one: 2
  * three: four
  * five: six
- * </pre>
+ * }</pre>
  *
  * Note that the value of "foo" in the first document is not simply replaced
  * with the value in the second, but its nested values are merged.
