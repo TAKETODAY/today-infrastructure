@@ -38,17 +38,17 @@ public interface AnnotationFilter {
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
-   * {@code java.lang} and {@code infra.lang.Nullable},
-   * {@code infra.lang.NonNull}
+   * {@code java.lang} and {@code infra.lang} packages
+   * and their subpackages.
    * <p>This is the default filter in the {@link MergedAnnotations} model.
    */
-  AnnotationFilter PLAIN = packages("java.lang.");
+  AnnotationFilter PLAIN = packages("java.lang", "infra.lang");
 
   /**
    * {@link AnnotationFilter} that matches annotations in the
    * {@code java} and {@code jakarta} packages and their subpackages.
    */
-  AnnotationFilter JAVA = packages("java", "jakarta", "javax");
+  AnnotationFilter JAVA = packages("java", "jakarta");
 
   /**
    * {@link AnnotationFilter} that always matches and can be used when no

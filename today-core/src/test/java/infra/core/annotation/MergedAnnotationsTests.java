@@ -1420,56 +1420,56 @@ class MergedAnnotationsTests {
   void getRepeatableDeclaredOnClass() {
     Class<?> element = MyRepeatableClass.class;
     String[] expectedValuesJava = { "A", "B", "C" };
-    String[] expectedValuesSpring = { "A", "B", "C", "meta1" };
-    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = { "A", "B", "C", "meta1" };
+    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesInfra);
   }
 
   @Test
   void getRepeatableDeclaredOnSuperclass() {
     Class<?> element = SubMyRepeatableClass.class;
     String[] expectedValuesJava = { "A", "B", "C" };
-    String[] expectedValuesSpring = { "A", "B", "C", "meta1" };
-    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = { "A", "B", "C", "meta1" };
+    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesInfra);
   }
 
   @Test
   void getRepeatableDeclaredOnClassAndSuperclass() {
     Class<?> element = SubMyRepeatableWithAdditionalLocalDeclarationsClass.class;
     String[] expectedValuesJava = { "X", "Y", "Z" };
-    String[] expectedValuesSpring = { "X", "Y", "Z", "meta2" };
-    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = { "X", "Y", "Z", "meta2" };
+    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesInfra);
   }
 
   @Test
   void getRepeatableDeclaredOnMultipleSuperclasses() {
     Class<?> element = SubSubMyRepeatableWithAdditionalLocalDeclarationsClass.class;
     String[] expectedValuesJava = { "X", "Y", "Z" };
-    String[] expectedValuesSpring = { "X", "Y", "Z", "meta2" };
-    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = { "X", "Y", "Z", "meta2" };
+    testRepeatables(SearchStrategy.SUPERCLASS, element, expectedValuesJava, expectedValuesInfra);
   }
 
   @Test
   void getDirectRepeatablesDeclaredOnClass() {
     Class<?> element = MyRepeatableClass.class;
     String[] expectedValuesJava = { "A", "B", "C" };
-    String[] expectedValuesSpring = { "A", "B", "C", "meta1" };
-    testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = { "A", "B", "C", "meta1" };
+    testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesInfra);
   }
 
   @Test
   void getDirectRepeatablesDeclaredOnSuperclass() {
     Class<?> element = SubMyRepeatableClass.class;
     String[] expectedValuesJava = {};
-    String[] expectedValuesSpring = {};
-    testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesSpring);
+    String[] expectedValuesInfra = {};
+    testRepeatables(SearchStrategy.DIRECT, element, expectedValuesJava, expectedValuesInfra);
   }
 
   private void testRepeatables(SearchStrategy searchStrategy, Class<?> element,
-          String[] expectedValuesJava, String[] expectedValuesSpring) {
+          String[] expectedValuesJava, String[] expectedValuesInfra) {
 
     testJavaRepeatables(searchStrategy, element, expectedValuesJava);
-    testExplicitRepeatables(searchStrategy, element, expectedValuesSpring);
-    testStandardRepeatables(searchStrategy, element, expectedValuesSpring);
+    testExplicitRepeatables(searchStrategy, element, expectedValuesInfra);
+    testStandardRepeatables(searchStrategy, element, expectedValuesInfra);
   }
 
   private void testJavaRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
@@ -2452,11 +2452,9 @@ class MergedAnnotationsTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface ConventionBasedComposedContextConfiguration {
 
-    // Do NOT use @AliasFor here until Spring 6.1
     // @AliasFor(annotation = ContextConfiguration.class)
     String[] locations() default {};
 
-    // Do NOT use @AliasFor here until Spring 6.1
     // @AliasFor(annotation = ContextConfiguration.class)
     Class<?>[] classes() default {};
   }
@@ -2465,7 +2463,6 @@ class MergedAnnotationsTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface InvalidConventionBasedComposedContextConfiguration {
 
-    // Do NOT use @AliasFor here until Spring 6.1
     // @AliasFor(annotation = ContextConfiguration.class)
     String[] locations();
   }
@@ -2478,7 +2475,6 @@ class MergedAnnotationsTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface HalfConventionBasedAndHalfAliasedComposedContextConfiguration {
 
-    // Do NOT use @AliasFor here until Spring 6.1
     // @AliasFor(annotation = ContextConfiguration.class)
     String[] locations() default {};
 
@@ -2601,12 +2597,12 @@ class MergedAnnotationsTests {
     @AliasFor(annotation = ContextConfiguration.class, attribute = "locations")
     String[] locations() default { };
 
-    // Do NOT use @AliasFor(annotation = ...) here until Spring 6.1
+    // Do NOT use @AliasFor(annotation = ...) here
     // @AliasFor(annotation = ContextConfiguration.class, attribute = "classes")
     @AliasFor("value")
     Class<?>[] classes() default {};
 
-    // Do NOT use @AliasFor(annotation = ...) here until Spring 6.1
+    // Do NOT use @AliasFor(annotation = ...) here
     // @AliasFor(annotation = ContextConfiguration.class, attribute = "classes")
     @AliasFor("classes")
     Class<?>[] value() default {};
@@ -2644,7 +2640,7 @@ class MergedAnnotationsTests {
   @Retention(RetentionPolicy.RUNTIME)
   @interface ConventionBasedSinglePackageComponentScan {
 
-    // Do NOT use @AliasFor here until Spring 6.1
+    // Do NOT use @AliasFor here
     // @AliasFor(annotation = ComponentScan.class)
     String basePackages();
   }
@@ -3236,7 +3232,7 @@ class MergedAnnotationsTests {
   @RequestMapping(method = RequestMethod.POST, name = "")
   @interface PostMapping {
 
-    // Do NOT use @AliasFor here until Spring 6.1
+    // Do NOT use @AliasFor here
     // @AliasFor(annotation = RequestMapping.class)
     String path() default "";
   }

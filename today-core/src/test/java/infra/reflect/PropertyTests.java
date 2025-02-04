@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import infra.core.annotation.AnnotationFilter;
 import infra.core.annotation.MergedAnnotations;
+import infra.core.annotation.RepeatableContainers;
 import infra.lang.NonNull;
 import infra.lang.Nullable;
 import infra.lang.Required;
@@ -39,7 +41,8 @@ class PropertyTests {
     Method getInt = Bean.class.getDeclaredMethod("getInt");
     Method setInt = Bean.class.getDeclaredMethod("setInt", Integer.class);
     Property property = new Property(Bean.class, getInt, setInt);
-    MergedAnnotations annotations = MergedAnnotations.from(property, property.getAnnotations());
+    MergedAnnotations annotations = MergedAnnotations.from(property, property.getAnnotations(),
+            RepeatableContainers.standard(), AnnotationFilter.JAVA);
 
     assertThat(annotations.get(Nullable.class).isPresent()).isTrue();
     assertThat(annotations.get(Override.class).isPresent()).isFalse();
