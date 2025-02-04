@@ -127,6 +127,9 @@ class ConfigurationClassEnhancer {
    */
   private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
     Enhancer enhancer = new Enhancer();
+    if (classLoader != null) {
+      enhancer.setClassLoader(classLoader);
+    }
     enhancer.setUseFactory(false);
     enhancer.setSuperclass(configSuperClass);
     enhancer.setInterfaces(EnhancedConfiguration.class);
