@@ -1005,7 +1005,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
-    return new BeanObjectProvider<>() {
+    return new BeanObjectProvider<>(allowEagerInit) {
+
       @Override
       public T get() throws BeansException {
         T resolved = resolveBean(requiredType, null, false);
@@ -1079,23 +1080,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public Stream<T> stream() {
-        return StandardBeanFactory.this.stream(requiredType, allowEagerInit, null);
-      }
-
-      @Override
-      public Stream<T> orderedStream() {
-        return StandardBeanFactory.this.orderedStream(requiredType, allowEagerInit, null);
-      }
-
-      @Override
-      public Stream<T> stream(Predicate<Class<?>> customFilter) {
-        return StandardBeanFactory.this.stream(requiredType, allowEagerInit, customFilter);
-      }
-
-      @Override
-      public Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
-        return StandardBeanFactory.this.orderedStream(requiredType, allowEagerInit, customFilter);
+      ResolvableType requiredType() {
+        return requiredType;
       }
 
     };
@@ -2279,6 +2265,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private Optional<?> createOptionalDependency(DependencyDescriptor descriptor, @Nullable String beanName, final Object... args) {
     DependencyDescriptor descriptorToUse = new NestedDependencyDescriptor(descriptor) {
+
       @Override
       public boolean isRequired() {
         return false;
@@ -2369,7 +2356,62 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
-  private interface BeanObjectProvider<T> extends ObjectProvider<T>, Serializable { }
+  private abstract class BeanObjectProvider<T> implements ObjectProvider<T>, Serializable {
+
+    private final boolean allowEagerInit;
+
+    private BeanObjectProvider(boolean allowEagerInit) {
+      this.allowEagerInit = allowEagerInit;
+    }
+
+    @Override
+    public Stream<T> stream() {
+      return stream(null);
+    }
+
+    @Override
+    public Stream<T> orderedStream() {
+      return orderedStream(null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Stream<T> stream(@Nullable Predicate<Class<?>> customFilter) {
+      if (customFilter != null) {
+        return getBeanNamesForTypedStream(requiredType(), allowEagerInit)
+                .stream()
+                .filter(name -> customFilter.test(getType(name)))
+                .map(name -> (T) getBean(name))
+                .filter(Objects::nonNull);
+      }
+      return getBeanNamesForTypedStream(requiredType(), allowEagerInit)
+              .stream()
+              .map(name -> (T) getBean(name))
+              .filter(Objects::nonNull);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Stream<T> orderedStream(@Nullable Predicate<Class<?>> customFilter) {
+      var beanNames = getBeanNamesForTypedStream(requiredType(), allowEagerInit);
+      if (beanNames.isEmpty()) {
+        return Stream.empty();
+      }
+      Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
+      for (String beanName : beanNames) {
+        if (customFilter == null || customFilter.test(getType(beanName))) {
+          Object beanInstance = getBean(beanName);
+          if (beanInstance != null) {
+            matchingBeans.put(beanName, (T) beanInstance);
+          }
+        }
+      }
+      return matchingBeans.values().stream().sorted(adaptOrderComparator(matchingBeans));
+    }
+
+    abstract ResolvableType requiredType();
+
+  }
 
   /**
    * A dependency descriptor marker for nested elements.
@@ -2428,7 +2470,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /**
    * Serializable ObjectFactory/ObjectProvider for lazy resolution of a dependency.
    */
-  private class DependencyObjectProvider implements BeanObjectProvider<Object> {
+  private class DependencyObjectProvider extends BeanObjectProvider<Object> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -2441,6 +2483,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     private final DependencyDescriptor descriptor;
 
     public DependencyObjectProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
+      super(true);
       this.beanName = beanName;
       descriptor = new NestedDependencyDescriptor(descriptor);
       this.optional = descriptor.getDependencyType() == Optional.class;
@@ -2603,50 +2646,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public Stream<Object> stream(Predicate<Class<?>> customFilter) {
-      return StandardBeanFactory.this.stream(
-              this.descriptor.getResolvableType(), true, customFilter);
+    ResolvableType requiredType() {
+      return descriptor.getResolvableType();
     }
 
-    @Override
-    public Stream<Object> orderedStream(Predicate<Class<?>> customFilter) {
-      return StandardBeanFactory.this.orderedStream(
-              this.descriptor.getResolvableType(), true, customFilter);
-    }
-
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> Stream<T> stream(ResolvableType requiredType, boolean allowEagerInit, @Nullable Predicate<Class<?>> customFilter) {
-    if (customFilter != null) {
-      return getBeanNamesForTypedStream(requiredType, allowEagerInit)
-              .stream()
-              .filter(name -> customFilter.test(getType(name)))
-              .map(name -> (T) getBean(name))
-              .filter(Objects::nonNull);
-    }
-    return getBeanNamesForTypedStream(requiredType, allowEagerInit)
-            .stream()
-            .map(name -> (T) getBean(name))
-            .filter(Objects::nonNull);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> Stream<T> orderedStream(ResolvableType requiredType, boolean allowEagerInit, @Nullable Predicate<Class<?>> customFilter) {
-    var beanNames = getBeanNamesForTypedStream(requiredType, allowEagerInit);
-    if (beanNames.isEmpty()) {
-      return Stream.empty();
-    }
-    Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
-    for (String beanName : beanNames) {
-      if (customFilter == null || customFilter.test(getType(beanName))) {
-        Object beanInstance = getBean(beanName);
-        if (beanInstance != null) {
-          matchingBeans.put(beanName, (T) beanInstance);
-        }
-      }
-    }
-    return matchingBeans.values().stream().sorted(adaptOrderComparator(matchingBeans));
   }
 
   /**
