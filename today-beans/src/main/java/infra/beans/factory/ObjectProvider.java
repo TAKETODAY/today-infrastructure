@@ -285,7 +285,9 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #orderedStream(Predicate)
    * @since 5.0
    */
-  Stream<T> stream(Predicate<Class<?>> customFilter);
+  default Stream<T> stream(Predicate<Class<?>> customFilter) {
+    return stream().filter(obj -> customFilter.test(obj.getClass()));
+  }
 
   /**
    * Return a custom-filtered {@link Stream} over all matching object instances,
@@ -298,7 +300,9 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #stream(Predicate)
    * @since 5.0
    */
-  Stream<T> orderedStream(Predicate<Class<?>> customFilter);
+  default Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
+    return orderedStream().filter(obj -> customFilter.test(obj.getClass()));
+  }
 
   /**
    * Return a {@link List} over all matching object instances,

@@ -25,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import infra.beans.BeansException;
@@ -358,16 +357,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       @Override
       public Stream<T> stream() {
         return getBeanNamesForType(requiredType).stream().map(name -> (T) getBean(name));
-      }
-
-      @Override
-      public Stream<T> stream(Predicate<Class<?>> customFilter) {
-        return stream().filter(obj -> customFilter.test(obj.getClass()));
-      }
-
-      @Override
-      public Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
-        return orderedStream().filter(obj -> customFilter.test(obj.getClass()));
       }
 
     };
