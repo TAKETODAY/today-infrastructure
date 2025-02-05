@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package infra.web.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,6 +28,7 @@ import infra.core.io.UrlResource;
 import infra.http.CacheControl;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.CollectionUtils;
 import infra.web.NotFoundHandler;
 import infra.web.resource.PathResourceResolver;
 import infra.web.resource.ResourceHttpRequestHandler;
@@ -98,8 +98,8 @@ public class ResourceHandlerRegistration {
    * @return the same {@link ResourceHandlerRegistration} instance, for
    * chained method invocation
    */
-  public ResourceHandlerRegistration addResourceLocations(String... locations) {
-    this.locationValues.addAll(Arrays.asList(locations));
+  public ResourceHandlerRegistration addResourceLocations(@Nullable String... locations) {
+    CollectionUtils.addAll(locationValues, locations);
     return this;
   }
 
@@ -111,8 +111,8 @@ public class ResourceHandlerRegistration {
    * @return the same {@link ResourceHandlerRegistration} instance, for
    * chained method invocation
    */
-  public ResourceHandlerRegistration addResourceLocations(Resource... locations) {
-    this.locationsResources.addAll(Arrays.asList(locations));
+  public ResourceHandlerRegistration addResourceLocations(@Nullable Resource... locations) {
+    CollectionUtils.addAll(locationsResources, locations);
     return this;
   }
 
@@ -124,7 +124,7 @@ public class ResourceHandlerRegistration {
    * @param cachePeriod the time to cache resources in seconds
    * @return the same {@link ResourceHandlerRegistration} instance, for chained method invocation
    */
-  public ResourceHandlerRegistration setCachePeriod(Integer cachePeriod) {
+  public ResourceHandlerRegistration setCachePeriod(@Nullable Integer cachePeriod) {
     this.cachePeriod = cachePeriod;
     return this;
   }
@@ -137,7 +137,7 @@ public class ResourceHandlerRegistration {
    * @param cacheControl the CacheControl configuration to use
    * @return the same {@link ResourceHandlerRegistration} instance, for chained method invocation
    */
-  public ResourceHandlerRegistration setCacheControl(CacheControl cacheControl) {
+  public ResourceHandlerRegistration setCacheControl(@Nullable CacheControl cacheControl) {
     this.cacheControl = cacheControl;
     return this;
   }

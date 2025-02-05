@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http;
@@ -97,7 +97,9 @@ public class CacheControl {
    *
    * @see #empty()
    */
-  protected CacheControl() { }
+  protected CacheControl() {
+
+  }
 
   /**
    * Return an empty directive.
@@ -310,7 +312,7 @@ public class CacheControl {
    * @return {@code this}, to facilitate method chaining
    * @see <a href="https://tools.ietf.org/html/rfc5861#section-3">rfc5861 section 3</a>
    */
-  public CacheControl staleWhileRevalidate(Duration staleWhileRevalidate) {
+  public CacheControl staleWhileRevalidate(@Nullable Duration staleWhileRevalidate) {
     this.staleWhileRevalidate = staleWhileRevalidate;
     return this;
   }
@@ -339,7 +341,7 @@ public class CacheControl {
    * @return {@code this}, to facilitate method chaining
    * @see <a href="https://tools.ietf.org/html/rfc5861#section-4">rfc5861 section 4</a>
    */
-  public CacheControl staleIfError(Duration staleIfError) {
+  public CacheControl staleIfError(@Nullable Duration staleIfError) {
     this.staleIfError = staleIfError;
     return this;
   }

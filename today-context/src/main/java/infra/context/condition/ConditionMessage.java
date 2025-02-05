@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -443,12 +443,14 @@ public final class ConditionMessage {
      */
     QUOTE {
       @Override
+      @Nullable
       protected String applyToItem(Object item) {
         return (item != null) ? "'" + item + "'" : null;
       }
 
     };
 
+    @Nullable
     public Collection<?> applyTo(Collection<?> items) {
       if (items == null) {
         return null;
