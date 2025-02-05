@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.function.Predicate;
  * for {@link MergedAnnotation} instances.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MergedAnnotations#get(Class, Predicate, MergedAnnotationSelector)
  * @see MergedAnnotations#get(String, Predicate, MergedAnnotationSelector)
  * @since 4.0
@@ -58,7 +59,7 @@ public abstract class MergedAnnotationSelectors {
   /**
    * {@link MergedAnnotationSelector} to select the nearest annotation.
    */
-  private static class Nearest implements MergedAnnotationSelector<Annotation> {
+  private static final class Nearest implements MergedAnnotationSelector<Annotation> {
 
     @Override
     public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {
@@ -77,12 +78,11 @@ public abstract class MergedAnnotationSelectors {
 
   }
 
-
   /**
    * {@link MergedAnnotationSelector} to select the first directly declared
    * annotation.
    */
-  private static class FirstDirectlyDeclared implements MergedAnnotationSelector<Annotation> {
+  private static final class FirstDirectlyDeclared implements MergedAnnotationSelector<Annotation> {
 
     @Override
     public boolean isBestCandidate(MergedAnnotation<Annotation> annotation) {

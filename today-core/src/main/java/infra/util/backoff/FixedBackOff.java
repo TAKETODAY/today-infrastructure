@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,9 @@ public class FixedBackOff implements BackOff {
    * Create an instance with an interval of {@value #DEFAULT_INTERVAL}
    * ms and an unlimited number of attempts.
    */
-  public FixedBackOff() { }
+  public FixedBackOff() {
+
+  }
 
   /**
    * Create an instance.
@@ -92,7 +94,7 @@ public class FixedBackOff implements BackOff {
     return new FixedBackOffExecution();
   }
 
-  private class FixedBackOffExecution implements BackOffExecution {
+  private final class FixedBackOffExecution implements BackOffExecution {
 
     private long currentAttempts = 0;
 

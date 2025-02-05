@@ -27,8 +27,8 @@ import java.io.Serial;
 import infra.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2019-11-03 16:09
+ * @author TODAY
+ * @since 2019-11-03 16:09
  */
 final class Log4j2Logger extends Logger {
 
@@ -138,22 +138,4 @@ final class Log4j2Logger extends Logger {
     this.logger.logIfEnabled(FQCN, getLevel(level), null, message, t);
   }
 
-}
-
-final class Log4j2LoggerFactory extends LoggerFactory {
-
-  Log4j2LoggerFactory() {
-    LogManager.class.getName();
-  }
-
-  @Override
-  protected Logger createLogger(String name) {
-    LoggerContext context = Log4j2Logger.loggerContext;
-    if (context == null) {
-      // Circular call in early-init scenario -> static field not initialized yet
-      context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
-    }
-    ExtendedLogger logger = context.getLogger(name);
-    return new Log4j2Logger(logger);
-  }
 }

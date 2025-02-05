@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,9 @@ public class ExponentialBackOff implements BackOff {
    * @see #DEFAULT_MAX_ELAPSED_TIME
    * @see #DEFAULT_MAX_ATTEMPTS
    */
-  public ExponentialBackOff() { }
+  public ExponentialBackOff() {
+
+  }
 
   /**
    * Create an instance with the supplied settings.
@@ -214,7 +216,7 @@ public class ExponentialBackOff implements BackOff {
     }
   }
 
-  private class ExponentialBackOffExecution implements BackOffExecution {
+  private final class ExponentialBackOffExecution implements BackOffExecution {
 
     private long currentInterval = -1;
 

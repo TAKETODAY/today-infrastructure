@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
  * @since 2018-01-16 10:56
  */
 public interface Constant extends Serializable {
+
   String PROPERTIES_SUFFIX = ".properties";
 
   /**
@@ -85,9 +86,6 @@ public interface Constant extends Serializable {
 
   String BLANK = "";
   String VALUE = "value";
-  String EQUALS = "equals";
-  String HASH_CODE = "hashCode";
-  String TO_STRING = "toString";
   String DEFAULT = "default";
 
 }

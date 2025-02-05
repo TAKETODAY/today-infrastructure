@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.io;
 
 import java.io.File;
@@ -1099,7 +1100,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
   }
 
-  private final static class SeenResourceConsumer implements SmartResourceConsumer {
+  private static final class SeenResourceConsumer implements SmartResourceConsumer {
 
     private final LinkedHashSet<Resource> seen = new LinkedHashSet<>();
 

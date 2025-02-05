@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -290,17 +290,16 @@ public abstract class ObjectUtils {
         newInstance[j] = Double.valueOf(source[j]);
       return newInstance;
     }
-    { // fix @since 2.1.6
-      if (targetClass.isArray()) {
-        targetClass = targetClass.getComponentType();
-      }
-      Object newInstance = Array.newInstance(targetClass, length);
-      DefaultConversionService conversionService = DefaultConversionService.getSharedInstance();
-      for (short i = 0; i < length; i++) {
-        Array.set(newInstance, i, conversionService.convert(source[i], targetClass));
-      }
-      return newInstance;
+    // fix @since 2.1.6
+    if (targetClass.isArray()) {
+      targetClass = targetClass.getComponentType();
     }
+    Object newInstance = Array.newInstance(targetClass, length);
+    DefaultConversionService conversionService = DefaultConversionService.getSharedInstance();
+    for (short i = 0; i < length; i++) {
+      Array.set(newInstance, i, conversionService.convert(source[i], targetClass));
+    }
+    return newInstance;
   }
 
   public static <T> T parseArray(String[] source, Class<T> targetClass) {

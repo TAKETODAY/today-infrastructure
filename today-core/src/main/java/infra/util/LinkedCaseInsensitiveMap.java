@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -364,7 +364,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     return this.caseInsensitiveKeys.remove(convertKey(key));
   }
 
-  private class KeySet extends AbstractSet<String> {
+  private final class KeySet extends AbstractSet<String> {
 
     private final Set<String> delegate;
 
@@ -408,7 +408,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     }
   }
 
-  private class Values extends AbstractCollection<V> {
+  private final class Values extends AbstractCollection<V> {
 
     private final Collection<V> delegate;
 
@@ -447,11 +447,11 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     }
   }
 
-  private class EntrySet extends AbstractSet<Entry<String, V>> {
+  private final class EntrySet extends AbstractSet<Entry<String, V>> {
 
     private final Set<Entry<String, V>> delegate;
 
-    public EntrySet(Set<Entry<String, V>> delegate) {
+    private EntrySet(Set<Entry<String, V>> delegate) {
       this.delegate = delegate;
     }
 
@@ -529,7 +529,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     }
   }
 
-  private class KeySetIterator extends EntryIterator<String> {
+  private final class KeySetIterator extends EntryIterator<String> {
 
     @Override
     public String next() {
@@ -537,7 +537,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     }
   }
 
-  private class ValuesIterator extends EntryIterator<V> {
+  private final class ValuesIterator extends EntryIterator<V> {
 
     @Override
     public V next() {
@@ -545,7 +545,7 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
     }
   }
 
-  private class EntrySetIterator extends EntryIterator<Entry<String, V>> {
+  private final class EntrySetIterator extends EntryIterator<Entry<String, V>> {
 
     @Override
     public Entry<String, V> next() {

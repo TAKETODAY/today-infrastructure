@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,4 +19,9 @@
  * Useful generic {@code java.util.Comparator} implementations,
  * such as an invertible comparator and a compound comparator.
  */
+@NonNullApi
+@NonNullFields
 package infra.util.comparator;
+
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

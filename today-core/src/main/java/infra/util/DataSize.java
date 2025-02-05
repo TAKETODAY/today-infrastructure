@@ -307,7 +307,7 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
    *
    * @since 4.0
    */
-  private static class DataSizeUtils {
+  private static final class DataSizeUtils {
 
     /**
      * The pattern for parsing.

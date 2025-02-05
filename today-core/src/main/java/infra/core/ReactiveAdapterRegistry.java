@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -231,7 +231,7 @@ public class ReactiveAdapterRegistry {
    * This is important in places where only the stream and stream element type
    * information is available like encoders and decoders.
    */
-  private static class ReactorAdapter extends ReactiveAdapter {
+  private static final class ReactorAdapter extends ReactiveAdapter {
 
     ReactorAdapter(ReactiveTypeDescriptor descriptor,
             Function<Object, Publisher<?>> toPublisherFunction,
@@ -247,7 +247,7 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-  private static class ReactorRegistrar {
+  private static final class ReactorRegistrar {
     private static final Flow.Publisher<?> EMPTY_FLOW = JdkFlowAdapter.publisherToFlowPublisher(Flux.empty());
 
     void registerAdapters(ReactiveAdapterRegistry registry) {
@@ -287,14 +287,14 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-  private static class EmptyCompletableFuture<T> extends CompletableFuture<T> {
+  private static final class EmptyCompletableFuture<T> extends CompletableFuture<T> {
 
     EmptyCompletableFuture() {
       complete(null);
     }
   }
 
-  private static class RxJava3Registrar {
+  private static final class RxJava3Registrar {
 
     void registerAdapters(ReactiveAdapterRegistry registry) {
       registry.registerReactiveType(
@@ -333,7 +333,7 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-  private static class MutinyRegistrar {
+  private static final class MutinyRegistrar {
 
     private static final Method uniToPublisher = ReflectionUtils.getMethod(io.smallrye.mutiny.groups.UniConvert.class, "toPublisher");
 
@@ -374,7 +374,7 @@ public class ReactiveAdapterRegistry {
     }
   }
 
-  private static class FlowAdaptersRegistrar {
+  private static final class FlowAdaptersRegistrar {
 
     private static final Flow.Subscription EMPTY_SUBSCRIPTION = new Flow.Subscription() {
       @Override

@@ -1646,14 +1646,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     };
   }
 
-  final class NotifyTask implements Runnable {
-
-    @Override
-    public void run() {
-      notifyListenersNow();
-    }
-  }
-
   //---------------------------------------------------------------------
   // Static Factory Methods
   //---------------------------------------------------------------------
@@ -2007,4 +1999,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     return whenAllSucceed(futures.toList());
   }
 
+  private final class NotifyTask implements Runnable {
+
+    @Override
+    public void run() {
+      notifyListenersNow();
+    }
+  }
 }

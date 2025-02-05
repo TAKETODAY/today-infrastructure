@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -457,6 +457,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     WEAK
   }
 
+  // Segment
+
   /**
    * A single segment used to divide the map to allow better concurrent performance.
    */
@@ -667,41 +669,40 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     public int getCount() {
       return this.count.get();
     }
-  }
 
-  // Segment
+    private static Reference[] createReferenceArray(final int size) {
+      return new Reference[size];
+    }
 
-  private static Reference[] createReferenceArray(final int size) {
-    return new Reference[size];
-  }
+    @Nullable
+    private static Reference findInChain(final @Nullable Object key, final int hash, final Reference[] references) {
+      final Reference head = references[getIndex(hash, references)];
+      return findInChain(head, key, hash);
+    }
 
-  @Nullable
-  private static Reference findInChain(final @Nullable Object key, final int hash, final Reference[] references) {
-    final Reference head = references[getIndex(hash, references)];
-    return findInChain(head, key, hash);
-  }
+    @SuppressWarnings("rawtypes")
+    private static int getIndex(final int hash, final Reference[] references) {
+      return (hash & (references.length - 1));
+    }
 
-  @SuppressWarnings("rawtypes")
-  private static int getIndex(final int hash, final Reference[] references) {
-    return (hash & (references.length - 1));
-  }
-
-  @Nullable
-  private static <K, V> Reference<K, V> findInChain(final Reference<K, V> ref, final @Nullable Object key, final int hash) {
-    Reference<K, V> currRef = ref;
-    while (currRef != null) {
-      if (currRef.getHash() == hash) {
-        Entry entry = currRef.get();
-        if (entry != null) {
-          Object entryKey = entry.getKey();
-          if (ObjectUtils.nullSafeEquals(entryKey, key)) {
-            return currRef;
+    @Nullable
+    private static <K, V> Reference<K, V> findInChain(final Reference<K, V> ref, final @Nullable Object key, final int hash) {
+      Reference<K, V> currRef = ref;
+      while (currRef != null) {
+        if (currRef.getHash() == hash) {
+          Entry entry = currRef.get();
+          if (entry != null) {
+            Object entryKey = entry.getKey();
+            if (ObjectUtils.nullSafeEquals(entryKey, key)) {
+              return currRef;
+            }
           }
         }
+        currRef = currRef.getNext();
       }
-      currRef = currRef.getNext();
+      return null;
     }
-    return null;
+
   }
 
   /**
@@ -868,7 +869,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
   /**
    * Internal entry-set implementation.
    */
-  private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+  private final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
 
     @Override
     public Iterator<Map.Entry<K, V>> iterator() {
@@ -909,7 +910,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
   /**
    * Internal entry iterator implementation.
    */
-  private class EntryIterator implements Iterator<Map.Entry<K, V>> {
+  private final class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
     private int segmentIndex;
 

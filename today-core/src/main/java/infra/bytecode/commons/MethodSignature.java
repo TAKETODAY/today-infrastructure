@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode.commons;
 
 import java.lang.reflect.Constructor;
@@ -34,9 +35,13 @@ import infra.bytecode.Type;
  * @author TODAY
  */
 public class MethodSignature {
+
   public static final String CONSTRUCTOR_NAME = "<init>";
+
   public static final String STATIC_CLASS_INIT = "<clinit>";
+
   public static final MethodSignature SIG_STATIC = new MethodSignature(STATIC_CLASS_INIT, "()V");
+
   public static final MethodSignature EMPTY_CONSTRUCTOR = new MethodSignature(CONSTRUCTOR_NAME, "()V");
 
   // Number
@@ -63,6 +68,7 @@ public class MethodSignature {
 
   // for cache
   private volatile Type returnType;
+
   private volatile Type[] argumentTypes;
 
   /**

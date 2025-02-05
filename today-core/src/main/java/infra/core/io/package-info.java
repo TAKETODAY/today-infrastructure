@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.core;
-
-import infra.lang.Nullable;
-
 /**
- * Simple strategy interface for resolving a value
- *
- * @author TODAY 2021/8/25 10:27
+ * Generic abstraction for (file-based) resources, used throughout the framework.
  */
-@FunctionalInterface
-public interface MetadataResolver<M, C> {
+@NonNullApi
+@NonNullFields
+package infra.core.io;
 
-  /**
-   * Resolve the given String value, for example parsing placeholders.
-   *
-   * @param context the resolving context
-   * @return the resolved value (maybe {@code null}
-   */
-  @Nullable
-  M resolve(C context);
-
-}
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

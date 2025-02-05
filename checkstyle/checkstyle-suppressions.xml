@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright 2017 - 2024 the original author or authors.
+  ~ Copyright 2017 - 2025 the original author or authors.
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -19,123 +19,135 @@
 <!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
 
-	<!-- Global: generated sources -->
-	<suppress files="[\\/]build[\\/]generated[\\/]sources[\\/]" checks=".*"/>
+  <!-- Global: generated sources -->
+  <suppress files="[\\/]build[\\/]generated[\\/]sources[\\/]" checks=".*" />
 
-	<!-- Global: package-info.java -->
-	<suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/]).*)|(.*infra-docs.*)" checks="JavadocPackage" />
-	<suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-	<suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
+  <!-- Global: package-info.java -->
+  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/]).*)|(.*infra-docs.*)" checks="JavadocPackage" />
+  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)"
+          checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
+  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)"
+          checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
-	<!-- Global: tests and test fixtures -->
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="AnnotationLocation|AnnotationUseStyle|AtclauseOrder|AvoidNestedBlocks|FinalClass|HideUtilityClassConstructor|InnerTypeLast|JavadocStyle|JavadocType|JavadocVariable|LeftCurly|MultipleVariableDeclarations|NeedBraces|OneTopLevelClass|OuterTypeFilename|RequireThis|InfraCatch|InfraJavadoc|InfraNoThis"/>
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale"/>
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale"/>
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint"/>
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]infra[\\/].+(Tests|Suite)" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="InfraJUnit5" message="should not be public"/>
+  <!-- Global: tests and test fixtures -->
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]"
+          checks="AnnotationLocation|AnnotationUseStyle|AtclauseOrder|AvoidNestedBlocks|FinalClass|HideUtilityClassConstructor|InnerTypeLast|JavadocStyle|JavadocType|JavadocVariable|LeftCurly|MultipleVariableDeclarations|NeedBraces|OneTopLevelClass|OuterTypeFilename|RequireThis|InfraCatch|InfraJavadoc|InfraNoThis" />
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale" />
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale" />
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]infra[\\/].+(Tests|Suite)" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="[\\/]src[\\/](test|testFixtures)[\\/](java|java21)[\\/]" checks="InfraJUnit5" message="should not be public" />
 
-	<!-- JMH benchmarks -->
-	<suppress files="[\\/]src[\\/]jmh[\\/]java[\\/]infra[\\/]" checks="JavadocVariable|JavadocStyle|InnerTypeLast"/>
+  <!-- JMH benchmarks -->
+  <suppress files="[\\/]src[\\/]jmh[\\/]java[\\/]infra[\\/]" checks="JavadocVariable|JavadocStyle|InnerTypeLast" />
 
-	<!-- Framework docs -->
-	<suppress files="infra[\\/]docs[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <!-- Framework docs -->
+  <suppress files="infra[\\/]docs[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
-	<!-- today-aop -->
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="IllegalImport" id="bannedImports" message="javax"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation"/>
+  <!-- today-aop -->
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]org[\\/]aopalliance[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
-	<!-- today-beans -->
-	<suppress files="TypeMismatchException" checks="MutableException"/>
-	<suppress files="BeanCreationException" checks="MutableException"/>
-	<suppress files="BeanDefinitionParserDelegate" checks="JavadocVariable"/>
-	<suppress files="DefaultBeanDefinitionDocumentReader" checks="JavadocVariable"/>
-	<suppress files="BeanComponentDefinition" checks="EqualsHashCode"/>
-	<suppress files="GenericBeanDefinition" checks="EqualsHashCode"/>
-	<suppress files="RootBeanDefinition" checks="EqualsHashCode"/>
+  <!-- today-beans -->
+  <suppress files="TypeMismatchException" checks="MutableException" />
+  <suppress files="BeanCreationException" checks="MutableException" />
+  <suppress files="BeanDefinitionParserDelegate" checks="JavadocVariable" />
+  <suppress files="DefaultBeanDefinitionDocumentReader" checks="JavadocVariable" />
+  <suppress files="BeanComponentDefinition" checks="EqualsHashCode" />
+  <suppress files="GenericBeanDefinition" checks="EqualsHashCode" />
+  <suppress files="RootBeanDefinition" checks="EqualsHashCode" />
 
-	<!-- today-context -->
-	<suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports"/>
+  <!-- today-context -->
+  <suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports" />
 
-	<!-- today-core -->
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]aot[\\/]nativex[\\/]feature[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util)[\\/](TodayStrategies|SystemPropertyUtils)" checks="RegexpSinglelineJava" id="systemOutErrPrint"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedImports" message="javax"/>
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
-	<suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax"/>
-	<suppress files="[\\/]src[\\/]test[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax"/>
-	<suppress files="ByteArrayEncoder" checks="InfraLambda"/>
-	<suppress files="SocketUtils" checks="HideUtilityClassConstructor"/>
-	<suppress files="ResolvableType" checks="FinalClass"/>
-	<suppress files="[\\/]src[\\/]testFixtures[\\/]java[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="Target_ClassFinder" checks="HideUtilityClassConstructor"/>
+  <!-- today-core -->
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]aot[\\/]nativex[\\/]feature[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util)[\\/](TodayStrategies|SystemPropertyUtils)" checks="RegexpSinglelineJava"
+          id="systemOutErrPrint" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
+  <suppress files="[\\/]src[\\/]test[\\/]java[\\/]infra[\\/]core[\\/]annotation[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
+  <suppress files="ByteArrayEncoder" checks="InfraLambda" />
+  <suppress files="SocketUtils" checks="HideUtilityClassConstructor" />
+  <suppress files="ResolvableType" checks="FinalClass" />
+  <suppress files="[\\/]src[\\/]testFixtures[\\/]java[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="Target_ClassFinder" checks="HideUtilityClassConstructor" />
 
-	<!-- today-core-test -->
-	<suppress files="CompileWithForkedClassLoader" checks="IllegalImport" id="bannedJUnitJupiterImports" />
-	<suppress files="infra[\\/]aot[\\/]test[\\/]agent[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <!-- today-core-test -->
+  <suppress files="CompileWithForkedClassLoader" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="infra[\\/]aot[\\/]test[\\/]agent[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
-	<suppress files="ExpressionException" checks="MutableException"/>
-	<suppress files="SpelMessage" checks="JavadocVariable|JavadocStyle"/>
-	<suppress files="SpelReproTests" checks="InterfaceIsType"/>
+  <suppress files="ExpressionException" checks="MutableException" />
+  <suppress files="SpelMessage" checks="JavadocVariable|JavadocStyle" />
+  <suppress files="SpelReproTests" checks="InterfaceIsType" />
 
-	<!-- today-jdbc -->
-	<suppress files="ResultSetWrappingSqlRowSet" checks="JavadocStyle"/>
+  <!-- today-jdbc -->
+  <suppress files="ResultSetWrappingSqlRowSet" checks="JavadocStyle" />
 
-	<!-- today-tx -->
-	<suppress files="TransactionSystemException" checks="MutableException"/>
-	<suppress files="TransactionTemplate" checks="EqualsHashCode"/>
+  <!-- today-tx -->
+  <suppress files="TransactionSystemException" checks="MutableException" />
+  <suppress files="TransactionTemplate" checks="EqualsHashCode" />
 
-	<!-- today-test - main and test -->
-	<suppress files="infra[\\/]test[\\/]context[\\/](aot|junit4)[\\/].+" checks="IllegalImport" id="bannedJUnit4Imports"/>
-	<suppress files="infra[\\/]test[\\/]context[\\/]junit[\\/]jupiter[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="infra[\\/]test[\\/]context[\\/]testng[\\/].+" checks="IllegalImport" id="bannedTestNGImports"/>
-	<!-- today-test - main -->
-	<suppress files="DisabledInAotMode" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]util[\\/].+Helper" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]client[\\/]match[\\/].+Matchers" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]reactive[\\/]server[\\/].+" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]servlet[\\/]result[\\/].+Matchers" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<!-- today-test - test -->
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/].+TestNGTests" checks="IllegalImport" id="bannedTestNGImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/]aot[\\/]samples[\\/]web[\\/].+Tests" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/]junit[\\/]jupiter[\\/]web[\\/].+Tests" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]util[\\/].+Tests" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]web[\\/](client|reactive|servlet)[\\/].+Tests" checks="IllegalImport" id="bannedHamcrestImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/](aot|junit4)" checks="InfraJUnit5"/>
-	<suppress files="AutowiredConfigurationErrorsIntegrationTests|ContextHierarchyDirtiesContextTests|ClassLevelDirtiesContextTests|ContextConfigurationWithPropertiesExtendingPropertiesAndInheritedLoaderTests|ContextConfigurationWithPropertiesExtendingPropertiesTests|DirtiesContextInterfaceTests|.+WacTests|JUnit4ContextWebTests|MockitoBeanAndMethodRuleWithRepeatJUnit4IntegrationTests" checks="InfraJUnit5"/>
-	<suppress files=".+TestSuite|ContextHierarchyDirtiesContextTests|ClassLevelDirtiesContextTests|ContextConfigurationWithPropertiesExtendingPropertiesAndInheritedLoaderTests|ContextConfigurationWithPropertiesExtendingPropertiesTests|DirtiesContextInterfaceTests|.+WacTests|JUnit4ContextWebTests|MockitoBeanAndMethodRuleWithRepeatJUnit4IntegrationTests" checks="IllegalImport" id="bannedJUnit4Imports"/>
-	<suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)" checks="RegexpSinglelineJava" id="expectedExceptionAnnotation"/>
+  <!-- today-test - main and test -->
+  <suppress files="infra[\\/]test[\\/]context[\\/](aot|junit4)[\\/].+" checks="IllegalImport" id="bannedJUnit4Imports" />
+  <suppress files="infra[\\/]test[\\/]context[\\/]junit[\\/]jupiter[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="infra[\\/]test[\\/]context[\\/]testng[\\/].+" checks="IllegalImport" id="bannedTestNGImports" />
+  <!-- today-test - main -->
+  <suppress files="DisabledInAotMode" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]util[\\/].+Helper" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]client[\\/]match[\\/].+Matchers" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]reactive[\\/]server[\\/].+" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="src[\\/]main[\\/]java[\\/]infra[\\/]test[\\/]web[\\/]servlet[\\/]result[\\/].+Matchers" checks="IllegalImport" id="bannedHamcrestImports" />
+  <!-- today-test - test -->
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/].+TestNGTests" checks="IllegalImport" id="bannedTestNGImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/]aot[\\/]samples[\\/]web[\\/].+Tests" checks="IllegalImport"
+          id="bannedHamcrestImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/]junit[\\/]jupiter[\\/]web[\\/].+Tests" checks="IllegalImport"
+          id="bannedHamcrestImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]util[\\/].+Tests" checks="IllegalImport" id="bannedHamcrestImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]web[\\/](client|reactive|servlet)[\\/].+Tests" checks="IllegalImport"
+          id="bannedHamcrestImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]test[\\/]context[\\/](aot|junit4)" checks="InfraJUnit5" />
+  <suppress
+          files="AutowiredConfigurationErrorsIntegrationTests|ContextHierarchyDirtiesContextTests|ClassLevelDirtiesContextTests|ContextConfigurationWithPropertiesExtendingPropertiesAndInheritedLoaderTests|ContextConfigurationWithPropertiesExtendingPropertiesTests|DirtiesContextInterfaceTests|.+WacTests|JUnit4ContextWebTests|MockitoBeanAndMethodRuleWithRepeatJUnit4IntegrationTests"
+          checks="InfraJUnit5" />
+  <suppress
+          files=".+TestSuite|ContextHierarchyDirtiesContextTests|ClassLevelDirtiesContextTests|ContextConfigurationWithPropertiesExtendingPropertiesAndInheritedLoaderTests|ContextConfigurationWithPropertiesExtendingPropertiesTests|DirtiesContextInterfaceTests|.+WacTests|JUnit4ContextWebTests|MockitoBeanAndMethodRuleWithRepeatJUnit4IntegrationTests"
+          checks="IllegalImport" id="bannedJUnit4Imports" />
+  <suppress files="infra[\\/]test[\\/]context[\\/].+[\\/](ExpectedExceptionInfraRunnerTests|StandardJUnit4FeaturesTests|ProgrammaticTxMgmtTestNGTests)"
+          checks="RegexpSinglelineJava" id="expectedExceptionAnnotation" />
 
-	<!-- today-web -->
-	<suppress files="BeanFactoryHandlerInstantiator" checks="JavadocStyle"/>
-	<suppress files="infra[\\/]http[\\/]HttpMethod" checks="JavadocVariable|JavadocStyle"/>
-	<suppress files="infra[\\/]http[\\/]HttpStatus" checks="JavadocVariable|JavadocStyle"/>
-	<suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]CrossOrigin" checks="JavadocStyle"/>
-	<suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]RequestMethod" checks="JavadocVariable"/>
-	<suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]ValueConstants" checks="InterfaceIsType"/>
-	<suppress files="infra[\\/]web[\\/]util[\\/]ServletContextPropertyUtils" checks="RegexpSinglelineJava" id="systemOutErrPrint"/>
-	<suppress files="PatternParseException" checks="JavadocVariable"/>
-	<suppress files="web[\\/]reactive[\\/]socket[\\/]CloseStatus" checks="JavadocStyle"/>
-	<suppress files="RestClientResponseException" checks="MutableException"/>
+  <!-- today-web -->
+  <suppress files="BeanFactoryHandlerInstantiator" checks="JavadocStyle" />
+  <suppress files="infra[\\/]http[\\/]HttpMethod" checks="JavadocVariable|JavadocStyle" />
+  <suppress files="infra[\\/]http[\\/]HttpStatus" checks="JavadocVariable|JavadocStyle" />
+  <suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]CrossOrigin" checks="JavadocStyle" />
+  <suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]RequestMethod" checks="JavadocVariable" />
+  <suppress files="infra[\\/]web[\\/]bind[\\/]annotation[\\/]ValueConstants" checks="InterfaceIsType" />
+  <suppress files="infra[\\/]web[\\/]util[\\/]ServletContextPropertyUtils" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
+  <suppress files="PatternParseException" checks="JavadocVariable" />
+  <suppress files="web[\\/]reactive[\\/]socket[\\/]CloseStatus" checks="JavadocStyle" />
+  <suppress files="RestClientResponseException" checks="MutableException" />
 
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]reactive[\\/]resource[\\/]GzipSupport" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="WebClientResponseException" checks="MutableException"/>
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]reactive[\\/]resource[\\/]GzipSupport" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="WebClientResponseException" checks="MutableException" />
 
-	<suppress files="infra[\\/]web[\\/]servlet[\\/]tags[\\/]form[\\/].*Tag" checks="JavadocVariable"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]protobuf[\\/].*" checks=".*"/>
-	<suppress files="ExtractingResponseErrorHandlerTests" checks="MutableException"/>
-	<suppress files="ServletAnnotationControllerHandlerMethodTests" checks="InterfaceIsType"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]servlet[\\/]resource[\\/]GzipSupport" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]servlet[\\/]handler[\\/]PathPatterns.+" checks="IllegalImport" id="bannedJUnitJupiterImports"/>
+  <suppress files="infra[\\/]web[\\/]servlet[\\/]tags[\\/]form[\\/].*Tag" checks="JavadocVariable" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]protobuf[\\/].*" checks=".*" />
+  <suppress files="ExtractingResponseErrorHandlerTests" checks="MutableException" />
+  <suppress files="ServletAnnotationControllerHandlerMethodTests" checks="InterfaceIsType" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]servlet[\\/]resource[\\/]GzipSupport" checks="IllegalImport" id="bannedJUnitJupiterImports" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]servlet[\\/]handler[\\/]PathPatterns.+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
 
-	<!-- today-websocket -->
-	<suppress files="web[\\/]socket[\\/]CloseStatus" checks="JavadocStyle"/>
-	<suppress files="web[\\/]socket[\\/]WebSocketHttpHeaders" checks="JavadocVariable"/>
-	<suppress files="sockjs[\\/]frame[\\/]SockJsFrameType" checks="JavadocVariable"/>
-	<suppress files="sockjs[\\/]transport[\\/]TransportType" checks="JavadocVariable"/>
-	<suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]reactive[\\/]protobuf[\\/].*" checks=".*"/>
+  <!-- today-websocket -->
+  <suppress files="web[\\/]socket[\\/]CloseStatus" checks="JavadocStyle" />
+  <suppress files="web[\\/]socket[\\/]WebSocketHttpHeaders" checks="JavadocVariable" />
+  <suppress files="sockjs[\\/]frame[\\/]SockJsFrameType" checks="JavadocVariable" />
+  <suppress files="sockjs[\\/]transport[\\/]TransportType" checks="JavadocVariable" />
+  <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]reactive[\\/]protobuf[\\/].*" checks=".*" />
 
 </suppressions>

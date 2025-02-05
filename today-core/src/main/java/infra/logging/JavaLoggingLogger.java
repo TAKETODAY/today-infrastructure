@@ -17,13 +17,9 @@
 
 package infra.logging;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serial;
-import java.net.URL;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -178,25 +174,4 @@ final class JavaLoggingLogger extends infra.logging.Logger {
     }
   }
 
-}
-
-final class JavaLoggingFactory extends LoggerFactory {
-  static {
-    URL resource = Thread.currentThread().getContextClassLoader().getResource("logging.properties");
-    if (resource != null) {
-      try (InputStream inputStream = resource.openStream()) {
-        LogManager.getLogManager().readConfiguration(inputStream);
-      }
-      catch (SecurityException | IOException e) {
-        System.err.println("Can't load config file 'logging.properties'");
-        e.printStackTrace();
-      }
-    }
-  }
-
-  @Override
-  protected JavaLoggingLogger createLogger(String name) {
-    Logger logger = Logger.getLogger(name);
-    return new JavaLoggingLogger(logger, logger.isLoggable(java.util.logging.Level.FINER));
-  }
 }

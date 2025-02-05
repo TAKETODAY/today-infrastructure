@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import infra.lang.Nullable;
 /**
  * Abstract {@link Future} implementation which allow for cancellation.
  *
+ * @param <V> Value type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/26 22:10
  */
@@ -156,6 +157,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
    * @throws CancellationException {@inheritDoc}
    */
   @Nullable
+  @Override
   public V get() throws InterruptedException, ExecutionException {
     int s = state;
     if (s <= COMPLETING)
@@ -167,6 +169,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
    * @throws CancellationException {@inheritDoc}
    */
   @Nullable
+  @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
     if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
@@ -279,20 +282,6 @@ public abstract class AbstractFuture<V> extends Future<V> {
       throw new CancellationException();
     }
     throw new ExecutionException((Throwable) result);
-  }
-
-  /**
-   * Simple linked list nodes to record waiting threads in a Treiber
-   * stack.  See other classes such as Phaser and SynchronousQueue
-   * for more detailed explanation.
-   */
-  static final class Waiter {
-
-    @Nullable
-    public volatile Thread thread = Thread.currentThread();
-
-    @Nullable
-    public volatile Waiter next;
   }
 
   /**
@@ -489,6 +478,20 @@ public abstract class AbstractFuture<V> extends Future<V> {
     public String toString() {
       return CancellationException.class.getName();
     }
+  }
+
+  /**
+   * Simple linked list nodes to record waiting threads in a Treiber
+   * stack.  See other classes such as Phaser and SynchronousQueue
+   * for more detailed explanation.
+   */
+  static final class Waiter {
+
+    @Nullable
+    public volatile Thread thread = Thread.currentThread();
+
+    @Nullable
+    public volatile Waiter next;
   }
 
 }

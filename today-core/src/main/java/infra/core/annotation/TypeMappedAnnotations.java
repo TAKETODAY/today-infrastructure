@@ -445,7 +445,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   /**
    * {@link AnnotationsProcessor} that collects {@link Aggregate} instances.
    */
-  private class AggregatesCollector implements AnnotationsProcessor<Object, List<Aggregate>> {
+  private final class AggregatesCollector implements AnnotationsProcessor<Object, List<Aggregate>> {
 
     private final ArrayList<Aggregate> aggregates = new ArrayList<>();
 
@@ -487,7 +487,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
     }
   }
 
-  private static class Aggregate {
+  private static final class Aggregate {
 
     private final int aggregateIndex;
 

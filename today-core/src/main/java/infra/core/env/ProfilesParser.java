@@ -39,7 +39,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
-final class ProfilesParser {
+abstract class ProfilesParser {
 
   static Profiles parse(String... expressions) {
     Assert.notEmpty(expressions, "Must specify at least one profile expression");

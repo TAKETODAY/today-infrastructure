@@ -15,29 +15,29 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.core.io;
+package infra.logging;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.ExtendedLogger;
+import org.apache.logging.log4j.spi.LoggerContext;
 
 /**
- * Extended interface for a resource that supports writing to it.
- *
- * @author TODAY
- * @since 2.1.6 2019-05-14 20:56
+ * LoggerFactory for log4j2
  */
-public interface WritableResource extends Resource, OutputStreamSource {
+final class Log4j2LoggerFactory extends LoggerFactory {
 
-  /**
-   * Indicate whether the contents of this resource can be written
-   * via {@link #getOutputStream()}.
-   * <p>Will be {@code true} for typical resource descriptors;
-   * note that actual content writing may still fail when attempted.
-   * However, a value of {@code false} is a definitive indication
-   * that the resource content cannot be modified.
-   *
-   * @see #getOutputStream()
-   * @see #isReadable()
-   */
-  default boolean isWritable() {
-    return true;
+  Log4j2LoggerFactory() {
+    LogManager.class.getName();
   }
 
+  @Override
+  protected Logger createLogger(String name) {
+    LoggerContext context = Log4j2Logger.loggerContext;
+    if (context == null) {
+      // Circular call in early-init scenario -> static field not initialized yet
+      context = LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
+    }
+    ExtendedLogger logger = context.getLogger(name);
+    return new Log4j2Logger(logger);
+  }
 }

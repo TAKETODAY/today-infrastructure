@@ -15,14 +15,29 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Optimised Reflection System
- *
- * @author TODAY 2021/3/27 10:33
- */
-@NonNullApi
-@NonNullFields
-package infra.reflect;
+package infra.logging;
 
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+import org.slf4j.spi.LocationAwareLogger;
+
+/**
+ * LoggerFactory for slf4j
+ */
+final class Slf4jLoggerFactory extends LoggerFactory {
+
+  Slf4jLoggerFactory() {
+    org.slf4j.Logger.class.getName();
+    SLF4JBridgeHandler.install(); // @since 4.0
+  }
+
+  @Override
+  protected Logger createLogger(String name) {
+    return createLog(name);
+  }
+
+  static Logger createLog(String name) {
+    var target = org.slf4j.LoggerFactory.getLogger(name);
+    return target instanceof LocationAwareLogger ?
+            new LocationAwareSlf4jLogger((LocationAwareLogger) target) : new Slf4jLogger(target);
+  }
+
+}

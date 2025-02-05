@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,8 +42,6 @@ import infra.util.function.ThrowingSupplier;
  * and {@link Future#flatMap(ThrowingFunction)}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @implNote The operations themselves are implemented
- * as static inner classes instead of lambdas to aid debugging.
  * @since 4.0
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -119,6 +117,10 @@ final class Futures {
       return cc;
     }
   };
+
+  private Futures() {
+
+  }
 
   /**
    * Creates a new {@link Future} that will complete with the result of the given

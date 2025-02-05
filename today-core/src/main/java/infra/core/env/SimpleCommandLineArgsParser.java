@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@ package infra.core.env;
  * <h3>Working with option arguments</h3>
  * <p>Option arguments must adhere to the exact syntax:
  *
- * <pre class="code">--optName[=optValue]</pre>
+ * <pre>{@code
+ * --optName[=optValue]
+ * }</pre>
  *
  * <p>That is, options must be prefixed with "{@code --}" and may or may not
  * specify a value. If a value is specified, the name and value must be separated
@@ -32,20 +34,22 @@ package infra.core.env;
  * an empty string.
  *
  * <h4>Valid examples of option arguments</h4>
- * <pre class="code">
+ * <pre>{@code
  * --foo
  * --foo=
  * --foo=""
  * --foo=bar
  * --foo="bar then baz"
- * --foo=bar,baz,biz</pre>
+ * --foo=bar,baz,biz
+ * }</pre>
  *
  * <h4>Invalid examples of option arguments</h4>
- * <pre class="code">
+ * <pre>{@code
  * -foo
  * --foo bar
  * --foo = bar
- * --foo=bar --foo=baz --foo=biz</pre>
+ * --foo=bar --foo=baz --foo=biz
+ * }</pre>
  *
  * <h3>End of option arguments</h3>
  * <p>This parser supports the POSIX "end of options" delimiter, meaning that any
@@ -53,8 +57,9 @@ package infra.core.env;
  * arguments are non-option arguments. For example, {@code "--opt1=ignored"},
  * {@code "--opt2"}, and {@code "filename"} in the following command line are
  * considered non-option arguments.
- * <pre class="code">
- * --foo=bar -- --opt1=ignored -opt2 filename</pre>
+ * <pre>{@code
+ * --foo=bar -- --opt1=ignored -opt2 filename
+ * }</pre>
  *
  * <h3>Working with non-option arguments</h3>
  * <p>Any arguments following the "end of options" delimiter ({@code --}) or
@@ -67,7 +72,7 @@ package infra.core.env;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class SimpleCommandLineArgsParser {
+public abstract class SimpleCommandLineArgsParser {
 
   /**
    * Parse the given {@code String} array based on the rules described {@linkplain

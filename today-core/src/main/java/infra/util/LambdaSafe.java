@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -333,7 +333,7 @@ public abstract class LambdaSafe {
    * {@link Filter} that matches when the callback has a single generic and primary
    * argument is an instance of it.
    */
-  private static class GenericTypeFilter<C, A> implements Filter<C, A> {
+  private static final class GenericTypeFilter<C, A> implements Filter<C, A> {
 
     @Override
     public boolean match(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments) {

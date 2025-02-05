@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +87,8 @@ public class ApplicationHome {
           return ClassUtils.forName(startClass, getClass().getClassLoader());
         }
       }
-      catch (Exception ignored) { }
+      catch (Exception ignored) {
+      }
     }
     return null;
   }
@@ -103,7 +104,8 @@ public class ApplicationHome {
         return source.getAbsoluteFile();
       }
     }
-    catch (Exception ignored) { }
+    catch (Exception ignored) {
+    }
     return null;
   }
 
@@ -116,7 +118,8 @@ public class ApplicationHome {
         }
       }
     }
-    catch (Exception ignored) { }
+    catch (Exception ignored) {
+    }
     return false;
   }
 

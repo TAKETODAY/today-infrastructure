@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,18 +28,20 @@ import infra.lang.Nullable;
  * via the LocaleContextHolder class.
  *
  * @author Juergen Hoeller
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see LocaleContextHolder#getLocale()
  * @see TimeZoneAwareLocaleContext
+ * @since 4.0
  */
 public interface LocaleContext {
 
-	/**
-	 * Return the current Locale, which can be fixed or determined dynamically,
-	 * depending on the implementation strategy.
-	 * @return the current Locale, or {@code null} if no specific Locale associated
-	 */
-	@Nullable
-	Locale getLocale();
+  /**
+   * Return the current Locale, which can be fixed or determined dynamically,
+   * depending on the implementation strategy.
+   *
+   * @return the current Locale, or {@code null} if no specific Locale associated
+   */
+  @Nullable
+  Locale getLocale();
 
 }

@@ -1621,6 +1621,89 @@ public abstract class ReflectionUtils {
     return null;
   }
 
+  //
+
+  /**
+   * Get {@link Parameter} index
+   *
+   * @param parameter {@link Parameter}
+   * @since 3.0
+   */
+  public static int getParameterIndex(Parameter parameter) {
+    Executable executable = parameter.getDeclaringExecutable();
+    Parameter[] allParams = executable.getParameters();
+    // Try first with identity checks for greater performance.
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter == allParams[i]) {
+        return i;
+      }
+    }
+    // Potentially try again with object equality checks in order to avoid race
+    // conditions while invoking java.lang.reflect.Executable.getParameters().
+    for (int i = 0; i < allParams.length; i++) {
+      if (parameter.equals(allParams[i])) {
+        return i;
+      }
+    }
+    throw new IllegalArgumentException(
+            "Given parameter [%s] does not match any parameter in the declaring executable".formatted(parameter));
+  }
+
+  /**
+   * Get {@link Parameter} with given {@code parameterIndex}
+   *
+   * @param executable {@link Method} or {@link Constructor}
+   * @throws IllegalArgumentException parameter index is illegal
+   * @since 3.0
+   */
+  public static Parameter getParameter(Executable executable, int parameterIndex) {
+    Assert.notNull(executable, "Executable is required");
+    Parameter[] parameters = executable.getParameters();
+    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
+      throw new IllegalArgumentException("parameter index is illegal");
+    }
+    return parameters[parameterIndex];
+  }
+
+  // newInstance
+
+  /**
+   * Get instance with bean class
+   *
+   * @param beanClassName bean class name string
+   * @return the instance of target class
+   * @throws ClassNotFoundException If the class was not found
+   * @since 4.0
+   */
+  public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
+    return newInstance(ClassUtils.resolveClassName(beanClassName, null));
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> T newInstance(Class<T> type) {
+    return newInstance(type, Constant.EMPTY_CLASSES, null);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object[] args) {
+    return invokeConstructor(getConstructor(type, parameterTypes), args);
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public static ProtectionDomain getProtectionDomain(@Nullable Class<?> source) {
+    if (source == null) {
+      return null;
+    }
+    return source.getProtectionDomain();
+  }
+
   /**
    * Action to take on each method.
    */
@@ -1706,89 +1789,6 @@ public abstract class ReflectionUtils {
       return field -> matches(field) && next.matches(field);
     }
 
-  }
-
-  //
-
-  /**
-   * Get {@link Parameter} index
-   *
-   * @param parameter {@link Parameter}
-   * @since 3.0
-   */
-  public static int getParameterIndex(Parameter parameter) {
-    Executable executable = parameter.getDeclaringExecutable();
-    Parameter[] allParams = executable.getParameters();
-    // Try first with identity checks for greater performance.
-    for (int i = 0; i < allParams.length; i++) {
-      if (parameter == allParams[i]) {
-        return i;
-      }
-    }
-    // Potentially try again with object equality checks in order to avoid race
-    // conditions while invoking java.lang.reflect.Executable.getParameters().
-    for (int i = 0; i < allParams.length; i++) {
-      if (parameter.equals(allParams[i])) {
-        return i;
-      }
-    }
-    throw new IllegalArgumentException(
-            "Given parameter [%s] does not match any parameter in the declaring executable".formatted(parameter));
-  }
-
-  /**
-   * Get {@link Parameter} with given {@code parameterIndex}
-   *
-   * @param executable {@link Method} or {@link Constructor}
-   * @throws IllegalArgumentException parameter index is illegal
-   * @since 3.0
-   */
-  public static Parameter getParameter(Executable executable, int parameterIndex) {
-    Assert.notNull(executable, "Executable is required");
-    Parameter[] parameters = executable.getParameters();
-    if (parameterIndex < 0 || parameterIndex >= parameters.length) {
-      throw new IllegalArgumentException("parameter index is illegal");
-    }
-    return parameters[parameterIndex];
-  }
-
-  // newInstance
-
-  /**
-   * Get instance with bean class
-   *
-   * @param beanClassName bean class name string
-   * @return the instance of target class
-   * @throws ClassNotFoundException If the class was not found
-   * @since 4.0
-   */
-  public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return newInstance(ClassUtils.resolveClassName(beanClassName, null));
-  }
-
-  /**
-   * @since 4.0
-   */
-  public static <T> T newInstance(Class<T> type) {
-    return newInstance(type, Constant.EMPTY_CLASSES, null);
-  }
-
-  /**
-   * @since 4.0
-   */
-  public static <T> T newInstance(Class<T> type, Class[] parameterTypes, @Nullable Object[] args) {
-    return invokeConstructor(getConstructor(type, parameterTypes), args);
-  }
-
-  /**
-   * @since 4.0
-   */
-  @Nullable
-  public static ProtectionDomain getProtectionDomain(@Nullable Class<?> source) {
-    if (source == null) {
-      return null;
-    }
-    return source.getProtectionDomain();
   }
 
 }

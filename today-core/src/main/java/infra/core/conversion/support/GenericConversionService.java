@@ -484,7 +484,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   /**
    * Manages all converters registered with the service.
    */
-  private final static class Converters {
+  private static final class Converters {
 
     private final CopyOnWriteArraySet<GenericConverter> globalConverters
             = new CopyOnWriteArraySet<>();
@@ -637,7 +637,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   /**
    * Manages converters registered with a specific {@link ConvertiblePair}.
    */
-  private static class ConvertersForPair {
+  private static final class ConvertersForPair {
 
     private final ConcurrentLinkedDeque<GenericConverter> converters = new ConcurrentLinkedDeque<>();
 
