@@ -16,11 +16,11 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * SPI interfaces and configuration-related convenience classes for bean factories.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.factory.support;
+package infra.beans.factory.config;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

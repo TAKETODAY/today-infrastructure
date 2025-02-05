@@ -16,11 +16,7 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * Classes supporting the infra.beans package,
+ * such as utility classes for sorting and holding lists of beans.
  */
-@NonNullApi
-@NonNullFields
-package infra.beans.factory.support;
-
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+package infra.beans.support;

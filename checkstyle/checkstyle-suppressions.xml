@@ -25,9 +25,9 @@
 
   <!-- Global: package-info.java -->
   <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/]).*)|(.*infra-docs.*)" checks="JavadocPackage" />
-  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)"
+  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*infra-build.*)|(.*today-(context-indexer|instrument).*)"
           checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
-  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*today-(context-indexer|instrument|jcl).*)"
+  <suppress files="(^(?!.+[\\/]src[\\/]main[\\/]java[\\/].*package-info\.java))|(.*infra-docs.*)|(.*infra-build.*)|(.*today-(context-indexer|instrument).*)"
           checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
   <!-- Global: tests and test fixtures -->

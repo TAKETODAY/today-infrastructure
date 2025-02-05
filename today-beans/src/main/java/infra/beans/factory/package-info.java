@@ -16,11 +16,15 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * The core package implementing Infra lightweight Inversion of Control (IoC) container.
+ *
+ * <p>Provides an alternative to the Singleton and Prototype design
+ * patterns, including a consistent approach to configuration management.
+ * Builds on the infra.beans package.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.factory.support;
+package infra.beans.factory;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

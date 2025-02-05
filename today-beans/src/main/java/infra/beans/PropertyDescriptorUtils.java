@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ abstract class PropertyDescriptorUtils {
         throw new IntrospectionException("Bad read method arg count: " + readMethod);
       }
       propertyType = readMethod.getReturnType();
-      if (propertyType == Void.TYPE) {
+      if (propertyType == void.class) {
         throw new IntrospectionException("Read method returns void: " + readMethod);
       }
     }
@@ -119,11 +119,11 @@ abstract class PropertyDescriptorUtils {
       if (params.length != 1) {
         throw new IntrospectionException("Bad indexed read method arg count: " + indexedReadMethod);
       }
-      if (params[0] != Integer.TYPE) {
+      if (params[0] != int.class) {
         throw new IntrospectionException("Non int index to indexed read method: " + indexedReadMethod);
       }
       indexedPropertyType = indexedReadMethod.getReturnType();
-      if (indexedPropertyType == Void.TYPE) {
+      if (indexedPropertyType == void.class) {
         throw new IntrospectionException("Indexed read method returns void: " + indexedReadMethod);
       }
     }
@@ -133,7 +133,7 @@ abstract class PropertyDescriptorUtils {
       if (params.length != 2) {
         throw new IntrospectionException("Bad indexed write method arg count: " + indexedWriteMethod);
       }
-      if (params[0] != Integer.TYPE) {
+      if (params[0] != int.class) {
         throw new IntrospectionException("Non int index to indexed write method: " + indexedWriteMethod);
       }
       if (indexedPropertyType != null) {

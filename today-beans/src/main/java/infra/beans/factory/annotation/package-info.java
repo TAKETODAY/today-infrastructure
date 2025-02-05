@@ -16,11 +16,11 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * Support package for annotation-driven bean configuration.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.factory.support;
+package infra.beans.factory.annotation;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

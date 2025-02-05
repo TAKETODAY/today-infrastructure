@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ public interface MethodInvoker {
       if (method.getParameterTypes().length != 1) {
         return;
       }
-      if (method.getReturnType().equals(Void.TYPE) || ReflectionUtils.isEqualsMethod(method)) {
+      if (method.getReturnType().equals(void.class) || ReflectionUtils.isEqualsMethod(method)) {
         return;
       }
       Assert.state(methodHolder.get() == null,

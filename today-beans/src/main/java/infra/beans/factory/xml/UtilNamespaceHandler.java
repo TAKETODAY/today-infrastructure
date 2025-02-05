@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class UtilNamespaceHandler extends NamespaceHandlerSupport {
@@ -55,7 +56,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     registerBeanDefinitionParser("properties", new PropertiesBeanDefinitionParser());
   }
 
-  private static class ConstantBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+  private static final class ConstantBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -72,7 +73,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
   }
 
-  private static class PropertyPathBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+  private static final class PropertyPathBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -109,7 +110,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
   }
 
-  private static class ListBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+  private static final class ListBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -134,7 +135,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
   }
 
-  private static class SetBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+  private static final class SetBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -159,7 +160,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
   }
 
-  private static class MapBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+  private static final class MapBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -185,7 +186,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     }
   }
 
-  private static class PropertiesBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+  private static final class PropertiesBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     @Override
     protected Class<?> getBeanClass(Element element) {

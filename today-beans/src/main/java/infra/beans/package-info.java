@@ -1,6 +1,5 @@
-
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +16,15 @@
  */
 
 /**
- * Beans
+ * This package contains interfaces and classes for manipulating Java beans.
+ * It is used by most other Infra packages.
  *
- * @author TODAY 2021/8/14 10:47
- * @since 4.0
+ * <p>A BeanWrapper object may be used to set and get bean properties,
+ * singly or in bulk.
  */
+@NonNullApi
+@NonNullFields
 package infra.beans;
+
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

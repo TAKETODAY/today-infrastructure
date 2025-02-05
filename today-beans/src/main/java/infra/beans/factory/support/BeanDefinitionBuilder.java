@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import infra.util.StringUtils;
  * @author TODAY 2021/10/2 22:45
  * @since 4.0
  */
-public class BeanDefinitionBuilder {
+public final class BeanDefinitionBuilder {
 
   /**
    * The {@code BeanDefinition} instance we are creating.

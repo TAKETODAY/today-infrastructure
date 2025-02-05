@@ -16,11 +16,6 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * JSON from org.json
  */
-@NonNullApi
-@NonNullFields
-package infra.beans.factory.support;
-
-import infra.lang.NonNullApi;
-import infra.lang.NonNullFields;
+package infra.context.properties.json;

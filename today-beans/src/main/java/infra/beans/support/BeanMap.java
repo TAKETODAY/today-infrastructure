@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.util.ObjectUtils;
  * read-only property will be ignored. Removal of objects is not a supported
  * (the key set is fixed).
  *
+ * @param <T> target bean type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #ignoreReadOnly
  * @since 3.0.2 2021/5/28 21:15
@@ -161,6 +162,11 @@ public final class BeanMap<T> extends AbstractMap<String, Object> implements Map
       }
     }
     return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(target, metadata);
   }
 
   public T getTarget() {
