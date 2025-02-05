@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,15 +173,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private Long serialVersionUID;
 
   private boolean interceptDuringConstruction = true;
-
-  private record EnhancerKey(
-          @Nullable String type,
-          @Nullable List<String> interfaces,
-          @Nullable WeakCacheKey<CallbackFilter> filter,
-          List<Type> callbackTypes, boolean useFactory,
-          boolean interceptDuringConstruction, Long serialVersionUID) {
-
-  }
 
   /**
    * Create a new <code>Enhancer</code>. A new <code>Enhancer</code> object should
@@ -430,83 +421,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (!anInterface.isInterface()) {
           throw new IllegalStateException(anInterface + " is not an interface");
         }
-      }
-    }
-  }
-
-  /**
-   * The idea of the class is to cache relevant java.lang.reflect instances so
-   * proxy-class can be instantiated faster that when using
-   * {@link ReflectionUtils#newInstance(Class, Class[], Object[])} and
-   * {@link Enhancer#setThreadCallbacks(Class, Callback[])}
-   */
-  static class EnhancerFactoryData {
-
-    public final Class<?> generatedClass;
-    private final Method setThreadCallbacks;
-    private final Class<?>[] primaryConstructorArgTypes;
-    private final Constructor<?> primaryConstructor;
-
-    /**
-     * Creates proxy instance for given argument types, and assigns the callbacks.
-     * Ideally, for each proxy class, just one set of argument types should be used,
-     * otherwise it would have to spend time on constructor lookup. Technically, it
-     * is a re-implementation of {@link Enhancer#createUsingReflection(Class)}, with
-     * "cache {@link #setThreadCallbacks} and {@link #primaryConstructor}"
-     *
-     * @param argumentTypes constructor argument types
-     * @param arguments constructor arguments
-     * @param callbacks callbacks to set for the new instance
-     * @return newly created proxy
-     * @see #createUsingReflection(Class)
-     */
-    public Object newInstance(Class<?>[] argumentTypes, Object[] arguments, Callback[] callbacks) {
-      setThreadCallbacks(callbacks);
-      try {
-        // Explicit reference equality is added here just in case Arrays.equals does not
-        // have one
-        if (primaryConstructorArgTypes == argumentTypes || Arrays.equals(primaryConstructorArgTypes, argumentTypes)) {
-          // If we have relevant Constructor instance at hand, just call it
-          // This skips "get constructors" machinery
-          return ReflectionUtils.invokeConstructor(primaryConstructor, arguments);
-        }
-        // Take a slow path if observing unexpected argument types
-        return ReflectionUtils.newInstance(generatedClass, argumentTypes, arguments);
-      }
-      finally {
-        // clear thread callbacks to allow them to be gc'd
-        setThreadCallbacks(null);
-      }
-
-    }
-
-    public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
-      this.generatedClass = generatedClass;
-      Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
-      if (callbacksSetter == null) {
-        throw new CodeGenerationException(
-                SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass, null);
-      }
-      this.setThreadCallbacks = callbacksSetter;
-      if (classOnly) {
-        this.primaryConstructorArgTypes = null;
-        this.primaryConstructor = null;
-      }
-      else {
-        this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-        this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
-      }
-    }
-
-    private void setThreadCallbacks(Callback[] callbacks) {
-      try {
-        setThreadCallbacks.invoke(generatedClass, (Object) callbacks);
-      }
-      catch (IllegalAccessException e) {
-        throw new CodeGenerationException(e);
-      }
-      catch (InvocationTargetException e) {
-        throw new CodeGenerationException(e.getTargetException());
       }
     }
   }
@@ -1467,7 +1381,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                     ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
           }
         }
-        catch (IOException ignored) { }
+        catch (IOException ignored) {
+        }
       }
       return resolved;
     }
@@ -1519,6 +1434,92 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         return new BridgedFinderMethodVisitor();
       }
     }
+
+  }
+
+  /**
+   * The idea of the class is to cache relevant java.lang.reflect instances so
+   * proxy-class can be instantiated faster that when using
+   * {@link ReflectionUtils#newInstance(Class, Class[], Object[])} and
+   * {@link Enhancer#setThreadCallbacks(Class, Callback[])}
+   */
+  static class EnhancerFactoryData {
+
+    public final Class<?> generatedClass;
+    private final Method setThreadCallbacks;
+    private final Class<?>[] primaryConstructorArgTypes;
+    private final Constructor<?> primaryConstructor;
+
+    /**
+     * Creates proxy instance for given argument types, and assigns the callbacks.
+     * Ideally, for each proxy class, just one set of argument types should be used,
+     * otherwise it would have to spend time on constructor lookup. Technically, it
+     * is a re-implementation of {@link Enhancer#createUsingReflection(Class)}, with
+     * "cache {@link #setThreadCallbacks} and {@link #primaryConstructor}"
+     *
+     * @param argumentTypes constructor argument types
+     * @param arguments constructor arguments
+     * @param callbacks callbacks to set for the new instance
+     * @return newly created proxy
+     * @see #createUsingReflection(Class)
+     */
+    public Object newInstance(Class<?>[] argumentTypes, Object[] arguments, Callback[] callbacks) {
+      setThreadCallbacks(callbacks);
+      try {
+        // Explicit reference equality is added here just in case Arrays.equals does not
+        // have one
+        if (primaryConstructorArgTypes == argumentTypes || Arrays.equals(primaryConstructorArgTypes, argumentTypes)) {
+          // If we have relevant Constructor instance at hand, just call it
+          // This skips "get constructors" machinery
+          return ReflectionUtils.invokeConstructor(primaryConstructor, arguments);
+        }
+        // Take a slow path if observing unexpected argument types
+        return ReflectionUtils.newInstance(generatedClass, argumentTypes, arguments);
+      }
+      finally {
+        // clear thread callbacks to allow them to be gc'd
+        setThreadCallbacks(null);
+      }
+
+    }
+
+    public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
+      this.generatedClass = generatedClass;
+      Method callbacksSetter = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
+      if (callbacksSetter == null) {
+        throw new CodeGenerationException(
+                SET_THREAD_CALLBACKS_NAME + " Not found in class: " + generatedClass, null);
+      }
+      this.setThreadCallbacks = callbacksSetter;
+      if (classOnly) {
+        this.primaryConstructorArgTypes = null;
+        this.primaryConstructor = null;
+      }
+      else {
+        this.primaryConstructorArgTypes = primaryConstructorArgTypes;
+        this.primaryConstructor = ReflectionUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
+      }
+    }
+
+    private void setThreadCallbacks(Callback[] callbacks) {
+      try {
+        setThreadCallbacks.invoke(generatedClass, (Object) callbacks);
+      }
+      catch (IllegalAccessException e) {
+        throw new CodeGenerationException(e);
+      }
+      catch (InvocationTargetException e) {
+        throw new CodeGenerationException(e.getTargetException());
+      }
+    }
+  }
+
+  private record EnhancerKey(
+          @Nullable String type,
+          @Nullable List<String> interfaces,
+          @Nullable WeakCacheKey<CallbackFilter> filter,
+          List<Type> callbackTypes, boolean useFactory,
+          boolean interceptDuringConstruction, Long serialVersionUID) {
 
   }
 

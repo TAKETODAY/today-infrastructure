@@ -207,6 +207,14 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.throwException(Type.forClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
   }
 
+  private static int[] getIntRange(int length) {
+    int[] range = new int[length];
+    for (int i = 0; i < length; i++) {
+      range[i] = i;
+    }
+    return range;
+  }
+
   private static final class GetIndexCallback implements ObjectSwitchCallback {
     private final CodeEmitter codeEmitter;
     private final HashMap<Object, Integer> indexes = new HashMap<>();
@@ -232,11 +240,4 @@ final class MethodAccessEmitter extends ClassEmitter {
     }
   }
 
-  private static int[] getIntRange(int length) {
-    int[] range = new int[length];
-    for (int i = 0; i < length; i++) {
-      range[i] = i;
-    }
-    return range;
-  }
 }

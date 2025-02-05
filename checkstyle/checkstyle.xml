@@ -27,7 +27,9 @@
 
   <!-- Root Checks -->
   <!--  <module name="com.puppycrawl.tools.checkstyle.checks.NewlineAtEndOfFileCheck" />-->
-  <module name="JavadocPackage" /><!-- package-info.java -->
+  <module name="JavadocPackage">
+    <property name="allowLegacy" value="true" />
+  </module>
 
   <!-- TreeWalker Checks -->
   <module name="com.puppycrawl.tools.checkstyle.TreeWalker">
@@ -64,17 +66,18 @@
     <module name="com.puppycrawl.tools.checkstyle.checks.blocks.EmptyBlockCheck">
       <property name="option" value="text" />
     </module>
-    <module name="com.puppycrawl.tools.checkstyle.checks.blocks.LeftCurlyCheck" />
+
+<!--    <module name="com.puppycrawl.tools.checkstyle.checks.blocks.LeftCurlyCheck" />-->
     <module name="com.puppycrawl.tools.checkstyle.checks.blocks.RightCurlyCheck">
       <property name="option" value="alone" />
     </module>
 
-<!--    <module name="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck" />-->
+    <!--    <module name="com.puppycrawl.tools.checkstyle.checks.blocks.NeedBracesCheck" />-->
     <module name="com.puppycrawl.tools.checkstyle.checks.blocks.AvoidNestedBlocksCheck" />
 
     <!-- Class Design -->
     <module name="com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck" />
-<!--    <module name="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck" />-->
+    <!--    <module name="com.puppycrawl.tools.checkstyle.checks.design.InterfaceIsTypeCheck" />-->
     <module name="com.puppycrawl.tools.checkstyle.checks.design.HideUtilityClassConstructorCheck" />
     <module name="com.puppycrawl.tools.checkstyle.checks.design.MutableExceptionCheck">
       <property name="format" value="^.*Exception$" />
@@ -116,20 +119,20 @@
     <module name="com.puppycrawl.tools.checkstyle.checks.imports.UnusedImportsCheck">
       <property name="processJavadoc" value="true" />
     </module>
-<!--
-    <module name="com.puppycrawl.tools.checkstyle.checks.imports.ImportOrderCheck">
-      <property name="groups" value="*,java,javax,infra,*" />
-      <property name="ordered" value="true" />
-      <property name="separated" value="true" />
-      <property name="option" value="bottom" />
-      <property name="sortStaticImportsAlphabetically" value="true" />
-    </module>
-    -->
+    <!--
+        <module name="com.puppycrawl.tools.checkstyle.checks.imports.ImportOrderCheck">
+          <property name="groups" value="*,java,javax,infra,*" />
+          <property name="ordered" value="true" />
+          <property name="separated" value="true" />
+          <property name="option" value="bottom" />
+          <property name="sortStaticImportsAlphabetically" value="true" />
+        </module>
+        -->
     <module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
       <property name="id" value="bannedImports" />
       <property name="regexp" value="true" />
       <property name="illegalClasses"
-              value="^reactor\.core\.support\.Assert,^org\.slf4j\.LoggerFactory,^(?!infra).*(NonNull|Nonnull|NonNullApi|NonNullFields|Nullable)$" />
+              value="^reactor\.core\.support\.Assert,^(?!infra).*(NonNull|Nonnull|NonNullApi|NonNullFields|Nullable)$" />
     </module>
     <module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
       <property name="id" value="bannedJUnit3Imports" />
@@ -166,7 +169,7 @@
     <!-- Javadoc Comments -->
     <module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck">
       <property name="scope" value="package" />
-<!--      <property name="authorFormat" value=".+\s.+" />-->
+      <!--      <property name="authorFormat" value=".+\s.+" />-->
     </module>
     <module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck">
       <property name="allowMissingParamTags" value="true" />

@@ -40,9 +40,12 @@ import static infra.lang.Constant.SOURCE_FILE;
 public abstract class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.forClass(StringSwitcher.class);
+
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
 
-  protected StringSwitcher() { }
+  protected StringSwitcher() {
+
+  }
 
   /**
    * Return the integer associated with the given key.
@@ -75,7 +78,7 @@ public abstract class StringSwitcher {
     gen.setFixedInput(fixedInput);
     return gen.create();
   }
-  
+
   record StringSwitcherKey(List<String> strings, int[] ints, boolean fixedInput) {
 
   }

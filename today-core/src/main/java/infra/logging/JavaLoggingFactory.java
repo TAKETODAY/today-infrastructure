@@ -27,6 +27,7 @@ import java.util.logging.Logger;
  * LoggerFactory for java logging
  */
 final class JavaLoggingFactory extends LoggerFactory {
+
   static {
     URL resource = Thread.currentThread().getContextClassLoader().getResource("logging.properties");
     if (resource != null) {

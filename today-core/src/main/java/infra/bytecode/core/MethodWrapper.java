@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.bytecode.core;
 
 import java.lang.reflect.Method;
@@ -23,15 +24,14 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * @author TODAY <br>
- * 2019-09-03 12:58
+ * @author TODAY
+ * @since 2019-09-03 12:58
  */
-public class MethodWrapper {
+public final class MethodWrapper {
 
-  private record MethodWrapperKey(String name, List<String> parameterTypes, String returnType) {
+  private MethodWrapper() {
+
   }
-
-  private MethodWrapper() { }
 
   public static Object create(Method method) {
     return new MethodWrapperKey(method.getName(),
@@ -47,4 +47,8 @@ public class MethodWrapper {
     }
     return ret;
   }
+
+  private record MethodWrapperKey(String name, List<String> parameterTypes, String returnType) {
+  }
+
 }

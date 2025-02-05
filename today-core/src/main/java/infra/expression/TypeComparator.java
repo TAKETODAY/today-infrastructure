@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ import infra.lang.Nullable;
  * The specification of the return value is the same as for {@link Comparable}.
  *
  * @author Andy Clement
- * @see Comparable
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Comparable
  * @since 4.0
  */
 public interface TypeComparator {

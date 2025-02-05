@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -239,31 +239,31 @@ public final class Type {
    */
   public static Type forClass(final Class<?> clazz) {
     if (clazz.isPrimitive()) {
-      if (clazz == Integer.TYPE) {
+      if (clazz == int.class) {
         return INT_TYPE;
       }
-      else if (clazz == Void.TYPE) {
+      else if (clazz == void.class) {
         return VOID_TYPE;
       }
-      else if (clazz == Boolean.TYPE) {
+      else if (clazz == boolean.class) {
         return BOOLEAN_TYPE;
       }
-      else if (clazz == Byte.TYPE) {
+      else if (clazz == byte.class) {
         return BYTE_TYPE;
       }
-      else if (clazz == Character.TYPE) {
+      else if (clazz == char.class) {
         return CHAR_TYPE;
       }
-      else if (clazz == Short.TYPE) {
+      else if (clazz == short.class) {
         return SHORT_TYPE;
       }
-      else if (clazz == Double.TYPE) {
+      else if (clazz == double.class) {
         return DOUBLE_TYPE;
       }
-      else if (clazz == Float.TYPE) {
+      else if (clazz == float.class) {
         return FLOAT_TYPE;
       }
-      else if (clazz == Long.TYPE) {
+      else if (clazz == long.class) {
         return LONG_TYPE;
       }
       else {
@@ -771,31 +771,31 @@ public final class Type {
     }
     if (currentClass.isPrimitive()) {
       char descriptor;
-      if (currentClass == Integer.TYPE) {
+      if (currentClass == int.class) {
         descriptor = 'I';
       }
-      else if (currentClass == Void.TYPE) {
+      else if (currentClass == void.class) {
         descriptor = 'V';
       }
-      else if (currentClass == Boolean.TYPE) {
+      else if (currentClass == boolean.class) {
         descriptor = 'Z';
       }
-      else if (currentClass == Byte.TYPE) {
+      else if (currentClass == byte.class) {
         descriptor = 'B';
       }
-      else if (currentClass == Character.TYPE) {
+      else if (currentClass == char.class) {
         descriptor = 'C';
       }
-      else if (currentClass == Short.TYPE) {
+      else if (currentClass == short.class) {
         descriptor = 'S';
       }
-      else if (currentClass == Double.TYPE) {
+      else if (currentClass == double.class) {
         descriptor = 'D';
       }
-      else if (currentClass == Float.TYPE) {
+      else if (currentClass == float.class) {
         descriptor = 'F';
       }
-      else if (currentClass == Long.TYPE) {
+      else if (currentClass == long.class) {
         descriptor = 'J';
       }
       else {

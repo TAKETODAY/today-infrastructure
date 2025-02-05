@@ -14,12 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 /**
- * CGLIB or ASM other byte code library
+ * Bytecode supports
  */
 @NonNullApi
 @NonNullFields
-package infra.bytecode;
+package infra.bytecode.core;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

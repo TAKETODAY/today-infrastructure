@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,15 +51,17 @@ public abstract class MethodInfo {
     OBJECT_METHODS = ReflectionUtils.toMethodArray(objectMethods);
   }
 
-  protected MethodInfo() { }
+  protected MethodInfo() {
 
-  abstract public ClassInfo getClassInfo();
+  }
 
-  abstract public int getModifiers();
+  public abstract ClassInfo getClassInfo();
 
-  abstract public MethodSignature getSignature();
+  public abstract int getModifiers();
 
-  abstract public Type[] getExceptionTypes();
+  public abstract MethodSignature getSignature();
+
+  public abstract Type[] getExceptionTypes();
 
   @Override
   public boolean equals(Object o) {

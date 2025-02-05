@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ public class ClassEmitter extends ClassTransformer {
     staticHookSig = null;
   }
 
-  synchronized private static int getNextHook() {
+  private static synchronized int getNextHook() {
     return ++hookCounter;
   }
 
@@ -287,21 +287,6 @@ public class ClassEmitter extends ClassTransformer {
     return field;
   }
 
-  static class FieldInfo {
-    public final int access;
-    public final Type type;
-    public final String name;
-    public final Object value;
-
-    public FieldInfo(int access, String name, Type type, Object value) {
-      this.access = access;
-      this.name = name;
-      this.type = type;
-      this.value = value;
-    }
-
-  }
-
   @Override
   public void visit(
           int version, int access, String name, String signature, String superName, String[] interfaces) {
@@ -326,4 +311,20 @@ public class ClassEmitter extends ClassTransformer {
           int access, String name, String desc, String signature, String[] exceptions) {
     return beginMethod(access, new MethodSignature(name, desc), Type.forInternalNames(exceptions));
   }
+
+  static class FieldInfo {
+    public final int access;
+    public final Type type;
+    public final String name;
+    public final Object value;
+
+    public FieldInfo(int access, String name, Type type, Object value) {
+      this.access = access;
+      this.name = name;
+      this.type = type;
+      this.value = value;
+    }
+
+  }
+
 }

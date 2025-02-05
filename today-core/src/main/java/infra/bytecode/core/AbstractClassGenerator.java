@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import infra.util.ClassUtils;
  * the <code>ClassLoader</code>, name of the generated class, and
  * transformations applied before generation.
  *
+ * @param <T> target
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-09-04 20:12
  */
@@ -46,6 +47,7 @@ import infra.util.ClassUtils;
 public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   private static volatile WeakHashMap<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
+
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
   private static final boolean DEFAULT_USE_CACHE =
@@ -73,67 +75,6 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   protected AbstractClassGenerator(String source) {
     this.source = source;
-  }
-
-  protected static class ClassLoaderData implements Predicate<String> {
-
-    private final HashSet<String> reservedClassNames = new HashSet<>();
-
-    /**
-     * {@link AbstractClassGenerator} here holds "cache key" (e.g.
-     * {@link Enhancer} configuration), and the
-     * value is the generated class plus some additional values (see
-     * {@link #unwrapCachedValue(Object)}.
-     * <p>
-     * The generated classes can be reused as long as their classloader is
-     * reachable.
-     * </p>
-     * <p>
-     * Note: the only way to access a class is to find it through generatedClasses
-     * cache, thus the key should not expire as long as the class itself is alive
-     * (its classloader is alive).
-     * </p>
-     */
-    private final LoadingCache<AbstractClassGenerator, Object, Object> generatedClasses;
-
-    /**
-     * Note: ClassLoaderData object is stored as a value of
-     * {@code WeakHashMap<ClassLoader, ...>} thus this classLoader reference should
-     * be weak otherwise it would make classLoader strongly reachable and alive
-     * forever. Reference queue is not required since the cleanup is handled by
-     * {@link WeakHashMap}.
-     */
-    private final WeakReference<ClassLoader> classLoader;
-
-    private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
-
-    public ClassLoaderData(ClassLoader classLoader) {
-      Assert.notNull(classLoader, "classLoader == null is not yet supported");
-      this.classLoader = new WeakReference<>(classLoader);
-      this.generatedClasses = new LoadingCache<>(GET_KEY, gen -> gen.wrapCachedClass(gen.generate(this)));
-    }
-
-    public ClassLoader getClassLoader() {
-      return classLoader.get();
-    }
-
-    public void reserveName(String name) {
-      reservedClassNames.add(name);
-    }
-
-    @Override
-    public boolean test(String name) {
-      return reservedClassNames.contains(name);
-    }
-
-    public Object get(AbstractClassGenerator gen, boolean useCache) {
-      if (useCache) {
-        final Object cached = generatedClasses.get(gen);
-        return gen.unwrapCachedValue(cached);
-      }
-      return gen.generate(this);
-    }
-
   }
 
   protected T wrapCachedClass(Class klass) {
@@ -342,7 +283,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
             return BytecodeCompiler.loadClass(getClassName(), classLoader);
           }
         }
-        catch (ClassNotFoundException ignored) { }
+        catch (ClassNotFoundException ignored) {
+        }
       }
 
       if (inNativeImage) {
@@ -379,5 +321,66 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   protected abstract Object firstInstance(Class<T> type) throws Exception;
 
   protected abstract Object nextInstance(Object instance) throws Exception;
+
+  protected static class ClassLoaderData implements Predicate<String> {
+
+    private final HashSet<String> reservedClassNames = new HashSet<>();
+
+    /**
+     * {@link AbstractClassGenerator} here holds "cache key" (e.g.
+     * {@link Enhancer} configuration), and the
+     * value is the generated class plus some additional values (see
+     * {@link #unwrapCachedValue(Object)}.
+     * <p>
+     * The generated classes can be reused as long as their classloader is
+     * reachable.
+     * </p>
+     * <p>
+     * Note: the only way to access a class is to find it through generatedClasses
+     * cache, thus the key should not expire as long as the class itself is alive
+     * (its classloader is alive).
+     * </p>
+     */
+    private final LoadingCache<AbstractClassGenerator, Object, Object> generatedClasses;
+
+    /**
+     * Note: ClassLoaderData object is stored as a value of
+     * {@code WeakHashMap<ClassLoader, ...>} thus this classLoader reference should
+     * be weak otherwise it would make classLoader strongly reachable and alive
+     * forever. Reference queue is not required since the cleanup is handled by
+     * {@link WeakHashMap}.
+     */
+    private final WeakReference<ClassLoader> classLoader;
+
+    private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
+
+    public ClassLoaderData(ClassLoader classLoader) {
+      Assert.notNull(classLoader, "classLoader == null is not yet supported");
+      this.classLoader = new WeakReference<>(classLoader);
+      this.generatedClasses = new LoadingCache<>(GET_KEY, gen -> gen.wrapCachedClass(gen.generate(this)));
+    }
+
+    public ClassLoader getClassLoader() {
+      return classLoader.get();
+    }
+
+    public void reserveName(String name) {
+      reservedClassNames.add(name);
+    }
+
+    @Override
+    public boolean test(String name) {
+      return reservedClassNames.contains(name);
+    }
+
+    public Object get(AbstractClassGenerator gen, boolean useCache) {
+      if (useCache) {
+        final Object cached = generatedClasses.get(gen);
+        return gen.unwrapCachedValue(cached);
+      }
+      return gen.generate(this);
+    }
+
+  }
 
 }

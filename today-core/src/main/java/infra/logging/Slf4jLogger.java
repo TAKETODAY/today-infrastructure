@@ -17,8 +17,6 @@
 
 package infra.logging;
 
-import org.slf4j.spi.LocationAwareLogger;
-
 import java.io.Serial;
 
 import infra.lang.Nullable;

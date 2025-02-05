@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,9 @@ public final class NullValue implements Serializable {
 
   public static final NullValue INSTANCE = new NullValue();
 
-  private NullValue() { }
+  private NullValue() {
+
+  }
 
   @Serial
   private Object readResolve() {
@@ -44,6 +46,11 @@ public final class NullValue implements Serializable {
   @Override
   public int hashCode() {
     return NullValue.class.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj == INSTANCE;
   }
 
   @Override

@@ -16,7 +16,8 @@
   ~ along with this program. If not, see [https://www.gnu.org/licenses/]
   -->
 
-<!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
 
   <!-- Global: generated sources -->
@@ -64,8 +65,9 @@
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]aot[\\/]nativex[\\/]feature[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
-  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util)[\\/](TodayStrategies|SystemPropertyUtils)" checks="RegexpSinglelineJava"
-          id="systemOutErrPrint" />
+  <suppress
+          files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](core|util|lang|logging)[\\/](Version|SystemPropertyUtils|JavaLoggingFactory|LoggerFactory|MessageFormatter)"
+          checks="RegexpSinglelineJava" id="systemOutErrPrint" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="IllegalImport" id="bannedImports" message="javax" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]lang[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
@@ -76,6 +78,7 @@
   <suppress files="ResolvableType" checks="FinalClass" />
   <suppress files="[\\/]src[\\/]testFixtures[\\/]java[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
   <suppress files="Target_ClassFinder" checks="HideUtilityClassConstructor" />
+  <suppress files="infra.bytecode.tree.analysis.Frame" checks="AvoidNestedBlocks" />
 
   <!-- today-core-test -->
   <suppress files="CompileWithForkedClassLoader" checks="IllegalImport" id="bannedJUnitJupiterImports" />

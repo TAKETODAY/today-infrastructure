@@ -756,7 +756,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         try {
           return autowireConstructor(beanName, merged, new Constructor[] { selected }, args);
         }
-        catch (BeansException ignored) { }
+        catch (BeansException ignored) {
+        }
       }
       // fallback to default constructor
     }
