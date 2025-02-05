@@ -14,14 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-
 /**
- * Classes supporting the infra.beans package,
- * such as utility classes for sorting and holding lists of beans.
+ * Various {@link infra.aop.framework.autoproxy.TargetSourceCreator}
+ * implementations for use with Infra AOP auto-proxying support.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.support;
+package infra.aop.framework.autoproxy.target;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

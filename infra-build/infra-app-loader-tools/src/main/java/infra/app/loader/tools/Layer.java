@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.app.loader.tools;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import infra.lang.Assert;
@@ -45,7 +46,7 @@ public class Layer {
     Assert.hasText(name, "Name must not be empty");
     Assert.isTrue(PATTERN.matcher(name).matches(), () -> "Malformed layer name '" + name + "'");
     Assert.isTrue(!name.equalsIgnoreCase("ext")
-            && !name.toLowerCase().startsWith("infraapp"), () -> "Layer name '" + name + "' is reserved");
+            && !name.toLowerCase(Locale.ROOT).startsWith("infraapp"), () -> "Layer name '" + name + "' is reserved");
     this.name = name;
   }
 

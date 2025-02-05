@@ -786,10 +786,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   /**
    * Internal holder class for a Throwable in a callback transaction model.
    */
-  private static class ThrowableHolder {
+  private static final class ThrowableHolder {
 
     @Nullable
     public Throwable throwable;
+
   }
 
   /**

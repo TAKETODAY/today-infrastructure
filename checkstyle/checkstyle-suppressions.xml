@@ -153,4 +153,20 @@
   <suppress files="sockjs[\\/]transport[\\/]TransportType" checks="JavadocVariable" />
   <suppress files="src[\\/]test[\\/]java[\\/]infra[\\/]web[\\/]reactive[\\/]protobuf[\\/].*" checks=".*" />
 
+  <!-- infra-app-loader-tools -->
+
+  <suppress files="infra.app.loader.tools.SignalUtils"
+          checks="IllegalImport" id="bannedImports" message="javax" />
+
+  <!-- infra-jarmode-layertools -->
+
+  <suppress files="infra.jarmode.layertools.LayerToolsJarMode" id="systemOutErrPrint" />
+
+  <!-- infra-app-loader -->
+
+  <suppress files="infra.app.loader.SystemPropertyUtils" id="systemOutErrPrint" />
+  <suppress files="infra.app.loader.JarModeRunner" id="systemOutErrPrint" />
+  <suppress files="infra.app.loader.log.DebugLogger" id="systemOutErrPrint" />
+
+
 </suppressions>

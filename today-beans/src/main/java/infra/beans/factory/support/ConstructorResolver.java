@@ -1351,7 +1351,7 @@ final class ConstructorResolver {
   /**
    * Delegate for checking Java 6's {@link ConstructorProperties} annotation.
    */
-  private static class ConstructorPropertiesChecker {
+  private static final class ConstructorPropertiesChecker {
 
     @Nullable
     public static String[] evaluate(Constructor<?> candidate, int paramCount) {

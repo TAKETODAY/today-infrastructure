@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,7 +184,7 @@ public interface MethodMatcher {
     Assert.notNull(mm, "MethodMatcher is required");
     return (mm instanceof IntroductionAwareMethodMatcher ?
             ((IntroductionAwareMethodMatcher) mm).matches(method, targetClass, hasIntroductions)
-                                                         : mm.matches(method, targetClass));
+            : mm.matches(method, targetClass));
   }
 
   /**
@@ -255,7 +255,7 @@ public interface MethodMatcher {
    * MethodMatcher implementation for a union of two given MethodMatchers
    * of which at least one is an IntroductionAwareMethodMatcher.
    */
-  class UnionIntroductionAwareMethodMatcher
+  final class UnionIntroductionAwareMethodMatcher
           extends UnionMethodMatcher implements IntroductionAwareMethodMatcher {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -332,7 +332,7 @@ public interface MethodMatcher {
    * of which at least one is an IntroductionAwareMethodMatcher,
    * supporting an associated ClassFilter per MethodMatcher.
    */
-  class ClassFilterAwareUnionIntroductionAwareMethodMatcher
+  final class ClassFilterAwareUnionIntroductionAwareMethodMatcher
           extends ClassFilterAwareUnionMethodMatcher implements IntroductionAwareMethodMatcher {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -413,7 +413,7 @@ public interface MethodMatcher {
    * MethodMatcher implementation for an intersection of two given MethodMatchers
    * of which at least one is an IntroductionAwareMethodMatcher.
    */
-  class IntersectionIntroductionAwareMethodMatcher
+  final class IntersectionIntroductionAwareMethodMatcher
           extends IntersectionMethodMatcher implements IntroductionAwareMethodMatcher {
 
     @Serial
@@ -431,7 +431,7 @@ public interface MethodMatcher {
 
   }
 
-  class NegateMethodMatcher implements MethodMatcher, Serializable {
+  final class NegateMethodMatcher implements MethodMatcher, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ public interface ClassFilter {
   /**
    * ClassFilter implementation for a union of the given ClassFilter.
    */
-  class UnionClassFilter implements ClassFilter, Serializable {
+  final class UnionClassFilter implements ClassFilter, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -176,7 +176,7 @@ public interface ClassFilter {
   /**
    * ClassFilter implementation for an intersection of the given ClassFilter.
    */
-  class IntersectionClassFilter implements ClassFilter, Serializable {
+  final class IntersectionClassFilter implements ClassFilter, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -218,7 +218,7 @@ public interface ClassFilter {
   /**
    * ClassFilter implementation for a logical negation of the given ClassFilter.
    */
-  class NegateClassFilter implements ClassFilter, Serializable {
+  final class NegateClassFilter implements ClassFilter, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

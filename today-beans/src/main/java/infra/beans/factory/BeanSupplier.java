@@ -114,7 +114,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Nullable
-    private volatile transient T instance;
+    private transient volatile T instance;
 
     SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> beanType) {
       super(beanFactory, beanName, beanType);

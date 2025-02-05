@@ -16,7 +16,8 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * Classes supporting the {@code infra.beans.factory} package.
+ * Contains abstract base classes for {@code BeanFactory} implementations.
  */
 @NonNullApi
 @NonNullFields

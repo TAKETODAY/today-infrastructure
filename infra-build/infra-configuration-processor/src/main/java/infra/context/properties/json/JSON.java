@@ -17,7 +17,7 @@
 
 package infra.context.properties.json;
 
-class JSON {
+final class JSON {
 
   private JSON() {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,24 +27,27 @@ package infra.transaction.annotation;
  * but leaves the non-rule-based {@link jakarta.ejb.TransactionAttribute} as-is.
  *
  * @author Juergen Hoeller
- * @since 5.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see EnableTransactionManagement#rollbackOn()
- * @see org.springframework.transaction.interceptor.RuleBasedTransactionAttribute
+ * @see infra.transaction.interceptor.RuleBasedTransactionAttribute
+ * @since 5.0
  */
 public enum RollbackOn {
 
-	/**
-	 * The default rollback-on behavior: rollback on
-	 * {@link RuntimeException RuntimeExceptions} as well as {@link Error Errors}.
-	 * @see org.springframework.transaction.interceptor.RollbackRuleAttribute#ROLLBACK_ON_RUNTIME_EXCEPTIONS
-	 */
-	RUNTIME_EXCEPTIONS,
+  /**
+   * The default rollback-on behavior: rollback on
+   * {@link RuntimeException RuntimeExceptions} as well as {@link Error Errors}.
+   *
+   * @see infra.transaction.interceptor.RollbackRuleAttribute#ROLLBACK_ON_RUNTIME_EXCEPTIONS
+   */
+  RUNTIME_EXCEPTIONS,
 
-	/**
-	 * The alternative mode: rollback on all exceptions, including any checked
-	 * {@link Exception}.
-	 * @see org.springframework.transaction.interceptor.RollbackRuleAttribute#ROLLBACK_ON_ALL_EXCEPTIONS
-	 */
-	ALL_EXCEPTIONS
+  /**
+   * The alternative mode: rollback on all exceptions, including any checked
+   * {@link Exception}.
+   *
+   * @see infra.transaction.interceptor.RollbackRuleAttribute#ROLLBACK_ON_ALL_EXCEPTIONS
+   */
+  ALL_EXCEPTIONS
 
 }

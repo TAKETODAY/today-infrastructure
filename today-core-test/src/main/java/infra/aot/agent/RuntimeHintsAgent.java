@@ -67,7 +67,7 @@ public final class RuntimeHintsAgent {
     return loaded;
   }
 
-  private final static class ParsedArguments {
+  private static final class ParsedArguments {
 
     List<String> instrumentedPackages;
 

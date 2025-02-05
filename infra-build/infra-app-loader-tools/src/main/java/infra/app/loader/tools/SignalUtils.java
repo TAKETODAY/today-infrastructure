@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
 
 package infra.app.loader.tools;
 
-import sun.misc.Signal;
-
 /**
  * Utilities for working with signal handling.
  *
@@ -26,9 +24,9 @@ import sun.misc.Signal;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class SignalUtils {
+public abstract class SignalUtils {
 
-  private static final Signal SIG_INT = new Signal("INT");
+  private static final sun.misc.Signal SIG_INT = new sun.misc.Signal("INT");
 
   /**
    * Handle {@literal INT} signals by calling the specified {@link Runnable}.
@@ -36,7 +34,7 @@ public final class SignalUtils {
    * @param runnable the runnable to call on SIGINT.
    */
   public static void attachSignalHandler(Runnable runnable) {
-    Signal.handle(SIG_INT, (signal) -> runnable.run());
+    sun.misc.Signal.handle(SIG_INT, (signal) -> runnable.run());
   }
 
 }

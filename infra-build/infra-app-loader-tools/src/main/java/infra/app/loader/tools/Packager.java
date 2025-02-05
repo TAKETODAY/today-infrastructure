@@ -571,7 +571,7 @@ public abstract class Packager {
      * An {@link AbstractJarWriter.UnpackHandler} that determines that an entry needs to be unpacked if
      * a library that requires unpacking has a matching entry name.
      */
-    private class PackagedLibrariesUnpackHandler implements AbstractJarWriter.UnpackHandler {
+    private final class PackagedLibrariesUnpackHandler implements AbstractJarWriter.UnpackHandler {
 
       @Override
       public boolean requiresUnpack(String name) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ class AspectJBeanFactoryInitializationAotProcessor implements BeanFactoryInitial
   /**
    * Inner class to avoid a hard dependency on AspectJ at runtime.
    */
-  private static class AspectDelegate {
+  private static final class AspectDelegate {
 
     @Nullable
     private static AspectContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
@@ -68,7 +68,7 @@ class AspectJBeanFactoryInitializationAotProcessor implements BeanFactoryInitial
 
   }
 
-  private static class AspectContribution implements BeanFactoryInitializationAotContribution {
+  private static final class AspectContribution implements BeanFactoryInitializationAotContribution {
 
     private final List<Advisor> advisors;
 

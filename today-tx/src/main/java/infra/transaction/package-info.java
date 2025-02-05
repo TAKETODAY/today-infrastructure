@@ -16,12 +16,13 @@
  */
 
 /**
- * Classes supporting the infra.beans package,
- * such as utility classes for sorting and holding lists of beans.
+ * Infra core transaction management APIs (independent of any specific transaction
+ * management system); an exception hierarchy for Infra transaction infrastructure;
+ * and transaction manager, definition, and status interfaces.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.support;
+package infra.transaction;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

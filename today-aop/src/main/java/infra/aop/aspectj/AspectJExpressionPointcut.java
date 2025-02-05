@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -586,7 +586,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
    * automatically by examining a thread local variable and therefore a matching
    * context need not be set on the pointcut.
    */
-  private class BeanPointcutDesignatorHandler implements PointcutDesignatorHandler {
+  private final class BeanPointcutDesignatorHandler implements PointcutDesignatorHandler {
 
     private static final String BEAN_DESIGNATOR_NAME = "bean";
 
@@ -608,11 +608,11 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
    * For static match tests, this matcher abstains to allow the overall
    * pointcut to match even when negation is used with the bean() pointcut.
    */
-  private class BeanContextMatcher implements ContextBasedMatcher {
+  private final class BeanContextMatcher implements ContextBasedMatcher {
 
     private final NamePattern expressionPattern;
 
-    public BeanContextMatcher(String expression) {
+    private BeanContextMatcher(String expression) {
       this.expressionPattern = new NamePattern(expression);
     }
 
@@ -667,7 +667,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
     }
   }
 
-  private static class DefensiveShadowMatch implements ShadowMatch {
+  private static final class DefensiveShadowMatch implements ShadowMatch {
 
     private final ShadowMatch primary;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -236,7 +236,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * Check whether the given annotation type is a plain "java." annotation,
    * typically from {@code java.lang.annotation}.
    * <p>Aligned with
-   * {@code org.springframework.core.annotation.AnnotationsScanner#hasPlainJavaAnnotationsOnly}.
+   * {@code infra.core.annotation.AnnotationsScanner#hasPlainJavaAnnotationsOnly}.
    */
   private boolean isPlainJavaAnnotation(Class<? extends Annotation> annotationType) {
     return annotationType.getName().startsWith("java.");

@@ -32,7 +32,7 @@ import javax.lang.model.type.TypeMirror;
 final class Elements {
 
   private Elements() {
-    
+
   }
 
   static String getQualifiedName(Element element) {

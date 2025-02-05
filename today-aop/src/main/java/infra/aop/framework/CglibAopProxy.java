@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -399,6 +399,65 @@ class CglibAopProxy implements AopProxy, Serializable {
   }
 
   /**
+   * Invoke the given method with a CGLIB MethodProxy if possible, falling back
+   * to a plain reflection invocation in case of a fast-class generation failure.
+   */
+  @Nullable
+  private static Object invokeMethod(@Nullable Object target,
+          Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    try {
+      return methodProxy.invoke(target, args);
+    }
+    catch (CodeGenerationException ex) {
+      logClassGenerationFailure(method);
+      return AopUtils.invokeJoinpointUsingReflection(target, method, args);
+    }
+  }
+
+  /**
+   * Process a return value. Wraps a return of {@code this} if necessary to be the
+   * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
+   */
+  @Nullable
+  private static Object processReturnValue(Object proxy,
+          @Nullable Object target, Method method, @Nullable Object retVal) {
+    // Massage return value if necessary
+    if (retVal != null && retVal == target
+            && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
+      // Special case: it returned "this". Note that we can't help
+      // if the target sets a reference to itself in another returned object.
+      retVal = proxy;
+    }
+    Class<?> returnType;
+    if (retVal == null && (returnType = method.getReturnType()) != void.class && returnType.isPrimitive()) {
+      throw new AopInvocationException(
+              "Null return value from advice does not match primitive return type for: " + method);
+    }
+    return retVal;
+  }
+
+  private static DefaultMethodInvocation createInvocation(Object proxy, Method method, Object[] args,
+          MethodProxy methodProxy, @Nullable Object target, @Nullable Class<?> targetClass, org.aopalliance.intercept.MethodInterceptor[] chain) {
+
+    if (isMethodProxyCompatible(method)) {
+      return new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain);
+    }
+    return new DefaultMethodInvocation(proxy, target, method, targetClass, args, chain);
+  }
+
+  static boolean isMethodProxyCompatible(Method method) {
+    return Modifier.isPublic(method.getModifiers())
+            && method.getDeclaringClass() != Object.class
+            && !ReflectionUtils.isEqualsMethod(method)
+            && !ReflectionUtils.isHashCodeMethod(method)
+            && !ReflectionUtils.isToStringMethod(method);
+  }
+
+  static void logClassGenerationFailure(Method method) {
+    log.debug("Failed to generate CGLIB fast class for method: {}", method);
+  }
+
+  /**
    * Serializable replacement for CGLIB's NoOp interface. Public to allow use
    * elsewhere in the framework.
    */
@@ -656,53 +715,6 @@ class CglibAopProxy implements AopProxy, Serializable {
   }
 
   /**
-   * Invoke the given method with a CGLIB MethodProxy if possible, falling back
-   * to a plain reflection invocation in case of a fast-class generation failure.
-   */
-  @Nullable
-  private static Object invokeMethod(@Nullable Object target,
-          Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-    try {
-      return methodProxy.invoke(target, args);
-    }
-    catch (CodeGenerationException ex) {
-      logClassGenerationFailure(method);
-      return AopUtils.invokeJoinpointUsingReflection(target, method, args);
-    }
-  }
-
-  /**
-   * Process a return value. Wraps a return of {@code this} if necessary to be the
-   * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
-   */
-  @Nullable
-  private static Object processReturnValue(Object proxy,
-          @Nullable Object target, Method method, @Nullable Object retVal) {
-    // Massage return value if necessary
-    if (retVal != null && retVal == target
-            && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
-      // Special case: it returned "this". Note that we can't help
-      // if the target sets a reference to itself in another returned object.
-      retVal = proxy;
-    }
-    Class<?> returnType;
-    if (retVal == null && (returnType = method.getReturnType()) != void.class && returnType.isPrimitive()) {
-      throw new AopInvocationException(
-              "Null return value from advice does not match primitive return type for: " + method);
-    }
-    return retVal;
-  }
-
-  private static DefaultMethodInvocation createInvocation(Object proxy, Method method, Object[] args,
-          MethodProxy methodProxy, @Nullable Object target, @Nullable Class<?> targetClass, org.aopalliance.intercept.MethodInterceptor[] chain) {
-
-    if (isMethodProxyCompatible(method)) {
-      return new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain);
-    }
-    return new DefaultMethodInvocation(proxy, target, method, targetClass, args, chain);
-  }
-
-  /**
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
@@ -731,18 +743,6 @@ class CglibAopProxy implements AopProxy, Serializable {
       }
       return super.invokeJoinPoint();
     }
-  }
-
-  static boolean isMethodProxyCompatible(Method method) {
-    return Modifier.isPublic(method.getModifiers())
-            && method.getDeclaringClass() != Object.class
-            && !ReflectionUtils.isEqualsMethod(method)
-            && !ReflectionUtils.isHashCodeMethod(method)
-            && !ReflectionUtils.isToStringMethod(method);
-  }
-
-  static void logClassGenerationFailure(Method method) {
-    log.debug("Failed to generate CGLIB fast class for method: {}", method);
   }
 
   /**

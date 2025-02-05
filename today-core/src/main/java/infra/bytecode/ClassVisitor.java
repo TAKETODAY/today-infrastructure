@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,6 +109,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit the module values, or {@literal null} if this visitor is not
    * interested in visiting this module.
    */
+  @Nullable
   public ModuleVisitor visitModule(final String name, final int access, @Nullable String version) {
     if (cv != null) {
       return cv.visitModule(name, access, version);
@@ -156,6 +157,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
+  @Nullable
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     if (cv != null) {
       return cv.visitAnnotation(descriptor, visible);
@@ -178,6 +180,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
+  @Nullable
   public AnnotationVisitor visitTypeAnnotation(
           final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (cv != null) {
@@ -253,6 +256,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit this record component annotations and attributes, or {@literal null}
    * if this class visitor is not interested in visiting these annotations and attributes.
    */
+  @Nullable
   public RecordComponentVisitor visitRecordComponent(
           final String name, final String descriptor, final String signature) {
     if (cv != null) {
@@ -279,6 +283,7 @@ public abstract class ClassVisitor {
    * @return a visitor to visit field annotations and attributes, or {@literal null} if this class
    * visitor is not interested in visiting these annotations and attributes.
    */
+  @Nullable
   public FieldVisitor visitField(final int access, final String name,
           final String descriptor, final String signature, final Object value) {
     if (cv != null) {
@@ -303,6 +308,7 @@ public abstract class ClassVisitor {
    * @return an object to visit the byte code of the method, or {@literal null} if this class
    * visitor is not interested in visiting the code of this method.
    */
+  @Nullable
   public MethodVisitor visitMethod(final int access, final String name,
           final String descriptor, final String signature, final String[] exceptions) {
     if (cv != null) {

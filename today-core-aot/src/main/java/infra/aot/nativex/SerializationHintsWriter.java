@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ import infra.aot.hint.SerializationHints;
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
-class SerializationHintsWriter {
+abstract class SerializationHintsWriter {
 
   public static void write(BasicJsonWriter writer, SerializationHints hints) {
     writer.writeArray(hints.javaSerializationHints()

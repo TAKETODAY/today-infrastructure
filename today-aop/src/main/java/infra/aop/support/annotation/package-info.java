@@ -16,12 +16,11 @@
  */
 
 /**
- * Classes supporting the infra.beans package,
- * such as utility classes for sorting and holding lists of beans.
+ * Annotation support for AOP pointcuts.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.support;
+package infra.aop.support.annotation;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

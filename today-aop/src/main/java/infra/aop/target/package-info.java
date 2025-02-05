@@ -16,12 +16,12 @@
  */
 
 /**
- * Classes supporting the infra.beans package,
- * such as utility classes for sorting and holding lists of beans.
+ * Various {@link infra.aop.TargetSource} implementations for use
+ * with Infra AOP.
  */
 @NonNullApi
 @NonNullFields
-package infra.beans.support;
+package infra.aop.target;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;
