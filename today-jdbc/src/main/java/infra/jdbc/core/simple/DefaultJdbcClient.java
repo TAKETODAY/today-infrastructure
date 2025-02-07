@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ final class DefaultJdbcClient implements JdbcClient {
     return new DefaultStatementSpec(sql);
   }
 
-  private class DefaultStatementSpec implements StatementSpec {
+  private final class DefaultStatementSpec implements StatementSpec {
 
     private final String sql;
 
@@ -177,8 +177,8 @@ final class DefaultJdbcClient implements JdbcClient {
     @Override
     public StatementSpec paramSource(Object namedParamObject) {
       this.namedParamSource = (namedParamObject instanceof Map map ?
-                               new MapSqlParameterSource(map) :
-                               new SimplePropertySqlParameterSource(namedParamObject));
+              new MapSqlParameterSource(map) :
+              new SimplePropertySqlParameterSource(namedParamObject));
       return this;
     }
 
@@ -200,7 +200,7 @@ final class DefaultJdbcClient implements JdbcClient {
     public <T> MappedQuerySpec<T> query(Class<T> mappedClass) {
       RowMapper<?> rowMapper = rowMapperCache.computeIfAbsent(mappedClass, key ->
               BeanUtils.isSimpleProperty(mappedClass) ? new SingleColumnRowMapper<>(mappedClass) :
-              new SimplePropertyRowMapper<>(mappedClass));
+                      new SimplePropertyRowMapper<>(mappedClass));
       return query((RowMapper<T>) rowMapper);
     }
 
@@ -224,8 +224,8 @@ final class DefaultJdbcClient implements JdbcClient {
     @Override
     public <T> T query(ResultSetExtractor<T> rse) {
       T result = (useNamedParams() ?
-                  namedParamOps.query(this.sql, this.namedParamSource, rse) :
-                  classicOps.query(statementCreatorForIndexedParams(), rse));
+              namedParamOps.query(this.sql, this.namedParamSource, rse) :
+              classicOps.query(statementCreatorForIndexedParams(), rse));
       Assert.state(result != null, "No result from ResultSetExtractor");
       return result;
     }
@@ -278,7 +278,7 @@ final class DefaultJdbcClient implements JdbcClient {
       return pscf.newPreparedStatementCreator(this.indexedParams);
     }
 
-    private class IndexedParamResultQuerySpec implements ResultQuerySpec {
+    private final class IndexedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
@@ -301,7 +301,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private class NamedParamResultQuerySpec implements ResultQuerySpec {
+    private final class NamedParamResultQuerySpec implements ResultQuerySpec {
 
       @Override
       public SqlRowSet rowSet() {
@@ -324,7 +324,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private class IndexedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
+    private final class IndexedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
 
       private final RowMapper<T> rowMapper;
 
@@ -343,7 +343,7 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-    private class NamedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
+    private final class NamedParamMappedQuerySpec<T> implements MappedQuerySpec<T> {
 
       private final RowMapper<T> rowMapper;
 

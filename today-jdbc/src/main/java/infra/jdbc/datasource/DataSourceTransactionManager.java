@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,10 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 import infra.beans.factory.InitializingBean;
-import infra.lang.Assert;
-import infra.lang.Nullable;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.support.JdbcTransactionManager;
+import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionSystemException;
@@ -107,7 +107,7 @@ import infra.transaction.support.TransactionSynchronizationUtils;
  *
  * <p>{@link JdbcTransactionManager}
  * is available as an extended subclass which includes commit/rollback exception
- * translation, aligned with {@link JdbcTemplate}.</b>
+ * translation, aligned with {@link JdbcTemplate}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -446,7 +446,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    * DataSource transaction object, representing a ConnectionHolder.
    * Used as transaction object by DataSourceTransactionManager.
    */
-  private static class DataSourceTransactionObject extends JdbcTransactionObjectSupport {
+  private static final class DataSourceTransactionObject extends JdbcTransactionObjectSupport {
 
     public boolean newConnectionHolder;
 

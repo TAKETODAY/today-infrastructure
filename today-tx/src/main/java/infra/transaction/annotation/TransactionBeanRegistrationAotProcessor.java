@@ -46,7 +46,7 @@ import infra.util.ReflectionUtils;
  */
 class TransactionBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 
-  private final static String JAKARTA_TRANSACTIONAL_CLASS_NAME = "jakarta.transaction.Transactional";
+  private static final String JAKARTA_TRANSACTIONAL_CLASS_NAME = "jakarta.transaction.Transactional";
 
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {

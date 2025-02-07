@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ import infra.lang.Nullable;
  * as it can easily be mocked or stubbed.
  *
  * <p>there is a unified JDBC access facade available in
- * the form of {@link JdbcClient}.</b>
+ * the form of {@link JdbcClient}.
  * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
  * with flexible use of indexed or named parameters. It delegates to
  * {@code JdbcOperations}/{@code NamedParameterJdbcOperations} for actual execution.

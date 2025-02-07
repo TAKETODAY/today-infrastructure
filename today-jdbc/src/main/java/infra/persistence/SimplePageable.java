@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ import infra.core.style.ToStringBuilder;
 /**
  * Simple Pageable
  *
+ * @param pageNumber the current page
+ * @param pageSize the number of items of that page
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 11:34
  */

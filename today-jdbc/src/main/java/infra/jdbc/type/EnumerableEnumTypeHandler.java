@@ -33,6 +33,7 @@ import infra.util.ReflectionUtils;
 /**
  * TypeHandler for Enumerable
  *
+ * @param <V> value type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/1 22:15
  */

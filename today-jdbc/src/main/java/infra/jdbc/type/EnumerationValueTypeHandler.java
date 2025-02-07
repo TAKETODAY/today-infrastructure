@@ -34,6 +34,7 @@ import infra.lang.TodayStrategies;
 /**
  * resolve EnumerationValue
  *
+ * @param <T> value type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnumerationValue
  * @since 4.0 2022/8/2 20:42

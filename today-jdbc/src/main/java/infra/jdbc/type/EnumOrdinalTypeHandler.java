@@ -27,6 +27,7 @@ import infra.lang.Assert;
 /**
  * Use {@link Enum#ordinal()}
  *
+ * @param <E> value type
  * @author Clinton Begin
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0

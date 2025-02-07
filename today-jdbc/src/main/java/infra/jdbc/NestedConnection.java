@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ import infra.logging.LoggerFactory;
  * @author TODAY
  */
 final class NestedConnection extends WrappedConnection {
-  private final static Logger log = LoggerFactory.getLogger(NestedConnection.class);
+
+  private static final Logger log = LoggerFactory.getLogger(NestedConnection.class);
 
   private boolean autocommit = true;
 

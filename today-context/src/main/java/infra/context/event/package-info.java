@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,12 @@
  */
 
 /**
- * Event System
- *
- * @author TODAY 2021/3/27 10:35
+ * Support classes for application events, like standard context events.
+ * To be supported by all major application context implementations.
  */
+@NonNullApi
+@NonNullFields
 package infra.context.event;
+
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

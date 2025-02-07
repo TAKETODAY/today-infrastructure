@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,8 @@ import infra.format.datetime.DateFormatterRegistrar;
  */
 final class DateTimeConverters {
 
-  private DateTimeConverters() { }
+  private DateTimeConverters() {
+  }
 
   /**
    * Install the converters into the converter registry.
@@ -87,7 +88,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class LocalDateTimeToLocalDateConverter implements Converter<LocalDateTime, LocalDate> {
+  private static final class LocalDateTimeToLocalDateConverter implements Converter<LocalDateTime, LocalDate> {
 
     @Override
     public LocalDate convert(LocalDateTime source) {
@@ -95,7 +96,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class LocalDateTimeToLocalTimeConverter implements Converter<LocalDateTime, LocalTime> {
+  private static final class LocalDateTimeToLocalTimeConverter implements Converter<LocalDateTime, LocalTime> {
 
     @Override
     public LocalTime convert(LocalDateTime source) {
@@ -103,7 +104,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class ZonedDateTimeToLocalDateConverter implements Converter<ZonedDateTime, LocalDate> {
+  private static final class ZonedDateTimeToLocalDateConverter implements Converter<ZonedDateTime, LocalDate> {
 
     @Override
     public LocalDate convert(ZonedDateTime source) {
@@ -111,7 +112,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class ZonedDateTimeToLocalTimeConverter implements Converter<ZonedDateTime, LocalTime> {
+  private static final class ZonedDateTimeToLocalTimeConverter implements Converter<ZonedDateTime, LocalTime> {
 
     @Override
     public LocalTime convert(ZonedDateTime source) {
@@ -119,7 +120,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class ZonedDateTimeToLocalDateTimeConverter implements Converter<ZonedDateTime, LocalDateTime> {
+  private static final class ZonedDateTimeToLocalDateTimeConverter implements Converter<ZonedDateTime, LocalDateTime> {
 
     @Override
     public LocalDateTime convert(ZonedDateTime source) {
@@ -127,7 +128,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class ZonedDateTimeToOffsetDateTimeConverter implements Converter<ZonedDateTime, OffsetDateTime> {
+  private static final class ZonedDateTimeToOffsetDateTimeConverter implements Converter<ZonedDateTime, OffsetDateTime> {
 
     @Override
     public OffsetDateTime convert(ZonedDateTime source) {
@@ -135,7 +136,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class ZonedDateTimeToInstantConverter implements Converter<ZonedDateTime, Instant> {
+  private static final class ZonedDateTimeToInstantConverter implements Converter<ZonedDateTime, Instant> {
 
     @Override
     public Instant convert(ZonedDateTime source) {
@@ -143,7 +144,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class OffsetDateTimeToLocalDateConverter implements Converter<OffsetDateTime, LocalDate> {
+  private static final class OffsetDateTimeToLocalDateConverter implements Converter<OffsetDateTime, LocalDate> {
 
     @Override
     public LocalDate convert(OffsetDateTime source) {
@@ -151,7 +152,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class OffsetDateTimeToLocalTimeConverter implements Converter<OffsetDateTime, LocalTime> {
+  private static final class OffsetDateTimeToLocalTimeConverter implements Converter<OffsetDateTime, LocalTime> {
 
     @Override
     public LocalTime convert(OffsetDateTime source) {
@@ -159,7 +160,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class OffsetDateTimeToLocalDateTimeConverter implements Converter<OffsetDateTime, LocalDateTime> {
+  private static final class OffsetDateTimeToLocalDateTimeConverter implements Converter<OffsetDateTime, LocalDateTime> {
 
     @Override
     public LocalDateTime convert(OffsetDateTime source) {
@@ -167,7 +168,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class OffsetDateTimeToZonedDateTimeConverter implements Converter<OffsetDateTime, ZonedDateTime> {
+  private static final class OffsetDateTimeToZonedDateTimeConverter implements Converter<OffsetDateTime, ZonedDateTime> {
 
     @Override
     public ZonedDateTime convert(OffsetDateTime source) {
@@ -175,7 +176,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class OffsetDateTimeToInstantConverter implements Converter<OffsetDateTime, Instant> {
+  private static final class OffsetDateTimeToInstantConverter implements Converter<OffsetDateTime, Instant> {
 
     @Override
     public Instant convert(OffsetDateTime source) {
@@ -183,7 +184,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToZonedDateTimeConverter implements Converter<Calendar, ZonedDateTime> {
+  private static final class CalendarToZonedDateTimeConverter implements Converter<Calendar, ZonedDateTime> {
 
     @Override
     public ZonedDateTime convert(Calendar source) {
@@ -191,7 +192,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToOffsetDateTimeConverter implements Converter<Calendar, OffsetDateTime> {
+  private static final class CalendarToOffsetDateTimeConverter implements Converter<Calendar, OffsetDateTime> {
 
     @Override
     public OffsetDateTime convert(Calendar source) {
@@ -199,7 +200,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToLocalDateConverter implements Converter<Calendar, LocalDate> {
+  private static final class CalendarToLocalDateConverter implements Converter<Calendar, LocalDate> {
 
     @Override
     public LocalDate convert(Calendar source) {
@@ -207,7 +208,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToLocalTimeConverter implements Converter<Calendar, LocalTime> {
+  private static final class CalendarToLocalTimeConverter implements Converter<Calendar, LocalTime> {
 
     @Override
     public LocalTime convert(Calendar source) {
@@ -215,7 +216,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToLocalDateTimeConverter implements Converter<Calendar, LocalDateTime> {
+  private static final class CalendarToLocalDateTimeConverter implements Converter<Calendar, LocalDateTime> {
 
     @Override
     public LocalDateTime convert(Calendar source) {
@@ -223,7 +224,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class CalendarToInstantConverter implements Converter<Calendar, Instant> {
+  private static final class CalendarToInstantConverter implements Converter<Calendar, Instant> {
 
     @Override
     public Instant convert(Calendar source) {
@@ -231,7 +232,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class LongToInstantConverter implements Converter<Long, Instant> {
+  private static final class LongToInstantConverter implements Converter<Long, Instant> {
 
     @Override
     public Instant convert(Long source) {
@@ -239,7 +240,7 @@ final class DateTimeConverters {
     }
   }
 
-  private static class InstantToLongConverter implements Converter<Instant, Long> {
+  private static final class InstantToLongConverter implements Converter<Instant, Long> {
 
     @Override
     public Long convert(Instant source) {

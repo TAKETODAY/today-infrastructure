@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -302,7 +302,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * Delegate that adapts an Infra Trigger to a JSR-236 Trigger.
    * Separated into an inner class in order to avoid a hard dependency on the JSR-236 API.
    */
-  private class EnterpriseConcurrentTriggerScheduler {
+  private final class EnterpriseConcurrentTriggerScheduler {
 
     public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
       ManagedScheduledExecutorService executor = (ManagedScheduledExecutorService) getScheduledExecutor();

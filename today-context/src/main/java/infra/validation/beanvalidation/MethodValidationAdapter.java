@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -524,7 +524,7 @@ public class MethodValidationAdapter implements MethodValidator {
   }
 
   @SuppressWarnings("serial")
-  private static class ViolationMessageSourceResolvable extends DefaultMessageSourceResolvable {
+  private static final class ViolationMessageSourceResolvable extends DefaultMessageSourceResolvable {
 
     private final transient ConstraintViolation<Object> violation;
 
@@ -544,7 +544,7 @@ public class MethodValidationAdapter implements MethodValidator {
    * Default algorithm to select an object name, as described in
    * {@link #setObjectNameResolver(ObjectNameResolver)}.
    */
-  private static class DefaultObjectNameResolver implements ObjectNameResolver {
+  private static final class DefaultObjectNameResolver implements ObjectNameResolver {
 
     @Override
     public String resolveName(MethodParameter parameter, @Nullable Object value) {

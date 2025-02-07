@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -425,7 +425,7 @@ public abstract class AbstractApplicationEventMulticaster implements Application
    * allowing for efficient retrieval of pre-filtered listeners.
    * <p>An instance of this helper gets cached per event type and source type.
    */
-  private class CachedListenerRetriever {
+  private final class CachedListenerRetriever {
 
     @Nullable
     public volatile Set<String> applicationListenerBeans;
@@ -467,7 +467,7 @@ public abstract class AbstractApplicationEventMulticaster implements Application
   /**
    * Helper class that encapsulates a general set of target listeners.
    */
-  private class DefaultListenerRetriever {
+  private final class DefaultListenerRetriever {
 
     public final LinkedHashSet<String> applicationListenerBeans = new LinkedHashSet<>();
 

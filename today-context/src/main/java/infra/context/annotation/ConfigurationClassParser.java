@@ -751,7 +751,7 @@ class ConfigurationClassParser {
     return scanner.collectHolders(StringUtils.toStringArray(basePackages));
   }
 
-  private class DeferredImportSelectorHandler {
+  private final class DeferredImportSelectorHandler {
 
     @Nullable
     private ArrayList<DeferredImportSelectorHolder> deferredImportSelectors = new ArrayList<>();
@@ -798,7 +798,7 @@ class ConfigurationClassParser {
     }
   }
 
-  private class DeferredImportSelectorGroupingHandler {
+  private final class DeferredImportSelectorGroupingHandler {
 
     private final HashMap<AnnotationMetadata, ConfigurationClass> configurationClasses = new HashMap<>();
 
@@ -842,7 +842,7 @@ class ConfigurationClassParser {
     }
   }
 
-  private static class DeferredImportSelectorHolder {
+  private static final class DeferredImportSelectorHolder {
 
     public final ConfigurationClass configurationClass;
 
@@ -854,7 +854,7 @@ class ConfigurationClassParser {
     }
   }
 
-  private static class DeferredImportSelectorGrouping {
+  private static final class DeferredImportSelectorGrouping {
 
     private final DeferredImportSelector.Group group;
 
@@ -892,7 +892,7 @@ class ConfigurationClassParser {
     }
   }
 
-  private static class DefaultDeferredImportSelectorGroup implements Group {
+  private static final class DefaultDeferredImportSelectorGroup implements Group {
 
     private final ArrayList<Entry> imports = new ArrayList<>();
 
@@ -913,7 +913,7 @@ class ConfigurationClassParser {
    * Simple wrapper that allows annotated source classes to be dealt with
    * in a uniform manner, regardless of how they are loaded.
    */
-  private class SourceClass implements Ordered {
+  private final class SourceClass implements Ordered {
 
     public final Object source;  // Class or MetadataReader
 
@@ -1100,7 +1100,7 @@ class ConfigurationClassParser {
   /**
    * {@link Problem} registered upon detection of a circular {@link Import}.
    */
-  private static class CircularImportProblem extends Problem {
+  private static final class CircularImportProblem extends Problem {
 
     public CircularImportProblem(ConfigurationClass attemptedImport, Deque<ConfigurationClass> importStack) {
       super(String.format("A circular @Import has been detected: " +
@@ -1111,7 +1111,7 @@ class ConfigurationClassParser {
     }
   }
 
-  class ImportStack extends ImportRegistry {
+  final class ImportStack extends ImportRegistry {
 
     @Override
     public void removeImportingClass(String importingClass) {

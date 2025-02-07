@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,14 +45,15 @@ final class DefaultPropertyMapper implements PropertyMapper {
   @Nullable
   private LastMapping<String, ConfigurationPropertyName> lastMappedPropertyName;
 
-  private DefaultPropertyMapper() { }
+  private DefaultPropertyMapper() {
+  }
 
   @Override
   public List<String> map(ConfigurationPropertyName configurationPropertyName) {
     // Use a local copy in case another thread changes things
     LastMapping<ConfigurationPropertyName, List<String>> last = this.lastMappedConfigurationPropertyName;
     if (last != null && last.isFrom(configurationPropertyName)) {
-      return last.getMapping();
+      return last.mapping;
     }
     String convertedName = configurationPropertyName.toString();
     List<String> mapping = Collections.singletonList(convertedName);
@@ -65,7 +66,7 @@ final class DefaultPropertyMapper implements PropertyMapper {
     // Use a local copy in case another thread changes things
     LastMapping<String, ConfigurationPropertyName> last = this.lastMappedPropertyName;
     if (last != null && last.isFrom(propertySourceName)) {
-      return last.getMapping();
+      return last.mapping;
     }
     ConfigurationPropertyName mapping = tryMap(propertySourceName);
     this.lastMappedPropertyName = new LastMapping<>(propertySourceName, mapping);
@@ -79,18 +80,24 @@ final class DefaultPropertyMapper implements PropertyMapper {
         return convertedName;
       }
     }
-    catch (Exception ignored) { }
+    catch (Exception ignored) {
+    }
     return ConfigurationPropertyName.EMPTY;
   }
 
-  private record LastMapping<T, M>(T from, M mapping) {
+  private static class LastMapping<T, M> {
+
+    public final T from;
+
+    public final M mapping;
+
+    LastMapping(T from, M mapping) {
+      this.from = from;
+      this.mapping = mapping;
+    }
 
     boolean isFrom(T from) {
       return ObjectUtils.nullSafeEquals(from, this.from);
-    }
-
-    M getMapping() {
-      return this.mapping;
     }
 
   }

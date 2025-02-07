@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import infra.beans.BeanProperty;
 
 /**
+ * @param <T> value type
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/1/23 14:54
  */

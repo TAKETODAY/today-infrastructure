@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.scheduling.annotation;
 
+import infra.beans.factory.annotation.DisableAllDependencyInjection;
 import infra.beans.factory.config.BeanDefinition;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Role;
@@ -37,13 +38,14 @@ import infra.stereotype.Component;
  * @see ScheduledAnnotationBeanPostProcessor
  * @since 4.0
  */
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class SchedulingConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Component(TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-  static ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
+  public ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
     return new ScheduledAnnotationBeanPostProcessor();
   }
 

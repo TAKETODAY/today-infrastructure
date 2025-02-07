@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,10 @@ import infra.stereotype.Component;
  *         ...
  *     }
  *
+ * }
  * }</pre>
- * }<p>
+ *
+ * <p>
  * In the sample above the condition will match if a bean of type {@code MyService} is
  * already contained in the {@link BeanFactory}.
  * <p>

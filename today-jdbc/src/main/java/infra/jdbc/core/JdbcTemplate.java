@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@ import infra.dao.DataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.dao.support.DataAccessUtils;
 import infra.jdbc.InvalidResultSetAccessException;
+import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.datasource.ConnectionProxy;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.datasource.WrappedConnection;
@@ -56,8 +58,6 @@ import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
-import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import infra.jdbc.core.simple.JdbcClient;
 
 /**
  * <b>This is the central class in the JDBC core package.</b>
@@ -89,7 +89,7 @@ import infra.jdbc.core.simple.JdbcClient;
  * using "infra.jdbc.core.JdbcTemplate" as log category.
  *
  * <p>there is a unified JDBC access facade available in
- * the form of {@link JdbcClient}.</b>
+ * the form of {@link JdbcClient}.
  * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
  * with flexible use of indexed or named parameters. It delegates to a
  * {@code JdbcTemplate}/{@code NamedParameterJdbcTemplate} for actual execution.

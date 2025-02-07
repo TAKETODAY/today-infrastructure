@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +33,14 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class BindMethodAttribute {
+abstract class BindMethodAttribute {
 
   static final String NAME = BindMethod.class.getName();
 
   @Nullable
   static BindMethod get(ApplicationContext applicationContext, String beanName) {
     return (applicationContext instanceof ConfigurableApplicationContext configurableApplicationContext)
-           ? get(configurableApplicationContext.getBeanFactory(), beanName) : null;
+            ? get(configurableApplicationContext.getBeanFactory(), beanName) : null;
   }
 
   @Nullable
@@ -51,8 +51,8 @@ final class BindMethodAttribute {
   @Nullable
   static BindMethod get(BeanDefinitionRegistry beanDefinitionRegistry, String beanName) {
     return (!beanDefinitionRegistry.containsBeanDefinition(beanName))
-           ? null
-           : get(beanDefinitionRegistry.getBeanDefinition(beanName));
+            ? null
+            : get(beanDefinitionRegistry.getBeanDefinition(beanName));
   }
 
   @Nullable

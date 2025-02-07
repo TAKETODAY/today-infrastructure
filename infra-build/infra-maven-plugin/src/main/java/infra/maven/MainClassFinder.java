@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -276,7 +276,7 @@ public abstract class MainClassFinder {
     }
   }
 
-  private static class ClassEntryComparator implements Comparator<JarEntry> {
+  private static final class ClassEntryComparator implements Comparator<JarEntry> {
 
     @Override
     public int compare(JarEntry o1, JarEntry o2) {
@@ -295,7 +295,7 @@ public abstract class MainClassFinder {
 
   }
 
-  private static class ClassDescriptor extends ClassVisitor {
+  private static final class ClassDescriptor extends ClassVisitor {
 
     private final Set<String> annotationNames = new LinkedHashSet<>();
 

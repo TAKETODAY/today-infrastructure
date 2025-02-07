@@ -222,7 +222,7 @@ class ConfigurationClassEnhancer {
    * Also exposes the application ClassLoader as thread context ClassLoader for the time of
    * class generation (in order for ASM to pick it up when doing common superclass resolution).
    */
-  private static class BeanFactoryAwareGeneratorStrategy extends ClassLoaderAwareGeneratorStrategy {
+  private static final class BeanFactoryAwareGeneratorStrategy extends ClassLoaderAwareGeneratorStrategy {
 
     public BeanFactoryAwareGeneratorStrategy(@Nullable ClassLoader classLoader) {
       super(classLoader);
@@ -248,7 +248,7 @@ class ConfigurationClassEnhancer {
    *
    * @see EnhancedConfiguration
    */
-  private static class BeanFactoryAwareMethodInterceptor implements MethodInterceptor, ConditionalCallback {
+  private static final class BeanFactoryAwareMethodInterceptor implements MethodInterceptor, ConditionalCallback {
 
     @Override
     @Nullable
@@ -285,7 +285,7 @@ class ConfigurationClassEnhancer {
    * @see Component
    * @see ConfigurationClassEnhancer
    */
-  private static class ComponentMethodInterceptor implements MethodInterceptor, ConditionalCallback {
+  private static final class ComponentMethodInterceptor implements MethodInterceptor, ConditionalCallback {
 
     /**
      * Enhance a {@link Component @Component} method to check the supplied BeanFactory for the

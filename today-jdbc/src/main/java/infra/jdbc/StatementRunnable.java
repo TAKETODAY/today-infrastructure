@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.jdbc;
 
 import infra.lang.Nullable;
@@ -23,6 +24,8 @@ import infra.lang.Nullable;
  * Implementations of this interface be used as a parameter to one of the
  * {@link RepositoryManager#runInTransaction(StatementRunnable) RepositoryManager.runInTransaction}
  * overloads, to run code safely in a transaction.
+ *
+ * @param <T> Argument type
  */
 public interface StatementRunnable<T> {
 

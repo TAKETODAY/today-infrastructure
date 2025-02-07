@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import infra.jdbc.core.ResultSetExtractor;
 
 /**
+ * @param <T> value type
  * @author TODAY 2021/1/2 18:28
  */
 final class ObjectResultHandler<T> implements ResultSetExtractor<T> {

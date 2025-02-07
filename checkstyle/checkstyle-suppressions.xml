@@ -90,6 +90,7 @@
 
   <!-- today-jdbc -->
   <suppress files="ResultSetWrappingSqlRowSet" checks="JavadocStyle" />
+  <suppress files="infra.jdbc.format.SqlStatementLogger" checks="systemOutErrPrint" />
 
   <!-- today-tx -->
   <suppress files="TransactionSystemException" checks="MutableException" />

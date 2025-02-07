@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * Get configurable environment
    *
    * @return {@link ConfigurableEnvironment} never be null
-   * @since 2.1.0
+   * @since 2.1
    */
   @Override
   ConfigurableEnvironment getEnvironment();

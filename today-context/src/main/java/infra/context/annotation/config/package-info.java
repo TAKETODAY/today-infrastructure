@@ -15,27 +15,14 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import infra.jdbc.core.ResultSetExtractor;
-import infra.jdbc.type.TypeHandler;
-
 /**
- * @param <T> target type
- * @author TODAY 2021/1/7 22:52
+ * Infra auto-configuration capabilities.
+ *
+ * @see infra.context.annotation.config.EnableAutoConfiguration
  */
-final class TypeHandlerResultSetHandler<T> implements ResultSetExtractor<T> {
-  final TypeHandler<T> typeHandler;
+@NonNullApi
+@NonNullFields
+package infra.context.annotation.config;
 
-  TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
-    this.typeHandler = typeHandler;
-  }
-
-  @Override
-  public T extractData(ResultSet resultSet) throws SQLException {
-    return typeHandler.getResult(resultSet, 1);
-  }
-}
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

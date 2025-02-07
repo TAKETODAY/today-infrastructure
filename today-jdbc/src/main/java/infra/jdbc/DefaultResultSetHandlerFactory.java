@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,22 @@ import infra.util.MapCache;
 @SuppressWarnings("rawtypes")
 public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactory<T> {
 
+  static final MapCache<HandlerKey, ResultSetExtractor, ResultSetMetaData> CACHE
+          = new MapCache<>(new ConcurrentReferenceHashMap<>()) {
+
+    @Override
+    protected ResultSetExtractor createValue(HandlerKey key, ResultSetMetaData param) {
+      try {
+        return key.factory.createHandler(param);
+      }
+      catch (SQLException e) {
+        throw new PersistenceException(null, e);
+      }
+    }
+  };
+
   private final JdbcBeanMetadata metadata;
+
   private final RepositoryManager repositoryManager;
 
   @Nullable
@@ -140,19 +155,5 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
     }
 
   }
-
-  static final MapCache<HandlerKey, ResultSetExtractor, ResultSetMetaData> CACHE
-          = new MapCache<>(new ConcurrentReferenceHashMap<>()) {
-
-    @Override
-    protected ResultSetExtractor createValue(HandlerKey key, ResultSetMetaData param) {
-      try {
-        return key.factory.createHandler(param);
-      }
-      catch (SQLException e) {
-        throw new PersistenceException(null, e);
-      }
-    }
-  };
 
 }

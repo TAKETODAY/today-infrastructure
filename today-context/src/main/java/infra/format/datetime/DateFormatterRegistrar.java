@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     converterRegistry.addConverter(new LongToCalendarConverter());
   }
 
-  private static class DateToLongConverter implements Converter<Date, Long> {
+  private static final class DateToLongConverter implements Converter<Date, Long> {
 
     @Override
     public Long convert(Date source) {
@@ -91,7 +91,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     }
   }
 
-  private static class DateToCalendarConverter implements Converter<Date, Calendar> {
+  private static final class DateToCalendarConverter implements Converter<Date, Calendar> {
 
     @Override
     public Calendar convert(Date source) {
@@ -101,7 +101,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     }
   }
 
-  private static class CalendarToDateConverter implements Converter<Calendar, Date> {
+  private static final class CalendarToDateConverter implements Converter<Calendar, Date> {
 
     @Override
     public Date convert(Calendar source) {
@@ -109,7 +109,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     }
   }
 
-  private static class CalendarToLongConverter implements Converter<Calendar, Long> {
+  private static final class CalendarToLongConverter implements Converter<Calendar, Long> {
 
     @Override
     public Long convert(Calendar source) {
@@ -117,7 +117,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     }
   }
 
-  private static class LongToDateConverter implements Converter<Long, Date> {
+  private static final class LongToDateConverter implements Converter<Long, Date> {
 
     @Override
     public Date convert(Long source) {
@@ -125,7 +125,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
     }
   }
 
-  private static class LongToCalendarConverter implements Converter<Long, Calendar> {
+  private static final class LongToCalendarConverter implements Converter<Long, Calendar> {
 
     @Override
     public Calendar convert(Long source) {

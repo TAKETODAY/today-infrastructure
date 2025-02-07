@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,10 +54,6 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
     this(DEFAULT, (configurationPropertySource) -> true);
   }
 
-  public NoUnboundElementsBindHandler(BindHandler parent) {
-    this(parent, (configurationPropertySource) -> true);
-  }
-
   public NoUnboundElementsBindHandler(BindHandler parent, Function<ConfigurationPropertySource, Boolean> filter) {
     super(parent);
     this.filter = filter;
@@ -110,7 +106,8 @@ public class NoUnboundElementsBindHandler extends AbstractBindHandler {
       try {
         unbound.add(source.filter((candidate) -> isUnbound(name, candidate)).getConfigurationProperty(unboundName));
       }
-      catch (Exception ignored) { }
+      catch (Exception ignored) {
+      }
     }
   }
 

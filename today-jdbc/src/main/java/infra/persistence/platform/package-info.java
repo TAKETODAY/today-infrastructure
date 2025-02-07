@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package infra.jdbc;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
- * @author TODAY 2021/1/2 18:27
+ * SQL dialects
  */
-public interface ResultHandler<T> {
+@NonNullApi
+@NonNullFields
+package infra.persistence.platform;
 
-  T handle(ResultSet resultSet) throws SQLException;
-}
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

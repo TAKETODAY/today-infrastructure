@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,7 +167,8 @@ public final class ConfigurationPropertiesBean {
             propertiesBeans.put(beanName, propertiesBean);
           }
         }
-        catch (Exception ignored) { }
+        catch (Exception ignored) {
+        }
       }
     }
     return propertiesBeans;
@@ -285,8 +286,8 @@ public final class ConfigurationPropertiesBean {
   @Nullable
   private static Bindable<Object> createBindTarget(@Nullable Object bean, Class<?> beanType, @Nullable Method factoryMethod) {
     ResolvableType type = factoryMethod != null
-                          ? ResolvableType.forReturnType(factoryMethod)
-                          : ResolvableType.forClass(beanType);
+            ? ResolvableType.forReturnType(factoryMethod)
+            : ResolvableType.forClass(beanType);
     Annotation[] annotations = findAnnotations(bean, beanType, factoryMethod);
     return (annotations != null) ? Bindable.of(type).withAnnotations(annotations) : null;
   }
@@ -321,15 +322,15 @@ public final class ConfigurationPropertiesBean {
   private static <A extends Annotation> MergedAnnotation<A> findMergedAnnotation(
           @Nullable AnnotatedElement element, Class<A> annotationType) {
     return element != null
-           ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
-           : MergedAnnotation.missing();
+            ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
+            : MergedAnnotation.missing();
   }
 
   @Nullable
   private static ConfigurationPropertiesBean create(String name, @Nullable Object instance, @Nullable Bindable<Object> bindTarget) {
     return bindTarget != null
-           ? new ConfigurationPropertiesBean(name, instance, bindTarget)
-           : null;
+            ? new ConfigurationPropertiesBean(name, instance, bindTarget)
+            : null;
   }
 
   /**

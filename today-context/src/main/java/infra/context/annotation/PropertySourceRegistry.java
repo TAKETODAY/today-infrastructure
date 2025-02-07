@@ -83,7 +83,7 @@ class PropertySourceRegistry {
     this.descriptors.add(descriptor);
   }
 
-  private final static class BootstrapPropertySourceProcessor extends PropertySourceProcessor {
+  private static final class BootstrapPropertySourceProcessor extends PropertySourceProcessor {
 
     private final BootstrapContext context;
 

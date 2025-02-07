@@ -78,7 +78,7 @@ class BeanValidationBeanRegistrationAotProcessor implements BeanRegistrationAotP
   /**
    * Inner class to avoid a hard dependency on the Bean Validation API at runtime.
    */
-  private static class BeanValidationDelegate {
+  private static final class BeanValidationDelegate {
 
     @Nullable
     private static final Validator validator = getValidatorIfAvailable();

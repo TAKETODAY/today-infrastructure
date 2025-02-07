@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ final class CommandLineBuilder {
     return commandLine;
   }
 
-  static class ClasspathBuilder {
+  static final class ClasspathBuilder {
 
     static String build(List<URL> classpathElements) {
       StringBuilder classpath = new StringBuilder();
@@ -123,7 +123,7 @@ final class CommandLineBuilder {
   /**
    * Format System properties.
    */
-  private static class SystemPropertyFormatter {
+  private static final class SystemPropertyFormatter {
 
     static String format(String key, String value) {
       if (key == null) {

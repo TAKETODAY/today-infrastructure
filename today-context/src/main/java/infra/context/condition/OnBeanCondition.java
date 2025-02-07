@@ -496,6 +496,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
   /**
    * A search specification extracted from the underlying annotation.
+   *
+   * @param <A> Annotation type
    */
   static class Spec<A extends Annotation> {
 
@@ -575,7 +577,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
         try {
           resolved.add(resolve(className, classLoader));
         }
-        catch (ClassNotFoundException | NoClassDefFoundError ignored) { }
+        catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+        }
       }
       return resolved;
     }

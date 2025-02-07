@@ -32,6 +32,7 @@ import infra.lang.Nullable;
  * In other words, {@code null} value handling should be performed on subclass.
  * </p>
  *
+ * @param <T> value type
  * @author Clinton Begin
  * @author Simone Tripodi
  * @author Kzuki Shimizu

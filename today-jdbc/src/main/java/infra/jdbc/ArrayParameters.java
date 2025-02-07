@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,29 +39,7 @@ import infra.jdbc.parsing.QueryParameter;
  */
 final class ArrayParameters {
 
-  record ArrayParameter(int parameterIndex, int parameterCount) implements Comparable<ArrayParameter> {
-    // parameterIndex the index of the parameter array
-    // parameterCount the number of parameters to put in the query placeholder
-
-    @Override
-    public int compareTo(ArrayParameter o) {
-      return Integer.compare(parameterIndex, o.parameterIndex);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (!(o instanceof ArrayParameter that))
-        return false;
-      return parameterIndex == that.parameterIndex
-              && parameterCount == that.parameterCount;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(parameterIndex, parameterCount);
-    }
+  private ArrayParameters() {
   }
 
   /**
@@ -205,6 +183,31 @@ final class ArrayParameters {
     }
 
     return sb.toString();
+  }
+
+  record ArrayParameter(int parameterIndex, int parameterCount) implements Comparable<ArrayParameter> {
+    // parameterIndex the index of the parameter array
+    // parameterCount the number of parameters to put in the query placeholder
+
+    @Override
+    public int compareTo(ArrayParameter o) {
+      return Integer.compare(parameterIndex, o.parameterIndex);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof ArrayParameter that))
+        return false;
+      return parameterIndex == that.parameterIndex
+              && parameterCount == that.parameterCount;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(parameterIndex, parameterCount);
+    }
   }
 
 }

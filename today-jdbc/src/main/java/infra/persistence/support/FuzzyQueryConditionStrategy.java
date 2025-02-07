@@ -71,7 +71,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
     return null;
   }
 
-  static class LikeRestriction implements Restriction {
+  static final class LikeRestriction implements Restriction {
 
     final String columnName;
 

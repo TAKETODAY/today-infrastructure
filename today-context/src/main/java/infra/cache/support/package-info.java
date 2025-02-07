@@ -15,27 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.jdbc;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import infra.jdbc.core.ResultSetExtractor;
-import infra.jdbc.type.TypeHandler;
-
 /**
- * @param <T> target type
- * @author TODAY 2021/1/7 22:52
+ * Support classes for the infra.cache package.
+ * Provides abstract classes for cache managers and caches.
  */
-final class TypeHandlerResultSetHandler<T> implements ResultSetExtractor<T> {
-  final TypeHandler<T> typeHandler;
+@NonNullApi
+@NonNullFields
+package infra.cache.support;
 
-  TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
-    this.typeHandler = typeHandler;
-  }
-
-  @Override
-  public T extractData(ResultSet resultSet) throws SQLException {
-    return typeHandler.getResult(resultSet, 1);
-  }
-}
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

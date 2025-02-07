@@ -418,7 +418,7 @@ class ConfigurationClassBeanDefinitionReader {
    * Evaluate {@code @Conditional} annotations, tracking results and taking into
    * account 'imported by'.
    */
-  private class TrackedConditionEvaluator {
+  private final class TrackedConditionEvaluator {
 
     private final HashMap<ConfigurationClass, Boolean> skipped = new HashMap<>();
 
@@ -453,7 +453,7 @@ class ConfigurationClassBeanDefinitionReader {
    * Used in bean overriding cases where it's necessary to determine whether the bean
    * definition was created externally.
    */
-  private static class ConfigurationClassBeanDefinition extends RootBeanDefinition
+  private static final class ConfigurationClassBeanDefinition extends RootBeanDefinition
           implements AnnotatedBeanDefinition {
 
     @Serial

@@ -20,6 +20,7 @@ package infra.persistence;
 import infra.lang.Nullable;
 
 /**
+ * @param <T> value type
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/1/25 22:51
  */
