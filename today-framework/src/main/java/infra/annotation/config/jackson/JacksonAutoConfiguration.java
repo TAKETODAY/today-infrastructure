@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,24 +91,30 @@ public class JacksonAutoConfiguration {
           SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false
   );
 
+  private JacksonAutoConfiguration() {
+  }
+
   @Component
-  static JsonComponentModule jsonComponentModule() {
+  public static JsonComponentModule jsonComponentModule() {
     return new JsonComponentModule();
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class JacksonMixinConfiguration {
+  public static class JacksonMixinConfiguration {
+
+    private JacksonMixinConfiguration() {
+    }
 
     @Component
-    static JsonMixinModuleEntries jsonMixinModuleEntries(ApplicationContext context) {
+    public static JsonMixinModuleEntries jsonMixinModuleEntries(ApplicationContext context) {
       List<String> packages = AutoConfigurationPackages.has(context)
-                              ? AutoConfigurationPackages.get(context)
-                              : Collections.emptyList();
+              ? AutoConfigurationPackages.get(context)
+              : Collections.emptyList();
       return JsonMixinModuleEntries.scan(context, packages);
     }
 
     @Component
-    static JsonMixinModule jsonMixinModule(ApplicationContext context, JsonMixinModuleEntries entries) {
+    public static JsonMixinModule jsonMixinModule(ApplicationContext context, JsonMixinModuleEntries entries) {
       JsonMixinModule jsonMixinModule = new JsonMixinModule();
       jsonMixinModule.registerEntries(entries, context.getClassLoader());
       return jsonMixinModule;
@@ -118,12 +124,15 @@ public class JacksonAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
-  static class JacksonObjectMapperConfiguration {
+  public static class JacksonObjectMapperConfiguration {
+
+    private JacksonObjectMapperConfiguration() {
+    }
 
     @Primary
     @Component
     @ConditionalOnMissingBean
-    static ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
+    public static ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
       return builder.createXmlMapper(false).build();
     }
 
@@ -131,11 +140,14 @@ public class JacksonAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(ParameterNamesModule.class)
-  static class ParameterNamesModuleConfiguration {
+  public static class ParameterNamesModuleConfiguration {
+
+    private ParameterNamesModuleConfiguration() {
+    }
 
     @Component
     @ConditionalOnMissingBean
-    static ParameterNamesModule parameterNamesModule() {
+    public static ParameterNamesModule parameterNamesModule() {
       return new ParameterNamesModule(JsonCreator.Mode.DEFAULT);
     }
 
@@ -144,11 +156,14 @@ public class JacksonAutoConfiguration {
   @Lazy
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
-  static class JacksonObjectMapperBuilderConfiguration {
+  public static class JacksonObjectMapperBuilderConfiguration {
+
+    private JacksonObjectMapperBuilderConfiguration() {
+    }
 
     @Prototype
     @ConditionalOnMissingBean
-    static Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder(
+    public static Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder(
             ApplicationContext context, List<Jackson2ObjectMapperBuilderCustomizer> customizers) {
       Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
       builder.applicationContext(context);
@@ -166,10 +181,13 @@ public class JacksonAutoConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
   @EnableConfigurationProperties(JacksonProperties.class)
-  static class Jackson2ObjectMapperBuilderCustomizerConfiguration {
+  public static class Jackson2ObjectMapperBuilderCustomizerConfiguration {
+
+    private Jackson2ObjectMapperBuilderCustomizerConfiguration() {
+    }
 
     @Component
-    static StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
+    public static StandardJackson2ObjectMapperBuilderCustomizer standardJacksonObjectMapperBuilderCustomizer(
             JacksonProperties jacksonProperties, @NonOrdered List<Module> modules) {
       return new StandardJackson2ObjectMapperBuilderCustomizer(jacksonProperties, modules);
     }

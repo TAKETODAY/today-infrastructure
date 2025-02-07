@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.orm.mybatis.support;
+package infra.orm.mybatis;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import infra.dao.support.DataAccessObjectSupport;
 import infra.lang.Assert;
-import infra.orm.mybatis.SqlSessionTemplate;
 
 /**
  * Convenient super class for MyBatis SqlSession data access objects. It gives you access to the template which can then

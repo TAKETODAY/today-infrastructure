@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ abstract class WebClientUtils {
   /**
    * Predicate that returns true if an exception should be wrapped.
    */
-  public final static Predicate<? super Throwable> WRAP_EXCEPTION_PREDICATE =
+  public static final Predicate<? super Throwable> WRAP_EXCEPTION_PREDICATE =
           t -> !(t instanceof WebClientException) && !(t instanceof CodecException);
 
   /**

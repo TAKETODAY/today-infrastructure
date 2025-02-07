@@ -45,7 +45,7 @@ public class SchedulingConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Component(TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-  public ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
+  public static ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
     return new ScheduledAnnotationBeanPostProcessor();
   }
 

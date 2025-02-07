@@ -357,8 +357,8 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * for. Throws a {@link MessagingException} if the connection attempt failed.
    */
   public void testConnection() throws MessagingException {
-    try (Transport transport = connectTransport()) {
-    }
+    Transport transport = connectTransport();
+    transport.close();
   }
 
   /**

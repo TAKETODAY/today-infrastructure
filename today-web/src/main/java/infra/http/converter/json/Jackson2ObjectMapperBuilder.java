@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -945,7 +945,7 @@ public class Jackson2ObjectMapperBuilder {
     return new Jackson2ObjectMapperBuilder().factory(new YamlFactoryInitializer().create());
   }
 
-  private static class XmlObjectMapperInitializer {
+  private static final class XmlObjectMapperInitializer {
 
     private static final XMLResolver NO_OP_XML_RESOLVER =
             (publicID, systemID, base, ns) -> InputStream.nullInputStream();
@@ -995,21 +995,21 @@ public class Jackson2ObjectMapperBuilder {
     }
   }
 
-  private static class SmileFactoryInitializer {
+  private static final class SmileFactoryInitializer {
 
     public JsonFactory create() {
       return new SmileFactory();
     }
   }
 
-  private static class CborFactoryInitializer {
+  private static final class CborFactoryInitializer {
 
     public JsonFactory create() {
       return new CBORFactory();
     }
   }
 
-  private static class YamlFactoryInitializer {
+  private static final class YamlFactoryInitializer {
 
     public JsonFactory create() {
       return new YAMLFactory();

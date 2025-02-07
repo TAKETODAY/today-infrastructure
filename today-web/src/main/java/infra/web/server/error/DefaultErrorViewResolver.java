@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,6 +104,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     return view;
   }
 
+  @Nullable
   private ModelAndView resolve(String viewName, Map<String, Object> model) {
     String errorViewName = "error/" + viewName;
     var provider = templateAvailabilityProviders.getProvider(errorViewName, applicationContext);
@@ -113,6 +114,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     return resolveResource(errorViewName, model);
   }
 
+  @Nullable
   private ModelAndView resolveResource(String viewName, Map<String, Object> model) {
     for (String location : staticLocations) {
       try {
@@ -122,7 +124,8 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
           return new ModelAndView(new HtmlResourceView(resource), model);
         }
       }
-      catch (Exception ignored) { }
+      catch (Exception ignored) {
+      }
     }
     return null;
   }

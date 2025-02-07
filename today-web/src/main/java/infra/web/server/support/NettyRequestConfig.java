@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/3/30 17:46
  */
-public class NettyRequestConfig {
+public final class NettyRequestConfig {
 
   @Nullable
   public final Consumer<? super HttpHeaders> trailerHeadersConsumer;

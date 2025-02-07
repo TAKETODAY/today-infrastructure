@@ -85,6 +85,10 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
     return interceptor.apply(execution);
   }
 
+  private boolean shouldBufferResponse(HttpRequest request) {
+    return bufferingPredicate.test(request);
+  }
+
   private class EndOfChainRequestExecution implements ClientHttpRequestExecution {
 
     private final ClientHttpRequestFactory requestFactory;
@@ -104,10 +108,6 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
 
       return executeWithRequest(delegate, body, shouldBufferResponse(request));
     }
-  }
-
-  private boolean shouldBufferResponse(HttpRequest request) {
-    return bufferingPredicate.test(request);
   }
 
 }

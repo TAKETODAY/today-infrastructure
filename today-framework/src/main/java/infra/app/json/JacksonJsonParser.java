@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import infra.lang.Nullable;
  * Thin wrapper to adapt Jackson 2 {@link ObjectMapper} to {@link JsonParser}.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see JsonParser#lookup()
  * @since 4.0
  */
@@ -53,7 +54,8 @@ public class JacksonJsonParser extends AbstractJsonParser {
   /**
    * Creates an instance with a default {@link ObjectMapper} that is created lazily.
    */
-  public JacksonJsonParser() { }
+  public JacksonJsonParser() {
+  }
 
   @Override
   public Map<String, Object> parseMap(String json) {
@@ -72,11 +74,11 @@ public class JacksonJsonParser extends AbstractJsonParser {
     return this.objectMapper;
   }
 
-  private static class MapTypeReference extends TypeReference<Map<String, Object>> {
+  private static final class MapTypeReference extends TypeReference<Map<String, Object>> {
 
   }
 
-  private static class ListTypeReference extends TypeReference<List<Object>> {
+  private static final class ListTypeReference extends TypeReference<List<Object>> {
 
   }
 

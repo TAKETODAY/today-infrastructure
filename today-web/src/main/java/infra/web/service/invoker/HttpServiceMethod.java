@@ -137,16 +137,6 @@ final class HttpServiceMethod {
   }
 
   /**
-   * Execute a request, obtain a response, and adapt to the expected return type.
-   */
-  private interface ResponseFunction {
-
-    @Nullable
-    Object execute(HttpRequestValues requestValues);
-
-  }
-
-  /**
    * Create the {@code ResponseFunction} that matches the method return type.
    */
   private static ResponseFunction createResponseFunction(HttpExchangeAdapter client, Method method) {
@@ -267,6 +257,16 @@ final class HttpServiceMethod {
   @Nullable
   private static Object asOptionalIfNecessary(@Nullable Object response, MethodParameter param) {
     return param.getParameterType() == Optional.class ? Optional.ofNullable(response) : response;
+  }
+
+  /**
+   * Execute a request, obtain a response, and adapt to the expected return type.
+   */
+  private interface ResponseFunction {
+
+    @Nullable
+    Object execute(HttpRequestValues requestValues);
+
   }
 
   /**

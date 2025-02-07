@@ -78,6 +78,9 @@ import infra.web.view.View;
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
 public class ErrorMvcAutoConfiguration {
 
+  private ErrorMvcAutoConfiguration() {
+  }
+
   @Component
   @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)
   public static DefaultErrorAttributes errorAttributes() {
@@ -86,14 +89,14 @@ public class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-  static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties,
+  public static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties,
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     return new BasicErrorController(errorAttributes,
             serverProperties.error, errorViewResolvers, returnValueHandler);
   }
 
   @Component
-  static PreserveErrorControllerTargetClassPostProcessor preserveErrorControllerTargetClassPostProcessor() {
+  public static PreserveErrorControllerTargetClassPostProcessor preserveErrorControllerTargetClassPostProcessor() {
     return new PreserveErrorControllerTargetClassPostProcessor();
   }
 
@@ -134,7 +137,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * {@link InfraCondition} that matches when no error template view is detected.
    */
-  private static class ErrorTemplateMissingCondition extends InfraCondition {
+  private static final class ErrorTemplateMissingCondition extends InfraCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -153,7 +156,7 @@ public class ErrorMvcAutoConfiguration {
   /**
    * Simple {@link View} implementation that writes a default HTML error page.
    */
-  private static class StaticView implements View {
+  private static final class StaticView implements View {
 
     @Override
     public void render(Map<String, ?> model, RequestContext request) throws Exception {

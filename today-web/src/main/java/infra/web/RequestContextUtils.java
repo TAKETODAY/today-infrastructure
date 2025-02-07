@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -911,7 +911,7 @@ public class RequestContextUtils {
     protected abstract T doParse(String parameter) throws NumberFormatException;
   }
 
-  private static class IntParser extends ParameterParser<Integer> {
+  private static final class IntParser extends ParameterParser<Integer> {
 
     @Override
     protected String getType() {
@@ -937,7 +937,7 @@ public class RequestContextUtils {
     }
   }
 
-  private static class LongParser extends ParameterParser<Long> {
+  private static final class LongParser extends ParameterParser<Long> {
 
     @Override
     protected String getType() {
@@ -963,7 +963,7 @@ public class RequestContextUtils {
     }
   }
 
-  private static class FloatParser extends ParameterParser<Float> {
+  private static final class FloatParser extends ParameterParser<Float> {
 
     @Override
     protected String getType() {
@@ -989,7 +989,7 @@ public class RequestContextUtils {
     }
   }
 
-  private static class DoubleParser extends ParameterParser<Double> {
+  private static final class DoubleParser extends ParameterParser<Double> {
 
     @Override
     protected String getType() {
@@ -1015,7 +1015,7 @@ public class RequestContextUtils {
     }
   }
 
-  private static class BooleanParser extends ParameterParser<Boolean> {
+  private static final class BooleanParser extends ParameterParser<Boolean> {
 
     @Override
     protected String getType() {
@@ -1042,7 +1042,7 @@ public class RequestContextUtils {
     }
   }
 
-  private static class StringParser extends ParameterParser<String> {
+  private static final class StringParser extends ParameterParser<String> {
 
     @Override
     protected String getType() {
@@ -1073,7 +1073,7 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current web-session object on demand.
    */
-  final static class WebSessionProvider implements Supplier<WebSession>, Serializable {
+  static final class WebSessionProvider implements Supplier<WebSession>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -1101,7 +1101,7 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static class InjectableRequestContext extends DecoratingRequestContext {
+  private static final class InjectableRequestContext extends DecoratingRequestContext {
 
     @Override
     public RequestContext getDelegate() {

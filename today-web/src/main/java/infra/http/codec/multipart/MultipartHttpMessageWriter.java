@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ import infra.core.codec.Hints;
 import infra.core.io.Resource;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
-import infra.core.io.buffer.DataBufferUtils;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -212,8 +211,8 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
     if (logger.isDebugEnabled()) {
       LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Encoding " +
               (isEnableLoggingRequestDetails() ?
-               LogFormatUtils.formatValue(map, !traceOn) :
-               "parts " + map.keySet() + " (content masked)"));
+                      LogFormatUtils.formatValue(map, !traceOn) :
+                      "parts " + map.keySet() + " (content masked)"));
     }
     DataBufferFactory bufferFactory = outputMessage.bufferFactory();
 
@@ -348,7 +347,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
 
     public Flux<DataBuffer> getBody() {
       return body != null
-             ? body : Flux.error(new IllegalStateException("Body has not been written yet"));
+              ? body : Flux.error(new IllegalStateException("Body has not been written yet"));
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,9 +52,12 @@ import reactor.core.publisher.Mono;
 @ConditionalOnClass({ WebClient.class, Mono.class })
 public class WebClientAutoConfiguration {
 
+  private WebClientAutoConfiguration() {
+  }
+
   @Prototype
   @ConditionalOnMissingBean
-  static WebClient.Builder webClientBuilder(List<WebClientCustomizer> customizers) {
+  public static WebClient.Builder webClientBuilder(List<WebClientCustomizer> customizers) {
     WebClient.Builder builder = WebClient.builder();
     for (WebClientCustomizer customizer : customizers) {
       customizer.customize(builder);
@@ -65,7 +68,7 @@ public class WebClientAutoConfiguration {
   @Component
   @ConditionalOnMissingBean(WebClientSsl.class)
   @ConditionalOnBean(SslBundles.class)
-  static AutoConfiguredWebClientSsl webClientSsl(ClientHttpConnectorFactory<?> clientHttpConnectorFactory, SslBundles sslBundles) {
+  public static AutoConfiguredWebClientSsl webClientSsl(ClientHttpConnectorFactory<?> clientHttpConnectorFactory, SslBundles sslBundles) {
     return new AutoConfiguredWebClientSsl(clientHttpConnectorFactory, sslBundles);
   }
 
@@ -76,7 +79,7 @@ public class WebClientAutoConfiguration {
     @Component
     @ConditionalOnMissingBean
     @Order(0)
-    static WebClientCodecCustomizer exchangeStrategiesCustomizer(List<CodecCustomizer> codecCustomizers) {
+    public static WebClientCodecCustomizer exchangeStrategiesCustomizer(List<CodecCustomizer> codecCustomizers) {
       return new WebClientCodecCustomizer(codecCustomizers);
     }
 

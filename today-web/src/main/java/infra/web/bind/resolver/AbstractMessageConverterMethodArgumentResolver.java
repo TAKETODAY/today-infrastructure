@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -358,7 +358,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    * is no content-type and no content. In that case, we may not find a converter,
    * but RequestBodyAdvice have a chance to provide it via handleEmptyBody.
    */
-  private static class NoContentTypeHttpMessageConverter implements HttpMessageConverter<String> {
+  private static final class NoContentTypeHttpMessageConverter implements HttpMessageConverter<String> {
 
     @Override
     public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {

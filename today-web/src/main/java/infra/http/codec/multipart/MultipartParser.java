@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   /**
    * Represents a token that contains {@link HttpHeaders}.
    */
-  public final static class HeadersToken extends Token {
+  public static final class HeadersToken extends Token {
 
     private final HttpHeaders headers;
 
@@ -233,7 +233,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   /**
    * Represents a token that contains {@link DataBuffer}.
    */
-  public final static class BodyToken extends Token {
+  public static final class BodyToken extends Token {
 
     private final boolean last;
 

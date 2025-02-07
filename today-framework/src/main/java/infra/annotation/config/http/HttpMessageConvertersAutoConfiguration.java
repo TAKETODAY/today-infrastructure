@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,11 +74,15 @@ import infra.web.server.ServerProperties;
 @Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
 @ImportRuntimeHints(HttpMessageConvertersAutoConfiguration.Hints.class)
 public class HttpMessageConvertersAutoConfiguration {
+
   static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
+
+  private HttpMessageConvertersAutoConfiguration() {
+  }
 
   @Component
   @ConditionalOnMissingBean
-  static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
+  public static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
     return new HttpMessageConverters(converters);
   }
 
@@ -132,7 +136,7 @@ public class HttpMessageConvertersAutoConfiguration {
     }
 
     @ConditionalOnWebApplication(type = Type.REACTIVE)
-    private static class ReactiveWebApplication {
+    private static final class ReactiveWebApplication {
 
     }
 

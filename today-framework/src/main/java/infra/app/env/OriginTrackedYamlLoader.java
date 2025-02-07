@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import infra.core.YamlProcessor;
 import infra.core.io.Resource;
+import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;
@@ -91,12 +92,13 @@ class OriginTrackedYamlLoader extends YamlProcessor {
   /**
    * {@link Constructor} that tracks property origins.
    */
-  private class OriginTrackingConstructor extends SafeConstructor {
+  private final class OriginTrackingConstructor extends SafeConstructor {
 
     OriginTrackingConstructor(LoaderOptions loadingConfig) {
       super(loadingConfig);
     }
 
+    @Nullable
     @Override
     public Object getData() throws NoSuchElementException {
       Object data = super.getData();
@@ -150,7 +152,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
   /**
    * {@link ScalarNode} that replaces the key node in a {@link NodeTuple}.
    */
-  private static class KeyScalarNode extends ScalarNode {
+  private static final class KeyScalarNode extends ScalarNode {
 
     KeyScalarNode(ScalarNode node) {
       super(node.getTag(), node.getValue(), node.getStartMark(), node.getEndMark(), node.getScalarStyle());
@@ -174,7 +176,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
   /**
    * {@link Resolver} that limits {@link Tag#TIMESTAMP} tags.
    */
-  private static class NoTimestampResolver extends Resolver {
+  private static final class NoTimestampResolver extends Resolver {
 
     @Override
     public void addImplicitResolver(Tag tag, Pattern regexp, String first, int limit) {

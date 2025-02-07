@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,10 +43,13 @@ import infra.web.client.config.RestTemplateRequestCustomizer;
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 
+  private RestTemplateAutoConfiguration() {
+  }
+
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  static RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
+  public static RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
           @Nullable HttpMessageConverters messageConverters,
           @Nullable List<RestTemplateCustomizer> restTemplateCustomizers,
           @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
@@ -61,7 +64,7 @@ public class RestTemplateAutoConfiguration {
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  static RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
+  public static RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
     RestTemplateBuilder builder = new RestTemplateBuilder();
     return restTemplateBuilderConfigurer.configure(builder);
   }

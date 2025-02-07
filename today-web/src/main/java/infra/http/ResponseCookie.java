@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -311,7 +311,7 @@ public final class ResponseCookie extends HttpCookie {
     ResponseCookie build();
   }
 
-  private static class Rfc6265Utils {
+  private static final class Rfc6265Utils {
 
     private static final String SEPARATOR_CHARS = new String(new char[] {
             '(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}', ' '
@@ -319,6 +319,9 @@ public final class ResponseCookie extends HttpCookie {
 
     private static final String DOMAIN_CHARS =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-";
+
+    private Rfc6265Utils() {
+    }
 
     public static void validateCookieName(String name) {
       for (int i = 0; i < name.length(); i++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,8 +64,11 @@ import static infra.annotation.config.web.reactive.ReactiveWebServerFactoryAutoC
         ReactiveWebServerFactoryConfiguration.EmbeddedNetty.class })
 public class ReactiveWebServerFactoryAutoConfiguration {
 
+  private ReactiveWebServerFactoryAutoConfiguration() {
+  }
+
   @Component
-  static ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
+  public static ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
           ServerProperties serverProperties, @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     return new ReactiveWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp);
   }
@@ -73,7 +76,7 @@ public class ReactiveWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
-  static ForwardedHeaderTransformer forwardedHeaderTransformer() {
+  public static ForwardedHeaderTransformer forwardedHeaderTransformer() {
     return new ForwardedHeaderTransformer();
   }
 

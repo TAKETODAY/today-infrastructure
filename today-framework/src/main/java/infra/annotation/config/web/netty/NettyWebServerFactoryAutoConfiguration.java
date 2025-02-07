@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,17 +69,20 @@ import static infra.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
+  private NettyWebServerFactoryAutoConfiguration() {
+  }
+
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
+  public static WebServerFactoryCustomizerBeanPostProcessor webServerFactoryCustomizerBeanPostProcessor() {
     return new WebServerFactoryCustomizerBeanPostProcessor();
   }
 
   @Component(CHANNEL_HANDLER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(name = CHANNEL_HANDLER_BEAN_NAME)
-  static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
+  public static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
           WebMvcProperties webMvcProperties, NettyRequestConfig requestConfig) {
     NettyChannelHandler handler = createChannelHandler(context, requestConfig, context.getClassLoader());
     handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
@@ -93,7 +96,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
+  public static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
           @Nullable ChannelConfigurer channelConfigurer, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
@@ -109,7 +112,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
+  public static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
     var multipart = server.netty.multipart;
     var factory = createHttpDataFactory(multipart);
     if (multipart.maxFieldSize != null) {

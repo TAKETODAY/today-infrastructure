@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,9 @@ import infra.stereotype.Component;
 @ConditionalOnProperty(prefix = "app.admin", value = "enabled", havingValue = "true", matchIfMissing = false)
 public class InfraApplicationJmxAutoConfiguration {
 
+  private InfraApplicationJmxAutoConfiguration() {
+  }
+
   /**
    * The property to use to customize the {@code ObjectName} of the application admin
    * mbean.
@@ -52,7 +55,7 @@ public class InfraApplicationJmxAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  static InfraApplicationMXBeanRegistrar infraApplicationRegistrar(
+  public static InfraApplicationMXBeanRegistrar infraApplicationRegistrar(
           ObjectProvider<MBeanExporter> mbeanExporters, Environment environment) throws Exception {
     String jmxName = environment.getProperty(JMX_NAME_PROPERTY, DEFAULT_JMX_NAME);
     if (mbeanExporters != null) { // Make sure to not register that MBean twice

@@ -61,7 +61,7 @@
 
   <!-- today-context -->
   <suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports" />
-  <suppress files="JavaMailSenderImpl" id="EmptyBlock" />
+  <suppress files="infra.mail.javamail.JavaMailSenderImpl" id="EmptyBlock" />
 
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
@@ -169,6 +169,10 @@
   <suppress files="infra.app.loader.SystemPropertyUtils" id="systemOutErrPrint" />
   <suppress files="infra.app.loader.JarModeRunner" id="systemOutErrPrint" />
   <suppress files="infra.app.loader.log.DebugLogger" id="systemOutErrPrint" />
+
+  <!-- today-framework -->
+  <suppress files="infra.app.context.logging.LoggingApplicationListener" id="systemOutErrPrint" />
+  <suppress files="infra.app.Application" id="systemOutErrPrint" />
 
 
 </suppressions>

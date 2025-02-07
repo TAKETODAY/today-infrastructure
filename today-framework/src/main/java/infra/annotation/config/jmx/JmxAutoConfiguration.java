@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,10 +57,13 @@ import infra.util.StringUtils;
 @ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true")
 public class JmxAutoConfiguration {
 
+  private JmxAutoConfiguration() {
+  }
+
   @Primary
   @Component
   @ConditionalOnMissingBean(value = MBeanExporter.class, search = SearchStrategy.CURRENT)
-  static AnnotationMBeanExporter mbeanExporter(JmxProperties properties, ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
+  public static AnnotationMBeanExporter mbeanExporter(JmxProperties properties, ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
     AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();
     exporter.setRegistrationPolicy(properties.getRegistrationPolicy());
     exporter.setNamingStrategy(namingStrategy);
@@ -74,7 +77,7 @@ public class JmxAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ObjectNamingStrategy.class, search = SearchStrategy.CURRENT)
-  static ParentAwareNamingStrategy objectNamingStrategy(JmxProperties properties) {
+  public static ParentAwareNamingStrategy objectNamingStrategy(JmxProperties properties) {
     var namingStrategy = new ParentAwareNamingStrategy(new AnnotationJmxAttributeSource());
     String defaultDomain = properties.getDefaultDomain();
     if (StringUtils.isNotEmpty(defaultDomain)) {
@@ -86,7 +89,7 @@ public class JmxAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  static MBeanServer mbeanServer() {
+  public static MBeanServer mbeanServer() {
     MBeanServerFactoryBean factory = new MBeanServerFactoryBean();
     factory.setLocateExistingServerIfPossible(true);
     factory.afterPropertiesSet();

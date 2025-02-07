@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,10 +53,13 @@ import reactor.core.publisher.Mono;
         ClientHttpConnectorFactoryConfiguration.JdkClient.class })
 public class ClientHttpConnectorAutoConfiguration {
 
+  private ClientHttpConnectorAutoConfiguration() {
+  }
+
   @Lazy
   @Component
   @ConditionalOnMissingBean(ClientHttpConnector.class)
-  static ClientHttpConnector webClientHttpConnector(ClientHttpConnectorFactory<?> clientHttpConnectorFactory) {
+  public static ClientHttpConnector webClientHttpConnector(ClientHttpConnectorFactory<?> clientHttpConnectorFactory) {
     return clientHttpConnectorFactory.createClientHttpConnector();
   }
 
@@ -64,7 +67,7 @@ public class ClientHttpConnectorAutoConfiguration {
   @Order(0)
   @Component
   @ConditionalOnBean(ClientHttpConnector.class)
-  static WebClientCustomizer webClientHttpConnectorCustomizer(ClientHttpConnector clientHttpConnector) {
+  public static WebClientCustomizer webClientHttpConnectorCustomizer(ClientHttpConnector clientHttpConnector) {
     return builder -> builder.clientConnector(clientHttpConnector);
   }
 

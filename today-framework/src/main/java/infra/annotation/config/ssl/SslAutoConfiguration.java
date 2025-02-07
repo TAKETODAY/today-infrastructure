@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,15 +41,18 @@ import infra.stereotype.Component;
 @EnableConfigurationProperties(SslProperties.class)
 public class SslAutoConfiguration {
 
+  private SslAutoConfiguration() {
+  }
+
   @Component
-  static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties) {
+  public static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties) {
     FileWatcher fileWatcher = new FileWatcher(properties.getBundle().getWatch().getFile().getQuietPeriod());
     return new SslPropertiesBundleRegistrar(properties, fileWatcher);
   }
 
   @Component
   @ConditionalOnMissingBean({ SslBundleRegistry.class, SslBundles.class })
-  static DefaultSslBundleRegistry sslBundleRegistry(List<SslBundleRegistrar> sslBundleRegistrars) {
+  public static DefaultSslBundleRegistry sslBundleRegistry(List<SslBundleRegistrar> sslBundleRegistrars) {
     DefaultSslBundleRegistry registry = new DefaultSslBundleRegistry();
     for (SslBundleRegistrar registrar : sslBundleRegistrars) {
       registrar.registerBundles(registry);

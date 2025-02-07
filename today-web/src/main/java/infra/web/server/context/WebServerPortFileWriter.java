@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +156,7 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
         }
       }
       catch (Throwable ex) {
-        System.err.printf("Could not resolve '%s' as system property: %s%n", property, ex);
+        logger.warn("Could not resolve '{}' as system property: {}", property, ex.toString());
       }
     }
     return null;

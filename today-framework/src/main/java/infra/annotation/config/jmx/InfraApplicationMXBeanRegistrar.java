@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,11 +93,6 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
   }
 
   @Override
-  public boolean supportsSourceType(Class<?> sourceType) {
-    return true;
-  }
-
-  @Override
   public void onApplicationEvent(ApplicationEvent event) {
     if (event instanceof ApplicationReadyEvent readyEvent) {
       onApplicationReadyEvent(readyEvent);
@@ -133,7 +128,7 @@ public class InfraApplicationMXBeanRegistrar implements ApplicationContextAware,
     ManagementFactory.getPlatformMBeanServer().unregisterMBean(this.objectName);
   }
 
-  private class ApplicationMXBeanImpl implements InfraApplicationMXBean {
+  private final class ApplicationMXBeanImpl implements InfraApplicationMXBean {
 
     @Override
     public boolean isReady() {
