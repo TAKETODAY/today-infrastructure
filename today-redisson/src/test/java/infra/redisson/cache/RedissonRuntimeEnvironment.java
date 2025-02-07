@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +15,25 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.cache;
+package infra.redisson.cache;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.util.Locale;
 
 /**
+ * @author Rui Gu (https://github.com/jackygurui)
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @author Nikita Koksharov
- * @since 4.0 2022/3/9 21:44
+ * @since 4.0 2022/3/11 11:24
  */
-public class NullValueWrapper implements Cache.ValueWrapper, Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class RedissonRuntimeEnvironment {
 
-  public static final NullValueWrapper INSTANCE = new NullValueWrapper();
+  public static final boolean isTravis = "true".equalsIgnoreCase(System.getProperty("travisEnv"));
+  public static final String redisBinaryPath = System.getProperty("redisBinary", "C:\\redis\\redis-server.exe");
+  public static final String tempDir = System.getProperty("java.io.tmpdir");
+  public static final String OS;
+  public static final boolean isWindows;
 
-  @Override
-  public Object get() {
-    return null;
+  static {
+    OS = System.getProperty("os.name", "generic");
+    isWindows = OS.toLowerCase(Locale.ENGLISH).contains("win");
   }
-
 }

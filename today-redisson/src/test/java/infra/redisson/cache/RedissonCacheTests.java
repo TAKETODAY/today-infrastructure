@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.cache;
+package infra.redisson.cache;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import infra.cache.CacheManager;
 import infra.cache.annotation.CacheEvict;
 import infra.cache.annotation.CachePut;
 import infra.cache.annotation.Cacheable;
 import infra.cache.annotation.EnableCaching;
-import infra.cache.RedisRunner.FailedToStartRedisException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.ComponentScan;
@@ -150,7 +150,7 @@ class RedissonCacheTests {
   }
 
   @BeforeAll
-  public static void before() throws FailedToStartRedisException, IOException, InterruptedException {
+  public static void before() throws RedisRunner.FailedToStartRedisException, IOException, InterruptedException {
     RedisRunner.startDefaultRedisServerInstance();
     contexts = data().stream().collect(Collectors.toMap(e -> e, AnnotationConfigApplicationContext::new));
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package infra.cache;
+package infra.redisson.cache;
 
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.InitializingBean;
+import infra.cache.Cache;
+import infra.cache.CacheManager;
 import infra.context.ResourceLoaderAware;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;

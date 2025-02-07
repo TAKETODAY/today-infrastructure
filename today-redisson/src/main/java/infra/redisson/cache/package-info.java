@@ -18,4 +18,4 @@
 /**
  * Redisson cache supporting
  */
-package infra.cache;
+package infra.redisson.cache;

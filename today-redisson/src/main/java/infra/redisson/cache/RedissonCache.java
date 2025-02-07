@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-package infra.cache;
+package infra.redisson.cache;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import infra.cache.Cache;
 import infra.cache.support.SimpleValueWrapper;
 import infra.lang.NullValue;
 
