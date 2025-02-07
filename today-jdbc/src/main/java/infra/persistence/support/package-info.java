@@ -16,12 +16,11 @@
  */
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/1/23 09:14
+ * Infra persistence supports
  */
 @NonNullApi
 @NonNullFields
-package infra.jdbc;
+package infra.persistence.support;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

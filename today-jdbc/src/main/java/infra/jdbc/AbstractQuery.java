@@ -733,6 +733,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   /**
    * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
    *
+   * @param <T> result type
    * @since 4.0
    */
   private final class ResultIterable<T> extends ResultSetIterable<T> {
@@ -771,6 +772,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   }
 
   /**
+   * @param <T> result type
    * @since 4.0
    */
   abstract class CloseResultSetIterator<T> extends ResultSetIterator<T> {
@@ -804,6 +806,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   }
 
   /**
+   * @param <T> result type
    * @since 4.0
    */
   final class ResultSetHandlerIterator<T> extends CloseResultSetIterator<T> {

@@ -61,6 +61,7 @@
 
   <!-- today-context -->
   <suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports" />
+  <suppress files="JavaMailSenderImpl" id="EmptyBlock" />
 
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
@@ -90,7 +91,7 @@
 
   <!-- today-jdbc -->
   <suppress files="ResultSetWrappingSqlRowSet" checks="JavadocStyle" />
-  <suppress files="infra.jdbc.format.SqlStatementLogger" checks="systemOutErrPrint" />
+  <suppress files="infra.jdbc.format.SqlStatementLogger" id="systemOutErrPrint" />
 
   <!-- today-tx -->
   <suppress files="TransactionSystemException" checks="MutableException" />
