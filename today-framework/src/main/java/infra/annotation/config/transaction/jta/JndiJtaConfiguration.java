@@ -43,11 +43,8 @@ import infra.transaction.jta.JtaTransactionManager;
 @ConditionalOnMissingBean(TransactionManager.class)
 class JndiJtaConfiguration {
 
-  private JndiJtaConfiguration() {
-  }
-
   @Component
-  static JtaTransactionManager transactionManager(
+  public JtaTransactionManager transactionManager(
           @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
     JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
     if (transactionManagerCustomizers != null) {

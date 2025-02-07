@@ -127,16 +127,13 @@ public abstract class ExchangeFilterFunctions {
   /**
    * Stores username and password for HTTP basic authentication.
    *
-   * @param password password
-   * @param username username
+   * @param username the username
+   * @param password the password
    */
   public record Credentials(String username, String password) {
 
     /**
      * Create a new {@code Credentials} instance with the given username and password.
-     *
-     * @param username the username
-     * @param password the password
      */
     public Credentials {
       Assert.notNull(username, "'username' is required");

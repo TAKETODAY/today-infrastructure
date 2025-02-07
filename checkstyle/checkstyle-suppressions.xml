@@ -62,6 +62,7 @@
   <!-- today-context -->
   <suppress files="InfraAtInjectTckTests" checks="IllegalImportCheck" id="bannedJUnit3Imports" />
   <suppress files="infra.mail.javamail.JavaMailSenderImpl" id="EmptyBlock" />
+  <suppress files="infra.scheduling.annotation.SchedulingConfiguration" id="HideUtilityClassConstructor" />
 
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />

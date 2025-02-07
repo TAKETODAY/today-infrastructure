@@ -54,7 +54,7 @@ import infra.web.util.UriComponentsBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/22 23:21
  */
-public class RequestContextUtils {
+public final class RequestContextUtils {
 
   private static final IntParser INT_PARSER = new IntParser();
   private static final LongParser LONG_PARSER = new LongParser();
@@ -62,6 +62,9 @@ public class RequestContextUtils {
   private static final DoubleParser DOUBLE_PARSER = new DoubleParser();
   private static final BooleanParser BOOLEAN_PARSER = new BooleanParser();
   private static final StringParser STRING_PARSER = new StringParser();
+
+  private RequestContextUtils() {
+  }
 
   @Nullable
   public static <T> T getBean(RequestContext request, Class<T> requiredType) {

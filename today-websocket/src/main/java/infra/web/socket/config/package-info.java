@@ -14,13 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-
 /**
- * Abstractions and support classes for WebSocket interactions.
+ * Configuration support for WebSocket request handling.
  */
 @NonNullApi
 @NonNullFields
-package infra.web.socket;
+package infra.web.socket.config;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;
