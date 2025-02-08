@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ class DeclarativeRuntimeHintsTests extends AbstractAotTests {
     // @RegisterReflectionForBinding
     assertReflectionRegistered(DeclarativeRuntimeHintsSpringJupiterTests.SampleClassWithGetter.class);
     assertReflectionRegistered(String.class);
-    assertThat(reflection().onMethod(DeclarativeRuntimeHintsSpringJupiterTests.SampleClassWithGetter.class, "getName")).accepts(this.runtimeHints);
+    assertThat(reflection().onMethodInvocation(DeclarativeRuntimeHintsSpringJupiterTests.SampleClassWithGetter.class, "getName")).accepts(this.runtimeHints);
 
     // @ImportRuntimeHints
     assertThat(resource().forResource("org/example/config/enigma.txt")).accepts(this.runtimeHints);
