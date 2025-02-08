@@ -24,7 +24,6 @@ import infra.bytecode.Attribute;
 import infra.bytecode.ClassReader;
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.ClassWriter;
-import infra.bytecode.commons.ModuleHashesAttribute;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

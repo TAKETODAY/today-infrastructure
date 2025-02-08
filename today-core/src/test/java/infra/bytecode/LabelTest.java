@@ -19,11 +19,6 @@ package infra.bytecode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import infra.bytecode.ClassWriter;
-import infra.bytecode.Label;
-import infra.bytecode.MethodVisitor;
-import infra.bytecode.Opcodes;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

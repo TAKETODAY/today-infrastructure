@@ -19,8 +19,6 @@ package infra.expression.spel;
 
 import org.junit.jupiter.api.Test;
 
-import infra.expression.spel.SpelMessage;
-
 /**
  * Tests the messages and exceptions that come out for badly formed expressions
  *

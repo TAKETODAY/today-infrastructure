@@ -18,9 +18,6 @@ package infra.bytecode.proxy;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.proxy.Enhancer;
-import infra.bytecode.proxy.NoOp;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NoOpTests {

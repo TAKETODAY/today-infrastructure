@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import infra.bytecode.AsmTest;
+import infra.bytecode.AsmTest.PrecompiledClass;
 import infra.bytecode.ClassReader;
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.FieldVisitor;
 import infra.bytecode.MethodVisitor;
-import infra.bytecode.AsmTest;
-import infra.bytecode.AsmTest.PrecompiledClass;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

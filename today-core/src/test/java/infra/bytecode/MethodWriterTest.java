@@ -23,14 +23,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import infra.bytecode.ClassWriter;
-import infra.bytecode.ConstantDynamic;
-import infra.bytecode.Constants;
-import infra.bytecode.Handle;
-import infra.bytecode.MethodVisitor;
-import infra.bytecode.MethodWriter;
-import infra.bytecode.Opcodes;
-
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;

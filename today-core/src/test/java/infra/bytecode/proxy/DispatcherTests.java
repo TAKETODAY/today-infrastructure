@@ -18,10 +18,6 @@ package infra.bytecode.proxy;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.proxy.Callback;
-import infra.bytecode.proxy.Dispatcher;
-import infra.bytecode.proxy.Enhancer;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

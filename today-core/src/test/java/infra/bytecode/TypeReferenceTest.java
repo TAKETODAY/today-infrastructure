@@ -18,8 +18,6 @@ package infra.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.TypeReference;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

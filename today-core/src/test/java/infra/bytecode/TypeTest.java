@@ -24,10 +24,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.time.Duration;
 import java.util.Arrays;
 
-import infra.bytecode.ClassReader;
-import infra.bytecode.Opcodes;
-import infra.bytecode.Type;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

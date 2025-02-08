@@ -23,8 +23,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import infra.bytecode.AsmTest;
 import infra.bytecode.AnnotationVisitor;
+import infra.bytecode.AsmTest;
 import infra.bytecode.Attribute;
 import infra.bytecode.ClassFile;
 import infra.bytecode.ClassReader;

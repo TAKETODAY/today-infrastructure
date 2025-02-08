@@ -20,9 +20,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import infra.bytecode.proxy.MethodInterceptor;
-import infra.bytecode.proxy.MethodProxy;
-
 /**
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt">baliuka@mwm.lt</a>
  * @version $Id: TestInterceptor.java,v 1.3 2004/06/24 21:15:16 herbyderby Exp $

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;

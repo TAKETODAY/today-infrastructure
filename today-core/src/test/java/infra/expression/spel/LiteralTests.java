@@ -19,7 +19,6 @@ package infra.expression.spel;
 
 import org.junit.jupiter.api.Test;
 
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;

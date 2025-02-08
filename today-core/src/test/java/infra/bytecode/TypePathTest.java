@@ -18,8 +18,6 @@ package infra.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.TypePath;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

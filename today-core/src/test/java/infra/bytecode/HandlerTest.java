@@ -18,10 +18,6 @@ package infra.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.ByteVector;
-import infra.bytecode.Handler;
-import infra.bytecode.Label;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

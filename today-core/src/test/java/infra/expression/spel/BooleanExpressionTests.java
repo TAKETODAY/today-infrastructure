@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.core.TypeDescriptor;
 import infra.core.conversion.support.GenericConversionService;
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.StandardTypeConverter;
 
 /**

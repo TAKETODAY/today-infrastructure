@@ -19,7 +19,6 @@ package infra.bytecode.commons;
 import org.junit.jupiter.api.Test;
 
 import infra.bytecode.Type;
-import infra.bytecode.commons.MethodSignature;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import infra.core.TypeDescriptor;
-import infra.expression.spel.ast.FormatHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -23,8 +23,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 
-import infra.bytecode.ByteVector;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

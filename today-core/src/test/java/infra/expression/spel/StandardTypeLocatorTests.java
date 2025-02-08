@@ -23,8 +23,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.net.URL;
 
-import infra.expression.spel.SpelEvaluationException;
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.support.StandardTypeLocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
