@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,7 @@ final class MethodAccessEmitter extends ClassEmitter {
   static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
 
   private static final Type FAST_CLASS = Type.forClass(MethodAccess.class);
+
   private static final Type INVOCATION_TARGET_EXCEPTION =
           Type.forInternalName("java/lang/reflect/InvocationTargetException");
 
@@ -206,6 +207,14 @@ final class MethodAccessEmitter extends ClassEmitter {
     e.throwException(Type.forClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
   }
 
+  private static int[] getIntRange(int length) {
+    int[] range = new int[length];
+    for (int i = 0; i < length; i++) {
+      range[i] = i;
+    }
+    return range;
+  }
+
   private static final class GetIndexCallback implements ObjectSwitchCallback {
     private final CodeEmitter codeEmitter;
     private final HashMap<Object, Integer> indexes = new HashMap<>();
@@ -231,11 +240,4 @@ final class MethodAccessEmitter extends ClassEmitter {
     }
   }
 
-  private static int[] getIntRange(int length) {
-    int[] range = new int[length];
-    for (int i = 0; i < length; i++) {
-      range[i] = i;
-    }
-    return range;
-  }
 }

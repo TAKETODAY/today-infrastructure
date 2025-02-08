@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0.2 2021/5/2 22:14
  */
-public class BeanProperties {
+public abstract class BeanProperties {
 
   /**
    * Copy the property values of the given source bean into the given target bean.

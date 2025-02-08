@@ -20,11 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import infra.bytecode.proxy.Callback;
-import infra.bytecode.proxy.CallbackFilter;
-import infra.bytecode.proxy.Enhancer;
-import infra.bytecode.proxy.ProxyRefDispatcher;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;

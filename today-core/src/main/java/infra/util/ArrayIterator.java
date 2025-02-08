@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.util;
 
 import java.io.Serial;
@@ -27,6 +28,7 @@ import infra.lang.Nullable;
 /**
  * Iterator over an array.
  *
+ * @param <E> the type of elements
  * @author TODAY 2021/10/21 14:32
  */
 public class ArrayIterator<E> implements Iterator<E>, Enumeration<E>, Serializable {

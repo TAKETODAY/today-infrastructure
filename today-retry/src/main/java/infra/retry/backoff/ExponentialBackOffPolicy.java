@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ import infra.util.ClassUtils;
  */
 public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<ExponentialBackOffPolicy> {
 
-  protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * The default 'initialInterval' value - 100 millisecs. Coupled with the default
@@ -259,6 +259,12 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
     }
   }
 
+  @Override
+  public String toString() {
+    return "%s[initialInterval=%d, multiplier=%s, maxInterval=%d]".formatted(ClassUtils.getShortName(getClass()),
+            getInitialInterval(), getMultiplier(), getMaxInterval());
+  }
+
   static class ExponentialBackOffContext implements BackOffContext {
 
     @Serial
@@ -319,12 +325,6 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
       return this.maxIntervalSupplier != null ? this.maxIntervalSupplier.get() : this.maxInterval;
     }
 
-  }
-
-  @Override
-  public String toString() {
-    return ClassUtils.getShortName(getClass()) + "[initialInterval=" + getInitialInterval() + ", multiplier="
-            + getMultiplier() + ", maxInterval=" + getMaxInterval() + "]";
   }
 
 }

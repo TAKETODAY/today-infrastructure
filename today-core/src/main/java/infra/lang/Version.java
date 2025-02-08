@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,13 @@ import java.util.Objects;
  * Class that exposes the version. Fetches the
  * "Implementation-Version" manifest attribute from the jar file.
  *
+ * @param major major version
+ * @param micro micro version
+ * @param minor minor version
+ * @param step step
+ * @param type type
+ * @param extension version extension
+ * @param implementationVersion "Implementation-Version" manifest attribute
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */

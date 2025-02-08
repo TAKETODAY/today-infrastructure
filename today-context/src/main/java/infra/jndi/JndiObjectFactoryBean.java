@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -327,7 +327,7 @@ public class JndiObjectFactoryBean extends JndiObjectLocator
   /**
    * Inner class to just introduce an AOP dependency when actually creating a proxy.
    */
-  private static class JndiObjectProxyFactory {
+  private static final class JndiObjectProxyFactory {
 
     private static Object createJndiObjectProxy(JndiObjectFactoryBean jof) throws NamingException {
       // Create a JndiObjectTargetSource that mirrors the JndiObjectFactoryBean's configuration.

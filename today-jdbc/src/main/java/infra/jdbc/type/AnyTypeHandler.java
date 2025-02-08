@@ -26,6 +26,7 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 
 /**
+ * @param <T> value type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/6/20 22:22
  */

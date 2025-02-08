@@ -44,7 +44,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
  */
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
-class WebSocketConfiguration {
+public class WebSocketConfiguration {
 
   @Component
   public static WebSocketHandlerMapping webSocketHandlerMapping(List<WebSocketConfigurer> configurers,

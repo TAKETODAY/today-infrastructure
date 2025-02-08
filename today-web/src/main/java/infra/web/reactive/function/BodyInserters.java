@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -515,7 +515,7 @@ public abstract class BodyInserters {
 
   }
 
-  private static class DefaultFormInserter implements FormInserter<String> {
+  private static final class DefaultFormInserter implements FormInserter<String> {
 
     private final MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 
@@ -541,7 +541,7 @@ public abstract class BodyInserters {
     }
   }
 
-  private static class DefaultMultipartInserter implements MultipartInserter {
+  private static final class DefaultMultipartInserter implements MultipartInserter {
 
     private final MultipartBodyBuilder builder = new MultipartBodyBuilder();
 

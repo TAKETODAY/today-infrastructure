@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,11 +60,13 @@ public abstract class LoggerFactory {
       try {
         return new Slf4jLoggerFactory();
       }
-      catch (Throwable ignored) { }
+      catch (Throwable ignored) {
+      }
       try {
         return new Log4j2LoggerFactory();
       }
-      catch (Throwable ignored) { }
+      catch (Throwable ignored) {
+      }
       return new JavaLoggingFactory();
     }
     return factory;

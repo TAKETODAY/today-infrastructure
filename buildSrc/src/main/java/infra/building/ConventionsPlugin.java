@@ -36,6 +36,7 @@ public class ConventionsPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    new CheckstyleConventions().apply(project);
     new JavaConventions().apply(project);
     new TestConventions().apply(project);
   }

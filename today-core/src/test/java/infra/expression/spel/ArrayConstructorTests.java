@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.expression.EvaluationContext;
 import infra.expression.Expression;
-import infra.expression.spel.SpelEvaluationException;
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.SimpleEvaluationContext;
 

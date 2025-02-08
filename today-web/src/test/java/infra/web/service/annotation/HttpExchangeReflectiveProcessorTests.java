@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.service.annotation;
@@ -43,10 +43,10 @@ class HttpExchangeReflectiveProcessorTests {
     Method method = SampleService.class.getDeclaredMethod("get");
     processor.registerReflectionHints(hints.reflection(), method);
     assertThat(reflection().onType(SampleService.class)).accepts(hints);
-    assertThat(reflection().onMethod(SampleService.class, "get")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(SampleService.class, "get")).accepts(hints);
     assertThat(reflection().onType(Response.class)).accepts(hints);
-    assertThat(reflection().onMethod(Response.class, "getMessage")).accepts(hints);
-    assertThat(reflection().onMethod(Response.class, "setMessage")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(Response.class, "getMessage")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(Response.class, "setMessage")).accepts(hints);
   }
 
   @Test
@@ -54,10 +54,10 @@ class HttpExchangeReflectiveProcessorTests {
     Method method = SampleService.class.getDeclaredMethod("post", Request.class);
     processor.registerReflectionHints(hints.reflection(), method);
     assertThat(reflection().onType(SampleService.class)).accepts(hints);
-    assertThat(reflection().onMethod(SampleService.class, "post")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(SampleService.class, "post")).accepts(hints);
     assertThat(reflection().onType(Request.class)).accepts(hints);
-    assertThat(reflection().onMethod(Request.class, "getMessage")).accepts(hints);
-    assertThat(reflection().onMethod(Request.class, "setMessage")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(Request.class, "getMessage")).accepts(hints);
+    assertThat(reflection().onMethodInvocation(Request.class, "setMessage")).accepts(hints);
   }
 
   interface SampleService {

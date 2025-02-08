@@ -490,7 +490,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   /**
    * Inner class to avoid a hard dependency on the Reactive Streams API at runtime.
    */
-  private static class ReactiveDelegate {
+  private static final class ReactiveDelegate {
 
     public static boolean subscribeToPublisher(ApplicationListenerMethodAdapter listener, Object result) {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(result.getClass());

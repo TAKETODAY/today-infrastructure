@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ import static infra.bytecode.Opcodes.ACC_PUBLIC;
 import static infra.bytecode.Opcodes.INVOKESTATIC;
 
 /**
+ * @param <T> Target Accessor subclass
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2020/9/11 16:32
  */
@@ -119,7 +120,8 @@ public abstract class GeneratorSupport<T extends Accessor> {
     try {
       return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException ignored) { }
+    catch (ClassNotFoundException ignored) {
+    }
     byte[] classFile = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
     return BytecodeCompiler.compile(getClassName(), targetClass,
             classLoader, ReflectionUtils.getProtectionDomain(targetClass), classFile);

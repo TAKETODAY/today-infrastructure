@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,27 +54,12 @@ import infra.stereotype.Component;
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 public class TaskSchedulingAutoConfiguration {
 
+  private TaskSchedulingAutoConfiguration() {
+  }
+
   @Component
   public static LazyInitializationExcludeFilter scheduledBeanLazyInitializationExcludeFilter() {
     return new ScheduledBeanLazyInitializationExcludeFilter();
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnMissingBean({ TaskScheduler.class, ScheduledExecutorService.class })
-  static class TaskSchedulerConfiguration {
-
-    @Component(name = "taskScheduler")
-    @ConditionalOnThreading(Threading.VIRTUAL)
-    static SimpleAsyncTaskScheduler taskSchedulerVirtualThreads(SimpleAsyncTaskSchedulerBuilder builder) {
-      return builder.build();
-    }
-
-    @Component
-    @ConditionalOnThreading(Threading.PLATFORM)
-    static ThreadPoolTaskScheduler taskScheduler(ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder) {
-      return threadPoolTaskSchedulerBuilder.build();
-    }
-
   }
 
   @Component
@@ -109,4 +94,26 @@ public class TaskSchedulingAutoConfiguration {
     }
     return builder;
   }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMissingBean({ TaskScheduler.class, ScheduledExecutorService.class })
+  public static class TaskSchedulerConfiguration {
+
+    private TaskSchedulerConfiguration() {
+    }
+
+    @Component(name = "taskScheduler")
+    @ConditionalOnThreading(Threading.VIRTUAL)
+    public static SimpleAsyncTaskScheduler taskSchedulerVirtualThreads(SimpleAsyncTaskSchedulerBuilder builder) {
+      return builder.build();
+    }
+
+    @Component
+    @ConditionalOnThreading(Threading.PLATFORM)
+    public static ThreadPoolTaskScheduler taskScheduler(ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder) {
+      return threadPoolTaskSchedulerBuilder.build();
+    }
+
+  }
+
 }

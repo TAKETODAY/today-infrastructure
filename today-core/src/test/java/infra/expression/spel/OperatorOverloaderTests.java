@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import infra.expression.EvaluationException;
 import infra.expression.Operation;
 import infra.expression.OperatorOverloader;
-import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpression;
 import infra.expression.spel.support.StandardEvaluationContext;
 

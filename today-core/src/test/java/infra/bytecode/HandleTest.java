@@ -18,9 +18,6 @@ package infra.bytecode;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.Handle;
-import infra.bytecode.Opcodes;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

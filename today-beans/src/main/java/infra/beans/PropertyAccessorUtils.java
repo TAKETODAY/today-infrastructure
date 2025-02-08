@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:53
  */
-public class PropertyAccessorUtils {
+public abstract class PropertyAccessorUtils {
 
   /**
    * Return the actual property name for the given property path.
@@ -38,7 +38,7 @@ public class PropertyAccessorUtils {
    */
   public static String getPropertyName(String propertyPath) {
     int separatorIndex = propertyPath.endsWith(PropertyAccessor.PROPERTY_KEY_SUFFIX)
-                         ? propertyPath.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) : -1;
+            ? propertyPath.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) : -1;
     return separatorIndex != -1 ? propertyPath.substring(0, separatorIndex) : propertyPath;
   }
 

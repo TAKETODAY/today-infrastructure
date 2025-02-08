@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -186,7 +186,7 @@ public final class Netty5HttpHeaders extends infra.http.HttpHeaders {
     return infra.http.HttpHeaders.formatHeaders(this);
   }
 
-  private class EntryIterator implements Iterator<Entry<String, List<String>>> {
+  private final class EntryIterator implements Iterator<Entry<String, List<String>>> {
 
     private final Iterator<CharSequence> names = headers.names().iterator();
 
@@ -201,7 +201,7 @@ public final class Netty5HttpHeaders extends infra.http.HttpHeaders {
     }
   }
 
-  private class HeaderEntry implements Entry<String, List<String>> {
+  private final class HeaderEntry implements Entry<String, List<String>> {
 
     private final CharSequence key;
 
@@ -228,7 +228,7 @@ public final class Netty5HttpHeaders extends infra.http.HttpHeaders {
     }
   }
 
-  private class HeaderNames extends AbstractSet<String> {
+  private final class HeaderNames extends AbstractSet<String> {
 
     @Override
     public Iterator<String> iterator() {

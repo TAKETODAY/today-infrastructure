@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class ClientHttpRequestFactoriesRuntimeHintsTests {
     Field requestFactoryField = ReflectionUtils.findField(ClientHttpRequestFactoryWrapper.class,
             "requestFactory");
     assertThat(requestFactoryField).isNotNull();
-    assertThat(reflection.onField(requestFactoryField)).accepts(hints);
+    assertThat(reflection.onFieldAccess(requestFactoryField)).accepts(hints);
   }
 
   @Test
@@ -56,7 +56,7 @@ class ClientHttpRequestFactoriesRuntimeHintsTests {
     new ClientHttpRequestFactoriesRuntimeHints().registerHints(hints, getClass().getClassLoader());
     ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
     assertThat(reflection
-            .onMethod(method(HttpComponentsClientHttpRequestFactory.class, "setConnectTimeout", int.class)))
+            .onMethodInvocation(method(HttpComponentsClientHttpRequestFactory.class, "setConnectTimeout", int.class)))
             .accepts(hints);
   }
 
@@ -65,7 +65,7 @@ class ClientHttpRequestFactoriesRuntimeHintsTests {
     RuntimeHints hints = new RuntimeHints();
     new ClientHttpRequestFactoriesRuntimeHints().registerHints(hints, getClass().getClassLoader());
     ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
-    assertThat(reflection.onMethod(method(JdkClientHttpRequestFactory.class, "setReadTimeout", Duration.class)))
+    assertThat(reflection.onMethodInvocation(method(JdkClientHttpRequestFactory.class, "setReadTimeout", Duration.class)))
             .accepts(hints);
   }
 

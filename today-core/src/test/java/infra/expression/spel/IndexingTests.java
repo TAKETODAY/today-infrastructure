@@ -48,8 +48,6 @@ import infra.expression.Expression;
 import infra.expression.IndexAccessor;
 import infra.expression.PropertyAccessor;
 import infra.expression.TypedValue;
-import infra.expression.spel.SpelEvaluationException;
-import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.ReflectiveIndexAccessor;
 import infra.expression.spel.support.SimpleEvaluationContext;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,6 +153,7 @@ class TypeHintTests {
   }
 
   @Test
+  @SuppressWarnings("removal")
   void createWithMemberCategory() {
     TypeHint hint = TypeHint.of(TypeReference.of(String.class))
             .withMembers(MemberCategory.DECLARED_FIELDS).build();
@@ -166,6 +167,7 @@ class TypeHintTests {
   }
 
   @Test
+  @SuppressWarnings("removal")
   void builtWithAppliesMemberCategories() {
     TypeHint.Builder builder = new TypeHint.Builder(TypeReference.of(String.class));
     assertThat(builder.build().getMemberCategories()).isEmpty();

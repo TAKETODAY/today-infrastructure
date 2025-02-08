@@ -22,9 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import infra.bytecode.commons.Remapper;
-import infra.bytecode.commons.SimpleRemapper;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

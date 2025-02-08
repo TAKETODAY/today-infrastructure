@@ -41,7 +41,7 @@ import infra.lang.Nullable;
  * @see AbstractBeanDefinition
  * @see RootBeanDefinition
  * @see ChildBeanDefinition
- * @since 2018-07-08 19:56:53 2018-08-06 11:07
+ * @since 2018-07-08 19:56:53
  */
 public interface BeanDefinitionRegistry extends AliasRegistry {
 
@@ -57,7 +57,7 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
    * @see GenericBeanDefinition
    * @see RootBeanDefinition
    * @see ChildBeanDefinition
-   * @since 1.2.0
+   * @since 1.2
    */
   void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
           throws BeanDefinitionStoreException;

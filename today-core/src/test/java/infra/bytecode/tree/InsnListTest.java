@@ -24,10 +24,6 @@ import java.util.NoSuchElementException;
 
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
-import infra.bytecode.tree.AbstractInsnNode;
-import infra.bytecode.tree.InsnList;
-import infra.bytecode.tree.InsnNode;
-import infra.bytecode.tree.LabelNode;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

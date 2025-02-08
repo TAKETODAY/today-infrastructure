@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -193,7 +193,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@code primitive} types.
    */
-  private static class PrimitiveDelegate implements Delegate {
+  private static final class PrimitiveDelegate implements Delegate {
 
     private static final Map<Character, String> CHAR_ESCAPES = Map.of(
             '\b', "\\b",
@@ -247,7 +247,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link String} types.
    */
-  private static class StringDelegate implements Delegate {
+  private static final class StringDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -262,7 +262,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link Charset} types.
    */
-  private static class CharsetDelegate implements Delegate {
+  private static final class CharsetDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -277,7 +277,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link Enum} types.
    */
-  private static class EnumDelegate implements Delegate {
+  private static final class EnumDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -293,7 +293,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link Class} types.
    */
-  private static class ClassDelegate implements Delegate {
+  private static final class ClassDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -308,7 +308,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link ResolvableType} types.
    */
-  private static class ResolvableTypeDelegate implements Delegate {
+  private static final class ResolvableTypeDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -349,7 +349,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@code array} types.
    */
-  private static class ArrayDelegate implements Delegate {
+  private static final class ArrayDelegate implements Delegate {
 
     @Override
     @Nullable
@@ -370,7 +370,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link List} types.
    */
-  private static class ListDelegate extends CollectionDelegate<List<?>> {
+  private static final class ListDelegate extends CollectionDelegate<List<?>> {
 
     ListDelegate() {
       super(List.class, CodeBlock.of("$T.emptyList()", Collections.class));
@@ -380,7 +380,7 @@ public abstract class ValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link Set} types.
    */
-  private static class SetDelegate extends CollectionDelegate<Set<?>> {
+  private static final class SetDelegate extends CollectionDelegate<Set<?>> {
 
     SetDelegate() {
       super(Set.class, CodeBlock.of("$T.emptySet()", Collections.class));

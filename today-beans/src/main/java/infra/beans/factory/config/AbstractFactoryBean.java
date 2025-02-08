@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import infra.beans.factory.FactoryBean;
 import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.InitializingBean;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -62,16 +63,20 @@ import infra.util.ClassUtils;
 public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
         BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
+  @Nullable
   private BeanFactory beanFactory;
 
   private boolean singleton = true;
 
   private boolean initialized = false;
 
+  @Nullable
   private T singletonInstance;
 
+  @Nullable
   private T earlySingletonInstance;
 
+  @Nullable
   private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
   /**
@@ -88,22 +93,24 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   }
 
   @Override
-  public void setBeanClassLoader(ClassLoader classLoader) {
+  public void setBeanClassLoader(@Nullable ClassLoader classLoader) {
     this.beanClassLoader = classLoader;
   }
 
+  @Nullable
   public ClassLoader getBeanClassLoader() {
     return beanClassLoader;
   }
 
   @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
+  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
   /**
    * Return the BeanFactory that this bean runs in.
    */
+  @Nullable
   public BeanFactory getBeanFactory() {
     return this.beanFactory;
   }
@@ -196,6 +203,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * indicate a BeanInstantiationException
    * @see BeanInstantiationException
    */
+  @Nullable
   protected Class<?>[] getEarlySingletonInterfaces() {
     Class<?> type = getObjectType();
     return (type != null && type.isInterface() ? new Class<?>[] { type } : null);
@@ -212,7 +220,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
    * @throws Exception in case of shutdown errors
    * @see #createBeanInstance()
    */
-  protected void destroyInstance(T instance) throws Exception {
+  protected void destroyInstance(@Nullable T instance) throws Exception {
 
   }
 
@@ -238,7 +246,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
   /**
    * Reflective InvocationHandler for lazy access to the actual singleton object.
    */
-  private class EarlySingletonInvocationHandler implements InvocationHandler {
+  private final class EarlySingletonInvocationHandler implements InvocationHandler {
 
     /**
      * Expose the singleton instance (for access through the 'early singleton'
@@ -247,6 +255,7 @@ public abstract class AbstractFactoryBean<T> implements FactoryBean<T>,
      * @return the singleton instance that this FactoryBean holds
      * @throws IllegalStateException if the singleton instance is not initialized
      */
+    @Nullable
     private T getSingletonInstance() {
       Assert.state(initialized, "Singleton instance not initialized yet");
       return singletonInstance;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,41 +93,6 @@ public abstract class MethodAccess {
    */
   public abstract int getMaxIndex();
 
-  public static class Generator extends AbstractClassGenerator {
-
-    private final Class<?> type;
-
-    public Generator(Class<?> type) {
-      super(MethodAccess.class);
-      this.type = type;
-    }
-
-    public MethodAccess create() {
-      setNamePrefix(type.getName());
-      return (MethodAccess) super.create(type.getName());
-    }
-
-    protected ClassLoader getDefaultClassLoader() {
-      return type.getClassLoader();
-    }
-
-    protected ProtectionDomain getProtectionDomain() {
-      return ReflectionUtils.getProtectionDomain(type);
-    }
-
-    public void generateClass(ClassVisitor v) throws Exception {
-      new MethodAccessEmitter(v, getClassName(), type);
-    }
-
-    protected Object firstInstance(Class type) {
-      return ReflectionUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
-    }
-
-    protected Object nextInstance(Object instance) {
-      return instance;
-    }
-  }
-
   public Object invoke(String name, Class[] parameterTypes, Object obj, Object[] args) throws InvocationTargetException {
     return invoke(getIndex(name, parameterTypes), obj, args);
   }
@@ -201,6 +166,41 @@ public abstract class MethodAccess {
     gen.setClassLoader(loader);
     gen.setNeighbor(type);
     return gen.create();
+  }
+
+  public static class Generator extends AbstractClassGenerator {
+
+    private final Class<?> type;
+
+    public Generator(Class<?> type) {
+      super(MethodAccess.class);
+      this.type = type;
+    }
+
+    public MethodAccess create() {
+      setNamePrefix(type.getName());
+      return (MethodAccess) super.create(type.getName());
+    }
+
+    protected ClassLoader getDefaultClassLoader() {
+      return type.getClassLoader();
+    }
+
+    protected ProtectionDomain getProtectionDomain() {
+      return ReflectionUtils.getProtectionDomain(type);
+    }
+
+    public void generateClass(ClassVisitor v) throws Exception {
+      new MethodAccessEmitter(v, getClassName(), type);
+    }
+
+    protected Object firstInstance(Class type) {
+      return ReflectionUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
+    }
+
+    protected Object nextInstance(Object instance) {
+      return instance;
+    }
   }
 
 }

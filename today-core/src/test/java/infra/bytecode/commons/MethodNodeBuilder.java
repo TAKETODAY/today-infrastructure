@@ -16,12 +16,12 @@
  */
 package infra.bytecode.commons;
 
+import infra.bytecode.ClassFile;
 import infra.bytecode.ClassWriter;
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.tree.MethodNode;
-import infra.bytecode.ClassFile;
 import infra.bytecode.util.Textifier;
 import infra.bytecode.util.TraceMethodVisitor;
 

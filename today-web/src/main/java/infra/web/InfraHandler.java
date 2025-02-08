@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -554,7 +554,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * ApplicationListener endpoint that receives events from this handler's ApplicationContext
    * only, delegating to {@code onApplicationEvent} on the DispatcherHandler instance.
    */
-  private class ContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
+  private final class ContextRefreshListener implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {

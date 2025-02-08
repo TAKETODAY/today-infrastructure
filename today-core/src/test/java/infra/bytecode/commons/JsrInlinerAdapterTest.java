@@ -33,7 +33,6 @@ import infra.bytecode.Opcodes;
 import infra.bytecode.tree.MethodNode;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**

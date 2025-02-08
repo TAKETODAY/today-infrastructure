@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
-import infra.lang.Experimental;
 import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
@@ -40,8 +39,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/24 14:45
  */
-@Experimental
-public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
+public final class Pair<A, B> implements Map.Entry<A, B>, Serializable {
 
   @SuppressWarnings({ "rawtypes" })
   public static final Pair EMPTY = of(null, null);

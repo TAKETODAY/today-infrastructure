@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,11 +68,13 @@ public interface Operator {
 
   /**
    * column_name operator value;
+   *
+   * @param placeholder value
    */
   record Plain(String placeholder) implements Operator {
 
     @Override
-    public void render(StringBuilder sql, Object value, int valueLength) {
+    public void render(StringBuilder sql, @Nullable Object value, int valueLength) {
       sql.append(placeholder);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,11 +40,23 @@ import static infra.lang.Constant.SOURCE_FILE;
 public abstract class StringSwitcher {
 
   private static final Type STRING_SWITCHER = Type.forClass(StringSwitcher.class);
+
   private static final MethodSignature INT_VALUE = MethodSignature.from("int intValue(String)");
 
-  record StringSwitcherKey(List<String> strings, int[] ints, boolean fixedInput) {
+  protected StringSwitcher() {
 
   }
+
+  /**
+   * Return the integer associated with the given key.
+   *
+   * @param s the key
+   * @return the associated integer value, or <code>-1</code> if the key is
+   * unknown (unless <code>fixedInput</code> was specified when this
+   * <code>StringSwitcher</code> was created, in which case the return
+   * value for an unknown key is undefined)
+   */
+  public abstract int intValue(String s);
 
   /**
    * Helper method to create a StringSwitcher. For finer control over the
@@ -67,18 +79,9 @@ public abstract class StringSwitcher {
     return gen.create();
   }
 
-  protected StringSwitcher() { }
+  record StringSwitcherKey(List<String> strings, int[] ints, boolean fixedInput) {
 
-  /**
-   * Return the integer associated with the given key.
-   *
-   * @param s the key
-   * @return the associated integer value, or <code>-1</code> if the key is
-   * unknown (unless <code>fixedInput</code> was specified when this
-   * <code>StringSwitcher</code> was created, in which case the return
-   * value for an unknown key is undefined)
-   */
-  abstract public int intValue(String s);
+  }
 
   public static class Generator extends AbstractClassGenerator {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import infra.lang.Assert;
 import infra.reflect.Accessor;
 
 @SuppressWarnings({ "rawtypes" })
-abstract public class FastMemberAccessor implements Accessor {
+public abstract class FastMemberAccessor implements Accessor {
 
   protected final int index;
   protected final MethodAccess fc;
@@ -38,9 +38,9 @@ abstract public class FastMemberAccessor implements Accessor {
     this.member = member;
   }
 
-  abstract public Class[] getParameterTypes();
+  public abstract Class[] getParameterTypes();
 
-  abstract public Class[] getExceptionTypes();
+  public abstract Class[] getExceptionTypes();
 
   public int getIndex() {
     return index;

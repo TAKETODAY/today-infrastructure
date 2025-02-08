@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,12 @@
  */
 
 /**
- * Support package for the FactoryBeans. from Framework.
+ * Classes supporting the {@code infra.beans.factory} package.
+ * Contains abstract base classes for {@code BeanFactory} implementations.
  */
+@NonNullApi
+@NonNullFields
 package infra.beans.factory.support;
 
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

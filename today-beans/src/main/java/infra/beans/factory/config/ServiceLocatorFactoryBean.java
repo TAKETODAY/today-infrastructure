@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -342,7 +342,7 @@ public class ServiceLocatorFactoryBean implements FactoryBean<Object>, BeanFacto
   /**
    * Invocation handler that delegates service locator calls to the bean factory.
    */
-  private class ServiceLocatorInvocationHandler implements InvocationHandler {
+  private final class ServiceLocatorInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

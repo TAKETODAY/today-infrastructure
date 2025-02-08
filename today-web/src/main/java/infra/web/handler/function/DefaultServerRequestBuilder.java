@@ -190,7 +190,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
             this.attributes, this.params, this.remoteAddress, this.body, this.messageConverters);
   }
 
-  private static class BuiltServerRequest implements ServerRequest {
+  private static final class BuiltServerRequest implements ServerRequest {
 
     private final HttpMethod method;
 
@@ -368,10 +368,10 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       return this.requestContext;
     }
 
-    private class BuiltInputMessage implements HttpInputMessage {
+    private final class BuiltInputMessage implements HttpInputMessage {
 
       @Override
-      public InputStream getBody() throws IOException {
+      public InputStream getBody() {
         return new BodyInputStream(body);
       }
 

@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import infra.lang.Nullable;
 
 /**
+ * @param <T> value type
  * @author Clinton Begin
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0

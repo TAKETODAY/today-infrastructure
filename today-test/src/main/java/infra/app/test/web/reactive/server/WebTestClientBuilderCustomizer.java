@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,15 +25,17 @@ import infra.test.web.reactive.server.WebTestClient.Builder;
  * auto-configured {@link Builder}.
  *
  * @author Andy Wilkinson
- * @since 2.2.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2.2
  */
 @FunctionalInterface
 public interface WebTestClientBuilderCustomizer {
 
-	/**
-	 * Customize the given {@code builder}.
-	 * @param builder the builder
-	 */
-	void customize(Builder builder);
+  /**
+   * Customize the given {@code builder}.
+   *
+   * @param builder the builder
+   */
+  void customize(Builder builder);
 
 }

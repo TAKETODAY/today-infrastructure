@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/9 11:44
  */
-public class ProxyCreationContext {
+public final class ProxyCreationContext {
 
   /** ThreadLocal holding the current proxied bean name during Advisor matching. */
   private static final ThreadLocal<String> currentProxiedBeanName =

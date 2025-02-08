@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -481,7 +481,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   /**
    * Inner class to avoid a hard dependency on the Reactive Streams API at runtime.
    */
-  private static class ReactiveDestroyMethodHandler {
+  private static final class ReactiveDestroyMethodHandler {
 
     public static boolean await(DisposableBeanAdapter beanAdapter, Method destroyMethod, Object returnValue) throws InterruptedException {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(returnValue.getClass());

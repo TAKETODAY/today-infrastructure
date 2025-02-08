@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ import infra.util.ReflectionUtils.FieldCallback;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ResetMocksTestExecutionListener
  * @since 4.0
  */
@@ -122,7 +123,7 @@ public class MockitoTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * {@link FieldCallback} to collect Mockito annotations.
    */
-  private static class MockitoAnnotationCollection implements FieldCallback {
+  private static final class MockitoAnnotationCollection implements FieldCallback {
 
     private final Set<Annotation> annotations = new LinkedHashSet<>();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import infra.jdbc.CannotGetJdbcConnectionException;
+import infra.jdbc.core.JdbcTemplate;
+import infra.jdbc.support.JdbcTransactionManager;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jdbc.core.JdbcTemplate;
-import infra.jdbc.support.JdbcTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.support.SynchronizationInfo;
 import infra.transaction.support.TransactionSynchronization;
@@ -447,6 +447,27 @@ public abstract class DataSourceUtils {
     return conToUse;
   }
 
+  public static DataSource getJndiDatasource(String jndiLookup) {
+    InitialContext ctx = null;
+    try {
+      ctx = new InitialContext();
+      return (DataSource) ctx.lookup(jndiLookup);
+    }
+    catch (NamingException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+    finally {
+      if (ctx != null) {
+        try {
+          ctx.close();
+        }
+        catch (Throwable e) {
+          log.warn("error closing context", e);
+        }
+      }
+    }
+  }
+
   /**
    * Determine the connection synchronization order to use for the given
    * DataSource. Decreased for every level of nesting that a DataSource
@@ -551,24 +572,4 @@ public abstract class DataSourceUtils {
     }
   }
 
-  public static DataSource getJndiDatasource(String jndiLookup) {
-    InitialContext ctx = null;
-    try {
-      ctx = new InitialContext();
-      return (DataSource) ctx.lookup(jndiLookup);
-    }
-    catch (NamingException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
-    finally {
-      if (ctx != null) {
-        try {
-          ctx.close();
-        }
-        catch (Throwable e) {
-          log.warn("error closing context", e);
-        }
-      }
-    }
-  }
 }

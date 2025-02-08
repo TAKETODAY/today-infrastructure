@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.Set;
  * An immutable set of at most two elements, optimized for speed compared to a generic set
  * implementation.
  *
+ * @param <T> Element type
  * @author Eric Bruneton
  */
 final class SmallSet<T> extends AbstractSet<T> {

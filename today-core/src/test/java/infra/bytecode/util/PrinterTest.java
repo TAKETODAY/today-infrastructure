@@ -23,7 +23,6 @@ import infra.bytecode.Attribute;
 import infra.bytecode.Handle;
 import infra.bytecode.Label;
 import infra.bytecode.Opcodes;
-import infra.bytecode.util.Printer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

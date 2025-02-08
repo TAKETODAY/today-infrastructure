@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import infra.lang.Nullable;
 /**
  * It is used for the scenario of changing less and reading more frequently.
  *
+ * @param <E> element type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/12 15:28
  */
@@ -399,8 +400,8 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   @Override
   public String toString() {
     return isPresent()
-           ? Arrays.toString(array)
-           : "[]";
+            ? Arrays.toString(array)
+            : "[]";
   }
 
   @Override

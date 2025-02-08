@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,9 +128,6 @@ public class SelectFragment {
       String columnAlias = columnAliasIter.next();
       //TODO: eventually put this back in, once we think all is fixed
       //Object otherAlias = columnsUnique.put(qualifiedColumn, columnAlias);
-			/*if ( otherAlias!=null && !columnAlias.equals(otherAlias) ) {
-				throw new AssertionFailure("bug in Hibernate SQL alias generation");
-			}*/
       if (columnsUnique.add(columnAlias)) {
         buf.append(", ")
                 .append(column)

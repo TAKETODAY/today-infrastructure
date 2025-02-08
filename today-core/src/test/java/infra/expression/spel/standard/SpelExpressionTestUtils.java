@@ -20,7 +20,6 @@ package infra.expression.spel.standard;
 import java.lang.reflect.Field;
 
 import infra.expression.Expression;
-import infra.expression.spel.standard.SpelExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

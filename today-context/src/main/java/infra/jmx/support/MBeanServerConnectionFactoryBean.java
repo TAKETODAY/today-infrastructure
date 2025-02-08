@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ import infra.util.CollectionUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see MBeanServerFactoryBean
  * @see ConnectorServerFactoryBean
  * @see MBeanClientInterceptor#setServer
@@ -192,7 +193,7 @@ public class MBeanServerConnectionFactoryBean
    * @see MBeanServerConnectionFactoryBean#setServiceUrl(String)
    * @see MBeanServerConnectionFactoryBean#setEnvironment(Properties)
    */
-  private class JMXConnectorLazyInitTargetSource extends AbstractLazyCreationTargetSource {
+  private final class JMXConnectorLazyInitTargetSource extends AbstractLazyCreationTargetSource {
 
     @Override
     protected Object createObject() throws Exception {
@@ -209,7 +210,7 @@ public class MBeanServerConnectionFactoryBean
   /**
    * Lazily creates an {@code MBeanServerConnection}.
    */
-  private class MBeanServerConnectionLazyInitTargetSource extends AbstractLazyCreationTargetSource {
+  private final class MBeanServerConnectionLazyInitTargetSource extends AbstractLazyCreationTargetSource {
 
     @Override
     protected Object createObject() throws Exception {

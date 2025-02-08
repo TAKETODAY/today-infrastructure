@@ -298,7 +298,7 @@ public final class MockRestServiceServer {
    * Mock ClientHttpRequestFactory that creates requests by iterating
    * over the list of expected {@link DefaultRequestExpectation}'s.
    */
-  private class MockClientHttpRequestFactory implements ClientHttpRequestFactory {
+  private final class MockClientHttpRequestFactory implements ClientHttpRequestFactory {
 
     @Override
     public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,8 +52,10 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/18 23:17
  */
-public sealed abstract class AbstractQuery implements AutoCloseable permits NamedQuery, Query {
+public abstract sealed class AbstractQuery implements AutoCloseable permits NamedQuery, Query {
+
   private static final Logger log = LoggerFactory.getLogger(AbstractQuery.class);
+
   static final SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
   private final JdbcConnection connection;
@@ -731,9 +733,10 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   /**
    * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
    *
+   * @param <T> result type
    * @since 4.0
    */
-  private class ResultIterable<T> extends ResultSetIterable<T> {
+  private final class ResultIterable<T> extends ResultSetIterable<T> {
 
     private final ResultSetIterator<T> iterator;
 
@@ -769,6 +772,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   }
 
   /**
+   * @param <T> result type
    * @since 4.0
    */
   abstract class CloseResultSetIterator<T> extends ResultSetIterator<T> {
@@ -802,6 +806,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   }
 
   /**
+   * @param <T> result type
    * @since 4.0
    */
   final class ResultSetHandlerIterator<T> extends CloseResultSetIterator<T> {

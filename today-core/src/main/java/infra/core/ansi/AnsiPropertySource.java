@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.util.function.IntFunction;
 
 import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;
+import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
@@ -100,6 +101,7 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
       return this.prefix;
     }
 
+    @Nullable
     abstract AnsiElement getElement(String postfix);
 
   }
@@ -146,7 +148,8 @@ public class AnsiPropertySource extends PropertySource<AnsiElement> {
         try {
           return this.factory.apply(Integer.parseInt(postfix));
         }
-        catch (IllegalArgumentException ignored) { }
+        catch (IllegalArgumentException ignored) {
+        }
       }
       return null;
     }

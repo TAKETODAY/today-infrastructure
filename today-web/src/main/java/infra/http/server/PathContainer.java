@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,6 +139,9 @@ public abstract class PathContainer {
 
   /**
    * Options to customize parsing based on the type of input path.
+   *
+   * @param separator separator
+   * @param decodeAndParseSegments decodeAndParseSegments
    */
   public record Options(char separator, boolean decodeAndParseSegments) {
 
@@ -146,7 +149,7 @@ public abstract class PathContainer {
      * Options for HTTP URL paths.
      * <p>Separator '/' with URL decoding and parsing of path parameters.
      */
-    public final static Options HTTP_PATH = Options.create('/', true);
+    public static final Options HTTP_PATH = Options.create('/', true);
 
     /**
      * Options for a message route.
@@ -154,7 +157,7 @@ public abstract class PathContainer {
      * Escape sequences for the separator character in segment values are still
      * decoded.
      */
-    public final static Options MESSAGE_ROUTE = Options.create('.', false);
+    public static final Options MESSAGE_ROUTE = Options.create('.', false);
 
     public boolean shouldDecodeAndParseSegments() {
       return this.decodeAndParseSegments;

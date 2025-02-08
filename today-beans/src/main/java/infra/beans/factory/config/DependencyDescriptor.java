@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
   @Nullable
   private transient volatile TypeDescriptor typeDescriptor;
 
+  @Nullable
   private volatile Boolean ordered;
 
   /**
@@ -161,6 +162,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     this.required = original.required;
     this.eager = original.eager;
     this.nestingLevel = original.nestingLevel;
+    this.ordered = original.ordered;
   }
 
   /**

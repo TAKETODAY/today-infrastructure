@@ -270,7 +270,7 @@ class ValueObjectBinder implements DataObjectBinder {
   /**
    * A constructor parameter being bound.
    */
-  private final static class ConstructorParameter {
+  private static final class ConstructorParameter {
 
     public final String name;
 

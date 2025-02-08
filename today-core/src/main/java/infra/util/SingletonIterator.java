@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,14 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
+ * @param <E> element type
  * @author TODAY 2021/10/6 17:30
  * @since 4.0
  */
 public final class SingletonIterator<E> implements Iterator<E> {
+
   private boolean hasNext = true;
+
   final E element;
 
   public SingletonIterator(E element) {

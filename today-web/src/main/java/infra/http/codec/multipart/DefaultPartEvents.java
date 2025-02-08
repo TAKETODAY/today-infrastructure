@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ abstract class DefaultPartEvents {
     }
   }
 
-  private static abstract class AbstractPartEvent implements PartEvent {
+  private abstract static class AbstractPartEvent implements PartEvent {
 
     private final HttpHeaders headers;
 
@@ -159,7 +159,7 @@ abstract class DefaultPartEvents {
   /**
    * Default implementation of {@link FilePartEvent}.
    */
-  private static class DefaultFilePartEvent extends DefaultPartEvent implements FilePartEvent {
+  private static final class DefaultFilePartEvent extends DefaultPartEvent implements FilePartEvent {
 
     public DefaultFilePartEvent(HttpHeaders headers) {
       super(headers);

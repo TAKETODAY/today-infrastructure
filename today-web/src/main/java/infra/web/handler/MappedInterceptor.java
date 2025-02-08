@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ import infra.web.util.pattern.PatternParseException;
  * @since 4.0 2022/4/18 15:36
  */
 public final class MappedInterceptor implements HandlerInterceptor {
+
   private static final PathMatcher defaultPathMatcher = new AntPathMatcher();
 
   @Nullable
@@ -216,7 +217,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * latter otherwise. If the pattern cannot be parsed due to unsupported
    * syntax, then {@link PathMatcher} is used for all requests.
    */
-  private final static class CompiledPattern {
+  private static final class CompiledPattern {
 
     public final String patternString;
 

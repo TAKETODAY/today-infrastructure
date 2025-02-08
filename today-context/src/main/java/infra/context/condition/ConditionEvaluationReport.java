@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -301,7 +301,7 @@ public final class ConditionEvaluationReport {
 
   }
 
-  private static class AncestorsMatchedCondition implements Condition {
+  private static final class AncestorsMatchedCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {

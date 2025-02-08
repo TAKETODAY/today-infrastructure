@@ -49,7 +49,7 @@ public interface StreamingHttpOutputMessage extends HttpOutputMessage {
    */
   default void setBody(byte[] body) throws IOException {
     setBody(new Body() {
-      
+
       @Override
       public void writeTo(OutputStream outputStream) throws IOException {
         StreamUtils.copy(body, outputStream);

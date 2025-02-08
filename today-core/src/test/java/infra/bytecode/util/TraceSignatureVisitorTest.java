@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 
 import infra.bytecode.Opcodes;
 import infra.bytecode.signature.SignatureReader;
-import infra.bytecode.util.TraceSignatureVisitor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

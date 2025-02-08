@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,9 +52,12 @@ import infra.transaction.support.TransactionTemplate;
 @EnableConfigurationProperties(TransactionProperties.class)
 public class TransactionAutoConfiguration {
 
+  private TransactionAutoConfiguration() {
+  }
+
   @Component
   @ConditionalOnMissingBean
-  static TransactionManagerCustomizers platformTransactionManagerCustomizers(
+  public static TransactionManagerCustomizers platformTransactionManagerCustomizers(
           Collection<PlatformTransactionManagerCustomizer<?>> customizers) {
     return new TransactionManagerCustomizers(customizers);
   }
@@ -62,7 +65,7 @@ public class TransactionAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @ConditionalOnSingleCandidate(ReactiveTransactionManager.class)
-  static TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
+  public static TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
     return TransactionalOperator.create(transactionManager);
   }
 
@@ -72,7 +75,7 @@ public class TransactionAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(TransactionOperations.class)
-    static TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
+    public static TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
       return new TransactionTemplate(transactionManager);
     }
 

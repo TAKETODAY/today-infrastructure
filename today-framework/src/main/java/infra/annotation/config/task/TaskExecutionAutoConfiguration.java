@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,34 +55,17 @@ import infra.stereotype.Component;
 @EnableConfigurationProperties(TaskExecutionProperties.class)
 public class TaskExecutionAutoConfiguration {
 
+  private TaskExecutionAutoConfiguration() {
+  }
+
   /**
    * Bean name of the application {@link TaskExecutor}.
    */
   public static final String APPLICATION_TASK_EXECUTOR_BEAN_NAME = "applicationTaskExecutor";
 
-  @Lazy
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnMissingBean(Executor.class)
-  static class TaskExecutorConfiguration {
-
-    @ConditionalOnThreading(Threading.VIRTUAL)
-    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
-    static SimpleAsyncTaskExecutor applicationTaskExecutorVirtualThreads(SimpleAsyncTaskExecutorBuilder builder) {
-      return builder.build();
-    }
-
-    @Lazy
-    @ConditionalOnThreading(Threading.PLATFORM)
-    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
-    static ThreadPoolTaskExecutor applicationTaskExecutor(ThreadPoolTaskExecutorBuilder builder) {
-      return builder.build();
-    }
-
-  }
-
   @Component
   @ConditionalOnMissingBean(ThreadPoolTaskExecutorBuilder.class)
-  static ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder(TaskExecutionProperties properties,
+  public static ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder(TaskExecutionProperties properties,
           List<ThreadPoolTaskExecutorCustomizer> customizers, ObjectProvider<TaskDecorator> taskDecorator) {
     TaskExecutionProperties.Pool pool = properties.getPool();
     ThreadPoolTaskExecutorBuilder builder = new ThreadPoolTaskExecutorBuilder();
@@ -103,7 +86,7 @@ public class TaskExecutionAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  static SimpleAsyncTaskExecutorBuilder simpleAsyncTaskExecutorBuilder(ObjectProvider<TaskDecorator> taskDecorator,
+  public static SimpleAsyncTaskExecutorBuilder simpleAsyncTaskExecutorBuilder(ObjectProvider<TaskDecorator> taskDecorator,
           Environment environment, TaskExecutionProperties properties, List<SimpleAsyncTaskExecutorCustomizer> customizers) {
 
     SimpleAsyncTaskExecutorBuilder builder = new SimpleAsyncTaskExecutorBuilder();
@@ -122,6 +105,26 @@ public class TaskExecutionAutoConfiguration {
       builder = builder.virtualThreads(true);
     }
     return builder;
+  }
+
+  @Lazy
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnMissingBean(Executor.class)
+  public static class TaskExecutorConfiguration {
+
+    @ConditionalOnThreading(Threading.VIRTUAL)
+    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+    public static SimpleAsyncTaskExecutor applicationTaskExecutorVirtualThreads(SimpleAsyncTaskExecutorBuilder builder) {
+      return builder.build();
+    }
+
+    @Lazy
+    @ConditionalOnThreading(Threading.PLATFORM)
+    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+    public static ThreadPoolTaskExecutor applicationTaskExecutor(ThreadPoolTaskExecutorBuilder builder) {
+      return builder.build();
+    }
+
   }
 
 }

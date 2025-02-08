@@ -2657,7 +2657,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Actual {@code jakarta.inject.Provider} implementation is nested here in order to make it
    * invisible for Graal's introspection of StandardBeanFactory's nested classes.
    */
-  private class Jsr330Factory implements Serializable {
+  private final class Jsr330Factory implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -2666,7 +2666,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return new Jsr330Provider(descriptor, beanName);
     }
 
-    private class Jsr330Provider extends DependencyObjectProvider implements Provider<Object> {
+    private final class Jsr330Provider extends DependencyObjectProvider implements Provider<Object> {
 
       @Serial
       private static final long serialVersionUID = 1L;
@@ -2696,7 +2696,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
    * @since 4.0 2021/12/19 17:26
    */
-  final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
+  private final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
 
     private final IdentityHashMap<Object, String> instancesToBeanNames;
 

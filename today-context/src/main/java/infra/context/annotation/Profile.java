@@ -24,11 +24,8 @@ import java.lang.annotation.Target;
 
 import infra.core.env.AbstractEnvironment;
 import infra.core.env.ConfigurableEnvironment;
-import infra.core.env.Environment;
 import infra.core.env.Profiles;
-import infra.core.type.AnnotatedTypeMetadata;
 import infra.stereotype.Component;
-import infra.util.MultiValueMap;
 
 /**
  * Indicates that a component is eligible for registration when one or more
@@ -104,30 +101,5 @@ public @interface Profile {
    * Accept profiles, using '!' to exclude profiles
    */
   String[] value();
-
-}
-
-/**
- * {@link Condition} that matches based on the value of a {@link Profile @Profile}
- * annotation.
- *
- * @author TODAY 2018-11-14 18:52
- */
-final class ProfileCondition implements Condition {
-
-  @Override
-  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class);
-    if (attrs != null) {
-      Environment environment = context.getEnvironment();
-      for (Object value : attrs.get("value")) {
-        if (environment.matchesProfiles((String[]) value)) {
-          return true;
-        }
-      }
-      return false;
-    }
-    return true;
-  }
 
 }

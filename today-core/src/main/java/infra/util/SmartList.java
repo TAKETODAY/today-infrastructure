@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,14 +42,19 @@ import infra.lang.Nullable;
  * {@link ArrayList} but occupies less memory in case of 0 or 1 elements.
  * Please use it only if your code contains many near-empty lists outside the very hot loops.
  *
+ * @param <E> element type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/4 19:53
  */
 public class SmartList<E> extends AbstractList<E> implements RandomAccess, ArraySizeTrimmer {
+
   private int size;
+
   private Object element; // null if size==0, (E)element if size==1, Object[] if size>=2
 
-  public SmartList() { }
+  public SmartList() {
+
+  }
 
   public SmartList(E element) {
     this.element = element;
@@ -60,7 +65,7 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
     int size = elements.size();
     if (size == 1) {
       E element = elements instanceof RandomAccess
-                  ? ((List<? extends E>) elements).get(0) : elements.iterator().next();
+              ? ((List<? extends E>) elements).get(0) : elements.iterator().next();
       add(element);
     }
     else if (size > 0) {
@@ -349,6 +354,11 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
       return equalsWithArrayList((ArrayList<?>) o);
     }
     return super.equals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), size, element);
   }
 
   private boolean equalsWithSmartList(SmartList<?> that) {

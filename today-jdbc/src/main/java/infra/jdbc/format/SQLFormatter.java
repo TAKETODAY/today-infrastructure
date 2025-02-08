@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ package infra.jdbc.format;
  * @since 4.0 2022/9/12 19:20
  */
 public interface SQLFormatter {
+
   String WHITESPACE = " \n\r\f\t";
 
   /**

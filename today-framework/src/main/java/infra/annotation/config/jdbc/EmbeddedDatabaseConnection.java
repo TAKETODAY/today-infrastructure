@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -199,7 +199,7 @@ public enum EmbeddedDatabaseConnection {
   /**
    * {@link ConnectionCallback} to determine if a connection is embedded.
    */
-  private static class IsEmbedded implements ConnectionCallback<Boolean> {
+  private static final class IsEmbedded implements ConnectionCallback<Boolean> {
 
     @Override
     public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,10 +51,13 @@ import infra.stereotype.Component;
 @DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
 public class JdbcTemplateAutoConfiguration {
 
+  private JdbcTemplateAutoConfiguration() {
+  }
+
   @Primary
   @Component
   @ConditionalOnMissingBean(JdbcOperations.class)
-  static JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
+  public static JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     JdbcProperties.Template template = properties.getTemplate();
     jdbcTemplate.setFetchSize(template.getFetchSize());
@@ -69,7 +72,7 @@ public class JdbcTemplateAutoConfiguration {
   @Component
   @ConditionalOnSingleCandidate(JdbcTemplate.class)
   @ConditionalOnMissingBean(NamedParameterJdbcOperations.class)
-  static NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
+  public static NamedParameterJdbcTemplate namedParameterJdbcTemplate(JdbcTemplate jdbcTemplate) {
     return new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 

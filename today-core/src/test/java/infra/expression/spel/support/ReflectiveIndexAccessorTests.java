@@ -21,14 +21,16 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import example.Color;
+import example.FruitMap;
 import infra.expression.EvaluationContext;
 import infra.expression.TypedValue;
 import infra.util.ReflectionUtils;
-import example.Color;
-import example.FruitMap;
-import infra.expression.spel.support.ReflectiveIndexAccessor;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
 /**

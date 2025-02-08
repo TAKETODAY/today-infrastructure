@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@ import infra.lang.Nullable;
  * a different object of the same type.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see 2019-10-21 23:49
+ * @since 2019-10-21 23:49
  */
-public class MethodProxy {
+public final class MethodProxy {
 
   @Nullable
   private MethodSignature sig1;
@@ -48,6 +48,10 @@ public class MethodProxy {
   private CreateInfo createInfo;
 
   private volatile FastClassInfo fastClassInfo;
+
+  private MethodProxy() {
+
+  }
 
   /**
    * For internal use by {@link Enhancer} only; see the {@link MethodAccess} class
@@ -104,47 +108,6 @@ public class MethodProxy {
     return fastClassInfo;
   }
 
-  private static class FastClassInfo {
-
-    public final MethodAccess f1;
-    public final MethodAccess f2;
-
-    final int i1;
-    final int i2;
-
-    private FastClassInfo(MethodAccess f1, MethodAccess f2, int i1, int i2) {
-      this.f1 = f1;
-      this.f2 = f2;
-      this.i1 = i1;
-      this.i2 = i2;
-    }
-  }
-
-  @SuppressWarnings({ "rawtypes" })
-  private static class CreateInfo {
-
-    final Class c1;
-
-    final Class c2;
-
-    NamingPolicy namingPolicy;
-
-    GeneratorStrategy strategy;
-
-    boolean attemptLoad;
-
-    public CreateInfo(Class c1, Class c2) {
-      this.c1 = c1;
-      this.c2 = c2;
-      AbstractClassGenerator fromEnhancer = AbstractClassGenerator.getCurrent();
-      if (fromEnhancer != null) {
-        namingPolicy = fromEnhancer.getNamingPolicy();
-        strategy = fromEnhancer.getStrategy();
-        attemptLoad = fromEnhancer.isAttemptLoad();
-      }
-    }
-  }
-
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private static MethodAccess helper(CreateInfo ci, Class type) {
     MethodAccess.Generator g = new MethodAccess.Generator(type);
@@ -155,8 +118,6 @@ public class MethodProxy {
     g.setAttemptLoad(ci.attemptLoad);
     return g.create();
   }
-
-  private MethodProxy() { }
 
   /**
    * Return the <code>MethodProxy</code> used when intercepting the method
@@ -226,6 +187,47 @@ public class MethodProxy {
     }
     catch (InvocationTargetException e) {
       throw e.getTargetException();
+    }
+  }
+
+  private static final class FastClassInfo {
+
+    public final MethodAccess f1;
+    public final MethodAccess f2;
+
+    final int i1;
+    final int i2;
+
+    private FastClassInfo(MethodAccess f1, MethodAccess f2, int i1, int i2) {
+      this.f1 = f1;
+      this.f2 = f2;
+      this.i1 = i1;
+      this.i2 = i2;
+    }
+  }
+
+  @SuppressWarnings({ "rawtypes" })
+  private static final class CreateInfo {
+
+    final Class c1;
+
+    final Class c2;
+
+    NamingPolicy namingPolicy;
+
+    GeneratorStrategy strategy;
+
+    boolean attemptLoad;
+
+    CreateInfo(Class c1, Class c2) {
+      this.c1 = c1;
+      this.c2 = c2;
+      AbstractClassGenerator fromEnhancer = AbstractClassGenerator.getCurrent();
+      if (fromEnhancer != null) {
+        namingPolicy = fromEnhancer.getNamingPolicy();
+        strategy = fromEnhancer.getStrategy();
+        attemptLoad = fromEnhancer.isAttemptLoad();
+      }
     }
   }
 

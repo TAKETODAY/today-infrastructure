@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ import infra.lang.Nullable;
  * <p>Note that this class has a near duplicate in
  * {@link infra.http.client.OutputStreamPublisher}.
  *
+ * @param <T> the published item type
  * @author Oleh Dokuka
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

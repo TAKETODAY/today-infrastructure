@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import infra.bytecode.AsmTest;
 import infra.bytecode.ClassReader;
 import infra.bytecode.Opcodes;
-import infra.bytecode.tree.MethodNode;
 import infra.bytecode.tree.ClassNode;
+import infra.bytecode.tree.MethodNode;
 
 import static java.time.Duration.ofSeconds;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

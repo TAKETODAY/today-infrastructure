@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -871,6 +871,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   /**
    * A thin wrapper around a matched HandlerMethod and its mapping, for the purpose of
    * comparing the best match with a comparator in the context of the current request.
+   *
+   * @param <T> mapping type
    */
   protected static final class Match<T> {
 
@@ -911,7 +913,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
-  private static class EmptyHandler {
+  private static final class EmptyHandler {
 
     @SuppressWarnings("unused")
     public void handle() {

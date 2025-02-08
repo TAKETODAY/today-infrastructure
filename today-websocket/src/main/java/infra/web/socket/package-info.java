@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,6 @@
 
 /**
  * Abstractions and support classes for WebSocket interactions.
- *
- * @author TODAY 2021/4/3 11:56
- * @since 3.0
  */
 @NonNullApi
 @NonNullFields

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,10 +56,13 @@ import infra.web.client.config.RestClientCustomizer;
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestClientAutoConfiguration {
 
+  private RestClientAutoConfiguration() {
+  }
+
   @Component
   @ConditionalOnMissingBean
   @Order(Ordered.LOWEST_PRECEDENCE)
-  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
+  public static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
           @Nullable HttpMessageConverters messageConverters) {
     return new HttpMessageConvertersRestClientCustomizer(messageConverters);
   }
@@ -67,13 +70,13 @@ public class RestClientAutoConfiguration {
   @Component
   @ConditionalOnBean(SslBundles.class)
   @ConditionalOnMissingBean(RestClientSsl.class)
-  static AutoConfiguredRestClientSsl restClientSsl(SslBundles sslBundles) {
+  public static AutoConfiguredRestClientSsl restClientSsl(SslBundles sslBundles) {
     return new AutoConfiguredRestClientSsl(sslBundles);
   }
 
   @Prototype
   @ConditionalOnMissingBean
-  static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
+  public static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
     RestClient.Builder builder = RestClient.builder()
             .requestFactory(ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS));
 

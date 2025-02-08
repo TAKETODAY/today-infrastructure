@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,10 +51,10 @@ import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
  */
 public final class ContentDisposition {
 
-  private final static Pattern BASE64_ENCODED_PATTERN =
+  private static final Pattern BASE64_ENCODED_PATTERN =
           Pattern.compile("=\\?([0-9a-zA-Z-_]+)\\?B\\?([+/0-9a-zA-Z]+=*)\\?=");
 
-  private final static Pattern QUOTED_PRINTABLE_ENCODED_PATTERN =
+  private static final Pattern QUOTED_PRINTABLE_ENCODED_PATTERN =
           Pattern.compile("=\\?([0-9a-zA-Z-_]+)\\?Q\\?([!->@-~]+)\\?="); // Printable ASCII other than "?" or SPACE
 
   private static final String INVALID_HEADER_FIELD_PARAMETER_FORMAT =
@@ -334,8 +334,8 @@ public final class ContentDisposition {
       if (eqIndex != -1) {
         String attribute = part.substring(0, eqIndex);
         String value = part.startsWith("\"", eqIndex + 1) && part.endsWith("\"")
-                       ? part.substring(eqIndex + 2, part.length() - 1)
-                       : part.substring(eqIndex + 1);
+                ? part.substring(eqIndex + 2, part.length() - 1)
+                : part.substring(eqIndex + 1);
         if ("name".equals(attribute)) {
           name = value;
         }

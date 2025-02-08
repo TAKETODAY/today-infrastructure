@@ -38,6 +38,7 @@ import infra.lang.Nullable;
  * {@link #hasNext()} to work properly, meaning it can be called multiple times
  * without calling {@link #next()}.
  *
+ * @param <T> the type of elements returned by this iterator
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */

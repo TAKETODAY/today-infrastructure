@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,8 +95,8 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     Assert.notNull(arguments, "Argument array passed to proceed cannot be null");
     if (arguments.length != this.methodInvocation.getArguments().length) {
       throw new IllegalArgumentException("Expecting " +
-          this.methodInvocation.getArguments().length + " arguments to proceed, " +
-          "but was passed " + arguments.length + " arguments");
+              this.methodInvocation.getArguments().length + " arguments to proceed, " +
+              "but was passed " + arguments.length + " arguments");
     }
     this.methodInvocation.setArguments(arguments);
     return this.methodInvocation.invocableClone(arguments).proceed();
@@ -177,7 +177,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
   /**
    * Lazily initialized MethodSignature.
    */
-  private class MethodSignatureImpl implements MethodSignature {
+  private final class MethodSignatureImpl implements MethodSignature {
 
     @Nullable
     private volatile String[] parameterNames;
@@ -249,7 +249,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     private String toString(boolean includeModifier, boolean includeReturnTypeAndArgs,
-        boolean useLongReturnAndArgumentTypeName, boolean useLongTypeName) {
+            boolean useLongReturnAndArgumentTypeName, boolean useLongTypeName) {
 
       StringBuilder sb = new StringBuilder();
       if (includeModifier) {
@@ -271,7 +271,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     private void appendTypes(StringBuilder sb, Class<?>[] types, boolean includeArgs,
-        boolean useLongReturnAndArgumentTypeName) {
+            boolean useLongReturnAndArgumentTypeName) {
 
       if (includeArgs) {
         for (int size = types.length, i = 0; i < size; i++) {
@@ -302,7 +302,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
   /**
    * Lazily initialized SourceLocation.
    */
-  private class SourceLocationImpl implements SourceLocation {
+  private final class SourceLocationImpl implements SourceLocation {
 
     @Override
     public Class<?> getWithinType() {

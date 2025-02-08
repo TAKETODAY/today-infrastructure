@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -178,7 +178,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
     };
   }
 
-  private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
+  private final class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
     private final Iterator<String> names = headers.names().iterator();
 
@@ -193,7 +193,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
     }
   }
 
-  private class HeaderEntry implements Map.Entry<String, List<String>> {
+  private final class HeaderEntry implements Map.Entry<String, List<String>> {
 
     private final String key;
 
@@ -219,7 +219,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
     }
   }
 
-  private class HeaderNames extends AbstractSet<String> {
+  private final class HeaderNames extends AbstractSet<String> {
 
     @Override
     public Iterator<String> iterator() {

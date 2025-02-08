@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link ManagedMap} types.
    */
-  private static class ManagedMapDelegate implements Delegate {
+  private static final class ManagedMapDelegate implements Delegate {
 
     private static final CodeBlock EMPTY_RESULT = CodeBlock.of("$T.ofEntries()", ManagedMap.class);
 
@@ -132,7 +132,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link Map} types.
    */
-  private static class LinkedHashMapDelegate extends MapDelegate {
+  private static final class LinkedHashMapDelegate extends MapDelegate {
 
     @Override
     protected CodeBlock generateMapCode(ValueCodeGenerator valueCodeGenerator, Map<?, ?> map) {
@@ -166,7 +166,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link BeanReference} types.
    */
-  private static class BeanReferenceDelegate implements Delegate {
+  private static final class BeanReferenceDelegate implements Delegate {
 
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
@@ -186,7 +186,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   /**
    * {@link Delegate} for {@link TypedStringValue} types.
    */
-  private static class TypedStringValueDelegate implements Delegate {
+  private static final class TypedStringValueDelegate implements Delegate {
 
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {

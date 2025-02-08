@@ -28,11 +28,6 @@ import infra.expression.OperatorOverloader;
 import infra.expression.TypeComparator;
 import infra.expression.TypeConverter;
 import infra.expression.TypeLocator;
-import infra.expression.spel.support.StandardEvaluationContext;
-import infra.expression.spel.support.StandardOperatorOverloader;
-import infra.expression.spel.support.StandardTypeComparator;
-import infra.expression.spel.support.StandardTypeConverter;
-import infra.expression.spel.support.StandardTypeLocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

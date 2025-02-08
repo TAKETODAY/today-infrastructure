@@ -1422,8 +1422,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * {@link SimpleTypeConverter} that is also {@link PropertyEditorRegistrar}.
    */
-  private static class ExtendedTypeConverter
-          extends SimpleTypeConverter implements PropertyEditorRegistrar {
+  private static final class ExtendedTypeConverter extends SimpleTypeConverter implements PropertyEditorRegistrar {
 
     @Override
     public void registerCustomEditors(PropertyEditorRegistry registry) {

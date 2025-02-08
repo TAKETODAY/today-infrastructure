@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -589,7 +589,8 @@ public abstract class BeanFactoryUtils {
       try {
         return beanFactory.getBean(beanName, requiredType);
       }
-      catch (NoSuchBeanDefinitionException ignored) { }
+      catch (NoSuchBeanDefinitionException ignored) {
+      }
     }
     return null;
   }
@@ -606,7 +607,8 @@ public abstract class BeanFactoryUtils {
     try {
       return beanFactory.getBean(requiredType);
     }
-    catch (NoSuchBeanDefinitionException ignored) { }
+    catch (NoSuchBeanDefinitionException ignored) {
+    }
     if (defaultValue != null) {
       return defaultValue.get();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ public class ExceptionClassifierRetryPolicy implements RetryPolicy {
 
   private static class ExceptionClassifierRetryContext extends RetryContextSupport implements RetryPolicy {
 
-    final private Classifier<Throwable, RetryPolicy> exceptionClassifier;
+    private final Classifier<Throwable, RetryPolicy> exceptionClassifier;
 
     // Dynamic: depends on the latest exception:
     private RetryPolicy policy;
@@ -114,7 +114,7 @@ public class ExceptionClassifierRetryPolicy implements RetryPolicy {
     // Dynamic: depends on the policy:
     private RetryContext context;
 
-    final private HashMap<RetryPolicy, RetryContext> contexts = new HashMap<>();
+    private final HashMap<RetryPolicy, RetryContext> contexts = new HashMap<>();
 
     public ExceptionClassifierRetryContext(RetryContext parent,
             Classifier<Throwable, RetryPolicy> exceptionClassifier) {

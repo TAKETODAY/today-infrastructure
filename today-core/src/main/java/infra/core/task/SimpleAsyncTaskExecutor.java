@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -340,7 +340,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    * making {@code beforeAccess()} and {@code afterAccess()}
    * visible to the surrounding class.
    */
-  private static class ConcurrencyThrottleAdapter extends ConcurrencyThrottleSupport {
+  private static final class ConcurrencyThrottleAdapter extends ConcurrencyThrottleSupport {
 
     @Override
     protected void beforeAccess() {
@@ -357,7 +357,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    * Decorates a target task with active thread tracking
    * and concurrency throttle management, if necessary.
    */
-  private class TaskTrackingRunnable implements Runnable {
+  private final class TaskTrackingRunnable implements Runnable {
 
     private final Runnable task;
 

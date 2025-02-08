@@ -439,7 +439,7 @@ public class YamlProcessor {
     FIRST_FOUND
   }
 
-  private class SupportedTagInspector implements TagInspector {
+  private final class SupportedTagInspector implements TagInspector {
 
     @Override
     public boolean isGlobalTagAllowed(Tag tag) {

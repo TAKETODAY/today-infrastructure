@@ -481,13 +481,12 @@ class JacksonAutoConfigurationTests {
             "UPPER_CAMEL_CASE", "SNAKE_CASE", "UPPER_SNAKE_CASE", "LOWER_CASE", "KEBAB_CASE", "LOWER_DOT_CASE");
   }
 
-  @SuppressWarnings("removal")
   private void shouldRegisterPropertyNamingStrategyHints(Class<?> type, String... fieldNames) {
     RuntimeHints hints = new RuntimeHints();
     new Hints().registerHints(hints, getClass().getClassLoader());
     ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
     Stream.of(fieldNames)
-            .map((name) -> reflection.onField(type, name))
+            .map((name) -> reflection.onFieldAccess(type, name))
             .forEach((predicate) -> assertThat(predicate).accepts(hints));
   }
 

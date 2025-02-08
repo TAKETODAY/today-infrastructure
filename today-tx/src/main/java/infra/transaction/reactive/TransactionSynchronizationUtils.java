@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ abstract class TransactionSynchronizationUtils {
   /**
    * Inner class to avoid hard-coded dependency on AOP module.
    */
-  private static class ScopedProxyUnwrapper {
+  private static final class ScopedProxyUnwrapper {
 
     public static Object unwrapIfNecessary(Object resource) {
       if (resource instanceof ScopedObject) {

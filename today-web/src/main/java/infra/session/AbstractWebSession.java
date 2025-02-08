@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.session;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import infra.core.AttributeAccessor;
 import infra.lang.Assert;
@@ -44,7 +45,7 @@ public abstract class AbstractWebSession implements WebSession {
   @Nullable
   protected Map<String, Object> attributes;
 
-  protected transient final SessionEventDispatcher eventDispatcher;
+  protected final transient SessionEventDispatcher eventDispatcher;
 
   protected AbstractWebSession(SessionEventDispatcher eventDispatcher) {
     this.eventDispatcher = eventDispatcher;
@@ -204,6 +205,15 @@ public abstract class AbstractWebSession implements WebSession {
   @Override
   public int hashCode() {
     return ObjectUtils.nullSafeHashCode(attributes);
+  }
+
+  @Override
+  public boolean equals(Object param) {
+    if (this == param)
+      return true;
+    if (!(param instanceof AbstractWebSession that))
+      return false;
+    return Objects.equals(attributes, that.attributes);
   }
 
   @Override

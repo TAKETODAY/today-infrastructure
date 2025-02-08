@@ -24,7 +24,6 @@ import java.util.HashMap;
 
 import infra.expression.Expression;
 import infra.expression.ExpressionParser;
-import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.StandardEvaluationContext;
 

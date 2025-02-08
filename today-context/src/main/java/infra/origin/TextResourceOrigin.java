@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public class TextResourceOrigin implements Origin {
+
   @Nullable
   private final Resource resource;
 
@@ -127,7 +128,8 @@ public class TextResourceOrigin implements Origin {
         return jarUri.getDescription(resource.toString());
       }
     }
-    catch (IOException ignored) { }
+    catch (IOException ignored) {
+    }
     return resource.toString();
   }
 

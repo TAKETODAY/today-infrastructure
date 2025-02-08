@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -215,7 +215,7 @@ public enum CloudPlatform {
    * @return the {@link CloudPlatform} or {@code null}
    */
   @Nullable
-  public static CloudPlatform getActive(Environment environment) {
+  public static CloudPlatform getActive(@Nullable Environment environment) {
     if (environment != null) {
       for (CloudPlatform cloudPlatform : values()) {
         if (cloudPlatform.isActive(environment)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,11 @@ import java.lang.annotation.Target;
  * Specifies that a persistent property or field should be persisted
  * as a enumerated type.  If the enumerated type
  * is not specified or the <code>Enumerated</code> annotation is not
- * used, the <code>EnumType</code> value is assumed to be <code>ORDINAL<code>.
+ * used, the {@code EnumType} value is assumed to be {@code EnumType.ORDINAL}.
  *
- * <pre>
- *   Example: {@code
+ * <p> Example:
+ * <pre>{@code
+ *
  *   public enum EmployeeStatus {FULL_TIME, PART_TIME, CONTRACT}
  *
  *   public enum SalaryRate {JUNIOR, SENIOR, MANAGER, EXECUTIVE}
@@ -42,7 +43,7 @@ import java.lang.annotation.Target;
  *       public SalaryRate getPayScale() {...}
  *       ...
  *   }
- *} </pre>
+ * } </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
@@ -54,4 +55,5 @@ public @interface Enumerated {
 
   /** (Optional) The type used in mapping an enum type. */
   EnumType value() default EnumType.ORDINAL;
+
 }

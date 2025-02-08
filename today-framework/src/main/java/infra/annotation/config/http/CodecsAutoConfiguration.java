@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,26 +54,12 @@ public class CodecsAutoConfiguration {
 
   private static final MimeType[] EMPTY_MIME_TYPES = {};
 
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(ObjectMapper.class)
-  static class JacksonCodecConfiguration {
-
-    @Order(0)
-    @Component
-    @ConditionalOnBean(ObjectMapper.class)
-    static CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
-      return configurer -> {
-        CodecConfigurer.DefaultCodecs defaults = configurer.defaultCodecs();
-        defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
-        defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, EMPTY_MIME_TYPES));
-      };
-    }
-
+  private CodecsAutoConfiguration() {
   }
 
   @Component
   @Order(0)
-  static CodecCustomizer defaultCodecCustomizer(CodecProperties codecProperties) {
+  public static CodecCustomizer defaultCodecCustomizer(CodecProperties codecProperties) {
     return configurer -> {
       PropertyMapper map = PropertyMapper.get();
       CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();
@@ -82,6 +68,26 @@ public class CodecsAutoConfiguration {
               .whenNonNull().asInt(DataSize::toBytes)
               .to(defaultCodecs::maxInMemorySize);
     };
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass(ObjectMapper.class)
+  public static class JacksonCodecConfiguration {
+
+    private JacksonCodecConfiguration() {
+    }
+
+    @Order(0)
+    @Component
+    @ConditionalOnBean(ObjectMapper.class)
+    public static CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
+      return configurer -> {
+        CodecConfigurer.DefaultCodecs defaults = configurer.defaultCodecs();
+        defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
+        defaults.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper, EMPTY_MIME_TYPES));
+      };
+    }
+
   }
 
 }

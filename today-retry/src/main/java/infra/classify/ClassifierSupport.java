@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,12 @@ package infra.classify;
  * @param <C> the type of the thing to classify
  * @param <T> the output of the classifier
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 @SuppressWarnings("serial")
 public class ClassifierSupport<C, T> implements Classifier<C, T> {
 
-  final private T defaultValue;
+  private final T defaultValue;
 
   /**
    * @param defaultValue the default value

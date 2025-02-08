@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +24,12 @@ import java.util.stream.Stream;
 
 import infra.dao.DataAccessException;
 import infra.jdbc.IncorrectResultSetColumnCountException;
-import infra.jdbc.support.KeyHolder;
-import infra.jdbc.support.GeneratedKeyHolder;
-import infra.jdbc.support.rowset.SqlRowSet;
-import infra.lang.Nullable;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.simple.JdbcClient;
+import infra.jdbc.support.GeneratedKeyHolder;
+import infra.jdbc.support.KeyHolder;
+import infra.jdbc.support.rowset.SqlRowSet;
+import infra.lang.Nullable;
 
 /**
  * Interface specifying a basic set of JDBC operations.
@@ -44,7 +44,7 @@ import infra.jdbc.core.simple.JdbcClient;
  * <em>Infra TestContext Framework</em>, in the {@code today-test} artifact.
  *
  * <p>there is a unified JDBC access facade available in
- * the form of {@link JdbcClient}.</b>
+ * the form of {@link JdbcClient}.
  * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
  * with flexible use of indexed or named parameters. It delegates to
  * {@code JdbcOperations}/{@code NamedParameterJdbcOperations} for actual execution.

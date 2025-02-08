@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1351,7 +1351,7 @@ final class ConstructorResolver {
   /**
    * Delegate for checking Java 6's {@link ConstructorProperties} annotation.
    */
-  private static class ConstructorPropertiesChecker {
+  private static final class ConstructorPropertiesChecker {
 
     @Nullable
     public static String[] evaluate(Constructor<?> candidate, int paramCount) {
@@ -1376,7 +1376,7 @@ final class ConstructorResolver {
    * and an internally built DependencyDescriptor for autowiring purposes.
    */
   @SuppressWarnings("serial")
-  private static class ConstructorDependencyDescriptor extends DependencyDescriptor {
+  private static final class ConstructorDependencyDescriptor extends DependencyDescriptor {
 
     @Nullable
     private volatile String shortcut;

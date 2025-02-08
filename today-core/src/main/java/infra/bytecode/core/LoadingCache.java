@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
+import infra.lang.Nullable;
+
 /**
+ * @param <V> value
+ * @param <K> key
+ * @param <KK> key map type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-09-01 22:04
  */
@@ -56,10 +61,10 @@ final class LoadingCache<K, KK, V> {
    *
    * @param key original key that would be used to load the instance
    * @param cacheKey key that would be used to store the entry in internal map
-   * @param v null or {@link FutureTask<V>}
+   * @param v {@code null} or {@link FutureTask}
    * @return newly created instance
    */
-  private V createEntry(final K key, KK cacheKey, Object v) {
+  private V createEntry(final K key, KK cacheKey, @Nullable Object v) {
     FutureTask<V> task;
     boolean created = false;
     if (v != null) {

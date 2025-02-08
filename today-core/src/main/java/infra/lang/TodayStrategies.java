@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ public class TodayStrategies {
         value = System.getProperty(key);
       }
       catch (Throwable ex) {
-        System.err.printf("Could not retrieve system property '%s': %s%n", key, ex);
+        log.warn("Could not retrieve system property '{}': {}", key, ex.toString());
       }
     }
 
@@ -306,10 +306,12 @@ public class TodayStrategies {
         try {
           return Integer.decode(v);
         }
-        catch (NumberFormatException ignored) { }
+        catch (NumberFormatException ignored) {
+        }
       }
     }
-    catch (IllegalArgumentException | NullPointerException ignored) { }
+    catch (IllegalArgumentException | NullPointerException ignored) {
+    }
     return val;
   }
 
@@ -444,10 +446,12 @@ public class TodayStrategies {
         try {
           return Long.decode(v);
         }
-        catch (NumberFormatException ignored) { }
+        catch (NumberFormatException ignored) {
+        }
       }
     }
-    catch (IllegalArgumentException | NullPointerException ignored) { }
+    catch (IllegalArgumentException | NullPointerException ignored) {
+    }
 
     return val;
   }

@@ -18,8 +18,6 @@ package infra.bytecode.util;
 
 import org.junit.jupiter.api.Test;
 
-import infra.bytecode.util.StringSwitcher;
-
 import static org.junit.jupiter.api.Assertions.fail;
 
 class XmlParsingTests {

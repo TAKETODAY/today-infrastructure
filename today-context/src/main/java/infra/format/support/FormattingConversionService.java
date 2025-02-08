@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ import infra.format.Formatter;
 import infra.format.FormatterRegistry;
 import infra.format.Parser;
 import infra.format.Printer;
-import infra.lang.NonNull;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.StringUtils;
@@ -121,9 +120,9 @@ public class FormattingConversionService extends GenericConversionService
               decoratingProxy.getDecoratedClass(), genericInterface);
     }
     if (fieldType == null) {
-      throw new IllegalArgumentException("Unable to extract the parameterized field type from " +
-              ClassUtils.getShortName(genericInterface) + " [" + instance.getClass().getName() +
-              "]; does the class parameterize the <T> generic type?");
+      throw new IllegalArgumentException(
+              "Unable to extract the parameterized field type from %s [%s]; does the class parameterize the <T> generic type?"
+                      .formatted(ClassUtils.getShortName(genericInterface), instance.getClass().getName()));
     }
     return fieldType;
   }
@@ -131,14 +130,23 @@ public class FormattingConversionService extends GenericConversionService
   static <T extends Annotation> Class<T> getAnnotationType(AnnotationFormatterFactory<T> factory) {
     Class<T> annotationType = GenericTypeResolver.resolveTypeArgument(factory.getClass(), AnnotationFormatterFactory.class);
     if (annotationType == null) {
-      throw new IllegalArgumentException("Unable to extract parameterized Annotation type argument from " +
-              "AnnotationFormatterFactory [" + factory.getClass().getName() +
-              "]; does the factory parameterize the <A extends Annotation> generic type?");
+      throw new IllegalArgumentException(
+              "Unable to extract parameterized Annotation type argument from AnnotationFormatterFactory [%s]; does the factory parameterize the <A extends Annotation> generic type?"
+                      .formatted(factory.getClass().getName()));
     }
     return annotationType;
   }
 
-  private static class PrinterConverter implements GenericConverter {
+  private static Annotation getAnnotation(TypeDescriptor sourceType, Class<? extends Annotation> annotationType) {
+    Annotation ann = sourceType.getAnnotation(annotationType);
+    if (ann == null) {
+      throw new IllegalStateException(
+              "Expected [%s] to be present on %s".formatted(annotationType.getName(), sourceType));
+    }
+    return ann;
+  }
+
+  private static final class PrinterConverter implements GenericConverter {
 
     private final Class<?> fieldType;
 
@@ -222,17 +230,7 @@ public class FormattingConversionService extends GenericConversionService
     }
   }
 
-  @NonNull
-  private static Annotation getAnnotation(TypeDescriptor sourceType, Class<? extends Annotation> annotationType) {
-    Annotation ann = sourceType.getAnnotation(annotationType);
-    if (ann == null) {
-      throw new IllegalStateException(
-              "Expected [" + annotationType.getName() + "] to be present on " + sourceType);
-    }
-    return ann;
-  }
-
-  private class AnnotationPrinterConverter implements ConditionalGenericConverter {
+  private final class AnnotationPrinterConverter implements ConditionalGenericConverter {
 
     private final Class<? extends Annotation> annotationType;
 
@@ -282,7 +280,7 @@ public class FormattingConversionService extends GenericConversionService
     }
   }
 
-  private class AnnotationParserConverter implements ConditionalGenericConverter {
+  private final class AnnotationParserConverter implements ConditionalGenericConverter {
 
     private final Class<? extends Annotation> annotationType;
 

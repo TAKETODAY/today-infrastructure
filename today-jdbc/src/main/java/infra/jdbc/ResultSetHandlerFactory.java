@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@ import java.sql.SQLException;
 import infra.jdbc.core.ResultSetExtractor;
 
 /**
- * User: dimzon Date: 4/7/14 Time: 12:02 AM
+ * @param <T> element type
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public interface ResultSetHandlerFactory<T> {
 
@@ -31,4 +32,5 @@ public interface ResultSetHandlerFactory<T> {
    * Get one row ResultSetExtractor
    */
   ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData resultSetMetaData) throws SQLException;
+
 }

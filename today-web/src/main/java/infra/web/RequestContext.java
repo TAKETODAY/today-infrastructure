@@ -1290,7 +1290,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
           try {
             return Long.parseLong(headerValue);
           }
-          catch (NumberFormatException ignored) { }
+          catch (NumberFormatException ignored) {
+          }
         }
       }
     }

@@ -29,6 +29,7 @@ import infra.lang.Assert;
  * Use {@link Enum#name()}
  * </p>
  *
+ * @param <E> value type
  * @author Clinton Begin
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0

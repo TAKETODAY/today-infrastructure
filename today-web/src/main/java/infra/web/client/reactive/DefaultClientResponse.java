@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class DefaultClientResponse implements ClientResponse {
+final class DefaultClientResponse implements ClientResponse {
 
   private static final byte[] EMPTY = Constant.EMPTY_BYTES;
 
@@ -268,7 +268,7 @@ class DefaultClientResponse implements ClientResponse {
     return requestSupplier.get();
   }
 
-  private class DefaultHeaders implements Headers {
+  private final class DefaultHeaders implements Headers {
 
     private final HttpHeaders httpHeaders = response.getHeaders().asReadOnly();
 

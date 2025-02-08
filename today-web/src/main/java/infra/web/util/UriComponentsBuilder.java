@@ -786,7 +786,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     PathComponentBuilder cloneBuilder();
   }
 
-  private static class CompositePathComponentBuilder implements PathComponentBuilder {
+  private static final class CompositePathComponentBuilder implements PathComponentBuilder {
 
     private final Deque<PathComponentBuilder> builders = new ArrayDeque<>();
 
@@ -861,7 +861,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     }
   }
 
-  private static class FullPathComponentBuilder implements PathComponentBuilder {
+  private static final class FullPathComponentBuilder implements PathComponentBuilder {
 
     private final StringBuilder path = new StringBuilder();
 
@@ -907,7 +907,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
     }
   }
 
-  private static class PathSegmentComponentBuilder implements PathComponentBuilder {
+  private static final class PathSegmentComponentBuilder implements PathComponentBuilder {
 
     private final List<String> pathSegments = new ArrayList<>();
 

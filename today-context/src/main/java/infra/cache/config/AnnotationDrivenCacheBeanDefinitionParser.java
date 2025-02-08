@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
   /**
    * Configure the necessary infrastructure to support the Framework's caching annotations.
    */
-  private static class CachingConfigurer {
+  private static final class CachingConfigurer {
 
     private static void registerCacheAdvisor(Element element, ParserContext parserContext) {
       if (!parserContext.getRegistry().containsBeanDefinition(CacheManagementConfigUtils.CACHE_ADVISOR_BEAN_NAME)) {
@@ -206,7 +206,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
   /**
    * Configure the necessary infrastructure to support the standard JSR-107 caching annotations.
    */
-  private static class JCacheCachingConfigurer {
+  private static final class JCacheCachingConfigurer {
 
     private static void registerCacheAdvisor(Element element, ParserContext parserContext) {
       if (!parserContext.getRegistry().containsBeanDefinition(CacheManagementConfigUtils.JCACHE_ADVISOR_BEAN_NAME)) {

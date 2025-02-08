@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -555,7 +555,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    *
    * @see org.crac.Core
    */
-  private class CracDelegate {
+  private final class CracDelegate {
 
     public Object registerResource() {
       log.debug("Registering JVM checkpoint/restore callback for Infra-managed lifecycle beans");
@@ -588,7 +588,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * @see #stopForRestart()
    * @see #restartAfterStop()
    */
-  private class CracResourceAdapter implements org.crac.Resource {
+  private final class CracResourceAdapter implements org.crac.Resource {
 
     @Nullable
     private CyclicBarrier barrier;

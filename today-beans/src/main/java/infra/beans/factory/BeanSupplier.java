@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import infra.util.ClassUtils;
  * supports singleton or prototype
  * </p>
  *
+ * @param <T> Bean type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/29 21:13
  */
@@ -107,13 +108,13 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return new BeanSupplier<>(beanFactory, beanName, beanType);
   }
 
-  private final static class SingletonBeanSupplier<T>
-          extends BeanSupplier<T> implements Supplier<T> {
+  private static final class SingletonBeanSupplier<T> extends BeanSupplier<T> implements Supplier<T> {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private volatile transient T instance;
+    @Nullable
+    private transient volatile T instance;
 
     SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> beanType) {
       super(beanFactory, beanName, beanType);

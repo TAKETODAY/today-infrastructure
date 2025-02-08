@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 import infra.expression.ConstructorResolver;
 import infra.expression.MethodResolver;
 import infra.expression.PropertyAccessor;
-import infra.expression.spel.support.StandardEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

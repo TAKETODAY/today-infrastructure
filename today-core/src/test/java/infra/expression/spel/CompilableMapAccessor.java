@@ -24,7 +24,6 @@ import infra.bytecode.core.CodeFlow;
 import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
 import infra.expression.TypedValue;
-import infra.expression.spel.CompilablePropertyAccessor;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 

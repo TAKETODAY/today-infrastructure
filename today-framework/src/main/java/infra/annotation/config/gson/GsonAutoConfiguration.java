@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,9 +44,12 @@ import infra.util.PropertyMapper;
 @EnableConfigurationProperties(GsonProperties.class)
 public class GsonAutoConfiguration {
 
+  private GsonAutoConfiguration() {
+  }
+
   @Component
   @ConditionalOnMissingBean
-  static GsonBuilder gsonBuilder(List<GsonBuilderCustomizer> customizers) {
+  public static GsonBuilder gsonBuilder(List<GsonBuilderCustomizer> customizers) {
     GsonBuilder builder = new GsonBuilder();
     customizers.forEach((c) -> c.customize(builder));
     return builder;
@@ -54,12 +57,12 @@ public class GsonAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  static Gson gson(GsonBuilder gsonBuilder) {
+  public static Gson gson(GsonBuilder gsonBuilder) {
     return gsonBuilder.create();
   }
 
   @Component
-  static StandardGsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
+  public static StandardGsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
     return new StandardGsonBuilderCustomizer(gsonProperties);
   }
 

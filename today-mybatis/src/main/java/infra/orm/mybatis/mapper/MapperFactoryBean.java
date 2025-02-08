@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +24,8 @@ import infra.beans.factory.FactoryBean;
 import infra.lang.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.orm.mybatis.SqlSessionDaoSupport;
 import infra.orm.mybatis.SqlSessionTemplate;
-import infra.orm.mybatis.support.SqlSessionDaoSupport;
 
 /**
  * BeanFactory that enables injection of MyBatis mapper interfaces. It can
@@ -51,6 +51,7 @@ import infra.orm.mybatis.support.SqlSessionDaoSupport;
  * <p>
  * Note that this factory can only inject <em>interfaces</em>, not concrete classes.
  *
+ * @param <T> Mapper type
  * @author Eduardo Macarron
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SqlSessionTemplate
