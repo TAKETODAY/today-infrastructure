@@ -259,7 +259,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
   /**
    * Inner class to configure {@link WebMergedContextConfiguration}.
    */
-  private static class WebConfigurer {
+  private static final class WebConfigurer {
 
     void configure(MergedContextConfiguration configuration, Application application, List<ApplicationContextInitializer> initializers) {
       WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,11 @@
  */
 
 /**
- * Test support for {@link infra.framework.context.TypeExcludeFilter}.
+ * Test support for {@link infra.context.annotation.config.TypeExcludeFilter}.
  */
+@NonNullApi
+@NonNullFields
 package infra.app.test.context.filter;
+
+import infra.lang.NonNullApi;
+import infra.lang.NonNullFields;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -193,7 +193,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
         String createdBy = attributes.getValue("Created-By");
         return createdBy != null && createdBy.contains("IntelliJ");
       }
-      catch (Exception ignored) { }
+      catch (Exception ignored) {
+      }
     }
     return false;
   }
@@ -335,7 +336,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             }
           }
         }
-        catch (URISyntaxException ignored) { }
+        catch (URISyntaxException ignored) {
+        }
       }
       return false;
     }

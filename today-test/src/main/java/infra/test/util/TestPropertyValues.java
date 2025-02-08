@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/5 23:10
  */
-public class TestPropertyValues {
+public final class TestPropertyValues {
 
   private static final TestPropertyValues EMPTY = new TestPropertyValues(Collections.emptyMap());
 
@@ -218,7 +218,7 @@ public class TestPropertyValues {
     }
     Map<String, Object> source = new LinkedHashMap<>(this.properties);
     sources.addFirst((type.equals(Type.MAP) ? new MapPropertySource(name, source)
-                                            : new SystemEnvironmentPropertySource(name, source)));
+            : new SystemEnvironmentPropertySource(name, source)));
   }
 
   /**
@@ -400,7 +400,7 @@ public class TestPropertyValues {
   /**
    * Handler to apply and restore system properties.
    */
-  private class SystemPropertiesHandler implements Closeable {
+  private final class SystemPropertiesHandler implements Closeable {
 
     private final Map<String, String> previous;
 

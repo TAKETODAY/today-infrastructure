@@ -16,14 +16,11 @@
  */
 
 /**
- * Infrastructure implementations of retry concerns.
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/7/26 17:29
+ * DisabledOnOs
  */
 @NonNullApi
 @NonNullFields
-package infra.retry;
+package infra.test.junit;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

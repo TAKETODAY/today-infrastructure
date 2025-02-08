@@ -75,7 +75,7 @@ public class TransactionAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(TransactionOperations.class)
-    static TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
+    public static TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
       return new TransactionTemplate(transactionManager);
     }
 

@@ -196,7 +196,8 @@ class ImportsContextCustomizer implements ContextCustomizer {
         }
         registry.removeBeanDefinition(ImportsConfiguration.BEAN_NAME);
       }
-      catch (NoSuchBeanDefinitionException ignored) { }
+      catch (NoSuchBeanDefinitionException ignored) {
+      }
     }
 
   }

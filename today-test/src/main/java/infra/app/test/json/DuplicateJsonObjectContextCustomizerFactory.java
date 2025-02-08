@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
  */
 
 package infra.app.test.json;
-
 
 import java.net.URL;
 import java.util.Collections;
@@ -45,7 +44,7 @@ class DuplicateJsonObjectContextCustomizerFactory implements ContextCustomizerFa
     return new DuplicateJsonObjectContextCustomizer();
   }
 
-  private static class DuplicateJsonObjectContextCustomizer implements ContextCustomizer {
+  private static final class DuplicateJsonObjectContextCustomizer implements ContextCustomizer {
 
     private final Logger logger = LoggerFactory.getLogger(DuplicateJsonObjectContextCustomizer.class);
 

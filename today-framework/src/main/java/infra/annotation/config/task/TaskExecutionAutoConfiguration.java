@@ -55,6 +55,9 @@ import infra.stereotype.Component;
 @EnableConfigurationProperties(TaskExecutionProperties.class)
 public class TaskExecutionAutoConfiguration {
 
+  private TaskExecutionAutoConfiguration() {
+  }
+
   /**
    * Bean name of the application {@link TaskExecutor}.
    */

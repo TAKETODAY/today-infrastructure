@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ import infra.retry.support.RetryTemplate;
  * @author James Carr
  * @author Gary Russell
  * @author Artem Bilan
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class RetryInterceptorBuilder<T extends MethodInterceptor> {
@@ -207,7 +208,7 @@ public abstract class RetryInterceptorBuilder<T extends MethodInterceptor> {
   private RetryInterceptorBuilder() {
   }
 
-  public static class StatefulRetryInterceptorBuilder
+  public static final class StatefulRetryInterceptorBuilder
           extends RetryInterceptorBuilder<StatefulRetryOperationsInterceptor> {
 
     private final StatefulRetryOperationsInterceptor interceptor = new StatefulRetryOperationsInterceptor();
@@ -322,7 +323,7 @@ public abstract class RetryInterceptorBuilder<T extends MethodInterceptor> {
 
   }
 
-  public static class CircuitBreakerInterceptorBuilder
+  public static final class CircuitBreakerInterceptorBuilder
           extends RetryInterceptorBuilder<StatefulRetryOperationsInterceptor> {
 
     private final StatefulRetryOperationsInterceptor interceptor = new StatefulRetryOperationsInterceptor();
@@ -384,7 +385,7 @@ public abstract class RetryInterceptorBuilder<T extends MethodInterceptor> {
 
   }
 
-  public static class StatelessRetryInterceptorBuilder extends RetryInterceptorBuilder<RetryOperationsInterceptor> {
+  public static final class StatelessRetryInterceptorBuilder extends RetryInterceptorBuilder<RetryOperationsInterceptor> {
 
     private final RetryOperationsInterceptor interceptor = new RetryOperationsInterceptor();
 

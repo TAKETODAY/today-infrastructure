@@ -14,16 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
-
 /**
- * Infrastructure implementations of retry concerns.
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/7/26 17:29
+ * Configuration support for tests.
  */
 @NonNullApi
 @NonNullFields
-package infra.retry;
+package infra.context.annotation.config;
 
 import infra.lang.NonNullApi;
 import infra.lang.NonNullFields;

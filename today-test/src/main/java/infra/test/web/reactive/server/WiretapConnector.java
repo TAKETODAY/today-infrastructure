@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ class WiretapConnector implements ClientHttpConnector {
   /**
    * Tap into a Publisher of data buffers to save the content.
    */
-  final static class WiretapRecorder {
+  static final class WiretapRecorder {
 
     @Nullable
     private final Flux<? extends DataBuffer> publisher;
@@ -147,20 +147,20 @@ class WiretapConnector implements ClientHttpConnector {
       }
 
       this.publisher = publisher != null ?
-                       Flux.from(publisher)
-                               .doOnSubscribe(s -> this.hasContentConsumer = true)
-                               .doOnNext(this.buffer::write)
-                               .doOnError(this::handleOnError)
-                               .doOnCancel(this::handleOnComplete)
-                               .doOnComplete(this::handleOnComplete) : null;
+              Flux.from(publisher)
+                      .doOnSubscribe(s -> this.hasContentConsumer = true)
+                      .doOnNext(this.buffer::write)
+                      .doOnError(this::handleOnError)
+                      .doOnCancel(this::handleOnComplete)
+                      .doOnComplete(this::handleOnComplete) : null;
 
       this.publisherNested = publisherNested != null ?
-                             Flux.from(publisherNested)
-                                     .doOnSubscribe(s -> this.hasContentConsumer = true)
-                                     .map(p -> Flux.from(p).doOnNext(this.buffer::write).doOnError(this::handleOnError))
-                                     .doOnError(this::handleOnError)
-                                     .doOnCancel(this::handleOnComplete)
-                                     .doOnComplete(this::handleOnComplete) : null;
+              Flux.from(publisherNested)
+                      .doOnSubscribe(s -> this.hasContentConsumer = true)
+                      .map(p -> Flux.from(p).doOnNext(this.buffer::write).doOnError(this::handleOnError))
+                      .doOnError(this::handleOnError)
+                      .doOnCancel(this::handleOnComplete)
+                      .doOnComplete(this::handleOnComplete) : null;
 
       if (publisher == null && publisherNested == null) {
         this.content.tryEmitEmpty();

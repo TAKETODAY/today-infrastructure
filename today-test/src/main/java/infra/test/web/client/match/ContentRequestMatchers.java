@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -354,7 +354,7 @@ public class ContentRequestMatchers {
     protected abstract void matchInternal(MockClientHttpRequest request) throws Exception;
   }
 
-  private static class MultipartHelper {
+  private static final class MultipartHelper {
 
     public static MultiValueMap<String, ?> parse(MockClientHttpRequest request) {
       try {
