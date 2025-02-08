@@ -26,7 +26,6 @@ include 'infra-bom'
 include 'infra-docs'
 include 'infra-dependencies'
 
-include 'today-retry'
 include 'today-tx'
 include 'today-web'
 include 'today-aspects'
