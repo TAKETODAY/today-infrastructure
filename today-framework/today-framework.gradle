@@ -83,7 +83,6 @@ dependencies {
   testImplementation(project(":today-beans"))
   testImplementation(project(":today-context"))
   testImplementation(project(":today-core"))
-  testImplementation(project(":today-mybatis"))
   testImplementation(testFixtures(project(":today-aop")))
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))
