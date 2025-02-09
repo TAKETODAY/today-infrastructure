@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.jdbc.core.simple;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +32,14 @@ import javax.sql.DataSource;
 
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.BadSqlGrammarException;
+import infra.jdbc.core.RowMapper;
 import infra.jdbc.core.SqlOutParameter;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.core.namedparam.MapSqlParameterSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -357,6 +360,39 @@ class SimpleJdbcCallTests {
             .declareParameters(new SqlParameter("@CUSTID", Types.NUMERIC));
     adder.compile();
     verifyStatement(adder, "{call ADD_INVOICE(@AMOUNT = ?, @CUSTID = ?)}");
+  }
+
+  @Test
+  void declareParametersCannotBeInvokedWhenCompiled() {
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("procedure_name")
+            .declareParameters(new SqlParameter("PARAM", Types.VARCHAR));
+    call.compile();
+    assertThatIllegalStateException()
+            .isThrownBy(() -> call.declareParameters(new SqlParameter("Ignored Param", Types.VARCHAR)))
+            .withMessage("SqlCall for procedure is already compiled");
+  }
+
+  @Test
+  void addDeclaredRowMapperCanBeConfigured() {
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("procedure_name")
+            .returningResultSet("result_set", (rs, i) -> new Object());
+
+    assertThat(call).extracting("declaredRowMappers")
+            .asInstanceOf(InstanceOfAssertFactories.map(String.class, RowMapper.class))
+            .containsOnlyKeys("result_set");
+  }
+
+  @Test
+  void addDeclaredRowMapperWhenCompiled() {
+    SimpleJdbcCall call = new SimpleJdbcCall(dataSource)
+            .withProcedureName("procedure_name")
+            .returningResultSet("result_set", (rs, i) -> new Object());
+    call.compile();
+    assertThatIllegalStateException()
+            .isThrownBy(() -> call.returningResultSet("not added", (rs, i) -> new Object()))
+            .withMessage("SqlCall for procedure is already compiled");
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ import infra.util.StringUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class AbstractJdbcCall {
@@ -251,6 +252,10 @@ public abstract class AbstractJdbcCall {
    * @param parameter the {@link SqlParameter} to add
    */
   public void addDeclaredParameter(SqlParameter parameter) {
+    if (isCompiled()) {
+      throw new IllegalStateException("SqlCall for " + (isFunction() ? "function" : "procedure") +
+              " is already compiled");
+    }
     Assert.notNull(parameter, "The supplied parameter is required");
     if (StringUtils.isBlank(parameter.getName())) {
       throw new InvalidDataAccessApiUsageException(
@@ -269,6 +274,10 @@ public abstract class AbstractJdbcCall {
    * @param rowMapper the RowMapper implementation to use
    */
   public void addDeclaredRowMapper(String parameterName, RowMapper<?> rowMapper) {
+    if (isCompiled()) {
+      throw new IllegalStateException("SqlCall for " + (isFunction() ? "function" : "procedure") +
+              " is already compiled");
+    }
     this.declaredRowMappers.put(parameterName, rowMapper);
     if (logger.isDebugEnabled()) {
       logger.debug("Added row mapper for [" + getProcedureName() + "]: " + parameterName);
