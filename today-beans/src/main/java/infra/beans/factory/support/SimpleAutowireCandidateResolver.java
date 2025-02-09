@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,13 @@
 
 package infra.beans.factory.support;
 
-import infra.beans.factory.config.BeanDefinitionHolder;
-import infra.beans.factory.config.DependencyDescriptor;
-import infra.lang.Nullable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import infra.beans.BeansException;
+import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanFactoryUtils;
+import infra.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * {@link AutowireCandidateResolver} implementation to use when no annotation
@@ -32,51 +36,39 @@ import infra.lang.Nullable;
  */
 public class SimpleAutowireCandidateResolver implements AutowireCandidateResolver {
 
-  @Override
-  public boolean isAutowireCandidate(BeanDefinitionHolder definition, DependencyDescriptor descriptor) {
-    return definition.getBeanDefinition().isAutowireCandidate();
-  }
-
-  @Override
-  @Nullable
-  public Object getSuggestedValue(DependencyDescriptor descriptor) {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public String getSuggestedName(DependencyDescriptor descriptor) {
-    return null;
-  }
-
-  @Override
-  public boolean hasQualifier(DependencyDescriptor descriptor) {
-    return false;
-  }
-
-  @Override
-  public boolean isRequired(DependencyDescriptor descriptor) {
-    return descriptor.isRequired();
-  }
-
-  @Override
-  @Nullable
-  public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
-    return null;
-  }
-
-  @Override
-  @Nullable
-  public Class<?> getLazyResolutionProxyClass(DependencyDescriptor descriptor, @Nullable String beanName) {
-    return null;
-  }
-
   /**
    * This implementation returns {@code this} as-is.
    */
   @Override
   public AutowireCandidateResolver cloneIfNecessary() {
     return this;
+  }
+
+  /**
+   * Resolve a map of all beans of the given type, also picking up beans defined in
+   * ancestor bean factories, with the specific condition that each bean actually
+   * has autowire candidate status. This matches simple injection point resolution
+   * as implemented by this {@link AutowireCandidateResolver} strategy, including
+   * beans which are not marked as default candidates but excluding beans which
+   * are not even marked as autowire candidates.
+   *
+   * @param lbf the bean factory
+   * @param type the type of bean to match
+   * @return the Map of matching bean instances, or an empty Map if none
+   * @throws BeansException if a bean could not be created
+   * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class)
+   * @see infra.beans.factory.config.BeanDefinition#isAutowireCandidate()
+   * @see AbstractBeanDefinition#isDefaultCandidate()
+   * @since 5.0
+   */
+  public static <T> Map<String, T> resolveAutowireCandidates(ConfigurableBeanFactory lbf, Class<T> type) {
+    Map<String, T> candidates = new LinkedHashMap<>();
+    for (String beanName : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(lbf, type)) {
+      if (AutowireUtils.isAutowireCandidate(lbf, beanName)) {
+        candidates.put(beanName, lbf.getBean(beanName, type));
+      }
+    }
+    return candidates;
   }
 
 }

@@ -2380,7 +2380,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       if (customFilter != null) {
         return getBeanNamesForTypedStream(requiredType(), allowEagerInit)
                 .stream()
-                .filter(name -> customFilter.test(getType(name)))
+                .filter(name -> filterInternal(name) && customFilter.test(getType(name)))
                 .map(name -> (T) getBean(name))
                 .filter(Objects::nonNull);
       }
@@ -2388,6 +2388,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
               .stream()
               .map(name -> (T) getBean(name))
               .filter(Objects::nonNull);
+    }
+
+    protected boolean filterInternal(String name) {
+      return true;
     }
 
     @Override
@@ -2399,7 +2403,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
       Map<String, T> matchingBeans = CollectionUtils.newLinkedHashMap(beanNames.size());
       for (String beanName : beanNames) {
-        if (customFilter == null || customFilter.test(getType(beanName))) {
+        if (customFilter == null || (filterInternal(beanName) && customFilter.test(getType(beanName)))) {
           Object beanInstance = getBean(beanName);
           if (beanInstance != null) {
             matchingBeans.put(beanName, (T) beanInstance);
@@ -2643,6 +2647,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       DependencyDescriptor descriptorToUse = new StreamDependencyDescriptor(descriptor, ordered);
       Object result = doResolveDependency(descriptorToUse, this.beanName, null, null);
       return result instanceof Stream ? (Stream<Object>) result : Stream.of(result);
+    }
+
+    @Override
+    protected boolean filterInternal(String name) {
+      return AutowireUtils.isAutowireCandidate(StandardBeanFactory.this, name);
     }
 
     @Override

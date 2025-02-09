@@ -63,10 +63,13 @@ import infra.lang.Nullable;
 public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
 
   /**
-   * A predicate for unfiltered type matches.
+   * A predicate for unfiltered type matches, including non-default candidates
+   * but still excluding non-autowire candidates when used on injection points.
    *
    * @see #stream(Predicate)
    * @see #orderedStream(Predicate)
+   * @see infra.beans.factory.config.BeanDefinition#isAutowireCandidate()
+   * @see infra.beans.factory.support.AbstractBeanDefinition#isDefaultCandidate()
    * @since 5.0
    */
   Predicate<Class<?>> UNFILTERED = (clazz -> true);
@@ -243,7 +246,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * without specific ordering guarantees (but typically in registration order).
    * <p>Note: The result may be filtered by default according to qualifiers on the
    * injection point versus target beans and the general autowire candidate status
-   * of matching beans. For custom filtering against the raw type matches, use
+   * of matching beans. For custom filtering against type-matching candidates, use
    * {@link #stream(Predicate)} instead (potentially with {@link #UNFILTERED}).
    *
    * @see #iterator()
@@ -264,7 +267,7 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * analogous to multi-element injection points of list/array type.
    * <p>Note: The result may be filtered by default according to qualifiers on the
    * injection point versus target beans and the general autowire candidate status
-   * of matching beans. For custom filtering against the raw type matches, use
+   * of matching beans. For custom filtering against type-matching candidates, use
    * {@link #stream(Predicate)} instead (potentially with {@link #UNFILTERED}).
    *
    * @see #stream()

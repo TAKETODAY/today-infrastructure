@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@ import java.util.function.Supplier;
 
 import infra.beans.BeanMetadataElement;
 import infra.beans.BeanProperty;
+import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.TypedStringValue;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -266,6 +268,25 @@ abstract class AutowireUtils {
       }
     }
     return autowiringValue;
+  }
+
+  /**
+   * Check the autowire-candidate status for the specified bean.
+   *
+   * @param beanFactory the bean factory
+   * @param beanName the name of the bean to check
+   * @return whether the specified bean qualifies as an autowire candidate
+   * @see infra.beans.factory.config.BeanDefinition#isAutowireCandidate()
+   * @since 5.0
+   */
+  public static boolean isAutowireCandidate(ConfigurableBeanFactory beanFactory, String beanName) {
+    try {
+      return beanFactory.getMergedBeanDefinition(beanName).isAutowireCandidate();
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      // A manually registered singleton instance not backed by a BeanDefinition.
+      return true;
+    }
   }
 
   /**
