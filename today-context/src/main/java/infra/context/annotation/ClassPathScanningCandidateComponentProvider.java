@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -423,9 +423,10 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
   }
 
   /**
-   * Determine whether the given metadata qualifies as candidate.
-   * <p>The default implementation checks whether the class is not an interface
-   * and not dependent on an enclosing class.
+   * Determine whether the given bean definition qualifies as a candidate component.
+   * <p>The default implementation checks whether the class is not dependent on an
+   * enclosing class as well as whether the class is either concrete (and therefore
+   * not an interface) or has {@link Lookup @Lookup} methods.
    * <p>Can be overridden in subclasses.
    *
    * @param metadata the metadata to check
