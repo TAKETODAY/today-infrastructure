@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -471,8 +471,12 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * on the given registry, fresh for each bean creation attempt. This avoids
    * the need for synchronization on custom editors; hence, it is generally
    * preferable to use this method instead of {@link #registerCustomEditor}.
+   * <p>If the given registrar implements
+   * {@link PropertyEditorRegistrar#overridesDefaultEditors()} to return {@code true},
+   * it will be applied lazily (only when default editors are actually needed).
    *
    * @param registrar the PropertyEditorRegistrar to register
+   * @see PropertyEditorRegistrar#overridesDefaultEditors()
    * @since 4.0
    */
   void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar);

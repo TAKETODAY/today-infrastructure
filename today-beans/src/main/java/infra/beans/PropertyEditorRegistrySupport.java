@@ -102,6 +102,9 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   private boolean configValueEditorsActive = false;
 
   @Nullable
+  private PropertyEditorRegistrar defaultEditorRegistrar;
+
+  @Nullable
   private HashMap<Class<?>, PropertyEditor> defaultEditors;
 
   @Nullable
@@ -175,6 +178,20 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   }
 
   /**
+   * Set a registrar for default editors, as a lazy way of overriding default editors.
+   * <p>This is expected to be a collaborator with {@link PropertyEditorRegistrySupport},
+   * downcasting the given {@link PropertyEditorRegistry} accordingly and calling
+   * {@link #overrideDefaultEditor} for registering additional default editors on it.
+   *
+   * @param registrar the registrar to call when default editors are actually needed
+   * @see #overrideDefaultEditor
+   * @since 5.0
+   */
+  public void setDefaultEditorRegistrar(PropertyEditorRegistrar registrar) {
+    this.defaultEditorRegistrar = registrar;
+  }
+
+  /**
    * Retrieve the default editor for the given property type, if any.
    * <p>Lazily registers the default editors, if they are active.
    *
@@ -186,6 +203,10 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   public PropertyEditor getDefaultEditor(Class<?> requiredType) {
     if (defaultEditorsActive) {
       HashMap<Class<?>, PropertyEditor> overriddenDefaultEditors = this.overriddenDefaultEditors;
+      if (overriddenDefaultEditors == null && defaultEditorRegistrar != null) {
+        defaultEditorRegistrar.registerCustomEditors(this);
+      }
+
       if (overriddenDefaultEditors != null) {
         PropertyEditor editor = overriddenDefaultEditors.get(requiredType);
         if (editor != null) {
@@ -335,9 +356,9 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
         if (editor == null) {
           ArrayList<String> strippedPaths = new ArrayList<>();
           addStrippedPropertyPaths(strippedPaths, "", propertyPath);
-          Iterator<String> it = strippedPaths.iterator();
-          while (editor == null && it.hasNext()) {
-            editor = getCustomEditor( /*String strippedPath =*/ it.next(), requiredType, editors);
+          for (Iterator<String> it = strippedPaths.iterator(); it.hasNext() && editor == null; ) {
+            String strippedPath = it.next();
+            editor = getCustomEditor(strippedPath, requiredType, editors);
           }
         }
         if (editor != null) {
@@ -404,7 +425,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   @Nullable
   private static PropertyEditor getCustomEditor(String propertyName,
           @Nullable Class<?> requiredType, LinkedHashMap<String, CustomEditorHolder> customEditorsForPath) {
-    CustomEditorHolder holder = customEditorsForPath != null ? customEditorsForPath.get(propertyName) : null;
+    CustomEditorHolder holder = customEditorsForPath.get(propertyName);
     return holder != null ? holder.getPropertyEditor(requiredType) : null;
   }
 

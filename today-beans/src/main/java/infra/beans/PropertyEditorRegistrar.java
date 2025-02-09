@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,5 +47,20 @@ public interface PropertyEditorRegistrar {
    * custom {@code PropertyEditors} with
    */
   void registerCustomEditors(PropertyEditorRegistry registry);
+
+  /**
+   * Indicate whether this registrar exclusively overrides default editors
+   * rather than registering custom editors, intended to be applied lazily.
+   * <p>This has an impact on registrar handling in a bean factory: see
+   * {@link infra.beans.factory.config.ConfigurableBeanFactory#addPropertyEditorRegistrar}.
+   *
+   * @see PropertyEditorRegistry#registerCustomEditor
+   * @see PropertyEditorRegistrySupport#overrideDefaultEditor
+   * @see PropertyEditorRegistrySupport#setDefaultEditorRegistrar
+   * @since 5.0
+   */
+  default boolean overridesDefaultEditors() {
+    return false;
+  }
 
 }

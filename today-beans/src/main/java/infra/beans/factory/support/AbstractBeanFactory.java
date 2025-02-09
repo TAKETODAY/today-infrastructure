@@ -118,6 +118,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
+  @Nullable
   private DependencyInjector dependencyInjector;
 
   /** Parent bean factory, for bean inheritance support. @since 4.0 */
@@ -141,6 +142,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   private BeanExpressionResolver beanExpressionResolver;
 
   // @since 4.0
+  @Nullable
   private volatile BeanPostProcessors postProcessorCache;
 
   /** Bean Post Processors */
@@ -162,6 +164,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   /** A custom TypeConverter to use, overriding the default PropertyEditor mechanism. */
   @Nullable
   private TypeConverter typeConverter;
+
+  /** Default PropertyEditorRegistrars to apply to the beans of this factory. @since 5.0 */
+  private final LinkedHashSet<PropertyEditorRegistrar> defaultEditorRegistrars = new LinkedHashSet<>(4);
 
   /** Custom PropertyEditorRegistrars to apply to the beans of this factory. @since 4.0 */
   private final LinkedHashSet<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
@@ -210,7 +215,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeansException if the bean could not be created
    */
   @SuppressWarnings("unchecked")
-  protected final <T> T doGetBean(String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
+  @Nullable
+  protected final <T> T doGetBean(String name, @Nullable Class<?> requiredType, @Nullable Object[] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
     // 1. check singleton cache
@@ -702,7 +708,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @see DisposableBean
    * @see DestructionAwareBeanPostProcessor
    */
-  protected boolean requiresDestruction(Object bean, RootBeanDefinition mbd) {
+  protected boolean requiresDestruction(@Nullable Object bean, RootBeanDefinition mbd) {
     return bean != null && (DisposableBeanAdapter.hasDestroyMethod(bean, mbd)
             || DisposableBeanAdapter.hasApplicableProcessors(bean, postProcessors().destruction));
   }
@@ -1273,6 +1279,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
       this.typeConverter = beanFactory.typeConverter;
       this.customEditors.putAll(beanFactory.customEditors);
+      this.defaultEditorRegistrars.addAll(beanFactory.defaultEditorRegistrars);
       this.propertyEditorRegistrars.addAll(beanFactory.propertyEditorRegistrars);
     }
     else {
@@ -1739,7 +1746,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   @Override
   public void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar) {
     Assert.notNull(registrar, "PropertyEditorRegistrar is required");
-    this.propertyEditorRegistrars.add(registrar);
+    if (registrar.overridesDefaultEditors()) {
+      this.defaultEditorRegistrars.add(registrar);
+    }
+    else {
+      this.propertyEditorRegistrars.add(registrar);
+    }
   }
 
   /**
@@ -1826,37 +1838,47 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @since 4.0
    */
   protected void registerCustomEditors(PropertyEditorRegistry registry) {
-    if (registry instanceof PropertyEditorRegistrySupport registrySupport) {
-      registrySupport.useConfigValueEditors();
-    }
-    if (!propertyEditorRegistrars.isEmpty()) {
-      for (PropertyEditorRegistrar registrar : propertyEditorRegistrars) {
-        try {
-          registrar.registerCustomEditors(registry);
-        }
-        catch (BeanCreationException ex) {
-          Throwable rootCause = ex.getMostSpecificCause();
-          if (rootCause instanceof BeanCurrentlyInCreationException bce) {
-            String bceBeanName = bce.getBeanName();
-            if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
-              if (log.isDebugEnabled()) {
-                log.debug("PropertyEditorRegistrar [{}] failed because it tried to obtain currently created bean '{}': ",
-                        registrar.getClass().getName(), ex.getBeanName(), ex.getMessage());
-              }
-              onSuppressedException(ex);
-              continue;
-            }
-          }
-          throw ex;
-        }
+    if (registry instanceof PropertyEditorRegistrySupport rs) {
+      rs.useConfigValueEditors();
+      if (!defaultEditorRegistrars.isEmpty()) {
+        // Optimization: lazy overriding of default editors only when needed
+        rs.setDefaultEditorRegistrar(new BeanFactoryDefaultEditorRegistrar());
       }
     }
+    else if (!defaultEditorRegistrars.isEmpty()) {
+      // Fallback: proactive overriding of default editors
+      applyEditorRegistrars(registry, defaultEditorRegistrars);
+    }
 
-    if (!customEditors.isEmpty()) {
-      for (Map.Entry<Class<?>, Class<? extends PropertyEditor>> entry : customEditors.entrySet()) {
-        Class<?> requiredType = entry.getKey();
-        Class<? extends PropertyEditor> editorClass = entry.getValue();
-        registry.registerCustomEditor(requiredType, BeanUtils.newInstance(editorClass));
+    if (!propertyEditorRegistrars.isEmpty()) {
+      applyEditorRegistrars(registry, propertyEditorRegistrars);
+    }
+    if (!this.customEditors.isEmpty()) {
+      for (var entry : customEditors.entrySet()) {
+        registry.registerCustomEditor(entry.getKey(), BeanUtils.newInstance(entry.getValue()));
+      }
+    }
+  }
+
+  private void applyEditorRegistrars(PropertyEditorRegistry registry, Set<PropertyEditorRegistrar> registrars) {
+    for (PropertyEditorRegistrar registrar : registrars) {
+      try {
+        registrar.registerCustomEditors(registry);
+      }
+      catch (BeanCreationException ex) {
+        Throwable rootCause = ex.getMostSpecificCause();
+        if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+          String bceBeanName = bce.getBeanName();
+          if (bceBeanName != null && isCurrentlyInCreation(bceBeanName)) {
+            if (log.isDebugEnabled()) {
+              log.debug("PropertyEditorRegistrar [{}] failed because it tried to obtain currently created bean '{}': {}",
+                      registrar.getClass().getName(), ex.getBeanName(), ex.getMessage());
+            }
+            onSuppressedException(ex);
+            return;
+          }
+        }
+        throw ex;
       }
     }
   }
@@ -2140,6 +2162,22 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       this.instantiation.trimToSize();
       this.initialization.trimToSize();
       this.smartInstantiation.trimToSize();
+    }
+
+  }
+
+  /**
+   * {@link PropertyEditorRegistrar} that delegates to the bean factory's
+   * default registrars, adding exception handling for circular reference
+   * scenarios where an editor tries to refer back to the currently created bean.
+   *
+   * @since 5.0
+   */
+  final class BeanFactoryDefaultEditorRegistrar implements PropertyEditorRegistrar {
+
+    @Override
+    public void registerCustomEditors(PropertyEditorRegistry registry) {
+      applyEditorRegistrars(registry, defaultEditorRegistrars);
     }
 
   }
