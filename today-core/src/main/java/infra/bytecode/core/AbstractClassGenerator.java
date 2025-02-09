@@ -289,7 +289,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
       if (inNativeImage) {
         throw new UnsupportedOperationException("CGLIB runtime enhancement not supported on native image. " +
-                "Make sure to include a pre-generated class on the classpath instead: " + getClassName());
+                "Make sure to enable Infra AOT processing to pre-generate '" + getClassName() + "' at build time.");
       }
 
       final byte[] bytes = getStrategy().generate(this);
