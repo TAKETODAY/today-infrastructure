@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ import infra.lang.Nullable;
  * to track the result of the asynchronous method execution. However, since the
  * target method needs to implement the same signature, it will have to return
  * a temporary Future handle that just passes the return value through
- * (like  {@link infra.scheduling.annotation.AsyncResult}
+ * (like  {@link Future}
  * or EJB's {@code jakarta.ejb.AsyncResult}).
  *
  * <p>When the return type is {@code java.util.concurrent.Future}, any exception thrown
@@ -103,7 +103,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
   @Override
   @Nullable
   public Object invoke(final MethodInvocation invocation) throws Throwable {
-    Class<?> targetClass = invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null;
+    Class<?> targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
     final Method userMethod = BridgeMethodResolver.getMostSpecificMethod(invocation.getMethod(), targetClass);
 
     AsyncTaskExecutor executor = determineAsyncExecutor(userMethod);
@@ -115,12 +115,13 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
     Callable<Object> task = () -> {
       try {
         Object result = invocation.proceed();
-        if (result instanceof Future) {
-          return ((Future<?>) result).get();
+        if (result instanceof Future<?> future) {
+          return future.get();
         }
       }
       catch (ExecutionException ex) {
-        handleError(ex.getCause(), userMethod, invocation.getArguments());
+        Throwable cause = ex.getCause();
+        handleError(cause == null ? ex : cause, userMethod, invocation.getArguments());
       }
       catch (Throwable ex) {
         handleError(ex, userMethod, invocation.getArguments());
@@ -128,7 +129,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
       return null;
     };
 
-    return doSubmit(task, executor, invocation.getMethod().getReturnType());
+    return doSubmit(task, executor, userMethod.getReturnType());
   }
 
   /**
