@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,6 +86,10 @@ public final class CallMetaDataProviderFactory {
     try {
       return JdbcUtils.extractDatabaseMetaData(dataSource, databaseMetaData -> {
         String databaseProductName = JdbcUtils.commonDatabaseName(databaseMetaData.getDatabaseProductName());
+        if (databaseProductName == null) {
+          databaseProductName = "";
+        }
+
         boolean accessProcedureColumnMetaData = context.isAccessCallParameterMetaData();
         if (context.isFunction()) {
           if (!supportedDatabaseProductsForFunctions.contains(databaseProductName)) {
