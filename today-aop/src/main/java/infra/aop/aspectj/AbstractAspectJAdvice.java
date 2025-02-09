@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -279,14 +279,18 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 
     if (aspectJAdviceMethod.getParameterCount() == argumentNames.length + 1) {
       // May need to add implicit join point arg name...
-      Class<?> firstArgType = aspectJAdviceMethod.getParameterTypes()[0];
-      if (firstArgType == JoinPoint.class
-              || firstArgType == ProceedingJoinPoint.class
-              || firstArgType == JoinPoint.StaticPart.class) {
-        String[] oldNames = argumentNames;
-        this.argumentNames = new String[oldNames.length + 1];
-        this.argumentNames[0] = "THIS_JOIN_POINT";
-        System.arraycopy(oldNames, 0, argumentNames, 1, oldNames.length);
+      for (int i = 0; i < this.aspectJAdviceMethod.getParameterCount(); i++) {
+        Class<?> argType = this.aspectJAdviceMethod.getParameterTypes()[i];
+        if (argType == JoinPoint.class ||
+                argType == ProceedingJoinPoint.class ||
+                argType == JoinPoint.StaticPart.class) {
+          String[] oldNames = this.argumentNames;
+          this.argumentNames = new String[oldNames.length + 1];
+          System.arraycopy(oldNames, 0, this.argumentNames, 0, i);
+          this.argumentNames[i] = "THIS_JOIN_POINT";
+          System.arraycopy(oldNames, i, this.argumentNames, i + 1, oldNames.length - i);
+          break;
+        }
       }
     }
   }
