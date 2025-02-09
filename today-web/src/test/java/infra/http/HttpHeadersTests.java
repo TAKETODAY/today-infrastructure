@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +78,22 @@ public class HttpHeadersTests {
     HttpHeaders firewallHeaders = HttpHeaders.forWritable(originalExchangeHeaders);
     HttpHeaders writeable = HttpHeaders.forWritable(firewallHeaders);
     writeable.setContentType(MediaType.APPLICATION_JSON);
+  }
+
+  @Test
+  void copyOfCopiesHeaders() {
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.add("X-Project", "Infra");
+    headers.add("X-Project", "Framework");
+    HttpHeaders readOnly = HttpHeaders.readOnlyHttpHeaders(headers);
+    assertThat(readOnly.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+    HttpHeaders writable = HttpHeaders.copyOf(readOnly);
+    writable.setContentType(MediaType.TEXT_PLAIN);
+    // content-type value is cached by ReadOnlyHttpHeaders
+    assertThat(readOnly.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    assertThat(writable.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(writable.get("X-Project")).contains("Infra", "Framework");
   }
 
   @Test
