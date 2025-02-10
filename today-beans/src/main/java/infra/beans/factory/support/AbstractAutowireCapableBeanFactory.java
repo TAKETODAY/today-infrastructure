@@ -791,6 +791,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * @param merged the bean definition for the bean
    * @return the bean instance (possibly {@code null})
    */
+  @Nullable
   private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName, RootBeanDefinition merged) {
     String outerBean = currentlyCreatedBean.get();
     currentlyCreatedBean.set(beanName);

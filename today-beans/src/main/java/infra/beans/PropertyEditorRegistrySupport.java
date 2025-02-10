@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -169,7 +168,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @see #registerCustomEditor(Class, PropertyEditor)
    */
   public void overrideDefaultEditor(Class<?> requiredType, PropertyEditor propertyEditor) {
-    HashMap<Class<?>, PropertyEditor> editors = overriddenDefaultEditors;
+    var editors = overriddenDefaultEditors;
     if (editors == null) {
       editors = new HashMap<>();
       this.overriddenDefaultEditors = editors;
@@ -202,7 +201,6 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   @Nullable
   public PropertyEditor getDefaultEditor(Class<?> requiredType) {
     if (defaultEditorsActive) {
-      HashMap<Class<?>, PropertyEditor> overriddenDefaultEditors = this.overriddenDefaultEditors;
       if (overriddenDefaultEditors == null && defaultEditorRegistrar != null) {
         defaultEditorRegistrar.registerCustomEditors(this);
       }
@@ -213,12 +211,13 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
           return editor;
         }
       }
-      HashMap<Class<?>, PropertyEditor> defaultEditors = this.defaultEditors;
+
+      var defaultEditors = this.defaultEditors;
       if (defaultEditors == null) {
         defaultEditors = createDefaultEditors();
         this.defaultEditors = defaultEditors;
       }
-      return defaultEditors.get(requiredType);
+      return this.defaultEditors.get(requiredType);
     }
     return null;
   }
@@ -326,7 +325,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
       throw new IllegalArgumentException("Either requiredType or propertyPath is required");
     }
     if (propertyPath != null) {
-      LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+      var editors = this.customEditorsForPath;
       if (editors == null) {
         editors = new LinkedHashMap<>(16);
         this.customEditorsForPath = editors;
@@ -334,7 +333,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
       editors.put(propertyPath, new CustomEditorHolder(propertyEditor, requiredType));
     }
     else {
-      LinkedHashMap<Class<?>, PropertyEditor> editors = this.customEditors;
+      var editors = this.customEditors;
       if (editors == null) {
         editors = new LinkedHashMap<>(16);
         this.customEditors = editors;
@@ -349,12 +348,12 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   public PropertyEditor findCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath) {
     Class<?> requiredTypeToUse = requiredType;
     if (propertyPath != null) {
-      LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+      var editors = this.customEditorsForPath;
       if (editors != null) {
         // Check property-specific editor first.
         PropertyEditor editor = getCustomEditor(propertyPath, requiredType, editors);
         if (editor == null) {
-          ArrayList<String> strippedPaths = new ArrayList<>();
+          var strippedPaths = new ArrayList<String>();
           addStrippedPropertyPaths(strippedPaths, "", propertyPath);
           for (Iterator<String> it = strippedPaths.iterator(); it.hasNext() && editor == null; ) {
             String strippedPath = it.next();
@@ -385,7 +384,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    */
   public boolean hasCustomEditorForElement(@Nullable Class<?> elementType, @Nullable String propertyPath) {
     if (propertyPath != null && customEditorsForPath != null) {
-      for (Map.Entry<String, CustomEditorHolder> entry : customEditorsForPath.entrySet()) {
+      for (var entry : customEditorsForPath.entrySet()) {
         if (PropertyAccessorUtils.matchesProperty(entry.getKey(), propertyPath)
                 && entry.getValue().getPropertyEditor(elementType) != null) {
           return true;
@@ -443,7 +442,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
     if (requiredType == null) {
       return null;
     }
-    LinkedHashMap<Class<?>, PropertyEditor> customEditors = this.customEditors;
+    var customEditors = this.customEditors;
     if (customEditors == null) {
       return null;
     }
@@ -451,13 +450,13 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
     PropertyEditor editor = customEditors.get(requiredType);
     if (editor == null) {
       // Check cached editor for type, registered for superclass or interface.
-      HashMap<Class<?>, PropertyEditor> customEditorCache = this.customEditorCache;
+      var customEditorCache = this.customEditorCache;
       if (customEditorCache != null) {
         editor = customEditorCache.get(requiredType);
       }
       if (editor == null) {
         // Find editor for superclass or interface.
-        for (Map.Entry<Class<?>, PropertyEditor> entry : customEditors.entrySet()) {
+        for (var entry : customEditors.entrySet()) {
           Class<?> key = entry.getKey();
           if (key.isAssignableFrom(requiredType)) {
             editor = entry.getValue();
@@ -487,15 +486,15 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    */
   @Nullable
   protected Class<?> guessPropertyTypeFromEditors(String propertyName) {
-    LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
+    var editors = this.customEditorsForPath;
     if (editors != null) {
       CustomEditorHolder editorHolder = editors.get(propertyName);
       if (editorHolder == null) {
         ArrayList<String> strippedPaths = new ArrayList<>();
         addStrippedPropertyPaths(strippedPaths, "", propertyName);
-        Iterator<String> it = strippedPaths.iterator();
-        while (editorHolder == null && it.hasNext()) {
-          editorHolder = editors.get(/*String strippedName = */it.next());
+        for (Iterator<String> it = strippedPaths.iterator(); it.hasNext() && editorHolder == null; ) {
+          String strippedName = it.next();
+          editorHolder = this.customEditorsForPath.get(strippedName);
         }
       }
       if (editorHolder != null) {
@@ -517,12 +516,12 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
     String actualPropertyName =
             nestedProperty != null ? PropertyAccessorUtils.getPropertyName(nestedProperty) : null;
     if (customEditors != null) {
-      for (Map.Entry<Class<?>, PropertyEditor> entry : customEditors.entrySet()) {
+      for (var entry : customEditors.entrySet()) {
         target.registerCustomEditor(entry.getKey(), entry.getValue());
       }
     }
     if (customEditorsForPath != null) {
-      for (Map.Entry<String, CustomEditorHolder> entry : customEditorsForPath.entrySet()) {
+      for (var entry : customEditorsForPath.entrySet()) {
         String editorPath = entry.getKey();
         CustomEditorHolder editorHolder = entry.getValue();
         if (nestedProperty != null) {

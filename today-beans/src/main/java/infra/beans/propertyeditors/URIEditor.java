@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ import infra.util.StringUtils;
  * is allowed, even without a matching protocol handler being registered.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see URI
  * @see URLEditor
  * @since 4.0
@@ -129,11 +130,11 @@ public class URIEditor extends PropertyEditorSupport {
 
   /**
    * Create a URI instance for the given user-specified String value.
-   * <p>The default implementation encodes the value into a RFC-2396 compliant URI.
+   * <p>The default implementation encodes the value into an RFC-2396 compliant URI.
    *
    * @param value the value to convert into a URI instance
    * @return the URI instance
-   * @throws URISyntaxException if URI conversion failed
+   * @throws java.net.URISyntaxException if URI conversion failed
    */
   protected URI createURI(String value) throws URISyntaxException {
     int colonIndex = value.indexOf(':');

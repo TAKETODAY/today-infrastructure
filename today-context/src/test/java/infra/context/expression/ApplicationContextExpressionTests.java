@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.expression;
@@ -33,6 +30,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
 import infra.beans.factory.annotation.Value;
@@ -53,9 +51,14 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.io.SerializationTestUtils;
+import infra.expression.spel.SpelEvaluationException;
+import infra.lang.TodayStrategies;
 import infra.util.FileCopyUtils;
 
+import static infra.context.expression.StandardBeanExpressionResolver.MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Juergen Hoeller
@@ -65,7 +68,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ApplicationContextExpressionTests {
 
   @Test
-  @SuppressWarnings("deprecation")
   void genericApplicationContext() throws Exception {
     GenericApplicationContext ac = new GenericApplicationContext();
     AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
@@ -168,7 +170,7 @@ class ApplicationContextExpressionTests {
       ValueTestBean tb3 = ac.getBean("tb3", ValueTestBean.class);
       assertThat(tb3.name).isEqualTo("XXXmyNameYYY42ZZZ");
       assertThat(tb3.age).isEqualTo(42);
-      assertThat(tb3.ageFactory.get().intValue()).isEqualTo(42);
+      assertThat(tb3.ageFactory.get()).isEqualTo(42);
       assertThat(tb3.country).isEqualTo("123 UK");
       assertThat(tb3.countryFactory.get()).isEqualTo("123 UK");
       System.getProperties().put("country", "US");
@@ -177,9 +179,9 @@ class ApplicationContextExpressionTests {
       System.getProperties().put("country", "UK");
       assertThat(tb3.country).isEqualTo("123 UK");
       assertThat(tb3.countryFactory.get()).isEqualTo("123 UK");
-      assertThat(tb3.optionalValue1.get()).isEqualTo("123");
-      assertThat(tb3.optionalValue2.get()).isEqualTo("123");
-      assertThat(tb3.optionalValue3.isPresent()).isFalse();
+      assertThat(tb3.optionalValue1).contains("123");
+      assertThat(tb3.optionalValue2).contains("123");
+      assertThat(tb3.optionalValue3).isNotPresent();
       assertThat(tb3.tb).isSameAs(tb0);
 
       tb3 = SerializationTestUtils.serializeAndDeserialize(tb3);
@@ -204,7 +206,7 @@ class ApplicationContextExpressionTests {
       assertThat(tb6.tb).isSameAs(tb0);
     }
     finally {
-      System.getProperties().remove("country");
+      System.clearProperty("country");
     }
   }
 
@@ -238,8 +240,8 @@ class ApplicationContextExpressionTests {
       assertThat(tb.getCountry2()).isEqualTo("-UK2-");
     }
     finally {
-      System.getProperties().remove("name");
-      System.getProperties().remove("country");
+      System.clearProperty("name");
+      System.clearProperty("country");
     }
   }
 
@@ -254,15 +256,14 @@ class ApplicationContextExpressionTests {
     ac.refresh();
 
     String str = ac.getBean("str", String.class);
-    assertThat(str.startsWith("test-")).isTrue();
+    assertThat(str).startsWith("test-");
     ac.close();
   }
 
   @Test
   void resourceInjection() throws IOException {
-    try {
-      System.setProperty("logfile", "do_not_delete_me.txt");
-      var ac = new AnnotationConfigApplicationContext(ResourceInjectionBean.class);
+    System.setProperty("logfile", "do_not_delete_me.txt");
+    try (AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(ResourceInjectionBean.class)) {
       ResourceInjectionBean resourceInjectionBean = ac.getBean(ResourceInjectionBean.class);
       Resource resource = new ClassPathResource("do_not_delete_me.txt");
       assertThat(resourceInjectionBean.resource).isEqualTo(resource);
@@ -273,7 +274,71 @@ class ApplicationContextExpressionTests {
       assertThat(FileCopyUtils.copyToString(resourceInjectionBean.reader)).isEqualTo(FileCopyUtils.copyToString(new EncodedResource(resource).getReader()));
     }
     finally {
-      System.getProperties().remove("logfile");
+      System.clearProperty("logfile");
+    }
+  }
+
+  @Test
+  void maxSpelExpressionLengthMustBeAnInteger() {
+    doWithMaxSpelExpressionLength("boom", () -> {
+      try (AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext()) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(ac::refresh)
+                .withMessageStartingWith("Failed to parse value for system property [%s]",
+                        MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME)
+                .withMessageContaining("boom");
+      }
+    });
+  }
+
+  @Test
+  void maxSpelExpressionLengthMustBePositive() {
+    doWithMaxSpelExpressionLength("-99", () -> {
+      try (AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext()) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(ac::refresh)
+                .withMessage("Value [%d] for system property [%s] must be positive", -99,
+                        MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME);
+      }
+    });
+  }
+
+  @Test
+  void maxSpelExpressionLength() {
+    final String expression = "#{ 'xyz' + 'xyz' + 'xyz' }";
+
+    // With the default max length of 10_000, the expression should succeed.
+    evaluateExpressionInBean(expression);
+
+    // With a max length of 20, the expression should fail.
+    doWithMaxSpelExpressionLength("20", () ->
+            assertThatExceptionOfType(BeanCreationException.class)
+                    .isThrownBy(() -> evaluateExpressionInBean(expression))
+                    .havingRootCause()
+                    .isInstanceOf(SpelEvaluationException.class)
+                    .withMessageEndingWith("exceeding the threshold of '20' characters"));
+  }
+
+  private static void doWithMaxSpelExpressionLength(String maxLength, Runnable action) {
+    try {
+      TodayStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, maxLength);
+      action.run();
+    }
+    finally {
+      TodayStrategies.setProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, null);
+    }
+  }
+
+  private static void evaluateExpressionInBean(String expression) {
+    try (AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext()) {
+      GenericBeanDefinition bd = new GenericBeanDefinition();
+      bd.setBeanClass(String.class);
+      bd.getConstructorArgumentValues().addGenericArgumentValue(expression);
+      ac.registerBeanDefinition("str", bd);
+      ac.refresh();
+
+      String str = ac.getBean("str", String.class);
+      assertThat(str).isEqualTo("xyz".repeat(3)); // "#{ 'xyz' + 'xyz' + 'xyz' }"
     }
   }
 
