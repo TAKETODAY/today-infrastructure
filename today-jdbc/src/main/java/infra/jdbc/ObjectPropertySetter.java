@@ -35,8 +35,7 @@ import infra.lang.Nullable;
  * @see #setTo(Object, ResultSet, int)
  * @since 2021/1/7 22:49
  */
-
-public class ObjectPropertySetter {
+final class ObjectPropertySetter {
 
   @Nullable
   private final PropertyPath propertyPath;
@@ -98,6 +97,7 @@ public class ObjectPropertySetter {
     }
     else if (typeHandler instanceof SmartTypeHandler handler) {
       Object value = beanProperty.getValue(obj);
+      Assert.state(value != null, "Not writable entity property its value is required");
       handler.applyResult(value, resultSet, columnIndex);
     }
     else {

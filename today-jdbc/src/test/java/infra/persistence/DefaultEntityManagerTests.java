@@ -620,6 +620,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
     assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
+
+    assertThatThrownBy(() -> entityManager.find(OptionError.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Not writable entity property its value is required");
   }
 
   @ParameterizedRepositoryManagerTest
@@ -746,6 +750,14 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     public int hashCode() {
       return Objects.hash(name, value);
     }
+
+  }
+
+  @Table("t_option")
+  static class OptionError {
+
+    @Nullable
+    public final Base64Value value = null;
 
   }
 
