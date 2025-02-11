@@ -61,6 +61,14 @@ class PropertyAccessorTests implements WithAssertions {
       primitiveBeanTest("doubleValue", 1143.89);
       primitiveBeanTest("floatValue", 112.4f);
       primitiveBeanTest("charValue", 'c');
+
+      primitiveBeanTest("floatValue", null, 0.f);
+      primitiveBeanTest("doubleValue", null, 0.d);
+      primitiveBeanTest("intValue", null, 0);
+      primitiveBeanTest("longValue", null, 0L);
+      primitiveBeanTest("byteValue", null, (byte) 0);
+      primitiveBeanTest("shortValue", null, (short) 0);
+      primitiveBeanTest("booleanValue", null, false);
     }
 
     @Test
@@ -87,12 +95,16 @@ class PropertyAccessorTests implements WithAssertions {
       assertThat(actual).isEqualTo(accessor.get(bean));
     }
 
-    <T> void primitiveBeanTest(String name, T actual) throws Exception {
+    <T> void primitiveBeanTest(String name, @Nullable T actual) throws Exception {
+      primitiveBeanTest(name, actual, actual);
+    }
+
+    <T> void primitiveBeanTest(String name, @Nullable T actual, @Nullable Object expected) throws Exception {
       PrimitiveBean bean = new PrimitiveBean();
 
       PropertyAccessor accessor = PropertyAccessor.forField(PrimitiveBean.class.getDeclaredField(name));
       accessor.set(bean, actual);
-      assertThat(actual).isEqualTo(accessor.get(bean));
+      assertThat(expected).isEqualTo(accessor.get(bean));
     }
   }
 
@@ -199,6 +211,25 @@ class PropertyAccessorTests implements WithAssertions {
 
   }
 
+  @Test
+  void forField() throws Exception {
+    PublicFinalBean obj = new PublicFinalBean();
+
+    Field intValue = PublicFinalBean.class.getField("intValue");
+    Method setIntValue = PublicFinalBean.class.getMethod("setIntValue", IntValue.class);
+
+    var intValueAccessor = PropertyAccessor.forField(intValue, null, setIntValue);
+    assertThat(intValueAccessor.get(obj)).isEqualTo(new IntValue());
+    intValueAccessor.set(obj, new IntValue(1));
+    assertThat(intValueAccessor.get(obj)).isEqualTo(new IntValue(1));
+
+    assertThatThrownBy(() -> PropertyAccessor.forField(ForReflective.class.getField("intValue"),
+            null, null).set(obj, null))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessage("Can't set value '%s' to '%s' read only property"
+                    .formatted("null", classToString(obj)));
+  }
+
   static class ForMethod {
 
     private int age;
@@ -258,6 +289,20 @@ class PropertyAccessorTests implements WithAssertions {
     public final char charValue = '8';
 
     public final String stringValue = "9";
+
+  }
+
+  static class PublicFinalBean {
+
+    public final IntValue intValue = new IntValue();
+
+    public void setIntValue(IntValue in) {
+      intValue.set(in.value);
+    }
+
+    public void setIntValue(int value) {
+      intValue.set(value);
+    }
 
   }
 
