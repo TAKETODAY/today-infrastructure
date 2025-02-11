@@ -55,13 +55,8 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
   @Nullable
   private transient BeanInstantiator instantiator;
 
-  BeanProperty(String name, Field field) {
-    super(name, field);
-    this.field = field;
-  }
-
-  BeanProperty(Field field) {
-    this(field.getName(), field);
+  BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    super(field, readMethod, writeMethod);
   }
 
   BeanProperty(@Nullable String name, @Nullable Method readMethod,
@@ -213,7 +208,6 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @since 3.0.2
    */
   protected PropertyAccessor createAccessor() {
-    Field field = getField();
     if (field == null) {
       return PropertyAccessor.forMethod(readMethod, writeMethod);
     }
@@ -231,7 +225,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    */
   public static BeanProperty valueOf(Field field) {
     Assert.notNull(field, "Field is required");
-    return new FieldBeanProperty(field);
+    return new FieldBeanProperty(field, null, null);
   }
 
   /**
@@ -242,7 +236,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
     if (field == null) {
       throw new NoSuchPropertyException(targetClass, name);
     }
-    return new FieldBeanProperty(field);
+    return new FieldBeanProperty(field, null, null);
   }
 
   /**

@@ -19,12 +19,11 @@ package infra.beans;
 
 import java.io.Serial;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-import infra.core.ResolvableType;
-import infra.core.TypeDescriptor;
-import infra.reflect.PropertyAccessor;
+import infra.lang.Nullable;
 
 /**
  * Field based BeanProperty
@@ -39,34 +38,9 @@ public final class FieldBeanProperty extends BeanProperty {
 
   private final boolean writeable;
 
-  FieldBeanProperty(Field field) {
-    super(field);
+  FieldBeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    super(field, readMethod, writeMethod);
     this.writeable = !Modifier.isFinal(field.getModifiers());
-  }
-
-  @Override
-  protected PropertyAccessor createAccessor() {
-    return PropertyAccessor.forField(field);
-  }
-
-  protected TypeDescriptor createDescriptor() {
-    ResolvableType resolvableType = ResolvableType.forField(field);
-    return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
-  }
-
-  @Override
-  protected ResolvableType createResolvableType() {
-    return ResolvableType.forField(field);
-  }
-
-  @Override
-  public int getModifiers() {
-    return field.getModifiers();
-  }
-
-  @Override
-  public boolean isSynthetic() {
-    return field.isSynthetic();
   }
 
   @Override
@@ -90,16 +64,6 @@ public final class FieldBeanProperty extends BeanProperty {
   }
 
   @Override
-  public Class<?> getType() {
-    return field.getType();
-  }
-
-  @Override
-  public Class<?> getDeclaringClass() {
-    return field.getDeclaringClass();
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o)
       return true;
@@ -112,11 +76,6 @@ public final class FieldBeanProperty extends BeanProperty {
   @Override
   public int hashCode() {
     return Objects.hash(field);
-  }
-
-  @Override
-  public String toString() {
-    return getType().getSimpleName() + " " + getName();
   }
 
 }

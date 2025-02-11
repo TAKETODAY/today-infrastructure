@@ -33,6 +33,7 @@ import infra.bytecode.core.DefaultGeneratorStrategy;
 import infra.bytecode.core.EmitUtils;
 import infra.core.NestedRuntimeException;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.MapCache;
 import infra.util.ReflectionUtils;
@@ -47,16 +48,23 @@ import static infra.bytecode.Opcodes.INVOKESTATIC;
  * @since 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T extends Accessor> {
+
   static final Type GENERATOR_SUPPORT_TYPE = Type.forClass(GeneratorSupport.class);
+
   static final String GENERATOR_SUPPORT_TYPE_INTERNAL_NAME = GENERATOR_SUPPORT_TYPE.getInternalName();
 
   static final String DEFAULT_SUPER = "Ljava/lang/Object;";
 
+  @Nullable
   protected String className;
+
+  @Nullable
   protected ClassLoader classLoader;
+
   protected final Class<?> targetClass;
 
   protected static final MapCache<Object, Accessor, GeneratorSupport<?>> mappings = new MapCache<>() {
+
     @Override
     protected Accessor createValue(Object key, GeneratorSupport<?> generator) {
       try {
@@ -246,35 +254,35 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   // converter
 
-  public static long convert(Long value) {
+  public static long convert(@Nullable Long value) {
     return value == null ? 0 : value;
   }
 
-  public static int convert(Integer value) {
+  public static int convert(@Nullable Integer value) {
     return value == null ? 0 : value;
   }
 
-  public static short convert(Short value) {
+  public static short convert(@Nullable Short value) {
     return value == null ? 0 : value;
   }
 
-  public static byte convert(Byte value) {
+  public static byte convert(@Nullable Byte value) {
     return value == null ? 0 : value;
   }
 
-  public static float convert(Float value) {
+  public static float convert(@Nullable Float value) {
     return value == null ? 0 : value;
   }
 
-  public static double convert(Double value) {
+  public static double convert(@Nullable Double value) {
     return value == null ? 0 : value;
   }
 
-  public static boolean convert(Boolean value) {
+  public static boolean convert(@Nullable Boolean value) {
     return value != null && value;
   }
 
-  public static char convert(Character value) {
+  public static char convert(@Nullable Character value) {
     return value == null ? 0 : value;
   }
 

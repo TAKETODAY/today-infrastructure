@@ -57,45 +57,6 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   // static
 
   /**
-   * PropertyAccessor
-   *
-   * @param field Field
-   * @return PropertyAccessor
-   */
-  public static PropertyAccessor forField(Field field) {
-    boolean isPublic = Modifier.isPublic(field.getModifiers());
-    boolean isReadOnly = Modifier.isFinal(field.getModifiers());
-
-    if (isPublic) {
-      return new PublicPropertyAccessorGenerator(field, isReadOnly).create();
-    }
-
-    Method readMethod = ReflectionUtils.getReadMethod(field);
-    if (isReadOnly && readMethod != null) {
-      MethodInvoker invoker = MethodInvoker.forMethod(readMethod);
-      return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
-    }
-    Method writeMethod = ReflectionUtils.getWriteMethod(field);
-    if (writeMethod != null && readMethod != null) {
-      return forMethod(readMethod, writeMethod);
-    }
-    if (writeMethod != null) {
-      MethodInvoker accessor = MethodInvoker.forMethod(writeMethod);
-      ReflectionUtils.makeAccessible(field);
-      return getPropertyAccessor(field, accessor, writeMethod);
-    }
-
-    if (readMethod != null) {
-      ReflectionUtils.makeAccessible(field);
-      MethodInvoker accessor = MethodInvoker.forMethod(readMethod);
-      return getPropertyAccessor(accessor, field, readMethod);
-    }
-
-    // readMethod == null && setMethod == null
-    return forReflective(field);
-  }
-
-  /**
    * @throws ReflectionException No property in target class
    */
   public static PropertyAccessor from(Class<?> targetClass, String name) {
@@ -123,6 +84,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
         return new MethodAccessorPropertyAccessor(readInvoker, MethodInvoker.forMethod(writeMethod));
       }
     }
+
     if (writeMethod != null) {
       MethodInvoker writeInvoker = MethodInvoker.forMethod(writeMethod);
       return new WriteOnlyPropertyAccessor() {
@@ -133,9 +95,10 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
         }
 
         @Override
-        public void set(Object obj, Object value) {
+        public void set(Object obj, @Nullable Object value) {
           writeInvoker.invoke(obj, new Object[] { value });
         }
+
       };
     }
     throw new IllegalArgumentException("read-write cannot be null at the same time");
@@ -159,6 +122,14 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   /**
    * @param field Field
    * @return PropertyAccessor
+   */
+  public static PropertyAccessor forField(Field field) {
+    return forField(field, null, null);
+  }
+
+  /**
+   * @param field Field
+   * @return PropertyAccessor
    * @throws NullPointerException field is null
    */
   public static PropertyAccessor forField(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
@@ -167,17 +138,21 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
       MethodInvoker invoker = MethodInvoker.forMethod(readMethod);
       return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
     }
+
     if (writeMethod != null && readMethod != null) {
       return forMethod(readMethod, writeMethod);
     }
+
+    if (Modifier.isPublic(field.getModifiers())) {
+      return new PublicPropertyAccessorGenerator(field, isReadOnly).create();
+    }
+
     if (writeMethod != null) {
       MethodInvoker accessor = MethodInvoker.forMethod(writeMethod);
-      ReflectionUtils.makeAccessible(field);
       return getPropertyAccessor(field, accessor, writeMethod);
     }
 
     if (readMethod != null) {
-      ReflectionUtils.makeAccessible(field);
       MethodInvoker accessor = MethodInvoker.forMethod(readMethod);
       return getPropertyAccessor(accessor, field, readMethod);
     }
@@ -187,6 +162,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   private static PropertyAccessor getPropertyAccessor(Field field, MethodInvoker accessor, @NonNull Method writeMethod) {
+    ReflectionUtils.makeAccessible(field);
     return new PropertyAccessor() {
 
       @Nullable
@@ -208,6 +184,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   }
 
   private static PropertyAccessor getPropertyAccessor(MethodInvoker accessor, Field field, @NonNull Method readMethod) {
+    ReflectionUtils.makeAccessible(field);
     return new PropertyAccessor() {
       @Override
       public Object get(Object obj) {

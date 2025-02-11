@@ -103,16 +103,12 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Nullable
   protected transient MethodParameter writeMethodParameter;
 
-  public Property(String name, Field field) {
-    this.name = name;
+  public Property(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    this.name = field.getName();
     this.field = field;
     this.propertyType = field.getType();
-    this.readMethod = null;
-    this.writeMethod = null;
-  }
-
-  public Property(Field field) {
-    this(field.getName(), field);
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
   }
 
   public Property(Class<?> objectType, @Nullable Method readMethod, @Nullable Method writeMethod) {
@@ -150,11 +146,15 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   protected TypeDescriptor createDescriptor() {
+    if (field != null) {
+      ResolvableType resolvableType = ResolvableType.forField(field);
+      return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
+    }
     ResolvableType resolvableType = ResolvableType.forMethodParameter(getMethodParameter());
     return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
   }
 
-  public ResolvableType getResolvableType() {
+  public final ResolvableType getResolvableType() {
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
       resolvableType = createResolvableType();
@@ -171,6 +171,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
     Method writeMethod = getWriteMethod();
     if (writeMethod != null) {
       return ResolvableType.forParameter(writeMethod, 0, getDeclaringClass());
+    }
+    if (field != null) {
+      return ResolvableType.forField(field);
     }
     throw new IllegalStateException("never get here");
   }
@@ -218,7 +221,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
    */
   public Class<?> getType() {
     if (propertyType == null) {
-      if (readMethod != null) {
+      if (field != null) {
+        propertyType = field.getType();
+      }
+      else if (readMethod != null) {
         propertyType = readMethod.getReturnType();
       }
       else if (writeMethod != null) {
@@ -274,6 +280,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
     else if (writeMethod != null) {
       return writeMethod.getModifiers();
     }
+    if (field != null) {
+      return field.getModifiers();
+    }
     return Modifier.PRIVATE;
   }
 
@@ -284,6 +293,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
     }
     else if (writeMethod != null) {
       return writeMethod.isSynthetic();
+    }
+    else if (field != null) {
+      return field.isSynthetic();
     }
     return true;
   }
@@ -361,7 +373,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Override
   public Class<?> getDeclaringClass() {
     if (declaringClass == null) {
-      if (readMethod != null) {
+      if (field != null) {
+        declaringClass = field.getDeclaringClass();
+      }
+      else if (readMethod != null) {
         declaringClass = readMethod.getDeclaringClass();
       }
       else if (writeMethod != null) {

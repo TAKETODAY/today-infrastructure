@@ -221,10 +221,14 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
       ReflectionUtils.doWithFields(beanClass, field -> {
         if (!Modifier.isStatic(field.getModifiers())) {
           String propertyName = getPropertyName(field);
-          if (!beanPropertyMap.containsKey(propertyName)) {
-            BeanProperty property = new FieldBeanProperty(field);
-            beanPropertyMap.put(propertyName, property);
+          BeanProperty property = beanPropertyMap.get(propertyName);
+          if (property == null) {
+            property = new FieldBeanProperty(field, null, null);
           }
+          else {
+            property = new FieldBeanProperty(field, property.getReadMethod(), property.getWriteMethod());
+          }
+          beanPropertyMap.put(propertyName, property);
         }
       });
     }
