@@ -103,16 +103,13 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Nullable
   protected transient MethodParameter writeMethodParameter;
 
-  public Property(String name, Field field) {
-    this.name = name;
+  public Property(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    this.name = field.getName();
     this.field = field;
     this.propertyType = field.getType();
-    this.readMethod = null;
-    this.writeMethod = null;
-  }
-
-  public Property(Field field) {
-    this(field.getName(), field);
+    this.readMethod = readMethod;
+    this.writeMethod = writeMethod;
+    this.declaringClass = field.getDeclaringClass();
   }
 
   public Property(Class<?> objectType, @Nullable Method readMethod, @Nullable Method writeMethod) {

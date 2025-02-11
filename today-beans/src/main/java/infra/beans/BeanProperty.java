@@ -55,13 +55,8 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
   @Nullable
   private transient BeanInstantiator instantiator;
 
-  BeanProperty(String name, Field field) {
-    super(name, field);
-    this.field = field;
-  }
-
-  BeanProperty(Field field) {
-    this(field.getName(), field);
+  BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    super(field, readMethod, writeMethod);
   }
 
   BeanProperty(@Nullable String name, @Nullable Method readMethod,

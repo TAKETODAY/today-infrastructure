@@ -40,7 +40,7 @@ public final class FieldBeanProperty extends BeanProperty {
   private final boolean writeable;
 
   FieldBeanProperty(Field field) {
-    super(field);
+    super(field, null, null);
     this.writeable = !Modifier.isFinal(field.getModifiers());
   }
 
