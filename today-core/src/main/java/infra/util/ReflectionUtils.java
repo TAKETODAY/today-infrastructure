@@ -38,6 +38,7 @@ import infra.core.BridgeMethodResolver;
 import infra.core.ConstructorNotFoundException;
 import infra.lang.Assert;
 import infra.lang.Constant;
+import infra.lang.Contract;
 import infra.lang.Nullable;
 
 /**
@@ -1007,10 +1008,11 @@ public abstract class ReflectionUtils {
    * @param method the method to make accessible
    * @see java.lang.reflect.Method#setAccessible
    */
-  @SuppressWarnings("deprecation") // on JDK 9
-  public static Method makeAccessible(Method method) {
-    Assert.notNull(method, "method is required");
-    if ((!Modifier.isPublic(method.getModifiers()) ||
+  @Nullable
+  @Contract("null -> null")
+  @SuppressWarnings("deprecation")
+  public static Method makeAccessible(@Nullable Method method) {
+    if (method != null && (!Modifier.isPublic(method.getModifiers()) ||
             !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
       method.setAccessible(true);
     }
@@ -1276,11 +1278,11 @@ public abstract class ReflectionUtils {
    * @param field the field to make accessible
    * @see java.lang.reflect.Field#setAccessible
    */
-  @SuppressWarnings("deprecation") // on JDK 9
-  public static Field makeAccessible(Field field) {
-    Assert.notNull(field, "field is required");
-
-    if ((!Modifier.isPublic(field.getModifiers())
+  @Nullable
+  @SuppressWarnings("deprecation")
+  @Contract("null -> null")
+  public static Field makeAccessible(@Nullable Field field) {
+    if (field != null && (!Modifier.isPublic(field.getModifiers())
             || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
             || Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
       field.setAccessible(true);
@@ -1298,15 +1300,6 @@ public abstract class ReflectionUtils {
     return (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers));
   }
 
-  /**
-   * @since 4.0
-   */
-  public static Field[] toFieldArray(Collection<Field> fields) {
-    return CollectionUtils.isEmpty(fields)
-            ? EMPTY_FIELD_ARRAY
-            : fields.toArray(new Field[0]);
-  }
-
   // Constructor handling
 
   /**
@@ -1314,19 +1307,17 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredConstructor
    * @since 4.0
    */
-  public static <T> Constructor<T> accessibleConstructor(
-          Class<T> targetClass, Class<?>... parameterTypes) {
+  public static <T> Constructor<T> accessibleConstructor(Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
+  @Nullable
+  @Contract("null -> null")
   @SuppressWarnings("deprecation")
-  public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
-    Assert.notNull(constructor, "constructor is required");
-
-    if ((!Modifier.isPublic(constructor.getModifiers())
+  public static <T> Constructor<T> makeAccessible(@Nullable Constructor<T> constructor) {
+    if (constructor != null && ((!Modifier.isPublic(constructor.getModifiers())
             || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers()))
-            && !constructor.isAccessible()) {
-
+            && !constructor.isAccessible())) {
       constructor.setAccessible(true);
     }
     return constructor;
