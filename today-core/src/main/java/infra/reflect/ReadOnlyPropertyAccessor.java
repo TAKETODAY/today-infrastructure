@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.reflect;
 
 import java.lang.reflect.Method;
 
+import infra.lang.Nullable;
 import infra.lang.VisibleForTesting;
 import infra.util.ObjectUtils;
 
@@ -31,24 +32,29 @@ import infra.util.ObjectUtils;
 public abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
-  public final void set(final Object obj, final Object value) {
-    throw new ReflectionException(
-            "Can't set value '%s' to '%s' read only property".formatted(ObjectUtils.toHexString(value), classToString(obj)));
-  }
-
-  @VisibleForTesting
-  static Class<?> classToString(Object obj) {
-    return obj != null ? obj.getClass() : null;
+  public final void set(Object obj, @Nullable Object value) {
+    throwReadonly(obj, value);
   }
 
   @Override
   public final Method getWriteMethod() {
-    throw new ReflectionException("read only property");
+    throw new ReflectionException("Readonly property");
   }
 
   @Override
-  public boolean isReadOnly() {
+  public final boolean isReadOnly() {
     return true;
+  }
+
+  @Nullable
+  @VisibleForTesting
+  static Class<?> classToString(@Nullable Object obj) {
+    return obj != null ? obj.getClass() : null;
+  }
+
+  static void throwReadonly(Object obj, @Nullable Object value) {
+    throw new ReflectionException("Can't set value '%s' to '%s' read only property"
+            .formatted(ObjectUtils.toHexString(value), classToString(obj)));
   }
 
 }

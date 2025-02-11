@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ final class PropertyPath {
   public final PropertyPath next;
 
   // @Nullable check first
+  @Nullable
   public final BeanProperty beanProperty;
 
   public PropertyPath(Class<?> objectType, String propertyPath) {
@@ -66,6 +67,7 @@ final class PropertyPath {
     }
   }
 
+  @Nullable
   public BeanProperty getNestedBeanProperty() {
     if (next != null) {
       return next.getNestedBeanProperty();
@@ -81,7 +83,7 @@ final class PropertyPath {
     return parent;
   }
 
-  public void set(Object obj, Object result) {
+  public void set(Object obj, @Nullable Object result) {
     PropertyPath current = this;
     while (current.next != null) {
       obj = getProperty(obj);

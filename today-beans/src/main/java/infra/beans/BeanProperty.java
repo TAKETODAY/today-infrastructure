@@ -49,8 +49,10 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
   @Serial
   private static final long serialVersionUID = 1L;
 
+  @Nullable
   private transient PropertyAccessor accessor;
 
+  @Nullable
   private transient BeanInstantiator instantiator;
 
   BeanProperty(String name, Field field) {
@@ -103,6 +105,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @param object object
    * @return property value
    */
+  @Nullable
   public Object getValue(Object object) {
     return obtainAccessor().get(object);
   }
@@ -113,7 +116,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @throws NotWritablePropertyException If this property is read only
    * @see SetterMethod#set(Object, Object)
    */
-  public final void setValue(Object obj, Object value) {
+  public final void setValue(Object obj, @Nullable Object value) {
     value = handleOptional(value, getType());
     setDirectly(obj, value);
   }
@@ -125,7 +128,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @see SetterMethod#set(Object, Object)
    * @since 4.0
    */
-  public final void setValue(Object obj, Object value, TypeConverter converter) {
+  public final void setValue(Object obj, @Nullable Object value, TypeConverter converter) {
     Class<?> propertyType;
     // write-method parameter type
     MethodParameter writeMethodParameter = getWriteMethodParameter();
@@ -152,7 +155,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @see SetterMethod#set(Object, Object)
    * @since 5.0
    */
-  public final void setValue(Object obj, Object value, ConversionService conversionService) {
+  public final void setValue(Object obj, @Nullable Object value, ConversionService conversionService) {
     Class<?> propertyType;
     // write-method parameter type
     MethodParameter writeMethodParameter = getWriteMethodParameter();
@@ -174,7 +177,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
 
   // @since 4.0
   @Nullable
-  static Object handleOptional(Object value, Class<?> propertyType) {
+  static Object handleOptional(@Nullable Object value, Class<?> propertyType) {
     // convertedValue == null
     if (value == null && propertyType == Optional.class) {
       value = Optional.empty();
@@ -187,7 +190,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @see SetterMethod#set(Object, Object)
    * @since 3.0.2
    */
-  public final void setDirectly(Object obj, Object value) {
+  public final void setDirectly(Object obj, @Nullable Object value) {
     var accessor = obtainAccessor();
     if (accessor.isReadOnly()) {
       throw new NotWritablePropertyException(getDeclaringClass(), getName());

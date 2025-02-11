@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   public abstract Object get(Object obj) throws ReflectionException;
 
   @Override
-  public abstract void set(Object obj, Object value) throws ReflectionException;
+  public abstract void set(Object obj, @Nullable Object value) throws ReflectionException;
 
   /**
    * read-only ?
@@ -188,13 +188,15 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
   private static PropertyAccessor getPropertyAccessor(Field field, MethodInvoker accessor, @NonNull Method writeMethod) {
     return new PropertyAccessor() {
+
+      @Nullable
       @Override
       public Object get(Object obj) {
         return ReflectionUtils.getField(field, obj);
       }
 
       @Override
-      public void set(Object obj, Object value) {
+      public void set(Object obj, @Nullable Object value) {
         accessor.invoke(obj, new Object[] { value });
       }
 
@@ -213,7 +215,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
       }
 
       @Override
-      public void set(Object obj, Object value) {
+      public void set(Object obj, @Nullable Object value) {
         ReflectionUtils.setField(field, obj, value);
       }
 
@@ -249,19 +251,21 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
    * @see ReflectionUtils#setField(Field, Object, Object)
    */
   public static PropertyAccessor forReflective(@Nullable Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
-    boolean readOnly;
+    if (writeMethod != null) {
+      return new ReflectivePropertyAccessor(field, readMethod, writeMethod);
+    }
+
+    boolean readOnly = true;
     if (field != null) {
-      ReflectionUtils.makeAccessible(field);
       readOnly = Modifier.isFinal(field.getModifiers());
     }
     else {
       Assert.notNull(readMethod, "read-method is required");
-      readOnly = writeMethod == null;
     }
     if (readOnly) {
       return new ReflectiveReadOnlyPropertyAccessor(field, readMethod);
     }
-    return new ReflectivePropertyAccessor(field, readMethod, writeMethod);
+    return new ReflectivePropertyAccessor(field, readMethod, null);
   }
 
   //

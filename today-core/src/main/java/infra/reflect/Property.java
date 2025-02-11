@@ -32,6 +32,7 @@ import java.util.Objects;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
+import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.NonNull;
 import infra.lang.Nullable;
@@ -59,7 +60,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   private static final ConcurrentReferenceHashMap<Property, Annotation[]>
           annotationCache = new ConcurrentReferenceHashMap<>();
 
-  // Nullable
+  @Nullable
   protected transient Field field;
 
   /** @since 3.0.4 */
@@ -77,9 +78,11 @@ public class Property implements Member, AnnotatedElement, Serializable {
   protected final Method writeMethod;
 
   /** @since 4.0 */
+  @Nullable
   private Class<?> propertyType;
 
   /** @since 4.0 */
+  @Nullable
   private Class<?> declaringClass;
 
   /** @since 4.0 */
@@ -89,12 +92,15 @@ public class Property implements Member, AnnotatedElement, Serializable {
   private transient Annotation[] annotations;
 
   // @since 4.0
+  @Nullable
   private ResolvableType resolvableType;
 
   // @since 4.0
+  @Nullable
   private transient MethodParameter methodParameter;
 
   // @since 4.0
+  @Nullable
   protected transient MethodParameter writeMethodParameter;
 
   public Property(String name, Field field) {
@@ -124,6 +130,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
     this.declaringClass = declaringClass;
     if (name == null) {
       name = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      Assert.notNull(name, "property name is required");
     }
     this.name = name;
   }

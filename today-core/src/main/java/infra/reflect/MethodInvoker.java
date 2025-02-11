@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 
@@ -42,6 +43,7 @@ import infra.util.ReflectionUtils;
  * @since 2019-10-18 22:35
  */
 public abstract class MethodInvoker implements MethodAccessor, Invoker {
+
   private final Method method;
 
   public MethodInvoker(Method method) {
@@ -84,7 +86,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @throws ExceptionInInitializerError if the initialization provoked by this method fails.
    */
   @Override
-  public abstract Object invoke(Object obj, Object[] args);
+  public abstract Object invoke(Object obj, @Nullable Object[] args);
 
   @Override
   public Method getMethod() {

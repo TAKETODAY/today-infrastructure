@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,11 @@ import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
+import infra.lang.Nullable;
 import infra.util.ObjectUtils;
 
 import static infra.reflect.ReadOnlyPropertyAccessor.classToString;
@@ -128,6 +131,74 @@ class PropertyAccessorTests implements WithAssertions {
 
   }
 
+  @Test
+  void forReflective() throws Exception {
+    ForReflective obj = new ForReflective();
+    Field intValue = ForReflective.class.getField("intValue");
+    Method setIntValue = ForReflective.class.getMethod("setIntValue", IntValue.class);
+    Field privateValue = ForReflective.class.getDeclaredField("privateValue");
+    Method getPrivateValue = ForReflective.class.getMethod("getPrivateValue");
+    Method setPrivateValue = ForReflective.class.getMethod("setPrivateValue", IntValue.class);
+
+    assertThatThrownBy(() -> PropertyAccessor.forReflective(intValue).set(obj, null))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessage("Can't set value '%s' to '%s' read only property"
+                    .formatted("null", classToString(obj)));
+
+    PropertyAccessor intValueAccessor = PropertyAccessor.forReflective(intValue, null, setIntValue);
+    intValueAccessor.set(obj, new IntValue(1));
+    assertThat(intValueAccessor.get(obj)).isEqualTo(new IntValue(1));
+    assertThat(intValueAccessor.isReadOnly()).isFalse();
+    assertThat(intValueAccessor.getWriteMethod()).isEqualTo(setIntValue);
+    assertThat(intValueAccessor.getReadMethod()).isNull();
+
+    assertThatThrownBy(() -> intValueAccessor.set(obj, 1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("argument type mismatch");
+
+    var privateValueAccessor = PropertyAccessor.forReflective(privateValue, getPrivateValue, setPrivateValue);
+
+    privateValueAccessor.set(obj, new IntValue(2));
+    assertThat(privateValueAccessor.get(obj)).isEqualTo(new IntValue(2));
+    assertThat(privateValueAccessor.isReadOnly()).isFalse();
+
+    privateValueAccessor = PropertyAccessor.forReflective(privateValue);
+    privateValueAccessor.set(obj, null);
+
+    assertThat(privateValueAccessor.get(obj)).isNull();
+    assertThat(privateValueAccessor.isReadOnly()).isFalse();
+
+    assertThatThrownBy(() -> PropertyAccessor.forReflective(null, getPrivateValue, null).set(obj, null))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessage("Can't set value '%s' to '%s' read only property"
+                    .formatted("null", classToString(obj)));
+
+    assertThatThrownBy(() -> new ReflectivePropertyAccessor(null, getPrivateValue, null).set(obj, null))
+            .isInstanceOf(ReflectionException.class)
+            .hasMessage("Can't set value '%s' to '%s' read only property"
+                    .formatted("null", classToString(obj)));
+
+    assertThatThrownBy(() -> new ReflectivePropertyAccessor(null, null, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("field or read method must be specified one");
+
+    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, null).isReadOnly()).isTrue();
+    assertThat(new ReflectivePropertyAccessor(privateValue, getPrivateValue, null).isReadOnly()).isFalse();
+    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, setPrivateValue).isReadOnly()).isFalse();
+
+    assertThatThrownBy(() -> new ReflectiveReadOnlyPropertyAccessor(null, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("field or read method must be specified one");
+
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).isReadOnly()).isTrue();
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).getReadMethod()).isEqualTo(getPrivateValue);
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).get(new ForReflective())).isNull();
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(null, getPrivateValue).get(new ForReflective())).isNull();
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, null).get(new ForReflective())).isNull();
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, null).getReadMethod()).isNull();
+
+  }
+
   static class ForMethod {
 
     private int age;
@@ -188,6 +259,67 @@ class PropertyAccessorTests implements WithAssertions {
 
     public final String stringValue = "9";
 
+  }
+
+  static class ForReflective {
+
+    @Nullable
+    private IntValue privateValue;
+
+    public final IntValue intValue = new IntValue();
+
+    public void setIntValue(IntValue in) {
+      intValue.set(in.value);
+    }
+
+    public void setIntValue(int value) {
+      intValue.set(value);
+    }
+
+    @Nullable
+    public IntValue getPrivateValue() {
+      return privateValue;
+    }
+
+    public void setPrivateValue(@Nullable IntValue privateValue) {
+      this.privateValue = privateValue;
+    }
+
+  }
+
+  static class IntValue {
+
+    private int value;
+
+    public IntValue() {
+
+    }
+
+    public IntValue(int value) {
+      this.value = value;
+    }
+
+    public void set(int value) {
+      this.value = value;
+    }
+
+    public int get() {
+      return value;
+    }
+
+    @Override
+    public boolean equals(Object param) {
+      if (this == param)
+        return true;
+      if (!(param instanceof IntValue intValue))
+        return false;
+      return value == intValue.value;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(value);
+    }
   }
 
 }
