@@ -151,7 +151,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
   }
 
-  public ResolvableType getResolvableType() {
+  public final ResolvableType getResolvableType() {
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
       resolvableType = createResolvableType();

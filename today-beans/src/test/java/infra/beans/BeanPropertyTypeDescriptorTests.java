@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class BeanPropertyTypeDescriptorTests {
 
   @Test
-  public void propertyComplex() throws Exception {
+  void propertyComplex() throws Exception {
     BeanProperty complexProperty = BeanProperty.valueOf(getClass(), "complexProperty");
     TypeDescriptor desc = complexProperty.getTypeDescriptor();
 
@@ -101,7 +101,8 @@ class BeanPropertyTypeDescriptorTests {
 
   @Test
   public void property() throws Exception {
-    BeanProperty property = BeanProperty.valueOf(getClass(), "property");
+    BeanMetadata metadata = BeanMetadata.forClass(getClass());
+    BeanProperty property = metadata.obtainBeanProperty("property");
 
     TypeDescriptor desc = property.getTypeDescriptor();
 
@@ -121,6 +122,10 @@ class BeanPropertyTypeDescriptorTests {
 
     assertThat(writeMethod.getAnnotation(MethodAnnotation2.class)).isNotNull();
     assertThat(desc.getAnnotation(MethodAnnotation3.class)).isNotNull();
+
+    assertThat(property.getAnnotation(MethodAnnotation3.class)).isNotNull();
+    assertThat(property.getAnnotation(MethodAnnotation2.class)).isNotNull();
+    assertThat(property.getAnnotation(MethodAnnotation1.class)).isNotNull();
   }
 
   @Test
