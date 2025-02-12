@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -218,6 +219,7 @@ class TypeDescriptorTests {
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
     assertThat(desc.hasAnnotation(MethodAnnotation1.class)).isTrue();
+    assertThat(property.isNullable()).isTrue();
   }
 
   @Test
@@ -231,6 +233,7 @@ class TypeDescriptorTests {
     assertThat(desc.getAnnotation(MethodAnnotation1.class)).isNotNull();
     assertThat(desc.getAnnotation(MethodAnnotation2.class)).isNotNull();
     assertThat(desc.getAnnotation(MethodAnnotation3.class)).isNotNull();
+    assertThat(property.isNullable()).isFalse();
   }
 
   @Test
@@ -932,6 +935,7 @@ class TypeDescriptorTests {
     public void setProperty(T t) {
     }
 
+    @Nullable
     @MethodAnnotation1
     public List<T> getListProperty() {
       return null;

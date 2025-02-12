@@ -34,7 +34,6 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.lang.Assert;
 import infra.lang.Constant;
-import infra.lang.NonNull;
 import infra.lang.Nullable;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ReflectionUtils;
@@ -247,13 +246,11 @@ public class Property implements Member, AnnotatedElement, Serializable {
         return null;
       }
       Class<?> declaringClass = getDeclaringClass();
-      if (declaringClass != null) {
-        field = ReflectionUtils.findField(declaringClass, name);
+      field = ReflectionUtils.findField(declaringClass, name);
+      if (field == null) {
+        field = ReflectionUtils.findField(declaringClass, StringUtils.uncapitalize(name));
         if (field == null) {
-          field = ReflectionUtils.findField(declaringClass, StringUtils.uncapitalize(name));
-          if (field == null) {
-            field = ReflectionUtils.findField(declaringClass, StringUtils.capitalize(name));
-          }
+          field = ReflectionUtils.findField(declaringClass, StringUtils.capitalize(name));
         }
       }
       fieldIsNull = field == null;
@@ -444,7 +441,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   // AnnotatedElement
 
   @Override
-  public boolean isAnnotationPresent(@NonNull Class<? extends Annotation> annotationClass) {
+  public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
     for (Annotation annotation : getAnnotations(false)) {
       if (annotation.annotationType() == annotationClass) {
         return true;
@@ -456,7 +453,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Override
   @Nullable
   @SuppressWarnings("unchecked")
-  public <T extends Annotation> T getAnnotation(@NonNull Class<T> annotationClass) {
+  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
     for (Annotation annotation : getAnnotations(false)) {
       if (annotation.annotationType() == annotationClass) {
         return (T) annotation;
