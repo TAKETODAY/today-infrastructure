@@ -752,7 +752,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public void unbox(final Type type) {
     Type boxedType = Type.TYPE_NUMBER;
-    MethodSignature unboxMethod = null;
+    MethodSignature unboxMethod;
     switch (type.getSort()) {
       case Type.VOID -> {
         return;
@@ -769,6 +769,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
       case Type.FLOAT -> unboxMethod = MethodSignature.FLOAT_VALUE;
       case Type.LONG -> unboxMethod = MethodSignature.LONG_VALUE;
       case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.INT_VALUE;
+      default -> unboxMethod = null;
     }
 
     if (unboxMethod == null) {
