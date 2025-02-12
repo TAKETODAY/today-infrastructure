@@ -35,9 +35,7 @@ import infra.util.ClassUtils;
 import infra.util.ReflectionUtils;
 
 /**
- * Field is first considered then readMethod
- * <p>
- * AnnotatedElement -> Field -> readMethod -> writeMethod
+ * Bean property
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #isWriteable()

@@ -26,7 +26,6 @@ import java.util.function.Function;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
@@ -72,7 +71,7 @@ public class EnumerationValueTypeHandler<T extends Enum<T>> implements TypeHandl
     BeanProperty annotatedProperty = null;
     BeanMetadata metadata = BeanMetadata.forClass(type);
     for (BeanProperty beanProperty : metadata) {
-      if (MergedAnnotations.from(beanProperty.getAnnotations()).isPresent(EnumerationValue.class)) {
+      if (beanProperty.mergedAnnotations().isPresent(EnumerationValue.class)) {
         Assert.state(annotatedProperty == null, "@EnumerationValue must annotated on one property");
         annotatedProperty = beanProperty;
       }

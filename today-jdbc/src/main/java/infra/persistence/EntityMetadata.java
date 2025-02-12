@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,8 +96,7 @@ public class EntityMetadata {
 
   private boolean determineGeneratedId(@Nullable EntityProperty idProperty) {
     if (idProperty != null) {
-      return MergedAnnotations.from(idProperty.property, idProperty.property.getAnnotations())
-              .isPresent(GeneratedId.class);
+      return idProperty.isPresent(GeneratedId.class);
     }
     return false;
   }
@@ -121,6 +120,23 @@ public class EntityMetadata {
   @Nullable
   public EntityProperty findProperty(String name) {
     return propertyMap.get(name);
+  }
+
+  public MergedAnnotations getAnnotations() {
+    MergedAnnotations annotations = this.annotations;
+    if (annotations == null) {
+      annotations = MergedAnnotations.from(entityClass);
+      this.annotations = annotations;
+    }
+    return annotations;
+  }
+
+  public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
+    return getAnnotations().get(annType);
+  }
+
+  public <A extends Annotation> boolean isPresent(Class<A> annType) {
+    return getAnnotations().isPresent(annType);
   }
 
   @Override
@@ -154,23 +170,6 @@ public class EntityMetadata {
     result = 31 * result + Arrays.hashCode(columnNames);
     result = 31 * result + Arrays.hashCode(entityProperties);
     return result;
-  }
-
-  public MergedAnnotations getAnnotations() {
-    MergedAnnotations annotations = this.annotations;
-    if (annotations == null) {
-      annotations = MergedAnnotations.from(entityClass);
-      this.annotations = annotations;
-    }
-    return annotations;
-  }
-
-  public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
-    return getAnnotations().get(annType);
-  }
-
-  public <A extends Annotation> boolean isPresent(Class<A> annType) {
-    return getAnnotations().isPresent(annType);
   }
 
 }

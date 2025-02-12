@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.List;
 
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.reflect.Property;
@@ -71,14 +70,12 @@ public interface ColumnNameDiscover {
   static ColumnNameDiscover composite(List<ColumnNameDiscover> discovers) {
     Assert.notNull(discovers, "ColumnNameDiscover is required");
     return property -> {
-
       for (ColumnNameDiscover discover : discovers) {
         String columnName = discover.getColumnName(property);
         if (columnName != null) {
           return columnName;
         }
       }
-
       return null;
     };
   }
@@ -133,7 +130,7 @@ public interface ColumnNameDiscover {
     Assert.notNull(annotationType, "annotationType is required");
 
     return property -> {
-      var annotation = MergedAnnotations.from(property, property.getAnnotations()).get(annotationType);
+      var annotation = property.mergedAnnotations().get(annotationType);
       if (annotation.isPresent()) {
         String columnName = annotation.getString(attributeName);
         if (StringUtils.hasText(columnName)) {

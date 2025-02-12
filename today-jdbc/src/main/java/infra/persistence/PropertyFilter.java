@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.Set;
 
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 
 /**
@@ -83,11 +82,7 @@ public interface PropertyFilter {
    */
   static PropertyFilter forAnnotation(Class<? extends Annotation> annotationType) {
     Assert.notNull(annotationType, "annotationType is required");
-    return property -> {
-      var annotation = MergedAnnotations.from(
-              property, property.getAnnotations()).get(annotationType);
-      return annotation.isPresent();
-    };
+    return property -> property.mergedAnnotations().isPresent(annotationType);
   }
 
 }

@@ -24,7 +24,6 @@ import java.util.List;
 import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
 import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 
@@ -113,7 +112,7 @@ public interface TypeHandlerResolver {
     Assert.notNull(annotationType, "annotationType is required");
 
     return (BeanProperty property) -> {
-      var mappedTypeHandler = MergedAnnotations.from(property, property.getAnnotations()).get(annotationType);
+      var mappedTypeHandler = property.mergedAnnotations().get(annotationType);
       if (mappedTypeHandler.isPresent()) {
         // user defined TypeHandler
         Class<? extends TypeHandler<?>> typeHandlerClass = mappedTypeHandler.getClass(attributeName);

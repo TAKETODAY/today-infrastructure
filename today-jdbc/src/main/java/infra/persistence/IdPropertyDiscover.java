@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 
 import infra.beans.BeanProperty;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 
 /**
@@ -107,7 +106,7 @@ public interface IdPropertyDiscover {
    */
   static IdPropertyDiscover forAnnotation(Class<? extends Annotation> annotationType) {
     Assert.notNull(annotationType, "annotationType is required");
-    return property -> MergedAnnotations.from(property, property.getAnnotations()).isPresent(annotationType);
+    return property -> property.mergedAnnotations().isPresent(annotationType);
   }
 
 }

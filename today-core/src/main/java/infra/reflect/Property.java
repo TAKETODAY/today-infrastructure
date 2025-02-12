@@ -32,6 +32,7 @@ import java.util.Objects;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
+import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Nullable;
@@ -92,6 +93,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
 
   @Nullable
   private transient Annotation[] annotations;
+
+  @Nullable
+  private transient MergedAnnotations mergedAnnotations;
 
   // @since 4.0
   @Nullable
@@ -439,6 +443,18 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   // AnnotatedElement
+
+  /**
+   * @since 5.0
+   */
+  public MergedAnnotations mergedAnnotations() {
+    MergedAnnotations annotations = this.mergedAnnotations;
+    if (annotations == null) {
+      annotations = MergedAnnotations.from(this, getAnnotations());
+      this.mergedAnnotations = annotations;
+    }
+    return annotations;
+  }
 
   @Override
   public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {

@@ -143,6 +143,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @throws NoSuchPropertyException If no such property
    * @see #obtainBeanProperty(String)
    */
+  @Nullable
   public Object getProperty(Object root, String propertyName) {
     return obtainBeanProperty(propertyName).getValue(root);
   }

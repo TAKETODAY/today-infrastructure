@@ -44,9 +44,6 @@ public class EntityProperty {
 
   public final TypeHandler<Object> typeHandler;
 
-  @Nullable
-  private MergedAnnotations annotations;
-
   @SuppressWarnings({ "rawtypes", "unchecked" })
   EntityProperty(BeanProperty property, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
     this.property = property;
@@ -153,12 +150,7 @@ public class EntityProperty {
   }
 
   public MergedAnnotations getAnnotations() {
-    MergedAnnotations annotations = this.annotations;
-    if (annotations == null) {
-      annotations = MergedAnnotations.from(property, property.getAnnotations());
-      this.annotations = annotations;
-    }
-    return annotations;
+    return property.mergedAnnotations();
   }
 
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {

@@ -151,7 +151,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
         }
         else if (Enum.class.isAssignableFrom(type)) {
           // BeanProperty based
-          var enumerated = MergedAnnotations.from(property, property.getAnnotations()).get(Enumerated.class);
+          var enumerated = property.mergedAnnotations().get(Enumerated.class);
           if (!enumerated.isPresent()) {
             enumerated = MergedAnnotations.from(type).get(Enumerated.class);
           }
