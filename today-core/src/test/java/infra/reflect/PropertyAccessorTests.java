@@ -160,7 +160,7 @@ class PropertyAccessorTests implements WithAssertions {
     PropertyAccessor intValueAccessor = PropertyAccessor.forReflective(intValue, null, setIntValue);
     intValueAccessor.set(obj, new IntValue(1));
     assertThat(intValueAccessor.get(obj)).isEqualTo(new IntValue(1));
-    assertThat(intValueAccessor.isReadOnly()).isFalse();
+    assertThat(intValueAccessor.isWriteable()).isTrue();
     assertThat(intValueAccessor.getWriteMethod()).isEqualTo(setIntValue);
     assertThat(intValueAccessor.getReadMethod()).isNull();
 
@@ -172,13 +172,13 @@ class PropertyAccessorTests implements WithAssertions {
 
     privateValueAccessor.set(obj, new IntValue(2));
     assertThat(privateValueAccessor.get(obj)).isEqualTo(new IntValue(2));
-    assertThat(privateValueAccessor.isReadOnly()).isFalse();
+    assertThat(privateValueAccessor.isWriteable()).isTrue();
 
     privateValueAccessor = PropertyAccessor.forReflective(privateValue);
     privateValueAccessor.set(obj, null);
 
     assertThat(privateValueAccessor.get(obj)).isNull();
-    assertThat(privateValueAccessor.isReadOnly()).isFalse();
+    assertThat(privateValueAccessor.isWriteable()).isTrue();
 
     assertThatThrownBy(() -> PropertyAccessor.forReflective(null, getPrivateValue, null).set(obj, null))
             .isInstanceOf(ReflectionException.class)
@@ -194,15 +194,15 @@ class PropertyAccessorTests implements WithAssertions {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("field or read method must be specified one");
 
-    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, null).isReadOnly()).isTrue();
-    assertThat(new ReflectivePropertyAccessor(privateValue, getPrivateValue, null).isReadOnly()).isFalse();
-    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, setPrivateValue).isReadOnly()).isFalse();
+    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, null).isWriteable()).isFalse();
+    assertThat(new ReflectivePropertyAccessor(privateValue, getPrivateValue, null).isWriteable()).isTrue();
+    assertThat(new ReflectivePropertyAccessor(null, getPrivateValue, setPrivateValue).isWriteable()).isTrue();
 
     assertThatThrownBy(() -> new ReflectiveReadOnlyPropertyAccessor(null, null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("field or read method must be specified one");
 
-    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).isReadOnly()).isTrue();
+    assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).isWriteable()).isFalse();
     assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).getReadMethod()).isEqualTo(getPrivateValue);
     assertThat(new ReflectiveReadOnlyPropertyAccessor(privateValue, getPrivateValue).get(new ForReflective())).isNull();
     assertThat(new ReflectiveReadOnlyPropertyAccessor(null, getPrivateValue).get(new ForReflective())).isNull();

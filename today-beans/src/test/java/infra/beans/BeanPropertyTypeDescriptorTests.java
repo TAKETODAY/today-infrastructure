@@ -111,7 +111,7 @@ class BeanPropertyTypeDescriptorTests {
     assertThat(desc.getMapKeyDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueDescriptor().getElementDescriptor().getType()).isEqualTo(Long.class);
 
-    PropertyAccessor propertyAccessor = property.obtainAccessor();
+    PropertyAccessor propertyAccessor = property.accessor();
     Method writeMethod = propertyAccessor.getWriteMethod();
     Method readMethod = propertyAccessor.getReadMethod();
 
@@ -138,7 +138,7 @@ class BeanPropertyTypeDescriptorTests {
   }
 
   @Test
-  public void upCast() throws Exception {
+  public void upCast() {
     final BeanProperty property = BeanProperty.valueOf(getClass(), "property");
 
     TypeDescriptor typeDescriptor = property.getTypeDescriptor();

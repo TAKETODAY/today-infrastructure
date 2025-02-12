@@ -42,8 +42,8 @@ public abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
   }
 
   @Override
-  public final boolean isReadOnly() {
-    return true;
+  public final boolean isWriteable() {
+    return false;
   }
 
   @Nullable

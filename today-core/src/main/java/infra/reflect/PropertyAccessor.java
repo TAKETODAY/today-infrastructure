@@ -46,12 +46,12 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
   public abstract void set(Object obj, @Nullable Object value) throws ReflectionException;
 
   /**
-   * read-only ?
+   * can write
    *
    * @since 4.0
    */
-  public boolean isReadOnly() {
-    return false;
+  public boolean isWriteable() {
+    return true;
   }
 
   // static

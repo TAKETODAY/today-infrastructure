@@ -77,6 +77,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Nullable
   protected final Method writeMethod;
 
+  /** @since 5.0 */
+  private final boolean writeableField;
+
   /** @since 4.0 */
   @Nullable
   private Class<?> propertyType;
@@ -103,6 +106,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Nullable
   protected transient MethodParameter writeMethodParameter;
 
+  /**
+   * @since 5.0
+   */
   public Property(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     this.name = field.getName();
     this.field = field;
@@ -110,6 +116,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;
     this.declaringClass = field.getDeclaringClass();
+    this.writeableField = !Modifier.isFinal(field.getModifiers());
   }
 
   public Property(Class<?> objectType, @Nullable Method readMethod, @Nullable Method writeMethod) {
@@ -130,6 +137,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
       Assert.notNull(name, "property name is required");
     }
     this.name = name;
+    this.writeableField = false;
   }
 
   /**
@@ -140,15 +148,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
   public final TypeDescriptor getTypeDescriptor() {
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
-      typeDescriptor = createDescriptor();
+      typeDescriptor = new TypeDescriptor(this);
       this.typeDescriptor = typeDescriptor;
     }
     return typeDescriptor;
-  }
-
-  protected TypeDescriptor createDescriptor() {
-    ResolvableType resolvableType = ResolvableType.forMethodParameter(getMethodParameter());
-    return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
   }
 
   public final ResolvableType getResolvableType() {
@@ -161,13 +164,13 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   protected ResolvableType createResolvableType() {
-    Method readMethod = getReadMethod();
-    if (readMethod != null) {
-      return ResolvableType.forReturnType(readMethod, getDeclaringClass());
+    if (isMethodBased()) {
+      return ResolvableType.forMethodParameter(getMethodParameter());
     }
-    Method writeMethod = getWriteMethod();
-    if (writeMethod != null) {
-      return ResolvableType.forParameter(writeMethod, 0, getDeclaringClass());
+
+    Field field = getField();
+    if (field != null) {
+      return ResolvableType.forField(field);
     }
     throw new IllegalStateException("never get here");
   }
@@ -221,6 +224,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
       else if (writeMethod != null) {
         propertyType = writeMethod.getParameterTypes()[0];
       }
+      else if (getField() != null) {
+        propertyType = getField().getType();
+      }
       else {
         throw new IllegalStateException("should never get here");
       }
@@ -271,6 +277,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
     else if (writeMethod != null) {
       return writeMethod.getModifiers();
     }
+    else if (getField() != null) {
+      return getField().getModifiers();
+    }
     return Modifier.PRIVATE;
   }
 
@@ -282,16 +291,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
     else if (writeMethod != null) {
       return writeMethod.isSynthetic();
     }
+    else if (getField() != null) {
+      return getField().isSynthetic();
+    }
     return true;
-  }
-
-  /**
-   * read only
-   *
-   * @since 3.0.2
-   */
-  public boolean isReadOnly() {
-    return writeMethod == null;
   }
 
   /**
@@ -300,7 +303,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isWriteable() {
-    return writeMethod != null;
+    return writeableField || writeMethod != null;
   }
 
   /**
@@ -309,8 +312,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
    * @since 4.0
    */
   public boolean isReadable() {
-    // todo maybe can access field
-    return readMethod != null;
+    return readMethod != null || getField() != null;
   }
 
   /**
@@ -364,6 +366,9 @@ public class Property implements Member, AnnotatedElement, Serializable {
       else if (writeMethod != null) {
         declaringClass = writeMethod.getDeclaringClass();
       }
+      else if (getField() != null) {
+        declaringClass = getField().getDeclaringClass();
+      }
     }
     return declaringClass;
   }
@@ -378,11 +383,19 @@ public class Property implements Member, AnnotatedElement, Serializable {
     return writeMethod;
   }
 
+  /**
+   * @since 5.0
+   */
+  public boolean isMethodBased() {
+    return readMethod != null || writeMethod != null;
+  }
+
   @Nullable
   public MethodParameter getWriteMethodParameter() {
     MethodParameter writeMethodParameter = this.writeMethodParameter;
-    if (writeMethodParameter == null && getWriteMethod() != null) {
-      writeMethodParameter = new MethodParameter(getWriteMethod(), 0).withContainingClass(getDeclaringClass());
+    if (writeMethodParameter == null && writeMethod != null) {
+      writeMethodParameter = new MethodParameter(writeMethod, 0)
+              .withContainingClass(getDeclaringClass());
       this.writeMethodParameter = writeMethodParameter;
     }
     return writeMethodParameter;
@@ -521,11 +534,12 @@ public class Property implements Member, AnnotatedElement, Serializable {
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o instanceof Property property) {
-      return Objects.equals(name, property.name)
-              && Objects.equals(readMethod, property.readMethod)
-              && Objects.equals(writeMethod, property.writeMethod)
-              && Objects.equals(propertyType, property.propertyType);
+    if (o instanceof Property other) {
+      return Objects.equals(name, other.name)
+              && Objects.equals(field, other.field)
+              && Objects.equals(readMethod, other.readMethod)
+              && Objects.equals(writeMethod, other.writeMethod)
+              && Objects.equals(propertyType, other.propertyType);
     }
     return false;
   }

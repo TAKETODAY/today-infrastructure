@@ -44,7 +44,7 @@ import infra.util.ReflectionUtils;
  * @see #isReadable()
  * @since 3.0 2021/1/27 22:28
  */
-public sealed class BeanProperty extends Property permits FieldBeanProperty {
+public class BeanProperty extends Property {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -55,16 +55,16 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
   @Nullable
   private transient BeanInstantiator instantiator;
 
-  BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
+  protected BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     super(field, readMethod, writeMethod);
   }
 
-  BeanProperty(@Nullable String name, @Nullable Method readMethod,
+  protected BeanProperty(@Nullable String name, @Nullable Method readMethod,
           @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     super(name, readMethod, writeMethod, declaringClass);
   }
 
-  BeanProperty(PropertyDescriptor descriptor, Class<?> declaringClass) {
+  protected BeanProperty(PropertyDescriptor descriptor, Class<?> declaringClass) {
     super(descriptor.getName(), descriptor.getReadMethod(), descriptor.getWriteMethod(), declaringClass);
     if (writeMethod != null && descriptor instanceof GenericTypeAwarePropertyDescriptor generic) {
       this.writeMethodParameter = generic.getWriteMethodParameter();
@@ -102,7 +102,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    */
   @Nullable
   public Object getValue(Object object) {
-    return obtainAccessor().get(object);
+    return accessor().get(object);
   }
 
   /**
@@ -186,8 +186,8 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    * @since 3.0.2
    */
   public final void setDirectly(Object obj, @Nullable Object value) {
-    var accessor = obtainAccessor();
-    if (accessor.isReadOnly()) {
+    var accessor = accessor();
+    if (!accessor.isWriteable()) {
       throw new NotWritablePropertyException(getDeclaringClass(), getName());
     }
     accessor.set(obj, value);
@@ -195,7 +195,7 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
 
   // PropertyAccessor
 
-  public final PropertyAccessor obtainAccessor() {
+  public PropertyAccessor accessor() {
     PropertyAccessor accessor = this.accessor;
     if (accessor == null) {
       accessor = createAccessor();
@@ -207,12 +207,22 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
   /**
    * @since 3.0.2
    */
-  protected PropertyAccessor createAccessor() {
+  private PropertyAccessor createAccessor() {
     Field field = getField();
     if (field == null) {
       return PropertyAccessor.forMethod(readMethod, writeMethod);
     }
     return PropertyAccessor.forField(field, readMethod, writeMethod);
+  }
+
+  @Override
+  public boolean isWriteable() {
+    return accessor().isWriteable();
+  }
+
+  // @since 5.0
+  void setField(@Nullable Field field) {
+    this.field = field;
   }
 
   //---------------------------------------------------------------------
@@ -226,7 +236,9 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
    */
   public static BeanProperty valueOf(Field field) {
     Assert.notNull(field, "Field is required");
-    return new FieldBeanProperty(field);
+    Method readMethod = ReflectionUtils.getReadMethod(field);
+    Method writeMethod = ReflectionUtils.getWriteMethod(field);
+    return new BeanProperty(field, readMethod, writeMethod);
   }
 
   /**
@@ -237,7 +249,8 @@ public sealed class BeanProperty extends Property permits FieldBeanProperty {
     if (field == null) {
       throw new NoSuchPropertyException(targetClass, name);
     }
-    return new FieldBeanProperty(field);
+
+    return valueOf(field);
   }
 
   /**

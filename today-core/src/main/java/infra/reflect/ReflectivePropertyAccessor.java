@@ -71,8 +71,8 @@ final class ReflectivePropertyAccessor extends PropertyAccessor {
   }
 
   @Override
-  public boolean isReadOnly() {
-    return field == null && writeMethod == null;
+  public boolean isWriteable() {
+    return field != null || writeMethod != null;
   }
 
   @Nullable
