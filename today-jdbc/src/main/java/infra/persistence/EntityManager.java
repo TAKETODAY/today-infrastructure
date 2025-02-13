@@ -591,6 +591,13 @@ public interface EntityManager {
    *
    * @throws IllegalEntityException entityClass is legal entity
    */
+  <T> EntityIterator<T> iterate(Class<T> entityClass) throws DataAccessException;
+
+  /**
+   * Iterate entities
+   *
+   * @throws IllegalEntityException entityClass is legal entity
+   */
   <T> EntityIterator<T> iterate(T example) throws DataAccessException;
 
   /**

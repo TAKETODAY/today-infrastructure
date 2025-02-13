@@ -901,6 +901,11 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  public <T> EntityIterator<T> iterate(Class<T> entityClass) throws DataAccessException {
+    return iterate(entityClass, (QueryStatement) null);
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T> EntityIterator<T> iterate(T example) throws DataAccessException {
     return iterate((Class<T>) example.getClass(), example);
