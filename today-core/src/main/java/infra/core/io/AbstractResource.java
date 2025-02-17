@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.io;
 
 import java.io.File;
@@ -25,14 +26,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
 import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.ObjectUtils;
 import infra.util.ResourceUtils;
 
 /**
@@ -169,37 +168,6 @@ public abstract class AbstractResource implements Resource {
   @Override
   public File getFile() throws IOException {
     throw new FileNotFoundException(this + " cannot be resolved to absolute file path");
-  }
-
-  @Override
-  public boolean isDirectory() throws IOException {
-    return getFile().isDirectory();
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    return getFile().list();
-  }
-
-  @Override
-  public Resource[] list(ResourceFilter filter) throws IOException {
-    String[] names = list();
-
-    if (ObjectUtils.isEmpty(names)) {
-      return EMPTY_ARRAY;
-    }
-
-    ArrayList<Resource> resources = new ArrayList<>();
-    for (String name : names) { // this resource is a directory
-      Resource resource = createRelative(name);
-      if ((filter == null) || filter.accept(resource)) {
-        resources.add(resource);
-      }
-    }
-    if (resources.isEmpty()) {
-      return EMPTY_ARRAY;
-    }
-    return resources.toArray(EMPTY_ARRAY);
   }
 
   /**

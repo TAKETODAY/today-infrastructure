@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.handler.function;
@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import infra.core.io.Resource;
-import infra.core.io.ResourceFilter;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
@@ -96,21 +95,6 @@ class ResourceHandlerFunction implements HandlerFunction<ServerResponse> {
     @Override
     public boolean exists() {
       return this.delegate.exists();
-    }
-
-    @Override
-    public boolean isDirectory() throws IOException {
-      return delegate.isDirectory();
-    }
-
-    @Override
-    public String[] list() throws IOException {
-      return delegate.list();
-    }
-
-    @Override
-    public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
-      return delegate.list(filter);
     }
 
     @Override

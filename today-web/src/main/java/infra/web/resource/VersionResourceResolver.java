@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +35,8 @@ import java.util.Map;
 import infra.core.AntPathMatcher;
 import infra.core.io.AbstractResource;
 import infra.core.io.Resource;
-import infra.core.io.ResourceFilter;
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
-import infra.lang.Experimental;
 import infra.lang.Nullable;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
@@ -334,23 +332,6 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     @Override
     public boolean isFile() {
       return original.isFile();
-    }
-
-    @Override
-    public boolean isDirectory() throws IOException {
-      return original.isDirectory();
-    }
-
-    @Override
-    @Experimental
-    public String[] list() throws IOException {
-      return original.list();
-    }
-
-    @Override
-    @Experimental
-    public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
-      return original.list(filter);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ import infra.util.StringUtils;
  * resource resides in the file system, but not for resources in a JAR.
  * Always supports resolution as URL.
  *
- * @author TODAY
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ClassLoader#getResourceAsStream(String)
  * @see ClassLoader#getResource(String)
  * @see Class#getResourceAsStream(String)
@@ -62,6 +62,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
   @Nullable
   private ClassLoader classLoader;
 
+  @Nullable
   protected Resource delegate;
 
   /**
@@ -240,21 +241,6 @@ public class ClassPathResource extends AbstractFileResolvingResource {
       // see https://github.com/openjdk/jdk/pull/2662
       return null;
     }
-  }
-
-  @Override
-  public boolean isDirectory() throws IOException {
-    return getDelegate().isDirectory();
-  }
-
-  @Override
-  public Resource[] list(ResourceFilter filter) throws IOException {
-    return getDelegate().list(filter);
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    return getDelegate().list();
   }
 
   @Override

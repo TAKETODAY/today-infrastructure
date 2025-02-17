@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
-import infra.lang.Nullable;
 
 /**
  * This class implements the Wrapper or Decorator pattern.
@@ -37,9 +36,12 @@ import infra.lang.Nullable;
  * @since 4.0 2022/3/2 9:06
  */
 public class ResourceDecorator implements Resource {
+
   protected Resource delegate;
 
-  protected ResourceDecorator() { }
+  protected ResourceDecorator() {
+
+  }
 
   public ResourceDecorator(Resource delegate) {
     Assert.notNull(delegate, "Resource delegate is required");
@@ -126,21 +128,6 @@ public class ResourceDecorator implements Resource {
   @Override
   public boolean isFile() {
     return getDelegate().isFile();
-  }
-
-  @Override
-  public boolean isDirectory() throws IOException {
-    return getDelegate().isDirectory();
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    return getDelegate().list();
-  }
-
-  @Override
-  public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
-    return getDelegate().list(filter);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,6 @@ import infra.core.conversion.ConverterNotFoundException;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
-import infra.core.io.ResourceFilter;
-import infra.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -348,20 +346,6 @@ class CollectionToCollectionConverterTests {
       return null;
     }
 
-    @Override
-    public boolean isDirectory() throws IOException {
-      return false;
-    }
-
-    @Override
-    public String[] list() throws IOException {
-      return new String[0];
-    }
-
-    @Override
-    public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
-      return new Resource[0];
-    }
   }
 
   public enum MyEnum {A, B, C}

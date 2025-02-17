@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 
-import infra.lang.Experimental;
 import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 
@@ -184,42 +181,6 @@ public interface Resource extends InputStreamSource {
   default boolean isFile() {
     return false;
   }
-
-  /**
-   * Tests whether the resource denoted by this abstract pathname is a
-   * directory.
-   *
-   * <p> Where it is required to distinguish an I/O exception from the case
-   * that the file is not a directory, or where several attributes of the
-   * same file are required at the same time, then the {@link
-   * java.nio.file.Files#readAttributes(Path, Class, LinkOption[])
-   * Files.readAttributes} method may be used.
-   *
-   * @return <code>true</code> if and only if the file denoted by this
-   * abstract pathname exists <em>and</em> is a directory;
-   * <code>false</code> otherwise
-   * @throws IOException cannot determine resource
-   */
-  boolean isDirectory() throws IOException;
-
-  /**
-   * list {@link Resource} under the directory
-   *
-   * @return {@link Resource} names
-   * @throws IOException if the resource is not available
-   */
-  @Experimental
-  String[] list() throws IOException;
-
-  /**
-   * list {@link Resource} under the directory
-   *
-   * @param filter filter {@link Resource}
-   * @return {@link Resource} names
-   * @throws IOException if the resource is not available
-   */
-  @Experimental
-  Resource[] list(@Nullable ResourceFilter filter) throws IOException;
 
   /**
    * Create a resource relative to this resource.

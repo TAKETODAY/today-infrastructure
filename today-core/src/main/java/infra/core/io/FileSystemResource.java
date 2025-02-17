@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.io;
 
 import java.io.File;
@@ -33,11 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.ObjectUtils;
 import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 
@@ -63,6 +62,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   private final File file;
 
   private final String path;
+
   private final Path filePath;
 
   /**
@@ -267,19 +267,6 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   }
 
   /**
-   * @throws SecurityException If a security manager exists and its <code>{@link
-   * java.lang.SecurityManager#checkRead(java.lang.String)}</code>
-   * method denies read access to the file
-   */
-  @Override
-  public boolean isDirectory() throws IOException {
-    if (file != null) {
-      return file.isDirectory();
-    }
-    return Files.isDirectory(filePath);
-  }
-
-  /**
    * This implementation returns the underlying File/Path length.
    */
   @Override
@@ -319,37 +306,8 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   public Resource createRelative(String relativePath) throws IOException {
     String pathToUse = StringUtils.applyRelativePath(path, relativePath);
     return file != null
-           ? new FileSystemResource(pathToUse)
-           : new FileSystemResource(this.filePath.getFileSystem(), pathToUse);
-  }
-
-  @Override
-  public String[] list() throws IOException {
-    if (file != null) {
-      return file.list();
-    }
-    return filePath.toFile().list();
-  }
-
-  @Override
-  public Resource[] list(ResourceFilter filter) throws IOException {
-    String[] names = list();
-    if (ObjectUtils.isEmpty(names)) {
-      return EMPTY_ARRAY;
-    }
-
-    File parent = getFile();
-    ArrayList<Resource> resources = new ArrayList<>(names.length);
-    for (String name : names) { // this resource is a directory
-      FileSystemResource resource = new FileSystemResource(new File(parent, name));
-      if (filter == null || filter.accept(resource)) {
-        resources.add(resource);
-      }
-    }
-    if (resources.isEmpty()) {
-      return EMPTY_ARRAY;
-    }
-    return resources.toArray(EMPTY_ARRAY);
+            ? new FileSystemResource(pathToUse)
+            : new FileSystemResource(this.filePath.getFileSystem(), pathToUse);
   }
 
   @Override
@@ -357,11 +315,9 @@ public class FileSystemResource extends AbstractResource implements WritableReso
     if (file != null) {
       return file.getName();
     }
-    if (filePath != null) {
-      Path fileName = filePath.getFileName();
-      if (fileName != null) {
-        return fileName.toString();
-      }
+    Path fileName = filePath.getFileName();
+    if (fileName != null) {
+      return fileName.toString();
     }
     return new File(path).getName();
   }
@@ -408,7 +364,8 @@ public class FileSystemResource extends AbstractResource implements WritableReso
 
   @Override
   public boolean equals(Object other) {
-    return (this == other || (other instanceof FileSystemResource && path.equals(((FileSystemResource) other).path)));
+    return (this == other || (other instanceof FileSystemResource
+            && path.equals(((FileSystemResource) other).path)));
   }
 
   @Override
