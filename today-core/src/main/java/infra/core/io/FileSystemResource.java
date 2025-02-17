@@ -236,7 +236,6 @@ public class FileSystemResource extends AbstractResource implements WritableReso
     }
     else {
       URI uri = this.filePath.toUri();
-      // Normalize URI? See https://github.com/spring-projects/spring-framework/issues/29275
       String scheme = uri.getScheme();
       if (ResourceUtils.URL_PROTOCOL_FILE.equals(scheme)) {
         try {

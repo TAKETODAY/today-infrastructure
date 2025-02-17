@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * {@link Resource} implementation for a given byte array.
@@ -62,7 +63,7 @@ public class ByteArrayResource extends AbstractResource {
    * @param byteArray the byte array to wrap
    * @param description where the byte array comes from
    */
-  public ByteArrayResource(byte[] byteArray, String description) {
+  public ByteArrayResource(byte[] byteArray, @Nullable String description) {
     Assert.notNull(byteArray, "Byte array is required");
     this.byteArray = byteArray;
     this.description = (description != null ? description : "");
