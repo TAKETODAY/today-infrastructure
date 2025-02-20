@@ -60,7 +60,7 @@ public interface TableNameGenerator {
   // Static Factory Methods
 
   /**
-   *
+   * Default {@link TableNameGenerator}
    */
   static DefaultTableNameGenerator defaultStrategy() {
     return new DefaultTableNameGenerator();
@@ -108,6 +108,12 @@ public interface TableNameGenerator {
           if (StringUtils.hasText(name)) {
             return name;
           }
+        }
+
+        var ref = annotations.get(EntityRef.class);
+        if (ref.isPresent()) {
+          Class<?> classValue = ref.getClassValue();
+          return generateTableName(classValue);
         }
         return null;
       }
