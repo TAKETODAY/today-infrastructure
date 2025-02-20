@@ -48,6 +48,9 @@ public class EntityMetadata {
   @Nullable
   public final EntityProperty idProperty;
 
+  @Nullable
+  public final EntityProperty refIdProperty;
+
   public final BeanProperty[] beanProperties;
 
   public final String[] columnNames;
@@ -65,11 +68,12 @@ public class EntityMetadata {
   private final HashMap<String, EntityProperty> propertyMap;
 
   protected EntityMetadata(BeanMetadata root, Class<?> entityClass, @Nullable EntityProperty idProperty, String tableName,
-          List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
+          @Nullable EntityProperty refIdProperty, List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
     this.root = root;
     this.tableName = tableName;
     this.idProperty = idProperty;
     this.entityClass = entityClass;
+    this.refIdProperty = refIdProperty;
     this.propertyMap = mapProperties(entityProperties);
     this.idColumnName = idProperty != null ? idProperty.columnName : null;
     this.columnNames = StringUtils.toStringArray(columnNames);

@@ -365,8 +365,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
             .hasMessage("Entity Id matches failed");
 
     assertThatThrownBy(() -> entityManager.updateById(new NoIdModel(), "errorId"))
-            .isInstanceOf(IllegalEntityException.class)
-            .hasMessage("ID property is required");
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("Updating an entity, Id property not found");
 
     UserModel update = UserModel.forId(1);
 

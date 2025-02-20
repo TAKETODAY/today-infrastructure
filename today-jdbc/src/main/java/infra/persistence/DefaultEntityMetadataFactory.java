@@ -132,6 +132,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     ArrayList<EntityProperty> entityProperties = new ArrayList<>();
 
     EntityProperty idProperty = null;
+    EntityProperty refIdProperty = null;
     for (BeanProperty property : metadata) {
       if (isFiltered(property)) {
         continue;
@@ -163,7 +164,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
         refMetadata = getRefMetadata(entityClass);
       }
       if (refMetadata != null) {
-        idProperty = refMetadata.idProperty;
+        refIdProperty = refMetadata.idProperty;
       }
     }
 
@@ -171,8 +172,8 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       throw new IllegalEntityException("Cannot determine properties for entity: " + entityClass);
     }
 
-    return new EntityMetadata(metadata, entityClass,
-            idProperty, tableName, beanProperties, columnNames, entityProperties);
+    return new EntityMetadata(metadata, entityClass, idProperty, tableName,
+            refIdProperty, beanProperties, columnNames, entityProperties);
   }
 
   @Nullable

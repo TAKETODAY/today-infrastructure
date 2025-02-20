@@ -468,7 +468,7 @@ public class DefaultEntityManager implements EntityManager {
   public int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy) {
     Assert.notNull(id, "Entity id is required");
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
-    EntityProperty idProperty = metadata.idProperty();
+    EntityProperty idProperty = idProperty(metadata, "Updating an entity, Id property not found");
     Assert.isTrue(idProperty.property.isInstance(id), "Entity Id matches failed");
 
     if (strategy == null) {
@@ -597,15 +597,13 @@ public class DefaultEntityManager implements EntityManager {
   public int delete(Class<?> entityClass, Object id) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    if (metadata.idProperty == null) {
-      throw new InvalidDataAccessApiUsageException("Deleting an entity, Id property not found");
-    }
+    EntityProperty idProperty = idProperty(metadata, "Deleting an entity, Id property not found");
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
     sql.append(metadata.tableName);
     sql.append(" WHERE `");
-    sql.append(metadata.idProperty.columnName);
+    sql.append(idProperty.columnName);
     sql.append("` = ? ");
 
     if (stmtLogger.isDebugEnabled()) {
@@ -616,7 +614,7 @@ public class DefaultEntityManager implements EntityManager {
     PreparedStatement statement = null;
     try {
       statement = con.prepareStatement(sql.toString());
-      metadata.idProperty.setParameter(statement, 1, id);
+      idProperty.setParameter(statement, 1, id);
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
@@ -1166,6 +1164,17 @@ public class DefaultEntityManager implements EntityManager {
       return idProperty.getValue(entity) == null;
     }
     return false;
+  }
+
+  private static EntityProperty idProperty(EntityMetadata metadata, String error) {
+    EntityProperty idProperty = metadata.idProperty;
+    if (idProperty == null) {
+      idProperty = metadata.refIdProperty;
+      if (idProperty == null) {
+        throw new InvalidDataAccessApiUsageException(error);
+      }
+    }
+    return idProperty;
   }
 
   //
