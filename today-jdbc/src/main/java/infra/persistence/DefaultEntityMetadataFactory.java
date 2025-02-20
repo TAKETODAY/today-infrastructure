@@ -22,9 +22,11 @@ import java.util.Set;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
+import infra.core.annotation.MergedAnnotations;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -112,6 +114,14 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   @Override
   public EntityMetadata createEntityMetadata(Class<?> entityClass) {
     String tableName = tableNameGenerator.generateTableName(entityClass);
+    EntityMetadata refMetadata = null;
+    if (tableName == null) {
+      refMetadata = getRefMetadata(entityClass);
+      if (refMetadata != null) {
+        tableName = refMetadata.tableName;
+      }
+    }
+
     if (tableName == null) {
       throw new IllegalEntityException("Cannot determine table name for entity: " + entityClass);
     }
@@ -148,12 +158,30 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       }
     }
 
+    if (idProperty == null) {
+      if (refMetadata == null) {
+        refMetadata = getRefMetadata(entityClass);
+      }
+      if (refMetadata != null) {
+        idProperty = refMetadata.idProperty;
+      }
+    }
+
     if (idProperty == null && entityProperties.isEmpty()) {
       throw new IllegalEntityException("Cannot determine properties for entity: " + entityClass);
     }
 
     return new EntityMetadata(metadata, entityClass,
             idProperty, tableName, beanProperties, columnNames, entityProperties);
+  }
+
+  @Nullable
+  private EntityMetadata getRefMetadata(Class<?> entityClass) {
+    var ref = MergedAnnotations.from(entityClass).get(EntityRef.class);
+    if (ref.isPresent()) {
+      return getEntityMetadata(ref.getClassValue());
+    }
+    return null;
   }
 
   private EntityProperty createEntityProperty(BeanProperty property, String columnName, boolean isId) {

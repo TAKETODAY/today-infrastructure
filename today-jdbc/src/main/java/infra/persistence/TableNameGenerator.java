@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,6 +98,7 @@ public interface TableNameGenerator {
 
     class ForAnnotation implements TableNameGenerator {
 
+      @Nullable
       @Override
       public String generateTableName(Class<?> entityClass) {
         MergedAnnotations annotations = MergedAnnotations.from(entityClass);
@@ -107,12 +108,6 @@ public interface TableNameGenerator {
           if (StringUtils.hasText(name)) {
             return name;
           }
-        }
-
-        var ref = annotations.get(EntityRef.class);
-        if (ref.isPresent()) {
-          Class<?> classValue = ref.getClassValue();
-          return generateTableName(classValue);
         }
         return null;
       }
