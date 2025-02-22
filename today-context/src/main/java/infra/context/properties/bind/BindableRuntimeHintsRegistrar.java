@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotations;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.util.ReflectionUtils;
 
 /**
@@ -55,6 +57,8 @@ import infra.util.ReflectionUtils;
  * @since 4.0
  */
 public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
+
+  private static final Logger logger = LoggerFactory.getLogger(BindableRuntimeHintsRegistrar.class);
 
   private final Bindable<?>[] bindables;
 
@@ -88,7 +92,12 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
    */
   public void registerHints(RuntimeHints hints) {
     for (Bindable<?> bindable : this.bindables) {
-      new Processor(bindable).process(hints.reflection());
+      try {
+        new Processor(bindable).process(hints.reflection());
+      }
+      catch (Exception ex) {
+        logger.debug("Skipping hints for {}", bindable, ex);
+      }
     }
   }
 
