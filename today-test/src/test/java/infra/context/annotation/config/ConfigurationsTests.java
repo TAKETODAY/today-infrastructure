@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package infra.context.annotation.config;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -27,7 +26,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import infra.core.Ordered;
@@ -53,7 +54,7 @@ class ConfigurationsTests {
   void createShouldSortClassesUsingSortMethod() {
     TestDeprecatedSortedConfigurations configurations = new TestDeprecatedSortedConfigurations(
             Arrays.asList(OutputStream.class, InputStream.class));
-    Assertions.assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
+    assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
   }
 
   @Test
@@ -72,7 +73,7 @@ class ConfigurationsTests {
   void createShouldSortClasses() {
     TestConfigurations configurations = new TestConfigurations(Sorter.instance, OutputStream.class,
             InputStream.class);
-    Assertions.assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
+    assertThat(configurations.getClasses()).containsExactly(InputStream.class, OutputStream.class);
   }
 
   @Test
@@ -86,6 +87,18 @@ class ConfigurationsTests {
             OutputStream.class, String.class);
   }
 
+  @Test
+  void getBeanNameWhenNoFunctionReturnsNull() {
+    Configurations configurations = new TestConfigurations(Short.class);
+    assertThat(configurations.getBeanName(Short.class)).isNull();
+  }
+
+  @Test
+  void getBeanNameWhenFunctionReturnsBeanName() {
+    Configurations configurations = new TestConfigurations(Sorter.instance, List.of(Short.class), Class::getName);
+    assertThat(configurations.getBeanName(Short.class)).isEqualTo(Short.class.getName());
+  }
+
   @Order(Ordered.HIGHEST_PRECEDENCE)
   static class TestConfigurations extends Configurations {
 
@@ -94,7 +107,12 @@ class ConfigurationsTests {
     }
 
     TestConfigurations(UnaryOperator<Collection<Class<?>>> sorter, Class<?>... classes) {
-      super(sorter, Arrays.asList(classes));
+      this(sorter, Arrays.asList(classes), null);
+    }
+
+    TestConfigurations(UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes,
+            Function<Class<?>, String> beanNameGenerator) {
+      super(sorter, classes, beanNameGenerator);
     }
 
     TestConfigurations(Collection<Class<?>> classes) {
@@ -116,7 +134,7 @@ class ConfigurationsTests {
     }
 
     protected TestSortedConfigurations(Collection<Class<?>> classes) {
-      super(Sorter.instance, classes);
+      super(Sorter.instance, classes, null);
     }
 
     @Override

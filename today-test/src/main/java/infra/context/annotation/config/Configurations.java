@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ import infra.context.annotation.ImportSelector;
 import infra.core.OrderComparator;
 import infra.core.Ordered;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
@@ -61,9 +63,13 @@ public abstract class Configurations {
   private static final Comparator<Object> COMPARATOR = OrderComparator.INSTANCE
           .thenComparing((other) -> other.getClass().getName());
 
+  @Nullable
   private final UnaryOperator<Collection<Class<?>>> sorter;
 
   private final Set<Class<?>> classes;
+
+  @Nullable
+  private final Function<Class<?>, String> beanNameGenerator;
 
   /**
    * Create a new {@link Configurations} instance.
@@ -75,6 +81,7 @@ public abstract class Configurations {
     Collection<Class<?>> sorted = sort(classes);
     this.sorter = null;
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));
+    this.beanNameGenerator = null;
   }
 
   /**
@@ -82,14 +89,19 @@ public abstract class Configurations {
    *
    * @param sorter a {@link UnaryOperator} used to sort the configurations
    * @param classes the configuration classes
-   * @since 5.0
+   * @param beanNameGenerator an optional function used to generate the bean name
    */
-  protected Configurations(UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes) {
-    Assert.notNull(sorter, "Sorter is required");
-    Assert.notNull(classes, "Classes is required");
-    Collection<Class<?>> sorted = sorter.apply(classes);
-    this.sorter = sorter;
+  protected Configurations(@Nullable UnaryOperator<Collection<Class<?>>> sorter, Collection<Class<?>> classes,
+          @Nullable Function<Class<?>, String> beanNameGenerator) {
+    Assert.notNull(classes, "Classes must not be null");
+    this.sorter = (sorter != null) ? sorter : UnaryOperator.identity();
+    Collection<Class<?>> sorted = this.sorter.apply(classes);
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));
+    this.beanNameGenerator = beanNameGenerator;
+  }
+
+  protected final Set<Class<?>> getClasses() {
+    return this.classes;
   }
 
   /**
@@ -97,13 +109,10 @@ public abstract class Configurations {
    *
    * @param classes the classes to sort
    * @return a sorted set of classes
+   * {@link #Configurations(UnaryOperator, Collection, Function)}
    */
   protected Collection<Class<?>> sort(Collection<Class<?>> classes) {
     return classes;
-  }
-
-  protected final Set<Class<?>> getClasses() {
-    return this.classes;
   }
 
   /**
@@ -114,7 +123,7 @@ public abstract class Configurations {
    * @return a new configurations instance (must be of the same type as this instance)
    */
   protected Configurations merge(Configurations other) {
-    LinkedHashSet<Class<?>> mergedClasses = new LinkedHashSet<>(getClasses());
+    Set<Class<?>> mergedClasses = new LinkedHashSet<>(getClasses());
     mergedClasses.addAll(other.getClasses());
     if (this.sorter != null) {
       mergedClasses = new LinkedHashSet<>(this.sorter.apply(mergedClasses));
@@ -129,6 +138,18 @@ public abstract class Configurations {
    * @return a new configurations instance (must be of the same type as this instance)
    */
   protected abstract Configurations merge(Set<Class<?>> mergedClasses);
+
+  /**
+   * Return the bean name that should be used for the given configuration class or
+   * {@code null} to use the default name.
+   *
+   * @param beanClass the bean class
+   * @return the bean name
+   */
+  @Nullable
+  public String getBeanName(Class<?> beanClass) {
+    return (this.beanNameGenerator != null) ? this.beanNameGenerator.apply(beanClass) : null;
+  }
 
   /**
    * Return the classes from all the specified configurations in the order that they
@@ -149,30 +170,40 @@ public abstract class Configurations {
    * @return configuration classes in registration order
    */
   public static Class<?>[] getClasses(Collection<Configurations> configurations) {
-    List<Configurations> ordered = new ArrayList<>(configurations);
-    ordered.sort(COMPARATOR);
-    List<Configurations> collated = collate(ordered);
+    List<Configurations> collated = collate(configurations);
     LinkedHashSet<Class<?>> classes = collated.stream()
             .flatMap(Configurations::streamClasses)
             .collect(Collectors.toCollection(LinkedHashSet::new));
     return ClassUtils.toClassArray(classes);
   }
 
-  private static Stream<Class<?>> streamClasses(Configurations configurations) {
-    return configurations.getClasses().stream();
-  }
-
-  private static List<Configurations> collate(List<Configurations> orderedConfigurations) {
+  /**
+   * Collate the given configuration by sorting and merging them.
+   *
+   * @param configurations the source configuration
+   * @return the collated configurations
+   */
+  public static List<Configurations> collate(Collection<Configurations> configurations) {
     LinkedList<Configurations> collated = new LinkedList<>();
-    for (Configurations item : orderedConfigurations) {
-      if (collated.isEmpty() || collated.getLast().getClass() != item.getClass()) {
-        collated.add(item);
+    for (Configurations configuration : sortConfigurations(configurations)) {
+      if (collated.isEmpty() || collated.getLast().getClass() != configuration.getClass()) {
+        collated.add(configuration);
       }
       else {
-        collated.set(collated.size() - 1, collated.getLast().merge(item));
+        collated.set(collated.size() - 1, collated.getLast().merge(configuration));
       }
     }
     return collated;
+  }
+
+  private static List<Configurations> sortConfigurations(Collection<Configurations> configurations) {
+    List<Configurations> sorted = new ArrayList<>(configurations);
+    sorted.sort(COMPARATOR);
+    return sorted;
+  }
+
+  private static Stream<Class<?>> streamClasses(Configurations configurations) {
+    return configurations.getClasses().stream();
   }
 
 }

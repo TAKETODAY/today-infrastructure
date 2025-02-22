@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@ import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,6 +34,7 @@ import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.annotation.Autowired;
+import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Condition;
@@ -39,6 +43,7 @@ import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Profile;
+import infra.context.annotation.config.Configurations;
 import infra.context.annotation.config.UserConfigurations;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
@@ -139,6 +144,37 @@ abstract class AbstractApplicationContextRunnerTests<T extends AbstractApplicati
   @Test
   void runWithConfigurationsShouldRegisterConfigurations() {
     get().withUserConfiguration(FooConfig.class).run((context) -> assertThat(context).hasBean("foo"));
+  }
+
+  @Test
+  void runWithUserConfigurationsRegistersDefaultBeanName() {
+    get().withUserConfiguration(FooConfig.class)
+            .run((context) -> assertThat(context).hasBean("abstractApplicationContextRunnerTests.FooConfig"));
+  }
+
+  @Test
+  void runWithUserConfigurationsWhenHasSameShortClassNamedRegistersWithoutBeanName() {
+    get()
+            .withUserConfiguration(infra.app.test.context.example.duplicate.first.EmptyConfig.class,
+                    infra.app.test.context.example.duplicate.second.EmptyConfig.class)
+            .run((context) -> assertThat(context.getStartupFailure())
+                    .isInstanceOf(BeanDefinitionOverrideException.class));
+  }
+
+  @Test
+  void runFullyQualifiedNameConfigurationsRegistersFullyQualifiedBeanName() {
+    get().withConfiguration(FullyQualifiedNameConfigurations.of(FooConfig.class))
+            .run((context) -> assertThat(context).hasBean(FooConfig.class.getName()));
+  }
+
+  @Test
+  void runWithFullyQualifiedNameConfigurationsWhenHasSameShortClassNamedRegistersWithFullyQualifiedBeanName() {
+    get().withConfiguration(FullyQualifiedNameConfigurations.of(
+                    infra.app.test.context.example.duplicate.first.EmptyConfig.class,
+                    infra.app.test.context.example.duplicate.second.EmptyConfig.class))
+            .run((context) -> assertThat(context)
+                    .hasSingleBean(infra.app.test.context.example.duplicate.first.EmptyConfig.class)
+                    .hasSingleBean(infra.app.test.context.example.duplicate.second.EmptyConfig.class));
   }
 
   @Test
@@ -378,4 +414,20 @@ abstract class AbstractApplicationContextRunnerTests<T extends AbstractApplicati
 
   }
 
+  static class FullyQualifiedNameConfigurations extends Configurations {
+
+    protected FullyQualifiedNameConfigurations(Collection<Class<?>> classes) {
+      super(null, classes, Class::getName);
+    }
+
+    @Override
+    protected Configurations merge(Set<Class<?>> mergedClasses) {
+      return new FullyQualifiedNameConfigurations(mergedClasses);
+    }
+
+    static FullyQualifiedNameConfigurations of(Class<?>... classes) {
+      return new FullyQualifiedNameConfigurations(List.of(classes));
+    }
+
+  }
 }
