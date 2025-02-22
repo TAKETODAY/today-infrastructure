@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.util.LevelToSyslogSeverity;
 import infra.app.json.JsonWriter.Members;
-import infra.app.json.JsonWriter.WritableJson;
+import infra.app.json.WritableJson;
 import infra.app.logging.structured.CommonStructuredLogFormat;
 import infra.app.logging.structured.GraylogExtendedLogFormatService;
 import infra.app.logging.structured.JsonWriterStructuredLogFormatter;

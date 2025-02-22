@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,21 @@ import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-import infra.app.json.JsonWriter.WritableJson;
+import infra.app.json.JsonWriter.MemberPath;
+import infra.app.json.JsonWriter.NameProcessor;
+import infra.app.json.JsonWriter.ValueProcessor;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.LambdaSafe;
 import infra.util.ObjectUtils;
+import infra.util.StringUtils;
 import infra.util.function.ThrowingConsumer;
 
 /**
@@ -45,6 +52,10 @@ class JsonValueWriter {
 
   private final Appendable out;
 
+  private MemberPath path = MemberPath.ROOT;
+
+  private final Deque<JsonWriterFiltersAndProcessors> filtersAndProcessors = new ArrayDeque<>();
+
   private final Deque<ActiveSeries> activeSeries = new ArrayDeque<>();
 
   /**
@@ -54,6 +65,14 @@ class JsonValueWriter {
    */
   JsonValueWriter(Appendable out) {
     this.out = out;
+  }
+
+  void pushProcessors(JsonWriterFiltersAndProcessors jsonProcessors) {
+    this.filtersAndProcessors.addLast(jsonProcessors);
+  }
+
+  void popProcessors() {
+    this.filtersAndProcessors.removeLast();
   }
 
   /**
@@ -89,7 +108,8 @@ class JsonValueWriter {
    * @param <V> the value type
    * @param value the value to write
    */
-  <V> void write(@Nullable V value) {
+  <V> void write(V value) {
+    value = processValue(value);
     if (value == null) {
       append("null");
     }
@@ -110,11 +130,8 @@ class JsonValueWriter {
     else if (value instanceof Map<?, ?> map) {
       writeObject(map::forEach);
     }
-    else if (value instanceof Number) {
+    else if (value instanceof Number || value instanceof Boolean) {
       append(value.toString());
-    }
-    else if (value instanceof Boolean) {
-      append(Boolean.TRUE.equals(value) ? "true" : "false");
     }
     else {
       writeString(value);
@@ -131,7 +148,7 @@ class JsonValueWriter {
    */
   void start(@Nullable Series series) {
     if (series != null) {
-      this.activeSeries.push(new ActiveSeries());
+      this.activeSeries.push(new ActiveSeries(series));
       append(series.openChar);
     }
   }
@@ -179,8 +196,10 @@ class JsonValueWriter {
   <E> void writeElement(E element) {
     ActiveSeries activeSeries = this.activeSeries.peek();
     Assert.notNull(activeSeries, "No series has been started");
-    activeSeries.appendCommaIfRequired();
+    this.path = activeSeries.updatePath(this.path);
+    activeSeries.incrementIndexAndAddCommaIfRequired();
     write(element);
+    this.path = activeSeries.restorePath(this.path);
   }
 
   /**
@@ -213,12 +232,19 @@ class JsonValueWriter {
   }
 
   private <N, V> void writePair(N name, V value) {
-    ActiveSeries activeSeries = this.activeSeries.peek();
-    Assert.notNull(activeSeries, "No series has been started");
-    activeSeries.appendCommaIfRequired();
-    writeString(name);
-    append(":");
-    write(value);
+    this.path = this.path.child(name.toString());
+    if (!isFilteredPath()) {
+      String processedName = processName(name.toString());
+      ActiveSeries activeSeries = this.activeSeries.peek();
+      Assert.notNull(activeSeries, "No series has been started");
+      activeSeries.incrementIndexAndAddCommaIfRequired();
+      Assert.state(activeSeries.addName(processedName),
+              () -> "The name '" + processedName + "' has already been written");
+      writeString(processedName);
+      append(":");
+      write(value);
+    }
+    this.path = this.path.parent();
   }
 
   private void writeString(Object value) {
@@ -273,6 +299,48 @@ class JsonValueWriter {
     }
   }
 
+  private boolean isFilteredPath() {
+    for (JsonWriterFiltersAndProcessors filtersAndProcessors : this.filtersAndProcessors) {
+      for (Predicate<MemberPath> pathFilter : filtersAndProcessors.pathFilters()) {
+        if (pathFilter.test(this.path)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private String processName(String name) {
+    for (JsonWriterFiltersAndProcessors filtersAndProcessors : this.filtersAndProcessors) {
+      for (NameProcessor nameProcessor : filtersAndProcessors.nameProcessors()) {
+        name = processName(name, nameProcessor);
+      }
+    }
+    return name;
+  }
+
+  private String processName(String name, NameProcessor nameProcessor) {
+    name = nameProcessor.processName(this.path, name);
+    Assert.state(StringUtils.isNotEmpty(name), "NameProcessor " + nameProcessor + " returned an empty result");
+    return name;
+  }
+
+  private <V> V processValue(V value) {
+    for (JsonWriterFiltersAndProcessors filtersAndProcessors : this.filtersAndProcessors) {
+      for (ValueProcessor<?> valueProcessor : filtersAndProcessors.valueProcessors()) {
+        value = processValue(value, valueProcessor);
+      }
+    }
+    return value;
+  }
+
+  @SuppressWarnings({ "unchecked", "unchecked" })
+  private <V> V processValue(V value, ValueProcessor<?> valueProcessor) {
+    return (V) LambdaSafe.callback(ValueProcessor.class, valueProcessor, this.path, value)
+            .invokeAnd((call) -> call.processValue(this.path, value))
+            .get(value);
+  }
+
   /**
    * A series of items that can be written to the JSON output.
    */
@@ -304,16 +372,33 @@ class JsonValueWriter {
    */
   private final class ActiveSeries {
 
-    private boolean commaRequired;
+    private final Series series;
 
-    private ActiveSeries() {
+    private int index;
+
+    private Set<String> names = new HashSet<>();
+
+    private ActiveSeries(Series series) {
+      this.series = series;
     }
 
-    void appendCommaIfRequired() {
-      if (this.commaRequired) {
+    boolean addName(String processedName) {
+      return this.names.add(processedName);
+    }
+
+    MemberPath updatePath(MemberPath path) {
+      return (this.series != Series.ARRAY) ? path : path.child(this.index);
+    }
+
+    MemberPath restorePath(MemberPath path) {
+      return (this.series != Series.ARRAY) ? path : path.parent();
+    }
+
+    void incrementIndexAndAddCommaIfRequired() {
+      if (this.index > 0) {
         append(',');
       }
-      this.commaRequired = true;
+      this.index++;
     }
 
   }

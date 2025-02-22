@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,27 +19,24 @@ package infra.app.json;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import infra.app.json.JsonWriter.MemberPath;
+import infra.app.json.JsonWriter.Members;
+import infra.app.json.JsonWriter.NameProcessor;
 import infra.app.json.JsonWriter.PairExtractor;
-import infra.app.json.JsonWriter.WritableJson;
-import infra.core.io.FileSystemResource;
+import infra.app.json.JsonWriter.ValueProcessor;
+import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -49,12 +46,9 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Moritz Halbritter
  * @author Phillip Webb
  */
-public class JsonWriterTests {
+class JsonWriterTests {
 
   private static final Person PERSON = new Person("Infra", "App", 10);
-
-  @TempDir
-  File temp;
 
   @Test
   void writeToStringWritesToString() {
@@ -103,16 +97,16 @@ public class JsonWriterTests {
 
   @Test
   void ofAddValue() {
-    JsonWriter<Person> writer = JsonWriter.of((members) -> members.add("Spring", "Boot"));
+    JsonWriter<Person> writer = JsonWriter.of((members) -> members.add("Infra", "App"));
     assertThat(writer.writeToString(PERSON)).isEqualTo("""
-            {"Spring":"Boot"}""");
+            {"Infra":"App"}""");
   }
 
   @Test
   void ofAddSupplier() {
-    JsonWriter<Person> writer = JsonWriter.of((members) -> members.add("Spring", () -> "Boot"));
+    JsonWriter<Person> writer = JsonWriter.of((members) -> members.add("Infra", () -> "App"));
     assertThat(writer.writeToString(PERSON)).isEqualTo("""
-            {"Spring":"Boot"}""");
+            {"Infra":"App"}""");
   }
 
   @Test
@@ -203,6 +197,9 @@ public class JsonWriterTests {
     return (instance, out) -> out.append(json.formatted(instance));
   }
 
+  /**
+   * Tests for {@link JsonWriter#standard()}.
+   */
   @Nested
   class StandardWriterTests {
 
@@ -231,8 +228,11 @@ public class JsonWriterTests {
 
   }
 
+  /**
+   * Tests for {@link Members} and {@link JsonWriter.Member}.
+   */
   @Nested
-  class MemberTest {
+  class MembersTest {
 
     @Test
     void whenNotNull() {
@@ -396,51 +396,51 @@ public class JsonWriterTests {
 
     @Test
     void usingMembers() {
-      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
-      JsonWriter<Couple> writer = JsonWriter.of((member) -> {
-        member.add("personOne", Couple::person1).usingMembers((personMembers) -> {
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.add("personOne", Couple::person1).usingMembers((personMembers) -> {
           personMembers.add("fn", Person::firstName);
           personMembers.add("ln", Person::lastName);
         });
-        member.add("personTwo", Couple::person2).usingMembers((personMembers) -> {
+        members.add("personTwo", Couple::person2).usingMembers((personMembers) -> {
           personMembers.add("details", Person::toString);
           personMembers.add("eldest", true);
         });
       });
       assertThat(writer.writeToString(couple)).isEqualTo("""
               {"personOne":{"fn":"Infra","ln":"App"},""" + """
-              "personTwo":{"details":"Harry Yang (20)","eldest":true}}""");
+              "personTwo":{"details":"Infra Framework (20)","eldest":true}}""");
     }
 
     @Test
     void usingMembersWithoutName() {
-      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
-      JsonWriter<Couple> writer = JsonWriter.of((member) -> {
-        member.add("version", 1);
-        member.from(Couple::person1)
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.add("version", 1);
+        members.from(Couple::person1)
                 .usingMembers((personMembers) -> personMembers.add("one", Person::toString));
-        member.from(Couple::person2)
+        members.from(Couple::person2)
                 .usingMembers((personMembers) -> personMembers.add("two", Person::toString));
       });
       assertThat(writer.writeToString(couple)).isEqualTo("""
-              {"version":1,"one":"Infra App (10)","two":"Harry Yang (20)"}""");
+              {"version":1,"one":"Infra App (10)","two":"Infra Framework (20)"}""");
     }
 
     @Test
     void usingMembersWithoutNameInMember() {
-      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
-      JsonWriter<Couple> writer = JsonWriter.of((member) -> member.add("only", Couple::person2)
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> members.add("only", Couple::person2)
               .usingMembers((personMembers) -> personMembers.from(Person::toString)));
       assertThat(writer.writeToString(couple)).isEqualTo("""
-              {"only":"Harry Yang (20)"}""");
+              {"only":"Infra Framework (20)"}""");
     }
 
     @Test
     void usingMemebersWithoutNameAtAll() {
-      Couple couple = new Couple(PERSON, new Person("Harry", "Yang", 20));
-      JsonWriter<Couple> writer = JsonWriter.of((member) -> member.from(Couple::person2)
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> members.from(Couple::person2)
               .usingMembers((personMembers) -> personMembers.from(Person::toString)));
-      assertThat(writer.writeToString(couple)).isEqualTo(quoted("Harry Yang (20)"));
+      assertThat(writer.writeToString(couple)).isEqualTo(quoted("Infra Framework (20)"));
     }
 
     @Test
@@ -463,115 +463,481 @@ public class JsonWriterTests {
 
   }
 
+  /**
+   * Tests for {@link MemberPath}.
+   */
   @Nested
-  class WritableJsonTests {
+  class MemberPathTests {
 
     @Test
-    void toJsonStringReturnsString() {
-      WritableJson writable = (out) -> out.append("{}");
-      assertThat(writable.toJsonString()).isEqualTo("{}");
+    void createWhenIndexAndNamedThrowException() {
+      assertThatIllegalArgumentException().isThrownBy(() -> new MemberPath(null, "app", 0))
+              .withMessage("'name' and 'index' cannot be mixed");
+      assertThatIllegalArgumentException().isThrownBy(() -> new MemberPath(null, null, -1))
+              .withMessage("'name' and 'index' cannot be mixed");
     }
 
     @Test
-    void toJsonStringWhenIOExceptionIsThrownThrowsUncheckedIOException() {
-      WritableJson writable = (out) -> {
-        throw new IOException("bad");
-      };
-      assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> writable.toJsonString())
-              .havingCause()
-              .withMessage("bad");
+    void toStringReturnsUsefulString() {
+      assertThat(MemberPath.ROOT).hasToString("");
+      MemberPath infra = new MemberPath(MemberPath.ROOT, "infra", MemberPath.UNINDEXED);
+      MemberPath springDotBoot = new MemberPath(infra, "app", MemberPath.UNINDEXED);
+      MemberPath springZero = new MemberPath(infra, null, 0);
+      MemberPath springZeroDotBoot = new MemberPath(springZero, "app", MemberPath.UNINDEXED);
+      assertThat(infra).hasToString("infra");
+      assertThat(springDotBoot).hasToString("infra.app");
+      assertThat(springZero).hasToString("infra[0]");
+      assertThat(springZeroDotBoot).hasToString("infra[0].app");
     }
 
     @Test
-    void toByteArrayReturnsByteArray() {
-      WritableJson writable = (out) -> out.append("{}");
-      assertThat(writable.toByteArray()).isEqualTo("{}".getBytes());
+    void childWithNameCreatesChild() {
+      assertThat(MemberPath.ROOT.child("infra").child("app")).hasToString("infra.app");
     }
 
     @Test
-    void toResourceWritesJson() throws Exception {
-      File file = new File(JsonWriterTests.this.temp, "out.json");
-      WritableJson writable = (out) -> out.append("{}");
-      writable.toResource(new FileSystemResource(file));
-      assertThat(file).content().isEqualTo("{}");
+    void childWithNameWhenNameSpecialChars() {
+      assertThat(MemberPath.ROOT.child("infra.io").child("app")).hasToString("infra\\.io.app");
+      assertThat(MemberPath.ROOT.child("infra[io]").child("app")).hasToString("infra\\[io\\].app");
+      assertThat(MemberPath.ROOT.child("infra.[io]").child("app")).hasToString("infra\\.\\[io\\].app");
+      assertThat(MemberPath.ROOT.child("infra\\io").child("app")).hasToString("infra\\\\io.app");
+      assertThat(MemberPath.ROOT.child("infra.\\io").child("app")).hasToString("infra\\.\\\\io.app");
+      assertThat(MemberPath.ROOT.child("infra[\\io]").child("app")).hasToString("infra\\[\\\\io\\].app");
+      assertThat(MemberPath.ROOT.child("123").child("app")).hasToString("123.app");
+      assertThat(MemberPath.ROOT.child("1.2.3").child("app")).hasToString("1\\.2\\.3.app");
     }
 
     @Test
-    void toResourceWithCharsetWritesJson() throws Exception {
-      File file = new File(JsonWriterTests.this.temp, "out.json");
-      WritableJson writable = (out) -> out.append("{}");
-      writable.toResource(new FileSystemResource(file), StandardCharsets.ISO_8859_1);
-      assertThat(file).content(StandardCharsets.ISO_8859_1).isEqualTo("{}");
+    void childWithIndexCreatesChild() {
+      assertThat(MemberPath.ROOT.child("infra").child(0)).hasToString("infra[0]");
     }
 
     @Test
-    void toResourceWithCharsetWhenOutIsNullThrowsException() {
-      WritableJson writable = (out) -> out.append("{}");
-      assertThatIllegalArgumentException().isThrownBy(() -> writable.toResource(null, StandardCharsets.UTF_8))
-              .withMessage("'out' is required");
+    void ofParsesPaths() {
+      assertOfFromToString(MemberPath.ROOT.child("infra").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra").child(0));
+      assertOfFromToString(MemberPath.ROOT.child("infra.io").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra[io]").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra.[io]").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra\\io").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra.\\io").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("infra[\\io]").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("123").child("app"));
+      assertOfFromToString(MemberPath.ROOT.child("1.2.3").child("app"));
+    }
+
+    private void assertOfFromToString(MemberPath path) {
+      assertThat(MemberPath.of(path.toString())).isEqualTo(path);
+    }
+
+  }
+
+  /**
+   * Tests for {@link Members#applyingPathFilter(java.util.function.Predicate)}.
+   */
+  @Nested
+  class PathFilterTests {
+
+    @Test
+    void filteringMember() {
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members.applyingPathFilter((path) -> path.name().equals("first"));
+      });
+      assertThat(writer.writeToString(new Person("infra", "app", 10))).isEqualTo("""
+              {"last":"app"}""");
     }
 
     @Test
-    void toResourceWithCharsetWhenCharsetIsNullThrowsException() {
-      File file = new File(JsonWriterTests.this.temp, "out.json");
-      WritableJson writable = (out) -> out.append("{}");
-      assertThatIllegalArgumentException()
-              .isThrownBy(() -> writable.toResource(new FileSystemResource(file), null))
-              .withMessage("'charset' is required");
+    void filteringInMap() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingPathFilter((path) -> path.name().equals("infra"));
+
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app", "test", "test"))).isEqualTo("""
+              {"test":"test"}""");
+    }
+
+  }
+
+  /**
+   * Tests for {@link NameProcessor}.
+   */
+  @Nested
+  class NameProcessorTests {
+
+    @Test
+    void processNameWhenSimpleValue() {
+      JsonWriter<String> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString("test")).isEqualTo("\"test\"");
     }
 
     @Test
-    void toOutputStreamWritesJson() throws Exception {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      WritableJson writable = (out) -> out.append("{}");
-      writable.toOutputStream(outputStream);
-      assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEqualTo("{}");
+    void processNameWhenMember() {
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString(new Person("infra", "app", 10))).isEqualTo("""
+              {"FIRST":"infra","LAST":"app"}""");
     }
 
     @Test
-    void toOutputStreamWithCharsetWritesJson() throws Exception {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      WritableJson writable = (out) -> out.append("{}");
-      writable.toOutputStream(outputStream, StandardCharsets.ISO_8859_1);
-      assertThat(outputStream.toString(StandardCharsets.ISO_8859_1)).isEqualTo("{}");
+    void processNameWhenInMap() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"INFRA":"app"}""");
     }
 
     @Test
-    void toOutputStreamWithCharsetWhenOutIsNullThrowsException() {
-      WritableJson writable = (out) -> out.append("{}");
-      assertThatIllegalArgumentException().isThrownBy(() -> writable.toOutputStream(null, StandardCharsets.UTF_8))
-              .withMessage("'out' is required");
+    void processNameWhenInNestedMap() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString(Map.of("test", Map.of("infra", "app")))).isEqualTo("""
+              {"TEST":{"INFRA":"app"}}""");
     }
 
     @Test
-    void toOutputStreamWithCharsetWhenCharsetIsNullThrowsException() {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      WritableJson writable = (out) -> out.append("{}");
-      assertThatIllegalArgumentException().isThrownBy(() -> writable.toOutputStream(outputStream, null))
-              .withMessage("'charset' is required");
-    }
-
-    //
-
-    @Test
-    void toWriterWritesJson() throws Exception {
-      StringWriter writer = new StringWriter();
-      WritableJson writable = (out) -> out.append("{}");
-      writable.toWriter(writer);
-      assertThat(writer).hasToString("{}");
+    void processNameWhenInPairs() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add().usingPairs(Map::forEach);
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"INFRA":"app"}""");
     }
 
     @Test
-    void toWriterWhenWriterIsNullThrowsException() {
-      WritableJson writable = (out) -> out.append("{}");
-      assertThatIllegalArgumentException().isThrownBy(() -> writable.toWriter(null))
-              .withMessage("'out' is required");
+    void processNameWhenHasNestedMembers() {
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.from(Couple::person1)
+                .usingMembers((personMembers) -> personMembers.add("one", Person::toString));
+        members.from(Couple::person2)
+                .usingMembers((personMembers) -> personMembers.add("two", Person::toString));
+        members.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+      });
+      assertThat(writer.writeToString(couple)).isEqualTo("""
+              {"ONE":"Infra App (10)","TWO":"Infra Framework (20)"}""");
     }
 
     @Test
-    void ofReturnsInstanceWithSensibleToString() {
-      WritableJson writable = WritableJson.of((out) -> out.append("{}"));
-      assertThat(writable).hasToString("{}");
+    void processNameWhenHasNestedMembersWithAdditionalValueProcessor() {
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.from(Couple::person1)
+                .usingMembers((personMembers) -> personMembers.add("one", Person::toString));
+        members.from(Couple::person2).usingMembers((personMembers) -> {
+          personMembers.add("two", Person::toString);
+          personMembers.applyingNameProcessor(NameProcessor.of(String::toUpperCase));
+        });
+        members.applyingNameProcessor(NameProcessor.of((name) -> name + "!"));
+      });
+      assertThat(writer.writeToString(couple)).isEqualTo("""
+              {"one!":"Infra App (10)","TWO!":"Infra Framework (20)"}""");
+    }
+
+    @Test
+    void processNameWhenDeeplyNestedUsesCompoundPaths() {
+      List<String> paths = new ArrayList<>();
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.add("one", Couple::person1).usingMembers((personMembers) -> {
+          personMembers.add("first", Person::firstName);
+          personMembers.add("last", Person::lastName);
+        });
+        members.add("two", Couple::person2).usingMembers((personMembers) -> {
+          personMembers.add("first", Person::firstName);
+          personMembers.add("last", Person::lastName);
+        });
+        members.applyingNameProcessor((path, existingName) -> {
+          paths.add(path.toString());
+          return existingName;
+        });
+      });
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      writer.writeToString(couple);
+      assertThat(paths).containsExactly("one", "one.first", "one.last", "two", "two.first", "two.last");
+    }
+
+    @Test
+    void processNameWhenReturnsNullThrowsException() {
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members
+                .applyingNameProcessor((path, existingName) -> !"first".equals(existingName) ? existingName : null);
+      });
+      assertThatIllegalStateException().isThrownBy(() -> writer.writeToString(new Person("infra", "app", 10)))
+              .withMessageContaining("NameProcessor")
+              .withMessageContaining("returned an empty result");
+    }
+
+    @Test
+    void processNameWhenReturnsEmptyStringThrowsException() {
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members
+                .applyingNameProcessor((path, existingName) -> !"first".equals(existingName) ? existingName : "");
+      });
+      assertThatIllegalStateException().isThrownBy(() -> writer.writeToString(new Person("infra", "app", 10)))
+              .withMessageContaining("NameProcessor")
+              .withMessageContaining("returned an empty result");
+    }
+
+  }
+
+  /**
+   * Tests for {@link ValueProcessor}.
+   */
+  @Nested
+  class ValueProcessorTests {
+
+    @Test
+    void of() {
+      ValueProcessor<String> processor = ValueProcessor.of(String::toUpperCase);
+      assertThat(processor.processValue(null, "test")).isEqualTo("TEST");
+    }
+
+    @Test
+    void ofWhenNull() {
+      assertThatIllegalArgumentException().isThrownBy(() -> ValueProcessor.of(null))
+              .withMessage("'action' is required");
+    }
+
+    @Test
+    void whenHasPathWithStringWhenPathMatches() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase).whenHasPath("foo");
+      assertThat(processor.processValue(MemberPath.ROOT.child("foo"), "test")).isEqualTo("TEST");
+    }
+
+    @Test
+    void whenHasPathWithStringWhenPathDoesNotMatch() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase).whenHasPath("foo");
+      assertThat(processor.processValue(MemberPath.ROOT.child("bar"), "test")).isEqualTo("test");
+    }
+
+    @Test
+    void whenHasPathWithPredicateWhenPathMatches() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase)
+              .whenHasPath((path) -> path.toString().startsWith("f"));
+      assertThat(processor.processValue(MemberPath.ROOT.child("foo"), "test")).isEqualTo("TEST");
+    }
+
+    @Test
+    void whenHasPathWithPredicateWhenPathDoesNotMatch() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase)
+              .whenHasPath((path) -> path.toString().startsWith("f"));
+      assertThat(processor.processValue(MemberPath.ROOT.child("bar"), "test")).isEqualTo("test");
+    }
+
+    @Test
+    void whenInstanceOfWhenInstanceMatches() {
+      ValueProcessor<Object> processor = ValueProcessor.of((value) -> value.toString().toUpperCase(Locale.ROOT))
+              .whenInstanceOf(String.class);
+      assertThat(processor.processValue(null, "test")).hasToString("TEST");
+    }
+
+    @Test
+    void whenInstanceOfWhenInstanceDoesNotMatch() {
+      ValueProcessor<Object> processor = ValueProcessor.of((value) -> value.toString().toUpperCase(Locale.ROOT))
+              .whenInstanceOf(String.class);
+      assertThat(processor.processValue(null, new StringBuilder("test"))).hasToString("test");
+    }
+
+    @Test
+    void whenWhenPredicateMatches() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase).when("test"::equals);
+      assertThat(processor.processValue(null, "test")).isEqualTo("TEST");
+    }
+
+    @Test
+    void whenWhenPredicateDoesNotMatch() {
+      ValueProcessor<String> processor = ValueProcessor.<String>of(String::toUpperCase).when("test"::equals);
+      assertThat(processor.processValue(null, "other")).isEqualTo("other");
+    }
+
+    @Test
+    void processValueWhenSimpleValue() {
+      JsonWriter<String> writer = simpleWriterWithUppercaseProcessor();
+      assertThat(writer.writeToString("test")).isEqualTo("\"TEST\"");
+    }
+
+    @Test
+    void processValueWhenMemberValue() {
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize));
+      });
+      assertThat(writer.writeToString(new Person("infra", "app", 10))).isEqualTo("""
+              {"first":"Infra","last":"App"}""");
+    }
+
+    @Test
+    void processValueWhenInMap() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"infra":"App"}""");
+    }
+
+    @Test
+    void processValueWhenInNestedMap() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize));
+      });
+      assertThat(writer.writeToString(Map.of("test", Map.of("infra", "app")))).isEqualTo("""
+              {"test":{"infra":"App"}}""");
+    }
+
+    @Test
+    void processValueWhenInPairs() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add().usingPairs(Map::forEach);
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"infra":"App"}""");
+    }
+
+    @Test
+    void processValueWhenCalledWithMultipleTypesIgnoresLambdaErrors() {
+      JsonWriter<Object> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize));
+      });
+      assertThat(writer.writeToString("infra")).isEqualTo("\"Infra\"");
+      assertThat(writer.writeToString(123)).isEqualTo("123");
+      assertThat(writer.writeToString(true)).isEqualTo("true");
+    }
+
+    @Test
+    void processValueWhenLimitedToPath() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(ValueProcessor.of(StringUtils::capitalize).whenHasPath("infra"));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"infra":"App"}""");
+      assertThat(writer.writeToString(Map.of("app", "infra"))).isEqualTo("""
+              {"app":"infra"}""");
+    }
+
+    @Test
+    void processValueWhen() {
+      JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(
+                ValueProcessor.of(StringUtils::capitalize).when((candidate) -> candidate.startsWith("b")));
+      });
+      assertThat(writer.writeToString(Map.of("infra", "app"))).isEqualTo("""
+              {"infra":"app"}""");
+      assertThat(writer.writeToString(Map.of("app", "infra"))).isEqualTo("""
+              {"app":"infra"}""");
+    }
+
+    @Test
+    void processValueWhenHasNestedMembers() {
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.from(Couple::person1)
+                .usingMembers((personMembers) -> personMembers.add("one", Person::toString));
+        members.from(Couple::person2)
+                .usingMembers((personMembers) -> personMembers.add("two", Person::toString));
+        members.applyingValueProcessor(ValueProcessor.of(String.class, String::toUpperCase));
+      });
+      assertThat(writer.writeToString(couple)).isEqualTo("""
+              {"one":"INFRA APP (10)","two":"INFRA FRAMEWORK (20)"}""");
+    }
+
+    @Test
+    void processValueWhenHasNestedMembersWithAdditionalValueProcessor() {
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.from(Couple::person1)
+                .usingMembers((personMembers) -> personMembers.add("one", Person::toString));
+        members.from(Couple::person2).usingMembers((personMembers) -> {
+          personMembers.add("two", Person::toString);
+          personMembers.applyingValueProcessor(ValueProcessor.of(String.class, (item) -> item + "!"));
+        });
+        members.applyingValueProcessor(ValueProcessor.of(String.class, String::toUpperCase));
+      });
+      assertThat(writer.writeToString(couple)).isEqualTo("""
+              {"one":"INFRA APP (10)","two":"INFRA FRAMEWORK (20)!"}""");
+    }
+
+    @Test
+    void processValueWhenDeeplyNestedUsesCompoundPaths() {
+      List<String> paths = new ArrayList<>();
+      JsonWriter<Couple> writer = JsonWriter.of((members) -> {
+        members.add("one", Couple::person1).usingMembers((personMembers) -> {
+          personMembers.add("first", Person::firstName);
+          personMembers.add("last", Person::lastName);
+        });
+        members.add("two", Couple::person2).usingMembers((personMembers) -> {
+          personMembers.add("first", Person::firstName);
+          personMembers.add("last", Person::lastName);
+        });
+        members.applyingValueProcessor((path, value) -> {
+          paths.add(path.toString());
+          return value;
+        });
+      });
+      Couple couple = new Couple(PERSON, new Person("Infra", "Framework", 20));
+      writer.writeToString(couple);
+      assertThat(paths).containsExactly("one", "one.first", "one.last", "two", "two.first", "two.last");
+    }
+
+    @Test
+    void processValueWhenUsingListUsesIndexedPaths() {
+      List<String> paths = new ArrayList<>();
+      JsonWriter<List<String>> writer = JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor((path, value) -> {
+          paths.add(path.toString());
+          return value;
+        });
+      });
+      writer.writeToString(List.of("a", "b", "c"));
+      assertThat(paths).containsExactly("", "[0]", "[1]", "[2]");
+    }
+
+    @Test
+    void processValueUsesUnprocessedNameInPath() {
+      List<String> paths = new ArrayList<>();
+      JsonWriter<Person> writer = JsonWriter.of((members) -> {
+        members.add("first", Person::firstName);
+        members.add("last", Person::lastName);
+        members.applyingValueProcessor((path, value) -> {
+          paths.add(path.toString());
+          return value;
+        });
+        members.applyingNameProcessor((path, existingName) -> "the-" + existingName);
+      });
+      writer.writeToString(PERSON);
+      assertThat(paths).containsExactly("first", "last");
+    }
+
+    private JsonWriter<String> simpleWriterWithUppercaseProcessor() {
+      return JsonWriter.of((members) -> {
+        members.add();
+        members.applyingValueProcessor(ValueProcessor.of(String.class, String::toUpperCase));
+      });
     }
 
   }
