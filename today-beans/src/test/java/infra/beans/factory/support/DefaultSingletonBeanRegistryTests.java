@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,10 +48,15 @@ class DefaultSingletonBeanRegistryTests {
     assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
     assertThat(tb2Flag.get()).isTrue();
 
-    assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
-    assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
-    assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
-    assertThat(beanRegistry.getSingletonNames()).containsExactly("tb", "tb2");
+    TestBean tb3 = (TestBean) beanRegistry.getSingleton("tb3", () -> {
+      TestBean newTb = new TestBean();
+      beanRegistry.registerSingleton("tb3", newTb);
+      return newTb;
+    });
+    assertThat(beanRegistry.getSingleton("tb3")).isSameAs(tb3);
+
+    assertThat(beanRegistry.getSingletonCount()).isEqualTo(3);
+    assertThat(beanRegistry.getSingletonNames()).containsExactly("tb", "tb2", "tb3");
 
     beanRegistry.destroySingletons();
     assertThat(beanRegistry.getSingletonCount()).isZero();
