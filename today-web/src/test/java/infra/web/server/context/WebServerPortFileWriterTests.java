@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.context;
+package infra.web.server.context;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +29,6 @@ import java.util.Set;
 
 import infra.util.StringUtils;
 import infra.web.server.WebServer;
-import infra.web.server.context.WebServerApplicationContext;
-import infra.web.server.context.WebServerInitializedEvent;
-import infra.web.server.context.WebServerPortFileWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
@@ -39,11 +36,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests {@link WebServerPortFileWriter}.
- *
- * @author David Liu
- * @author Phillip Webb
- * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/2/22 23:43
  */
 class WebServerPortFileWriterTests {
 
@@ -112,6 +106,15 @@ class WebServerPortFileWriterTests {
     String content = contentOf(new File(file.getParentFile(), managementFile));
     assertThat(content).isEqualTo("9090");
     assertThat(collectFileNames(file.getParentFile())).contains(managementFile);
+  }
+
+  @Test
+  void getPortFileWhenPortFileNameDoesNotHaveExtension() {
+    File file = new File(this.tempDir, "portfile");
+    WebServerPortFileWriter listener = new WebServerPortFileWriter(file);
+    WebServerApplicationContext applicationContext = mock(WebServerApplicationContext.class);
+    given(applicationContext.getServerNamespace()).willReturn("management");
+    assertThat(listener.getPortFile(applicationContext).getName()).isEqualTo("portfile-management");
   }
 
   private WebServerInitializedEvent mockEvent(String namespace, int port) {
