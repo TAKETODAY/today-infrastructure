@@ -200,23 +200,20 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   protected final MatchResult getMatchingBeans(Spec<?> spec) {
+    ConfigurableBeanFactory beanFactory = getSearchBeanFactory(spec);
     ClassLoader classLoader = spec.context.getClassLoader();
-    ConfigurableBeanFactory beanFactory = spec.context.getBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
     Set<Class<?>> parameterizedContainers = spec.parameterizedContainers;
-    if (spec.getStrategy() == SearchStrategy.ANCESTORS) {
-      BeanFactory parent = beanFactory.getParentBeanFactory();
-      Assert.isInstanceOf(ConfigurableBeanFactory.class, parent, "Unable to use SearchStrategy.ANCESTORS");
-      beanFactory = (ConfigurableBeanFactory) parent;
-    }
-    MatchResult result = new MatchResult();
-    Set<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(classLoader,
-            beanFactory, considerHierarchy, spec.ignoredTypes, parameterizedContainers);
-    for (String type : spec.types) {
-      var typeMatchedDefinitions = getBeanDefinitionsForType(classLoader, considerHierarchy, beanFactory, type, parameterizedContainers);
-      Set<String> typeMatchedNames = matchedNamesFrom(typeMatchedDefinitions,
-              (name, definition) -> isCandidate(name, definition, beansIgnoredByType) && !ScopedProxyUtils.isScopedTarget(name));
 
+    MatchResult result = new MatchResult();
+    Set<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(classLoader, beanFactory, considerHierarchy,
+            spec.ignoredTypes, parameterizedContainers);
+    for (String type : spec.types) {
+      Map<String, BeanDefinition> typeMatchedDefinitions = getBeanDefinitionsForType(classLoader,
+              considerHierarchy, beanFactory, type, parameterizedContainers);
+      Set<String> typeMatchedNames = matchedNamesFrom(typeMatchedDefinitions,
+              (name, definition) -> !ScopedProxyUtils.isScopedTarget(name)
+                      && isCandidate(beanFactory, name, definition, beansIgnoredByType));
       if (typeMatchedNames.isEmpty()) {
         result.recordUnmatchedType(type);
       }
@@ -227,7 +224,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     for (String annotation : spec.annotations) {
       var annotationMatchedDefinitions = getBeanDefinitionsForAnnotation(classLoader, beanFactory, annotation, considerHierarchy);
       Set<String> annotationMatchedNames = matchedNamesFrom(annotationMatchedDefinitions,
-              (name, definition) -> isCandidate(name, definition, beansIgnoredByType));
+              (name, definition) -> isCandidate(beanFactory, name, definition, beansIgnoredByType));
       if (annotationMatchedNames.isEmpty()) {
         result.recordUnmatchedAnnotation(annotation);
       }
@@ -247,6 +244,17 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
+  private ConfigurableBeanFactory getSearchBeanFactory(Spec<?> spec) {
+    ConfigurableBeanFactory beanFactory = spec.context.getBeanFactory();
+    if (spec.getStrategy() == SearchStrategy.ANCESTORS) {
+      BeanFactory parent = beanFactory.getParentBeanFactory();
+      Assert.isInstanceOf(ConfigurableBeanFactory.class, parent,
+              "Unable to use SearchStrategy.ANCESTORS");
+      beanFactory = (ConfigurableBeanFactory) parent;
+    }
+    return beanFactory;
+  }
+
   private Set<String> matchedNamesFrom(Map<String, BeanDefinition> namedDefinitions, BiPredicate<String, BeanDefinition> filter) {
     LinkedHashSet<String> matchedNames = new LinkedHashSet<>(namedDefinitions.size());
     for (Map.Entry<String, BeanDefinition> namedDefinition : namedDefinitions.entrySet()) {
@@ -257,9 +265,24 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return matchedNames;
   }
 
-  private boolean isCandidate(String name, @Nullable BeanDefinition definition, Set<String> ignoredBeans) {
-    return (!ignoredBeans.contains(name))
-            && (definition == null || (definition.isAutowireCandidate() && isDefaultCandidate(definition)));
+  private boolean isCandidate(ConfigurableBeanFactory beanFactory, String name, @Nullable BeanDefinition definition, Set<String> ignoredBeans) {
+    return (!ignoredBeans.contains(name)) && (definition == null
+            || isAutowireCandidate(beanFactory, name, definition) && isDefaultCandidate(definition));
+  }
+
+  private boolean isAutowireCandidate(ConfigurableBeanFactory beanFactory, String name,
+          BeanDefinition definition) {
+    return definition.isAutowireCandidate() || isScopeTargetAutowireCandidate(beanFactory, name);
+  }
+
+  private boolean isScopeTargetAutowireCandidate(ConfigurableBeanFactory beanFactory, String name) {
+    try {
+      return ScopedProxyUtils.isScopedTarget(name)
+              && beanFactory.getBeanDefinition(ScopedProxyUtils.getOriginalBeanName(name)).isAutowireCandidate();
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      return false;
+    }
   }
 
   private boolean isDefaultCandidate(BeanDefinition definition) {
