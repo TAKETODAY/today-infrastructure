@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,10 +30,13 @@ import infra.app.jackson.scan.a.RenameMixInClass;
 import infra.app.jackson.scan.b.RenameMixInAbstractClass;
 import infra.app.jackson.scan.c.RenameMixInInterface;
 import infra.app.jackson.scan.d.EmptyMixInClass;
+import infra.app.jackson.scan.f.EmptyMixIn;
+import infra.beans.factory.BeanCreationException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -48,6 +51,14 @@ class JsonMixinModuleTests {
     if (this.context != null) {
       this.context.close();
     }
+  }
+
+  @Test
+  void jsonWithModuleEmptyMixInWithEmptyTypesShouldFail() {
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> load(EmptyMixIn.class))
+            .withMessageContaining("Error creating bean with name 'jsonMixinModule'")
+            .withStackTraceContaining("@JsonMixin annotation on class "
+                    + "'infra.app.jackson.scan.f.EmptyMixIn' does not specify any types");
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.type.filter.AnnotationTypeFilter;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
+import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
 /**
@@ -91,8 +92,12 @@ public final class JsonMixinModuleEntries {
   private static void registerMixinClass(Builder builder, Class<?> mixinClass) {
     var annotation = MergedAnnotations.from(mixinClass,
             MergedAnnotations.SearchStrategy.TYPE_HIERARCHY).get(JsonMixin.class);
-    for (Class<?> targetType : annotation.getClassArray("type")) {
-      builder.and(targetType, mixinClass);
+    Class<?>[] types = annotation.getClassArray("type");
+    if (ObjectUtils.isEmpty(types)) {
+      throw new IllegalStateException("@JsonMixin annotation on class '%s' does not specify any types".formatted(mixinClass.getName()));
+    }
+    for (Class<?> type : types) {
+      builder.and(type, mixinClass);
     }
   }
 
