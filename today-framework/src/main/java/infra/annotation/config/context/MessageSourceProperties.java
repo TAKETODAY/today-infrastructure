@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import infra.context.properties.ConfigurationProperties;
+import infra.core.io.Resource;
 import infra.format.annotation.DurationUnit;
 import infra.lang.Nullable;
 
@@ -44,6 +46,12 @@ public class MessageSourceProperties {
    * "org.mypackage"), it will be resolved from the classpath root.
    */
   private String basename = "messages";
+
+  /**
+   * List of locale-independent property file resources containing common messages.
+   */
+  @Nullable
+  private List<Resource> commonMessages;
 
   /**
    * Message bundles encoding.
@@ -126,6 +134,15 @@ public class MessageSourceProperties {
 
   public void setUseCodeAsDefaultMessage(boolean useCodeAsDefaultMessage) {
     this.useCodeAsDefaultMessage = useCodeAsDefaultMessage;
+  }
+
+  @Nullable
+  public List<Resource> getCommonMessages() {
+    return this.commonMessages;
+  }
+
+  public void setCommonMessages(@Nullable List<Resource> commonMessages) {
+    this.commonMessages = commonMessages;
   }
 
 }

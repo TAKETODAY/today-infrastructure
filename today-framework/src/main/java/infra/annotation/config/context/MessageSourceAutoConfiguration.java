@@ -17,8 +17,12 @@
 
 package infra.annotation.config.context;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import infra.aot.hint.RuntimeHints;
@@ -41,10 +45,12 @@ import infra.context.support.AbstractApplicationContext;
 import infra.context.support.ResourceBundleMessageSource;
 import infra.core.Ordered;
 import infra.core.io.PathMatchingPatternResourceLoader;
+import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
+import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;
 
@@ -89,7 +95,25 @@ public class MessageSourceAutoConfiguration {
     }
     messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());
     messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());
+    messageSource.setCommonMessages(loadCommonMessages(properties.getCommonMessages()));
     return messageSource;
+  }
+
+  @Nullable
+  private static Properties loadCommonMessages(@Nullable List<Resource> resources) {
+    if (CollectionUtils.isEmpty(resources)) {
+      return null;
+    }
+    Properties properties = CollectionUtils.createSortedProperties(false);
+    for (Resource resource : resources) {
+      try {
+        PropertiesUtils.fillProperties(properties, resource);
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException("Failed to load common messages from '%s'".formatted(resource), ex);
+      }
+    }
+    return properties;
   }
 
   protected static class ResourceBundleCondition extends InfraCondition {

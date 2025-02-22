@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,15 +24,15 @@ import java.util.Locale;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
+import infra.app.test.context.assertj.AssertableApplicationContext;
+import infra.app.test.context.runner.ApplicationContextRunner;
+import infra.app.test.context.runner.ContextConsumer;
 import infra.context.MessageSource;
 import infra.context.MessageSourceResolvable;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.PropertySource;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
-import infra.app.test.context.runner.ContextConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -113,6 +113,13 @@ class MessageSourceAutoConfigurationTests {
   void testMessageSourceFromPropertySourceAnnotation() {
     this.contextRunner.withUserConfiguration(Config.class)
             .run((context) -> assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar"));
+  }
+
+  @Test
+  void testCommonMessages() {
+    this.contextRunner.withPropertyValues("infra.messages.basename=test/messages",
+                    "infra.messages.common-messages=classpath:test/common-messages.properties")
+            .run((context) -> assertThat(context.getMessage("hello", null, "Hello!", Locale.UK)).isEqualTo("world"));
   }
 
   @Test
