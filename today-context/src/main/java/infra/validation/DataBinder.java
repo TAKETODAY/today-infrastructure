@@ -141,6 +141,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    */
   protected static final Logger logger = LoggerFactory.getLogger(DataBinder.class);
 
+  /** Internal constant for constructor binding via "[]". */
+  private static final int NO_INDEX = -1;
+
   @Nullable
   private Object target;
 
@@ -1055,15 +1058,17 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       return null;
     }
 
-    int size = (indexes.last() < this.autoGrowCollectionLimit ? indexes.last() + 1 : 0);
+    int lastIndex = Math.max(indexes.last(), 0);
+    int size = (lastIndex < this.autoGrowCollectionLimit ? lastIndex + 1 : 0);
     List<?> list = (List<?>) CollectionUtils.createCollection(paramType, size);
     for (int i = 0; i < size; i++) {
       list.add(null);
     }
 
     for (int index : indexes) {
-      String indexedPath = paramPath + "[" + index + "]";
-      list.set(index, createIndexedValue(paramPath, paramType, elementType, indexedPath, valueResolver));
+      String indexedPath = paramPath + "[" + (index != NO_INDEX ? index : "") + "]";
+      list.set(Math.max(index, 0),
+              createIndexedValue(paramPath, paramType, elementType, indexedPath, valueResolver));
     }
 
     return list;
@@ -1102,12 +1107,14 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       return null;
     }
 
-    int size = (indexes.last() < this.autoGrowCollectionLimit ? indexes.last() + 1 : 0);
+    int lastIndex = Math.max(indexes.last(), 0);
+    int size = (lastIndex < this.autoGrowCollectionLimit ? lastIndex + 1 : 0);
     V[] array = (V[]) Array.newInstance(elementType.resolve(), size);
 
     for (int index : indexes) {
-      String indexedPath = paramPath + "[" + index + "]";
-      array[index] = createIndexedValue(paramPath, paramType, elementType, indexedPath, valueResolver);
+      String indexedPath = paramPath + "[" + (index != NO_INDEX ? index : "") + "]";
+      array[Math.max(index, 0)] =
+              createIndexedValue(paramPath, paramType, elementType, indexedPath, valueResolver);
     }
 
     return array;
@@ -1118,13 +1125,20 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     SortedSet<Integer> indexes = null;
     for (String name : valueResolver.getNames()) {
       if (name.startsWith(paramPath + "[")) {
-        int endIndex = name.indexOf(']', paramPath.length() + 2);
-        String rawIndex = name.substring(paramPath.length() + 1, endIndex);
-        if (StringUtils.isNotEmpty(rawIndex)) {
-          int index = Integer.parseInt(rawIndex);
-          indexes = (indexes != null ? indexes : new TreeSet<>());
-          indexes.add(index);
+        int index;
+        if (paramPath.length() + 2 == name.length()) {
+          if (!name.endsWith("[]")) {
+            continue;
+          }
+          index = NO_INDEX;
         }
+        else {
+          int endIndex = name.indexOf(']', paramPath.length() + 2);
+          String indexValue = name.substring(paramPath.length() + 1, endIndex);
+          index = Integer.parseInt(indexValue);
+        }
+        indexes = indexes != null ? indexes : new TreeSet<>();
+        indexes.add(index);
       }
     }
     return indexes;
@@ -1132,23 +1146,36 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <V> V createIndexedValue(String paramPath, Class<?> paramType,
+  private <V> V createIndexedValue(String paramPath, Class<?> containerType,
           ResolvableType elementType, String indexedPath, ValueResolver valueResolver) {
 
     Object value = null;
     Class<?> elementClass = elementType.resolve(Object.class);
-    Object rawValue = valueResolver.resolveValue(indexedPath, elementClass);
-    if (rawValue != null) {
-      try {
-        value = convertIfNecessary(rawValue, elementClass);
-      }
-      catch (TypeMismatchException ex) {
-        handleTypeMismatchException(ex, paramPath, paramType, rawValue);
-      }
+
+    if (List.class.isAssignableFrom(elementClass)) {
+      value = createList(indexedPath, elementClass, elementType, valueResolver);
+    }
+    else if (Map.class.isAssignableFrom(elementClass)) {
+      value = createMap(indexedPath, elementClass, elementType, valueResolver);
+    }
+    else if (elementClass.isArray()) {
+      value = createArray(indexedPath, elementClass, elementType, valueResolver);
     }
     else {
-      value = createObject(elementType, indexedPath + ".", valueResolver);
+      Object rawValue = valueResolver.resolveValue(indexedPath, elementClass);
+      if (rawValue != null) {
+        try {
+          value = convertIfNecessary(rawValue, elementClass);
+        }
+        catch (TypeMismatchException ex) {
+          handleTypeMismatchException(ex, paramPath, containerType, rawValue);
+        }
+      }
+      else {
+        value = createObject(elementType, indexedPath + ".", valueResolver);
+      }
     }
+
     return (V) value;
   }
 
