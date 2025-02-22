@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.ProtectionDomain;
 import java.security.SecureClassLoader;
 
+import infra.core.OverridingClassLoader;
 import infra.core.SmartClassLoader;
+import infra.lang.Nullable;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,17 +42,105 @@ class ConfigurationClassEnhancerTests {
   @Test
   void enhanceReloadedClass() throws Exception {
     ConfigurationClassEnhancer configurationClassEnhancer = new ConfigurationClassEnhancer();
+
     ClassLoader parentClassLoader = getClass().getClassLoader();
-    CustomClassLoader classLoader = new CustomClassLoader(parentClassLoader);
+    ClassLoader classLoader = new CustomSmartClassLoader(parentClassLoader);
     Class<?> myClass = parentClassLoader.loadClass(MyConfig.class.getName());
-    configurationClassEnhancer.enhance(myClass, parentClassLoader);
-    Class<?> myReloadedClass = classLoader.loadClass(MyConfig.class.getName());
-    Class<?> enhancedReloadedClass = configurationClassEnhancer.enhance(myReloadedClass, classLoader);
-    assertThat(enhancedReloadedClass.getClassLoader()).isEqualTo(classLoader);
+    Class<?> enhancedClass = configurationClassEnhancer.enhance(myClass, parentClassLoader);
+    assertThat(myClass).isAssignableFrom(enhancedClass);
+
+    myClass = classLoader.loadClass(MyConfig.class.getName());
+    enhancedClass = configurationClassEnhancer.enhance(myClass, classLoader);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader);
+    assertThat(myClass).isAssignableFrom(enhancedClass);
+  }
+
+  @Test
+  void withPublicClass() {
+    ConfigurationClassEnhancer configurationClassEnhancer = new ConfigurationClassEnhancer();
+
+    ClassLoader classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
+    Class<?> enhancedClass = configurationClassEnhancer.enhance(MyConfigWithPublicClass.class, classLoader);
+    assertThat(MyConfigWithPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader);
+
+    classLoader = new OverridingClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithPublicClass.class, classLoader);
+    assertThat(MyConfigWithPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new CustomSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithPublicClass.class, classLoader);
+    assertThat(MyConfigWithPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new BasicSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithPublicClass.class, classLoader);
+    assertThat(MyConfigWithPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+  }
+
+  @Test
+  void withNonPublicClass() {
+    ConfigurationClassEnhancer configurationClassEnhancer = new ConfigurationClassEnhancer();
+
+    ClassLoader classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
+    Class<?> enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicClass.class, classLoader);
+    assertThat(MyConfigWithNonPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new OverridingClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicClass.class, classLoader);
+    assertThat(MyConfigWithNonPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new CustomSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicClass.class, classLoader);
+    assertThat(MyConfigWithNonPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new BasicSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicClass.class, classLoader);
+    assertThat(MyConfigWithNonPublicClass.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+  }
+
+  @Test
+  void withNonPublicMethod() {
+    ConfigurationClassEnhancer configurationClassEnhancer = new ConfigurationClassEnhancer();
+
+    ClassLoader classLoader = new URLClassLoader(new URL[0], getClass().getClassLoader());
+    Class<?> enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicMethod.class, classLoader);
+    assertThat(MyConfigWithNonPublicMethod.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader);
+
+    classLoader = new OverridingClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicMethod.class, classLoader);
+    assertThat(MyConfigWithNonPublicMethod.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new CustomSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicMethod.class, classLoader);
+    assertThat(MyConfigWithNonPublicMethod.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
+
+    classLoader = new BasicSmartClassLoader(getClass().getClassLoader());
+    enhancedClass = configurationClassEnhancer.enhance(MyConfigWithNonPublicMethod.class, classLoader);
+    assertThat(MyConfigWithNonPublicMethod.class).isAssignableFrom(enhancedClass);
+    assertThat(enhancedClass.getClassLoader()).isEqualTo(classLoader.getParent());
   }
 
   @Configuration
   static class MyConfig {
+
+    @Bean
+    String myBean() {
+      return "bean";
+    }
+  }
+
+  @Configuration
+  public static class MyConfigWithPublicClass {
 
     @Bean
     public String myBean() {
@@ -55,9 +148,27 @@ class ConfigurationClassEnhancerTests {
     }
   }
 
-  static class CustomClassLoader extends SecureClassLoader implements SmartClassLoader {
+  @Configuration
+  static class MyConfigWithNonPublicClass {
 
-    CustomClassLoader(ClassLoader parent) {
+    @Bean
+    public String myBean() {
+      return "bean";
+    }
+  }
+
+  @Configuration
+  public static class MyConfigWithNonPublicMethod {
+
+    @Bean
+    String myBean() {
+      return "bean";
+    }
+  }
+
+  static class CustomSmartClassLoader extends SecureClassLoader implements SmartClassLoader {
+
+    CustomSmartClassLoader(ClassLoader parent) {
       super(parent);
     }
 
@@ -80,6 +191,28 @@ class ConfigurationClassEnhancerTests {
     @Override
     public boolean isClassReloadable(Class<?> clazz) {
       return clazz.getName().contains("MyConfig");
+    }
+
+    @Override
+    public ClassLoader getOriginalClassLoader() {
+      return getParent();
+    }
+
+    @Override
+    public Class<?> publicDefineClass(String name, byte[] b, @Nullable ProtectionDomain protectionDomain) {
+      return defineClass(name, b, 0, b.length, protectionDomain);
+    }
+  }
+
+  static class BasicSmartClassLoader extends SecureClassLoader implements SmartClassLoader {
+
+    BasicSmartClassLoader(ClassLoader parent) {
+      super(parent);
+    }
+
+    @Override
+    public Class<?> publicDefineClass(String name, byte[] b, @Nullable ProtectionDomain protectionDomain) {
+      return defineClass(name, b, 0, b.length, protectionDomain);
     }
   }
 

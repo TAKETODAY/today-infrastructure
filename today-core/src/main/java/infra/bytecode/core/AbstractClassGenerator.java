@@ -56,14 +56,22 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private static final boolean inNativeImage = NativeDetector.inNativeImage(Context.RUN, Context.BUILD);
 
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
+
   private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
 
   private final String source;
+
+  @Nullable
   private ClassLoader classLoader;
+
   private String namePrefix;
+
   private Object key;
+
   private boolean useCache = DEFAULT_USE_CACHE;
+
   private String className;
+
   private boolean attemptLoad;
 
   // @since 4.0
@@ -118,9 +126,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * @param classLoader the loader to generate the new class with, or null to use the
    * default
    */
-  public AbstractClassGenerator setClassLoader(ClassLoader classLoader) {
+  public void setClassLoader(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
-    return this;
   }
 
   /**
@@ -129,9 +136,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * @param namingPolicy the custom policy, or null to use the default
    * @see DefaultNamingPolicy
    */
-  public AbstractClassGenerator setNamingPolicy(@Nullable NamingPolicy namingPolicy) {
+  public void setNamingPolicy(@Nullable NamingPolicy namingPolicy) {
     this.namingPolicy = namingPolicy == null ? DefaultNamingPolicy.INSTANCE : namingPolicy;
-    return this;
   }
 
   /**
@@ -154,9 +160,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Whether use and update the static cache of generated classes for a class with
    * the same properties. Default is <code>true</code>.
    */
-  public AbstractClassGenerator setUseCache(boolean useCache) {
+  public void setUseCache(boolean useCache) {
     this.useCache = useCache;
-    return this;
   }
 
   /**
@@ -183,9 +188,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * Set the strategy to use to create the bytecode from this generator. By
    * default an instance of {@see DefaultGeneratorStrategy} is used.
    */
-  public AbstractClassGenerator setStrategy(GeneratorStrategy strategy) {
+  public void setStrategy(GeneratorStrategy strategy) {
     this.strategy = strategy == null ? DefaultGeneratorStrategy.INSTANCE : strategy;
-    return this;
   }
 
   /**
@@ -214,6 +218,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     return t;
   }
 
+  @Nullable
   protected abstract ClassLoader getDefaultClassLoader();
 
   /**
@@ -226,6 +231,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    *
    * @return the protection domain (<code>null</code> for using a default)
    */
+  @Nullable
   protected ProtectionDomain getProtectionDomain() {
     return null;
   }
@@ -360,6 +366,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       this.generatedClasses = new LoadingCache<>(GET_KEY, gen -> gen.wrapCachedClass(gen.generate(this)));
     }
 
+    @Nullable
     public ClassLoader getClassLoader() {
       return classLoader.get();
     }

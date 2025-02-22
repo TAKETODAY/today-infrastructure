@@ -109,9 +109,16 @@ class ConfigurationClassEnhancer {
       return configClass;
     }
     try {
-      Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
+      // Use original ClassLoader if config class not locally loaded in overriding class loader
+      boolean classLoaderMismatch = (classLoader != null && classLoader != configClass.getClassLoader());
+      if (classLoaderMismatch && classLoader instanceof SmartClassLoader smartClassLoader) {
+        classLoader = smartClassLoader.getOriginalClassLoader();
+      }
+      Enhancer enhancer = newEnhancer(configClass, classLoader);
+      Class<?> enhancedClass = createClass(enhancer, classLoaderMismatch);
       if (log.isTraceEnabled()) {
-        log.trace("Successfully enhanced %s; enhanced class name is: %s".formatted(configClass.getName(), enhancedClass.getName()));
+        log.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",
+                configClass.getName(), enhancedClass.getName()));
       }
       return enhancedClass;
     }
@@ -153,8 +160,21 @@ class ConfigurationClassEnhancer {
    * Uses enhancer to generate a subclass of superclass,
    * ensuring that callbacks are registered for the new subclass.
    */
-  private Class<?> createClass(Enhancer enhancer) {
-    Class<?> subclass = enhancer.createClass();
+  private Class<?> createClass(Enhancer enhancer, boolean fallback) {
+    Class<?> subclass;
+    try {
+      subclass = enhancer.createClass();
+    }
+    catch (Throwable ex) {
+      if (!fallback) {
+        throw (ex instanceof CodeGenerationException cgex ? cgex : new CodeGenerationException(ex));
+      }
+      // Possibly a package-visible @Bean method declaration not accessible
+      // in the given ClassLoader -> retry with original ClassLoader
+      enhancer.setClassLoader(null);
+      subclass = enhancer.createClass();
+    }
+
     // Registering callbacks statically (as opposed to thread-local)
     Enhancer.registerStaticCallbacks(subclass, CALLBACKS);
     return subclass;
