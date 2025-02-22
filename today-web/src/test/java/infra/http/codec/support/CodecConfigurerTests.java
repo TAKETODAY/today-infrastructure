@@ -84,7 +84,7 @@ class CodecConfigurerTests {
   @Test
   void defaultReaders() {
     List<HttpMessageReader<?>> readers = this.configurer.getReaders();
-    assertThat(readers.size()).isEqualTo(15);
+    assertThat(readers.size()).isEqualTo(14);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteArrayDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
@@ -105,7 +105,7 @@ class CodecConfigurerTests {
   @Test
   void defaultWriters() {
     List<HttpMessageWriter<?>> writers = this.configurer.getWriters();
-    assertThat(writers.size()).isEqualTo(14);
+    assertThat(writers.size()).isEqualTo(13);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteArrayEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);
@@ -144,7 +144,7 @@ class CodecConfigurerTests {
 
     List<HttpMessageReader<?>> readers = this.configurer.getReaders();
 
-    assertThat(readers.size()).isEqualTo(19);
+    assertThat(readers.size()).isEqualTo(18);
     assertThat(getNextDecoder(readers)).isSameAs(customDecoder1);
     assertThat(readers.get(this.index.getAndIncrement())).isSameAs(customReader1);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteArrayDecoder.class);
@@ -188,7 +188,7 @@ class CodecConfigurerTests {
 
     List<HttpMessageWriter<?>> writers = this.configurer.getWriters();
 
-    assertThat(writers.size()).isEqualTo(18);
+    assertThat(writers.size()).isEqualTo(17);
     assertThat(getNextEncoder(writers)).isSameAs(customEncoder1);
     assertThat(writers.get(this.index.getAndIncrement())).isSameAs(customWriter1);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteArrayEncoder.class);
