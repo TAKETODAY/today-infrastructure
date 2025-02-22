@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -273,14 +273,9 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   private void configureByResourceUrl(LoggingStartupContext startupContext, LoggerContext loggerContext, URL url) throws JoranException {
-    if (url.getPath().endsWith(".xml")) {
-      JoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
-      configurator.setContext(loggerContext);
-      configurator.doConfigure(url);
-    }
-    else {
-      throw new IllegalArgumentException("Unsupported file extension in '%s'. Only .xml is supported".formatted(url));
-    }
+    JoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
+    configurator.setContext(loggerContext);
+    configurator.doConfigure(url);
   }
 
   private void stopAndReset(LoggerContext loggerContext) {
