@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,12 @@
 package infra.context.properties;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 import infra.beans.BeansException;
 import infra.beans.PropertyEditorRegistry;
 import infra.beans.factory.BeanFactory;
-import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.FactoryBean;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionBuilder;
@@ -84,6 +82,9 @@ class ConfigurationPropertiesBinder {
 
   @Nullable
   private volatile Binder binder;
+
+  @Nullable
+  private volatile List<ConfigurationPropertiesBindHandlerAdvisor> bindHandlerAdvisors;
 
   ConfigurationPropertiesBinder(ApplicationContext context) {
     this.applicationContext = context;
@@ -173,9 +174,16 @@ class ConfigurationPropertiesBinder {
     return new ConfigurationPropertiesJsr303Validator(this.applicationContext, type);
   }
 
-  private Collection<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
-    return BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext,
-            ConfigurationPropertiesBindHandlerAdvisor.class, true, true).values();
+  private List<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
+    List<ConfigurationPropertiesBindHandlerAdvisor> bindHandlerAdvisors = this.bindHandlerAdvisors;
+    if (bindHandlerAdvisors == null) {
+      bindHandlerAdvisors = this.applicationContext
+              .getBeanProvider(ConfigurationPropertiesBindHandlerAdvisor.class)
+              .orderedStream()
+              .toList();
+      this.bindHandlerAdvisors = bindHandlerAdvisors;
+    }
+    return bindHandlerAdvisors;
   }
 
   private Binder getBinder() {
