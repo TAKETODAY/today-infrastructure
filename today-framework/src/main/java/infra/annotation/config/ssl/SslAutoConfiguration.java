@@ -24,6 +24,7 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.DefaultSslBundleRegistry;
 import infra.core.ssl.SslBundleRegistry;
 import infra.core.ssl.SslBundles;
@@ -45,9 +46,9 @@ public class SslAutoConfiguration {
   }
 
   @Component
-  public static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties) {
+  public static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties properties, ResourceLoader resourceLoader) {
     FileWatcher fileWatcher = new FileWatcher(properties.getBundle().getWatch().getFile().getQuietPeriod());
-    return new SslPropertiesBundleRegistrar(properties, fileWatcher);
+    return new SslPropertiesBundleRegistrar(properties, fileWatcher, resourceLoader);
   }
 
   @Component

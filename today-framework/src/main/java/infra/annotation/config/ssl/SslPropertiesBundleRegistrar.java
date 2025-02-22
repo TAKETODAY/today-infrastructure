@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import infra.beans.factory.DisposableBean;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleRegistry;
 
@@ -45,9 +47,12 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean
 
   private final FileWatcher fileWatcher;
 
-  SslPropertiesBundleRegistrar(SslProperties properties, FileWatcher fileWatcher) {
+  private final ResourceLoader resourceLoader;
+
+  SslPropertiesBundleRegistrar(SslProperties properties, FileWatcher fileWatcher, ResourceLoader resourceLoader) {
     this.properties = properties.getBundle();
     this.fileWatcher = fileWatcher;
+    this.resourceLoader = resourceLoader;
   }
 
   @Override
@@ -56,12 +61,12 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean
     registerBundles(registry, this.properties.getJks(), PropertiesSslBundle::get, this::watchedJksPaths);
   }
 
-  private <P extends SslBundleProperties> void registerBundles(SslBundleRegistry registry,
-          Map<String, P> properties, Function<P, SslBundle> bundleFactory, Function<P, Set<Path>> watchedPaths) {
+  private <P extends SslBundleProperties> void registerBundles(SslBundleRegistry registry, Map<String, P> properties,
+          BiFunction<P, ResourceLoader, SslBundle> bundleFactory, Function<P, Set<Path>> watchedPaths) {
     for (Map.Entry<String, P> entry : properties.entrySet()) {
       String bundleName = entry.getKey();
       P bundleProperties = entry.getValue();
-      Supplier<SslBundle> bundleSupplier = () -> bundleFactory.apply(bundleProperties);
+      Supplier<SslBundle> bundleSupplier = () -> bundleFactory.apply(bundleProperties, this.resourceLoader);
       try {
         registry.registerBundle(bundleName, bundleSupplier.get());
         if (bundleProperties.isReloadOnUpdate()) {

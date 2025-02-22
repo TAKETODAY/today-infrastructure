@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 
@@ -86,7 +88,7 @@ public interface PemSslStore {
    * @param alias the new alias
    * @return a new {@link PemSslStore} instance
    */
-  default PemSslStore withAlias(String alias) {
+  default PemSslStore withAlias(@Nullable String alias) {
     return of(type(), alias, password(), certificates(), privateKey());
   }
 
@@ -109,10 +111,24 @@ public interface PemSslStore {
    */
   @Nullable
   static PemSslStore load(@Nullable PemSslStoreDetails details) {
+    return load(details, new DefaultResourceLoader());
+  }
+
+  /**
+   * Return a {@link PemSslStore} instance loaded using the given
+   * {@link PemSslStoreDetails}.
+   *
+   * @param details the PEM store details
+   * @param resourceLoader the resource loader used to load content
+   * @return a loaded {@link PemSslStore} or {@code null}.
+   * @since 5.0
+   */
+  @Nullable
+  static PemSslStore load(@Nullable PemSslStoreDetails details, ResourceLoader resourceLoader) {
     if (details == null || details.isEmpty()) {
       return null;
     }
-    return new LoadedPemSslStore(details);
+    return new LoadedPemSslStore(details, resourceLoader);
   }
 
   /**
@@ -158,16 +174,19 @@ public interface PemSslStore {
     Assert.notEmpty(certificates, "Certificates must not be empty");
     return new PemSslStore() {
 
+      @Nullable
       @Override
       public String type() {
         return type;
       }
 
+      @Nullable
       @Override
       public String alias() {
         return alias;
       }
 
+      @Nullable
       @Override
       public String password() {
         return password;
@@ -178,6 +197,7 @@ public interface PemSslStore {
         return certificates;
       }
 
+      @Nullable
       @Override
       public PrivateKey privateKey() {
         return privateKey;

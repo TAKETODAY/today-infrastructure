@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,16 @@ import org.junit.jupiter.api.Test;
 import java.security.KeyStore;
 import java.util.function.Consumer;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.MockPkcs11Security;
 import infra.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 
 /**
  * Tests for {@link JksSslStoreBundle}.
@@ -133,6 +138,16 @@ class JksSslStoreBundleTests {
     assertThatIllegalStateException().isThrownBy(jksSslStoreBundle::getTrustStore)
             .withMessageContaining("trust store")
             .withMessageContaining("does-not-exist.p12");
+  }
+
+  @Test
+  void usesResourceLoader() {
+    JksSslStoreDetails keyStoreDetails = null;
+    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails("jks", null, "classpath:test.jks", "secret");
+    ResourceLoader resourceLoader = spy(new DefaultResourceLoader());
+    JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails, resourceLoader);
+    assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("jks", "test-alias", "password"));
+    then(resourceLoader).should(atLeastOnce()).getResource("classpath:test.jks");
   }
 
   private Consumer<KeyStore> storeContainingCertAndKey(String keyAlias, String keyPassword) {

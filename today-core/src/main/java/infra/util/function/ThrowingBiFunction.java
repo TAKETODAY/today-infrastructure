@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 package infra.util.function;
 
 import java.util.function.BiFunction;
+
+import infra.lang.Nullable;
 
 /**
  * A {@link BiFunction} that allows invocation of code that throws a checked
@@ -42,7 +44,8 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return the function result
    * @throws Throwable on error
    */
-  R applyWithException(T t, U u) throws Throwable;
+  @Nullable
+  R applyWithException(@Nullable T t, @Nullable U u) throws Throwable;
 
   /**
    * Default {@link BiFunction#apply(Object, Object)} that wraps any thrown

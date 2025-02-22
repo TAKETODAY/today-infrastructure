@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.UncheckedIOException;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
+
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 
 /**
  * Tests for {@link LoadedPemSslStore}.
@@ -34,7 +40,7 @@ class LoadedPemSslStoreTests {
   void certificatesAreLoadedLazily() {
     PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:missing-test-cert.pem")
             .withPrivateKey("classpath:test-key.pem");
-    LoadedPemSslStore store = new LoadedPemSslStore(details);
+    LoadedPemSslStore store = new LoadedPemSslStore(details, new DefaultResourceLoader());
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::certificates);
   }
 
@@ -42,7 +48,7 @@ class LoadedPemSslStoreTests {
   void privateKeyIsLoadedLazily() {
     PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
             .withPrivateKey("classpath:missing-test-key.pem");
-    LoadedPemSslStore store = new LoadedPemSslStore(details);
+    LoadedPemSslStore store = new LoadedPemSslStore(details, new DefaultResourceLoader());
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::privateKey);
   }
 
@@ -50,7 +56,7 @@ class LoadedPemSslStoreTests {
   void withAliasIsLazy() {
     PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:missing-test-cert.pem")
             .withPrivateKey("classpath:test-key.pem");
-    PemSslStore store = new LoadedPemSslStore(details).withAlias("alias");
+    PemSslStore store = new LoadedPemSslStore(details, new DefaultResourceLoader()).withAlias("alias");
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::certificates);
   }
 
@@ -58,8 +64,17 @@ class LoadedPemSslStoreTests {
   void withPasswordIsLazy() {
     PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:missing-test-cert.pem")
             .withPrivateKey("classpath:test-key.pem");
-    PemSslStore store = new LoadedPemSslStore(details).withPassword("password");
+    PemSslStore store = new LoadedPemSslStore(details, new DefaultResourceLoader()).withPassword("password");
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(store::certificates);
+  }
+
+  @Test
+  void usesResourceLoader() {
+    PemSslStoreDetails details = PemSslStoreDetails.forCertificate("classpath:test-cert.pem");
+    ResourceLoader resourceLoader = spy(new DefaultResourceLoader());
+    LoadedPemSslStore store = new LoadedPemSslStore(details, resourceLoader);
+    store.certificates();
+    then(resourceLoader).should(atLeastOnce()).getResource("classpath:test-cert.pem");
   }
 
 }

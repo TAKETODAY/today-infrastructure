@@ -1387,6 +1387,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
+  @Nullable
   public final <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();

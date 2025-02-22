@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.function.Supplier;
 
 import infra.core.io.DefaultResourceLoader;
-import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslStoreBundle;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
@@ -48,6 +48,8 @@ public class JksSslStoreBundle implements SslStoreBundle {
   @Nullable
   private final JksSslStoreDetails keyStoreDetails;
 
+  private final ResourceLoader resourceLoader;
+
   private final Supplier<KeyStore> keyStore;
 
   private final Supplier<KeyStore> trustStore;
@@ -58,9 +60,23 @@ public class JksSslStoreBundle implements SslStoreBundle {
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
+  public JksSslStoreBundle(JksSslStoreDetails keyStoreDetails, JksSslStoreDetails trustStoreDetails) {
+    this(keyStoreDetails, trustStoreDetails, new DefaultResourceLoader());
+  }
+
+  /**
+   * Create a new {@link JksSslStoreBundle} instance.
+   *
+   * @param keyStoreDetails the key store details
+   * @param trustStoreDetails the trust store details
+   * @param resourceLoader the resource loader used to load content
+   * @since 5.0
+   */
+  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails, ResourceLoader resourceLoader) {
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.keyStoreDetails = keyStoreDetails;
-    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", this.keyStoreDetails));
+    this.resourceLoader = resourceLoader;
+    this.keyStore = SingletonSupplier.from(() -> createKeyStore("key", keyStoreDetails));
     this.trustStore = SingletonSupplier.from(() -> createKeyStore("trust", trustStoreDetails));
   }
 
@@ -126,8 +142,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
   private void loadKeyStore(KeyStore store, @Nullable String location, @Nullable char[] password) {
     Assert.state(StringUtils.hasText(location), "Location must not be empty or null");
     try {
-      Resource resource = new DefaultResourceLoader().getResource(location);
-      try (InputStream stream = resource.getInputStream()) {
+      try (InputStream stream = this.resourceLoader.getResource(location).getInputStream()) {
         store.load(stream, password);
       }
     }

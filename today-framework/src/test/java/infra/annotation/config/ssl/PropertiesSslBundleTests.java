@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,16 @@ import java.security.cert.Certificate;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
 import infra.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 
 /**
  * Tests for {@link PropertiesSslBundle}.
@@ -136,6 +141,22 @@ class PropertiesSslBundleTests {
     properties.getKey().setAlias("test-alias");
     assertThatIllegalStateException().isThrownBy(() -> PropertiesSslBundle.get(properties))
             .withMessageContaining("Private key in keystore matches none of the certificates");
+  }
+
+  @Test
+  void getWithResourceLoader() {
+    PemSslBundleProperties properties = new PemSslBundleProperties();
+    properties.getKeystore().setCertificate("classpath:infra/annotation/config/ssl/key2-chain.crt");
+    properties.getKeystore().setPrivateKey("classpath:infra/annotation/config/ssl/key2.pem");
+    properties.getKeystore().setVerifyKeys(true);
+    properties.getKey().setAlias("test-alias");
+    ResourceLoader resourceLoader = spy(new DefaultResourceLoader());
+    SslBundle bundle = PropertiesSslBundle.get(properties, resourceLoader);
+    assertThat(bundle.getStores().getKeyStore()).satisfies(storeContainingCertAndKey("test-alias"));
+    then(resourceLoader).should(atLeastOnce())
+            .getResource("classpath:infra/annotation/config/ssl/key2-chain.crt");
+    then(resourceLoader).should(atLeastOnce())
+            .getResource("classpath:infra/annotation/config/ssl/key2.pem");
   }
 
   private Consumer<KeyStore> storeContainingCertAndKey(String keyAlias) {

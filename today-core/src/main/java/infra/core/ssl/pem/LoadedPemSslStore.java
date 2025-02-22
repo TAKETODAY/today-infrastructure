@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.function.Supplier;
 
+import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
@@ -42,15 +43,19 @@ final class LoadedPemSslStore implements PemSslStore {
 
   private final PemSslStoreDetails details;
 
+  private final ResourceLoader resourceLoader;
+
   private final Supplier<List<X509Certificate>> certificatesSupplier;
 
   private final Supplier<PrivateKey> privateKeySupplier;
 
-  LoadedPemSslStore(PemSslStoreDetails details) {
+  LoadedPemSslStore(PemSslStoreDetails details, ResourceLoader resourceLoader) {
     Assert.notNull(details, "Details is required");
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.details = details;
-    this.certificatesSupplier = supplier(() -> loadCertificates(details));
-    this.privateKeySupplier = supplier(() -> loadPrivateKey(details));
+    this.resourceLoader = resourceLoader;
+    this.certificatesSupplier = supplier(() -> loadCertificates(details, resourceLoader));
+    this.privateKeySupplier = supplier(() -> loadPrivateKey(details, resourceLoader));
   }
 
   private static <T> Supplier<T> supplier(ThrowingSupplier<T> supplier) {
@@ -62,8 +67,8 @@ final class LoadedPemSslStore implements PemSslStore {
   }
 
   @Nullable
-  private static List<X509Certificate> loadCertificates(PemSslStoreDetails details) throws IOException {
-    PemContent pemContent = PemContent.load(details.certificates());
+  private static List<X509Certificate> loadCertificates(PemSslStoreDetails details, ResourceLoader resourceLoader) throws IOException {
+    PemContent pemContent = PemContent.load(details.certificates(), resourceLoader);
     if (pemContent == null) {
       return null;
     }
@@ -73,9 +78,9 @@ final class LoadedPemSslStore implements PemSslStore {
   }
 
   @Nullable
-  private static PrivateKey loadPrivateKey(PemSslStoreDetails details) throws IOException {
-    PemContent pemContent = PemContent.load(details.privateKey());
-    return pemContent != null ? pemContent.getPrivateKey(details.privateKeyPassword()) : null;
+  private static PrivateKey loadPrivateKey(PemSslStoreDetails details, ResourceLoader resourceLoader) throws IOException {
+    PemContent pemContent = PemContent.load(details.privateKey(), resourceLoader);
+    return (pemContent != null) ? pemContent.getPrivateKey(details.privateKeyPassword()) : null;
   }
 
   @Nullable
@@ -107,13 +112,13 @@ final class LoadedPemSslStore implements PemSslStore {
   }
 
   @Override
-  public PemSslStore withAlias(String alias) {
-    return new LoadedPemSslStore(this.details.withAlias(alias));
+  public PemSslStore withAlias(@Nullable String alias) {
+    return new LoadedPemSslStore(this.details.withAlias(alias), resourceLoader);
   }
 
   @Override
-  public PemSslStore withPassword(String password) {
-    return new LoadedPemSslStore(this.details.withPassword(password));
+  public PemSslStore withPassword(@Nullable String password) {
+    return new LoadedPemSslStore(this.details.withPassword(password), resourceLoader);
   }
 
 }

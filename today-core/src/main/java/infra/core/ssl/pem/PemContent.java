@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import infra.core.io.DefaultResourceLoader;
-import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.StreamUtils;
@@ -118,11 +117,12 @@ public final class PemContent {
    * reference to the resource to load).
    *
    * @param content the content to load
+   * @param resourceLoader the resource loader used to load content
    * @return a new {@link PemContent} instance
    * @throws IOException on IO error
    */
   @Nullable
-  static PemContent load(@Nullable String content) throws IOException {
+  static PemContent load(@Nullable String content, ResourceLoader resourceLoader) throws IOException {
     if (content == null) {
       return null;
     }
@@ -130,8 +130,7 @@ public final class PemContent {
       return new PemContent(content);
     }
     try {
-      Resource resource = new DefaultResourceLoader().getResource(content);
-      return load(resource.getInputStream());
+      return load(resourceLoader.getResource(content).getInputStream());
     }
     catch (IOException | UncheckedIOException ex) {
       throw new IOException("Error reading certificate or key from file '%s'".formatted(content), ex);

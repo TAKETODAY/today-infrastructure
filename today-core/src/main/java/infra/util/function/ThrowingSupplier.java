@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import infra.lang.Nullable;
+
 /**
  * A {@link Supplier} that allows invocation of code that throws a checked
  * exception.
@@ -38,6 +40,7 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * @return a result
    * @throws Throwable on error
    */
+  @Nullable
   T getWithException() throws Throwable;
 
   /**

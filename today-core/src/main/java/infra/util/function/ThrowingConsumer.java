@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import infra.lang.Nullable;
+
 /**
  * A {@link Consumer} that allows invocation of code that throws a checked
  * exception.
@@ -27,6 +29,7 @@ import java.util.function.Consumer;
  * @param <T> the type of the input to the operation
  * @author Stephane Nicoll
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -39,7 +42,7 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * @param t the input argument
    * @throws Throwable on error
    */
-  void acceptWithException(T t) throws Throwable;
+  void acceptWithException(@Nullable T t) throws Throwable;
 
   /**
    * Default {@link Consumer#accept(Object)} that wraps any thrown checked

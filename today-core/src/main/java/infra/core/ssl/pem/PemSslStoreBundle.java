@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,17 +57,6 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param trustStoreDetails the trust store details
    */
   public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails, @Nullable PemSslStoreDetails trustStoreDetails) {
-    this(keyStoreDetails, trustStoreDetails, null);
-  }
-
-  /**
-   * Create a new {@link PemSslStoreBundle} instance.
-   *
-   * @param keyStoreDetails the key store details
-   * @param trustStoreDetails the trust store details
-   * @param alias the alias to use or {@code null} to use a default alias
-   */
-  public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails, @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String alias) {
     this(PemSslStore.load(keyStoreDetails), PemSslStore.load(trustStoreDetails));
   }
 

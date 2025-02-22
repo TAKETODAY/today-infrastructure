@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ import org.mockito.Mockito;
 import java.nio.file.Path;
 import java.util.Set;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.ssl.DefaultSslBundleRegistry;
 import infra.core.ssl.SslBundleRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +34,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
 /**
@@ -48,11 +52,15 @@ class SslPropertiesBundleRegistrarTests {
 
   private SslBundleRegistry registry;
 
+  private DefaultResourceLoader resourceLoader;
+
   @BeforeEach
   void setUp() {
     this.properties = new SslProperties();
+    this.resourceLoader = spy(new DefaultResourceLoader());
+
     this.fileWatcher = Mockito.mock(FileWatcher.class);
-    this.registrar = new SslPropertiesBundleRegistrar(this.properties, this.fileWatcher);
+    this.registrar = new SslPropertiesBundleRegistrar(this.properties, this.fileWatcher, resourceLoader);
     this.registry = Mockito.mock(SslBundleRegistry.class);
   }
 
@@ -83,6 +91,21 @@ class SslPropertiesBundleRegistrarTests {
     then(this.registry).should(times(1)).registerBundle(eq("bundle1"), any());
     then(this.fileWatcher).should()
             .watch(assertArg((set) -> pathEndingWith(set, "rsa-cert.pem", "rsa-key.pem")), any());
+  }
+
+  @Test
+  void shouldUseResourceLoader() {
+    PemSslBundleProperties pem = new PemSslBundleProperties();
+    pem.getTruststore().setCertificate("classpath:infra/annotation/config/ssl/ed25519-cert.pem");
+    pem.getTruststore().setPrivateKey("classpath:infra/annotation/config/ssl/ed25519-key.pem");
+    this.properties.getBundle().getPem().put("bundle1", pem);
+    DefaultSslBundleRegistry registry = new DefaultSslBundleRegistry();
+    this.registrar.registerBundles(registry);
+    registry.getBundle("bundle1").createSslContext();
+    then(this.resourceLoader).should(atLeastOnce())
+            .getResource("classpath:infra/annotation/config/ssl/ed25519-cert.pem");
+    then(this.resourceLoader).should(atLeastOnce())
+            .getResource("classpath:infra/annotation/config/ssl/ed25519-key.pem");
   }
 
   @Test

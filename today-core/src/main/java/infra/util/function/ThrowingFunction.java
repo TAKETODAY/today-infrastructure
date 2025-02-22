@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * @throws Throwable on error
    */
   @Nullable
-  R applyWithException(T t) throws Throwable;
+  R applyWithException(@Nullable T t) throws Throwable;
 
   /**
    * Default {@link Function#apply(Object)} that wraps any thrown checked
@@ -53,8 +53,9 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    *
    * @see java.util.function.Function#apply(java.lang.Object)
    */
+  @Nullable
   @Override
-  default R apply(T t) {
+  default R apply(@Nullable T t) {
     return apply(t, RuntimeException::new);
   }
 
@@ -66,7 +67,8 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * and checked exception into a runtime exception
    * @return a result
    */
-  default R apply(T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
+  @Nullable
+  default R apply(@Nullable T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       return applyWithException(t);
     }
@@ -90,13 +92,15 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
   default ThrowingFunction<T, R> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingFunction<>() {
 
+      @Nullable
       @Override
-      public R applyWithException(T t) throws Throwable {
+      public R applyWithException(@Nullable T t) throws Throwable {
         return ThrowingFunction.this.applyWithException(t);
       }
 
+      @Nullable
       @Override
-      public R apply(T t) {
+      public R apply(@Nullable T t) {
         return apply(t, exceptionWrapper);
       }
 

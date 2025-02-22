@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.annotation.config.ssl;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleKey;
 import infra.core.ssl.SslManagerBundle;
@@ -100,19 +102,31 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(PemSslBundleProperties properties) {
-    PemSslStore keyStore = getPemSslStore("keystore", properties.getKeystore());
+    return get(properties, new DefaultResourceLoader());
+  }
+
+  /**
+   * Get an {@link SslBundle} for the given {@link PemSslBundleProperties}.
+   *
+   * @param properties the source properties
+   * @param resourceLoader the resource loader used to load content
+   * @return an {@link SslBundle} instance
+   * @since 5.0
+   */
+  public static SslBundle get(PemSslBundleProperties properties, ResourceLoader resourceLoader) {
+    PemSslStore keyStore = getPemSslStore("keystore", properties.getKeystore(), resourceLoader);
     if (keyStore != null) {
       keyStore = keyStore.withAlias(properties.getKey().getAlias())
               .withPassword(properties.getKey().getPassword());
     }
-    PemSslStore trustStore = getPemSslStore("truststore", properties.getTruststore());
+    PemSslStore trustStore = getPemSslStore("truststore", properties.getTruststore(), resourceLoader);
     SslStoreBundle storeBundle = new PemSslStoreBundle(keyStore, trustStore);
     return new PropertiesSslBundle(storeBundle, properties);
   }
 
   @Nullable
-  private static PemSslStore getPemSslStore(String propertyName, PemSslBundleProperties.Store properties) {
-    PemSslStore pemSslStore = PemSslStore.load(asPemSslStoreDetails(properties));
+  private static PemSslStore getPemSslStore(String propertyName, PemSslBundleProperties.Store properties, ResourceLoader resourceLoader) {
+    PemSslStore pemSslStore = PemSslStore.load(asPemSslStoreDetails(properties), resourceLoader);
     if (properties.isVerifyKeys()) {
       CertificateMatcher certificateMatcher = new CertificateMatcher(pemSslStore.privateKey());
       Assert.state(certificateMatcher.matchesAny(pemSslStore.certificates()),
@@ -133,14 +147,26 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(JksSslBundleProperties properties) {
-    SslStoreBundle storeBundle = asSslStoreBundle(properties);
+    return get(properties, new DefaultResourceLoader());
+  }
+
+  /**
+   * Get an {@link SslBundle} for the given {@link JksSslBundleProperties}.
+   *
+   * @param properties the source properties
+   * @param resourceLoader the resource loader used to load content
+   * @return an {@link SslBundle} instance
+   * @since 5.0
+   */
+  public static SslBundle get(JksSslBundleProperties properties, ResourceLoader resourceLoader) {
+    SslStoreBundle storeBundle = asSslStoreBundle(properties, resourceLoader);
     return new PropertiesSslBundle(storeBundle, properties);
   }
 
-  private static SslStoreBundle asSslStoreBundle(JksSslBundleProperties properties) {
+  private static SslStoreBundle asSslStoreBundle(JksSslBundleProperties properties, ResourceLoader resourceLoader) {
     JksSslStoreDetails keyStoreDetails = asStoreDetails(properties.getKeystore());
     JksSslStoreDetails trustStoreDetails = asStoreDetails(properties.getTruststore());
-    return new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
+    return new JksSslStoreBundle(keyStoreDetails, trustStoreDetails, resourceLoader);
   }
 
   private static JksSslStoreDetails asStoreDetails(JksSslBundleProperties.Store properties) {
