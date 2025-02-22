@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * @author Arjen Poutsma
@@ -414,8 +413,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
   @ParameterizedDataBufferAllocatingTest
   void decreaseCapacityLowReadPosition(DataBufferFactory bufferFactory) {
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support decreasing the capacity");
 
     super.bufferFactory = bufferFactory;
 
@@ -429,8 +426,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
   @ParameterizedDataBufferAllocatingTest
   void decreaseCapacityHighReadPosition(DataBufferFactory bufferFactory) {
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support decreasing the capacity");
 
     super.bufferFactory = bufferFactory;
 
@@ -539,11 +534,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     ByteBuffer result = buffer.asByteBuffer(1, 2);
     assertThat(result.capacity()).isEqualTo(2);
 
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory, () -> {
-      buffer.release();
-      return "Netty 5 does share the internal buffer";
-    });
-
     buffer.write((byte) 'c');
     assertThat(result.remaining()).isEqualTo(2);
 
@@ -556,8 +546,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
   @ParameterizedDataBufferAllocatingTest
   void byteBufferContainsDataBufferChanges(DataBufferFactory bufferFactory) {
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support sharing data between buffers");
 
     super.bufferFactory = bufferFactory;
 
@@ -575,8 +563,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
   @ParameterizedDataBufferAllocatingTest
   void dataBufferContainsByteBufferChanges(DataBufferFactory bufferFactory) {
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support sharing data between buffers");
 
     super.bufferFactory = bufferFactory;
 
@@ -781,16 +767,12 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     result = new byte[2];
     slice.read(result);
 
-    if (!(bufferFactory instanceof Netty5DataBufferFactory)) {
-      assertThat(result).isEqualTo(new byte[] { 'b', 'c' });
-    }
+    assertThat(result).isEqualTo(new byte[] { 'b', 'c' });
     release(buffer);
   }
 
   @ParameterizedDataBufferAllocatingTest
   void retainedSlice(DataBufferFactory bufferFactory) {
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support retainedSlice");
 
     super.bufferFactory = bufferFactory;
 
@@ -833,9 +815,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
     assertThat(result).isEqualTo(bytes);
 
-    if (bufferFactory instanceof Netty5DataBufferFactory) {
-      release(slice);
-    }
     release(buffer);
   }
 
@@ -950,8 +929,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   @ParameterizedDataBufferAllocatingTest
   void retainedDuplicate(DataBufferFactory factory) {
     this.bufferFactory = factory;
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does not support retainedSlice");
 
     DataBuffer hello = factory.copiedBuffer("hello");
     DataBuffer duplicate = hello.retainedDuplicate();

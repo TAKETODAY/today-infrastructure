@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,6 @@ import infra.core.codec.DataBufferDecoder;
 import infra.core.codec.DataBufferEncoder;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
-import infra.core.codec.Netty5BufferDecoder;
-import infra.core.codec.Netty5BufferEncoder;
 import infra.core.codec.NettyByteBufDecoder;
 import infra.core.codec.NettyByteBufEncoder;
 import infra.core.codec.StringDecoder;
@@ -91,7 +89,6 @@ class CodecConfigurerTests {
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(NettyByteBufDecoder.class);
-    assertThat(getNextDecoder(readers).getClass()).isEqualTo(Netty5BufferDecoder.class);
 
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageReader.class);
     assertStringDecoder(getNextDecoder(readers), true);
@@ -113,7 +110,6 @@ class CodecConfigurerTests {
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(NettyByteBufEncoder.class);
-    assertThat(getNextEncoder(writers).getClass()).isEqualTo(Netty5BufferEncoder.class);
 
     assertThat(writers.get(index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageWriter.class);
     assertStringEncoder(getNextEncoder(writers), true);
@@ -155,8 +151,6 @@ class CodecConfigurerTests {
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(NettyByteBufDecoder.class);
-    assertThat(getNextDecoder(readers).getClass()).isEqualTo(Netty5BufferDecoder.class);
-
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageReader.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(StringDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ProtobufDecoder.class);
@@ -201,8 +195,6 @@ class CodecConfigurerTests {
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(NettyByteBufEncoder.class);
-    assertThat(getNextEncoder(writers).getClass()).isEqualTo(Netty5BufferEncoder.class);
-
     assertThat(writers.get(index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageWriter.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(CharSequenceEncoder.class);
     assertThat(writers.get(index.getAndIncrement()).getClass()).isEqualTo(ProtobufHttpMessageWriter.class);

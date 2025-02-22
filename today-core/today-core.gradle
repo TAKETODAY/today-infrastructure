@@ -24,7 +24,6 @@ dependencies {
   optional("io.reactivex.rxjava3:rxjava")
   optional("io.smallrye.reactive:mutiny")
   optional("io.netty:netty-buffer")
-  optional("io.netty:netty5-buffer")
   optional("org.slf4j:slf4j-api")
   optional 'org.apache.logging.log4j:log4j-api'
   optional("jakarta.annotation:jakarta.annotation-api")

@@ -68,7 +68,6 @@ dependencies {
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation 'io.netty:netty-codec-http'
   testImplementation 'io.projectreactor.netty:reactor-netty-http'
-  testImplementation 'io.projectreactor.netty:reactor-netty5-http'
 
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'

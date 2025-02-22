@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,10 +57,7 @@ class TestConventions {
     test.include("**/*Tests.class", "**/*Test.class");
     test.setSystemProperties(Map.of(
             "java.awt.headless", "true",
-            "io.netty.leakDetection.level", "paranoid",
-            "io.netty5.leakDetectionLevel", "paranoid",
-            "io.netty5.leakDetection.targetRecords", "32",
-            "io.netty5.buffer.lifecycleTracingEnabled", "true"
+            "io.netty.leakDetection.level", "paranoid"
     ));
     if (project.hasProperty("testGroups")) {
       test.systemProperty("testGroups", project.getProperties().get("testGroups"));

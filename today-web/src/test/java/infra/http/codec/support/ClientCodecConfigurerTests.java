@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ import infra.core.codec.DataBufferDecoder;
 import infra.core.codec.DataBufferEncoder;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
-import infra.core.codec.Netty5BufferDecoder;
-import infra.core.codec.Netty5BufferEncoder;
 import infra.core.codec.NettyByteBufDecoder;
 import infra.core.codec.NettyByteBufEncoder;
 import infra.core.codec.ResourceDecoder;
@@ -93,7 +91,6 @@ public class ClientCodecConfigurerTests {
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(NettyByteBufDecoder.class);
-    assertThat(getNextDecoder(readers).getClass()).isEqualTo(Netty5BufferDecoder.class);
 
     assertThat(readers.get(this.index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageReader.class);
     assertStringDecoder(getNextDecoder(readers), true);
@@ -118,7 +115,6 @@ public class ClientCodecConfigurerTests {
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(NettyByteBufEncoder.class);
-    assertThat(getNextEncoder(writers).getClass()).isEqualTo(Netty5BufferEncoder.class);
 
     assertThat(writers.get(index.getAndIncrement()).getClass()).isEqualTo(ResourceHttpMessageWriter.class);
     assertStringEncoder(getNextEncoder(writers), true);
@@ -185,7 +181,6 @@ public class ClientCodecConfigurerTests {
     assertThat(((ByteBufferDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);
     assertThat(((DataBufferDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);
     assertThat(((NettyByteBufDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);
-    assertThat(((Netty5BufferDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);
 
     assertThat(((ResourceDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);
     assertThat(((StringDecoder) getNextDecoder(readers)).getMaxInMemorySize()).isEqualTo(size);

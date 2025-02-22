@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.client.reactive.HttpComponentsClientHttpConnector;
 import infra.http.client.reactive.JdkClientHttpConnector;
 import infra.http.client.reactive.ReactorClientHttpConnector;
-import infra.http.client.reactive.ReactorNetty2ClientHttpConnector;
 import infra.http.codec.ClientCodecConfigurer;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -55,14 +54,11 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
   private static final boolean reactorNettyClientPresent;
 
-  private static final boolean reactorNetty2ClientPresent;
-
   private static final boolean httpComponentsClientPresent;
 
   static {
     ClassLoader loader = DefaultWebTestClientBuilder.class.getClassLoader();
     reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
-    reactorNetty2ClientPresent = ClassUtils.isPresent("reactor.netty5.http.client.HttpClient", loader);
     httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient", loader)
             && ClassUtils.isPresent("org.apache.hc.core5.reactive.ReactiveDataConsumer", loader);
   }
@@ -273,9 +269,6 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
   private static ClientHttpConnector initConnector() {
     if (reactorNettyClientPresent) {
       return new ReactorClientHttpConnector();
-    }
-    else if (reactorNetty2ClientPresent) {
-      return new ReactorNetty2ClientHttpConnector();
     }
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpConnector();

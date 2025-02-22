@@ -41,14 +41,12 @@ import java.util.stream.Stream;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
-import infra.core.io.buffer.Netty5DataBufferFactory;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PoolArenaMetric;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocatorMetric;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty5.buffer.BufferAllocator;
 import reactor.core.publisher.Mono;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -65,14 +63,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
  * @author Sam Brannen
  */
 public abstract class AbstractDataBufferAllocatingTests {
-
-  private static BufferAllocator netty5OnHeapUnpooled;
-
-  private static BufferAllocator netty5OffHeapUnpooled;
-
-  private static BufferAllocator netty5OffHeapPooled;
-
-  private static BufferAllocator netty5OnHeapPooled;
 
   private static UnpooledByteBufAllocator netty4OffHeapUnpooled;
 
@@ -178,18 +168,10 @@ public abstract class AbstractDataBufferAllocatingTests {
     netty4OnHeapPooled = new PooledByteBufAllocator(false, 1, 1, 4096, 4, 0, 0, 0, true);
     netty4OffHeapPooled = new PooledByteBufAllocator(true, 1, 1, 4096, 4, 0, 0, 0, true);
 
-    netty5OnHeapUnpooled = BufferAllocator.onHeapUnpooled();
-    netty5OffHeapUnpooled = BufferAllocator.offHeapUnpooled();
-    netty5OnHeapPooled = BufferAllocator.onHeapPooled();
-    netty5OffHeapPooled = BufferAllocator.offHeapPooled();
   }
 
   @AfterAll
   public static void closeAllocators() {
-    netty5OnHeapUnpooled.close();
-    netty5OffHeapUnpooled.close();
-    netty5OnHeapPooled.close();
-    netty5OffHeapPooled.close();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -210,15 +192,7 @@ public abstract class AbstractDataBufferAllocatingTests {
                     new NettyDataBufferFactory(netty4OffHeapPooled))),
             arguments(named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = false",
                     new NettyDataBufferFactory(netty4OnHeapPooled))),
-            // Netty 5
-            arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapUnpooled()",
-                    new Netty5DataBufferFactory(netty5OnHeapUnpooled))),
-            arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapUnpooled()",
-                    new Netty5DataBufferFactory(netty5OffHeapUnpooled))),
-            arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapPooled()",
-                    new Netty5DataBufferFactory(netty5OnHeapPooled))),
-            arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapPooled()",
-                    new Netty5DataBufferFactory(netty5OffHeapPooled))),
+
             // Default
             arguments(named("DefaultDataBufferFactory - preferDirect = true",
                     new DefaultDataBufferFactory(true))),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.MimeType;
-import io.netty5.buffer.Buffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -211,11 +210,6 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
     Flux<DataBuffer> flux = Mono.from(input).concatWith(Flux.error(new InputException()));
     assertThatExceptionOfType(InputException.class).isThrownBy(() ->
             this.decoder.decode(flux, outputType, mimeType, hints)
-                    .doOnNext(object -> {
-                      if (object instanceof Buffer buffer) {
-                        buffer.close();
-                      }
-                    })
                     .blockLast(Duration.ofSeconds(5)));
   }
 
@@ -235,9 +229,6 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
 
     Flux<?> result = this.decoder.decode(input, outputType, mimeType, hints)
             .doOnNext(object -> {
-              if (object instanceof Buffer buffer) {
-                buffer.close();
-              }
             });
     StepVerifier.create(result).expectNextCount(1).thenCancel().verify();
   }

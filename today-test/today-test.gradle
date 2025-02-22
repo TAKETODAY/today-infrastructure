@@ -79,7 +79,6 @@ dependencies {
   optional 'org.spockframework:spock-core:2.2-M1-groovy-4.0'
   optional("javax.inject:javax.inject")
   optional("io.projectreactor.netty:reactor-netty-http")
-  optional("io.projectreactor.netty:reactor-netty5-http")
 
   testFixturesImplementation(testFixtures(project(":today-web")))
 

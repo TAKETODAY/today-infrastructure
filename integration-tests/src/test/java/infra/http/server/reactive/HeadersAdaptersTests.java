@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import infra.http.support.Netty4HttpHeaders;
-import infra.http.support.Netty5HttpHeaders;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -133,8 +132,7 @@ class HeadersAdaptersTests {
   static Stream<Arguments> headers() {
     return Stream.of(
             arguments(named("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
-            arguments(named("Netty", new Netty4HttpHeaders(new DefaultHttpHeaders()))),
-            arguments(named("Netty5", new Netty5HttpHeaders(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders())))
+            arguments(named("Netty", new Netty4HttpHeaders(new DefaultHttpHeaders())))
     );
   }
 

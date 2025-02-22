@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +34,6 @@ import infra.core.codec.DataBufferDecoder;
 import infra.core.codec.DataBufferEncoder;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
-import infra.core.codec.Netty5BufferDecoder;
-import infra.core.codec.Netty5BufferEncoder;
 import infra.core.codec.NettyByteBufDecoder;
 import infra.core.codec.NettyByteBufEncoder;
 import infra.core.codec.ResourceDecoder;
@@ -84,7 +82,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   private static final boolean protobufPresent;
   private static final boolean jackson2SmilePresent;
-  static final boolean netty5BufferPresent;
 
   static {
     ClassLoader classLoader = BaseCodecConfigurer.class.getClassLoader();
@@ -93,7 +90,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", classLoader);
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
-    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.Buffer", classLoader);
   }
 
   @Nullable
@@ -317,9 +313,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     if (nettyByteBufPresent) {
       addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new NettyByteBufDecoder()));
     }
-    if (netty5BufferPresent) {
-      addCodec(this.typedReaders, new DecoderHttpMessageReader<>(new Netty5BufferDecoder()));
-    }
     addCodec(this.typedReaders, new ResourceHttpMessageReader(new ResourceDecoder()));
     addCodec(this.typedReaders, new DecoderHttpMessageReader<>(StringDecoder.textPlainOnly()));
     if (protobufPresent) {
@@ -533,9 +526,6 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     addCodec(writers, new EncoderHttpMessageWriter<>(new DataBufferEncoder()));
     if (nettyByteBufPresent) {
       addCodec(writers, new EncoderHttpMessageWriter<>(new NettyByteBufEncoder()));
-    }
-    if (netty5BufferPresent) {
-      addCodec(writers, new EncoderHttpMessageWriter<>(new Netty5BufferEncoder()));
     }
     addCodec(writers, new ResourceHttpMessageWriter());
     addCodec(writers, new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));

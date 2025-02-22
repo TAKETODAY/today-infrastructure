@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 
 import infra.http.HttpHeaders;
 import infra.http.support.Netty4HttpHeaders;
-import infra.http.support.Netty5HttpHeaders;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
@@ -102,7 +101,6 @@ class DefaultServerHttpRequestBuilderTests {
     return Stream.of(
             initHeader("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH))),
             initHeader("Netty", new Netty4HttpHeaders(new DefaultHttpHeaders())),
-            initHeader("Netty5", new Netty5HttpHeaders(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders())),
             //immutable versions of some headers
             argumentSet("Netty immutable", new Netty4HttpHeaders(new ReadOnlyHttpHeaders(false,
                     "CaseInsensitive", "unmodified")), false)

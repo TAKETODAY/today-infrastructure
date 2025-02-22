@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,6 @@ import infra.http.client.reactive.ClientHttpConnector;
 import infra.http.client.reactive.HttpComponentsClientHttpConnector;
 import infra.http.client.reactive.JdkClientHttpConnector;
 import infra.http.client.reactive.ReactorClientHttpConnector;
-import infra.http.client.reactive.ReactorNetty2ClientHttpConnector;
 import infra.web.client.reactive.WebClient.ResponseSpec;
 import infra.web.reactive.function.BodyExtractors;
 import infra.web.testfixture.Pojo;
@@ -104,7 +103,6 @@ class WebClientIntegrationTests {
   static Stream<Named<ClientHttpConnector>> arguments() {
     return Stream.of(
             named("Reactor Netty", new ReactorClientHttpConnector()),
-            named("Reactor Netty 2", new ReactorNetty2ClientHttpConnector()),
             named("JDK", new JdkClientHttpConnector()),
             named("HttpComponents", new HttpComponentsClientHttpConnector())
     );
@@ -897,11 +895,6 @@ class WebClientIntegrationTests {
   @ParameterizedWebClientTest
   void statusHandlerSuppressedErrorSignalWithFlux(ClientHttpConnector connector) {
 
-    // Temporarily disabled, leads to io.netty5.buffer.BufferClosedException
-    if (connector instanceof ReactorNetty2ClientHttpConnector) {
-      return;
-    }
-
     startServer(connector);
 
     prepareResponse(response -> response.setResponseCode(500)
@@ -1297,7 +1290,7 @@ class WebClientIntegrationTests {
         os.write("""
                 HTTP/1.1 200 OK
                 Transfer-Encoding: chunked
-
+                
                 lskdu018973t09sylgasjkfg1][]'./.sdlv"""
                 .replace("\n", "\r\n").getBytes(StandardCharsets.UTF_8));
 

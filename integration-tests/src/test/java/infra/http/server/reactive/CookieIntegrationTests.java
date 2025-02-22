@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +32,9 @@ import infra.http.ResponseEntity;
 import infra.web.client.RestTemplate;
 import infra.web.http.server.reactive.AbstractHttpHandlerIntegrationTests;
 import infra.web.http.server.reactive.HttpServer;
-import infra.web.http.server.reactive.ReactorNetty2HttpServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * @author Rossen Stoyanchev
@@ -80,7 +78,6 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
 
   @ParameterizedHttpServerTest
   public void partitionedAttributeTest(HttpServer httpServer) throws Exception {
-    assumeFalse(httpServer instanceof ReactorNetty2HttpServer, "ReactorNetty2HttpServer handling");
     startServer(httpServer);
 
     URI url = URI.create("http://localhost:" + port);
