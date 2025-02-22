@@ -1034,10 +1034,10 @@ public class ResolvableType implements Serializable {
         return null;
       }
       TypeVariable<?>[] variables = resolved.getTypeParameters();
+      Type[] typeArguments = parameterizedType.getActualTypeArguments();
       for (int i = 0; i < variables.length; i++) {
         if (Objects.equals(variables[i].getName(), variable.getName())) {
-          Type actualType = parameterizedType.getActualTypeArguments()[i];
-          return forType(actualType, this.variableResolver);
+          return forType(typeArguments[i], this.variableResolver);
         }
       }
       Type ownerType = parameterizedType.getOwnerType();

@@ -21,12 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import static infra.core.GenericTypeResolver.getTypeVariableMap;
 import static infra.core.GenericTypeResolver.resolveReturnTypeArgument;
@@ -39,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author TODAY 2021/3/8 19:29
  * @since 3.0
  */
-public class GenericTypeResolverTests {
+class GenericTypeResolverTests {
 
   @Test
   void simpleInterfaceType() {
@@ -169,6 +171,18 @@ public class GenericTypeResolverTests {
     assertThat(resolved).hasSize(2);
     assertThat(resolved[0]).isEqualTo(Object.class);
     assertThat(resolved[1]).isEqualTo(Long.class);
+  }
+
+  @Test
+  void resolveVariableNameChange() {
+    Type resolved = resolveType(Repository.class.getTypeParameters()[0], ConcreteRepository.class);
+    assertThat(resolved).isEqualTo(String.class);
+    Method method = method(Repository.class, "store", Supplier.class);
+    resolved = resolveType(method.getGenericParameterTypes()[0], ConcreteRepository.class);
+    assertThat(resolved).isInstanceOf(ParameterizedType.class);
+    ParameterizedType pt = (ParameterizedType) resolved;
+    assertThat(pt.getRawType()).isEqualTo(Supplier.class);
+    assertThat(pt.getActualTypeArguments()[0]).isEqualTo(String.class);
   }
 
   @Test
@@ -391,6 +405,11 @@ public class GenericTypeResolverTests {
   }
 
   interface Repository<T, ID extends Serializable> {
+    default void store(Supplier<T> t) {
+    }
+  }
+
+  static class ConcreteRepository implements IdFixingRepository<String> {
   }
 
   interface IdFixingRepository<T> extends Repository<T, Long> {
