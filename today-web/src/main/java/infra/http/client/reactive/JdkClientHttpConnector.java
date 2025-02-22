@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,12 @@ import java.util.function.Function;
 
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
+import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
+import infra.http.ResponseCookie;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 /**
@@ -52,6 +55,8 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
 
   @Nullable
   private Duration readTimeout = null;
+
+  private ResponseCookie.Parser cookieParser = new JdkResponseCookieParser();
 
   /**
    * Default constructor that uses {@link HttpClient#newHttpClient()}.
@@ -106,10 +111,22 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
     this.readTimeout = readTimeout;
   }
 
-  @Override
-  public Mono<ClientHttpResponse> connect(
-          HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
+  /**
+   * Customize the parsing of response cookies.
+   * <p>By default, {@link java.net.HttpCookie#parse(String)} is used, and
+   * additionally the sameSite attribute is parsed and set.
+   *
+   * @param parser the parser to use
+   * @since 5.0
+   */
+  public void setCookieParser(ResponseCookie.Parser parser) {
+    Assert.notNull(parser, "ResponseCookie parser is required");
+    this.cookieParser = parser;
+  }
 
+  @Override
+  public Mono<ClientHttpResponse> connect(HttpMethod method,
+          URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
     JdkClientHttpRequest jdkClientHttpRequest = new JdkClientHttpRequest(method, uri, this.bufferFactory, this.readTimeout);
 
     return requestCallback.apply(jdkClientHttpRequest).then(Mono.defer(() -> {
@@ -118,9 +135,14 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
       CompletableFuture<HttpResponse<Flow.Publisher<List<ByteBuffer>>>> future =
               this.httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofPublisher());
 
-      return Mono.fromCompletionStage(future)
-              .map(response -> new JdkClientHttpResponse(response, this.bufferFactory));
+      return Mono.fromCompletionStage(future).map(response ->
+              new JdkClientHttpResponse(response, this.bufferFactory, parseCookies(response)));
     }));
+  }
+
+  private MultiValueMap<String, ResponseCookie> parseCookies(HttpResponse<?> response) {
+    List<String> headers = response.headers().allValues(HttpHeaders.SET_COOKIE);
+    return this.cookieParser.parse(headers);
   }
 
 }

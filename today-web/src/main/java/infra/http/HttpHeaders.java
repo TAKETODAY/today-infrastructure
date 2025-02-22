@@ -21,6 +21,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,7 @@ import infra.lang.Modifiable;
 import infra.lang.Nullable;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
+import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 
@@ -571,13 +573,13 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   public void setAcceptLanguage(Collection<Locale.LanguageRange> languages) {
     Assert.notNull(languages, "LanguageRange List is required");
 
-    List<String> values = languages.stream().map(range -> {
-      if (range.getWeight() == Locale.LanguageRange.MAX_WEIGHT) {
-        return range.getRange();
-      }
-      DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
-      return range.getRange() + ";q=" + decimal.format(range.getWeight());
-    }).collect(Collectors.toList());
+    DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
+    List<String> values = languages.stream()
+            .map(range -> range.getWeight() == Locale.LanguageRange.MAX_WEIGHT ?
+                    range.getRange() :
+                    range.getRange() + ";q=" + decimal.format(range.getWeight()))
+            .toList();
+
     setOrRemove(ACCEPT_LANGUAGE, toCommaDelimitedString(values));
   }
 
@@ -1879,11 +1881,13 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
   // abstract for subclasses
   // ---------------------------------------------------------------------
 
+  @Nullable
   @Override
   public List<String> setOrRemove(String name, @Nullable String[] value) {
     return setOrRemove(name, value == null ? null : toCommaDelimitedString(Arrays.asList(value)));
   }
 
+  @Nullable
   @Override
   public List<String> setOrRemove(String name, @Nullable Collection<String> value) {
     return setOrRemove(name, toCommaDelimitedString(value));
@@ -1896,6 +1900,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
    * @param value the header value, or {@code null} for none
    * @return returns {@code null} if value is not {@code null}
    */
+  @Nullable
   @Override
   public List<String> setOrRemove(String name, @Nullable String value) {
     if (value != null) {
@@ -2093,6 +2098,22 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     HttpHeaders result = HttpHeaders.forWritable();
     result.addAll(targetMap);
     return result;
+  }
+
+  /**
+   * Adapt {@link java.net.http.HttpHeaders}
+   *
+   * @param response JDK {@link HttpResponse}
+   * @return HttpHeaders
+   * @since 5.0
+   */
+  @Unmodifiable
+  public static HttpHeaders fromResponse(HttpResponse<?> response) {
+    Map<String, List<String>> rawHeaders = response.headers().map();
+    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ROOT);
+    MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
+    multiValueMap.putAll(rawHeaders);
+    return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
   }
 
   // Package-private: used in ResponseCookie

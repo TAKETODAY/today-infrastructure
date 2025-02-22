@@ -18,9 +18,12 @@
 package infra.http;
 
 import java.time.Duration;
+import java.util.List;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -241,6 +244,22 @@ public final class ResponseCookie extends HttpCookie {
   }
 
   /**
+   * Factory method to obtain a builder that copies from {@link java.net.HttpCookie}.
+   *
+   * @param cookie the source cookie to copy from
+   * @return a builder to create the cookie with
+   * @since 5.0
+   */
+  public static ResponseCookieBuilder from(java.net.HttpCookie cookie) {
+    return ResponseCookie.from(cookie.getName(), cookie.getValue())
+            .domain(cookie.getDomain())
+            .httpOnly(cookie.isHttpOnly())
+            .maxAge(cookie.getMaxAge())
+            .path(cookie.getPath())
+            .secure(cookie.getSecure());
+  }
+
+  /**
    * A builder for a server-defined HttpCookie with attributes.
    */
   public interface ResponseCookieBuilder {
@@ -309,6 +328,32 @@ public final class ResponseCookie extends HttpCookie {
      * Create the HttpCookie.
      */
     ResponseCookie build();
+  }
+
+  /**
+   * Contract to parse {@code "Set-Cookie"} headers.
+   *
+   * @since 5.0
+   */
+  public interface Parser {
+
+    /**
+     * Parse the given header.
+     */
+    List<ResponseCookie> parse(String header);
+
+    /**
+     * Convenience method to parse a list of headers into a {@link MultiValueMap}.
+     */
+    default MultiValueMap<String, ResponseCookie> parse(List<String> headers) {
+      MultiValueMap<String, ResponseCookie> result = new LinkedMultiValueMap<>();
+      for (String header : headers) {
+        for (ResponseCookie cookie : parse(header)) {
+          result.add(cookie.getName(), cookie);
+        }
+      }
+      return result;
+    }
   }
 
   private static final class Rfc6265Utils {

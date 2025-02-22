@@ -21,16 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.lang.Nullable;
-import infra.util.LinkedCaseInsensitiveMap;
-import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
 
 /**
@@ -58,16 +53,8 @@ class JdkClientHttpResponse implements ClientHttpResponse {
    */
   public JdkClientHttpResponse(HttpResponse<InputStream> response, @Nullable InputStream body) {
     this.response = response;
-    this.headers = adaptHeaders(response);
-    this.body = (body != null ? body : InputStream.nullInputStream());
-  }
-
-  private static HttpHeaders adaptHeaders(HttpResponse<?> response) {
-    Map<String, List<String>> rawHeaders = response.headers().map();
-    Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ROOT);
-    MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
-    multiValueMap.putAll(rawHeaders);
-    return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
+    this.headers = HttpHeaders.fromResponse(response);
+    this.body = body != null ? body : InputStream.nullInputStream();
   }
 
   @Override

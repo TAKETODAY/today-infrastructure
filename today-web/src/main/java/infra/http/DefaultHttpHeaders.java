@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +91,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
     }
   }
 
+  @Nullable
   @Override
   public String getFirst(String name) {
     return headers.getFirst(name);
@@ -147,11 +148,13 @@ public class DefaultHttpHeaders extends HttpHeaders {
     return headers.containsValue(value);
   }
 
+  @Nullable
   @Override
   public List<String> get(Object name) {
     return headers.get(name);
   }
 
+  @Nullable
   @Override
   public List<String> put(String key, List<String> value) {
     return headers.put(key, value);
@@ -227,6 +230,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
     this.headers.forEach(action);
   }
 
+  @Nullable
   @Override
   public List<String> putIfAbsent(String key, List<String> value) {
     return this.headers.putIfAbsent(key, value);
