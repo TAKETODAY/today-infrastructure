@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.http;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +50,10 @@ import infra.lang.Nullable;
  * @see infra.web.ErrorResponseException
  * @since 4.0 2022/3/2 12:58
  */
-public class ProblemDetail {
+public class ProblemDetail implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final URI BLANK_TYPE = URI.create("about:blank");
 
