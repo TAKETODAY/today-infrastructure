@@ -42,10 +42,14 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
+import infra.http.converter.feed.AtomFeedHttpMessageConverter;
+import infra.http.converter.feed.RssChannelHttpMessageConverter;
 import infra.http.converter.json.GsonHttpMessageConverter;
 import infra.http.converter.json.JsonbHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
+import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -87,19 +91,28 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean jackson2YamlPresent;
 
+  private static final boolean romePresent;
+
+  private static final boolean jaxb2Present;
+
+  private static final boolean jackson2XmlPresent;
+
   static {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
-    reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
     httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
+    reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
 
-    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader)
-            && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
-    gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", loader);
-    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
+    romePresent = ClassUtils.isPresent("com.rometools.rome.feed.WireFeed", loader);
+    jaxb2Present = ClassUtils.isPresent("jakarta.xml.bind.Binder", loader);
+    jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader) &&
+            ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
+    jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", loader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", loader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", loader);
     jackson2YamlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", loader);
+    gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", loader);
+    jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
   }
 
   @Nullable
@@ -155,6 +168,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.requestFactory = other.requestFactory;
     this.uriBuilderFactory = other.uriBuilderFactory;
     this.bufferingPredicate = other.bufferingPredicate;
+    this.detectEmptyMessageBody = other.detectEmptyMessageBody;
 
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
@@ -414,10 +428,23 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   private List<HttpMessageConverter<?>> initMessageConverters() {
     if (this.messageConverters == null) {
       this.messageConverters = new ArrayList<>();
+
       this.messageConverters.add(new ByteArrayHttpMessageConverter());
       this.messageConverters.add(new StringHttpMessageConverter());
       this.messageConverters.add(new ResourceHttpMessageConverter(false));
       this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
+
+      if (romePresent) {
+        this.messageConverters.add(new AtomFeedHttpMessageConverter());
+        this.messageConverters.add(new RssChannelHttpMessageConverter());
+      }
+
+      if (jackson2XmlPresent) {
+        this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
+      }
+      else if (jaxb2Present) {
+        this.messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
+      }
 
       if (jackson2Present) {
         this.messageConverters.add(new MappingJackson2HttpMessageConverter());
