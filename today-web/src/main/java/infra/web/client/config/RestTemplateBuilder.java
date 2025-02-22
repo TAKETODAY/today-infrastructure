@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -433,7 +433,7 @@ public class RestTemplateBuilder {
    * @param connectTimeout the connection timeout
    * @return a new builder instance.
    */
-  public RestTemplateBuilder setConnectTimeout(Duration connectTimeout) {
+  public RestTemplateBuilder connectTimeout(Duration connectTimeout) {
     return new RestTemplateBuilder(requestFactorySettings.withConnectTimeout(connectTimeout),
             detectRequestFactory, rootUri, messageConverters, interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
@@ -446,7 +446,7 @@ public class RestTemplateBuilder {
    * @param readTimeout the read timeout
    * @return a new builder instance.
    */
-  public RestTemplateBuilder setReadTimeout(Duration readTimeout) {
+  public RestTemplateBuilder readTimeout(Duration readTimeout) {
     return new RestTemplateBuilder(requestFactorySettings.withReadTimeout(readTimeout),
             detectRequestFactory, rootUri, messageConverters, interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
@@ -459,7 +459,7 @@ public class RestTemplateBuilder {
    * @param sslBundle the SSL bundle
    * @return a new builder instance
    */
-  public RestTemplateBuilder setSslBundle(SslBundle sslBundle) {
+  public RestTemplateBuilder sslBundle(SslBundle sslBundle) {
     return new RestTemplateBuilder(requestFactorySettings.withSslBundle(sslBundle), detectRequestFactory,
             rootUri, messageConverters, interceptors, requestFactory, uriTemplateHandler,
             errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
