@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +91,32 @@ class FileWatcherTests {
     WaitingCallback callback = new WaitingCallback();
     this.fileWatcher.watch(Set.of(watchedFile), callback);
     Files.writeString(watchedFile, "Some content");
+    callback.expectChanges();
+  }
+
+  @Test
+  void shouldFollowSymlink(@TempDir Path tempDir) throws Exception {
+    Path realFile = tempDir.resolve("realFile.txt");
+    Path symLink = tempDir.resolve("symlink.txt");
+    Files.createFile(realFile);
+    Files.createSymbolicLink(symLink, realFile);
+    WaitingCallback callback = new WaitingCallback();
+    this.fileWatcher.watch(Set.of(symLink), callback);
+    Files.writeString(realFile, "Some content");
+    callback.expectChanges();
+  }
+
+  @Test
+  void shouldFollowSymlinkRecursively(@TempDir Path tempDir) throws Exception {
+    Path realFile = tempDir.resolve("realFile.txt");
+    Path symLink = tempDir.resolve("symlink.txt");
+    Path symLink2 = tempDir.resolve("symlink2.txt");
+    Files.createFile(realFile);
+    Files.createSymbolicLink(symLink, symLink2);
+    Files.createSymbolicLink(symLink2, realFile);
+    WaitingCallback callback = new WaitingCallback();
+    this.fileWatcher.watch(Set.of(symLink), callback);
+    Files.writeString(realFile, "Some content");
     callback.expectChanges();
   }
 

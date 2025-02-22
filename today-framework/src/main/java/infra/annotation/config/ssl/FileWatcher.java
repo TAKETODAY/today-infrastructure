@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,12 +91,24 @@ final class FileWatcher {
           this.thread = new WatcherThread();
           this.thread.start();
         }
-        this.thread.register(new Registration(paths, action));
+        Set<Path> actualPaths = new HashSet<>();
+        for (Path path : paths) {
+          actualPaths.add(resolveSymlinkIfNecessary(path));
+        }
+        this.thread.register(new Registration(actualPaths, action));
       }
       catch (IOException ex) {
         throw new UncheckedIOException("Failed to register paths for watching: " + paths, ex);
       }
     }
+  }
+
+  private static Path resolveSymlinkIfNecessary(Path path) throws IOException {
+    if (Files.isSymbolicLink(path)) {
+      Path target = Files.readSymbolicLink(path);
+      return resolveSymlinkIfNecessary(target);
+    }
+    return path;
   }
 
   public void destroy() throws IOException {
