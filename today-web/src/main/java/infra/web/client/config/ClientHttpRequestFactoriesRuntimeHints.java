@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryWrapper;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
+import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
@@ -62,6 +63,11 @@ class ClientHttpRequestFactoriesRuntimeHints implements RuntimeHintsRegistrar {
     hints.registerType(JdkClientHttpRequestFactory.class, (typeHint) -> {
       typeHint.onReachableType(HttpClient.class);
       registerReflectionHints(hints, JdkClientHttpRequestFactory.class, Duration.class);
+    });
+
+    hints.registerTypeIfPresent(classLoader, ClientHttpRequestFactories.REACTOR_CLIENT_CLASS, (typeHint) -> {
+      typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.REACTOR_CLIENT_CLASS));
+      registerReflectionHints(hints, ReactorClientHttpRequestFactory.class, long.class);
     });
   }
 

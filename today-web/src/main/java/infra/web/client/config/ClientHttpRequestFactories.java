@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,17 +30,24 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import javax.net.ssl.SSLException;
+
 import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslManagerBundle;
 import infra.core.ssl.SslOptions;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestFactoryWrapper;
 import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
+import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.PropertyMapper;
 import infra.util.ReflectionUtils;
+import infra.util.function.ThrowingConsumer;
+import io.netty.handler.ssl.SslContextBuilder;
+import reactor.netty.tcp.SslProvider;
 
 /**
  * Utility class that can be used to create {@link ClientHttpRequestFactory} instances
@@ -57,6 +64,10 @@ public abstract class ClientHttpRequestFactories {
 
   private static final boolean APACHE_HTTP_CLIENT_PRESENT = ClassUtils.isPresent(APACHE_HTTP_CLIENT_CLASS);
 
+  static final String REACTOR_CLIENT_CLASS = "reactor.netty.http.client.HttpClient";
+
+  private static final boolean REACTOR_CLIENT_PRESENT = ClassUtils.isPresent(REACTOR_CLIENT_CLASS);
+
   /**
    * Return a {@link ClientHttpRequestFactory} implementation with the given
    * {@code settings} applied. The first of the following implementations whose
@@ -72,6 +83,9 @@ public abstract class ClientHttpRequestFactories {
     Assert.notNull(settings, "Settings is required");
     if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
+    }
+    if (REACTOR_CLIENT_PRESENT) {
+      return Reactor.get(settings);
     }
     return Jdk.get(settings);
   }
@@ -197,6 +211,41 @@ public abstract class ClientHttpRequestFactories {
         builder.sslContext(sslBundle.createSslContext());
       }
       return builder.build();
+    }
+
+  }
+
+  /**
+   * Support for {@link ReactorClientHttpRequestFactory}.
+   */
+  static class Reactor {
+
+    static ReactorClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
+      ReactorClientHttpRequestFactory requestFactory = createRequestFactory(settings.sslBundle());
+      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+      map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
+      map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
+      return requestFactory;
+    }
+
+    private static ReactorClientHttpRequestFactory createRequestFactory(@Nullable SslBundle sslBundle) {
+      if (sslBundle != null) {
+        var httpClient = reactor.netty.http.client.HttpClient.create()
+                .secure((ThrowingConsumer.of((spec) -> configureSsl(spec, sslBundle))));
+        return new ReactorClientHttpRequestFactory(httpClient);
+      }
+      return new ReactorClientHttpRequestFactory();
+    }
+
+    private static void configureSsl(SslProvider.SslContextSpec spec, SslBundle sslBundle) throws SSLException {
+      SslOptions options = sslBundle.getOptions();
+      SslManagerBundle managers = sslBundle.getManagers();
+      SslContextBuilder builder = SslContextBuilder.forClient()
+              .keyManager(managers.getKeyManagerFactory())
+              .trustManager(managers.getTrustManagerFactory())
+              .ciphers(SslOptions.asSet(options.getCiphers()))
+              .protocols(options.getEnabledProtocols());
+      spec.sslContext(builder.build());
     }
 
   }
