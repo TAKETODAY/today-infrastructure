@@ -13,7 +13,8 @@ infra.annotation.config.jackson.JacksonAutoConfiguration.Hints
 
 infra.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
 infra.annotation.config.logging.ConditionEvaluationReportLoggingProcessor,\
-infra.app.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor
+infra.app.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor,\
+infra.app.env.EnvironmentPostProcessorApplicationListener.EnvironmentBeanFactoryInitializationAotProcessor
 
 infra.beans.factory.aot.BeanRegistrationAotProcessor=\
 infra.app.jackson.JsonMixinModuleEntriesBeanRegistrationAotProcessor
