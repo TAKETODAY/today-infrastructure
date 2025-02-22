@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 import infra.core.env.EnumerablePropertySource;
 import infra.core.env.Environment;
@@ -41,6 +42,7 @@ import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.format.support.ApplicationConversionService;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.OriginProvider;
@@ -71,6 +73,7 @@ import infra.util.StringUtils;
  * mounts.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ConfigTreePropertySource extends EnumerablePropertySource<Path> implements OriginLookup<String> {
@@ -123,12 +126,14 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
     return names;
   }
 
+  @Nullable
   @Override
   public Value getProperty(String name) {
     PropertyFile propertyFile = this.propertyFiles.get(name);
     return propertyFile != null ? propertyFile.getContent() : null;
   }
 
+  @Nullable
   @Override
   public Origin getOrigin(String name) {
     PropertyFile propertyFile = this.propertyFiles.get(name);
@@ -186,6 +191,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
     private final Origin origin;
 
+    @Nullable
     private final PropertyFileContent cachedContent;
 
     private final boolean autoTrimTrailingNewLine;
@@ -214,16 +220,18 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
     static Map<String, PropertyFile> findAll(Path sourceDirectory, Set<Option> options) {
       try {
         var propertyFiles = new TreeMap<String, PropertyFile>();
-        Files.find(sourceDirectory, MAX_DEPTH, PropertyFile::isPropertyFile, FileVisitOption.FOLLOW_LINKS)
-                .forEach(path -> {
-                  String name = getName(sourceDirectory.relativize(path));
-                  if (StringUtils.hasText(name)) {
-                    if (options.contains(Option.USE_LOWERCASE_NAMES)) {
-                      name = name.toLowerCase(Locale.ROOT);
-                    }
-                    propertyFiles.put(name, new PropertyFile(path, options));
-                  }
-                });
+        try (Stream<Path> pathStream = Files.find(sourceDirectory, MAX_DEPTH,
+                PropertyFile::isPropertyFile, FileVisitOption.FOLLOW_LINKS)) {
+          pathStream.forEach((path) -> {
+            String name = getName(sourceDirectory.relativize(path));
+            if (StringUtils.hasText(name)) {
+              if (options.contains(Option.USE_LOWERCASE_NAMES)) {
+                name = name.toLowerCase(Locale.getDefault());
+              }
+              propertyFiles.put(name, new PropertyFile(path, options));
+            }
+          });
+        }
         return Collections.unmodifiableMap(propertyFiles);
       }
       catch (IOException ex) {
