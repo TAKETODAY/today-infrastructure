@@ -25,6 +25,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -332,7 +333,7 @@ public final class ContentDisposition {
       String part = parts.get(i);
       int eqIndex = part.indexOf('=');
       if (eqIndex != -1) {
-        String attribute = part.substring(0, eqIndex);
+        String attribute = part.substring(0, eqIndex).toLowerCase(Locale.ROOT);
         String value = part.startsWith("\"", eqIndex + 1) && part.endsWith("\"")
                 ? part.substring(eqIndex + 2, part.length() - 1)
                 : part.substring(eqIndex + 1);
