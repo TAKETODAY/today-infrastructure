@@ -101,6 +101,24 @@ class HttpRequestValuesTests {
   }
 
   @Test
+  void queryParamWithSemicolon() {
+    HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.POST)
+            .setUriTemplate("/path")
+            .addRequestParameter("userId:eq", "test value")
+            .build();
+
+    String uriTemplate = requestValues.getUriTemplate();
+    assertThat(uriTemplate).isEqualTo("/path?{userId%3Aeq}={userId%3Aeq[0]}");
+
+    URI uri = UriComponentsBuilder.forURIString(uriTemplate)
+            .encode()
+            .build(requestValues.getUriVariables());
+
+    assertThat(uri.toString())
+            .isEqualTo("/path?userId%3Aeq=test%20value");
+  }
+
+  @Test
   void queryParamsWithPreparedUri() {
 
     URI uri = URI.create("/my%20path");
