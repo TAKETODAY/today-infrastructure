@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import infra.context.properties.source.ConfigurationPropertyName.Form;
@@ -484,6 +485,21 @@ class ConfigurationPropertyNameTests {
     ConfigurationPropertyName name = ConfigurationPropertyName.of("foo.bar.baz");
     assertThat(name.subName(1)).hasToString("bar.baz");
     assertThat(name.subName(2)).hasToString("baz");
+  }
+
+  @Test
+  void subNameOfAdaptedNameWhenOffsetLessThanSizeShouldReturnSubName() {
+    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("MY_LOGGING_LEVEL_ONE", '_');
+    assertThat(name.subName(1)).hasToString("logging.level.one");
+    assertThat(name.subName(2)).hasToString("level.one");
+  }
+
+  @Test
+  void subNameOfAdaptedNameWithValueProcessorWhenOffsetLessThanSizeShouldReturnSubName() {
+    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("MY_LOGGING_LEVEL_ONE", '_',
+            (value) -> value.toString().toLowerCase(Locale.ENGLISH));
+    assertThat(name.subName(1)).hasToString("logging.level.one");
+    assertThat(name.subName(2)).hasToString("level.one");
   }
 
   @Test

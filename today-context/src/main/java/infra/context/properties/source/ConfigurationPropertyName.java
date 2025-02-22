@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -798,7 +798,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       ElementType[] type = new ElementType[size];
       System.arraycopy(this.type, 0, type, 0, this.size);
       System.arraycopy(additional.type, 0, type, this.size, additional.size);
-      CharSequence[] resolved = newResolved(size);
+      CharSequence[] resolved = newResolved(0, size);
       for (int i = 0; i < additional.size; i++) {
         resolved[this.size + i] = additional.get(i);
       }
@@ -806,13 +806,13 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     Elements chop(int size) {
-      CharSequence[] resolved = newResolved(size);
+      CharSequence[] resolved = newResolved(0, size);
       return new Elements(this.source, size, this.start, this.end, this.type, resolved);
     }
 
     Elements subElements(int offset) {
       int size = this.size - offset;
-      CharSequence[] resolved = newResolved(size);
+      CharSequence[] resolved = newResolved(offset, size);
       int[] start = new int[size];
       System.arraycopy(this.start, offset, start, 0, size);
       int[] end = new int[size];
@@ -822,10 +822,10 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return new Elements(this.source, size, start, end, type, resolved);
     }
 
-    private CharSequence[] newResolved(int size) {
+    private CharSequence[] newResolved(int offset, int size) {
       CharSequence[] resolved = new CharSequence[size];
       if (this.resolved != null) {
-        System.arraycopy(this.resolved, 0, resolved, 0, Math.min(size, this.size));
+        System.arraycopy(this.resolved, offset, resolved, 0, Math.min(size, this.size));
       }
       return resolved;
     }
