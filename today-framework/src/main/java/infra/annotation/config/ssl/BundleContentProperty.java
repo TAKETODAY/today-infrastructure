@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,12 @@
 
 package infra.annotation.config.ssl;
 
-import java.io.FileNotFoundException;
-import java.net.URL;
 import java.nio.file.Path;
 
+import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 import infra.core.ssl.pem.PemContent;
 import infra.lang.Assert;
-import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 
 /**
@@ -55,29 +54,20 @@ record BundleContentProperty(String name, String value) {
     return StringUtils.hasText(this.value);
   }
 
-  Path toWatchPath() {
-    return toPath();
-  }
-
-  private Path toPath() {
+  Path toWatchPath(ResourceLoader resourceLoader) {
     try {
-      URL url = toUrl();
-      Assert.state(isFileUrl(url), () -> "Value '%s' is not a file URL".formatted(url));
-      return Path.of(url.toURI()).toAbsolutePath();
+      Assert.state(!isPemContent(), "Value contains PEM content");
+      Resource resource = resourceLoader.getResource(this.value);
+      if (!resource.isFile()) {
+        throw new BundleContentNotWatchableException(this);
+      }
+      return Path.of(resource.getFile().getAbsolutePath());
     }
     catch (Exception ex) {
-      throw new IllegalStateException("Unable to convert value of property '%s' to a path".formatted(this.name),
-              ex);
+      if (ex instanceof BundleContentNotWatchableException bundleContentNotWatchableException) {
+        throw bundleContentNotWatchableException;
+      }
+      throw new IllegalStateException("Unable to convert value of property '%s' to a path".formatted(this.name), ex);
     }
   }
-
-  private URL toUrl() throws FileNotFoundException {
-    Assert.state(!isPemContent(), "Value contains PEM content");
-    return ResourceUtils.getURL(this.value);
-  }
-
-  private boolean isFileUrl(URL url) {
-    return "file".equalsIgnoreCase(url.getProtocol());
-  }
-
 }

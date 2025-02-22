@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,20 @@
 package infra.annotation.config.ssl;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 
+import infra.core.io.DefaultResourceLoader;
+import infra.core.io.ResourceLoader;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 
 /**
  * Tests for {@link BundleContentProperty}.
@@ -37,9 +45,6 @@ class BundleContentPropertyTests {
           -----BEGIN CERTIFICATE-----
           -----END CERTIFICATE-----
           """;
-
-  @TempDir
-  Path temp;
 
   @Test
   void isPemContentWhenValueIsPemTextReturnsTrue() {
@@ -74,15 +79,34 @@ class BundleContentPropertyTests {
   @Test
   void toWatchPathWhenNotPathThrowsException() {
     BundleContentProperty property = new BundleContentProperty("name", PEM_TEXT);
-    assertThatIllegalStateException().isThrownBy(property::toWatchPath)
+    assertThatIllegalStateException().isThrownBy(() -> property.toWatchPath(new DefaultResourceLoader()))
             .withMessage("Unable to convert value of property 'name' to a path");
   }
 
   @Test
-  void toWatchPathWhenPathReturnsPath() {
-    Path file = this.temp.toAbsolutePath().resolve("file.txt");
+  void toWatchPathWhenPathReturnsPath() throws URISyntaxException {
+    URL resource = getClass().getResource("keystore.jks");
+    Path file = Path.of(resource.toURI()).toAbsolutePath();
     BundleContentProperty property = new BundleContentProperty("name", file.toString());
-    assertThat(property.toWatchPath()).isEqualTo(file);
+    assertThat(property.toWatchPath(new DefaultResourceLoader())).isEqualTo(file);
+  }
+
+  @Test
+  void toWatchPathUsesResourceLoader() throws URISyntaxException {
+    URL resource = getClass().getResource("keystore.jks");
+    Path file = Path.of(resource.toURI()).toAbsolutePath();
+    BundleContentProperty property = new BundleContentProperty("name", file.toString());
+    ResourceLoader resourceLoader = spy(new DefaultResourceLoader());
+    assertThat(property.toWatchPath(resourceLoader)).isEqualTo(file);
+    then(resourceLoader).should(atLeastOnce()).getResource(file.toString());
+  }
+
+  @Test
+  void shouldThrowBundleContentNotWatchableExceptionIfContentIsNotWatchable() {
+    BundleContentProperty property = new BundleContentProperty("name", "https://example.com/");
+    assertThatExceptionOfType(BundleContentNotWatchableException.class)
+            .isThrownBy(() -> property.toWatchPath(new DefaultResourceLoader()))
+            .withMessageContaining("Only 'file:' resources are watchable");
   }
 
 }

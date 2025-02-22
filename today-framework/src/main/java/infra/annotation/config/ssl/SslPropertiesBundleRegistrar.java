@@ -109,7 +109,7 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean
   private Set<Path> watchedPaths(List<BundleContentProperty> properties) {
     return properties.stream()
             .filter(BundleContentProperty::hasValue)
-            .map(BundleContentProperty::toWatchPath)
+            .map(content -> content.toWatchPath(this.resourceLoader))
             .collect(Collectors.toSet());
   }
 
