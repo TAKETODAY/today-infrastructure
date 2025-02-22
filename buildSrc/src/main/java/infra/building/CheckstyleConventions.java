@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public class CheckstyleConventions {
       project.getPlugins().apply(CheckstylePlugin.class);
       project.getTasks().withType(Checkstyle.class).forEach(checkstyle -> checkstyle.getMaxHeapSize().set("1g"));
       CheckstyleExtension checkstyle = project.getExtensions().getByType(CheckstyleExtension.class);
-      checkstyle.setToolVersion("10.20.1");
+      checkstyle.setToolVersion("10.20.2");
       checkstyle.getConfigDirectory().set(project.getRootProject().file("checkstyle"));
     });
   }
