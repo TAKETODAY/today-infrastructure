@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -1089,6 +1090,9 @@ final class HierarchicalUriComponents extends UriComponents {
       Object value = this.delegate.getValue(name);
       if (ObjectUtils.isArray(value)) {
         value = StringUtils.arrayToCommaDelimitedString(ObjectUtils.toObjectArray(value));
+      }
+      else if (value instanceof Collection<?> collection) {
+        value = StringUtils.collectionToCommaDelimitedString(collection);
       }
       return value;
     }
