@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,8 +48,12 @@ public class InvalidConfigurationPropertyValueException extends RuntimeException
    * Starts with an upper-case and ends with a dot. Several sentences and carriage
    * returns are allowed.
    */
-  public InvalidConfigurationPropertyValueException(String name, @Nullable Object value, @Nullable String reason) {
-    super("Property " + name + " with value '" + value + "' is invalid: " + reason);
+  public InvalidConfigurationPropertyValueException(String name, Object value, String reason) {
+    this(name, value, reason, null);
+  }
+
+  InvalidConfigurationPropertyValueException(String name, Object value, String reason, @Nullable Throwable cause) {
+    super("Property " + name + " with value '" + value + "' is invalid: " + reason, cause);
     Assert.notNull(name, "Name is required");
     this.name = name;
     this.value = value;

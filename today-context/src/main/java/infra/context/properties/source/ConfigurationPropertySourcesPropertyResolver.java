@@ -17,6 +17,7 @@
 
 package infra.context.properties.source;
 
+import infra.core.conversion.ConversionFailedException;
 import infra.core.env.AbstractPropertyResolver;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
@@ -59,16 +60,19 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
     return this.defaultResolver.containsProperty(key);
   }
 
+  @Nullable
   @Override
   public String getProperty(String key) {
     return getProperty(key, String.class, true);
   }
 
+  @Nullable
   @Override
   public <T> T getProperty(String key, Class<T> targetValueType) {
     return getProperty(key, targetValueType, true);
   }
 
+  @Nullable
   @Override
   protected String getPropertyAsRawString(String key) {
     return getProperty(key, String.class, false);
@@ -83,7 +87,14 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
     if (resolveNestedPlaceholders && value instanceof String) {
       value = resolveNestedPlaceholders((String) value);
     }
-    return convertValueIfNecessary(value, targetValueType);
+    try {
+      return convertValueIfNecessary(value, targetValueType);
+    }
+    catch (ConversionFailedException ex) {
+      Exception wrappedCause = new InvalidConfigurationPropertyValueException(key, value,
+              "Failed to convert to type " + ex.getTargetType(), ex.getCause());
+      throw new ConversionFailedException(ex.getSourceType(), ex.getTargetType(), ex.getValue(), wrappedCause);
+    }
   }
 
   @Nullable
