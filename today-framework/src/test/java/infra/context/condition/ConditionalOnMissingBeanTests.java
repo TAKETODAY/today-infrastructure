@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,6 +135,13 @@ class ConditionalOnMissingBeanTests {
               assertThat(context).hasBean("example");
               assertThat(context.getBean("foo")).isEqualTo("foo");
             });
+  }
+
+  @Test
+  void testAnnotationOnMissingBeanConditionOnMethodWhenNoAnnotatedBeans() {
+    // There are no beans with @TestAnnotation but there is an UnrelatedExampleBean
+    this.contextRunner.withUserConfiguration(UnrelatedExampleBeanConfiguration.class, OnAnnotationMethodConfiguration.class)
+            .run((context) -> assertThat(context).hasBean("conditional"));
   }
 
   @Test
@@ -666,6 +673,42 @@ class ConditionalOnMissingBeanTests {
     @Bean
     ExampleBean exampleBean() {
       return new ExampleBean("test");
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class UnrelatedExampleBeanConfiguration {
+
+    @Bean
+    UnrelatedExampleBean unrelatedExampleBean() {
+      return new UnrelatedExampleBean("test");
+    }
+
+  }
+
+  static class UnrelatedExampleBean {
+
+    private final String value;
+
+    UnrelatedExampleBean(String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return this.value;
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class OnAnnotationMethodConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(annotation = TestAnnotation.class)
+    UnrelatedExampleBean conditional() {
+      return new UnrelatedExampleBean("conditional");
     }
 
   }

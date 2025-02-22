@@ -528,7 +528,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       this.strategy = annotations.get(annotationType).getValue("search", SearchStrategy.class);
       Set<String> types = extractTypes(attributes);
       BeanTypeDeductionException deductionException = null;
-      if (types.isEmpty() && this.names.isEmpty()) {
+      if (types.isEmpty() && this.names.isEmpty() && this.annotations.isEmpty()) {
         try {
           types = deducedBeanType(context, metadata);
         }
@@ -583,7 +583,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       return resolved;
     }
 
-    protected void validate(BeanTypeDeductionException ex) {
+    protected void validate(@Nullable BeanTypeDeductionException ex) {
       if (!hasAtLeastOneElement(this.types, this.names, this.annotations)) {
         String message = getAnnotationName() + " did not specify a bean using type, name or annotation";
         if (ex == null) {
@@ -734,7 +734,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
 
     @Override
-    protected void validate(BeanTypeDeductionException ex) {
+    protected void validate(@Nullable BeanTypeDeductionException ex) {
       if (types.size() != 1) {
         throw new IllegalArgumentException("%s annotations must specify only one type (got %s)"
                 .formatted(getAnnotationName(), StringUtils.collectionToCommaDelimitedString(types)));
