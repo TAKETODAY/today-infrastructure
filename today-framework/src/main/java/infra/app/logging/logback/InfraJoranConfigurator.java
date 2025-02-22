@@ -60,6 +60,7 @@ import infra.aot.hint.TypeReference;
 import infra.app.logging.LoggingStartupContext;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
+import infra.context.aot.AbstractAotProcessor;
 import infra.core.NativeDetector;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
@@ -141,7 +142,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
   }
 
   private boolean isAotProcessingInProgress() {
-    return Boolean.getBoolean("infra.aot.processing");
+    return Boolean.getBoolean(AbstractAotProcessor.AOT_PROCESSING);
   }
 
   static final class LogbackConfigurationAotContribution implements BeanFactoryInitializationAotContribution {
