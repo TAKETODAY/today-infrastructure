@@ -84,7 +84,7 @@ public abstract class FilteringInfraCondition extends InfraCondition
 
   protected abstract ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata);
 
-  protected final List<String> filter(Collection<String> classNames, ClassNameFilter classNameFilter, @Nullable ClassLoader classLoader) {
+  protected final List<String> filter(@Nullable Collection<String> classNames, ClassNameFilter classNameFilter, @Nullable ClassLoader classLoader) {
     if (CollectionUtils.isEmpty(classNames)) {
       return Collections.emptyList();
     }

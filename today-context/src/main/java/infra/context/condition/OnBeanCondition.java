@@ -37,6 +37,7 @@ import java.util.function.Predicate;
 
 import infra.aop.scope.ScopedProxyUtils;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.HierarchicalBeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
@@ -86,6 +87,11 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Override
+  public int getOrder() {
+    return LOWEST_PRECEDENCE;
+  }
+
+  @Override
   protected final ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
@@ -103,7 +109,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return outcomes;
   }
 
-  private ConditionOutcome getOutcome(Set<String> requiredBeanTypes, Class<? extends Annotation> annotation) {
+  @Nullable
+  private ConditionOutcome getOutcome(@Nullable Set<String> requiredBeanTypes, Class<? extends Annotation> annotation) {
     List<String> missing = filter(requiredBeanTypes, ClassNameFilter.MISSING, getBeanClassLoader());
     if (!missing.isEmpty()) {
       ConditionMessage message = ConditionMessage.forCondition(annotation)
@@ -250,7 +257,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return matchedNames;
   }
 
-  private boolean isCandidate(String name, BeanDefinition definition, Set<String> ignoredBeans) {
+  private boolean isCandidate(String name, @Nullable BeanDefinition definition, Set<String> ignoredBeans) {
     return (!ignoredBeans.contains(name))
             && (definition == null || (definition.isAutowireCandidate() && isDefaultCandidate(definition)));
   }
@@ -292,8 +299,9 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result != null ? result : Collections.emptyMap();
   }
 
+  @Nullable
   private Map<String, BeanDefinition> collectBeanDefinitionsForType(BeanFactory beanFactory,
-          boolean considerHierarchy, Class<?> type, Set<Class<?>> parameterizedContainers, Map<String, BeanDefinition> result) {
+          boolean considerHierarchy, Class<?> type, Set<Class<?>> parameterizedContainers, @Nullable Map<String, BeanDefinition> result) {
 
     result = putAll(result, beanFactory.getBeanNamesForType(type, true, false), beanFactory);
     for (Class<?> container : parameterizedContainers) {
@@ -323,12 +331,13 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @SuppressWarnings("unchecked")
-  private Class<? extends Annotation> resolveAnnotationType(ClassLoader classLoader, String type) throws ClassNotFoundException {
+  private Class<? extends Annotation> resolveAnnotationType(@Nullable ClassLoader classLoader, String type) throws ClassNotFoundException {
     return (Class<? extends Annotation>) resolve(type, classLoader);
   }
 
+  @Nullable
   private Map<String, BeanDefinition> collectBeanDefinitionsForAnnotation(BeanFactory beanFactory,
-          Class<? extends Annotation> annotationType, boolean considerHierarchy, Map<String, BeanDefinition> result) {
+          Class<? extends Annotation> annotationType, boolean considerHierarchy, @Nullable Map<String, BeanDefinition> result) {
     result = putAll(result, getBeanNamesForAnnotation(beanFactory, annotationType), beanFactory);
     if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
       BeanFactory parent = hierarchical.getParentBeanFactory();
@@ -457,7 +466,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return null;
   }
 
-  private static Set<String> addAll(Set<String> result, Collection<String> additional) {
+  @Nullable
+  private static Set<String> addAll(@Nullable Set<String> result, Collection<String> additional) {
     if (CollectionUtils.isEmpty(additional)) {
       return result;
     }
@@ -466,7 +476,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  private static Map<String, BeanDefinition> putAll(Map<String, BeanDefinition> result, Collection<String> beanNames, BeanFactory beanFactory) {
+  @Nullable
+  private static Map<String, BeanDefinition> putAll(@Nullable Map<String, BeanDefinition> result, Collection<String> beanNames, BeanFactory beanFactory) {
     if (CollectionUtils.isEmpty(beanNames)) {
       return result;
     }
@@ -475,12 +486,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
     for (String beanName : beanNames) {
       if (beanFactory instanceof ConfigurableBeanFactory clbf) {
-        try {
-          result.put(beanName, clbf.getBeanDefinition(beanName));
-        }
-        catch (NoSuchBeanDefinitionException ex) {
-          result.put(beanName, null);
-        }
+        result.put(beanName, getBeanDefinition(beanName, clbf));
       }
       else {
         result.put(beanName, null);
@@ -489,9 +495,17 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE;
+  @Nullable
+  private static BeanDefinition getBeanDefinition(String beanName, ConfigurableBeanFactory beanFactory) {
+    try {
+      return beanFactory.getBeanDefinition(beanName);
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      if (BeanFactoryUtils.isFactoryDereference(beanName)) {
+        return getBeanDefinition(BeanFactoryUtils.transformedBeanName(beanName), beanFactory);
+      }
+    }
+    return null;
   }
 
   /**
@@ -623,6 +637,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       }
     }
 
+    @Nullable
     private Class<?> getReturnType(ConditionContext context, MethodMetadata metadata)
             throws ClassNotFoundException, LinkageError {
       // Safe to load at this point since we are in the REGISTER_BEAN phase
@@ -643,7 +658,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       return false;
     }
 
-    private Class<?> getReturnTypeGeneric(MethodMetadata metadata, ClassLoader classLoader)
+    @Nullable
+    private Class<?> getReturnTypeGeneric(MethodMetadata metadata, @Nullable ClassLoader classLoader)
             throws ClassNotFoundException, LinkageError {
       Class<?> declaringClass = resolve(metadata.getDeclaringClassName(), classLoader);
       Method beanMethod = findBeanMethod(declaringClass, metadata.getMethodName());
