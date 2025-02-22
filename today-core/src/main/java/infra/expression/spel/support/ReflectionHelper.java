@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -325,8 +325,8 @@ public abstract class ReflectionHelper {
                 || (sourceType.isArray() && !sourceType.isAssignableTo(targetType))
                 || (argument instanceof List)) {
 
-          TypeDescriptor targetTypeToUse =
-                  (sourceType.isArray() || argument instanceof List ? targetType : componentTypeDesc);
+          TypeDescriptor targetTypeToUse = (sourceType.isArray() || argument instanceof List ||
+                  converter.canConvert(sourceType, targetType) ? targetType : componentTypeDesc);
           arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetTypeToUse);
         }
         // Possible outcomes of the above if-else block:
@@ -427,8 +427,8 @@ public abstract class ReflectionHelper {
                 (sourceType.isArray() && !sourceType.isAssignableTo(varargsArrayType)) ||
                 (argument instanceof List)) {
 
-          TypeDescriptor targetTypeToUse =
-                  (sourceType.isArray() || argument instanceof List ? varargsArrayType : varargsComponentType);
+          TypeDescriptor targetTypeToUse = (sourceType.isArray() || argument instanceof List ||
+                  converter.canConvert(sourceType, varargsArrayType) ? varargsArrayType : varargsComponentType);
           arguments[varargsPosition] = converter.convertValue(argument, sourceType, targetTypeToUse);
         }
         // Possible outcomes of the above if-else block:
