@@ -29,6 +29,7 @@ import infra.core.Ordered;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.lang.Nullable;
 import infra.util.MultiValueMap;
+import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
 /**
@@ -121,7 +122,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
     return candidates;
   }
 
-  private void addAll(List<String> list, List<Object> itemsToAdd) {
+  private void addAll(List<String> list, @Nullable List<Object> itemsToAdd) {
     if (itemsToAdd != null) {
       for (Object item : itemsToAdd) {
         Collections.addAll(list, (String[]) item);
@@ -140,22 +141,26 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
 
   }
 
-  private static final class ThreadedOutcomesResolver implements OutcomesResolver, Runnable {
+  private static final class ThreadedOutcomesResolver implements OutcomesResolver {
 
     private final Thread thread;
-    private final OutcomesResolver outcomesResolver;
 
+    @Nullable
     private volatile ConditionOutcome[] outcomes;
 
-    private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
-      this.thread = new Thread(this);
-      this.outcomesResolver = outcomesResolver;
-      this.thread.start();
-    }
+    @Nullable
+    private volatile Throwable failure;
 
-    @Override
-    public void run() {
-      this.outcomes = outcomesResolver.resolveOutcomes();
+    private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
+      this.thread = new Thread(() -> {
+        try {
+          this.outcomes = outcomesResolver.resolveOutcomes();
+        }
+        catch (Throwable ex) {
+          this.failure = ex;
+        }
+      });
+      this.thread.start();
     }
 
     @Override
@@ -166,13 +171,17 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
       catch (InterruptedException ex) {
         Thread.currentThread().interrupt();
       }
-      return this.outcomes;
+      Throwable failure = this.failure;
+      if (failure != null) {
+        ReflectionUtils.rethrowRuntimeException(failure);
+      }
+      ConditionOutcome[] outcomes = this.outcomes;
+      return outcomes != null ? outcomes : new ConditionOutcome[0];
     }
 
   }
 
-  private record StandardOutcomesResolver(
-          String[] configClasses, int start, int end,
+  private record StandardOutcomesResolver(String[] configClasses, int start, int end,
           AutoConfigurationMetadata configMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
 
     @Override

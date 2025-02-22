@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import infra.util.StringUtils;
  * @since 4.0 2022/2/1 02:48
  */
 public class AutoConfigurationMetadata {
+
   protected static final String PATH = "META-INF/infra-autoconfigure-metadata.properties";
 
   private final Properties properties;
@@ -62,6 +63,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
+  @Nullable
   public Integer getInteger(String className, String key) {
     return getInteger(className, key, null);
   }
@@ -74,7 +76,8 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  public Integer getInteger(String className, String key, Integer defaultValue) {
+  @Nullable
+  public Integer getInteger(String className, String key, @Nullable Integer defaultValue) {
     String value = get(className, key);
     return value != null ? Integer.valueOf(value) : defaultValue;
   }
@@ -86,6 +89,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
+  @Nullable
   public Set<String> getSet(String className, String key) {
     return getSet(className, key, null);
   }
@@ -98,7 +102,8 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  public Set<String> getSet(String className, String key, Set<String> defaultValue) {
+  @Nullable
+  public Set<String> getSet(String className, String key, @Nullable Set<String> defaultValue) {
     String value = get(className, key);
     return value != null ? StringUtils.commaDelimitedListToSet(value) : defaultValue;
   }
@@ -110,6 +115,7 @@ public class AutoConfigurationMetadata {
    * @param key the meta-data key
    * @return the meta-data value or {@code null}
    */
+  @Nullable
   public String get(String className, String key) {
     return get(className, key, null);
   }
@@ -122,7 +128,8 @@ public class AutoConfigurationMetadata {
    * @param defaultValue the default value
    * @return the meta-data value or {@code defaultValue}
    */
-  public String get(String className, String key, String defaultValue) {
+  @Nullable
+  public String get(String className, String key, @Nullable String defaultValue) {
     String value = this.properties.getProperty(className + "." + key);
     return value != null ? value : defaultValue;
   }
@@ -136,8 +143,8 @@ public class AutoConfigurationMetadata {
   public static AutoConfigurationMetadata load(@Nullable ClassLoader classLoader, String path) {
     try {
       Enumeration<URL> urls = classLoader != null
-                              ? classLoader.getResources(path)
-                              : ClassLoader.getSystemResources(path);
+              ? classLoader.getResources(path)
+              : ClassLoader.getSystemResources(path);
       Properties properties = new Properties();
       while (urls.hasMoreElements()) {
         properties.putAll(PropertiesUtils.loadProperties(new UrlResource(urls.nextElement())));
