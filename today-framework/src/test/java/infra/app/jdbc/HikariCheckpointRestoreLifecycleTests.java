@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import infra.context.ConfigurableApplicationContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -47,7 +49,7 @@ class HikariCheckpointRestoreLifecycleTests {
     config.setJdbcUrl("jdbc:hsqldb:mem:test-" + UUID.randomUUID());
     config.setPoolName("lifecycle-tests");
     this.dataSource = new HikariDataSource(config);
-    this.lifecycle = new HikariCheckpointRestoreLifecycle(this.dataSource);
+    this.lifecycle = new HikariCheckpointRestoreLifecycle(this.dataSource, mock(ConfigurableApplicationContext.class));
   }
 
   @Test
@@ -88,7 +90,7 @@ class HikariCheckpointRestoreLifecycleTests {
   @Test
   void startHasNoEffectWhenDataSourceIsNotAHikariDataSource() {
     HikariCheckpointRestoreLifecycle nonHikariLifecycle = new HikariCheckpointRestoreLifecycle(
-            mock(DataSource.class));
+            mock(DataSource.class), mock(ConfigurableApplicationContext.class));
     assertThat(nonHikariLifecycle.isRunning()).isFalse();
     nonHikariLifecycle.start();
     assertThat(nonHikariLifecycle.isRunning()).isFalse();
@@ -97,7 +99,7 @@ class HikariCheckpointRestoreLifecycleTests {
   @Test
   void stopHasNoEffectWhenDataSourceIsNotAHikariDataSource() {
     HikariCheckpointRestoreLifecycle nonHikariLifecycle = new HikariCheckpointRestoreLifecycle(
-            mock(DataSource.class));
+            mock(DataSource.class), mock(ConfigurableApplicationContext.class));
     assertThat(nonHikariLifecycle.isRunning()).isFalse();
     nonHikariLifecycle.stop();
     assertThat(nonHikariLifecycle.isRunning()).isFalse();

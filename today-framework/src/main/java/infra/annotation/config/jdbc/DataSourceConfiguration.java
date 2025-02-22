@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import infra.app.jdbc.HikariCheckpointRestoreLifecycle;
+import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.context.condition.ConditionalOnCheckpointRestore;
 import infra.context.condition.ConditionalOnClass;
@@ -73,8 +74,9 @@ abstract class DataSourceConfiguration {
 
     @Component
     @ConditionalOnCheckpointRestore
-    static HikariCheckpointRestoreLifecycle hikariCheckpointRestoreLifecycle(DataSource hikariDataSource) {
-      return new HikariCheckpointRestoreLifecycle(hikariDataSource);
+    static HikariCheckpointRestoreLifecycle hikariCheckpointRestoreLifecycle(DataSource hikariDataSource,
+            ConfigurableApplicationContext applicationContext) {
+      return new HikariCheckpointRestoreLifecycle(hikariDataSource, applicationContext);
     }
 
   }

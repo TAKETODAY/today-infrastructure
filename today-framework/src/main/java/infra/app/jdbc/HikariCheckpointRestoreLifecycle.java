@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import java.util.function.Function;
 
 import javax.sql.DataSource;
 
+import infra.context.ConfigurableApplicationContext;
 import infra.context.Lifecycle;
 import infra.jdbc.config.DataSourceUnwrapper;
 import infra.lang.Assert;
@@ -74,6 +75,9 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
   @Nullable
   private final HikariDataSource dataSource;
 
+  @Nullable
+  private final ConfigurableApplicationContext applicationContext;
+
   /**
    * Creates a new {@code HikariCheckpointRestoreLifecycle} that will allow the given
    * {@code dataSource} to participate in checkpoint-restore. The {@code dataSource} is
@@ -81,10 +85,12 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
    * unwrapping is not possible, the lifecycle will have no effect.
    *
    * @param dataSource the checkpoint-restore participant
+   * @param applicationContext the application context
    */
-  public HikariCheckpointRestoreLifecycle(DataSource dataSource) {
+  public HikariCheckpointRestoreLifecycle(DataSource dataSource, @Nullable ConfigurableApplicationContext applicationContext) {
     this.dataSource = DataSourceUnwrapper.unwrap(dataSource, HikariConfigMXBean.class, HikariDataSource.class);
-    this.hasOpenConnections = pool -> {
+    this.applicationContext = applicationContext;
+    this.hasOpenConnections = (pool) -> {
       ThreadPoolExecutor closeConnectionExecutor = (ThreadPoolExecutor) ReflectionUtils
               .getField(CLOSE_CONNECTION_EXECUTOR, pool);
       Assert.notNull(closeConnectionExecutor, "CloseConnectionExecutor was null");
@@ -113,13 +119,20 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
       logger.info("Suspending Hikari pool");
       this.dataSource.getHikariPoolMXBean().suspendPool();
     }
+    else {
+      if (this.applicationContext != null && !this.applicationContext.isClosed()) {
+        logger.warn("{} is not configured to allow pool suspension. "
+                + "This will cause problems when the application is check-pointed. "
+                + "Please configure allow-pool-suspension to fix this!", dataSource);
+      }
+    }
     closeConnections(dataSource, Duration.ofMillis(this.dataSource.getConnectionTimeout() + 250));
   }
 
   private void closeConnections(HikariDataSource dataSource, Duration shutdownTimeout) {
     logger.info("Evicting Hikari connections");
     dataSource.getHikariPoolMXBean().softEvictConnections();
-    logger.debug("Waiting for Hikari connections to be closed");
+    logger.debug("Waiting {} seconds for Hikari connections to be closed", shutdownTimeout.toSeconds());
     CompletableFuture<Void> allConnectionsClosed = CompletableFuture.runAsync(
             () -> waitForConnectionsToClose(dataSource));
     try {
