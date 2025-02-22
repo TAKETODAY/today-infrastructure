@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 package infra.app;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
@@ -100,16 +101,17 @@ class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextCl
   public void run() {
     Set<ConfigurableApplicationContext> contexts;
     Set<ConfigurableApplicationContext> closedContexts;
-    Set<Runnable> actions;
+    List<Handler> handlers;
     synchronized(ApplicationShutdownHook.class) {
       this.inProgress = true;
       contexts = new LinkedHashSet<>(this.contexts);
       closedContexts = new LinkedHashSet<>(this.closedContexts);
-      actions = new LinkedHashSet<>(this.handlers.actions);
+      handlers = new ArrayList<>(this.handlers.actions);
+      Collections.reverse(handlers);
     }
     contexts.forEach(this::closeAndWait);
     closedContexts.forEach(this::closeAndWait);
-    actions.forEach(Runnable::run);
+    handlers.forEach(Handler::run);
   }
 
   boolean isApplicationContextRegistered(ConfigurableApplicationContext context) {
@@ -182,7 +184,7 @@ class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextCl
    */
   class Handlers implements ApplicationShutdownHandlers {
 
-    public final Set<Runnable> actions = Collections.newSetFromMap(new IdentityHashMap<>());
+    public final Set<Handler> actions = new LinkedHashSet<>();
 
     @Override
     public void add(Runnable action) {
@@ -190,7 +192,7 @@ class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextCl
       addRuntimeShutdownHookIfNecessary();
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
-        actions.add(action);
+        this.actions.add(new Handler(action));
       }
     }
 
@@ -199,8 +201,38 @@ class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextCl
       Assert.notNull(action, "Action is required");
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
-        actions.remove(action);
+        actions.remove(new Handler(action));
       }
+    }
+
+  }
+
+  /**
+   * A single handler that uses object identity for {@link #equals(Object)} and
+   * {@link #hashCode()}.
+   *
+   * @param runnable the handler runner
+   */
+  record Handler(Runnable runnable) {
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(this.runnable);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      return this.runnable == ((Handler) obj).runnable;
+    }
+
+    void run() {
+      this.runnable.run();
     }
 
   }

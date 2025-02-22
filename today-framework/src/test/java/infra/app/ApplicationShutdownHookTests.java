@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.app;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -201,6 +204,23 @@ class ApplicationShutdownHookTests {
     assertThat(shutdownHook.isApplicationContextRegistered(context)).isTrue();
     shutdownHook.deregisterFailedApplicationContext(context);
     assertThat(shutdownHook.isApplicationContextRegistered(context)).isFalse();
+  }
+
+  @Test
+  void handlersRunInDeterministicOrderFromLastRegisteredToFirst() {
+    TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
+    Runnable r1 = mock(Runnable.class);
+    Runnable r2 = mock(Runnable.class);
+    Runnable r3 = mock(Runnable.class);
+    shutdownHook.handlers.add(r2);
+    shutdownHook.handlers.add(r1);
+    shutdownHook.handlers.add(r3);
+    shutdownHook.run();
+    InOrder ordered = inOrder(r1, r2, r3);
+    ordered.verify(r3).run();
+    ordered.verify(r1).run();
+    ordered.verify(r2).run();
+    ordered.verifyNoMoreInteractions();
   }
 
   static class TestApplicationShutdownHook extends ApplicationShutdownHook {
