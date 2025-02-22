@@ -25,6 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -79,13 +81,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   /** Maximum number of suppressed exceptions to preserve. */
   private static final int SUPPRESSED_EXCEPTIONS_LIMIT = 100;
 
-  /** Collection of suppressed Exceptions, available for associating related causes. */
-  @Nullable
-  private Set<Exception> suppressedExceptions;
-
-  /** Flag that indicates whether we're currently within destroySingletons. */
-  private boolean singletonsCurrentlyInDestruction = false;
-
   final ReentrantLock singletonLock = new ReentrantLock();
 
   /** Names of beans that are currently in creation. */
@@ -120,6 +115,22 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
   /** Custom callbacks for singleton creation/registration. */
   private final ConcurrentHashMap<String, Consumer<Object>> singletonCallbacks = new ConcurrentHashMap<>(16);
+
+  /** Specific lock for lenient creation tracking. */
+  private final Lock lenientCreationLock = new ReentrantLock();
+
+  /** Specific lock condition for lenient creation tracking. */
+  private final Condition lenientCreationFinished = this.lenientCreationLock.newCondition();
+
+  /** Names of beans that are currently in lenient creation. */
+  private final Set<String> singletonsInLenientCreation = new HashSet<>();
+
+  /** Flag that indicates whether we're currently within destroySingletons. */
+  private boolean singletonsCurrentlyInDestruction = false;
+
+  /** Collection of suppressed Exceptions, available for associating related causes. */
+  @Nullable
+  private Set<Exception> suppressedExceptions;
 
   @Override
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
@@ -248,6 +259,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     Boolean lockFlag = isCurrentThreadAllowedToHoldSingletonLock();
     boolean acquireLock = !Boolean.FALSE.equals(lockFlag);
     boolean locked = acquireLock && this.singletonLock.tryLock();
+    boolean lenient = false;
     try {
       Object singletonObject = this.singletonObjects.get(beanName);
       if (singletonObject == null) {
@@ -260,6 +272,14 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
             if (log.isInfoEnabled()) {
               log.info("Creating singleton bean '{}' in thread \"{}\" while other thread holds singleton lock for other beans {}",
                       beanName, Thread.currentThread().getName(), this.singletonsCurrentlyInCreation);
+            }
+            lenient = true;
+            this.lenientCreationLock.lock();
+            try {
+              this.singletonsInLenientCreation.add(beanName);
+            }
+            finally {
+              this.lenientCreationLock.unlock();
             }
           }
           else {
@@ -288,6 +308,26 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
           beforeSingletonCreation(beanName);
         }
         catch (BeanCurrentlyInCreationException ex) {
+          this.lenientCreationLock.lock();
+          try {
+            while ((singletonObject = this.singletonObjects.get(beanName)) == null) {
+              if (!this.singletonsInLenientCreation.contains(beanName)) {
+                break;
+              }
+              try {
+                this.lenientCreationFinished.await();
+              }
+              catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+              }
+            }
+          }
+          finally {
+            this.lenientCreationLock.unlock();
+          }
+          if (singletonObject != null) {
+            return singletonObject;
+          }
           if (locked) {
             throw ex;
           }
@@ -334,7 +374,16 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
           afterSingletonCreation(beanName);
         }
         if (newSingleton) {
-          addSingleton(beanName, singletonObject);
+          try {
+            addSingleton(beanName, singletonObject);
+          }
+          catch (IllegalStateException ex) {
+            // Leniently accept same instance if implicitly appeared.
+            Object object = this.singletonObjects.get(beanName);
+            if (singletonObject != object) {
+              throw ex;
+            }
+          }
         }
       }
       return singletonObject;
@@ -342,6 +391,16 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     finally {
       if (locked) {
         this.singletonLock.unlock();
+      }
+      if (lenient) {
+        this.lenientCreationLock.lock();
+        try {
+          this.singletonsInLenientCreation.remove(beanName);
+          this.lenientCreationFinished.signalAll();
+        }
+        finally {
+          this.lenientCreationLock.unlock();
+        }
       }
     }
   }
