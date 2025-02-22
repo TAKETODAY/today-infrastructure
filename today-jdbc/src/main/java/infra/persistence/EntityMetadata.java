@@ -119,7 +119,7 @@ public class EntityMetadata {
   }
 
   /**
-   * FInd property
+   * Find property
    */
   @Nullable
   public EntityProperty findProperty(String name) {
