@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import infra.beans.BeanMetadataElement;
 import infra.beans.BeanProperty;
 import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.TypedStringValue;
 import infra.lang.Assert;
@@ -282,6 +283,26 @@ abstract class AutowireUtils {
   public static boolean isAutowireCandidate(ConfigurableBeanFactory beanFactory, String beanName) {
     try {
       return beanFactory.getMergedBeanDefinition(beanName).isAutowireCandidate();
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      // A manually registered singleton instance not backed by a BeanDefinition.
+      return true;
+    }
+  }
+
+  /**
+   * Check the default-candidate status for the specified bean.
+   *
+   * @param beanFactory the bean factory
+   * @param beanName the name of the bean to check
+   * @return whether the specified bean qualifies as a default candidate
+   * @see AbstractBeanDefinition#isDefaultCandidate()
+   * @since 5.0
+   */
+  public static boolean isDefaultCandidate(ConfigurableBeanFactory beanFactory, String beanName) {
+    try {
+      BeanDefinition mbd = beanFactory.getMergedBeanDefinition(beanName);
+      return (!(mbd instanceof AbstractBeanDefinition abd) || abd.isDefaultCandidate());
     }
     catch (NoSuchBeanDefinitionException ex) {
       // A manually registered singleton instance not backed by a BeanDefinition.
