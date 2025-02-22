@@ -152,7 +152,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   }
 
   /**
-   * Returns the value of the {@code Sec-WebSocket-Key} header.
+   * Returns the value of the {@code Sec-WebSocket-Protocol} header.
    *
    * @return the value of the header
    */

@@ -125,6 +125,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     return StringUtils.toStringArray(this.supportedProtocols);
   }
 
+  @Nullable
   @Override
   public final WebSocketSession doHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException {
@@ -143,29 +144,33 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
         }
         return null;
       }
-      if (!"WebSocket".equalsIgnoreCase(headers.getUpgrade())) {
-        handleInvalidUpgradeHeader(request);
-        return null;
+
+      if (HttpMethod.GET == method) {
+        if (!"WebSocket".equalsIgnoreCase(headers.getUpgrade())) {
+          handleInvalidUpgradeHeader(request);
+          return null;
+        }
+        List<String> connection = headers.getConnection();
+        if (!connection.contains("Upgrade") && !connection.contains("upgrade")) {
+          handleInvalidConnectHeader(request);
+          return null;
+        }
+        String key = headers.getSecWebSocketKey();
+        if (key == null) {
+          if (logger.isErrorEnabled()) {
+            logger.error("Missing \"Sec-WebSocket-Key\" header");
+          }
+          request.setStatus(HttpStatus.BAD_REQUEST);
+          return null;
+        }
       }
-      List<String> connection = headers.getConnection();
-      if (!connection.contains("Upgrade") && !connection.contains("upgrade")) {
-        handleInvalidConnectHeader(request);
-        return null;
-      }
+
       if (!isWebSocketVersionSupported(headers)) {
         handleWebSocketVersionNotSupported(request);
         return null;
       }
       if (!isValidOrigin(request)) {
         request.setStatus(HttpStatus.FORBIDDEN);
-        return null;
-      }
-      String wsKey = headers.getSecWebSocketKey();
-      if (wsKey == null) {
-        if (logger.isErrorEnabled()) {
-          logger.error("Missing \"Sec-WebSocket-Key\" header");
-        }
-        request.setStatus(HttpStatus.BAD_REQUEST);
         return null;
       }
     }
