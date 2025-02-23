@@ -175,8 +175,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void sharedInstanceCannotBeModified() {
-    ApplicationConversionService instance = (ApplicationConversionService) ApplicationConversionService
-            .getSharedInstance();
+    ApplicationConversionService instance = ApplicationConversionService.getSharedInstance();
     assertUnmodifiableExceptionThrown(() -> instance.addPrinter(null));
     assertUnmodifiableExceptionThrown(() -> instance.addParser(null));
     assertUnmodifiableExceptionThrown(() -> instance.addFormatter(null));
@@ -302,7 +301,7 @@ class ApplicationConversionServiceTests {
   void addConverterFactoryBeanWithTypeConvertsUsingTypeInformation() {
     FormattingConversionService conversionService = new FormattingConversionService();
     Converter converter = (source) -> new ExampleRecord(source.toString());
-    ConverterFactory converterFactory  = new ConverterFactory() {
+    ConverterFactory converterFactory = new ConverterFactory() {
       @Override
       public Converter getConverter(Class targetType) {
         return converter;
