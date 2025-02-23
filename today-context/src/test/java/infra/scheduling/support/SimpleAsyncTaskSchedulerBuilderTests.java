@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
+import infra.core.task.TaskDecorator;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -131,6 +132,13 @@ class SimpleAsyncTaskSchedulerBuilderTests {
   void taskTerminationTimeoutShouldApply() {
     SimpleAsyncTaskScheduler scheduler = this.builder.taskTerminationTimeout(Duration.ofSeconds(1)).build();
     assertThat(scheduler).extracting("taskTerminationTimeout").isEqualTo(1000L);
+  }
+
+  @Test
+  void taskDecoratorShouldApply() {
+    TaskDecorator taskDecorator = mock(TaskDecorator.class);
+    SimpleAsyncTaskScheduler scheduler = this.builder.taskDecorator(taskDecorator).build();
+    assertThat(scheduler).extracting("taskDecorator").isSameAs(taskDecorator);
   }
 
 }

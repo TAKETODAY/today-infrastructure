@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import infra.app.LazyInitializationExcludeFilter;
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
@@ -31,6 +32,7 @@ import infra.context.condition.ConditionalOnThreading;
 import infra.context.condition.Threading;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
+import infra.core.task.TaskDecorator;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -65,7 +67,7 @@ public class TaskSchedulingAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   public static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
-          List<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
+          List<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers, ObjectProvider<TaskDecorator> taskDecorator) {
     TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
     ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
     builder = builder.poolSize(properties.getPool().getSize());
@@ -73,17 +75,20 @@ public class TaskSchedulingAutoConfiguration {
     builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
     builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
     builder = builder.customizers(threadPoolTaskSchedulerCustomizers);
+    builder = builder.taskDecorator(taskDecorator.getIfUnique());
     return builder;
   }
 
   @Component
   @ConditionalOnMissingBean
   public static SimpleAsyncTaskSchedulerBuilder simpleAsyncTaskSchedulerBuilder(Environment environment,
-          TaskSchedulingProperties properties, List<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+          ObjectProvider<TaskDecorator> taskDecorator, TaskSchedulingProperties properties,
+          List<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
     SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
     builder = builder.customizers(taskSchedulerCustomizers);
     builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
     builder = builder.concurrencyLimit(properties.getSimple().getConcurrencyLimit());
+    builder = builder.taskDecorator(taskDecorator.getIfUnique());
 
     var shutdown = properties.getShutdown();
     if (shutdown.isAwaitTermination()) {

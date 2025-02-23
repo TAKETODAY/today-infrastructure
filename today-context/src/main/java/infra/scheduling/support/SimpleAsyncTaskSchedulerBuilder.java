@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
@@ -58,18 +59,24 @@ public class SimpleAsyncTaskSchedulerBuilder {
   @Nullable
   private final Duration taskTerminationTimeout;
 
+  @Nullable
+  private final TaskDecorator taskDecorator;
+
   public SimpleAsyncTaskSchedulerBuilder() {
-    this(null, null,
+    this(null, null, null,
             null, null, null);
   }
 
-  private SimpleAsyncTaskSchedulerBuilder(@Nullable String threadNamePrefix, @Nullable Integer concurrencyLimit, @Nullable Boolean virtualThreads,
-          @Nullable Set<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers, @Nullable Duration taskTerminationTimeout) {
+  private SimpleAsyncTaskSchedulerBuilder(@Nullable String threadNamePrefix,
+          @Nullable Integer concurrencyLimit, @Nullable Boolean virtualThreads,
+          @Nullable Set<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers,
+          @Nullable Duration taskTerminationTimeout, @Nullable TaskDecorator taskDecorator) {
     this.threadNamePrefix = threadNamePrefix;
     this.concurrencyLimit = concurrencyLimit;
     this.virtualThreads = virtualThreads;
     this.customizers = taskSchedulerCustomizers;
     this.taskTerminationTimeout = taskTerminationTimeout;
+    this.taskDecorator = taskDecorator;
   }
 
   /**
@@ -80,7 +87,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder threadNamePrefix(String threadNamePrefix) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, this.virtualThreads,
-            customizers, taskTerminationTimeout);
+            customizers, taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -91,7 +98,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(Integer concurrencyLimit) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
-            customizers, taskTerminationTimeout);
+            customizers, taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -102,7 +109,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder virtualThreads(Boolean virtualThreads) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
-            customizers, taskTerminationTimeout);
+            customizers, taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -113,7 +120,19 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(Duration taskTerminationTimeout) {
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
-            customizers, taskTerminationTimeout);
+            customizers, taskTerminationTimeout, taskDecorator);
+  }
+
+  /**
+   * Set the task decorator to be used by the {@link SimpleAsyncTaskScheduler}.
+   *
+   * @param taskDecorator the task decorator to set
+   * @return a new builder instance
+   * @since 5.0
+   */
+  public SimpleAsyncTaskSchedulerBuilder taskDecorator(@Nullable TaskDecorator taskDecorator) {
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            customizers, taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -144,7 +163,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
   public SimpleAsyncTaskSchedulerBuilder customizers(Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
-            append(null, customizers), taskTerminationTimeout);
+            append(null, customizers), taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -173,7 +192,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
   public SimpleAsyncTaskSchedulerBuilder additionalCustomizers(Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
-            append(this.customizers, customizers), taskTerminationTimeout);
+            append(this.customizers, customizers), taskTerminationTimeout, taskDecorator);
   }
 
   /**
@@ -216,6 +235,11 @@ public class SimpleAsyncTaskSchedulerBuilder {
         customizer.customize(taskScheduler);
       }
     }
+
+    if (taskDecorator != null) {
+      taskScheduler.setTaskDecorator(taskDecorator);
+    }
+
     return taskScheduler;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -57,22 +58,27 @@ public class ThreadPoolTaskSchedulerBuilder {
   @Nullable
   private final Set<ThreadPoolTaskSchedulerCustomizer> customizers;
 
+  @Nullable
+  private final TaskDecorator taskDecorator;
+
   public ThreadPoolTaskSchedulerBuilder() {
     this.poolSize = null;
     this.awaitTermination = null;
     this.awaitTerminationPeriod = null;
     this.threadNamePrefix = null;
     this.customizers = null;
+    this.taskDecorator = null;
   }
 
   public ThreadPoolTaskSchedulerBuilder(@Nullable Integer poolSize, @Nullable Boolean awaitTermination,
           @Nullable Duration awaitTerminationPeriod, @Nullable String threadNamePrefix,
-          @Nullable Set<ThreadPoolTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+          @Nullable Set<ThreadPoolTaskSchedulerCustomizer> taskSchedulerCustomizers, @Nullable TaskDecorator taskDecorator) {
     this.poolSize = poolSize;
     this.awaitTermination = awaitTermination;
     this.awaitTerminationPeriod = awaitTerminationPeriod;
     this.threadNamePrefix = threadNamePrefix;
     this.customizers = taskSchedulerCustomizers;
+    this.taskDecorator = taskDecorator;
   }
 
   /**
@@ -83,7 +89,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    */
   public ThreadPoolTaskSchedulerBuilder poolSize(int poolSize) {
     return new ThreadPoolTaskSchedulerBuilder(poolSize, this.awaitTermination, this.awaitTerminationPeriod,
-            this.threadNamePrefix, this.customizers);
+            this.threadNamePrefix, this.customizers, taskDecorator);
   }
 
   /**
@@ -97,7 +103,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    */
   public ThreadPoolTaskSchedulerBuilder awaitTermination(boolean awaitTermination) {
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, awaitTermination, this.awaitTerminationPeriod,
-            this.threadNamePrefix, this.customizers);
+            this.threadNamePrefix, this.customizers, taskDecorator);
   }
 
   /**
@@ -112,7 +118,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    */
   public ThreadPoolTaskSchedulerBuilder awaitTerminationPeriod(@Nullable Duration awaitTerminationPeriod) {
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, awaitTerminationPeriod,
-            this.threadNamePrefix, this.customizers);
+            this.threadNamePrefix, this.customizers, taskDecorator);
   }
 
   /**
@@ -123,7 +129,19 @@ public class ThreadPoolTaskSchedulerBuilder {
    */
   public ThreadPoolTaskSchedulerBuilder threadNamePrefix(@Nullable String threadNamePrefix) {
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
-            threadNamePrefix, this.customizers);
+            threadNamePrefix, this.customizers, taskDecorator);
+  }
+
+  /**
+   * Set the {@link TaskDecorator} to be applied to the {@link ThreadPoolTaskScheduler}.
+   *
+   * @param taskDecorator the task decorator to set
+   * @return a new builder instance
+   * @since 5.0
+   */
+  public ThreadPoolTaskSchedulerBuilder taskDecorator(@Nullable TaskDecorator taskDecorator) {
+    return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
+            this.threadNamePrefix, this.customizers, taskDecorator);
   }
 
   /**
@@ -156,7 +174,7 @@ public class ThreadPoolTaskSchedulerBuilder {
   public ThreadPoolTaskSchedulerBuilder customizers(Iterable<? extends ThreadPoolTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
-            this.threadNamePrefix, append(null, customizers));
+            this.threadNamePrefix, append(null, customizers), taskDecorator);
   }
 
   /**
@@ -187,7 +205,7 @@ public class ThreadPoolTaskSchedulerBuilder {
   public ThreadPoolTaskSchedulerBuilder additionalCustomizers(Iterable<? extends ThreadPoolTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
-            this.threadNamePrefix, append(this.customizers, customizers));
+            this.threadNamePrefix, append(this.customizers, customizers), taskDecorator);
   }
 
   /**
@@ -231,6 +249,11 @@ public class ThreadPoolTaskSchedulerBuilder {
         customizer.customize(taskScheduler);
       }
     }
+
+    if (taskDecorator != null) {
+      taskScheduler.setTaskDecorator(taskDecorator);
+    }
+
     return taskScheduler;
   }
 

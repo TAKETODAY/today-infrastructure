@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
+import infra.core.task.TaskDecorator;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,15 +68,15 @@ class ThreadPoolTaskSchedulerBuilderTests {
   @Test
   void customizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.customizers((ThreadPoolTaskSchedulerCustomizer[]) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.customizers((ThreadPoolTaskSchedulerCustomizer[]) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
   void customizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.customizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.customizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -100,8 +101,8 @@ class ThreadPoolTaskSchedulerBuilderTests {
     ThreadPoolTaskSchedulerCustomizer customizer1 = mock(ThreadPoolTaskSchedulerCustomizer.class);
     ThreadPoolTaskSchedulerCustomizer customizer2 = mock(ThreadPoolTaskSchedulerCustomizer.class);
     ThreadPoolTaskScheduler scheduler = this.builder.customizers(customizer1)
-        .customizers(Collections.singleton(customizer2))
-        .build();
+            .customizers(Collections.singleton(customizer2))
+            .build();
     then(customizer1).shouldHaveNoInteractions();
     then(customizer2).should().customize(scheduler);
   }
@@ -109,15 +110,15 @@ class ThreadPoolTaskSchedulerBuilderTests {
   @Test
   void additionalCustomizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.additionalCustomizers((ThreadPoolTaskSchedulerCustomizer[]) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.additionalCustomizers((ThreadPoolTaskSchedulerCustomizer[]) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
   void additionalCustomizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.additionalCustomizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.additionalCustomizers((Set<ThreadPoolTaskSchedulerCustomizer>) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -125,10 +126,17 @@ class ThreadPoolTaskSchedulerBuilderTests {
     ThreadPoolTaskSchedulerCustomizer customizer1 = mock(ThreadPoolTaskSchedulerCustomizer.class);
     ThreadPoolTaskSchedulerCustomizer customizer2 = mock(ThreadPoolTaskSchedulerCustomizer.class);
     ThreadPoolTaskScheduler scheduler = this.builder.customizers(customizer1)
-        .additionalCustomizers(customizer2)
-        .build();
+            .additionalCustomizers(customizer2)
+            .build();
     then(customizer1).should().customize(scheduler);
     then(customizer2).should().customize(scheduler);
+  }
+
+  @Test
+  void taskDecoratorShouldApply() {
+    TaskDecorator taskDecorator = mock(TaskDecorator.class);
+    ThreadPoolTaskScheduler scheduler = this.builder.taskDecorator(taskDecorator).build();
+    assertThat(scheduler).extracting("taskDecorator").isSameAs(taskDecorator);
   }
 
 }
