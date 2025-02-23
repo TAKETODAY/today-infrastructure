@@ -30,6 +30,7 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnResource;
 import infra.context.condition.SearchStrategy;
+import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
 import infra.stereotype.Component;
 import infra.validation.MessageInterpolatorFactory;
@@ -50,6 +51,7 @@ import jakarta.validation.executable.ExecutableValidator;
  * @since 4.0
  */
 @DisableDIAutoConfiguration
+@EnableConfigurationProperties(ValidationProperties.class)
 @ConditionalOnClass(ExecutableValidator.class)
 @ConditionalOnResource("classpath:META-INF/services/jakarta.validation.spi.ValidationProvider")
 @Import(PrimaryDefaultValidatorPostProcessor.class)
