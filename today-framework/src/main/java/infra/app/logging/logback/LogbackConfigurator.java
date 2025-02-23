@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.app.logging.logback;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -57,17 +58,17 @@ class LogbackConfigurator {
     return this.context.getConfigurationLock();
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  void conversionRule(String conversionWord, Class<? extends Converter> converterClass) {
-    Assert.hasLength(conversionWord, "Conversion word must not be empty");
-    Assert.notNull(converterClass, "Converter class is required");
-    Map<String, String> registry = (Map<String, String>) this.context.getObject(
-            CoreConstants.PATTERN_RULE_REGISTRY);
+  @SuppressWarnings("unchecked")
+  <T extends Converter<?>> void conversionRule(String conversionWord, Class<T> converterClass, Supplier<T> converterSupplier) {
+    Assert.hasLength(conversionWord, "'conversionWord' must not be empty");
+    Assert.notNull(converterSupplier, "'converterSupplier' is required");
+    Map<String, Supplier<?>> registry = (Map<String, Supplier<?>>) this.context
+            .getObject(CoreConstants.PATTERN_RULE_REGISTRY_FOR_SUPPLIERS);
     if (registry == null) {
       registry = new HashMap<>();
-      this.context.putObject(CoreConstants.PATTERN_RULE_REGISTRY, registry);
+      this.context.putObject(CoreConstants.PATTERN_RULE_REGISTRY_FOR_SUPPLIERS, registry);
     }
-    registry.put(conversionWord, converterClass.getName());
+    registry.put(conversionWord, converterSupplier);
   }
 
   void appender(String name, Appender<?> appender) {

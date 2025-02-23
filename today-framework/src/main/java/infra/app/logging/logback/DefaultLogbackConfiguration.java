@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,11 +100,13 @@ class DefaultLogbackConfiguration {
   }
 
   private void defaults(LogbackConfigurator config) {
-    config.conversionRule("clr", ColorConverter.class);
-    config.conversionRule("correlationId", CorrelationIdConverter.class);
-    config.conversionRule("esb", EnclosedInSquareBracketsConverter.class);
-    config.conversionRule("wex", WhitespaceThrowableProxyConverter.class);
-    config.conversionRule("wEx", ExtendedWhitespaceThrowableProxyConverter.class);
+    config.conversionRule("clr", ColorConverter.class, ColorConverter::new);
+    config.conversionRule("correlationId", CorrelationIdConverter.class, CorrelationIdConverter::new);
+    config.conversionRule("esb", EnclosedInSquareBracketsConverter.class, EnclosedInSquareBracketsConverter::new);
+    config.conversionRule("wex", WhitespaceThrowableProxyConverter.class, WhitespaceThrowableProxyConverter::new);
+    config.conversionRule("wEx", ExtendedWhitespaceThrowableProxyConverter.class,
+            ExtendedWhitespaceThrowableProxyConverter::new);
+
     putProperty(config, "CONSOLE_LOG_PATTERN", CONSOLE_LOG_PATTERN);
     putProperty(config, "CONSOLE_LOG_CHARSET", "${CONSOLE_LOG_CHARSET:-" + DEFAULT_CHARSET + "}");
     putProperty(config, "CONSOLE_LOG_THRESHOLD", "${CONSOLE_LOG_THRESHOLD:-TRACE}");

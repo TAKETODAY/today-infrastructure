@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.app.logging.logback;
+
+import java.util.function.Supplier;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -42,24 +44,24 @@ class DebugLogbackConfigurator extends LogbackConfigurator {
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
-  public void conversionRule(String conversionWord, Class<? extends Converter> converterClass) {
-    info("Adding conversion rule of type '" + converterClass.getName() + "' for word '" + conversionWord + "'");
-    super.conversionRule(conversionWord, converterClass);
+  <T extends Converter<?>> void conversionRule(String conversionWord, Class<T> converterClass,
+          Supplier<T> converterSupplier) {
+    info("Adding conversion rule of type '%s' for word '%s'".formatted(converterClass.getName(), conversionWord));
+    super.conversionRule(conversionWord, converterClass, converterSupplier);
   }
 
   @Override
   public void appender(String name, Appender<?> appender) {
-    info("Adding appender '" + appender + "' named '" + name + "'");
+    info("Adding appender '%s' named '%s'".formatted(appender, name));
     super.appender(name, appender);
   }
 
   @Override
   public void logger(String name, @Nullable Level level,
           boolean additive, @Nullable Appender<ILoggingEvent> appender) {
-    info("Configuring logger '" + name + "' with level '" + level + "'. Additive: " + additive);
+    info("Configuring logger '%s' with level '%s'. Additive: %s".formatted(name, level, additive));
     if (appender != null) {
-      info("Adding appender '" + appender + "' to logger '" + name + "'");
+      info("Adding appender '%s' to logger '%s'".formatted(appender, name));
     }
     super.logger(name, level, additive, appender);
   }
