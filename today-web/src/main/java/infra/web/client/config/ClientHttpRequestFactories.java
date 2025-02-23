@@ -231,7 +231,7 @@ public abstract class ClientHttpRequestFactories {
     private static ReactorClientHttpRequestFactory createRequestFactory(@Nullable SslBundle sslBundle) {
       if (sslBundle != null) {
         var httpClient = reactor.netty.http.client.HttpClient.create()
-                .secure((ThrowingConsumer.of((spec) -> configureSsl(spec, sslBundle))));
+                .secure((ThrowingConsumer.of(spec -> configureSsl(spec, sslBundle))));
         return new ReactorClientHttpRequestFactory(httpClient);
       }
       return new ReactorClientHttpRequestFactory();

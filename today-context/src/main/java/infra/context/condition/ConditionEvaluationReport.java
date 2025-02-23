@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -253,6 +255,16 @@ public final class ConditionEvaluationReport {
         }
       }
       return true;
+    }
+
+    /**
+     * Return a {@link Stream} of the {@link ConditionAndOutcome} items.
+     *
+     * @return a stream of the {@link ConditionAndOutcome} items.
+     * @since 5.0
+     */
+    public Stream<ConditionAndOutcome> stream() {
+      return StreamSupport.stream(spliterator(), false);
     }
 
     @Override

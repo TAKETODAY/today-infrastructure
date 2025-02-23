@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,9 +29,8 @@ import infra.test.util.ReflectionTestUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2024/9/23 22:41
  */
-@ClassPathExclusions({ "httpclient5-*.jar" })
-class ClientHttpRequestFactoriesJdkTests
-        extends AbstractClientHttpRequestFactoriesTests<JdkClientHttpRequestFactory> {
+@ClassPathExclusions({ "httpclient5-*.jar", "reactor-netty-*.jar" })
+class ClientHttpRequestFactoriesJdkTests extends AbstractClientHttpRequestFactoriesTests<JdkClientHttpRequestFactory> {
 
   ClientHttpRequestFactoriesJdkTests() {
     super(JdkClientHttpRequestFactory.class);

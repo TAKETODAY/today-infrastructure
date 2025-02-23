@@ -17,7 +17,9 @@
 
 package infra.context.condition;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -27,74 +29,25 @@ import infra.core.env.Environment;
 
 /**
  * {@link Conditional @Conditional} that checks if the specified properties have a
- * specific value. By default the properties must be present in the {@link Environment}
- * and <strong>not</strong> equal to {@code false}. The {@link #havingValue()} and
+ * specific boolean value. By default, the properties must be present in the
+ * {@link infra.core.env.Environment} and equal to {@code true}. The {@link #havingValue()} and
  * {@link #matchIfMissing()} attributes allow further customizations.
  * <p>
- * The {@link #havingValue} attribute can be used to specify the value that the property
- * should have. The table below shows when a condition matches according to the property
- * value and the {@link #havingValue()} attribute:
- *
- * <table border="1">
- * <caption>Having values</caption>
- * <tr>
- * <th>Property Value</th>
- * <th>{@code havingValue=""}</th>
- * <th>{@code havingValue="true"}</th>
- * <th>{@code havingValue="false"}</th>
- * <th>{@code havingValue="foo"}</th>
- * </tr>
- * <tr>
- * <td>{@code "true"}</td>
- * <td>yes</td>
- * <td>yes</td>
- * <td>no</td>
- * <td>no</td>
- * </tr>
- * <tr>
- * <td>{@code "false"}</td>
- * <td>no</td>
- * <td>no</td>
- * <td>yes</td>
- * <td>no</td>
- * </tr>
- * <tr>
- * <td>{@code "foo"}</td>
- * <td>yes</td>
- * <td>no</td>
- * <td>no</td>
- * <td>yes</td>
- * </tr>
- * </table>
- * <p>
  * If the property is not contained in the {@link Environment} at all, the
- * {@link #matchIfMissing()} attribute is consulted. By default missing attributes do not
+ * {@link #matchIfMissing()} attribute is consulted. By default, missing attributes do not
  * match.
- * <p>
- * This condition cannot be reliably used for matching collection properties. For example,
- * in the following configuration, the condition matches if {@code today.example.values}
- * is present in the {@link Environment} but does not match if
- * {@code today.example.values[0]} is present.
  *
- * <pre>{@code
- * @ConditionalOnProperty(prefix = "today", name = "example.values")
- * class ExampleAutoConfiguration {
- *
- * }
- * }</pre>
- *
- * It is better to use a custom condition for such cases.
- *
- * @author Maciej Walkowiak
- * @author Stephane Nicoll
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 2019-06-18 15:06
+ * @see ConditionalOnProperty
+ * @since 5.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Conditional(OnPropertyCondition.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ConditionalOnProperty {
+@Documented
+@Conditional(OnPropertyCondition.class)
+@Repeatable(ConditionalOnBooleanProperties.class)
+public @interface ConditionalOnBooleanProperty {
 
   /**
    * Alias for {@link #name()}.
@@ -120,18 +73,21 @@ public @interface ConditionalOnProperty {
    * <p>
    * Use the dashed notation to specify each property, that is all lower case with a "-"
    * to separate words (e.g. {@code my-long-property}).
+   * <p>
+   * If multiple names are specified, all the properties have to pass the test for
+   * the condition to match.
    *
    * @return the names
    */
   String[] name() default {};
 
   /**
-   * The string representation of the expected value for the properties. If not
-   * specified, the property must <strong>not</strong> be equal to {@code false}.
+   * The expected value for the properties. If not specified, the property must be equal
+   * to {@code true}.
    *
    * @return the expected value
    */
-  String havingValue() default "";
+  boolean havingValue() default true;
 
   /**
    * Specify if the condition should match if the property is not set. Defaults to

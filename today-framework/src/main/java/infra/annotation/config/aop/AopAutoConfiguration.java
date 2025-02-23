@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.EnableAspectJAutoProxy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingClass;
-import infra.context.condition.ConditionalOnProperty;
 import infra.stereotype.Component;
 
 /**
@@ -45,7 +45,7 @@ import infra.stereotype.Component;
  * @since 4.0
  */
 @DisableDIAutoConfiguration
-@ConditionalOnProperty(prefix = "infra.aop", name = "auto", havingValue = "true", matchIfMissing = true)
+@ConditionalOnBooleanProperty(name = "infra.aop.auto", matchIfMissing = true)
 public class AopAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
@@ -54,15 +54,14 @@ public class AopAutoConfiguration {
 
     @Configuration(proxyBeanMethods = false)
     @EnableAspectJAutoProxy(proxyTargetClass = false)
-    @ConditionalOnProperty(prefix = "infra.aop", name = "proxy-target-class", havingValue = "false")
+    @ConditionalOnBooleanProperty(name = "infra.aop.proxy-target-class", havingValue = false)
     static class JdkDynamicAutoProxyConfiguration {
 
     }
 
     @Configuration(proxyBeanMethods = false)
     @EnableAspectJAutoProxy(proxyTargetClass = true)
-    @ConditionalOnProperty(
-            prefix = "infra.aop", name = "proxy-target-class", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnBooleanProperty(name = "infra.aop.proxy-target-class", matchIfMissing = true)
     static class CglibAutoProxyConfiguration {
 
     }
@@ -71,8 +70,7 @@ public class AopAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnMissingClass("org.aspectj.weaver.Advice")
-  @ConditionalOnProperty(
-          prefix = "infra.aop", name = "proxy-target-class", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnBooleanProperty(name = "infra.aop.proxy-target-class", matchIfMissing = true)
   static class ClassProxyingConfiguration {
 
     @Component
