@@ -35,6 +35,7 @@ import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.StreamUtils;
+import infra.util.StringUtils;
 
 /**
  * Utility to load PEM content.
@@ -123,7 +124,7 @@ public final class PemContent {
    */
   @Nullable
   static PemContent load(@Nullable String content, ResourceLoader resourceLoader) throws IOException {
-    if (content == null) {
+    if (StringUtils.isEmpty(content)) {
       return null;
     }
     if (isPresentInText(content)) {
