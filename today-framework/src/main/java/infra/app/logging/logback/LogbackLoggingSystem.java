@@ -41,10 +41,8 @@ import ch.qos.logback.classic.spi.TurboFilterList;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
-import ch.qos.logback.core.status.OnConsoleStatusListener;
 import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.status.StatusUtil;
-import ch.qos.logback.core.util.StatusListenerConfigHelper;
 import ch.qos.logback.core.util.StatusPrinter2;
 import infra.aot.AotDetector;
 import infra.app.io.ApplicationResourceLoader;
@@ -197,6 +195,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
     withLoggingSuppressed(() -> putInitializationContextObjects(loggerContext, startupContext));
+    SystemStatusListener.addTo(loggerContext);
     InfraJoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
     configurator.setContext(loggerContext);
     boolean configuredUsingAotGeneratedArtifacts = configurator.configureUsingAotGeneratedArtifacts();
@@ -208,22 +207,20 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
   @Override
   protected void loadDefaults(LoggingStartupContext startupContext, @Nullable LogFile logFile) {
-    LoggerContext context = getLoggerContext();
-    stopAndReset(context);
+    LoggerContext loggerContext = getLoggerContext();
+    stopAndReset(loggerContext);
     withLoggingSuppressed(() -> {
-      putInitializationContextObjects(context, startupContext);
       boolean debug = Boolean.getBoolean("logback.debug");
-      if (debug) {
-        StatusListenerConfigHelper.addOnConsoleListenerInstance(context, new OnConsoleStatusListener());
-      }
+      putInitializationContextObjects(loggerContext, startupContext);
+      SystemStatusListener.addTo(loggerContext, debug);
       Environment environment = startupContext.getEnvironment();
       // Apply system properties directly in case the same JVM runs multiple apps
-      new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), context::putProperty)
-              .apply(logFile);
-      LogbackConfigurator configurator = debug ? new DebugLogbackConfigurator(context)
-              : new LogbackConfigurator(context);
+      new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), loggerContext::putProperty).apply(logFile);
+      LogbackConfigurator configurator = (!debug) ? new LogbackConfigurator(loggerContext)
+              : new DebugLogbackConfigurator(loggerContext);
       new DefaultLogbackConfiguration(logFile).apply(configurator);
-      context.setPackagingDataEnabled(true);
+      loggerContext.setPackagingDataEnabled(true);
+      loggerContext.start();
     });
   }
 
