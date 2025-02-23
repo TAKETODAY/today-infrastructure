@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,6 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnSingleCandidate;
-import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.jdbc.core.JdbcTemplate;
@@ -49,7 +48,6 @@ import infra.transaction.TransactionManager;
  * @since 4.0 2022/10/31 11:51
  */
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
-@EnableConfigurationProperties(DataSourceProperties.class)
 @DisableDIAutoConfiguration(before = TransactionAutoConfiguration.class)
 @ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 public class DataSourceTransactionManagerAutoConfiguration {
@@ -71,8 +69,8 @@ public class DataSourceTransactionManagerAutoConfiguration {
 
     private static DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
       return environment.getFlag("dao.exceptiontranslation.enabled", true)
-             ? new JdbcTransactionManager(dataSource)
-             : new DataSourceTransactionManager(dataSource);
+              ? new JdbcTransactionManager(dataSource)
+              : new DataSourceTransactionManager(dataSource);
     }
 
   }
