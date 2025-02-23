@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ public class ApplicationAotProcessor extends ContextAotProcessor {
   public static void main(String[] args) throws Exception {
     int requiredArgs = 6;
     Assert.isTrue(args.length >= requiredArgs, () -> "Usage: " + ApplicationAotProcessor.class.getName()
-            + " <applicationName> <sourceOutput> <resourceOutput> <classOutput> <groupId> <artifactId> <originalArgs...>");
+            + " <applicationMainClass> <sourceOutput> <resourceOutput> <classOutput> <groupId> <artifactId> <originalArgs...>");
     Class<?> application = Class.forName(args[0]);
     Settings settings = Settings.builder()
             .sourceOutput(Paths.get(args[1]))
