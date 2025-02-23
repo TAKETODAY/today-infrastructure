@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,20 +40,20 @@ class PropertySourceOriginTests {
   @Test
   void createWhenPropertySourceIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new PropertySourceOrigin(null, "name"))
-            .withMessageContaining("PropertySource is required");
+            .withMessageContaining("'propertySource' is required");
   }
 
   @Test
   void createWhenPropertyNameIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new PropertySourceOrigin(mock(PropertySource.class), null))
-            .withMessageContaining("PropertyName must not be empty");
+            .withMessageContaining("'propertyName' must not be empty");
   }
 
   @Test
   void createWhenPropertyNameIsEmptyShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new PropertySourceOrigin(mock(PropertySource.class), ""))
-            .withMessageContaining("PropertyName must not be empty");
+            .withMessageContaining("'propertyName' must not be empty");
   }
 
   @Test
@@ -74,7 +74,7 @@ class PropertySourceOriginTests {
   void toStringShouldShowDetails() {
     MapPropertySource propertySource = new MapPropertySource("test", new HashMap<>());
     PropertySourceOrigin origin = new PropertySourceOrigin(propertySource, "foo");
-    assertThat(origin.toString()).isEqualTo("\"foo\" from property source \"test\"");
+    assertThat(origin).hasToString("\"foo\" from property source \"test\"");
   }
 
   @Test
@@ -85,7 +85,9 @@ class PropertySourceOriginTests {
             withSettings().extraInterfaces(OriginLookup.class));
     OriginLookup<String> originCapablePropertySource = (OriginLookup<String>) propertySource;
     given(originCapablePropertySource.getOrigin("foo")).willReturn(origin);
-    assertThat(PropertySourceOrigin.get(propertySource, "foo")).isSameAs(origin);
+    Origin actual = PropertySourceOrigin.get(propertySource, "foo");
+    assertThat(actual).hasToString(origin.toString());
+    assertThat(((PropertySourceOrigin) actual).getOrigin()).isSameAs(origin);
   }
 
   @Test

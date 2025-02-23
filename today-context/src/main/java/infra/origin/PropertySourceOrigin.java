@@ -56,8 +56,8 @@ public class PropertySourceOrigin implements Origin, OriginProvider {
    * @since 5.0
    */
   public PropertySourceOrigin(PropertySource<?> propertySource, String propertyName, @Nullable Origin origin) {
-    Assert.notNull(propertySource, "PropertySource is required");
-    Assert.hasLength(propertyName, "PropertyName must not be empty");
+    Assert.notNull(propertySource, "'propertySource' is required");
+    Assert.hasLength(propertyName, "'propertyName' must not be empty");
     this.propertySource = propertySource;
     this.propertyName = propertyName;
     this.origin = origin;
@@ -94,9 +94,16 @@ public class PropertySourceOrigin implements Origin, OriginProvider {
     return this.origin;
   }
 
+  @Nullable
+  @Override
+  public Origin getParent() {
+    return this.origin != null ? this.origin.getParent() : null;
+  }
+
   @Override
   public String toString() {
-    return "\"" + this.propertyName + "\" from property source \"" + this.propertySource.getName() + "\"";
+    return (this.origin != null) ? this.origin.toString()
+            : "\"" + this.propertyName + "\" from property source \"" + this.propertySource.getName() + "\"";
   }
 
   /**
@@ -110,7 +117,8 @@ public class PropertySourceOrigin implements Origin, OriginProvider {
    */
   public static Origin get(PropertySource<?> propertySource, String name) {
     Origin origin = OriginLookup.getOrigin(propertySource, name);
-    return origin != null ? origin : new PropertySourceOrigin(propertySource, name);
+    return (origin instanceof PropertySourceOrigin) ? origin
+            : new PropertySourceOrigin(propertySource, name, origin);
   }
 
 }
