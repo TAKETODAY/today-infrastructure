@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,10 @@
 package infra.core.ssl;
 
 import org.junit.jupiter.api.Test;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -51,6 +55,19 @@ class SslBundleTests {
     assertThat(bundle.getOptions()).isSameAs(options);
     assertThat(bundle.getProtocol()).isSameAs(protocol);
     assertThat(bundle.getManagers()).isSameAs(managers);
+  }
+
+  @Test
+  void shouldCreateSystemDefaultBundle() {
+    SslBundle sslBundle = SslBundle.systemDefault();
+    SSLContext sslContext = sslBundle.createSslContext();
+    assertThat(sslContext).isNotNull();
+    TrustManager[] trustManagers = sslBundle.getManagers().getTrustManagers();
+    assertThat(trustManagers).isNotEmpty();
+    TrustManager trustManager = trustManagers[0];
+    assertThat(trustManager).isInstanceOf(X509TrustManager.class);
+    X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
+    assertThat(x509TrustManager.getAcceptedIssuers()).isNotEmpty();
   }
 
 }
