@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,17 @@ import java.util.Collections;
 
 import javax.sql.DataSource;
 
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.AutoConfigurations;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import infra.jdbc.support.SQLExceptionTranslator;
+import infra.jdbc.support.SQLStateSQLExceptionTranslator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -141,6 +143,31 @@ class JdbcTemplateAutoConfigurationTests {
       assertThat(context.getBean(NamedParameterJdbcOperations.class))
               .isEqualTo(context.getBean("customNamedParameterJdbcOperations"));
     });
+  }
+
+  @Test
+  void shouldConfigureJdbcTemplateWithSQLExceptionTranslatorIfPresent() {
+    SQLStateSQLExceptionTranslator sqlExceptionTranslator = new SQLStateSQLExceptionTranslator();
+    this.contextRunner.withBean(SQLExceptionTranslator.class, () -> sqlExceptionTranslator).run((context) -> {
+      assertThat(context).hasSingleBean(JdbcTemplate.class);
+      JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
+      assertThat(jdbcTemplate.getExceptionTranslator()).isSameAs(sqlExceptionTranslator);
+    });
+  }
+
+  @Test
+  void shouldNotConfigureJdbcTemplateWithSQLExceptionTranslatorIfNotUnique() {
+    SQLStateSQLExceptionTranslator sqlExceptionTranslator1 = new SQLStateSQLExceptionTranslator();
+    SQLStateSQLExceptionTranslator sqlExceptionTranslator2 = new SQLStateSQLExceptionTranslator();
+    this.contextRunner
+            .withBean("sqlExceptionTranslator1", SQLExceptionTranslator.class, () -> sqlExceptionTranslator1)
+            .withBean("sqlExceptionTranslator2", SQLExceptionTranslator.class, () -> sqlExceptionTranslator2)
+            .run((context) -> {
+              assertThat(context).hasSingleBean(JdbcTemplate.class);
+              JdbcTemplate jdbcTemplate = context.getBean(JdbcTemplate.class);
+              assertThat(jdbcTemplate.getExceptionTranslator()).isNotSameAs(sqlExceptionTranslator1)
+                      .isNotSameAs(sqlExceptionTranslator2);
+            });
   }
 
   @Configuration(proxyBeanMethods = false)

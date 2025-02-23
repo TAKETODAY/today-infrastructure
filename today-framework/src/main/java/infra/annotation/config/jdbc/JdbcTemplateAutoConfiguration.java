@@ -19,6 +19,7 @@ package infra.annotation.config.jdbc;
 
 import javax.sql.DataSource;
 
+import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -31,7 +32,10 @@ import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import infra.jdbc.support.SQLExceptionTranslator;
+import infra.lang.Nullable;
 import infra.stereotype.Component;
+import infra.util.CollectionUtils;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link JdbcTemplate} and
@@ -57,13 +61,19 @@ public class JdbcTemplateAutoConfiguration {
   @Primary
   @Component
   @ConditionalOnMissingBean(JdbcOperations.class)
-  public static JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties) {
+  public static JdbcTemplate jdbcTemplate(DataSource dataSource, JdbcProperties properties,
+          ObjectProvider<SQLExceptionTranslator> sqlExceptionTranslators) {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
     JdbcProperties.Template template = properties.getTemplate();
     jdbcTemplate.setFetchSize(template.getFetchSize());
     jdbcTemplate.setMaxRows(template.getMaxRows());
     if (template.getQueryTimeout() != null) {
       jdbcTemplate.setQueryTimeout((int) template.getQueryTimeout().getSeconds());
+    }
+
+    SQLExceptionTranslator sqlExceptionTranslator = sqlExceptionTranslators.getIfUnique();
+    if (sqlExceptionTranslator != null) {
+      jdbcTemplate.setExceptionTranslator(sqlExceptionTranslator);
     }
     return jdbcTemplate;
   }
