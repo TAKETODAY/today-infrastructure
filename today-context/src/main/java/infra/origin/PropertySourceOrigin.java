@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.origin;
 
 import infra.core.env.PropertySource;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * {@link Origin} from a {@link PropertySource}.
@@ -27,11 +28,14 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class PropertySourceOrigin implements Origin {
+public class PropertySourceOrigin implements Origin, OriginProvider {
 
   private final PropertySource<?> propertySource;
 
   private final String propertyName;
+
+  @Nullable
+  private final Origin origin;
 
   /**
    * Create a new {@link PropertySourceOrigin} instance.
@@ -40,10 +44,23 @@ public class PropertySourceOrigin implements Origin {
    * @param propertyName the name from the property source
    */
   public PropertySourceOrigin(PropertySource<?> propertySource, String propertyName) {
+    this(propertySource, propertyName, null);
+  }
+
+  /**
+   * Create a new {@link PropertySourceOrigin} instance.
+   *
+   * @param propertySource the property source
+   * @param propertyName the name from the property source
+   * @param origin the actual origin for the source if known
+   * @since 5.0
+   */
+  public PropertySourceOrigin(PropertySource<?> propertySource, String propertyName, @Nullable Origin origin) {
     Assert.notNull(propertySource, "PropertySource is required");
     Assert.hasLength(propertyName, "PropertyName must not be empty");
     this.propertySource = propertySource;
     this.propertyName = propertyName;
+    this.origin = origin;
   }
 
   /**
@@ -63,6 +80,18 @@ public class PropertySourceOrigin implements Origin {
    */
   public String getPropertyName() {
     return this.propertyName;
+  }
+
+  /**
+   * Return the actual origin for the source if known.
+   *
+   * @return the actual source origin
+   * @since 5.0
+   */
+  @Nullable
+  @Override
+  public Origin getOrigin() {
+    return this.origin;
   }
 
   @Override

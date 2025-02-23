@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,21 @@
 
 package infra.app.diagnostics.analyzer;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import infra.app.diagnostics.AbstractFailureAnalyzer;
 import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.FailureAnalyzer;
-import infra.context.properties.source.ConfigurationPropertySources;
 import infra.context.properties.source.InvalidConfigurationPropertyValueException;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.PropertySource;
 import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
+import infra.origin.PropertySourceOrigin;
 import infra.util.StringUtils;
 
 /**
@@ -47,7 +48,7 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
   @Nullable
   private final ConfigurableEnvironment environment;
 
-  public InvalidConfigurationPropertyValueFailureAnalyzer(@Nullable ConfigurableEnvironment environment) {
+  InvalidConfigurationPropertyValueFailureAnalyzer(ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 
@@ -65,25 +66,30 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
   }
 
   private List<Descriptor> getDescriptors(String propertyName) {
-    return getPropertySources()
-            .filter((source) -> source.containsProperty(propertyName))
+    Set<Origin> seen = new HashSet<>();
+    return getPropertySources().filter((source) -> source.containsProperty(propertyName))
             .map((source) -> Descriptor.get(source, propertyName))
-            .collect(Collectors.toList());
+            .filter((descriptor) -> seen.add(getOrigin(descriptor)))
+            .toList();
+  }
+
+  @Nullable
+  private Origin getOrigin(Descriptor descriptor) {
+    Origin origin = descriptor.origin;
+    if (origin instanceof PropertySourceOrigin propertySourceOrigin) {
+      origin = propertySourceOrigin.getOrigin();
+    }
+    return origin;
   }
 
   private Stream<PropertySource<?>> getPropertySources() {
-    if (this.environment == null) {
-      return Stream.empty();
-    }
-    return this.environment.getPropertySources()
-            .stream()
-            .filter((source) -> !ConfigurationPropertySources.isAttachedConfigurationPropertySource(source));
+    return (this.environment != null) ? this.environment.getPropertySources().stream() : Stream.empty();
   }
 
   private void appendDetails(StringBuilder message, InvalidConfigurationPropertyValueException cause,
           List<Descriptor> descriptors) {
     Descriptor mainDescriptor = descriptors.get(0);
-    message.append("Invalid value '").append(mainDescriptor.getValue()).append("' for configuration property '");
+    message.append("Invalid value '").append(mainDescriptor.value).append("' for configuration property '");
     message.append(cause.getName()).append("'");
     mainDescriptor.appendOrigin(message);
     message.append(".");
@@ -102,13 +108,11 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
   private void appendAdditionalProperties(StringBuilder message, List<Descriptor> descriptors) {
     List<Descriptor> others = descriptors.subList(1, descriptors.size());
     if (!others.isEmpty()) {
-      message.append(
-              String.format("%n%nAdditionally, this property is also set in the following property %s:%n%n",
-                      (others.size() > 1) ? "sources" : "source"));
-
+      message.append(String.format("%n%nAdditionally, this property is also set in the following property %s:%n%n",
+              (others.size() > 1) ? "sources" : "source"));
       for (Descriptor other : others) {
-        message.append("\t- In '").append(other.getPropertySource()).append("'");
-        message.append(" with the value '").append(other.getValue()).append("'");
+        message.append("\t- In '").append(other.propertySource).append("'");
+        message.append(" with the value '").append(other.value).append("'");
         other.appendOrigin(message);
         message.append(String.format(".%n"));
       }
@@ -125,14 +129,20 @@ class InvalidConfigurationPropertyValueFailureAnalyzer
     return action.toString();
   }
 
-  private record Descriptor(String propertySource, Object value, @Nullable Origin origin) {
+  private static final class Descriptor {
 
-    String getPropertySource() {
-      return this.propertySource;
-    }
+    @Nullable
+    private final String propertySource;
 
-    Object getValue() {
-      return this.value;
+    private final Object value;
+
+    @Nullable
+    private final Origin origin;
+
+    private Descriptor(@Nullable String propertySource, Object value, @Nullable Origin origin) {
+      this.propertySource = propertySource;
+      this.value = value;
+      this.origin = origin;
     }
 
     void appendOrigin(StringBuilder message) {
