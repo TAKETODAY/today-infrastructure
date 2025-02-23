@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import infra.app.ApplicationType;
 import infra.app.builder.ApplicationBuilder;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
+import infra.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import infra.core.annotation.AliasFor;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.StandardEnvironment;
@@ -51,7 +53,7 @@ class ConditionalOnPropertyTests {
 
   private ConfigurableApplicationContext context;
 
-  private ConfigurableEnvironment environment = new StandardEnvironment();
+  private final ConfigurableEnvironment environment = new StandardEnvironment();
 
   @AfterEach
   void tearDown() {
@@ -197,15 +199,13 @@ class ConditionalOnPropertyTests {
   @Test
   void nameOrValueMustBeSpecified() {
     assertThatIllegalStateException().isThrownBy(() -> load(NoNameOrValueAttribute.class, "some.property"))
-            .satisfies(causeMessageContaining(
-                    "The name or value attribute of @ConditionalOnProperty must be specified"));
+            .satisfies(causeMessageContaining("The name or value attribute of @ConditionalOnProperty must be specified"));
   }
 
   @Test
   void nameAndValueMustNotBeSpecified() {
     assertThatIllegalStateException().isThrownBy(() -> load(NameAndValueAttribute.class, "some.property"))
-            .satisfies(causeMessageContaining(
-                    "The name and value attributes of @ConditionalOnProperty are exclusive"));
+            .satisfies(causeMessageContaining("The name and value attributes of @ConditionalOnProperty are exclusive"));
   }
 
   private <T extends Exception> Consumer<T> causeMessageContaining(String message) {
@@ -273,15 +273,68 @@ class ConditionalOnPropertyTests {
     assertThat(this.context.containsBean("foo")).isTrue();
   }
 
+  @Test
+  void multiplePropertiesConditionReportWhenMatched() {
+    load(MultiplePropertiesRequiredConfiguration.class, "property1=value1", "property2=value2");
+    assertThat(this.context.containsBean("foo")).isTrue();
+    assertThat(getConditionEvaluationReport()).contains("@ConditionalOnProperty ([property1,property2]) matched");
+  }
+
+  @Test
+  void multiplePropertiesConditionReportWhenDoesNotMatch() {
+    load(MultiplePropertiesRequiredConfiguration.class, "property1=value1");
+    assertThat(getConditionEvaluationReport())
+            .contains("@ConditionalOnProperty ([property1,property2]) did not find property 'property2'");
+  }
+
+  @Test
+  void repeatablePropertiesConditionReportWhenMatched() {
+    load(RepeatablePropertiesRequiredConfiguration.class, "property1=value1", "property2=value2");
+    assertThat(this.context.containsBean("foo")).isTrue();
+    String report = getConditionEvaluationReport();
+    assertThat(report).contains("@ConditionalOnProperty (property1) matched");
+    assertThat(report).contains("@ConditionalOnProperty (property2) matched");
+  }
+
+  @Test
+  void repeatablePropertiesConditionReportWhenDoesNotMatch() {
+    load(RepeatablePropertiesRequiredConfiguration.class, "property1=value1");
+    assertThat(getConditionEvaluationReport())
+            .contains("@ConditionalOnProperty (property2) did not find property 'property2'");
+  }
+
   private void load(Class<?> config, String... environment) {
     TestPropertyValues.of(environment).applyTo(this.environment);
-    this.context = new ApplicationBuilder(config).environment(this.environment).type(ApplicationType.NORMAL)
+    this.context = new ApplicationBuilder(config).environment(this.environment)
+            .type(ApplicationType.NORMAL)
             .run();
+  }
+
+  private String getConditionEvaluationReport() {
+    return ConditionEvaluationReport.get(this.context.getBeanFactory())
+            .getConditionAndOutcomesBySource()
+            .values()
+            .stream()
+            .flatMap(ConditionAndOutcomes::stream)
+            .map(Object::toString)
+            .collect(Collectors.joining("\n"));
   }
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnProperty(name = { "property1", "property2" })
   static class MultiplePropertiesRequiredConfiguration {
+
+    @Bean
+    String foo() {
+      return "foo";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnProperty("property1")
+  @ConditionalOnProperty("property2")
+  static class RepeatablePropertiesRequiredConfiguration {
 
     @Bean
     String foo() {

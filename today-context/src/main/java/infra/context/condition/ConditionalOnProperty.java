@@ -18,6 +18,7 @@
 package infra.context.condition;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -93,6 +94,7 @@ import infra.core.env.Environment;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(OnPropertyCondition.class)
+@Repeatable(ConditionalOnProperties.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface ConditionalOnProperty {
 
