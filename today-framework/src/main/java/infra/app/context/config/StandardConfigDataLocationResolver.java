@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.core.env.Environment;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
@@ -146,6 +147,7 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
   @Override
   public List<StandardConfigDataResource> resolveProfileSpecific(
           ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) {
+    validateProfiles(profiles);
     return resolve(getProfileSpecificReferences(context, location.split(), profiles));
   }
 
@@ -159,6 +161,30 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
       }
     }
     return references;
+  }
+
+  private void validateProfiles(Profiles profiles) {
+    for (String profile : profiles) {
+      validateProfile(profile);
+    }
+  }
+
+  private void validateProfile(String profile) {
+    Assert.hasText(profile, "'profile' must contain text");
+    if (profile.startsWith("-") || profile.startsWith("_")) {
+      throw new IllegalStateException("Invalid profile '%s': must not start with '-' or '_'".formatted(profile));
+    }
+
+    if (profile.endsWith("-") || profile.endsWith("_")) {
+      throw new IllegalStateException("Invalid profile '%s': must not end with '-' or '_'".formatted(profile));
+    }
+
+    profile.codePoints().forEach(codePoint -> {
+      if (codePoint == '-' || codePoint == '_' || Character.isLetterOrDigit(codePoint)) {
+        return;
+      }
+      throw new IllegalStateException("Invalid profile '%s': must contain only letters, digits, '-', or '_'".formatted(profile));
+    });
   }
 
   private String getResourceLocation(ConfigDataLocationResolverContext context, ConfigDataLocation configDataLocation) {

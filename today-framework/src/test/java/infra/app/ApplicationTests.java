@@ -237,13 +237,12 @@ class ApplicationTests {
   @DisabledIfInContinuousIntegration(disabledReason = "out stream problem")
   void logsActiveProfilesWithoutProfileAndMultipleDefaults(CapturedOutput output) {
     MockEnvironment environment = new MockEnvironment();
-    environment.setDefaultProfiles("p0,p1", "default");
+    environment.setDefaultProfiles("p0", "default");
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
     application.setEnvironment(environment);
     this.context = application.run();
-    assertThat(output)
-            .contains("No active profile set, falling back to 2 default profiles: \"p0,p1\", \"default\"");
+    assertThat(output).contains("No active profile set, falling back to 2 default profiles: \"p0\", \"default\"");
   }
 
   @Test
@@ -260,9 +259,9 @@ class ApplicationTests {
   void logsActiveProfilesWithMultipleProfiles(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
-    application.setAdditionalProfiles("p1,p2", "p3");
+    application.setAdditionalProfiles("p1", "p2");
     application.run();
-    assertThat(output).contains("The following 2 profiles are active: \"p1,p2\", \"p3\"");
+    assertThat(output).contains("The following 2 profiles are active: \"p1\", \"p2\"");
   }
 
   @Test
