@@ -211,7 +211,8 @@ class ConditionalOnBooleanPropertyTests {
 
   private void load(Class<?> config, String... environment) {
     TestPropertyValues.of(environment).applyTo(this.environment);
-    this.context = new ApplicationBuilder(config).environment(this.environment)
+    this.context = new ApplicationBuilder(config)
+            .environment(this.environment)
             .type(ApplicationType.NORMAL)
             .run();
   }
