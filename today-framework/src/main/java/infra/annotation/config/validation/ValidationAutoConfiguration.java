@@ -79,14 +79,15 @@ public class ValidationAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
-  public static MethodValidationPostProcessor methodValidationPostProcessor(
-          Environment environment, ObjectProvider<Validator> validator,
+  public static MethodValidationPostProcessor methodValidationPostProcessor(Environment environment,
+          ObjectProvider<Validator> validator, ValidationProperties validationProperties,
           Collection<MethodValidationExcludeFilter> excludeFilters) {
 
     var processor = new FilteredMethodValidationPostProcessor(excludeFilters);
     boolean proxyTargetClass = environment.getFlag("infra.aop.proxy-target-class", true);
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidatorProvider(validator);
+    processor.setAdaptConstraintViolations(validationProperties.getMethod().isAdaptConstraintViolations());
     return processor;
   }
 

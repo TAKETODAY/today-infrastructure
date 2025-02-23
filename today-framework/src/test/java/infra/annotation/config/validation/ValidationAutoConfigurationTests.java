@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ import org.mockito.Mockito;
 import java.util.HashSet;
 import java.util.Set;
 
+import infra.app.test.context.assertj.AssertableApplicationContext;
+import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.support.BeanDefinitionRegistry;
@@ -32,8 +34,6 @@ import infra.context.annotation.Configuration;
 import infra.context.annotation.Primary;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.core.annotation.Order;
-import infra.app.test.context.assertj.AssertableApplicationContext;
-import infra.app.test.context.runner.ApplicationContextRunner;
 import infra.test.util.ReflectionTestUtils;
 import infra.validation.annotation.Validated;
 import infra.validation.beanvalidation.CustomValidatorBean;
@@ -41,6 +41,7 @@ import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.validation.beanvalidation.MethodValidationExcludeFilter;
 import infra.validation.beanvalidation.MethodValidationPostProcessor;
 import infra.validation.beanvalidation.OptionalValidatorFactoryBean;
+import infra.validation.method.MethodValidationException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.Min;
@@ -249,6 +250,18 @@ class ValidationAutoConfigurationTests {
       then(customizerTwo).should(inOrder).customize(any(jakarta.validation.Configuration.class));
       then(customizerOne).should(inOrder).customize(any(jakarta.validation.Configuration.class));
     });
+  }
+
+  @Test
+  void validationCanBeConfiguredToAdaptConstraintViolations() {
+    this.contextRunner.withUserConfiguration(AnotherSampleServiceConfiguration.class)
+            .withPropertyValues("infra.validation.method.adapt-constraint-violations=true")
+            .run((context) -> {
+              assertThat(context.getBeansOfType(Validator.class)).hasSize(1);
+              AnotherSampleService service = context.getBean(AnotherSampleService.class);
+              service.doSomething(42);
+              assertThatExceptionOfType(MethodValidationException.class).isThrownBy(() -> service.doSomething(2));
+            });
   }
 
   private boolean isPrimaryBean(AssertableApplicationContext context, String beanName) {
