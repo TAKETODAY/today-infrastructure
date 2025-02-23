@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import infra.lang.Nullable;
  *
  * @author Brian Clozel
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -40,7 +41,7 @@ public interface RuntimeHintsRegistrar {
    * Contribute hints to the given {@link RuntimeHints} instance.
    *
    * @param hints the hints contributed so far for the deployment unit
-   * @param classLoader the classloader, or {@code null} if even the system ClassLoader isn't accessible
+   * @param classLoader the ClassLoader to use, or {@code null} for the default
    */
   void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader);
 

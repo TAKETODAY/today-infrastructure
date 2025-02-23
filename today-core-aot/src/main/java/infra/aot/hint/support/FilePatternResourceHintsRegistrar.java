@@ -24,6 +24,7 @@ import java.util.List;
 import infra.aot.hint.ResourceHints;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.ClassUtils;
 import infra.util.ResourceUtils;
 
 /**
@@ -56,19 +57,21 @@ public final class FilePatternResourceHintsRegistrar {
   }
 
   private void registerHints(ResourceHints hints, @Nullable ClassLoader classLoader) {
-    ClassLoader classLoaderToUse = (classLoader != null ? classLoader : getClass().getClassLoader());
-    List<String> includes = new ArrayList<>();
-    for (String location : this.classpathLocations) {
-      if (classLoaderToUse.getResource(location) != null) {
-        for (String filePrefix : this.filePrefixes) {
-          for (String fileExtension : this.fileExtensions) {
-            includes.add(location + filePrefix + "*" + fileExtension);
+    ClassLoader classLoaderToUse = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
+    if (classLoaderToUse != null) {
+      List<String> includes = new ArrayList<>();
+      for (String location : this.classpathLocations) {
+        if (classLoaderToUse.getResource(location) != null) {
+          for (String filePrefix : this.filePrefixes) {
+            for (String fileExtension : this.fileExtensions) {
+              includes.add(location + filePrefix + "*" + fileExtension);
+            }
           }
         }
       }
-    }
-    if (!includes.isEmpty()) {
-      hints.registerPattern(hint -> hint.includes(includes.toArray(String[]::new)));
+      if (!includes.isEmpty()) {
+        hints.registerPattern(hint -> hint.includes(includes.toArray(String[]::new)));
+      }
     }
   }
 

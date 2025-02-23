@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.aot.hint;
@@ -31,6 +28,7 @@ import java.util.stream.Stream;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.lang.Nullable;
+import infra.util.ClassUtils;
 
 /**
  * Gather the need for resources available at runtime.
@@ -61,7 +59,7 @@ public class ResourceHints {
   public Stream<ResourcePatternHints> resourcePatternHints() {
     Stream<ResourcePatternHints> patterns = this.resourcePatternHints.stream();
     return (this.types.isEmpty() ? patterns
-                                 : Stream.concat(Stream.of(typesPatternResourceHint()), patterns));
+            : Stream.concat(Stream.of(typesPatternResourceHint()), patterns));
   }
 
   /**
@@ -86,8 +84,8 @@ public class ResourceHints {
    */
   public ResourceHints registerPatternIfPresent(@Nullable ClassLoader classLoader, String location,
           Consumer<ResourcePatternHints.Builder> resourceHint) {
-    ClassLoader classLoaderToUse = (classLoader != null) ? classLoader : getClass().getClassLoader();
-    if (classLoaderToUse.getResource(location) != null) {
+    ClassLoader classLoaderToUse = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
+    if (classLoaderToUse != null && classLoaderToUse.getResource(location) != null) {
       registerPattern(resourceHint);
     }
     return this;
