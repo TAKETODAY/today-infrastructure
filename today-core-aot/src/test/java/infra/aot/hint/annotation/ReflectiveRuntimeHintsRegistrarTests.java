@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,8 +152,7 @@ class ReflectiveRuntimeHintsRegistrarTests {
   @Test
   void shouldInvokeCustomProcessor() {
     process(SampleCustomProcessor.class);
-    assertThat(RuntimeHintsPredicates.reflection()
-            .onMethod(SampleCustomProcessor.class, "managed")).accepts(this.runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(SampleCustomProcessor.class, "managed")).accepts(this.runtimeHints);
     assertThat(RuntimeHintsPredicates.reflection().onType(String.class)
             .withMemberCategory(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.runtimeHints);
 
