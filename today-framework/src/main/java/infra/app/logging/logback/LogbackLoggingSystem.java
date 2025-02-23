@@ -233,6 +233,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       if (context != null) {
         applySystemProperties(context.getEnvironment(), logFile);
       }
+      SystemStatusListener.addTo(loggerContext);
       try {
         Resource resource = new ApplicationResourceLoader().getResource(location);
         configureByResourceUrl(context, loggerContext, resource.getURL());
