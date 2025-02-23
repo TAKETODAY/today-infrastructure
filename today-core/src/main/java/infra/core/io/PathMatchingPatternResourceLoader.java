@@ -750,17 +750,21 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         // Clean root entry path to match jar entries format without "!" separators
         rootEntryPath = rootEntryPath.replace(ResourceUtils.JAR_URL_SEPARATOR, "/");
         // Search sorted entries from first entry with rootEntryPath prefix
+        boolean rootEntryPathFound = false;
         for (String entryPath : entriesCache.tailSet(rootEntryPath, false)) {
           if (!entryPath.startsWith(rootEntryPath)) {
             // We are beyond the potential matches in the current TreeSet.
             break;
           }
+          rootEntryPathFound = true;
           String relativePath = entryPath.substring(rootEntryPath.length());
           if (pathMatcher.match(subPattern, relativePath)) {
             consumer.accept(rootDirResource.createRelative(relativePath));
           }
         }
-        return;
+        if (rootEntryPathFound) {
+          return;
+        }
       }
     }
 
