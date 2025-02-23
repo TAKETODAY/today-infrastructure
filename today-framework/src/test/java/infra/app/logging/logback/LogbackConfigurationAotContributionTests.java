@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.model.RootLoggerModel;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.Layout;
@@ -54,14 +55,17 @@ import infra.aot.hint.JavaSerializationHint;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.SerializationHints;
+import infra.aot.hint.TypeHint;
 import infra.aot.hint.TypeReference;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.app.logging.logback.InfraJoranConfigurator.LogbackConfigurationAotContribution;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import infra.context.aot.AbstractAotProcessor;
 import infra.core.io.InputStreamSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link LogbackConfigurationAotContribution}.
@@ -95,6 +99,37 @@ class LogbackConfigurationAotContributionTests {
   }
 
   @Test
+  void contributionOfBasicModelThatMatchesExistingModel() {
+    TestGenerationContext generationContext = new TestGenerationContext();
+    Model model = new Model();
+    applyContribution(model, generationContext);
+    applyContribution(model, generationContext);
+    InMemoryGeneratedFiles generatedFiles = generationContext.getGeneratedFiles();
+    assertThat(generatedFiles).has(resource("META-INF/config/logback-model"));
+    assertThat(generatedFiles).has(resource("META-INF/config/logback-pattern-rules"));
+    SerializationHints serializationHints = generationContext.getRuntimeHints().serialization();
+    assertThat(serializationHints.javaSerializationHints()
+            .map(JavaSerializationHint::getType)
+            .map(TypeReference::getName))
+            .containsExactlyInAnyOrder(namesOf(Model.class, ArrayList.class, Boolean.class, Integer.class));
+    assertThat(generationContext.getRuntimeHints().reflection().typeHints()).isEmpty();
+    Properties patternRules = load(
+            generatedFiles.getGeneratedFile(Kind.RESOURCE, "META-INF/config/logback-pattern-rules"));
+    assertThat(patternRules).isEmpty();
+  }
+
+  @Test
+  void contributionOfBasicModelThatDiffersFromExistingModelThrows() {
+    TestGenerationContext generationContext = new TestGenerationContext();
+    applyContribution(new Model(), generationContext);
+    Model model = new Model();
+    model.addSubModel(new RootLoggerModel());
+    assertThatIllegalStateException().isThrownBy(() -> applyContribution(model, generationContext))
+            .withMessage("Logging configuration differs from the configuration that has already been written. "
+                    + "Update your logging configuration so that it is the same for each context");
+  }
+
+  @Test
   void patternRulesAreStoredAndRegisteredForReflection() {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     context.putObject(CoreConstants.PATTERN_RULE_REGISTRY,
@@ -116,15 +151,18 @@ class LogbackConfigurationAotContributionTests {
     Model model = new Model();
     model.getSubModels().add(component);
     TestGenerationContext generationContext = applyContribution(model);
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(SizeAndTimeBasedRollingPolicy.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(FileAppender.class))
-            .accepts(generationContext.getRuntimeHints());
-    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(FileSize.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(FileSize.class)).accepts(runtimeHints);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(
             TimeBasedFileNamingAndTriggeringPolicy.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(SizeAndTimeBasedRollingPolicy.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(FileSize.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(FileAppender.class));
   }
 
   @Test
@@ -134,12 +172,14 @@ class LogbackConfigurationAotContributionTests {
     Model model = new Model();
     model.getSubModels().add(implicit);
     TestGenerationContext generationContext = applyContribution(model);
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(PatternLayoutEncoder.class))
-            .accepts(generationContext.getRuntimeHints());
-    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Layout.class))
-            .accepts(generationContext.getRuntimeHints());
-    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Charset.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Layout.class)).accepts(runtimeHints);
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Charset.class)).accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(PatternLayoutEncoder.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Layout.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Charset.class));
   }
 
   @Test
@@ -153,6 +193,8 @@ class LogbackConfigurationAotContributionTests {
     TestGenerationContext generationContext = applyContribution(model);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(SizeAndTimeBasedRollingPolicy.class))
             .accepts(generationContext.getRuntimeHints());
+    assertThat(generationContext.getRuntimeHints())
+            .satisfies(hasValidTypeName(SizeAndTimeBasedRollingPolicy.class));
   }
 
   @Test
@@ -163,10 +205,12 @@ class LogbackConfigurationAotContributionTests {
     component.setClassName(Outer.class.getName());
     component.getSubModels().add(implementation);
     TestGenerationContext generationContext = applyContribution(component);
-    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Outer.class))
-            .accepts(generationContext.getRuntimeHints());
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Outer.class)).accepts(runtimeHints);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Implementation.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Outer.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Implementation.class));
   }
 
   @Test
@@ -177,19 +221,28 @@ class LogbackConfigurationAotContributionTests {
     component.setClassName(OuterWithDefaultClass.class.getName());
     component.getSubModels().add(contract);
     TestGenerationContext generationContext = applyContribution(component);
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(OuterWithDefaultClass.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Implementation.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(BaseImplementation.Details.class))
+            .accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(OuterWithDefaultClass.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Implementation.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(BaseImplementation.Details.class));
   }
 
   @Test
   void componentTypesOfArraysAreRegisteredForReflection() {
     ComponentModel component = new ComponentModel();
-    component.setClassName(ArrayParmeters.class.getName());
+    component.setClassName(ArrayParameters.class.getName());
     TestGenerationContext generationContext = applyContribution(component);
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(InetSocketAddress.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(InetSocketAddress.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(ArrayParameters.class));
   }
 
   @Test
@@ -198,10 +251,12 @@ class LogbackConfigurationAotContributionTests {
     component.setClassName("${VARIABLE_CLASS_NAME}");
     TestGenerationContext generationContext = applyContribution(component,
             (context) -> context.putProperty("VARIABLE_CLASS_NAME", Outer.class.getName()));
-    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Outer.class))
-            .accepts(generationContext.getRuntimeHints());
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
+    assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Outer.class)).accepts(runtimeHints);
     assertThat(invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Implementation.class))
-            .accepts(generationContext.getRuntimeHints());
+            .accepts(runtimeHints);
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Outer.class));
+    assertThat(runtimeHints).satisfies(hasValidTypeName(Implementation.class));
   }
 
   private Predicate<RuntimeHints> invokePublicConstructorsOf(String name) {
@@ -214,8 +269,14 @@ class LogbackConfigurationAotContributionTests {
   private Predicate<RuntimeHints> invokePublicConstructorsAndInspectAndInvokePublicMethodsOf(Class<?> type) {
     return RuntimeHintsPredicates.reflection()
             .onType(TypeReference.of(type))
-            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
-                    MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INVOKE_PUBLIC_METHODS);
+            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INTROSPECT_PUBLIC_METHODS,
+                    MemberCategory.INVOKE_PUBLIC_METHODS);
+  }
+
+  private Consumer<RuntimeHints> hasValidTypeName(Class<?> type) {
+    return (runtimeHints) -> assertThat(runtimeHints.reflection().getTypeHint(type)).extracting(TypeHint::getType)
+            .extracting(TypeReference::getName)
+            .isEqualTo(type.getName());
   }
 
   private Properties load(InputStreamSource source) {
@@ -240,16 +301,26 @@ class LogbackConfigurationAotContributionTests {
   }
 
   private TestGenerationContext applyContribution(Model model, Consumer<LoggerContext> contextCustomizer) {
+    TestGenerationContext generationContext = new TestGenerationContext();
+    applyContribution(model, contextCustomizer, generationContext);
+    return generationContext;
+  }
+
+  private void applyContribution(Model model, TestGenerationContext generationContext) {
+    applyContribution(model, (context) -> {
+    }, generationContext);
+  }
+
+  private void applyContribution(Model model, Consumer<LoggerContext> contextCustomizer,
+          TestGenerationContext generationContext) {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     contextCustomizer.accept(context);
     InfraJoranConfigurator configurator = new InfraJoranConfigurator(null);
     configurator.setContext(context);
-    withSystemProperty("infra.aot.processing", "true", () -> configurator.processModel(model));
+    withSystemProperty(AbstractAotProcessor.AOT_PROCESSING, "true", () -> configurator.processModel(model));
     LogbackConfigurationAotContribution contribution = (LogbackConfigurationAotContribution) context
             .getObject(BeanFactoryInitializationAotContribution.class.getName());
-    TestGenerationContext generationContext = new TestGenerationContext();
     contribution.applyTo(generationContext, null);
-    return generationContext;
   }
 
   private String[] namesOf(Class<?>... types) {
@@ -281,7 +352,18 @@ class LogbackConfigurationAotContributionTests {
 
   }
 
-  public static class Implementation implements Contract {
+  public static class BaseImplementation implements Contract {
+
+    public void setDetails(Details details) {
+    }
+
+    public static final class Details {
+
+    }
+
+  }
+
+  public static class Implementation extends BaseImplementation {
 
   }
 
@@ -289,7 +371,7 @@ class LogbackConfigurationAotContributionTests {
 
   }
 
-  public static class ArrayParmeters {
+  public static class ArrayParameters {
 
     public void addDestinations(InetSocketAddress... addresses) {
 
