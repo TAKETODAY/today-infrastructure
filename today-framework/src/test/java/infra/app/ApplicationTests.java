@@ -66,6 +66,7 @@ import infra.app.test.system.OutputCaptureExtension;
 import infra.beans.CachedIntrospectionResults;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
+import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.annotation.Autowired;
@@ -115,6 +116,7 @@ import infra.lang.Nullable;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.ForkedClassPath;
 import infra.test.context.support.TestPropertySourceUtils;
+import infra.util.ExceptionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
@@ -131,6 +133,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -202,9 +205,10 @@ class ApplicationTests {
 
   @Test
   void sourcesMustBeAccessible() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
-            .withMessageContaining("No visible constructors");
+    assertThatThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
+            .isInstanceOf(BeanDefinitionStoreException.class)
+            .satisfies(ex -> assertThat(ExceptionUtils.getNestedMessage(ex, null))
+                    .contains("No visible constructors"));
   }
 
   @Test
