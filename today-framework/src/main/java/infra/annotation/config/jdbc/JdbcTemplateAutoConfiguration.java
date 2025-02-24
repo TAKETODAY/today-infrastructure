@@ -33,9 +33,7 @@ import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import infra.jdbc.support.SQLExceptionTranslator;
-import infra.lang.Nullable;
 import infra.stereotype.Component;
-import infra.util.CollectionUtils;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link JdbcTemplate} and
