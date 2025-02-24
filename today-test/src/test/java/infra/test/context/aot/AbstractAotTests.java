@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +83,8 @@ abstract class AbstractAotTests {
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanDefinitions.java",
           "infra/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanFactoryRegistrations.java",
-          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext005_BeanDefinitions.java"
+          "infra/app/test/mock/mockito/MockitoPostProcessor__TestContext005_BeanDefinitions.java",
+          "infra/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext003_EnvironmentPostProcessor.java"
 
   };
 

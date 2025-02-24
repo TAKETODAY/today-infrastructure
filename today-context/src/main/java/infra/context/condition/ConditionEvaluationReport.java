@@ -214,7 +214,7 @@ public final class ConditionEvaluationReport {
   public static ConditionEvaluationReport get(ConfigurableBeanFactory beanFactory) {
     synchronized(beanFactory) {
       ConditionEvaluationReport report;
-      if (beanFactory.containsBean(BEAN_NAME)) {
+      if (beanFactory.containsSingleton(BEAN_NAME)) {
         report = beanFactory.getBean(BEAN_NAME, ConditionEvaluationReport.class);
       }
       else {
