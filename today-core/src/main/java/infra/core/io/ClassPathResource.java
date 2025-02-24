@@ -26,7 +26,6 @@ import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
-import infra.util.ResourceUtils;
 import infra.util.StringUtils;
 
 /**
@@ -61,9 +60,6 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 
   @Nullable
   private ClassLoader classLoader;
-
-  @Nullable
-  protected Resource delegate;
 
   /**
    * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
@@ -128,28 +124,6 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     }
     this.absolutePath = absolutePath;
     this.resourceClass = clazz;
-  }
-
-  public final Resource getDelegate() {
-    if (delegate == null) {
-      URL url;
-      if (resourceClass != null) {
-        url = resourceClass.getResource(path);
-      }
-      else if (classLoader != null) {
-        url = classLoader.getResource(path);
-      }
-      else {
-        url = ClassLoader.getSystemResource(path);
-      }
-      if (url != null) {
-        delegate = ResourceUtils.getResource(url);
-      }
-      else {
-        delegate = new FileSystemResource(path);
-      }
-    }
-    return delegate;
   }
 
   /**
@@ -243,6 +217,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     }
   }
 
+  @Nullable
   @Override
   public String getName() {
     return StringUtils.getFilename(this.absolutePath);
@@ -281,15 +256,6 @@ public class ClassPathResource extends AbstractFileResolvingResource {
   @Override
   public int hashCode() {
     return this.absolutePath.hashCode();
-  }
-
-  /**
-   * Get Original {@link Resource}
-   *
-   * @return Original {@link Resource}
-   */
-  public final Resource getOriginalResource() {
-    return getDelegate();
   }
 
   /**

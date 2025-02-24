@@ -30,7 +30,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
@@ -274,6 +273,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     this.resourceLoader = new DefaultResourceLoader(classLoader);
   }
 
+  @Nullable
   @Override
   public ClassLoader getClassLoader() {
     return resourceLoader.getClassLoader();
@@ -639,11 +639,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       }
       rootDirResource = resolveRootDirResource(rootDirResource);
       URL rootDirUrl = rootDirResource.getURL();
-
-      if (rootDirResource instanceof ClassPathResource cpResource) {
-        rootDirResource = cpResource.getOriginalResource();
-      }
-
       if (ResourceUtils.isJarURL(rootDirUrl) || isJarResource(rootDirResource)) {
         doFindPathMatchingJarResources(rootDirResource, rootDirUrl, subPattern, consumer);
       }
@@ -887,88 +882,80 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       return;
     }
 
-    FileSystem fileSystem = null;
-    try {
-      Path rootPath = null;
-      if (rootDirUri.isAbsolute() && !rootDirUri.isOpaque()) {
-        // Prefer Path resolution from URI if possible
+    Path rootPath = null;
+    if (rootDirUri.isAbsolute() && !rootDirUri.isOpaque()) {
+      // Prefer Path resolution from URI if possible
+      try {
         try {
-          try {
-            rootPath = Path.of(rootDirUri);
-          }
-          catch (FileSystemNotFoundException ex) {
-            // If the file system was not found, assume it's a custom file system that needs to be installed.
-            fileSystem = FileSystems.newFileSystem(rootDirUri, Collections.emptyMap(), ClassUtils.getDefaultClassLoader());
-            rootPath = Path.of(rootDirUri);
-          }
+          rootPath = Path.of(rootDirUri);
         }
-        catch (Exception ex) {
-          log.debug("Failed to resolve {} in file system: {}", rootDirUri, ex);
-          // Fallback via Resource.getFile() below
+        catch (FileSystemNotFoundException ex) {
+          // If the file system was not found, assume it's a custom file system that needs to be installed.
+          FileSystems.newFileSystem(rootDirUri, Collections.emptyMap(), ClassUtils.getDefaultClassLoader());
+          rootPath = Path.of(rootDirUri);
         }
       }
-      if (rootPath == null) {
-        // Resource.getFile() resolution as a fallback -
-        // for custom URI formats and custom Resource implementations
-        try {
-          rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
-        }
-        catch (FileNotFoundException ex) {
-          if (log.isDebugEnabled()) {
-            log.debug("Cannot search for matching files underneath {} in the file system: {}", rootDirResource, ex.getMessage());
-          }
-          return;
-        }
-        catch (Exception ex) {
-          if (log.isInfoEnabled()) {
-            log.info("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString());
-          }
-          return;
-        }
+      catch (Exception ex) {
+        log.debug("Failed to resolve {} in file system: {}", rootDirUri, ex);
+        // Fallback via Resource.getFile() below
       }
-
-      if (!Files.exists(rootPath)) {
+    }
+    if (rootPath == null) {
+      // Resource.getFile() resolution as a fallback -
+      // for custom URI formats and custom Resource implementations
+      try {
+        rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
+      }
+      catch (FileNotFoundException ex) {
         if (log.isDebugEnabled()) {
-          log.debug("Skipping search for files matching pattern [{}]: directory [{}] does not exist",
-                  subPattern, rootPath.toAbsolutePath());
+          log.debug("Cannot search for matching files underneath {} in the file system: {}", rootDirResource, ex.getMessage());
         }
         return;
       }
-
-      String rootDir = StringUtils.cleanPath(rootPath.toString());
-      if (!rootDir.endsWith("/")) {
-        rootDir += "/";
-      }
-
-      Path rootPathForPattern = rootPath;
-      String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
-      Predicate<Path> isMatchingFile = path -> (!path.equals(rootPathForPattern) &&
-              pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString())));
-
-      if (log.isDebugEnabled()) {
-        log.trace("Searching directory [{}] for files matching pattern [{}]",
-                rootPath.toAbsolutePath(), subPattern);
-      }
-
-      try (Stream<Path> files = Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS)) {
-        files.filter(isMatchingFile).sorted().forEach(file -> {
-          try {
-            consumer.accept(new FileSystemResource(file));
-          }
-          catch (Exception e) {
-            throw ExceptionUtils.sneakyThrow(e);
-          }
-        });
-      }
       catch (Exception ex) {
-        log.debug("Failed to complete search in directory [{}] for files matching pattern [{}]: {}", rootPath.toAbsolutePath(), subPattern, ex);
-        throw ex;
+        if (log.isInfoEnabled()) {
+          log.info("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString());
+        }
+        return;
       }
     }
-    finally {
-      if (fileSystem != null) {
-        fileSystem.close();
+
+    if (!Files.exists(rootPath)) {
+      if (log.isDebugEnabled()) {
+        log.debug("Skipping search for files matching pattern [{}]: directory [{}] does not exist",
+                subPattern, rootPath.toAbsolutePath());
       }
+      return;
+    }
+
+    String rootDir = StringUtils.cleanPath(rootPath.toString());
+    if (!rootDir.endsWith("/")) {
+      rootDir += "/";
+    }
+
+    Path rootPathForPattern = rootPath;
+    String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
+    Predicate<Path> isMatchingFile = path -> (!path.equals(rootPathForPattern) &&
+            pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString())));
+
+    if (log.isDebugEnabled()) {
+      log.trace("Searching directory [{}] for files matching pattern [{}]",
+              rootPath.toAbsolutePath(), subPattern);
+    }
+
+    try (Stream<Path> files = Files.walk(rootPath, FileVisitOption.FOLLOW_LINKS)) {
+      files.filter(isMatchingFile).sorted().forEach(file -> {
+        try {
+          consumer.accept(new FileSystemResource(file));
+        }
+        catch (Exception e) {
+          throw ExceptionUtils.sneakyThrow(e);
+        }
+      });
+    }
+    catch (Exception ex) {
+      log.debug("Failed to complete search in directory [{}] for files matching pattern [{}]: {}", rootPath.toAbsolutePath(), subPattern, ex);
+      throw ex;
     }
   }
 
