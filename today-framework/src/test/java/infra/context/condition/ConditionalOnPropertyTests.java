@@ -307,12 +307,14 @@ class ConditionalOnPropertyTests {
     TestPropertyValues.of(environment).applyTo(this.environment);
     this.context = new ApplicationBuilder(config).environment(this.environment)
             .type(ApplicationType.NORMAL)
+            .initializers(context -> conditionEvaluationReport = ConditionEvaluationReport.get(context.getBeanFactory()))
             .run();
   }
 
+  private ConditionEvaluationReport conditionEvaluationReport;
+
   private String getConditionEvaluationReport() {
-    return ConditionEvaluationReport.get(this.context.getBeanFactory())
-            .getConditionAndOutcomesBySource()
+    return conditionEvaluationReport.getConditionAndOutcomesBySource()
             .values()
             .stream()
             .flatMap(ConditionAndOutcomes::stream)

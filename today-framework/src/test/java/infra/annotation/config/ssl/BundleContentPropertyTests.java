@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 
+import infra.app.io.ApplicationResourceLoader;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 
@@ -88,7 +89,7 @@ class BundleContentPropertyTests {
     URL resource = getClass().getResource("keystore.jks");
     Path file = Path.of(resource.toURI()).toAbsolutePath();
     BundleContentProperty property = new BundleContentProperty("name", file.toString());
-    assertThat(property.toWatchPath(new DefaultResourceLoader())).isEqualTo(file);
+    assertThat(property.toWatchPath(ApplicationResourceLoader.of())).isEqualTo(file);
   }
 
   @Test
@@ -96,7 +97,7 @@ class BundleContentPropertyTests {
     URL resource = getClass().getResource("keystore.jks");
     Path file = Path.of(resource.toURI()).toAbsolutePath();
     BundleContentProperty property = new BundleContentProperty("name", file.toString());
-    ResourceLoader resourceLoader = spy(new DefaultResourceLoader());
+    ResourceLoader resourceLoader = spy(ApplicationResourceLoader.of());
     assertThat(property.toWatchPath(resourceLoader)).isEqualTo(file);
     then(resourceLoader).should(atLeastOnce()).getResource(file.toString());
   }
@@ -105,7 +106,7 @@ class BundleContentPropertyTests {
   void shouldThrowBundleContentNotWatchableExceptionIfContentIsNotWatchable() {
     BundleContentProperty property = new BundleContentProperty("name", "https://example.com/");
     assertThatExceptionOfType(BundleContentNotWatchableException.class)
-            .isThrownBy(() -> property.toWatchPath(new DefaultResourceLoader()))
+            .isThrownBy(() -> property.toWatchPath(ApplicationResourceLoader.of()))
             .withMessageContaining("Only 'file:' resources are watchable");
   }
 

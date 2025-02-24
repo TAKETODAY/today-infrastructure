@@ -47,6 +47,8 @@ class ConditionalOnBooleanPropertyTests {
 
   private final ConfigurableEnvironment environment = new StandardEnvironment();
 
+  private ConditionEvaluationReport conditionEvaluationReport;
+
   @AfterEach
   void tearDown() {
     if (this.context != null) {
@@ -200,8 +202,7 @@ class ConditionalOnBooleanPropertyTests {
   }
 
   private String getConditionEvaluationReport() {
-    return ConditionEvaluationReport.get(this.context.getBeanFactory())
-            .getConditionAndOutcomesBySource()
+    return conditionEvaluationReport.getConditionAndOutcomesBySource()
             .values()
             .stream()
             .flatMap(ConditionAndOutcomes::stream)
@@ -213,6 +214,7 @@ class ConditionalOnBooleanPropertyTests {
     TestPropertyValues.of(environment).applyTo(this.environment);
     this.context = new ApplicationBuilder(config)
             .environment(this.environment)
+            .initializers(context -> conditionEvaluationReport = ConditionEvaluationReport.get(context.getBeanFactory()))
             .type(ApplicationType.NORMAL)
             .run();
   }

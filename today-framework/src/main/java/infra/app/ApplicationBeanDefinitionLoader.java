@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,7 +225,7 @@ class ApplicationBeanDefinitionLoader {
     if (resource instanceof ClassPathResource classPathResource) {
       // A simple package without a '.' may accidentally get loaded as an XML
       // document if we're not careful. The result of getInputStream() will be
-      // a file list of the package content. We double check here that it's not
+      // a file list of the package content. We double-check here that it's not
       // actually a package.
       String path = classPathResource.getPath();
       if (path.indexOf('.') == -1) {
