@@ -46,7 +46,7 @@ public class ConditionEvaluator {
   private final ConditionContext evaluationContext;
 
   public ConditionEvaluator(ApplicationContext context, BeanDefinitionRegistry registry) {
-    this.evaluationContext = new ConditionContext(context, registry);
+    this.evaluationContext = new ConditionContext(registry, context.getEnvironment(), context);
   }
 
   /**

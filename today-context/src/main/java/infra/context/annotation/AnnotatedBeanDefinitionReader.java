@@ -33,6 +33,7 @@ import infra.beans.factory.support.BeanNameGenerator;
 import infra.core.env.Environment;
 import infra.core.env.EnvironmentCapable;
 import infra.core.env.StandardEnvironment;
+import infra.core.io.ResourceLoader;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
@@ -55,11 +56,17 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
 
   private final BeanDefinitionRegistry registry;
 
+  @Nullable
+  private final ResourceLoader resourceLoader;
+
   private BeanNameGenerator beanNameGenerator = AnnotationBeanNameGenerator.INSTANCE;
 
   private ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
+  @Nullable
   private ConditionEvaluator conditionEvaluator;
+
+  private Environment environment;
 
   /**
    * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry.
@@ -89,7 +96,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     Assert.notNull(registry, "BeanDefinitionRegistry is required");
     Assert.notNull(environment, "Environment is required");
     this.registry = registry;
-    this.conditionEvaluator = new ConditionEvaluator(environment, null, registry);
+    this.environment = environment;
+    this.resourceLoader = registry instanceof ResourceLoader ? (ResourceLoader) registry : null;
     AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
   }
 
@@ -108,7 +116,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @see #registerBean(Class, String, Class...)
    */
   public void setEnvironment(Environment environment) {
-    this.conditionEvaluator = new ConditionEvaluator(environment, null, registry);
+    this.environment = environment;
+    this.conditionEvaluator = null;
   }
 
   /**
@@ -263,7 +272,12 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
           @Nullable Class<? extends Annotation>[] qualifiers, @Nullable BeanDefinitionCustomizer[] customizers) {
 
     var definition = new AnnotatedGenericBeanDefinition(beanClass);
-    if (this.conditionEvaluator.shouldSkip(definition.getMetadata())) {
+
+    if (conditionEvaluator == null) {
+      conditionEvaluator = new ConditionEvaluator(environment, resourceLoader, registry);
+    }
+
+    if (conditionEvaluator.shouldSkip(definition.getMetadata())) {
       return;
     }
 

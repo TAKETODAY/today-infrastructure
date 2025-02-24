@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.context.annotation;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.BeanDefinitionRegistry;
-import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.condition.ConditionEvaluationReport;
 import infra.core.env.Environment;
@@ -55,14 +54,6 @@ public class ConditionContext {
   @Nullable
   private ConditionEvaluationReport conditionEvaluationReport;
 
-  public ConditionContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
-    this.registry = registry;
-    this.resourceLoader = context;
-    this.environment = context.getEnvironment();
-    this.beanFactory = deduceBeanFactory(registry);
-    this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
-  }
-
   public ConditionContext(@Nullable BeanDefinitionRegistry registry,
           @Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
 
@@ -70,7 +61,7 @@ public class ConditionContext {
     this.beanFactory = deduceBeanFactory(registry);
     this.environment = environment != null ? environment : deduceEnvironment(registry);
     this.resourceLoader = resourceLoader != null ? resourceLoader : deduceResourceLoader(registry);
-    this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
+    this.classLoader = deduceClassLoader(this.resourceLoader, this.beanFactory);
   }
 
   @Nullable
