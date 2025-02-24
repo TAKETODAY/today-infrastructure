@@ -872,7 +872,7 @@ public class TodayStrategies {
    * @see #forDefaultResourceLocation()
    */
   public static TodayStrategies forDefaultResourceLocation(@Nullable ClassLoader classLoader) {
-    return forLocation(STRATEGIES_LOCATION, classLoader);
+    return forResourceLocation(STRATEGIES_LOCATION, classLoader);
   }
 
   /**
@@ -882,10 +882,10 @@ public class TodayStrategies {
    *
    * @param resourceLocation the resource location to look for factories
    * @return a {@link TodayStrategies} instance
-   * @see #forLocation(String, ClassLoader)
+   * @see #forResourceLocation(String, ClassLoader)
    */
-  public static TodayStrategies forLocation(String resourceLocation) {
-    return forLocation(resourceLocation, null);
+  public static TodayStrategies forResourceLocation(String resourceLocation) {
+    return forResourceLocation(resourceLocation, null);
   }
 
   /**
@@ -897,9 +897,9 @@ public class TodayStrategies {
    * @param classLoader the ClassLoader to use for loading resources; can be
    * {@code null} to use the default
    * @return a {@link TodayStrategies} instance
-   * @see #forLocation(String)
+   * @see #forResourceLocation(String)
    */
-  public static TodayStrategies forLocation(String resourceLocation, @Nullable ClassLoader classLoader) {
+  public static TodayStrategies forResourceLocation(String resourceLocation, @Nullable ClassLoader classLoader) {
     Assert.hasText(resourceLocation, "'resourceLocation' must not be empty");
 
     if (classLoader == null) {

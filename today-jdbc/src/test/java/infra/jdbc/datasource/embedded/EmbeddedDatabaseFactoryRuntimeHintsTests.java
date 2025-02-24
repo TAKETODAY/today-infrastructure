@@ -39,7 +39,7 @@ class EmbeddedDatabaseFactoryRuntimeHintsTests {
   @BeforeEach
   void setup() {
     this.hints = new RuntimeHints();
-    TodayStrategies.forLocation("META-INF/config/aot.factories")
+    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
                     .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }

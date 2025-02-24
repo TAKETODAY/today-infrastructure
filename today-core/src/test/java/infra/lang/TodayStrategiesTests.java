@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,14 +152,14 @@ class TodayStrategiesTests {
 
   @Test
   void loadForResourceLocationWhenLocationDoesNotExistReturnsEmptyList() {
-    List<DummyFactory> factories = TodayStrategies.forLocation(
+    List<DummyFactory> factories = TodayStrategies.forResourceLocation(
             "META-INF/missing/missing-today.strategies").load(DummyFactory.class);
     assertThat(factories).isEmpty();
   }
 
   @Test
   void loadForResourceLocationLoadsFactories() {
-    List<DummyFactory> factories = TodayStrategies.forLocation(
+    List<DummyFactory> factories = TodayStrategies.forResourceLocation(
             "META-INF/custom/custom.strategies").load(DummyFactory.class);
     assertThat(factories).hasSize(1);
     assertThat(factories.get(0)).isInstanceOf(MyDummyFactory1.class);

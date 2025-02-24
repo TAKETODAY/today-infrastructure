@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ class TodayStrategiesRuntimeHintsTests {
   @BeforeEach
   void setup() {
     this.hints = new RuntimeHints();
-    TodayStrategies.forLocation("META-INF/config/aot.factories")
+    TodayStrategies.forResourceLocation("META-INF/config/aot.factories")
             .load(RuntimeHintsRegistrar.class).forEach(registrar -> registrar
                     .registerHints(this.hints, ClassUtils.getDefaultClassLoader()));
   }
