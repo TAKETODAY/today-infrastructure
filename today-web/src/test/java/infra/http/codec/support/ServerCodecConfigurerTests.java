@@ -74,7 +74,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class ServerCodecConfigurerTests {
+class ServerCodecConfigurerTests {
 
   private final ServerCodecConfigurer configurer = new DefaultServerCodecConfigurer();
 
@@ -83,7 +83,7 @@ public class ServerCodecConfigurerTests {
   @Test
   public void defaultReaders() {
     List<HttpMessageReader<?>> readers = this.configurer.getReaders();
-    assertThat(readers.size()).isEqualTo(15);
+    assertThat(readers.size()).isEqualTo(14);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteArrayDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(ByteBufferDecoder.class);
     assertThat(getNextDecoder(readers).getClass()).isEqualTo(DataBufferDecoder.class);
@@ -104,7 +104,7 @@ public class ServerCodecConfigurerTests {
   @Test
   public void defaultWriters() {
     List<HttpMessageWriter<?>> writers = this.configurer.getWriters();
-    assertThat(writers.size()).isEqualTo(15);
+    assertThat(writers.size()).isEqualTo(14);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteArrayEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(ByteBufferEncoder.class);
     assertThat(getNextEncoder(writers).getClass()).isEqualTo(DataBufferEncoder.class);
