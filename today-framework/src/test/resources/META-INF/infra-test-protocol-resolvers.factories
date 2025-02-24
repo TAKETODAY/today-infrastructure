@@ -1,0 +1,2 @@
+infra.core.io.ProtocolResolver=\
+infra.app.io.ReverseStringProtocolResolver

@@ -235,7 +235,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       }
       SystemStatusListener.addTo(loggerContext);
       try {
-        Resource resource = new ApplicationResourceLoader().getResource(location);
+        Resource resource = ApplicationResourceLoader.of().getResource(location);
         configureByResourceUrl(context, loggerContext, resource.getURL());
       }
       catch (Exception ex) {
@@ -315,7 +315,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     loadConfiguration(startupContext, getSelfInitializationConfig(), null);
   }
 
-  private void putInitializationContextObjects(LoggerContext loggerContext, LoggingStartupContext startupContext) {
+  private void putInitializationContextObjects(LoggerContext loggerContext, @Nullable LoggingStartupContext startupContext) {
     withLoggingSuppressed(
             () -> loggerContext.putObject(Environment.class.getName(), startupContext.getEnvironment()));
   }
@@ -330,6 +330,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     return result;
   }
 
+  @Nullable
   @Override
   public LoggerConfiguration getLoggerConfiguration(String loggerName) {
     String name = getLoggerName(loggerName);
@@ -337,7 +338,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     return getLoggerConfiguration(loggerContext.exists(name));
   }
 
-  private String getLoggerName(String name) {
+  private String getLoggerName(@Nullable String name) {
     if (StringUtils.isEmpty(name) || Logger.ROOT_LOGGER_NAME.equals(name)) {
       return ROOT_LOGGER_NAME;
     }
@@ -361,7 +362,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   @Override
-  public void setLogLevel(String loggerName, LogLevel level) {
+  public void setLogLevel(@Nullable String loggerName, LogLevel level) {
     var logger = getLogger(loggerName);
     if (logger != null) {
       logger.setLevel(LEVELS.convertSystemToNative(level));
@@ -373,7 +374,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     return () -> getLoggerContext().stop();
   }
 
-  private ch.qos.logback.classic.Logger getLogger(String name) {
+  private ch.qos.logback.classic.Logger getLogger(@Nullable String name) {
     LoggerContext factory = getLoggerContext();
     return factory.getLogger(getLoggerName(name));
   }
@@ -468,6 +469,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
     private static final boolean PRESENT = ClassUtils.isPresent(
             "ch.qos.logback.classic.LoggerContext", Factory.class);
 
+    @Nullable
     @Override
     public LoggingSystem getLoggingSystem(ClassLoader classLoader) {
       if (PRESENT) {

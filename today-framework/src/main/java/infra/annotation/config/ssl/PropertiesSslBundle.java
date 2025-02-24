@@ -17,7 +17,7 @@
 
 package infra.annotation.config.ssl;
 
-import infra.core.io.DefaultResourceLoader;
+import infra.app.io.ApplicationResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundleKey;
@@ -102,7 +102,7 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(PemSslBundleProperties properties) {
-    return get(properties, new DefaultResourceLoader());
+    return get(properties, ApplicationResourceLoader.of());
   }
 
   /**
@@ -147,7 +147,7 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(JksSslBundleProperties properties) {
-    return get(properties, new DefaultResourceLoader());
+    return get(properties, ApplicationResourceLoader.of());
   }
 
   /**

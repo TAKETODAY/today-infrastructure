@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ import java.util.Base64;
 import java.util.function.Consumer;
 
 import infra.app.io.ApplicationResourceLoader;
-import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 import infra.util.function.ThrowingConsumer;
 import infra.web.MockPkcs11Security;
 
@@ -81,7 +81,7 @@ class JksSslStoreBundleITTests {
   }
 
   private String encodeFileContent(String location) throws IOException {
-    DefaultResourceLoader loader = new ApplicationResourceLoader();
+    ResourceLoader loader = ApplicationResourceLoader.of();
     Resource resource = loader.getResource(location);
     byte[] bytes = Files.readAllBytes(resource.getFile().toPath());
     return "base64:" + Base64.getEncoder().encodeToString(bytes);
