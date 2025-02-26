@@ -20,8 +20,6 @@ package infra.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import infra.lang.Nullable;
-
 /**
  * A {@link Consumer} that allows invocation of code that throws a checked
  * exception.
@@ -42,7 +40,7 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * @param t the input argument
    * @throws Throwable on error
    */
-  void acceptWithException(@Nullable T t) throws Throwable;
+  void acceptWithException(T t) throws Throwable;
 
   /**
    * Default {@link Consumer#accept(Object)} that wraps any thrown checked

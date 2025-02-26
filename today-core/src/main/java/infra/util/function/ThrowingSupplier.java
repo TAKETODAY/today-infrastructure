@@ -20,8 +20,6 @@ package infra.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-import infra.lang.Nullable;
-
 /**
  * A {@link Supplier} that allows invocation of code that throws a checked
  * exception.
@@ -40,7 +38,6 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * @return a result
    * @throws Throwable on error
    */
-  @Nullable
   T getWithException() throws Throwable;
 
   /**

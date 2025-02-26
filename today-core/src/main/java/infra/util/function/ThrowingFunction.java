@@ -44,8 +44,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * @return the function result
    * @throws Throwable on error
    */
-  @Nullable
-  R applyWithException(@Nullable T t) throws Throwable;
+  R applyWithException(T t) throws Throwable;
 
   /**
    * Default {@link Function#apply(Object)} that wraps any thrown checked
@@ -53,9 +52,8 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    *
    * @see java.util.function.Function#apply(java.lang.Object)
    */
-  @Nullable
   @Override
-  default R apply(@Nullable T t) {
+  default R apply(T t) {
     return apply(t, RuntimeException::new);
   }
 
@@ -67,8 +65,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * and checked exception into a runtime exception
    * @return a result
    */
-  @Nullable
-  default R apply(@Nullable T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
+  default R apply(T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       return applyWithException(t);
     }
@@ -92,13 +89,11 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
   default ThrowingFunction<T, R> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingFunction<>() {
 
-      @Nullable
       @Override
       public R applyWithException(@Nullable T t) throws Throwable {
         return ThrowingFunction.this.applyWithException(t);
       }
 
-      @Nullable
       @Override
       public R apply(@Nullable T t) {
         return apply(t, exceptionWrapper);

@@ -19,8 +19,6 @@ package infra.util.function;
 
 import java.util.function.BiFunction;
 
-import infra.lang.Nullable;
-
 /**
  * A {@link BiFunction} that allows invocation of code that throws a checked
  * exception.
@@ -44,8 +42,7 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return the function result
    * @throws Throwable on error
    */
-  @Nullable
-  R applyWithException(@Nullable T t, @Nullable U u) throws Throwable;
+  R applyWithException(T t, U u) throws Throwable;
 
   /**
    * Default {@link BiFunction#apply(Object, Object)} that wraps any thrown
