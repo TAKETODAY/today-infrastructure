@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1553,13 +1553,13 @@ class FutureTests {
 
     forExecutor(directExecutor())
             .timeout(Duration.ofSeconds(1), future -> future.trySuccess(1))
-            .onSuccess(v -> flag.set(false));
+            .onSuccess(() -> flag.set(false));
 
     assertThat(flag).isFalse();
 
     forExecutor(directExecutor())
             .timeout(100, TimeUnit.MILLISECONDS, scheduledService)
-            .onSuccess(v -> flag.set(true));
+            .onSuccess(() -> flag.set(true));
 
     assertThat(flag).isTrue();
 
@@ -1615,7 +1615,7 @@ class FutureTests {
   void whenAllCompleteStream() throws InterruptedException {
     Future<Void> future = whenAllComplete(Stream.of(ok(), failed(new RuntimeException("msg"))))
             .combine()
-            .onSuccess(v -> fail("ok"));
+            .onSuccess(() -> fail("ok"));
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
 
@@ -1631,7 +1631,7 @@ class FutureTests {
   void whenAllSucceedStream() {
     Future<Void> future = whenAllSucceed(Stream.of(ok(), failed(new RuntimeException("msg"))))
             .combine()
-            .onSuccess(v -> fail());
+            .onSuccess(() -> fail());
 
     assertThat(future).failsWithin(Duration.ofSeconds(1));
     assertThat(future.isFailed()).isTrue();

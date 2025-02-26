@@ -291,6 +291,22 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Java 8 lambda-friendly alternative with success callbacks.
+   *
+   * @param callback the success callback
+   * @return this future object.
+   * @since 5.0
+   */
+  public final Future<V> onSuccess(ThrowingRunnable callback) {
+    Assert.notNull(callback, "successCallback is required");
+    return onCompleted(future -> {
+      if (future.isSuccess()) {
+        callback.run();
+      }
+    });
+  }
+
+  /**
    * Add behavior triggered when the {@link Future} completes with
    * an error matching the given exception type.
    *

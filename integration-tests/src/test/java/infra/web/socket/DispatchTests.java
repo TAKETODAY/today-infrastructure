@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ class DispatchTests {
             .onSuccess(session -> {
               combiner.run(() -> {
                 session.send(factory -> WebSocketMessage.text(factory.copiedBuffer(generated)))
-                        .onSuccess(v -> log.info("send ok"));
+                        .onSuccess(() -> log.info("send ok"));
               });
 
               dataLatch.await();
