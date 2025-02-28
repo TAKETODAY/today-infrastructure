@@ -39,7 +39,8 @@ dependencies {
 reporting {
   reports {
     testCodeCoverageReport(JacocoCoverageReport) {
-      testType = TestSuiteType.UNIT_TEST
+//      testSuiteName = TestSuiteType.UNIT_TEST
+//      testSuiteName = "unit-test"
     }
   }
 }
