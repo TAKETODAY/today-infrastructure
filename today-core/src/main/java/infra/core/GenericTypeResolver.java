@@ -141,6 +141,11 @@ public abstract class GenericTypeResolver {
       if (genericType instanceof TypeVariable<?> typeVariable) {
         ResolvableType resolvedTypeVariable = resolveVariable(
                 typeVariable, ResolvableType.forClass(contextClass));
+
+        if (resolvedTypeVariable == ResolvableType.NONE) {
+          resolvedTypeVariable = ResolvableType.forVariableBounds(typeVariable);
+        }
+
         if (resolvedTypeVariable != ResolvableType.NONE) {
           Class<?> resolved = resolvedTypeVariable.resolve();
           if (resolved != null) {
