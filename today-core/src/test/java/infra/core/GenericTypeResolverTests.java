@@ -477,12 +477,6 @@ class GenericTypeResolverTests {
     }
   }
 
-  public static class InheritsDefaultMethod implements InterfaceWithDefaultMethod<InheritsDefaultMethod.ConcreteType> {
-
-    static class ConcreteType implements AbstractType {
-    }
-  }
-
   public interface InterfaceWithDefaultMethod<T extends InheritsDefaultMethod.AbstractType> {
 
     default String get(T input) {
@@ -492,4 +486,11 @@ class GenericTypeResolverTests {
     interface AbstractType {
     }
   }
+
+  public static class InheritsDefaultMethod implements InterfaceWithDefaultMethod<InheritsDefaultMethod.ConcreteType> {
+
+    static class ConcreteType implements AbstractType {
+    }
+  }
+
 }

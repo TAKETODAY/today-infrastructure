@@ -163,6 +163,11 @@ public abstract class GenericTypeResolver {
             Type typeArgument = typeArguments[i];
             if (typeArgument instanceof TypeVariable<?> typeVariable) {
               ResolvableType resolvedTypeArgument = resolveVariable(typeVariable, contextType);
+
+              if (resolvedTypeArgument == ResolvableType.NONE) {
+                resolvedTypeArgument = ResolvableType.forVariableBounds(typeVariable);
+              }
+
               if (resolvedTypeArgument != ResolvableType.NONE) {
                 generics[i] = resolvedTypeArgument;
               }
