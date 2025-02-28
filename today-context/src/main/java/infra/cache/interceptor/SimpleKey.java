@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.StringUtils;
 
 /**
  * A simple key as returned from the {@link SimpleKeyGenerator}.
@@ -54,17 +53,17 @@ public class SimpleKey implements Serializable {
    *
    * @param elements the elements of the key
    */
-  public SimpleKey(Object... elements) {
+  public SimpleKey(@Nullable Object... elements) {
     Assert.notNull(elements, "Elements is required");
     this.params = elements.clone();
     // Pre-calculate hashCode field
-    this.hashCode = Arrays.deepHashCode(this.params);
+    this.hashCode = calculateHash(this.params);
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other ||
-            (other instanceof SimpleKey && Arrays.deepEquals(this.params, ((SimpleKey) other).params)));
+    return (this == other || (other instanceof SimpleKey that
+            && Arrays.deepEquals(this.params, that.params)));
   }
 
   @Override
@@ -75,14 +74,25 @@ public class SimpleKey implements Serializable {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [" + StringUtils.arrayToCommaDelimitedString(this.params) + "]";
+    return getClass().getSimpleName() + " " + Arrays.deepToString(this.params);
   }
 
   @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     ois.defaultReadObject();
     // Re-calculate hashCode field on deserialization
-    this.hashCode = Arrays.deepHashCode(this.params);
+    this.hashCode = calculateHash(this.params);
+  }
+
+  /**
+   * Calculate the hash of the key using its elements and
+   * mix the result with the finalising function of MurmurHash3.
+   */
+  private static int calculateHash(@Nullable Object[] params) {
+    int hash = Arrays.deepHashCode(params);
+    hash = (hash ^ (hash >>> 16)) * 0x85ebca6b;
+    hash = (hash ^ (hash >>> 13)) * 0xc2b2ae35;
+    return hash ^ (hash >>> 16);
   }
 
 }
