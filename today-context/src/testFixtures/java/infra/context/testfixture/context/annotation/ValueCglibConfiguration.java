@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.context.testfixture.context.annotation;
 
 import infra.beans.factory.annotation.Value;
+import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 
 @Configuration
@@ -32,4 +33,10 @@ public class ValueCglibConfiguration {
   public String getName() {
     return this.name;
   }
+
+  @Bean
+  public String dummy() {
+    return "dummy";
+  }
+
 }

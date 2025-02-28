@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.SyncTaskExecutor;
 import infra.lang.Assert;
 import infra.stereotype.Component;
+import infra.util.ClassUtils;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,6 +104,7 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).contains(ClassUtils.CGLIB_CLASS_SEPARATOR);
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isSameAs(foo);
@@ -117,6 +119,7 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).contains(ClassUtils.CGLIB_CLASS_SEPARATOR);
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isSameAs(foo);
@@ -131,6 +134,7 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).doesNotContain(ClassUtils.CGLIB_CLASS_SEPARATOR);
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isNotSameAs(foo);
@@ -142,6 +146,7 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).doesNotContain(ClassUtils.CGLIB_CLASS_SEPARATOR);
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isNotSameAs(foo);
@@ -153,6 +158,7 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).doesNotContain(ClassUtils.CGLIB_CLASS_SEPARATOR);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("foo")).hasBeanClass()).isTrue();
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("bar")).hasBeanClass()).isTrue();
     Foo foo = beanFactory.getBean("foo", Foo.class);
@@ -166,11 +172,21 @@ class ConfigurationClassPostProcessorTests {
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
     pp.postProcessBeanFactory(beanFactory);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).doesNotContain(ClassUtils.CGLIB_CLASS_SEPARATOR);
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("foo")).hasBeanClass()).isTrue();
     assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("bar")).hasBeanClass()).isTrue();
     Foo foo = beanFactory.getBean("foo", Foo.class);
     Bar bar = beanFactory.getBean("bar", Bar.class);
     assertThat(bar.foo).isNotSameAs(foo);
+  }
+
+  @Test
+  void enhancementIsNotPresentWithEmptyConfig() {
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(EmptyConfig.class));
+    ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+    pp.postProcessBeanFactory(beanFactory);
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).hasBeanClass()).isTrue();
+    assertThat(((RootBeanDefinition) beanFactory.getBeanDefinition("config")).getBeanClass().getName()).doesNotContain(ClassUtils.CGLIB_CLASS_SEPARATOR);
   }
 
   @Test
@@ -1195,7 +1211,7 @@ class ConfigurationClassPostProcessorTests {
   }
 
   @Configuration
-  static class StaticSingletonBeanConfig {
+  static final class StaticSingletonBeanConfig {
 
     public static @Bean Foo foo() {
       return new Foo();
@@ -1204,6 +1220,10 @@ class ConfigurationClassPostProcessorTests {
     public static @Bean Bar bar() {
       return new Bar(foo());
     }
+  }
+
+  @Configuration
+  static final class EmptyConfig {
   }
 
   @Configuration

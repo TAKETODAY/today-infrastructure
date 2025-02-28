@@ -165,6 +165,15 @@ final class ConfigurationClass {
     return !this.importedBy.isEmpty();
   }
 
+  boolean hasNonStaticComponentMethods() {
+    for (var beanMethod : this.componentMethods) {
+      if (!beanMethod.metadata.isStatic()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * Merge the imported-by declarations from the given configuration class into this one.
    */
@@ -187,7 +196,8 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     var annotation = metadata.getAnnotation(Configuration.class);
-    if (metadata.isFinal() && annotation.isPresent() && annotation.getBoolean("proxyBeanMethods")) {
+    if (metadata.isFinal() && annotation.isPresent() && hasNonStaticComponentMethods()
+            && annotation.getBoolean("proxyBeanMethods")) {
       problemReporter.error(new FinalConfigurationProblem());
     }
 

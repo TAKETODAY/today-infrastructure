@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.parsing.BeanDefinitionParsingException;
-import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
 
+import static infra.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Chris Beams
  */
-public class InvalidConfigurationClassDefinitionTests {
+class InvalidConfigurationClassDefinitionTests {
 
   private BootstrapContext loadingContext;
 
@@ -46,18 +46,20 @@ public class InvalidConfigurationClassDefinitionTests {
   }
 
   @Test
-  public void configurationClassesMayNotBeFinal() {
+  void configurationClassesMayNotBeFinal() {
     @Configuration
-    final class Config { }
+    final class Config {
+      @Bean
+      String dummy() { return "dummy"; }
+    }
 
-    BeanDefinition configBeanDef = new RootBeanDefinition(Config.class);
+    BeanDefinition configBeanDef = rootBeanDefinition(Config.class).getBeanDefinition();
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", configBeanDef);
 
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor(loadingContext);
-    assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
-                    pp.postProcessBeanFactory(beanFactory))
+    assertThatExceptionOfType(BeanDefinitionParsingException.class)
+            .isThrownBy(() -> pp.postProcessBeanFactory(beanFactory))
             .withMessageContaining("Remove the final modifier");
   }
-
 }
