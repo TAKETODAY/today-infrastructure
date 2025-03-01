@@ -114,6 +114,7 @@ import infra.format.support.ApplicationConversionService;
 import infra.http.server.reactive.HttpHandler;
 import infra.lang.Nullable;
 import infra.mock.env.MockEnvironment;
+import infra.stereotype.Component;
 import infra.test.classpath.ForkedClassPath;
 import infra.test.context.support.TestPropertySourceUtils;
 import infra.util.ExceptionUtils;
@@ -205,7 +206,7 @@ class ApplicationTests {
 
   @Test
   void sourcesMustBeAccessible() {
-    assertThatThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
+    assertThatThrownBy(() -> new ApplicationBuilder(InaccessibleConfiguration.class).type(ApplicationType.NORMAL).run())
             .isInstanceOf(BeanDefinitionStoreException.class)
             .satisfies(ex -> assertThat(ExceptionUtils.getNestedMessage(ex, null))
                     .contains("No visible constructors"));
@@ -1529,6 +1530,11 @@ class ApplicationTests {
   static class InaccessibleConfiguration {
 
     private InaccessibleConfiguration() {
+    }
+
+    @Component
+    String foo() {
+      return "foo";
     }
 
   }
