@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,8 +60,34 @@ public class RequestParamArgumentResolver extends AbstractNamedValueArgumentReso
 
   private boolean favorSingleValue;
 
+  /**
+   * Resolving RequestParam non-annotated arguments as request parameter
+   *
+   * @since 5.0
+   */
+  private final boolean fallbackResolving;
+
+  /**
+   * Create a new {@code RequestParamArgumentResolver} with the
+   * given {@link ConversionService}.
+   *
+   * @param conversionService the ConversionService to use
+   */
   public RequestParamArgumentResolver(ConversionService conversionService) {
+    this(conversionService, false);
+  }
+
+  /**
+   * Create a new {@code RequestParamArgumentResolver} with the
+   * given {@link ConversionService}.
+   *
+   * @param conversionService the ConversionService to use
+   * @param fallbackResolving whether to resolve non-annotated arguments as request parameters
+   * @since 5.0
+   */
+  public RequestParamArgumentResolver(ConversionService conversionService, boolean fallbackResolving) {
     super(conversionService);
+    this.fallbackResolving = fallbackResolving;
   }
 
   /**
@@ -91,6 +117,10 @@ public class RequestParamArgumentResolver extends AbstractNamedValueArgumentReso
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter, HttpRequestValues.Metadata metadata) {
     RequestParam annot = parameter.getParameterAnnotation(RequestParam.class);
     if (annot == null) {
+      if (fallbackResolving) {
+        return new NamedValueInfo("", !parameter.isNullable(), null,
+                "request parameter", supportsMultipleValues(parameter, metadata));
+      }
       return null;
     }
     return new NamedValueInfo(annot.name(), annot.required(), annot.defaultValue(),

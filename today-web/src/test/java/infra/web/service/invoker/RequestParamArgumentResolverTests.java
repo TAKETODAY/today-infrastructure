@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,9 +47,6 @@ class RequestParamArgumentResolverTests {
 
   private final TestExchangeAdapter client = new TestExchangeAdapter();
 
-  private final Service service =
-          HttpServiceProxyFactory.forAdapter(this.client).build().createClient(Service.class);
-
   @Test
   @SuppressWarnings("unchecked")
   void requestParam() {
@@ -70,7 +67,7 @@ class RequestParamArgumentResolverTests {
 
     Service service = HttpServiceProxyFactory.forAdapter(this.client)
             .customArgumentResolver(resolver).build().createClient(Service.class);
-    
+
     service.getWithParams("value 1", List.of("1", "2", "3"));
 
     HttpRequestValues values = this.client.getRequestValues();
@@ -80,6 +77,69 @@ class RequestParamArgumentResolverTests {
     assertThat(uri.getQuery()).isEqualTo("param1=value%201&param2=1,2,3");
   }
 
+  @Test
+  void favorSingleValueWithFormContent() {
+    RequestParamArgumentResolver resolver = new RequestParamArgumentResolver(new DefaultConversionService());
+    resolver.setFavorSingleValue(true);
+
+    Service service = HttpServiceProxyFactory.forAdapter(this.client)
+            .customArgumentResolver(resolver).build().createClient(Service.class);
+
+    service.postForm("value1", "value2");
+
+    HttpRequestValues values = this.client.getRequestValues();
+    assertThat(values.getHeaders().getContentType().toString()).isEqualTo("application/x-www-form-urlencoded");
+    assertThat(values.getBodyValue()).isInstanceOf(MultiValueMap.class);
+  }
+
+  @Test
+  void favorSingleValueDisabled() {
+    RequestParamArgumentResolver resolver = new RequestParamArgumentResolver(new DefaultConversionService());
+    resolver.setFavorSingleValue(false);
+
+    Service service = HttpServiceProxyFactory.forAdapter(this.client)
+            .customArgumentResolver(resolver).build().createClient(Service.class);
+
+    service.getWithParams("value", List.of("1", "2", "3"));
+
+    HttpRequestValues values = this.client.getRequestValues();
+    String uriTemplate = values.getUriTemplate();
+    Map<String, String> uriVariables = values.getUriVariables();
+    UriComponents uri = UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(uriVariables).encode();
+    assertThat(uri.getQuery()).isEqualTo("param1=value&param2=1&param2=2&param2=3");
+  }
+
+  @Test
+  void favorSingleValueWithEmptyList() {
+    RequestParamArgumentResolver resolver = new RequestParamArgumentResolver(new DefaultConversionService());
+    resolver.setFavorSingleValue(true);
+
+    Service service = HttpServiceProxyFactory.forAdapter(this.client)
+            .customArgumentResolver(resolver).build().createClient(Service.class);
+
+    service.getWithParams("value", List.of());
+
+    HttpRequestValues values = this.client.getRequestValues();
+    String uriTemplate = values.getUriTemplate();
+    Map<String, String> uriVariables = values.getUriVariables();
+    UriComponents uri = UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(uriVariables).encode();
+    assertThat(uri.getQuery()).isEqualTo("param1=value&param2=");
+  }
+
+  @Test
+  void multipartContentType() {
+    RequestParamArgumentResolver resolver = new RequestParamArgumentResolver(new DefaultConversionService());
+    resolver.setFavorSingleValue(true);
+
+    Service service = HttpServiceProxyFactory.forAdapter(this.client)
+            .customArgumentResolver(resolver).build().createClient(Service.class);
+
+    service.postMultipart("value1", List.of("1", "2"));
+
+    HttpRequestValues values = this.client.getRequestValues();
+    assertThat(values.getHeaders().getContentType().toString()).startsWith("multipart/");
+  }
+
   private interface Service {
 
     @PostExchange(contentType = "application/x-www-form-urlencoded")
@@ -87,6 +147,9 @@ class RequestParamArgumentResolverTests {
 
     @GetExchange
     void getWithParams(@RequestParam String param1, @RequestParam List<String> param2);
+
+    @PostExchange(contentType = "multipart/form-data")
+    void postMultipart(@RequestParam String param1, @RequestParam List<String> param2);
   }
 
 }

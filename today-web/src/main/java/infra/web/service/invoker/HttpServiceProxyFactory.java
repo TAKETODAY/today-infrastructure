@@ -137,6 +137,17 @@ public final class HttpServiceProxyFactory {
     private StringValueResolver embeddedValueResolver;
 
     /**
+     * @since 5.0
+     */
+    private boolean addFallbackArgumentResolver;
+
+    /**
+     * @since 5.0
+     */
+    @Nullable
+    private HttpServiceArgumentResolver fallbackArgumentResolver;
+
+    /**
      * Provide the HTTP client to perform requests through.
      *
      * @param adapter a client adapted to {@link HttpExchangeAdapter}
@@ -155,6 +166,28 @@ public final class HttpServiceProxyFactory {
      */
     public Builder customArgumentResolver(HttpServiceArgumentResolver resolver) {
       this.customArgumentResolvers.add(resolver);
+      return this;
+    }
+
+    /**
+     * Register a default fallback argument resolver, invoked behind of default resolvers.
+     *
+     * @return this same builder instance
+     * @since 5.0
+     */
+    public Builder useDefaultFallbackArgumentResolver() {
+      this.addFallbackArgumentResolver = true;
+      return this;
+    }
+
+    /**
+     * Register a custom fallback argument resolver, invoked behind of default resolvers.
+     *
+     * @return this same builder instance
+     * @since 5.0
+     */
+    public Builder fallbackArgumentResolver(@Nullable HttpServiceArgumentResolver fallbackArgumentResolver) {
+      this.fallbackArgumentResolver = fallbackArgumentResolver;
       return this;
     }
 
@@ -238,8 +271,6 @@ public final class HttpServiceProxyFactory {
 
     @SuppressWarnings("DataFlowIssue")
     private List<HttpServiceArgumentResolver> initArgumentResolvers() {
-
-      // Custom
       List<HttpServiceArgumentResolver> resolvers = new ArrayList<>(customArgumentResolvers);
 
       ConversionService service = conversionService != null ?
@@ -261,6 +292,13 @@ public final class HttpServiceProxyFactory {
       resolvers.add(new UriBuilderFactoryArgumentResolver());
       resolvers.add(new HttpMethodArgumentResolver());
 
+      if (addFallbackArgumentResolver) {
+        resolvers.add(new RequestParamArgumentResolver(service, true));
+      }
+
+      if (fallbackArgumentResolver != null) {
+        resolvers.add(fallbackArgumentResolver);
+      }
       return resolvers;
     }
   }
@@ -277,6 +315,7 @@ public final class HttpServiceProxyFactory {
               .collect(Collectors.toMap(HttpServiceMethod::getMethod, Function.identity()));
     }
 
+    @Nullable
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
       Method method = invocation.getMethod();
