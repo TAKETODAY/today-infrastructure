@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ import java.util.List;
 
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
-import infra.lang.NonNull;
 import infra.lang.Nullable;
 
 /**
@@ -55,7 +54,6 @@ public final class ImportCandidates implements Iterable<String> {
     this.candidates = candidates;
   }
 
-  @NonNull
   @Override
   public Iterator<String> iterator() {
     return this.candidates.iterator();
@@ -94,7 +92,7 @@ public final class ImportCandidates implements Iterable<String> {
     return new ImportCandidates(importCandidates);
   }
 
-  private static ClassLoader decideClassloader(ClassLoader classLoader) {
+  private static ClassLoader decideClassloader(@Nullable ClassLoader classLoader) {
     if (classLoader == null) {
       return ImportCandidates.class.getClassLoader();
     }
