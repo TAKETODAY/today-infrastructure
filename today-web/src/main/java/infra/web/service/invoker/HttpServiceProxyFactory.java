@@ -38,6 +38,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.core.annotation.RepeatableContainers;
 import infra.core.conversion.ConversionService;
+import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -241,8 +242,8 @@ public final class HttpServiceProxyFactory {
       // Custom
       List<HttpServiceArgumentResolver> resolvers = new ArrayList<>(customArgumentResolvers);
 
-      ConversionService service = (conversionService != null ?
-              conversionService : new DefaultFormattingConversionService());
+      ConversionService service = conversionService != null ?
+              conversionService : ApplicationConversionService.getSharedInstance();
 
       // Annotation-based
       resolvers.add(new RequestHeaderArgumentResolver(service));
