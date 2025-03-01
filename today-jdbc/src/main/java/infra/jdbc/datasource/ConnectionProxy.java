@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package infra.jdbc.datasource;
 import java.sql.Connection;
 
 /**
- * Subinterface of {@link Connection} to be implemented by
+ * Sub-interface of {@link Connection} to be implemented by
  * Connection proxies. Allows access to the underlying target Connection.
  *
  * <p>This interface can be checked when there is a need to cast to a
@@ -28,6 +28,7 @@ import java.sql.Connection;
  * all such connections also support JDBC 4.0's {@link Connection#unwrap}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see TransactionAwareDataSourceProxy
  * @see LazyConnectionDataSourceProxy
  * @see DataSourceUtils#getTargetConnection(Connection)

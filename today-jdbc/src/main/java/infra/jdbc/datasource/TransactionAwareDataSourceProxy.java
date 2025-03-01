@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,13 +211,22 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
             sb.append('[').append(this.target).append(']');
           }
           else {
-            sb.append(" from DataSource [").append(this.targetDataSource).append(']');
+            sb.append("from DataSource [").append(this.targetDataSource).append(']');
           }
           return sb.toString();
         }
         case "close" -> {
           // Handle close method: only close if not within a transaction.
-          DataSourceUtils.doReleaseConnection(this.target, this.targetDataSource);
+          if (this.target != null) {
+            ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(this.targetDataSource);
+            if (conHolder != null && conHolder.hasConnection() && conHolder.getConnection() == this.target) {
+              // It's the transactional Connection: Don't close it.
+              conHolder.released();
+            }
+            else {
+              DataSourceUtils.doCloseConnection(this.target, this.targetDataSource);
+            }
+          }
           this.closed = true;
           return null;
         }
@@ -238,7 +247,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
 
       if (this.target == null) {
         if (method.getName().equals("getWarnings") || method.getName().equals("clearWarnings")) {
-          // Avoid creation of target Connection on pre-close cleanup (e.g. Hibernate Session)
+          // Avoid creation of target Connection on pre-close cleanup (for example, Hibernate Session)
           return null;
         }
         if (this.closed) {

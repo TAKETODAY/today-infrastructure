@@ -442,7 +442,11 @@ public abstract class DataSourceUtils {
   public static Connection getTargetConnection(Connection con) {
     Connection conToUse = con;
     while (conToUse instanceof ConnectionProxy connectionProxy) {
-      conToUse = connectionProxy.getTargetConnection();
+      Connection targetCon = connectionProxy.getTargetConnection();
+      if (targetCon == conToUse) {
+        break;
+      }
+      conToUse = targetCon;
     }
     return conToUse;
   }

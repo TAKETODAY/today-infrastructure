@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1011,9 +1011,41 @@ public class DataSourceTransactionManagerTests {
         Connection tCon = dsProxy.getConnection();
         assertThatExceptionOfType(SQLException.class).isThrownBy(tCon::getWarnings);
         tCon.clearWarnings();
-        assertThat(((ConnectionProxy) dsProxy.getConnection()).getTargetConnection()).isEqualTo(con);
+        assertThat(((ConnectionProxy) tCon).getTargetConnection()).isEqualTo(con);
         // should be ignored
-        dsProxy.getConnection().close();
+        tCon.close();
+      }
+      catch (SQLException ex) {
+        throw new UncategorizedSQLException("", "", ex);
+      }
+    });
+
+    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
+    InOrder ordered = inOrder(con);
+    ordered.verify(con).setAutoCommit(false);
+    ordered.verify(con).commit();
+    ordered.verify(con).setAutoCommit(true);
+    verify(con).close();
+  }
+
+  @Test
+  void testTransactionAwareDataSourceProxyWithEarlyConnection() throws Exception {
+    given(ds.getConnection()).willReturn(mock(Connection.class), con);
+    given(con.getAutoCommit()).willReturn(true);
+    given(con.getWarnings()).willThrow(new SQLException());
+
+    TransactionAwareDataSourceProxy dsProxy = new TransactionAwareDataSourceProxy(ds);
+    dsProxy.setLazyTransactionalConnections(false);
+    Connection tCon = dsProxy.getConnection();
+
+    TransactionTemplate tt = new TransactionTemplate(tm);
+    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
+    tt.executeWithoutResult(status -> {
+      // something transactional
+      assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
+      try {
+        // should close the early Connection obtained before the transaction
+        tCon.close();
       }
       catch (SQLException ex) {
         throw new UncategorizedSQLException("", "", ex);
