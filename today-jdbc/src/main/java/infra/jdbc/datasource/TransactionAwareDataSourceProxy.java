@@ -87,7 +87,8 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    *
    * @see #setTargetDataSource
    */
-  public TransactionAwareDataSourceProxy() { }
+  public TransactionAwareDataSourceProxy() {
+  }
 
   /**
    * Create a new TransactionAwareDataSourceProxy.
