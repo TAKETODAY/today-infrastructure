@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import infra.core.ResolvableType;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
@@ -90,7 +91,9 @@ public abstract class LambdaSafe {
    */
   protected abstract static class LambdaSafeCallback<C, A, SELF extends LambdaSafeCallback<C, A, SELF>> {
     private Logger log;
+
     private final A argument;
+
     private final Class<C> callbackType;
 
     private final Object[] additionalArguments;
@@ -359,9 +362,10 @@ public abstract class LambdaSafe {
   public static final class InvocationResult<R> {
     private static final InvocationResult<?> NONE = new InvocationResult<>(null);
 
+    @Nullable
     private final R value;
 
-    private InvocationResult(R value) {
+    private InvocationResult(@Nullable R value) {
       this.value = value;
     }
 
@@ -380,6 +384,7 @@ public abstract class LambdaSafe {
      *
      * @return the result of the invocation or {@code null}
      */
+    @Nullable
     public R get() {
       return this.value;
     }
@@ -391,7 +396,8 @@ public abstract class LambdaSafe {
      * @param fallback the fallback to use when there is no result
      * @return the result of the invocation or the fallback
      */
-    public R get(R fallback) {
+    @Nullable
+    public R get(@Nullable R fallback) {
       return (this != NONE) ? this.value : fallback;
     }
 
@@ -402,7 +408,7 @@ public abstract class LambdaSafe {
      * @param <R> the result type
      * @return an {@link InvocationResult}
      */
-    public static <R> InvocationResult<R> of(R value) {
+    public static <R> InvocationResult<R> of(@Nullable R value) {
       return new InvocationResult<>(value);
     }
 

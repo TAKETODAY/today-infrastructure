@@ -88,12 +88,6 @@ public abstract class ClassUtils {
   /** Suffix for array class names: {@code "[]"}. */
   public static final String ARRAY_SUFFIX = "[]";
 
-  /** Prefix for internal array class names: {@code "["}. */
-  public static final String INTERNAL_ARRAY_PREFIX = "[";
-
-  /** Prefix for internal non-primitive array class names: {@code "[L"}. */
-  public static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
-
   public static final String CLASS_FILE_SUFFIX = ".class";
 
   /** @since 3.0 */

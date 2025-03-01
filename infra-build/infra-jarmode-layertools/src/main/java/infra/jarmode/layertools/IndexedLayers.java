@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.jarmode.layertools;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 
@@ -59,6 +61,9 @@ class IndexedLayers implements Layers {
         this.layers.put(line.substring(3, line.length() - 2), contents);
       }
       else if (line.startsWith("  - ")) {
+        if (contents == null) {
+          contents = new ArrayList<>();
+        }
         contents.add(line.substring(5, line.length() - 1));
       }
       else {
@@ -96,6 +101,7 @@ class IndexedLayers implements Layers {
    * @return an {@link IndexedLayers} instance or {@code null} if this not a layered
    * jar.
    */
+  @Nullable
   static IndexedLayers get(Context context) {
     try {
       try (JarFile jarFile = new JarFile(context.getArchiveFile())) {
@@ -103,8 +109,10 @@ class IndexedLayers implements Layers {
         String location = manifest.getMainAttributes().getValue("Infra-App-Layers-Index");
         ZipEntry entry = (location != null) ? jarFile.getEntry(location) : null;
         if (entry != null) {
-          String indexFile = StreamUtils.copyToString(jarFile.getInputStream(entry), StandardCharsets.UTF_8);
-          return new IndexedLayers(indexFile);
+          try (InputStream in = jarFile.getInputStream(entry)) {
+            String indexFile = StreamUtils.copyToString(in, StandardCharsets.UTF_8);
+            return new IndexedLayers(indexFile);
+          }
         }
       }
       return null;

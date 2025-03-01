@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.app;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -62,8 +63,8 @@ public class ResourceBanner implements Banner {
 
   @Override
   public void printBanner(Environment environment, @Nullable Class<?> sourceClass, PrintStream out) {
-    try {
-      String banner = StreamUtils.copyToString(resource.getInputStream(),
+    try (InputStream in = resource.getInputStream()) {
+      String banner = StreamUtils.copyToString(in,
               environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8));
 
       ArrayList<PropertyResolver> resolvers = new ArrayList<>();

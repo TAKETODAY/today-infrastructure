@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,11 +37,11 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @author TODAY 2021/8/21 00:04
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see java.io.File
  * @see java.nio.file.Path
  * @see java.nio.file.Files
- * @since 4.0
+ * @since 4.0 2021/8/21 00:04
  */
 public abstract class FileSystemUtils {
 
@@ -88,7 +88,7 @@ public abstract class FileSystemUtils {
       return false;
     }
 
-    Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+    Files.walkFileTree(root, new SimpleFileVisitor<>() {
       @Override
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         Files.delete(file);
