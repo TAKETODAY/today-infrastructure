@@ -1636,7 +1636,7 @@ class FutureTests {
     assertThat(future).failsWithin(Duration.ofSeconds(1));
     assertThat(future.isFailed()).isTrue();
 
-    assertThat(whenAllSucceed(Stream.of(1, 2, 3).map(Future::ok)).combine()).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(whenAllSucceed(Stream.of(1, 2, "3").map(Future::ok)).combine()).succeedsWithin(Duration.ofSeconds(1));
   }
 
   @Test
