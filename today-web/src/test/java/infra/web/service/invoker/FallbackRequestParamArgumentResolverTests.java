@@ -87,7 +87,7 @@ class FallbackRequestParamArgumentResolverTests {
     String uriTemplate = values.getUriTemplate();
     Map<String, String> uriVariables = values.getUriVariables();
     UriComponents uri = UriComponentsBuilder.forURIString(uriTemplate).buildAndExpand(uriVariables).encode();
-    assertThat(uri.getQuery()).isEqualTo("param1=value%201&param2=1,2,3");
+    assertThat(uri.getQuery()).isEqualTo("param1=value%201&param2=1&param2=2&param2=3");
   }
 
   private interface Service {
