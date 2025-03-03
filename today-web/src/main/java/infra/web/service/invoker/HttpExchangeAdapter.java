@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,14 @@ public interface HttpExchangeAdapter {
    * @since 5.0
    */
   Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
+
+  /**
+   * Perform the given request, and release the response content, if any.
+   *
+   * @param requestValues the request to perform
+   * @since 5.0
+   */
+  Future<Void> exchangeAsyncVoid(HttpRequestValues requestValues);
 
   /**
    * Perform the given request and decode the response content to the given type.

@@ -1242,6 +1242,20 @@ public interface RestClient {
      */
     ResponseEntity<Void> toBodilessEntity();
 
+    /**
+     * Execute without a body.
+     * <p>
+     * This API is like {@link #toBodilessEntity}
+     *
+     * @throws RestClientResponseException by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    void toBodiless() throws RestClientException;
+
   }
 
   /**
@@ -1409,6 +1423,26 @@ public interface RestClient {
      * @return the {@code Future<ResponseEntity>}
      */
     Future<ResponseEntity<Void>> toBodilessEntity();
+
+    /**
+     * Return an async result without a body.
+     * <p>
+     * This API is like {@link #toBodilessEntity}
+     *
+     * <p> The returned future completes exceptionally with:
+     * <ul>
+     * <li>{@link RestClientResponseException} - by default when receiving a
+     * response with a status code of 4xx or 5xx. Use
+     * {@link #onStatus(Predicate, ErrorHandler)} to customize error response
+     * handling.
+     * </li>
+     * </ul>
+     *
+     * @return {@code Future<Void>}
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    Future<Void> toBodiless();
 
   }
 

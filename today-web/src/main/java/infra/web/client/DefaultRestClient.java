@@ -719,7 +719,7 @@ final class DefaultRestClient implements RestClient {
 
     private final ArrayList<ResponseErrorHandler> statusHandlers = new ArrayList<>();
 
-    private boolean ignoreStatus;
+    protected boolean ignoreStatus;
 
     private AbstractResponseSpec(HttpRequest clientRequest) {
       this.clientRequest = clientRequest;
@@ -747,13 +747,18 @@ final class DefaultRestClient implements RestClient {
     }
 
     final ResponseEntity<Void> toBodilessEntity(ClientHttpResponse response) throws ResourceAccessException {
+      toBodiless(response);
+      return ResponseEntity.status(response.getStatusCode())
+              .headers(response.getHeaders())
+              .build();
+    }
+
+    final Void toBodiless(ClientHttpResponse response) throws ResourceAccessException {
       try (response) {
         if (!ignoreStatus) {
           applyStatusHandlers(clientRequest, response, statusHandlers);
         }
-        return ResponseEntity.status(response.getStatusCode())
-                .headers(response.getHeaders())
-                .build();
+        return null;
       }
       catch (IOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
@@ -784,11 +789,13 @@ final class DefaultRestClient implements RestClient {
       this.clientResponse = clientResponse;
     }
 
+    @Nullable
     @Override
     public <T> T body(Class<T> bodyType) {
       return ignoreStatus(false).readBody(clientResponse, bodyType, bodyType);
     }
 
+    @Nullable
     @Override
     public <T> T body(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
@@ -813,6 +820,10 @@ final class DefaultRestClient implements RestClient {
       return toBodilessEntity(clientResponse);
     }
 
+    @Override
+    public void toBodiless() throws RestClientException {
+      toBodiless(clientResponse);
+    }
   }
 
   private class DefaultAsyncSpec extends AbstractResponseSpec<DefaultAsyncSpec> implements AsyncSpec {
@@ -854,6 +865,11 @@ final class DefaultRestClient implements RestClient {
     @Override
     public Future<ResponseEntity<Void>> toBodilessEntity() {
       return clientResponse.map(this::toBodilessEntity);
+    }
+
+    @Override
+    public Future<Void> toBodiless() {
+      return clientResponse.map(this::toBodiless);
     }
 
     private <T> Future<ResponseEntity<T>> toEntityInternal(Type bodyType, Class<T> bodyClass) {

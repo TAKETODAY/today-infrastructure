@@ -212,9 +212,7 @@ final class HttpServiceMethod {
 
     if (ClassUtils.isVoidType(paramType)) {
       // Future<Void> auto close response
-      return request -> client.exchangeAsync(request)
-              .onSuccess(ClientHttpResponse::close)
-              .mapNull();
+      return client::exchangeAsyncVoid;
     }
     if (paramType == ClientHttpResponse.class
             || paramType == ClientResponse.class) {

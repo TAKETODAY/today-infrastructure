@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1034,6 +1034,18 @@ public interface WebClient {
      * @return the {@code ResponseEntity}
      */
     Mono<ResponseEntity<Void>> toBodilessEntity();
+
+    /**
+     * Return a result without a body. For an error response
+     * (status code of 4xx or 5xx), the {@code Mono} emits a
+     * {@link WebClientException}. Use {@link #onStatus(Predicate, Function)}
+     * to customize error response handling.
+     *
+     * @see #toBodilessEntity()
+     * @since 5.0
+     */
+    Mono<Void> toBodiless();
+
   }
 
   /**

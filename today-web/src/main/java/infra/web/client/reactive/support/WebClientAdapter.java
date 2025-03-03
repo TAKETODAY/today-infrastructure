@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +117,11 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
   public Future<infra.web.client.ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
     return Future.forAdaption(newRequest(requestValues).exchange().toFuture())
             .map(ReactorClientResponse::new);
+  }
+
+  @Override
+  public Future<Void> exchangeAsyncVoid(HttpRequestValues requestValues) {
+    return Future.forAdaption(newRequest(requestValues).retrieve().toBodiless().toFuture());
   }
 
   @Override

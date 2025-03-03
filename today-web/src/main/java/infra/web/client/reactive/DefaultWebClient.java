@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -594,6 +594,16 @@ class DefaultWebClient implements WebClient {
                       .flatMap(entity -> response.releaseBody()
                               .onErrorResume(WebClientUtils.WRAP_EXCEPTION_PREDICATE, exceptionWrappingFunction(response))
                               .thenReturn(entity))
+      );
+    }
+
+    @Override
+    public Mono<Void> toBodiless() {
+      return this.responseMono.flatMap(response ->
+              handleBodyMono(response, Mono.<Void>empty())
+                      .flatMap(empty -> response.releaseBody()
+                              .onErrorResume(WebClientUtils.WRAP_EXCEPTION_PREDICATE, exceptionWrappingFunction(response))
+                              .thenReturn(empty))
       );
     }
 
