@@ -940,7 +940,7 @@ class RestClientIntegrationTests {
 
     String url = "http://example.invalid";
     assertThatExceptionOfType(ResourceAccessException.class).isThrownBy(() ->
-            this.restClient.get().uri(url).retrieve().toBodilessEntity()
+            this.restClient.get().uri(url).retrieve().toBodiless()
     );
 
   }
