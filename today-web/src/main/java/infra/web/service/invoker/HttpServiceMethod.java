@@ -240,8 +240,7 @@ final class HttpServiceMethod {
     else {
       // Future<T>, Future<List<T>>
       var bodyTypeRef = ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
-      return request -> client.exchangeAsync(request)
-              .map(response -> response.bodyTo(bodyTypeRef));
+      return request -> client.exchangeAsyncBody(request, bodyTypeRef);
     }
   }
 

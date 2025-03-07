@@ -57,6 +57,14 @@ public interface HttpExchangeAdapter {
   Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues);
 
   /**
+   * Perform the given request
+   *
+   * @param requestValues the request to perform
+   * @since 5.0
+   */
+  <T> Future<T> exchangeAsyncBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyTypeRef);
+
+  /**
    * Perform the given request, and release the response content, if any.
    *
    * @param requestValues the request to perform

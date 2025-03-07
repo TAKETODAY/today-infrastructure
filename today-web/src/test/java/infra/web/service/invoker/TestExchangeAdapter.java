@@ -91,9 +91,15 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
 
   @Override
   public Future<ClientResponse> exchangeAsync(HttpRequestValues requestValues) {
-    saveInput("exchange", requestValues, null);
+    saveInput("exchangeAsync", requestValues, null);
     MockClientHttpResponse result = new MockClientHttpResponse();
     return Future.ok(result);
+  }
+
+  @Override
+  public <T> Future<T> exchangeAsyncBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyTypeRef) {
+    saveInput("exchangeAsyncBody", requestValues, bodyTypeRef);
+    return Future.ok();
   }
 
   @Override

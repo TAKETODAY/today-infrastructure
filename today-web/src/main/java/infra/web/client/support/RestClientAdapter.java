@@ -76,6 +76,11 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
   }
 
   @Override
+  public <T> Future<T> exchangeAsyncBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyTypeRef) {
+    return newRequest(requestValues).async(asyncExecutor).body(bodyTypeRef);
+  }
+
+  @Override
   public Future<Void> exchangeAsyncVoid(HttpRequestValues requestValues) {
     return newRequest(requestValues).async(asyncExecutor).toBodiless();
   }
