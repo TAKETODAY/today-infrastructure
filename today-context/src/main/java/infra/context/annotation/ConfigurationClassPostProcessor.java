@@ -278,7 +278,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     boolean hasPropertySourceDescriptors = CollectionUtils.isNotEmpty(this.propertySourceDescriptors);
     boolean hasImportRegistry = beanFactory.containsBean(IMPORT_REGISTRY_BEAN_NAME);
     boolean hasBeanRegistrars = !this.beanRegistrars.isEmpty();
-    if (hasPropertySourceDescriptors || hasImportRegistry) {
+    if (hasPropertySourceDescriptors || hasImportRegistry || hasBeanRegistrars) {
       return (generationContext, code) -> {
         if (hasPropertySourceDescriptors) {
           new PropertySourcesAotContribution(this.propertySourceDescriptors, this::resolvePropertySourceLocation)
