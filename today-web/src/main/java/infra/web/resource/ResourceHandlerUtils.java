@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
 import infra.lang.Assert;
@@ -56,11 +57,14 @@ public abstract class ResourceHandlerUtils {
     Assert.notNull(location, "Resource location is required");
     try {
       String path;
-      if (location instanceof UrlResource) {
-        path = location.getURL().toExternalForm();
+      if (location instanceof FileSystemResource fsr) {
+        path = fsr.getPath();
       }
-      else if (location instanceof ClassPathResource classPathResource) {
-        path = classPathResource.getPath();
+      else if (location instanceof ClassPathResource cpr) {
+        path = cpr.getPath();
+      }
+      else if (location instanceof UrlResource) {
+        path = location.getURL().toExternalForm();
       }
       else {
         path = location.getURL().getPath();

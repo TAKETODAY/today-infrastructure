@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AotContextLoaderRuntimeHintsTests {
 
   @Test
-    // gh-34513
   void aotContextLoaderCanRegisterRuntimeHints() {
     RuntimeHints runtimeHints = new RuntimeHints();
     TestContextAotGenerator generator = new TestContextAotGenerator(new InMemoryGeneratedFiles(), runtimeHints);

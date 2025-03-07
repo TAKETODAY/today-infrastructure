@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.FileSystemResource;
+import infra.core.io.PathResource;
 import infra.core.io.Resource;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
@@ -32,6 +34,8 @@ import infra.web.mock.MockRequestContext;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author Arjen Poutsma
@@ -106,6 +110,13 @@ class PathResourceLookupFunctionTests {
     return new DefaultServerRequest(
             requestContext,
             Collections.emptyList());
+  }
+
+
+  @Test
+  void withFileSystemResource() {
+    FileSystemResource location = new FileSystemResource("/static/");
+    assertThatNoException().isThrownBy(() -> new PathResourceLookupFunction("/resources/**", location));
   }
 
 }
