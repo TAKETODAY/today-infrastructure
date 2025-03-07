@@ -374,6 +374,12 @@ public class GenericConversionService implements ConfigurableConversionService {
               conditionalConverter.matches(sourceType, targetType);
     }
 
+    public boolean matchesFallback(TypeDescriptor sourceType, TypeDescriptor targetType) {
+      return this.typeInfo.targetType == targetType.getObjectType()
+              && this.targetType.hasUnresolvableGenerics()
+              && (!(this.converter instanceof ConditionalConverter cc) || cc.matches(sourceType, targetType));
+    }
+
     @Nullable
     @Override
     public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
@@ -647,9 +653,16 @@ public class GenericConversionService implements ConfigurableConversionService {
 
     @Nullable
     public GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
+      // Look for proper match among all converters (taking full generics into account)
       for (GenericConverter converter : this.converters) {
-        if (!(converter instanceof ConditionalGenericConverter conditional)
-                || conditional.matches(sourceType, targetType)) {
+        if (!(converter instanceof ConditionalGenericConverter gc) || gc.matches(sourceType, targetType)) {
+          return converter;
+        }
+      }
+
+      // Fallback behavior: accept Class match for unresolvable generics
+      for (GenericConverter converter : this.converters) {
+        if (converter instanceof ConverterAdapter ca && ca.matchesFallback(sourceType, targetType)) {
           return converter;
         }
       }
