@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -345,7 +345,7 @@ public class TestContextAotGenerator {
    *
    * @throws TestContextAotException if an error occurs while loading the application
    * context or if one of the prerequisites is not met
-   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   private GenericApplicationContext loadContextForAotProcessing(
           MergedContextConfiguration mergedConfig) throws TestContextAotException {
@@ -359,7 +359,7 @@ public class TestContextAotGenerator {
 
     if (contextLoader instanceof AotContextLoader aotContextLoader) {
       try {
-        ApplicationContext context = aotContextLoader.loadContextForAotProcessing(mergedConfig);
+        ApplicationContext context = aotContextLoader.loadContextForAotProcessing(mergedConfig, runtimeHints);
         if (context instanceof GenericApplicationContext gac) {
           return gac;
         }

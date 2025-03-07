@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
+import infra.aot.hint.RuntimeHints;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.test.context.MergedContextConfiguration;
@@ -68,14 +69,12 @@ class AnnotationConfigContextLoaderTests {
   void loadContextForAotProcessingDoesNotRefreshContext() throws Exception {
     MergedContextConfiguration mergedConfig = new MergedContextConfiguration(
             AnnotatedFooConfigInnerClassTestCase.class, EMPTY_STRING_ARRAY,
-            new Class<?>[] { AnnotatedFooConfigInnerClassTestCase.FooConfig.class },
-            EMPTY_STRING_ARRAY, contextLoader);
-    ApplicationContext context = contextLoader.loadContextForAotProcessing(mergedConfig);
+            new Class<?>[] { AnnotatedFooConfigInnerClassTestCase.FooConfig.class }, EMPTY_STRING_ARRAY, contextLoader);
+    ConfigurableApplicationContext context = contextLoader.loadContextForAotProcessing(mergedConfig, new RuntimeHints());
     assertThat(context).isInstanceOf(ConfigurableApplicationContext.class);
-    ConfigurableApplicationContext cac = (ConfigurableApplicationContext) context;
-    assertThat(cac.isActive()).as("ApplicationContext is active").isFalse();
+    assertThat(context.isActive()).as("ApplicationContext is active").isFalse();
     assertThat(Arrays.stream(context.getBeanDefinitionNames())).anyMatch(name -> name.contains("FooConfig"));
-    cac.close();
+    context.close();
   }
 
   @Test

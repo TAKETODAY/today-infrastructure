@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.test.context.support;
 
 import java.util.Arrays;
 
+import infra.aot.hint.RuntimeHints;
 import infra.beans.factory.support.BeanDefinitionReader;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
@@ -128,13 +129,15 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    *
    * @param mergedConfig the merged context configuration to use to load the
    * application context
+   * @param runtimeHints the runtime hints
    * @return a new application context
    * @throws Exception if context loading failed
-   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   @Override
-  public final GenericApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig)
-          throws Exception {
+  public final GenericApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig,
+          RuntimeHints runtimeHints) throws Exception {
+
     return loadContext(mergedConfig, true);
   }
 

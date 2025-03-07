@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.test.context.aot;
 
+import infra.aot.hint.RuntimeHints;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
 import infra.context.support.GenericApplicationContext;
@@ -70,11 +71,13 @@ public interface AotContextLoader extends SmartContextLoader {
    *
    * @param mergedConfig the merged context configuration to use to load the
    * application context
+   * @param runtimeHints the runtime hints
    * @return a new {@code GenericApplicationContext}
    * @throws ContextLoadException if context loading failed
    * @see #loadContextForAotRuntime(MergedContextConfiguration, ApplicationContextInitializer)
    */
-  ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig) throws Exception;
+  ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig, RuntimeHints runtimeHints)
+          throws Exception;
 
   /**
    * Load a new {@link ApplicationContext} for AOT run-time execution based on
@@ -102,7 +105,7 @@ public interface AotContextLoader extends SmartContextLoader {
    * be applied to the context in order to recreate bean definitions
    * @return a new {@code GenericApplicationContext}
    * @throws ContextLoadException if context loading failed
-   * @see #loadContextForAotProcessing(MergedContextConfiguration)
+   * @see #loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   ApplicationContext loadContextForAotRuntime(MergedContextConfiguration mergedConfig,
           ApplicationContextInitializer initializer) throws Exception;

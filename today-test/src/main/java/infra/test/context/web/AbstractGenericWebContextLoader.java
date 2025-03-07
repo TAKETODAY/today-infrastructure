@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.test.context.web;
 
+import infra.aot.hint.RuntimeHints;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
@@ -123,13 +124,15 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    *
    * @param mergedConfig the merged context configuration to use to load the
    * application context
+   * @param runtimeHints the runtime hints
    * @return a new web application context
    * @throws Exception if context loading failed
-   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   @Override
-  public final GenericWebApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig)
-          throws Exception {
+  public final GenericWebApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig,
+          RuntimeHints runtimeHints) throws Exception {
+
     return loadContext(mergedConfig, true);
   }
 
@@ -194,11 +197,9 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * register a JVM shutdown hook for it
    * @return a new web application context
    * @see SmartContextLoader#loadContext(MergedContextConfiguration)
-   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
-  private final GenericWebApplicationContext loadContext(
-          MergedContextConfiguration mergedConfig, boolean forAotProcessing) throws Exception {
-
+  private GenericWebApplicationContext loadContext(MergedContextConfiguration mergedConfig, boolean forAotProcessing) throws Exception {
     if (!(mergedConfig instanceof WebMergedContextConfiguration webMergedConfig)) {
       throw new IllegalArgumentException("""
               Cannot load WebApplicationContext from non-web merged context configuration %s. \

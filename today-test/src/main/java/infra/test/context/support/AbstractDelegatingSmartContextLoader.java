@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.test.context.support;
 
+import infra.aot.hint.RuntimeHints;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextInitializer;
 import infra.context.annotation.Configuration;
@@ -215,20 +216,21 @@ public abstract class AbstractDelegatingSmartContextLoader implements AotContext
    * details.
    *
    * @param mergedConfig the merged context configuration to use to load the application context
+   * @param runtimeHints the runtime hints
    * @return a new application context
    * @throws IllegalArgumentException if the supplied merged configuration is {@code null}
    * @throws IllegalStateException if neither candidate loader is capable of loading an
    * {@code ApplicationContext} from the supplied merged context configuration
-   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
    */
   @Override
-  public final ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig) throws Exception {
+  public final ApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig, RuntimeHints runtimeHints) throws Exception {
     AotContextLoader loader = getAotContextLoader(mergedConfig);
     if (logger.isTraceEnabled()) {
       logger.trace("Delegating to %s to load context for AOT processing for %s"
               .formatted(name(loader), mergedConfig));
     }
-    return loader.loadContextForAotProcessing(mergedConfig);
+    return loader.loadContextForAotProcessing(mergedConfig, runtimeHints);
   }
 
   /**
