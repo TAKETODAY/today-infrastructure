@@ -61,15 +61,18 @@ public class SimpleAutowireCandidateResolver implements AutowireCandidateResolve
    * @see AbstractBeanDefinition#isDefaultCandidate()
    * @since 5.0
    */
+  @SuppressWarnings("unchecked")
   public static <T> Map<String, T> resolveAutowireCandidates(ConfigurableBeanFactory lbf, Class<T> type) {
     Map<String, T> candidates = new LinkedHashMap<>();
     for (String beanName : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(lbf, type)) {
       if (AutowireUtils.isAutowireCandidate(lbf, beanName)) {
-        candidates.put(beanName, lbf.getBean(beanName, type));
+        Object bean = lbf.getBean(beanName);
+        if (bean != null) {
+          candidates.put(beanName, (T) bean);
+        }
       }
     }
     return candidates;
   }
-
 }
 
