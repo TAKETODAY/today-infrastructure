@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,6 +129,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
                 .secure(cookie.isSecure())
                 .httpOnly(cookie.isHttpOnly())
                 .sameSite(getSameSite(cookie))
+                .partitioned(getPartitioned(cookie))
                 .build());
       }
     }
@@ -141,6 +142,13 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
       return defaultCookie.sameSite().name();
     }
     return null;
+  }
+
+  private static boolean getPartitioned(Cookie cookie) {
+    if (cookie instanceof DefaultCookie defaultCookie) {
+      return defaultCookie.isPartitioned();
+    }
+    return false;
   }
 
   /**

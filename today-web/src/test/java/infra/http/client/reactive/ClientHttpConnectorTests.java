@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package infra.http.client.reactive;
 
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
@@ -194,6 +195,24 @@ class ClientHttpConnectorTests {
             .assertNext(response -> {
                       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
                       assertThat(response.getCookies().getFirst("id").getMaxAge()).isCloseTo(Duration.ofDays(1), Duration.ofSeconds(10));
+                    }
+            )
+            .verifyComplete();
+  }
+
+  @ParameterizedConnectorTest
+  void partitionedCookieSupport(ClientHttpConnector connector) {
+    Assumptions.assumeFalse(connector instanceof JdkClientHttpConnector, "JDK client does not support partitioned cookies");
+    prepareResponse(response -> {
+      response.setResponseCode(200);
+      response.addHeader("Set-Cookie", "id=test; Partitioned;");
+    });
+    Mono<ClientHttpResponse> futureResponse =
+            connector.connect(HttpMethod.GET, this.server.url("/").uri(), ReactiveHttpOutputMessage::setComplete);
+    StepVerifier.create(futureResponse)
+            .assertNext(response -> {
+                      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                      assertThat(response.getCookies().getFirst("id").isPartitioned()).isTrue();
                     }
             )
             .verifyComplete();
