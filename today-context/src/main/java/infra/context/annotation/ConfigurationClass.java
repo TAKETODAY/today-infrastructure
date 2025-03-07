@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.parsing.Location;
 import infra.beans.factory.parsing.Problem;
 import infra.beans.factory.parsing.ProblemReporter;
@@ -77,6 +78,8 @@ final class ConfigurationClass {
   public final LinkedHashMap<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars = new LinkedHashMap<>();
 
   public final HashSet<String> skippedComponentMethods = new HashSet<>();
+
+  public final LinkedHashSet<BeanRegistrar> beanRegistrars = new LinkedHashSet<>();
 
   /**
    * Create a new {@link ConfigurationClass} with the given name.
@@ -183,6 +186,10 @@ final class ConfigurationClass {
 
   void addMethod(ComponentMethod method) {
     this.componentMethods.add(method);
+  }
+
+  void addBeanRegistrar(BeanRegistrar beanRegistrar) {
+    this.beanRegistrars.add(beanRegistrar);
   }
 
   void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {

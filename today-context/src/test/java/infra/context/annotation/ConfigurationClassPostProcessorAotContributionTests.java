@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -37,6 +38,9 @@ import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.BeansException;
+import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanRegistrar;
+import infra.beans.factory.BeanRegistry;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.aot.BeanFactoryInitializationAotContribution;
@@ -55,6 +59,7 @@ import infra.context.testfixture.context.annotation.SimpleConfiguration;
 import infra.context.testfixture.context.generator.SimpleComponent;
 import infra.core.Ordered;
 import infra.core.env.ConfigurableEnvironment;
+import infra.core.env.Environment;
 import infra.core.io.DefaultPropertySourceFactory;
 import infra.core.io.ResourceLoader;
 import infra.core.test.tools.Compiled;
@@ -65,6 +70,7 @@ import infra.javapoet.MethodSpec;
 import infra.javapoet.ParameterizedTypeName;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -76,7 +82,7 @@ import static org.assertj.core.api.Assertions.entry;
  * @author Phillip Webb
  * @author Stephane Nicoll
  */
-class ConfigurationClassPostProcessorAotContributionTests {
+public class ConfigurationClassPostProcessorAotContributionTests {
 
   private final TestGenerationContext generationContext = new TestGenerationContext();
 
@@ -387,14 +393,14 @@ class ConfigurationClassPostProcessorAotContributionTests {
 
     @Configuration(proxyBeanMethods = false)
     @PropertySource(name = "testp1", value = "classpath:infra/context/annotation/p1.properties",
-                    ignoreResourceNotFound = true)
+            ignoreResourceNotFound = true)
     static class PropertySourceWithDetailsConfiguration {
 
     }
 
     @Configuration(proxyBeanMethods = false)
     @PropertySource(value = "classpath:infra/context/annotation/p1.properties",
-                    factory = CustomPropertySourcesFactory.class)
+            factory = CustomPropertySourcesFactory.class)
     static class PropertySourceWithCustomFactoryConfiguration {
 
     }
@@ -433,6 +439,134 @@ class ConfigurationClassPostProcessorAotContributionTests {
       this.beanFactory.registerBeanDefinition("test", new RootBeanDefinition(bean));
       this.processor.postProcessBeanFactory(this.beanFactory);
       return RegisteredBean.of(this.beanFactory, "test");
+    }
+
+  }
+
+  @Nested
+  public class BeanRegistrarTests {
+
+    @Test
+    void applyToWhenHasDefaultConstructor() throws NoSuchMethodException {
+      BeanFactoryInitializationAotContribution contribution = getContribution(DefaultConstructorConfiguration.class);
+      assertThat(contribution).isNotNull();
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      Constructor<Foo> fooConstructor = Foo.class.getDeclaredConstructor();
+      compile((initializer, compiled) -> {
+        GenericApplicationContext freshContext = new GenericApplicationContext();
+        initializer.accept(freshContext);
+        freshContext.refresh();
+        assertThat(freshContext.getBean(Foo.class)).isNotNull();
+        assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(fooConstructor))
+                .accepts(generationContext.getRuntimeHints());
+        freshContext.close();
+      });
+    }
+
+    @Test
+    void applyToWhenHasInstanceSupplier() {
+      BeanFactoryInitializationAotContribution contribution = getContribution(InstanceSupplierConfiguration.class);
+      assertThat(contribution).isNotNull();
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      compile((initializer, compiled) -> {
+        GenericApplicationContext freshContext = new GenericApplicationContext();
+        initializer.accept(freshContext);
+        freshContext.refresh();
+        assertThat(freshContext.getBean(Foo.class)).isNotNull();
+        assertThat(generationContext.getRuntimeHints().reflection().getTypeHint(Foo.class)).isNull();
+        freshContext.close();
+      });
+    }
+
+    @Test
+    void applyToWhenHasPostConstructAnnotationPostProcessed() {
+      BeanFactoryInitializationAotContribution contribution = getContribution(CommonAnnotationBeanPostProcessor.class,
+              PostConstructConfiguration.class);
+      assertThat(contribution).isNotNull();
+      contribution.applyTo(generationContext, beanFactoryInitializationCode);
+      compile((initializer, compiled) -> {
+        GenericApplicationContext freshContext = new GenericApplicationContext();
+        initializer.accept(freshContext);
+        freshContext.refresh();
+        Init init = freshContext.getBean(Init.class);
+        assertThat(init).isNotNull();
+        assertThat(init.initialized).isTrue();
+        assertThat(RuntimeHintsPredicates.reflection().onMethodInvocation(Init.class, "postConstruct"))
+                .accepts(generationContext.getRuntimeHints());
+        freshContext.close();
+      });
+    }
+
+    private void compile(BiConsumer<Consumer<GenericApplicationContext>, Compiled> result) {
+      MethodReference methodReference = beanFactoryInitializationCode.getInitializers().get(0);
+      beanFactoryInitializationCode.getTypeBuilder().set(type -> {
+        ArgumentCodeGenerator argCodeGenerator = ArgumentCodeGenerator
+                .of(BeanFactory.class, "applicationContext.getBeanFactory()")
+                .and(ArgumentCodeGenerator.of(Environment.class, "applicationContext.getEnvironment()"));
+        CodeBlock methodInvocation = methodReference.toInvokeCodeBlock(argCodeGenerator,
+                beanFactoryInitializationCode.getClassName());
+        type.addModifiers(Modifier.PUBLIC);
+        type.addSuperinterface(ParameterizedTypeName.get(Consumer.class, GenericApplicationContext.class));
+        type.addMethod(MethodSpec.methodBuilder("accept").addModifiers(Modifier.PUBLIC)
+                .addParameter(GenericApplicationContext.class, "applicationContext")
+                .addStatement(methodInvocation)
+                .build());
+      });
+      generationContext.writeGeneratedContent();
+      TestCompiler.forSystem().with(generationContext).compile(compiled ->
+              result.accept(compiled.getInstance(Consumer.class), compiled));
+    }
+
+    @Configuration
+    @Import(DefaultConstructorBeanRegistrar.class)
+    public static class DefaultConstructorConfiguration {
+    }
+
+    public static class DefaultConstructorBeanRegistrar implements BeanRegistrar {
+
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(Foo.class);
+      }
+    }
+
+    @Configuration
+    @Import(InstanceSupplierBeanRegistrar.class)
+    public static class InstanceSupplierConfiguration {
+    }
+
+    public static class InstanceSupplierBeanRegistrar implements BeanRegistrar {
+
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(Foo.class, spec -> spec.supplier(context -> new Foo()));
+      }
+    }
+
+    @Configuration
+    @Import(PostConstructBeanRegistrar.class)
+    public static class PostConstructConfiguration {
+    }
+
+    public static class PostConstructBeanRegistrar implements BeanRegistrar {
+
+      @Override
+      public void register(BeanRegistry registry, Environment env) {
+        registry.registerBean(Init.class);
+      }
+    }
+
+    static class Foo {
+    }
+
+    static class Init {
+
+      boolean initialized = false;
+
+      @PostConstruct
+      void postConstruct() {
+        initialized = true;
+      }
     }
 
   }

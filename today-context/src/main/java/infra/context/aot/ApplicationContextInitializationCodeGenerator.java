@@ -29,6 +29,7 @@ import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -142,6 +143,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     private CodeBlock apply(ClassName className) {
       String name = className.canonicalName();
       if (name.equals(StandardBeanFactory.class.getName())
+              || name.equals(BeanFactory.class.getName())
               || name.equals(ConfigurableBeanFactory.class.getName())) {
         return CodeBlock.of(BEAN_FACTORY_VARIABLE);
       }

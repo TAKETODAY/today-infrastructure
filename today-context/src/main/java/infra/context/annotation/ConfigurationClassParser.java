@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import infra.beans.factory.BeanDefinitionStoreException;
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
@@ -561,6 +562,11 @@ class ConfigurationClassParser {
               Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames, exclusionFilter);
               processImports(configClass, currentSourceClass, importSourceClasses, exclusionFilter, false);
             }
+          }
+          else if (candidate.isAssignable(BeanRegistrar.class)) {
+            Class<?> candidateClass = candidate.loadClass();
+            BeanRegistrar registrar = bootstrapContext.instantiate(candidateClass, BeanRegistrar.class);
+            configClass.addBeanRegistrar(registrar);
           }
           else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {
             // Candidate class is an ImportBeanDefinitionRegistrar ->

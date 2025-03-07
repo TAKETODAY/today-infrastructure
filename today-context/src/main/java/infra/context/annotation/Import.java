@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.annotation.Autowired;
 
 /**
@@ -45,20 +46,21 @@ import infra.beans.factory.annotation.Autowired;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2019-10-01 17:27
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Configuration
  * @see ImportSelector
  * @see ImportResource
  * @see ImportBeanDefinitionRegistrar
+ * @since 2019-10-01 17:27
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Import {
 
   /**
-   * {@link Configuration},{@link ImportSelector}, {@link ImportBeanDefinitionRegistrar},
-   * or general beans classes
+   * {@link Configuration @Configuration}, {@link ImportSelector},
+   * {@link ImportBeanDefinitionRegistrar}, {@link BeanRegistrar} or regular
+   * component classes to import.
    */
   Class<?>[] value();
 

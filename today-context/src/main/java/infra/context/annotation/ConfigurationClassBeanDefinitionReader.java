@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import infra.beans.factory.BeanDefinitionStoreException;
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import infra.beans.factory.annotation.DisableAllDependencyInjection;
@@ -38,6 +39,7 @@ import infra.beans.factory.support.BeanDefinitionOverrideException;
 import infra.beans.factory.support.BeanDefinitionReader;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanNameGenerator;
+import infra.beans.factory.support.BeanRegistryAdapter;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.xml.XmlBeanDefinitionReader;
 import infra.context.BootstrapContext;
@@ -131,7 +133,10 @@ class ConfigurationClassBeanDefinitionReader {
       }
 
       loadBeanDefinitionsFromImportedResources(configClass.importedResources);
-      loadBeanDefinitionsFromRegistrars(configClass.importBeanDefinitionRegistrars);
+
+      loadBeanDefinitionsFromImportedResources(configClass.importedResources);
+      loadBeanDefinitionsFromImportBeanDefinitionRegistrars(configClass.importBeanDefinitionRegistrars);
+      loadBeanDefinitionsFromBeanRegistrars(configClass.beanRegistrars);
     }
   }
 
@@ -408,9 +413,16 @@ class ConfigurationClassBeanDefinitionReader {
 
   }
 
-  private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
-    for (Map.Entry<ImportBeanDefinitionRegistrar, AnnotationMetadata> entry : registrars.entrySet()) {
-      entry.getKey().registerBeanDefinitions(entry.getValue(), bootstrapContext);
+  private void loadBeanDefinitionsFromImportBeanDefinitionRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
+    for (var entry : registrars.entrySet()) {
+      entry.getKey().registerBeanDefinitions(entry.getValue(), bootstrapContext, importBeanNameGenerator);
+    }
+  }
+
+  private void loadBeanDefinitionsFromBeanRegistrars(Set<BeanRegistrar> registrars) {
+    for (BeanRegistrar registrar : registrars) {
+      registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
+              bootstrapContext.getBeanFactory(), registrar.getClass()), bootstrapContext.getEnvironment());
     }
   }
 

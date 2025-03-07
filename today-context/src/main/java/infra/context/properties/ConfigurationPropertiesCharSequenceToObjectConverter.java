@@ -27,10 +27,6 @@ import infra.format.support.ApplicationConversionService;
 import infra.lang.Nullable;
 
 /**
- * Copy of package-private
- * {@code org.springframework.boot.convert.CharSequenceToObjectConverter}, renamed for
- * differentiation.
- *
  * @author Phillip Webb
  * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
