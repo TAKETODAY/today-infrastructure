@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import infra.beans.factory.support.BeanNameGenerator;
 import infra.context.BootstrapContext;
 import infra.context.EnvironmentAware;
 import infra.context.ResourceLoaderAware;
@@ -61,12 +62,12 @@ import infra.core.type.AnnotationMetadata;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @author TODAY 2019-10-01 19:08
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Import
  * @see ImportSelector
  * @see Configuration
+ * @since 2019-10-01 19:08
  */
-@FunctionalInterface
 public interface ImportBeanDefinitionRegistrar {
 
   /**
@@ -80,6 +81,34 @@ public interface ImportBeanDefinitionRegistrar {
    * @param importMetadata annotation metadata of the importing class
    * @param context Bean definition loading context
    */
-  void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context);
+  default void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
 
+  }
+
+  /**
+   * Register bean definitions as necessary based on the given annotation metadata of
+   * the importing {@code @Configuration} class.
+   * <p>Note that {@link BeanDefinitionRegistryPostProcessor} types may <em>not</em> be
+   * registered here, due to lifecycle constraints related to {@code @Configuration}
+   * class processing.
+   * <p>The default implementation delegates to
+   * {@link #registerBeanDefinitions(AnnotationMetadata, BootstrapContext)}.
+   *
+   * @param importingClassMetadata annotation metadata of the importing class
+   * @param context current bean definition registry
+   * @param importBeanNameGenerator the bean name generator strategy for imported beans:
+   * {@link ConfigurationClassPostProcessor#IMPORT_BEAN_NAME_GENERATOR} by default, or a
+   * user-provided one if {@link ConfigurationClassPostProcessor#setBeanNameGenerator}
+   * has been set. In the latter case, the passed-in strategy will be the same used for
+   * component scanning in the containing application context (otherwise, the default
+   * component-scan naming strategy is {@link AnnotationBeanNameGenerator#INSTANCE}).
+   * @see ConfigurationClassPostProcessor#IMPORT_BEAN_NAME_GENERATOR
+   * @see ConfigurationClassPostProcessor#setBeanNameGenerator
+   * @since 5.0
+   */
+  default void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BootstrapContext context,
+          BeanNameGenerator importBeanNameGenerator) {
+
+    registerBeanDefinitions(importingClassMetadata, context);
+  }
 }
