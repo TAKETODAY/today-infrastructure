@@ -133,8 +133,6 @@ class ConfigurationClassBeanDefinitionReader {
       }
 
       loadBeanDefinitionsFromImportedResources(configClass.importedResources);
-
-      loadBeanDefinitionsFromImportedResources(configClass.importedResources);
       loadBeanDefinitionsFromImportBeanDefinitionRegistrars(configClass.importBeanDefinitionRegistrars);
       loadBeanDefinitionsFromBeanRegistrars(configClass.beanRegistrars);
     }
