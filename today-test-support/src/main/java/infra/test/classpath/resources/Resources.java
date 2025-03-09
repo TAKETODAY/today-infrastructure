@@ -27,10 +27,13 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.util.FileSystemUtils;
 
 /**
@@ -42,6 +45,8 @@ import infra.util.FileSystemUtils;
 class Resources {
 
   private final Path root;
+
+  private final Map<String, Resource> resources = new HashMap<>();
 
   Resources(Path root) {
     this.root = root;
@@ -62,6 +67,7 @@ class Resources {
               Files.createDirectories(targetDirectory);
             }
             Files.copy(resource, target);
+            register(resourceName, target, true);
             unmatchedNames.remove(resourceName);
           }
         }
@@ -78,7 +84,7 @@ class Resources {
     return this;
   }
 
-  Resources addResource(String name, String content) {
+  Resources addResource(String name, String content, boolean additional) {
     Path resourcePath = this.root.resolve(name);
     if (Files.isDirectory(resourcePath)) {
       throw new IllegalStateException(
@@ -90,11 +96,36 @@ class Resources {
         Files.createDirectories(parent);
       }
       Files.writeString(resourcePath, processContent(content));
+      register(name, resourcePath, additional);
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
     return this;
+  }
+
+  private void register(String name, Path resourcePath, boolean additional) {
+    Resource resource = new Resource(resourcePath, additional);
+    register(name, resource);
+    Path ancestor = resourcePath.getParent();
+    while (!this.root.equals(ancestor)) {
+      Resource ancestorResource = new Resource(ancestor, additional);
+      register(this.root.relativize(ancestor).toString(), ancestorResource);
+      ancestor = ancestor.getParent();
+    }
+  }
+
+  private void register(String name, Resource resource) {
+    String normalized = name.replace("\\", "/");
+    this.resources.put(normalized, resource);
+    if (Files.isDirectory(resource.path())) {
+      if (normalized.endsWith("/")) {
+        this.resources.put(normalized.substring(0, normalized.length() - 1), resource);
+      }
+      else {
+        this.resources.put(normalized + "/", resource);
+      }
+    }
   }
 
   private String processContent(String content) {
@@ -109,6 +140,7 @@ class Resources {
     }
     try {
       Files.createDirectories(directoryPath);
+      register(name, directoryPath, true);
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -119,6 +151,7 @@ class Resources {
   void delete() {
     try {
       FileSystemUtils.deleteRecursively(this.root);
+      this.resources.clear();
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);
@@ -127,6 +160,11 @@ class Resources {
 
   Path getRoot() {
     return this.root;
+  }
+
+  @Nullable
+  Resource find(String name) {
+    return this.resources.get(name);
   }
 
 }

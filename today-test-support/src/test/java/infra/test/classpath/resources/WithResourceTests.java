@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.PathMatchingPatternResourceLoader;
+import infra.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,6 +98,27 @@ class WithResourceTests {
     assertThat(new ClassPathResource("1").getContentAsString(StandardCharsets.UTF_8)).isEqualTo("one");
     assertThat(new ClassPathResource("2").getContentAsString(StandardCharsets.UTF_8)).isEqualTo("two");
     assertThat(new ClassPathResource("3").getContentAsString(StandardCharsets.UTF_8)).isEqualTo("three");
+  }
+
+  @Test
+  @WithResource(name = "infra/test/classpath/resources/resource-1.txt", content = "from-with-resource")
+  void whenWithResourceCreatesResourceThatIsAvailableElsewhereBothResourcesCanBeLoaded() throws IOException {
+    Resource[] resources = new PathMatchingPatternResourceLoader()
+            .getResourcesArray("classpath*:infra/test/classpath/resources/resource-1.txt");
+    assertThat(resources).hasSize(2);
+    assertThat(resources).extracting((resource) -> resource.getContentAsString(StandardCharsets.UTF_8))
+            .containsExactly("from-with-resource", "one");
+  }
+
+  @Test
+  @WithResource(name = "infra/test/classpath/resources/resource-1.txt",
+          content = "from-with-resource", additional = false)
+  void whenWithResourceCreatesResourceThatIsNotAdditionalThenResourceThatIsAvailableElsewhereCannotBeLoaded()
+          throws IOException {
+    Resource[] resources = new PathMatchingPatternResourceLoader()
+            .getResourcesArray("classpath*:infra/test/classpath/resources/resource-1.txt");
+    assertThat(resources).hasSize(1);
+    assertThat(resources[0].getContentAsString(StandardCharsets.UTF_8)).isEqualTo("from-with-resource");
   }
 
 }
