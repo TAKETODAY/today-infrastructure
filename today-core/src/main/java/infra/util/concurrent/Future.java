@@ -682,12 +682,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * with the same exception. Cancellation of either future will cancel
    * the other.
    *
-   * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped
    * result of this future.
    * @since 5.0
    */
-  public final <R> Future<R> mapNull() {
+  public final Future<Void> mapNull() {
     return map(v -> null);
   }
 
@@ -699,12 +698,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * with the same exception. Cancellation of either future will cancel
    * the other.
    *
-   * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped
    * result of this future.
    * @since 5.0
    */
-  public final <R> Future<R> mapNull(ThrowingConsumer<V> consumer) {
+  public final Future<Void> mapNull(ThrowingConsumer<V> consumer) {
     return map(v -> {
       consumer.acceptWithException(v);
       return null;
