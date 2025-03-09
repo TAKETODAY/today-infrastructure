@@ -110,9 +110,9 @@ tasks.register('schemaZip', Zip) {
   archiveClassifier.set("schema")
   description = "Builds -${archiveClassifier} archive containing all " +
       "XSDs for deployment at"
-  duplicatesStrategy DuplicatesStrategy.EXCLUDE
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   moduleProjects.each { module ->
-    def Properties schemas = new Properties();
+    Properties schemas = new Properties()
 
     module.sourceSets.main.resources.find {
       (it.path.endsWith("META-INF/spring.schemas") || it.path.endsWith("META-INF\\spring.schemas"))
