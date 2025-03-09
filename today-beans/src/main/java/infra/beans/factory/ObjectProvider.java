@@ -53,6 +53,21 @@ import infra.lang.Nullable;
  * Alternatively, you may implement the specific methods that your callers expect,
  * e.g. just {@link #get()} or {@link #getIfAvailable()}.
  *
+ * <p>Note that {@link #get()} never returns {@code null} - it will throw a
+ * {@link NoSuchBeanDefinitionException} instead -, whereas {@link #getIfAvailable()}
+ * will return {@code null} if no matching bean is present at all. However, both
+ * methods will throw a {@link NoUniqueBeanDefinitionException} if more than one
+ * matching bean is found without a clear unique winner (see below). Last but not
+ * least, {@link #getIfUnique()} will return {@code null} both when no matching bean
+ * is found and when more than one matching bean is found without a unique winner.
+ *
+ * <p>Uniqueness is generally up to the container's candidate resolution algorithm
+ * but always honors the "primary" flag (with only one of the candidate beans marked
+ * as primary) and the "fallback" flag (with only one of the candidate beans not
+ * marked as fallback). The default-candidate flag is consistently taken into
+ * account as well, even for non-annotation-based injection points, with a single
+ * default candidate winning in case of no clear primary/fallback indication.
+ *
  * @param <T> the object type
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
