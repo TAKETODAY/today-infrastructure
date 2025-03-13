@@ -200,7 +200,7 @@ public final class RequestContextUtils {
    * LocaleResolver bound to the request by the DispatcherHandler
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * Mock {@link infra.mock.api.MockRequest#getLocale()} method,
+   * Web {@link RequestContext#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
