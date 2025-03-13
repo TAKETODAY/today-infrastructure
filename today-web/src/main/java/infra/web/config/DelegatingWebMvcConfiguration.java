@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import infra.validation.Validator;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.handler.ReturnValueHandlerManager;
 
 /**
@@ -128,6 +129,11 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void configureErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
     configurers.addErrorResponseInterceptors(interceptors);
+  }
+
+  @Override
+  protected void configureApiVersioning(ApiVersionConfigurer configurer) {
+    configurers.configureApiVersioning(configurer);
   }
 
   @Override

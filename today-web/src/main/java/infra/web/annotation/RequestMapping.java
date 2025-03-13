@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -215,9 +215,9 @@ public @interface RequestMapping {
    * specified header is <i>not</i> supposed to be present in the request.
    * <p>Also supports media type wildcards (*), for headers such as Accept
    * and Content-Type. For instance,
-   * <pre class="code">
-   * &#064;RequestMapping(value = "/something", headers = "content-type=text/*")
-   * </pre>
+   * <pre>{@code
+   * @RequestMapping(value = "/something", headers = "content-type=text/*")
+   * }</pre>
    * will match requests with a Content-Type of "text/html", "text/plain", etc.
    * <p><b>Supported at the type level as well as at the method level!</b>
    * When used at the type level, all method-level mappings inherit this
@@ -227,4 +227,21 @@ public @interface RequestMapping {
    * @since 4.0
    */
   String[] headers() default {};
+
+  /**
+   * Narrows the primary mapping by an API version. The version may be one
+   * of the following:
+   * <ul>
+   * <li>Fixed version ("1.2") -- match this version only.
+   * <li>Baseline version ("1.2+") -- match this and subsequent versions.
+   * </ul>
+   * <p>A baseline version allows an endpoint to continue to work in
+   * subsequent versions if it remains compatible. When an incompatible change
+   * is made eventually, a new controller method for the same endpoint but
+   * with a higher version takes precedence.
+   *
+   * @since 5.0
+   */
+  String version() default "";
+
 }

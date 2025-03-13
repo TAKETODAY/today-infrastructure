@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ import infra.web.LocaleResolver;
 import infra.web.NotFoundHandler;
 import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.WebDataBinder;
@@ -84,6 +85,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.BeanNameUrlHandlerMapping;
@@ -217,6 +219,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Nullable
   private List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
+  @Nullable
+  private ApiVersionStrategy apiVersionStrategy;
+
   @Override
   protected void initApplicationContext() {
     initControllerAdviceCache();
@@ -281,7 +286,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @param converters the list of configured converters to extend
    * @since 4.0
    */
-  protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) { }
+  protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+  }
 
   /**
    * Adds a set of default HttpMessageConverter instances to the given list.
@@ -575,7 +582,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ParameterResolvingRegistry parameterResolvingRegistry(
-          ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
+          @Nullable ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var registry = new ParameterResolvingRegistry(getMessageConverters());
@@ -613,9 +620,11 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       addDefaultHandlerExceptionHandlers(handlers, registry, contentNegotiationManager);
     }
     extendExceptionHandlers(handlers);
-    CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler();
+    if (handlers.size() == 1) {
+      return handlers.get(0);
+    }
+    CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler(handlers);
     composite.setOrder(0);
-    composite.setExceptionHandlers(handlers);
     return composite;
   }
 
@@ -628,7 +637,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @param handlers a list to add exception handlers to (initially an empty list)
    */
-  protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+  protected void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+  }
 
   /**
    * Override this method to extend or modify the list of
@@ -638,7 +648,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @param handlers the list of configured resolvers to extend.
    */
-  protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) { }
+  protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+  }
 
   /**
    * A method available to subclasses for adding default
@@ -690,12 +701,14 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
   public RequestMappingHandlerMapping requestMappingHandlerMapping(
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+          @Qualifier("mvcApiVersionStrategy") @Nullable ApiVersionStrategy apiVersionStrategy,
           ParameterResolvingRegistry parameterResolvingRegistry) {
 
     var mapping = createRequestMappingHandlerMapping();
     mapping.setOrder(0);
     mapping.setContentNegotiationManager(contentNegotiationManager);
     mapping.setResolvingRegistry(parameterResolvingRegistry);
+    mapping.setApiVersionStrategy(apiVersionStrategy);
 
     initHandlerMapping(mapping);
 
@@ -1057,6 +1070,34 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   protected void configureErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
 
+  }
+
+  /**
+   * Return the central strategy to manage API versioning with, or {@code null}
+   * if the application does not use versioning.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  @Component
+  public ApiVersionStrategy mvcApiVersionStrategy() {
+    if (this.apiVersionStrategy == null) {
+      ApiVersionConfigurer configurer = new ApiVersionConfigurer();
+      configureApiVersioning(configurer);
+      ApiVersionStrategy strategy = configurer.getApiVersionStrategy();
+      if (strategy != null) {
+        this.apiVersionStrategy = strategy;
+      }
+    }
+    return this.apiVersionStrategy;
+  }
+
+  /**
+   * Override this method to configure API versioning.
+   *
+   * @since 5.0
+   */
+  protected void configureApiVersioning(ApiVersionConfigurer configurer) {
   }
 
   static boolean isPresent(String name) {

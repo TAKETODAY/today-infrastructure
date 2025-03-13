@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import infra.web.annotation.CrossOrigin;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.view.View;
@@ -274,6 +275,17 @@ public interface WebMvcConfigurer {
    * @since 4.0
    */
   default void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+
+  }
+
+  /**
+   * Configure API versioning for the application. In order for versioning to
+   * be enabled, you must configure at least one way to resolve the API
+   * version from a request (e.g. via request header).
+   *
+   * @since 5.0
+   */
+  default void configureApiVersioning(ApiVersionConfigurer configurer) {
 
   }
 

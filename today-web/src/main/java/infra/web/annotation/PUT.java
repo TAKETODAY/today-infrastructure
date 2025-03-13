@@ -91,4 +91,10 @@ public @interface PUT {
   @AliasFor(annotation = RequestMapping.class)
   String[] produces() default {};
 
+  /**
+   * Alias for {@link RequestMapping#version()}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String version() default "";
+
 }

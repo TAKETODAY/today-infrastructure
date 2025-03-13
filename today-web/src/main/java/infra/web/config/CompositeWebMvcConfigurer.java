@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.handler.ReturnValueHandlerManager;
 
 /**
@@ -195,6 +196,13 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
     for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurers()) {
       webMvcConfigurer.configureAsyncSupport(configurer);
+    }
+  }
+
+  @Override
+  public void configureApiVersioning(ApiVersionConfigurer configurer) {
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurers()) {
+      webMvcConfigurer.configureApiVersioning(configurer);
     }
   }
 

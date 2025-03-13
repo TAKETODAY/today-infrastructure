@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,9 @@ import infra.lang.Nullable;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
+import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
@@ -77,6 +79,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
+
+  @Nullable
+  private ApiVersionStrategy apiVersionStrategy;
 
   private ResolvableParameterFactory parameterFactory;
 
@@ -135,17 +140,38 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     this.resolvingRegistry = resolvingRegistry;
   }
 
+  /**
+   * Configure a strategy to manage API versioning.
+   *
+   * @param strategy the strategy to use
+   * @since 5.0
+   */
+  public void setApiVersionStrategy(@Nullable ApiVersionStrategy strategy) {
+    this.apiVersionStrategy = strategy;
+  }
+
+  /**
+   * Return the configured {@link ApiVersionStrategy} strategy.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public ApiVersionStrategy getApiVersionStrategy() {
+    return this.apiVersionStrategy;
+  }
+
   @Override
   public void afterPropertiesSet() {
+    config.setPatternParser(getPatternParser());
+    config.setContentNegotiationManager(getContentNegotiationManager());
+    config.setApiVersionStrategy(getApiVersionStrategy());
+
     ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
       resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
 
     this.parameterFactory = new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer);
-
-    config.setPatternParser(getPatternParser());
-    config.setContentNegotiationManager(getContentNegotiationManager());
 
     super.afterPropertiesSet();
   }
@@ -240,16 +266,26 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   @Nullable
   private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+    RequestMappingInfo requestMappingInfo = null;
     RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
     if (requestMapping != null) {
-      return createRequestMappingInfo(requestMapping, getCustomCondition(element));
+      requestMappingInfo = createRequestMappingInfo(requestMapping, getCustomCondition(element));
     }
 
-    HttpExchange httpExchange = AnnotatedElementUtils.findMergedAnnotation(element, HttpExchange.class);
-    if (httpExchange != null) {
-      return createRequestMappingInfo(httpExchange, getCustomCondition(element));
+    if (requestMappingInfo == null) {
+      HttpExchange httpExchange = AnnotatedElementUtils.findMergedAnnotation(element, HttpExchange.class);
+      if (httpExchange != null) {
+        requestMappingInfo = createRequestMappingInfo(httpExchange, getCustomCondition(element));
+      }
     }
-    return null;
+
+    if (requestMappingInfo != null && this.apiVersionStrategy instanceof DefaultApiVersionStrategy davs) {
+      String version = requestMappingInfo.getVersionCondition().getVersion();
+      if (version != null) {
+        davs.addSupportedVersion(version);
+      }
+    }
+    return requestMappingInfo;
   }
 
   /**
@@ -285,6 +321,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
             .headers(requestMapping.headers())
             .consumes(requestMapping.consumes())
             .produces(requestMapping.produces())
+            .version(requestMapping.version())
             .mappingName(requestMapping.name());
 
     if (customCondition != null) {

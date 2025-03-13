@@ -84,6 +84,10 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
     this(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
   }
 
+  public MockRequestContext(HttpMockRequest request) {
+    this(null, request, new MockHttpResponseImpl());
+  }
+
   public MockRequestContext(HttpMockRequest request, HttpMockResponse response) {
     this(null, request, response);
   }

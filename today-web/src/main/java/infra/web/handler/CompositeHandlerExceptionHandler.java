@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.web.handler;
 
 import java.util.List;
@@ -30,8 +31,6 @@ public class CompositeHandlerExceptionHandler extends OrderedSupport implements 
 
   @Nullable
   private List<HandlerExceptionHandler> handlers;
-
-  public CompositeHandlerExceptionHandler() { }
 
   public CompositeHandlerExceptionHandler(final List<HandlerExceptionHandler> handlers) {
     this.handlers = handlers;
@@ -52,8 +51,9 @@ public class CompositeHandlerExceptionHandler extends OrderedSupport implements 
     return this.handlers;
   }
 
+  @Nullable
   @Override
-  public Object handleException(final RequestContext context, final Throwable exception, final Object handler) throws Exception {
+  public Object handleException(final RequestContext context, final Throwable exception, @Nullable final Object handler) throws Exception {
     var handlers = getExceptionHandlers();
     if (handlers != null) {
       for (var exceptionHandler : handlers) {
