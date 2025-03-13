@@ -20,15 +20,19 @@ package infra.web.handler.method;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
+import infra.mock.api.MockException;
+import infra.mock.api.http.HttpMockResponse;
+import infra.mock.web.HttpMockRequestImpl;
+import infra.mock.web.MockHttpResponseImpl;
+import infra.mock.web.MockMockConfig;
+import infra.web.annotation.GET;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.EnableWebMvc;
 import infra.web.config.WebMvcConfigurer;
 import infra.web.config.annotation.ApiVersionConfigurer;
+import infra.web.mock.MockDispatcher;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
-import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,17 +43,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RequestMappingVersionHandlerMethodTests {
 
-  private DispatcherServlet dispatcherServlet;
+  private MockDispatcher dispatcher;
 
   @BeforeEach
-  void setUp() throws ServletException {
+  void setUp() {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletConfig(new MockServletConfig());
+    context.setMockConfig(new MockMockConfig());
     context.register(WebConfig.class, TestController.class);
     context.afterPropertiesSet();
 
-    this.dispatcherServlet = new DispatcherServlet(context);
-    this.dispatcherServlet.init(new MockServletConfig());
+    this.dispatcher = new MockDispatcher(context);
+    this.dispatcher.init(new MockMockConfig());
   }
 
   @Test
@@ -68,15 +72,15 @@ public class RequestMappingVersionHandlerMethodTests {
   void fixedVersion() throws Exception {
     assertThat(requestWithVersion("1.5").getContentAsString()).isEqualTo("1.5");
 
-    MockHttpServletResponse response = requestWithVersion("1.6");
+    HttpMockResponse response = requestWithVersion("1.6");
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
-  private MockHttpServletResponse requestWithVersion(String version) throws ServletException, IOException {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+  private MockHttpResponseImpl requestWithVersion(String version) throws MockException {
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("X-API-VERSION", version);
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    this.dispatcherServlet.service(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    this.dispatcher.service(request, response);
     return response;
   }
 
@@ -102,7 +106,7 @@ public class RequestMappingVersionHandlerMethodTests {
       return getBody("1.2");
     }
 
-    @GetMapping(version = "1.5")
+    @GET(version = "1.5")
     String version1_5() {
       return getBody("1.5");
     }
