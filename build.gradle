@@ -55,13 +55,6 @@ configure(allprojects) {
 //    maven { url "https://repo.huaweicloud.com/repository/maven" }
 
     mavenCentral()
-    maven {
-      url = "https://repo.spring.io/milestone"
-      content {
-        // Netty 5 optional support
-        includeGroup 'io.projectreactor.netty'
-      }
-    }
     if (version.contains('-')) {
       maven { url = "https://repo.spring.io/milestone" }
     }
