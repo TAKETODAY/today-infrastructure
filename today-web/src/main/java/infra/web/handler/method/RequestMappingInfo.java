@@ -493,7 +493,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     /**
      * Set the API version condition.
      *
-     * @since 7.0
+     * @since 5.0
      */
     Builder version(String version);
 

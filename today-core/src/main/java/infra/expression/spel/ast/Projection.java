@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import infra.expression.EvaluationException;
 import infra.expression.TypedValue;
@@ -33,11 +34,24 @@ import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
 
 /**
- * Represents projection, where a given operation is performed on all elements in some
- * input sequence, returning a new sequence of the same size.
+ * Represents projection, where a given operation is performed on all elements in
+ * some input sequence, returning a new sequence of the same size.
  *
  * <p>For example: <code>{1,2,3,4,5,6,7,8,9,10}.![#isEven(#this)]</code> evaluates
  * to {@code [n, y, n, y, n, y, n, y, n, y]}.
+ *
+ * <h3>Null-safe Projection</h3>
+ *
+ * <p>Null-safe projection is supported via the {@code '?.!'} operator. For example,
+ * {@code 'names?.![#this.length]'} will evaluate to {@code null} if {@code names}
+ * is {@code null} and will otherwise evaluate to a sequence containing the lengths
+ * of the names. null-safe projection also applies when
+ * performing projection on an {@link Optional} target. For example, if {@code names}
+ * is of type {@code Optional<List<String>>}, the expression
+ * {@code 'names?.![#this.length]'} will evaluate to {@code null} if {@code names}
+ * is {@code null} or {@link Optional#isEmpty() empty} and will otherwise evaluate
+ * to a sequence containing the lengths of the names, effectively
+ * {@code names.get().stream().map(String::length).toList()}.
  *
  * @author Andy Clement
  * @author Mark Fisher
@@ -58,8 +72,8 @@ public class Projection extends SpelNodeImpl {
    * Does this node represent a null-safe projection operation?
    */
   @Override
-  public boolean isNullSafe() {
-    return nullSafe;
+  public final boolean isNullSafe() {
+    return this.nullSafe;
   }
 
   @Override
@@ -69,17 +83,29 @@ public class Projection extends SpelNodeImpl {
 
   @Override
   protected ValueRef getValueRef(ExpressionState state) throws EvaluationException {
-    TypedValue op = state.getActiveContextObject();
+    TypedValue contextObject = state.getActiveContextObject();
+    Object operand = contextObject.getValue();
 
-    Object operand = op.getValue();
-    boolean operandIsArray = ObjectUtils.isArray(operand);
-    // TypeDescriptor operandTypeDescriptor = op.getTypeDescriptor();
+    if (isNullSafe()) {
+      if (operand == null) {
+        return ValueRef.NullValueRef.INSTANCE;
+      }
+      if (operand instanceof Optional<?> optional) {
+        if (optional.isEmpty()) {
+          return ValueRef.NullValueRef.INSTANCE;
+        }
+        operand = optional.get();
+      }
+    }
 
-    // When the input is a map, we push a special context object on the stack
-    // before calling the specified operation. This special context object
-    // has two fields 'key' and 'value' that refer to the map entries key
-    // and value, and they can be referenced in the operation
-    // eg. {'a':'y','b':'n'}.![value=='y'?key:null]" == ['a', null]
+    if (operand == null) {
+      throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROJECTION_NOT_SUPPORTED_ON_TYPE, "null");
+    }
+
+    // When the input is a map, we push a Map.Entry on the stack before calling
+    // the specified operation. Map.Entry has two properties 'key' and 'value'
+    // that can be referenced in the operation -- for example,
+    // {'a':'y', 'b':'n'}.![value == 'y' ? key : null] evaluates to ['a', null].
     if (operand instanceof Map<?, ?> mapData) {
       List<Object> result = new ArrayList<>();
       for (Map.Entry<?, ?> entry : mapData.entrySet()) {
@@ -93,9 +119,10 @@ public class Projection extends SpelNodeImpl {
           state.exitScope();
         }
       }
-      return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);  // TODO unable to build correct type descriptor
+      return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);
     }
 
+    boolean operandIsArray = ObjectUtils.isArray(operand);
     if (operand instanceof Iterable || operandIsArray) {
       Iterable<?> data = operand instanceof Iterable ?
               (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand));
@@ -128,13 +155,6 @@ public class Projection extends SpelNodeImpl {
       }
 
       return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);
-    }
-
-    if (operand == null) {
-      if (this.nullSafe) {
-        return ValueRef.NullValueRef.INSTANCE;
-      }
-      throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROJECTION_NOT_SUPPORTED_ON_TYPE, "null");
     }
 
     throw new SpelEvaluationException(getStartPosition(), SpelMessage.PROJECTION_NOT_SUPPORTED_ON_TYPE,

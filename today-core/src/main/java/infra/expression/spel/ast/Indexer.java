@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import infra.bytecode.Label;
@@ -45,8 +46,34 @@ import infra.lang.Nullable;
 import infra.util.ReflectionUtils;
 
 /**
- * An Indexer can index into some proceeding structure to access a particular piece of it.
- * Supported structures are: strings / collections (lists/sets) / arrays.
+ * An {@code Indexer} can index into some proceeding structure to access a
+ * particular element of the structure.
+ *
+ * <p>Numerical index values are zero-based, such as when accessing the
+ * n<sup>th</sup> element of an array in Java.
+ *
+ * <h3>Supported Structures</h3>
+ *
+ * <ul>
+ * <li>Arrays: the n<sup>th</sup> element</li>
+ * <li>Collections (lists, sets, etc.): the n<sup>th</sup> element</li>
+ * <li>Strings: the n<sup>th</sup> character as a {@link String}</li>
+ * <li>Maps: the value for the specified key</li>
+ * <li>Objects: the property with the specified name</li>
+ * <li>Custom Structures: via registered {@link IndexAccessor} implementations</li>
+ * </ul>
+ *
+ * <h3>Null-safe Indexing</h3>
+ *
+ * <p>null-safe indexing is supported via the {@code '?.'}
+ * operator. For example, {@code 'colors?.[0]'} will evaluate to {@code null} if
+ * {@code colors} is {@code null} and will otherwise evaluate to the 0<sup>th</sup>
+ * color. null-safe indexing also applies when
+ * indexing into a structure contained in an {@link Optional}. For example, if
+ * {@code colors} is of type {@code Optional<Colors>}, the expression
+ * {@code 'colors?.[0]'} will evaluate to {@code null} if {@code colors} is
+ * {@code null} or {@link Optional#isEmpty() empty} and will otherwise evaluate
+ * to the 0<sup>th</sup> color, effectively {@code colors.get()[0]}.
  *
  * @author Andy Clement
  * @author Phillip Webb
@@ -144,11 +171,20 @@ public class Indexer extends SpelNodeImpl {
     TypedValue context = state.getActiveContextObject();
     Object target = context.getValue();
 
-    if (target == null) {
-      if (this.nullSafe) {
+    if (isNullSafe()) {
+      if (target == null) {
         return ValueRef.NullValueRef.INSTANCE;
       }
-      // Raise a proper exception in case of a null target
+      if (target instanceof Optional<?> optional) {
+        if (optional.isEmpty()) {
+          return ValueRef.NullValueRef.INSTANCE;
+        }
+        target = optional.get();
+      }
+    }
+
+    // Raise a proper exception in case of a null target
+    if (target == null) {
       throw new SpelEvaluationException(getStartPosition(), SpelMessage.CANNOT_INDEX_INTO_NULL_VALUE);
     }
 
@@ -308,7 +344,7 @@ public class Indexer extends SpelNodeImpl {
     }
 
     Label skipIfNull = null;
-    if (this.nullSafe) {
+    if (isNullSafe()) {
       mv.visitInsn(DUP);
       skipIfNull = new Label();
       Label continueLabel = new Label();
@@ -416,7 +452,7 @@ public class Indexer extends SpelNodeImpl {
     // If this indexer would return a primitive - and yet it is also marked
     // null-safe - then the exit type descriptor must be promoted to the box
     // type to allow a null value to be passed on.
-    if (this.nullSafe && CodeFlow.isPrimitive(descriptor)) {
+    if (isNullSafe() && CodeFlow.isPrimitive(descriptor)) {
       this.originalPrimitiveExitTypeDescriptor = descriptor;
       this.exitTypeDescriptor = CodeFlow.toBoxedDescriptor(descriptor);
     }
@@ -643,8 +679,8 @@ public class Indexer extends SpelNodeImpl {
 
     private final TypeDescriptor mapEntryDescriptor;
 
-    public MapIndexingValueRef(
-            TypeConverter typeConverter, Map map, @Nullable Object key, TypeDescriptor mapEntryDescriptor) {
+    public MapIndexingValueRef(TypeConverter typeConverter, Map map,
+            @Nullable Object key, TypeDescriptor mapEntryDescriptor) {
 
       this.typeConverter = typeConverter;
       this.map = map;
@@ -971,8 +1007,8 @@ public class Indexer extends SpelNodeImpl {
           if (indexAccessor.canRead(this.evaluationContext, this.target, this.index)) {
             TypedValue result = indexAccessor.read(this.evaluationContext, this.target, this.index);
             Indexer.this.cachedIndexReadState = new CachedIndexState(indexAccessor, targetType, this.index);
-            if (indexAccessor instanceof CompilableIndexAccessor cia) {
-              setExitTypeDescriptor(CodeFlow.toDescriptor(cia.getIndexedValueType()));
+            if (indexAccessor instanceof CompilableIndexAccessor compilableIndexAccessor) {
+              setExitTypeDescriptor(CodeFlow.toDescriptor(compilableIndexAccessor.getIndexedValueType()));
             }
             return result;
           }

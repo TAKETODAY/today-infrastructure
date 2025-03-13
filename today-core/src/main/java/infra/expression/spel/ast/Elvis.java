@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 package infra.expression.spel.ast;
 
+import java.util.Optional;
+
 import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.core.CodeFlow;
@@ -27,12 +29,18 @@ import infra.lang.Assert;
 import infra.util.ObjectUtils;
 
 /**
- * Represents the Elvis operator <code>?:</code>. For an expression <code>a?:b</code> if <code>a</code> is neither null
- * nor an empty String, the value of the expression is <code>a</code>.
- * If <code>a</code> is null or the empty String, then the value of the expression is <code>b</code>.
+ * Represents the Elvis operator {@code ?:}.
+ *
+ * <p>For the expression "{@code A ?: B}", if {@code A} is neither {@code null},
+ * an empty {@link Optional}, nor an empty {@link String}, the value of the
+ * expression is {@code A}, or {@code A.get()} for an {@code Optional}. If
+ * {@code A} is {@code null}, an empty {@code Optional}, or an
+ * empty {@code String}, the value of the expression is {@code B}.
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class Elvis extends SpelNodeImpl {
@@ -42,19 +50,33 @@ public class Elvis extends SpelNodeImpl {
   }
 
   /**
-   * Evaluate the condition and if neither null nor an empty String, return it.
-   * If it is null or an empty String, return the other value.
+   * If the left-hand operand is neither {@code null}, an empty
+   * {@link Optional}, nor an empty {@link String}, return its value, or the
+   * value contained in the {@code Optional}. If the left-hand operand is
+   * {@code null}, an empty {@code Optional}, or an empty {@code String},
+   * return the other value.
    *
    * @param state the expression state
-   * @throws EvaluationException if the condition does not evaluate correctly
-   * to a boolean or there is a problem executing the chosen alternative
+   * @throws EvaluationException if the null/empty check does not evaluate correctly
+   * or there is a problem evaluating the alternative
    */
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
-    TypedValue value = this.children[0].getValueInternal(state);
+    TypedValue leftHandTypedValue = this.children[0].getValueInternal(state);
+    Object leftHandValue = leftHandTypedValue.getValue();
+
+    if (leftHandValue instanceof Optional<?> optional) {
+      // Compilation is currently not supported for Optional with the Elvis operator.
+      this.exitTypeDescriptor = null;
+      if (optional.isPresent()) {
+        return new TypedValue(optional.get());
+      }
+      return this.children[1].getValueInternal(state);
+    }
+
     // If this check is changed, the generateCode method will need changing too
-    if (value.getValue() != null && !"".equals(value.getValue())) {
-      return value;
+    if (leftHandValue != null && !"".equals(leftHandValue)) {
+      return leftHandTypedValue;
     }
     else {
       TypedValue result = this.children[1].getValueInternal(state);
@@ -65,8 +87,7 @@ public class Elvis extends SpelNodeImpl {
 
   @Override
   public String toStringAST() {
-    return "(" + getChild(0).toStringAST() + " ?: "
-            + getChild(1).toStringAST() + ")";
+    return "(" + getChild(0).toStringAST() + " ?: " + getChild(1).toStringAST() + ")";
   }
 
   @Override
@@ -120,7 +141,7 @@ public class Elvis extends SpelNodeImpl {
         this.exitTypeDescriptor = conditionDescriptor;
       }
       else {
-        // Use the easiest to compute common super type
+        // Use the easiest to compute common supertype
         this.exitTypeDescriptor = "Ljava/lang/Object";
       }
     }
