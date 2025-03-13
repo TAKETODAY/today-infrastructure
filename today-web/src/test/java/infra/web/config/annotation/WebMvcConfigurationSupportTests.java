@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +49,7 @@ import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
+import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RequestMapping;
@@ -58,17 +59,6 @@ import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.config.annotation.ApiVersionConfigurer;
-import infra.web.config.annotation.AsyncSupportConfigurer;
-import infra.web.config.annotation.ContentNegotiationConfigurer;
-import infra.web.config.annotation.CorsRegistry;
-import infra.web.config.annotation.InterceptorRegistry;
-import infra.web.config.annotation.PathMatchConfigurer;
-import infra.web.config.annotation.ResourceHandlerRegistry;
-import infra.web.config.annotation.ViewControllerRegistry;
-import infra.web.config.annotation.ViewResolverRegistry;
-import infra.web.config.annotation.WebMvcConfigurationSupport;
-import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.CompositeHandlerExceptionHandler;
@@ -90,6 +80,7 @@ import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
 import infra.web.view.ViewResolver;
 import infra.web.view.ViewResolverComposite;
+import infra.web.view.ViewReturnValueHandler;
 import infra.web.view.json.MappingJackson2JsonView;
 
 import static infra.http.MediaType.APPLICATION_JSON;
@@ -278,6 +269,24 @@ class WebMvcConfigurationSupportTests {
     Map<String, CorsConfiguration> configs = this.config.getCorsConfigurations();
     assertThat(configs).hasSize(1);
     assertThat(configs.get("/resources/**").getAllowedOrigins()).containsExactly("*");
+  }
+
+  @Test
+  public void addErrorResponseInterceptors() {
+    ErrorResponse.Interceptor interceptor = (detail, errorResponse) -> { };
+    WebMvcConfigurer configurer = new WebMvcConfigurer() {
+      @Override
+      public void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+        interceptors.add(interceptor);
+      }
+    };
+
+    var config = new DelegatingWebMvcConfiguration(Collections.singletonList(configurer));
+    ReturnValueHandlerManager returnValueHandlerManager = config.returnValueHandlerManager(
+            mock(ViewReturnValueHandler.class), mock(RedirectModelManager.class),
+            config.mvcContentNegotiationManager());
+
+    assertThat(returnValueHandlerManager.getErrorResponseInterceptors()).containsExactly(interceptor);
   }
 
   @Controller

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,10 +32,6 @@ import infra.mock.web.MockMockConfig;
 import infra.stereotype.Controller;
 import infra.ui.ModelMap;
 import infra.web.annotation.GetMapping;
-import infra.web.config.annotation.EnableWebMvc;
-import infra.web.config.annotation.ViewResolverRegistry;
-import infra.web.config.annotation.WebMvcConfigurationSupport;
-import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 import infra.web.view.freemarker.FreeMarkerConfigurer;

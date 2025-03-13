@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,8 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
    * <p>If this constructor is used, this mapping will detect all
    * {@link RouterFunction} instances available in the application context.
    */
-  public RouterFunctionMapping() { }
+  public RouterFunctionMapping() {
+  }
 
   /**
    * Create a {@code RouterFunctionMapping} with the given {@link RouterFunction}.

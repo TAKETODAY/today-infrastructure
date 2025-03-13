@@ -275,7 +275,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @param converters a list to add message converters to (initially an empty list)
    * @since 4.0
    */
-  protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) { }
+  protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+  }
 
   /**
    * Override this method to extend or modify the list of converters after it has
@@ -286,7 +287,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @since 4.0
    */
   protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-
   }
 
   /**
@@ -434,7 +434,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * Override this method to configure content negotiation.
    */
   protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-
   }
 
   //---------------------------------------------------------------------
@@ -458,7 +457,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see PathMatchConfigurer
    */
-  protected void configurePathMatch(PathMatchConfigurer configurer) { }
+  protected void configurePathMatch(PathMatchConfigurer configurer) {
+  }
 
   /**
    * Register a {@link ViewResolverComposite} that contains a chain of view resolvers
@@ -505,7 +505,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @see ViewResolverRegistry
    */
   protected void configureDefaultViewResolvers(List<ViewResolver> viewResolvers) {
-
   }
 
   /**
@@ -513,7 +512,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see ViewResolverRegistry
    */
-  protected void configureViewResolvers(ViewResolverRegistry registry) { }
+  protected void configureViewResolvers(ViewResolverRegistry registry) {
+  }
 
   @Component
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
@@ -563,6 +563,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     manager.setContentNegotiationManager(contentNegotiationManager);
     manager.setViewReturnValueHandler(viewHandler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
+    manager.setErrorResponseInterceptors(getErrorResponseInterceptors());
     manager.registerDefaultHandlers();
 
     modifyReturnValueHandlerManager(manager);
@@ -571,7 +572,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   }
 
   protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
-
   }
 
   /**
@@ -597,7 +597,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     return registry;
   }
 
-  protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
+  protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
+
+  }
 
   // HandlerExceptionHandler
 
@@ -812,7 +814,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Nullable
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public HandlerMapping viewControllerHandlerMapping() {
-    ViewControllerRegistry registry = new ViewControllerRegistry(applicationContext);
+    var context = obtainApplicationContext();
+    ViewControllerRegistry registry = new ViewControllerRegistry(context);
     addViewControllers(registry);
 
     AbstractHandlerMapping mapping = registry.buildHandlerMapping();
@@ -825,14 +828,16 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see ViewControllerRegistry
    */
-  protected void addViewControllers(ViewControllerRegistry registry) { }
+  protected void addViewControllers(ViewControllerRegistry registry) {
+  }
 
   /**
    * Override this method to add resource handlers for serving static resources.
    *
    * @see ResourceHandlerRegistry
    */
-  protected void addResourceHandlers(ResourceHandlerRegistry registry) { }
+  protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+  }
 
   /**
    * Return the registered {@link CorsConfiguration} objects,
@@ -852,7 +857,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see CorsRegistry
    */
-  protected void addCorsMappings(CorsRegistry registry) { }
+  protected void addCorsMappings(CorsRegistry registry) {
+  }
 
   /**
    * Provide access to the shared handler interceptors used to configure
@@ -874,7 +880,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see InterceptorRegistry
    */
-  protected void addInterceptors(InterceptorRegistry registry) { }
+  protected void addInterceptors(InterceptorRegistry registry) {
+  }
 
   /**
    * Return a {@link FormattingConversionService} for use with annotated controllers.
@@ -894,7 +901,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    *
    * @see #mvcConversionService()
    */
-  protected void addFormatters(FormatterRegistry registry) { }
+  protected void addFormatters(FormatterRegistry registry) {
+  }
 
   /**
    * Returns a {@link RequestMappingHandlerAdapter} for processing requests
@@ -922,7 +930,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     if (webBindingInitializer == null) {
-      webBindingInitializer = getWebBindingInitializer(conversionService, validator);
+      webBindingInitializer = createWebBindingInitializer(conversionService, validator);
     }
     adapter.setWebBindingInitializer(webBindingInitializer);
 
@@ -951,9 +959,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * Return the {@link WebBindingInitializer} to use for
    * initializing all {@link WebDataBinder} instances.
    */
-  protected WebBindingInitializer getWebBindingInitializer(
-          FormattingConversionService mvcConversionService, Validator mvcValidator) {
-
+  protected WebBindingInitializer createWebBindingInitializer(FormattingConversionService mvcConversionService, Validator mvcValidator) {
     var initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(mvcConversionService);
     initializer.setValidator(mvcValidator);
@@ -1028,7 +1034,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @see AsyncSupportConfigurer
    */
   protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-
   }
 
   /**
@@ -1037,8 +1042,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public CompositeUriComponentsContributor mvcUriComponentsContributor(
-          ParameterResolvingRegistry registry,
+  public CompositeUriComponentsContributor mvcUriComponentsContributor(ParameterResolvingRegistry registry,
           @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
     var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
     strategies.addAll(registry.getCustomizedStrategies().getStrategies());
