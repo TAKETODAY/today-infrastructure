@@ -852,10 +852,10 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     private CodeBlock generateRegisterCode() {
       var code = CodeBlock.builder();
       for (BeanRegistrar beanRegistrar : this.beanRegistrars) {
-        code.addStatement("new $T().register(new $T(($T)$L, $L, $T.class, $L), $L)", beanRegistrar.getClass(),
+        code.addStatement("new $T().register(new $T(($T)$L, $L, $L, $T.class, $L), $L)", beanRegistrar.getClass(),
                 BeanRegistryAdapter.class, BeanDefinitionRegistry.class, BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE,
-                BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE, beanRegistrar.getClass(), CUSTOMIZER_MAP_VARIABLE,
-                ENVIRONMENT_VARIABLE);
+                BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE, ENVIRONMENT_VARIABLE, beanRegistrar.getClass(),
+                CUSTOMIZER_MAP_VARIABLE, ENVIRONMENT_VARIABLE);
       }
       return code.build();
     }

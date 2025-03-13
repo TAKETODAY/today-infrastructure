@@ -31,6 +31,8 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
+import infra.core.env.Environment;
+import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.MultiValueMap;
 
@@ -48,20 +50,32 @@ public class BeanRegistryAdapter implements BeanRegistry {
 
   private final BeanFactory beanFactory;
 
+  private final Environment environment;
+
   private final Class<? extends BeanRegistrar> beanRegistrarClass;
 
-  private final @Nullable MultiValueMap<String, BeanDefinitionCustomizer> customizers;
+  @Nullable
+  private final MultiValueMap<String, BeanDefinitionCustomizer> customizers;
 
-  public BeanRegistryAdapter(BeanDefinitionRegistry beanRegistry, BeanFactory beanFactory,
+  public BeanRegistryAdapter(StandardBeanFactory beanFactory, Environment environment,
           Class<? extends BeanRegistrar> beanRegistrarClass) {
-    this(beanRegistry, beanFactory, beanRegistrarClass, null);
+
+    this(beanFactory, beanFactory, environment, beanRegistrarClass, null);
   }
 
   public BeanRegistryAdapter(BeanDefinitionRegistry beanRegistry, BeanFactory beanFactory,
-          Class<? extends BeanRegistrar> beanRegistrarClass, @Nullable MultiValueMap<String, BeanDefinitionCustomizer> customizers) {
+          Environment environment, Class<? extends BeanRegistrar> beanRegistrarClass) {
+
+    this(beanRegistry, beanFactory, environment, beanRegistrarClass, null);
+  }
+
+  public BeanRegistryAdapter(BeanDefinitionRegistry beanRegistry, BeanFactory beanFactory,
+          Environment environment, Class<? extends BeanRegistrar> beanRegistrarClass,
+          @Nullable MultiValueMap<String, BeanDefinitionCustomizer> customizers) {
 
     this.beanRegistry = beanRegistry;
     this.beanFactory = beanFactory;
+    this.environment = environment;
     this.beanRegistrarClass = beanRegistrarClass;
     this.customizers = customizers;
   }
@@ -101,6 +115,12 @@ public class BeanRegistryAdapter implements BeanRegistry {
       }
     }
     this.beanRegistry.registerBeanDefinition(name, beanDefinition);
+  }
+
+  @Override
+  public void register(BeanRegistrar registrar) {
+    Assert.notNull(registrar, "'registrar' is required");
+    registrar.register(this, this.environment);
   }
 
   /**

@@ -420,7 +420,7 @@ class ConfigurationClassBeanDefinitionReader {
   private void loadBeanDefinitionsFromBeanRegistrars(Set<BeanRegistrar> registrars) {
     for (BeanRegistrar registrar : registrars) {
       registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
-              bootstrapContext.getBeanFactory(), registrar.getClass()), bootstrapContext.getEnvironment());
+              bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
     }
   }
 

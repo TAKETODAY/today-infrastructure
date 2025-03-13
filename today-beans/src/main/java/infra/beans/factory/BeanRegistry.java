@@ -86,6 +86,14 @@ public interface BeanRegistry {
   <T> void registerBean(String name, Class<T> beanClass, Consumer<Spec<T>> customizer);
 
   /**
+   * Register beans using the given {@link BeanRegistrar}.
+   *
+   * @param registrar the bean registrar that will be called to register
+   * additional beans
+   */
+  void register(BeanRegistrar registrar);
+
+  /**
    * Specification for customizing a bean.
    *
    * @param <T> the bean type
