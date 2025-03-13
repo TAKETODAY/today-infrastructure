@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.context;
 
+import infra.beans.factory.BeanRegistrar;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 
@@ -49,5 +50,18 @@ public interface AnnotationConfigRegistry {
    * @param basePackages the packages to scan for component classes
    */
   void scan(String... basePackages);
+
+  /**
+   * Invoke the given registrars for registering their beans with this
+   * application context.
+   * <p>This can be used to register custom beans without inferring
+   * annotation-based characteristics for primary/fallback/lazy-init,
+   * rather specifying those programmatically if needed.
+   *
+   * @param registrars one or more {@link BeanRegistrar} instances
+   * @see #register(Class[])
+   * @since 5.0
+   */
+  void register(BeanRegistrar... registrars);
 
 }

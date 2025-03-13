@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import infra.aot.hint.support.ClassHintUtils;
 import infra.beans.BeansException;
 import infra.beans.PropertyValues;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionCustomizer;
@@ -38,6 +39,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import infra.beans.factory.support.BeanDefinitionRegistry;
 import infra.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import infra.beans.factory.support.BeanRegistryAdapter;
 import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -695,6 +697,22 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    */
   public void setAllowCircularReferences(boolean allowCircularReferences) {
     this.beanFactory.setAllowCircularReferences(allowCircularReferences);
+  }
+
+  /**
+   * Invoke the given registrars for registering their beans with this
+   * application context.
+   * <p>This can be used to apply encapsulated pieces of programmatic
+   * bean registration to this application context without relying on
+   * individual calls to its context-level {@code registerBean} methods.
+   *
+   * @param registrars one or more {@link BeanRegistrar} instances
+   * @since 5.0
+   */
+  public void register(BeanRegistrar... registrars) {
+    for (BeanRegistrar registrar : registrars) {
+      new BeanRegistryAdapter(this.beanFactory, getEnvironment(), registrar.getClass()).register(registrar);
+    }
   }
 
 }

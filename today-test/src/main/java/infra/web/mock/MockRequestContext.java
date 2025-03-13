@@ -77,7 +77,7 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
   protected String method;
 
   public MockRequestContext() {
-    this(null);
+    this((ApplicationContext) null);
   }
 
   public MockRequestContext(ApplicationContext context) {
