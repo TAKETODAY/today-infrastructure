@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ package infra.test.context.aot.samples.web;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.ResourceHandlerRegistry;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Sam Brannen

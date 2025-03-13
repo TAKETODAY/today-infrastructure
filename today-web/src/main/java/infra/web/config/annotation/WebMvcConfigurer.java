@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import java.util.List;
 
@@ -36,7 +36,6 @@ import infra.web.annotation.CrossOrigin;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.view.View;

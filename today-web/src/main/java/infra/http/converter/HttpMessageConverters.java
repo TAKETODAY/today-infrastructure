@@ -30,7 +30,7 @@ import infra.http.converter.json.GsonHttpMessageConverter;
 import infra.http.converter.json.MappingJackson2HttpMessageConverter;
 import infra.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import infra.util.ClassUtils;
-import infra.web.config.WebMvcConfigurationSupport;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
 
 /**
  * Bean used to manage the {@link HttpMessageConverter}s used in application.

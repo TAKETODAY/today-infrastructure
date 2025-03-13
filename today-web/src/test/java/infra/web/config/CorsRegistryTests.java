@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
+import infra.web.config.annotation.CorsRegistry;
 import infra.web.cors.CorsConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;

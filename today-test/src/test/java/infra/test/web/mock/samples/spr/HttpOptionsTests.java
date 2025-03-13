@@ -34,8 +34,8 @@ import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.options;

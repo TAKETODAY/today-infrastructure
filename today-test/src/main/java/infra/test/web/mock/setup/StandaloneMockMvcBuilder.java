@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,12 +62,12 @@ import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.config.AsyncSupportConfigurer;
-import infra.web.config.DelegatingWebMvcConfiguration;
-import infra.web.config.InterceptorRegistration;
-import infra.web.config.InterceptorRegistry;
-import infra.web.config.PathMatchConfigurer;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.DelegatingWebMvcConfiguration;
+import infra.web.config.annotation.InterceptorRegistration;
+import infra.web.config.annotation.InterceptorRegistry;
+import infra.web.config.annotation.PathMatchConfigurer;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.MappedInterceptor;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.RequestMappingHandlerMapping;

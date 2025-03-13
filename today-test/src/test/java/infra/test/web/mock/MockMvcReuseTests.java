@@ -27,7 +27,7 @@ import infra.session.config.EnableWebSession;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.mock.WebApplicationContext;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;

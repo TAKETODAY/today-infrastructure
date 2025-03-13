@@ -32,7 +32,7 @@ import infra.format.number.money.CurrencyUnitFormatter;
 import infra.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory;
 import infra.format.number.money.MonetaryAmountFormatter;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 
 /**
  * {@link infra.format.support.FormattingConversionService} dedicated to web

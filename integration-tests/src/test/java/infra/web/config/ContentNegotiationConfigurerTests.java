@@ -29,6 +29,7 @@ import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationStrategy;
 import infra.web.accept.FixedContentNegotiationStrategy;
+import infra.web.config.annotation.ContentNegotiationConfigurer;
 import infra.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

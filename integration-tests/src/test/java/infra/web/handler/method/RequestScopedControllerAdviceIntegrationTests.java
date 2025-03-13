@@ -27,7 +27,7 @@ import infra.core.Ordered;
 import infra.core.annotation.Order;
 import infra.mock.web.MockContextImpl;
 import infra.web.annotation.ControllerAdvice;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.context.annotation.RequestScope;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 

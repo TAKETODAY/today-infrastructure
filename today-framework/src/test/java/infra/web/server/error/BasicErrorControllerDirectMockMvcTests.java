@@ -49,7 +49,7 @@ import infra.test.util.ReflectionTestUtils;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.setup.MockMvcBuilders;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;

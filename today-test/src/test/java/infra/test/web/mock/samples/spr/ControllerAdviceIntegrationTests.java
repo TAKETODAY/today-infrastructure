@@ -35,7 +35,7 @@ import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.context.annotation.RequestScope;
 import infra.web.mock.WebApplicationContext;
 

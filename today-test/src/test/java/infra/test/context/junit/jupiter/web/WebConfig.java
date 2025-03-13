@@ -19,7 +19,7 @@ package infra.test.context.junit.jupiter.web;
 
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 
 /**
  * @author Sam Brannen

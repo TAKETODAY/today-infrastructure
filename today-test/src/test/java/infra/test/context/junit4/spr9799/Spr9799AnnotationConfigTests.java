@@ -24,7 +24,7 @@ import infra.context.annotation.Configuration;
 import infra.test.context.ContextConfiguration;
 import infra.test.context.junit4.JUnit4ClassRunner;
 import infra.test.context.web.WebAppConfiguration;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 
 /**
  * Integration tests used to assess claims raised in

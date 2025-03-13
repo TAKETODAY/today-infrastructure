@@ -31,7 +31,7 @@ import infra.lang.Nullable;
 import infra.mock.web.MockContextImpl;
 import infra.web.MockResolvableMethodParameter;
 import infra.web.RequestContext;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 

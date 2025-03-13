@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,8 @@ import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockFilterChain;
 import infra.mock.web.MockHttpResponseImpl;
-import infra.web.config.ResourceHandlerRegistry;
-import infra.web.config.WebMvcConfigurationSupport;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

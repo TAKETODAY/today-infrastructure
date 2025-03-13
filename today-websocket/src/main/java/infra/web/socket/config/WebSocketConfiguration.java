@@ -26,7 +26,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.lang.Nullable;
 import infra.stereotype.Component;
 import infra.util.DataSize;
-import infra.web.config.WebMvcConfigurationSupport;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.DefaultHandshakeHandler;
 import infra.web.socket.server.support.NettyRequestUpgradeStrategy;

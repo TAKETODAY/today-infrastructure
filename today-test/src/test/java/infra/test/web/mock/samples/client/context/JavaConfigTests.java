@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,10 +35,10 @@ import infra.test.web.mock.client.MockMvcWebTestClient;
 import infra.test.web.mock.samples.context.PersonController;
 import infra.test.web.mock.samples.context.PersonDao;
 import infra.test.web.reactive.server.WebTestClient;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.ResourceHandlerRegistry;
-import infra.web.config.ViewControllerRegistry;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.ViewControllerRegistry;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.WebApplicationContext;
 
 import static org.mockito.BDDMockito.given;

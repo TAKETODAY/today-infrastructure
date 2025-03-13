@@ -32,8 +32,8 @@ import infra.web.RequestContext;
 import infra.web.RequestContextHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.GenericWebApplicationContext;
 

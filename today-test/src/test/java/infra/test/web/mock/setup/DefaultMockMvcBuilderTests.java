@@ -26,7 +26,7 @@ import infra.context.annotation.Configuration;
 import infra.context.support.StaticApplicationContext;
 import infra.mock.web.MockContextImpl;
 import infra.test.web.mock.MockMvc;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.mock.WebApplicationContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.mock.support.WebApplicationContextUtils;

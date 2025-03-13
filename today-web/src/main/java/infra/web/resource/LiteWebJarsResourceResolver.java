@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import java.util.List;
 import infra.core.io.Resource;
 import infra.lang.Nullable;
 import infra.web.RequestContext;
-import infra.web.config.ResourceChainRegistration;
+import infra.web.config.annotation.ResourceChainRegistration;
 
 /**
  * A {@code ResourceResolver} that delegates to the chain to locate a resource and then

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,6 @@ import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategies;
-import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.handler.ReturnValueHandlerManager;
 
 /**

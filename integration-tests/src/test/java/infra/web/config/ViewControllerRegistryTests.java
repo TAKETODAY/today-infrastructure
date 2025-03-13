@@ -29,6 +29,7 @@ import infra.http.HttpStatus;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.InfraConfigurationException;
+import infra.web.config.annotation.ViewControllerRegistry;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.mvc.ParameterizableViewController;
 import infra.web.mock.MockRequestContext;

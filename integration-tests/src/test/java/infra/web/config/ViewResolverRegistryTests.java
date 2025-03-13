@@ -25,6 +25,7 @@ import java.util.Arrays;
 import infra.beans.DirectFieldAccessor;
 import infra.core.Ordered;
 import infra.web.accept.ContentNegotiationManager;
+import infra.web.config.annotation.ViewResolverRegistry;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.ContentNegotiatingViewResolver;

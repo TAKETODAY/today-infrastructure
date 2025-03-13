@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,10 +78,10 @@ import infra.web.RequestContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.config.AsyncSupportConfigurer;
-import infra.web.config.CorsRegistry;
-import infra.web.config.ResourceHandlerRegistry;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.CorsRegistry;
+import infra.web.config.annotation.ResourceHandlerRegistry;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.CompositeHandlerExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;

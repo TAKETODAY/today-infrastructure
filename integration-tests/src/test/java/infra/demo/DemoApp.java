@@ -21,7 +21,7 @@ import infra.app.Application;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

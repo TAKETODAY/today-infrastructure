@@ -63,7 +63,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.RequestResponseBodyAdviceChain;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.testfixture.ReflectionTestUtils;

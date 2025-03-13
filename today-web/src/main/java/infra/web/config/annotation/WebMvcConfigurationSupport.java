@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,7 +85,6 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.BeanNameUrlHandlerMapping;

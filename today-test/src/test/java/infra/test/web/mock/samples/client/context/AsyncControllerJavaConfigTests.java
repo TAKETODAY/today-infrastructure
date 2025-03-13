@@ -39,9 +39,9 @@ import infra.test.web.reactive.server.WebTestClient;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
 import infra.web.async.CallableProcessingInterceptor;
-import infra.web.config.AsyncSupportConfigurer;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.WebApplicationContext;
 
 import static org.mockito.ArgumentMatchers.any;

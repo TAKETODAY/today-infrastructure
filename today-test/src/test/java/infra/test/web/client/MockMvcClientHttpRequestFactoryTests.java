@@ -36,8 +36,8 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.client.HttpClientErrorException;
 import infra.web.client.RestTemplate;
-import infra.web.config.EnableWebMvc;
-import infra.web.config.WebMvcConfigurer;
+import infra.web.config.annotation.EnableWebMvc;
+import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

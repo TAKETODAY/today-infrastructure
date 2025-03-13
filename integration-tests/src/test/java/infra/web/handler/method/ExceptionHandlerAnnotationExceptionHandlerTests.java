@@ -55,7 +55,7 @@ import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestControllerAdvice;
-import infra.web.config.EnableWebMvc;
+import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockRequestContext;

@@ -17,7 +17,7 @@
 
 package infra.annotation.config.web;
 
-import infra.web.config.WebMvcConfigurationSupport;
+import infra.web.config.annotation.WebMvcConfigurationSupport;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
