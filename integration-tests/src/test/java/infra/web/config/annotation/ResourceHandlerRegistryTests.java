@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,8 +31,6 @@ import infra.http.CacheControl;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.config.annotation.ResourceHandlerRegistration;
-import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.GenericWebApplicationContext;

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ import infra.mock.web.MockHttpResponseImpl;
 import infra.web.HandlerInterceptor;
 import infra.web.InterceptorChain;
 import infra.web.RequestContext;
-import infra.web.config.annotation.InterceptorRegistry;
 import infra.web.handler.MappedInterceptor;
 import infra.web.i18n.LocaleChangeInterceptor;
 

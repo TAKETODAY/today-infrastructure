@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.config;
+package infra.web.config.annotation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,6 @@ import infra.http.HttpStatus;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.web.InfraConfigurationException;
-import infra.web.config.annotation.ViewControllerRegistry;
 import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.mvc.ParameterizableViewController;
 import infra.web.mock.MockRequestContext;
