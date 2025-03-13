@@ -25,6 +25,8 @@ import infra.beans.BeanUtils;
 import infra.beans.BeansException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.AbstractBeanDefinition;
+import infra.beans.factory.support.RootBeanDefinition;
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.env.Environment;
 
@@ -166,6 +168,22 @@ public interface BeanRegistry {
      * @see AbstractBeanDefinition#setInstanceSupplier(Supplier)
      */
     Spec<T> supplier(Function<SupplierContext, T> supplier);
+
+    /**
+     * Set a generics-containing target type of this bean.
+     *
+     * @see #targetType(ResolvableType)
+     * @see RootBeanDefinition#setTargetType(ResolvableType)
+     */
+    Spec<T> targetType(ParameterizedTypeReference<? extends T> type);
+
+    /**
+     * Set a generics-containing target type of this bean.
+     *
+     * @see #targetType(ParameterizedTypeReference)
+     * @see RootBeanDefinition#setTargetType(ResolvableType)
+     */
+    Spec<T> targetType(ResolvableType type);
   }
 
   /**

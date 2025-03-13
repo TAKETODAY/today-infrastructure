@@ -29,6 +29,7 @@ import infra.beans.factory.BeanRegistry;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionCustomizer;
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.lang.Nullable;
 import infra.util.MultiValueMap;
@@ -209,6 +210,18 @@ public class BeanRegistryAdapter implements BeanRegistry {
     public Spec<T> supplier(Function<SupplierContext, T> supplier) {
       this.beanDefinition.setInstanceSupplier(() ->
               supplier.apply(new SupplierContextAdapter(this.beanFactory)));
+      return this;
+    }
+
+    @Override
+    public Spec<T> targetType(ParameterizedTypeReference<? extends T> targetType) {
+      this.beanDefinition.setTargetType(ResolvableType.forType(targetType));
+      return this;
+    }
+
+    @Override
+    public Spec<T> targetType(ResolvableType targetType) {
+      this.beanDefinition.setTargetType(targetType);
       return this;
     }
   }

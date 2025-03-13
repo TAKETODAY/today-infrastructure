@@ -22,12 +22,15 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.BeanDefinition;
+import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.testfixture.beans.factory.GenericBeanRegistrar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Bar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Baz;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Foo;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Init;
 import infra.context.testfixture.context.annotation.registrar.BeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.GenericBeanRegistrarConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,6 +71,15 @@ public class BeanRegistrarConfigurationTests {
     assertThat(context.getBean(Bar.class).foo()).isEqualTo(context.getBean(Foo.class));
     assertThatThrownBy(() -> context.getBean(Baz.class).message()).isInstanceOf(NoSuchBeanDefinitionException.class);
     assertThat(context.getBean(Init.class).initialized).isTrue();
+  }
+
+  @Test
+  void beanRegistrarWithTargetType() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(GenericBeanRegistrarConfiguration.class);
+    context.refresh();
+    RootBeanDefinition beanDefinition = (RootBeanDefinition) context.getBeanDefinition("fooSupplier");
+    assertThat(beanDefinition.getResolvableType().resolveGeneric(0)).isEqualTo(GenericBeanRegistrar.Foo.class);
   }
 
 }
