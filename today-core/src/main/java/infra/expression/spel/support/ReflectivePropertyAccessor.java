@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -612,11 +612,12 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
       }
 
       if (this.member instanceof Method method) {
-        String getterName = "get" + StringUtils.capitalize(name);
+        String capitalizedName = StringUtils.capitalize(name);
+        String getterName = "get" + capitalizedName;
         if (getterName.equals(method.getName())) {
           return true;
         }
-        getterName = "is" + StringUtils.capitalize(name);
+        getterName = "is" + capitalizedName;
         if (getterName.equals(method.getName())) {
           return true;
         }
