@@ -429,7 +429,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext005_ApplicationContextInitializer.java",
           "infra/test/context/aot/samples/web/WebInfraJupiterTests__TestContext005_BeanFactoryRegistrations.java",
           "infra/test/context/aot/samples/web/WebTestConfiguration__TestContext005_BeanDefinitions.java",
-          "infra/web/config/DelegatingWebMvcConfiguration__TestContext005_BeanDefinitions.java",
+          "infra/web/config/annotation/DelegatingWebMvcConfiguration__TestContext005_BeanDefinitions.java",
           // XmlInfraJupiterTests
           "infra/context/event/DefaultEventListenerFactory__TestContext006_BeanDefinitions.java",
           "infra/context/event/EventListenerMethodProcessor__TestContext006_BeanDefinitions.java",
