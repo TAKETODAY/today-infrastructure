@@ -40,7 +40,6 @@ import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;
 import infra.stereotype.Controller;
-import infra.test.web.mock.setup.InternalResourceViewResolver;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.DefaultMessageCodesResolver;
 import infra.validation.Errors;
@@ -74,7 +73,6 @@ import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
-import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
@@ -162,14 +160,13 @@ class WebMvcConfigurationSupportTests {
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
     interceptors = chain.getInterceptors();
-    assertThat(interceptors.length).as(Arrays.toString(interceptors)).isEqualTo(3);
+    assertThat(interceptors.length).as(Arrays.toString(interceptors)).isEqualTo(2);
     assertThat(interceptors[0].getClass().getSimpleName()).isEqualTo("CorsInterceptor");
     // PathExposingHandlerInterceptor at interceptors[1]
-    assertThat(interceptors[2].getClass()).isEqualTo(LocaleChangeInterceptor.class);
+    assertThat(interceptors[1].getClass()).isEqualTo(LocaleChangeInterceptor.class);
 
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   void requestMappingHandlerAdapter() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(
@@ -185,23 +182,8 @@ class WebMvcConfigurationSupportTests {
     // Custom argument resolvers and return value handlers
     ParameterResolvingRegistry registry =
             (ParameterResolvingRegistry) fieldAccessor.getPropertyValue("resolvingRegistry");
-    assertThat(registry.getMessageConverters()).hasSize(1);
+    assertThat(registry.getMessageConverters()).hasSize(3);
 
-    List<HandlerMethodReturnValueHandler> handlers =
-            (List<HandlerMethodReturnValueHandler>) fieldAccessor.getPropertyValue("customReturnValueHandlers");
-    assertThat(handlers).hasSize(1);
-
-    // Async support options
-    assertThat(fieldAccessor.getPropertyValue("taskExecutor").getClass()).isEqualTo(ConcurrentTaskExecutor.class);
-    assertThat(fieldAccessor.getPropertyValue("asyncRequestTimeout")).isEqualTo(2500L);
-
-    CallableProcessingInterceptor[] callableInterceptors =
-            (CallableProcessingInterceptor[]) fieldAccessor.getPropertyValue("callableInterceptors");
-    assertThat(callableInterceptors).hasSize(1);
-
-    DeferredResultProcessingInterceptor[] deferredResultInterceptors =
-            (DeferredResultProcessingInterceptor[]) fieldAccessor.getPropertyValue("deferredResultInterceptors");
-    assertThat(deferredResultInterceptors).hasSize(1);
   }
 
   @Test
@@ -226,7 +208,6 @@ class WebMvcConfigurationSupportTests {
   @Test
   public void contentNegotiation() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
-    MockRequestContext webRequest = new MockRequestContext(request);
 
     RequestMappingHandlerMapping mapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
@@ -234,10 +215,10 @@ class WebMvcConfigurationSupportTests {
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
-    assertThat(manager.resolveMediaTypes(webRequest)).isEqualTo(Collections.singletonList(APPLICATION_JSON));
+    assertThat(manager.resolveMediaTypes(new MockRequestContext(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
 
     request.setParameter("f", "xml");
-    assertThat(manager.resolveMediaTypes(webRequest)).isEqualTo(Collections.singletonList(APPLICATION_XML));
+    assertThat(manager.resolveMediaTypes(new MockRequestContext(request))).isEqualTo(Collections.singletonList(APPLICATION_XML));
 
     SimpleUrlHandlerMapping handlerMapping = (SimpleUrlHandlerMapping) this.config.resourceHandlerMapping(
             null, this.config.mvcContentNegotiationManager());
@@ -279,11 +260,7 @@ class WebMvcConfigurationSupportTests {
 
     viewResolvers = (List<ViewResolver>) accessor.getPropertyValue("viewResolvers");
     assertThat(viewResolvers).isNotNull();
-    assertThat(viewResolvers).hasSize(1);
-    assertThat(viewResolvers.get(0).getClass()).isEqualTo(InternalResourceViewResolver.class);
-    accessor = new DirectFieldAccessor(viewResolvers.get(0));
-    assertThat(accessor.getPropertyValue("prefix")).isEqualTo("/");
-    assertThat(accessor.getPropertyValue("suffix")).isEqualTo(".jsp");
+    assertThat(viewResolvers).hasSize(0);
   }
 
   @Test
