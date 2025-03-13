@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.MethodParameter;
+import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
@@ -44,10 +45,13 @@ import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.session.SessionManager;
+import infra.session.WebSession;
 import infra.session.config.EnableWebSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
+import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.RequestContext;
 import infra.web.annotation.ControllerAdvice;
@@ -58,12 +62,18 @@ import infra.web.bind.resolver.HttpEntityMethodProcessor;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.bind.resolver.RequestResponseBodyAdviceChain;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
+import infra.web.bind.support.WebBindingInitializer;
 import infra.web.config.EnableWebMvc;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
 import infra.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -234,6 +244,90 @@ class RequestMappingHandlerAdapterTests {
 
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(handle).isEqualTo("Body: {foo=bar}");
+  }
+
+  @Test
+  void handleMethodWithoutSessionSynchronization() throws Throwable {
+    this.handlerAdapter.setSynchronizeOnSession(false);
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+
+    handlerAdapter.afterPropertiesSet();
+    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void handleMethodWithSessionSynchronizationNoSession() throws Throwable {
+    this.handlerAdapter.setSynchronizeOnSession(true);
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+    handlerAdapter.afterPropertiesSet();
+    Object result = this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void handleMethodWithRedirectAttributes() throws Throwable {
+    RedirectModelManager redirectModelManager = mock(RedirectModelManager.class);
+    RedirectModel redirectModel = new RedirectModel();
+    redirectModel.addAttribute("attr", "value");
+    when(redirectModelManager.retrieveAndUpdate(any())).thenReturn(redirectModel);
+
+    this.handlerAdapter.setRedirectModelManager(redirectModelManager);
+    handlerAdapter.afterPropertiesSet();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+
+    MockRequestContext request1 = new MockRequestContext(request);
+    Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
+
+    assertThat(request1.getBinding().getModel()).containsEntry("attr", "value");
+  }
+
+  @Test
+  void handleMethodWithCustomWebBindingInitializer() throws Throwable {
+    WebBindingInitializer initializer = mock(WebBindingInitializer.class);
+    this.handlerAdapter.setWebBindingInitializer(initializer);
+    handlerAdapter.afterPropertiesSet();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+
+    this.handlerAdapter.handleInternal(new MockRequestContext(request), handlerMethod);
+
+//    verify(initializer).initBinder(any());
+  }
+
+  @Test
+  void handleMethodWithCustomSessionManager() throws Throwable {
+    SessionManager sessionManager = mock(SessionManager.class);
+    WebSession session = mock(WebSession.class);
+    when(sessionManager.getSession(any(), eq(false))).thenReturn(session);
+
+    this.handlerAdapter.setSessionManager(sessionManager);
+    this.handlerAdapter.setSynchronizeOnSession(true);
+    handlerAdapter.afterPropertiesSet();
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+
+    MockRequestContext ctx = new MockRequestContext(request);
+    Object result = this.handlerAdapter.handleInternal(ctx, handlerMethod);
+
+    verify(sessionManager).getSession(ctx, false);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void handleMethodWithoutCacheControlHeader() throws Throwable {
+    HttpMockRequestImpl request = new HttpMockRequestImpl();
+    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+
+    MockRequestContext requestContext = new MockRequestContext(request);
+    handlerAdapter.afterPropertiesSet();
+    this.handlerAdapter.handleInternal(requestContext, handlerMethod);
+
+    assertThat(requestContext.responseHeaders().get(HttpHeaders.CACHE_CONTROL)).isNull();
   }
 
   private HandlerMethod handlerMethod(Object handler, String methodName, Class<?>... paramTypes) throws Exception {
