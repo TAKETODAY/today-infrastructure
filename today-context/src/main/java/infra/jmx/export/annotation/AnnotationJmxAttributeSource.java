@@ -40,10 +40,10 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
-import infra.core.annotation.RepeatableContainers;
 import infra.jmx.export.metadata.InvalidMetadataException;
 import infra.jmx.export.metadata.JmxAttributeSource;
 import infra.lang.Nullable;
+import infra.util.StringUtils;
 
 /**
  * Implementation of the {@code JmxAttributeSource} interface that
@@ -66,8 +66,8 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
-    if (beanFactory instanceof ConfigurableBeanFactory) {
-      this.embeddedValueResolver = new EmbeddedValueResolver((ConfigurableBeanFactory) beanFactory);
+    if (beanFactory instanceof ConfigurableBeanFactory cbf) {
+      this.embeddedValueResolver = new EmbeddedValueResolver(cbf);
     }
   }
 
@@ -91,8 +91,8 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
     map.forEach((attrName, attrValue) -> {
       if (!"value".equals(attrName)) {
         Object value = attrValue;
-        if (this.embeddedValueResolver != null && value instanceof String) {
-          value = this.embeddedValueResolver.resolveStringValue((String) value);
+        if (embeddedValueResolver != null && value instanceof String text) {
+          value = embeddedValueResolver.resolveStringValue(text);
         }
         list.add(new PropertyValue(attrName, value));
       }
@@ -116,7 +116,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
     pvs.remove("defaultValue");
     BeanWrapper.forBeanPropertyAccess(bean).setPropertyValues(pvs);
     String defaultValue = (String) map.get("defaultValue");
-    if (!defaultValue.isEmpty()) {
+    if (StringUtils.isNotEmpty(defaultValue)) {
       bean.setDefaultValue(defaultValue);
     }
     return bean;
@@ -144,9 +144,7 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   public infra.jmx.export.metadata.ManagedOperationParameter[] getManagedOperationParameters(Method method)
           throws InvalidMetadataException {
 
-    List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(
-            method, ManagedOperationParameter.class, ManagedOperationParameters.class);
-
+    List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(method, ManagedOperationParameter.class);
     return copyPropertiesToBeanArray(anns, infra.jmx.export.metadata.ManagedOperationParameter.class);
   }
 
@@ -154,18 +152,14 @@ public class AnnotationJmxAttributeSource implements JmxAttributeSource, BeanFac
   public infra.jmx.export.metadata.ManagedNotification[] getManagedNotifications(Class<?> clazz)
           throws InvalidMetadataException {
 
-    List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(
-            clazz, ManagedNotification.class, ManagedNotifications.class);
-
+    List<MergedAnnotation<? extends Annotation>> anns = getRepeatableAnnotations(clazz, ManagedNotification.class);
     return copyPropertiesToBeanArray(anns, infra.jmx.export.metadata.ManagedNotification.class);
   }
 
   private static List<MergedAnnotation<? extends Annotation>> getRepeatableAnnotations(
-          AnnotatedElement annotatedElement, Class<? extends Annotation> annotationType,
-          Class<? extends Annotation> containerAnnotationType) {
+          AnnotatedElement annotatedElement, Class<? extends Annotation> annotationType) {
 
-    return MergedAnnotations.from(annotatedElement, SearchStrategy.TYPE_HIERARCHY,
-                    RepeatableContainers.valueOf(annotationType, containerAnnotationType))
+    return MergedAnnotations.from(annotatedElement, SearchStrategy.TYPE_HIERARCHY)
             .stream(annotationType)
             .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
             .map(MergedAnnotation::withNonMergedAttributes)
