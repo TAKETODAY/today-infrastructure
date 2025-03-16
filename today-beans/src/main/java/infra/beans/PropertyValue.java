@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.beans;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Map;
 import java.util.Objects;
 
 import infra.lang.Assert;
@@ -39,15 +38,18 @@ import infra.util.ObjectUtils;
  * @author Rod Johnson
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @author TODAY 2021/3/21 15:49
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2021/3/21 15:49
  */
 public class PropertyValue extends BeanMetadataAttributeAccessor implements Serializable, BeanMetadataElement {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private String name;
-  private Object value;
+  private final String name;
+
+  @Nullable
+  private final Object value;
 
   /** Package-visible field for caching the resolved property path tokens. */
   @Nullable
@@ -64,15 +66,16 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
   @Nullable
   volatile Boolean conversionNecessary;
 
-  public PropertyValue() { }
-
-  public PropertyValue(String name, Object value) {
+  /**
+   * Create a new PropertyValue instance.
+   *
+   * @param name the name of the property (never {@code null})
+   * @param value the value of the property (possibly before type conversion)
+   */
+  public PropertyValue(String name, @Nullable Object value) {
+    Assert.notNull(name, "Name is required");
     this.name = name;
     this.value = value;
-  }
-
-  PropertyValue(Map.Entry<String, ?> entry) {
-    this(entry.getKey(), entry.getValue());
   }
 
   /**
@@ -197,14 +200,6 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
       source = original.getSource();
     }
     return original;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setValue(Object value) {
-    this.value = value;
   }
 
   @Override

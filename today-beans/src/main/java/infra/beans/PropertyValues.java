@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,8 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    *
    * @see #add(String, Object)
    */
-  public PropertyValues() { }
+  public PropertyValues() {
+  }
 
   /**
    * Deep copy constructor. Guarantees PropertyValue references
@@ -78,11 +79,7 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    * @see #set(PropertyValues)
    */
   public PropertyValues(@Nullable PropertyValues original) {
-    // We can optimize this because it's all new:
-    // There is no replacement of existing property values.
-    if (original != null) {
-      set(original);
-    }
+    set(original);
   }
 
   /**
@@ -284,8 +281,8 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
   public PropertyValues add(@Nullable Map<String, ?> other) {
     if (CollectionUtils.isNotEmpty(other)) {
       ArrayList<PropertyValue> propertyValues = propertyValues();
-      for (Map.Entry<String, ?> entry : other.entrySet()) {
-        propertyValues.add(new PropertyValue(entry));
+      for (var entry : other.entrySet()) {
+        propertyValues.add(new PropertyValue(entry.getKey(), entry.getValue()));
       }
     }
     return this;
@@ -325,7 +322,7 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    * @return this in order to allow for adding multiple property values in a chain
    * @see Map#putAll(Map)
    */
-  public PropertyValues set(PropertyValues other) {
+  public PropertyValues set(@Nullable PropertyValues other) {
     if (this.propertyValues == null) {
       if (other != null && CollectionUtils.isNotEmpty(other.propertyValues)) {
         this.propertyValues = new ArrayList<>();
@@ -382,8 +379,8 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
       else {
         this.propertyValues.clear();
       }
-      for (Map.Entry<String, Object> entry : propertyValues.entrySet()) {
-        this.propertyValues.add(new PropertyValue(entry));
+      for (var entry : propertyValues.entrySet()) {
+        this.propertyValues.add(new PropertyValue(entry.getKey(), entry.getValue()));
       }
     }
     return this;
