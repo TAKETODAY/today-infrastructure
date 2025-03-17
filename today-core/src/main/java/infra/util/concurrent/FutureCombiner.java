@@ -338,9 +338,11 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   @Override
   public void operationComplete(Future<?> completed) throws Throwable {
     if (completed.isFailed()) {
-      for (Future future : futures) {
-        if (!future.isDone()) {
-          future.cancel();
+      if (allMustSucceed) {
+        for (Future future : futures) {
+          if (!future.isDone()) {
+            future.cancel();
+          }
         }
       }
     }
