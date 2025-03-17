@@ -70,6 +70,9 @@ public final class NettyRequestConfig {
    */
   public final Charset writerCharset;
 
+  /**
+   * Response headers factory
+   */
   public final HttpHeadersFactory httpHeadersFactory;
 
   public final HttpDataFactory httpDataFactory;

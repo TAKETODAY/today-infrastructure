@@ -51,6 +51,7 @@ import infra.web.server.support.NettyRequestConfig;
 import infra.web.server.support.NettyWebServerFactory;
 import infra.web.server.support.ServerBootstrapCustomizer;
 import infra.web.socket.server.support.WsNettyChannelHandler;
+import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 import static infra.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;
@@ -124,6 +125,8 @@ public class NettyWebServerFactoryAutoConfiguration {
     factory.setDeleteOnExit(multipart.deleteOnExit);
     return NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .httpDataFactory(factory)
+            .headersFactory(DefaultHttpHeadersFactory.headersFactory()
+                    .withValidation(server.netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
             .build();
   }
