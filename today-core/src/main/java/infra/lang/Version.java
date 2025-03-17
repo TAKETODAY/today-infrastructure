@@ -17,6 +17,7 @@
 
 package infra.lang;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,7 +35,7 @@ import java.util.Objects;
  * @since 4.0
  */
 public record Version(int major, int minor, int micro, String type, int step,
-        @Nullable String extension, String implementationVersion) {
+        @Nullable String extension, String implementationVersion) implements Comparable<Version> {
 
   public static final String Draft = "Draft";
   public static final String Alpha = "Alpha";
@@ -43,6 +44,10 @@ public record Version(int major, int minor, int micro, String type, int step,
   public static final String SNAPSHOT = "SNAPSHOT";
 
   public static final Version instance;
+
+  // Define version type precedence: Draft < SNAPSHOT < Alpha < Beta < RELEASE
+
+  private static final List<String> TYPE_PRECEDENCE = List.of(Draft, SNAPSHOT, Alpha, Beta, RELEASE);
 
   static {
     String implementationVersion = VersionExtractor.forClass(Version.class);
@@ -66,7 +71,7 @@ public record Version(int major, int minor, int micro, String type, int step,
     String extension = null;
     int major;
     int minor;
-    int micro;
+    int micro = 0;
     int step = 0;
 
     String[] split = implementationVersion.split("-");
@@ -87,13 +92,60 @@ public record Version(int major, int minor, int micro, String type, int step,
       }
     }
 
-    String ver = split[0];
-    String[] verSplit = ver.split("\\.");
-    major = Integer.parseInt(verSplit[0]);
-    minor = Integer.parseInt(verSplit[1]);
-    micro = Integer.parseInt(verSplit[2]);
+    String[] number = split[0].split("\\.");
+    major = Integer.parseInt(number[0]);
+    minor = Integer.parseInt(number[1]);
+    if (number.length == 3) {
+      micro = Integer.parseInt(number[2]);
+    }
 
     return new Version(major, minor, micro, type, step, extension, implementationVersion);
+  }
+
+  @Override
+  public int compareTo(Version o) {
+    if (this == o) {
+      return 0;
+    }
+
+    // Compare major version
+    int result = Integer.compare(major, o.major);
+    if (result != 0) {
+      return result;
+    }
+
+    // Compare minor version
+    result = Integer.compare(minor, o.minor);
+    if (result != 0) {
+      return result;
+    }
+
+    // Compare micro version
+    result = Integer.compare(micro, o.micro);
+    if (result != 0) {
+      return result;
+    }
+
+    // Compare type
+    result = compareType(type, o.type);
+    if (result != 0) {
+      return result;
+    }
+
+    // Compare step
+    return Integer.compare(step, o.step);
+  }
+
+  private static int compareType(String type1, String type2) {
+    if (type1.equals(type2)) {
+      return 0;
+    }
+    int index1 = TYPE_PRECEDENCE.indexOf(type1);
+    int index2 = TYPE_PRECEDENCE.indexOf(type2);
+    if (index1 >= 0 && index2 >= 0) {
+      return Integer.compare(index1, index2);
+    }
+    return type1.compareTo(type2);
   }
 
   @Override
