@@ -40,9 +40,11 @@ import infra.util.ClassUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -59,7 +61,7 @@ class TodayStrategiesTests {
 
   @AfterAll
   static void checkCache() {
-    assertThat(TodayStrategies.strategiesCache).hasSize(3);
+    assertThat(TodayStrategies.strategiesCache).hasSize(5);
     TodayStrategies.strategiesCache.clear();
   }
 
@@ -170,6 +172,53 @@ class TodayStrategiesTests {
     TodayStrategies forNull = TodayStrategies.forDefaultResourceLocation(null);
     TodayStrategies forDefault = TodayStrategies.forDefaultResourceLocation(ClassUtils.getDefaultClassLoader());
     assertThat(forNull).isSameAs(forDefault);
+  }
+
+  @Test
+  void resourceLocationShouldBeLoadedAndCached() {
+    TodayStrategies strategies1 = TodayStrategies.forResourceLocation("META-INF/test.strategies");
+    TodayStrategies strategies2 = TodayStrategies.forResourceLocation("META-INF/test.strategies");
+    assertThat(strategies1).isSameAs(strategies2);
+  }
+
+  @Test
+  void differentClassLoadersShouldHaveSeparateCache() {
+    ClassLoader loader1 = new URLClassLoader(new URL[0]);
+    ClassLoader loader2 = new URLClassLoader(new URL[0]);
+
+    TodayStrategies strategies1 = TodayStrategies.forDefaultResourceLocation(loader1);
+    TodayStrategies strategies2 = TodayStrategies.forDefaultResourceLocation(loader2);
+
+    assertThat(strategies1).isNotSameAs(strategies2);
+  }
+
+  @Test
+  void defaultResourceLocationShouldLoadStrategies() {
+    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation();
+    List<DummyFactory> factories = strategies.load(DummyFactory.class);
+    assertThat(factories).hasSize(2);
+  }
+
+  @Test
+  void loadStrategiesShouldHandleEmptyResourceLocation() {
+    TodayStrategies strategies = TodayStrategies.forResourceLocation("META-INF/empty.strategies");
+    List<DummyFactory> factories = strategies.load(DummyFactory.class);
+    assertThat(factories).isEmpty();
+  }
+
+  @Test
+  void loadStrategiesShouldHandleCustomInstantiator() throws Exception {
+    ClassInstantiator instantiator = mock(ClassInstantiator.class);
+    TodayStrategies strategies = TodayStrategies.forDefaultResourceLocation();
+
+    strategies.load(DummyFactory.class, instantiator);
+
+    verify(instantiator, times(2)).instantiate(any());
+  }
+
+  @Test
+  void findFirstShouldReturnNullWhenEmpty() {
+    assertThat(TodayStrategies.findFirst("non.existent.strategy")).isNull();
   }
 
   @Nested
