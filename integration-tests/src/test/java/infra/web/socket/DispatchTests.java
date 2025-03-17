@@ -80,7 +80,7 @@ class DispatchTests {
       futures.add(client.connect(handler, path));
     }
 
-    var combiner = Future.whenAllSucceed(futures);
+    var combiner = Future.combine(futures);
 
     client.connect(handler, path)
             .onSuccess(session -> {

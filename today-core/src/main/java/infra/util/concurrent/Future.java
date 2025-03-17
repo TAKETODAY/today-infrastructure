@@ -1954,46 +1954,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
-   * successful.
-   *
-   * <p>Any failures from the input futures will not be propagated to the returned future.
-   */
-  public static FutureCombiner whenAllComplete(Future<?>... futures) {
-    return new FutureCombiner(false, List.of(futures));
-  }
-
-  /**
-   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
-   * successful.
-   *
-   * <p>Any failures from the input futures will not be propagated to the returned future.
-   *
-   * @param futures a collection of {@link Future}
-   */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static FutureCombiner whenAllComplete(Collection /*<Future<?>>*/ futures) {
-    return new FutureCombiner(false, futures);
-  }
-
-  /**
-   * Creates a {@link FutureCombiner} that processes the completed futures whether they're
-   * successful.
-   *
-   * <p>Any failures from the input futures will not be propagated to the returned future.
-   *
-   * @since 5.0
-   */
-  public static FutureCombiner whenAllComplete(Stream<Future<?>> futures) {
-    return new FutureCombiner(false, futures.toList());
-  }
-
-  /**
    * Creates a {@link FutureCombiner} requiring that all passed in futures are successful.
    *
    * <p>If any input fails, the returned future fails immediately.
    */
-  public static FutureCombiner whenAllSucceed(Future<?>... futures) {
+  public static FutureCombiner combine(Future<?>... futures) {
     return new FutureCombiner(true, List.of(futures));
   }
 
@@ -2005,7 +1970,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param futures a collection of {@link Future}
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static FutureCombiner whenAllSucceed(Collection /*<Future<?>>*/ futures) {
+  public static FutureCombiner combine(Collection /*<Future<?>>*/ futures) {
     return new FutureCombiner(true, futures);
   }
 
@@ -2018,8 +1983,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @since 5.0
    */
   @SuppressWarnings({ "rawtypes" })
-  public static FutureCombiner whenAllSucceed(Stream /*<Future<?>>*/ futures) {
-    return whenAllSucceed(futures.toList());
+  public static FutureCombiner combine(Stream /*<Future<?>>*/ futures) {
+    return combine(futures.toList());
   }
 
   private final class NotifyTask implements Runnable {

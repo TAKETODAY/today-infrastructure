@@ -135,6 +135,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     STATE.setRelease(this, INTERRUPTED);
   }
 
+  @Nullable
   @Override
   public Throwable getCause() {
     int s = state;
@@ -147,6 +148,7 @@ public abstract class AbstractFuture<V> extends Future<V> {
     return null;
   }
 
+  @Nullable
   @Override
   @SuppressWarnings("unchecked")
   public V getNow() {

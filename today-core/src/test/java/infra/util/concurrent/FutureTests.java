@@ -47,12 +47,11 @@ import infra.logging.LoggerFactory;
 import infra.util.function.ThrowingSupplier;
 import lombok.SneakyThrows;
 
+import static infra.util.concurrent.Future.combine;
 import static infra.util.concurrent.Future.failed;
 import static infra.util.concurrent.Future.forExecutor;
 import static infra.util.concurrent.Future.forPromise;
 import static infra.util.concurrent.Future.ok;
-import static infra.util.concurrent.Future.whenAllComplete;
-import static infra.util.concurrent.Future.whenAllSucceed;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -515,7 +514,8 @@ class FutureTests {
       return createCombinedResult(futureInteger.obtain(), futureBoolean.obtain());
     };
 
-    Future<Integer> futureResult = whenAllComplete(List.of(futureInteger, futureBoolean))
+    Future<Integer> futureResult = combine(List.of(futureInteger, futureBoolean))
+            .acceptFailure()
             .call(combiner, directExecutor())
             .map(String::length);
 
@@ -674,7 +674,7 @@ class FutureTests {
   void whenAllComplete_noLeakInterruption() throws Exception {
     Callable<String> combiner = () -> "";
 
-    Future<String> futureResult = whenAllComplete().call(combiner, directExecutor());
+    Future<String> futureResult = combine().acceptFailure().call(combiner, directExecutor());
 
     assertThat(Thread.interrupted()).isFalse();
     futureResult.cancel(true);
@@ -686,11 +686,14 @@ class FutureTests {
     Future<?>[] futures = new Future<?>[0];
     Callable<String> combiner = () -> "hi";
 
-    Future<String> future = whenAllComplete(ok("a"), ok("b"))
+    Future<String> future = combine(ok("a"), ok("b"))
+            .acceptFailure()
             .call(combiner, directExecutor());
 
     assertThat(future.get()).isEqualTo("hi");
-    future = whenAllComplete(futures).call(combiner, directExecutor());
+    future = combine(futures)
+            .acceptFailure()
+            .call(combiner, directExecutor());
     assertThat(future.get()).isEqualTo("hi");
   }
 
@@ -707,7 +710,8 @@ class FutureTests {
       return "result";
     };
 
-    Future<String> futureResult = Future.whenAllComplete(stringFuture, booleanFuture)
+    Future<String> futureResult = Future.combine(stringFuture, booleanFuture)
+            .acceptFailure()
             .call(combiner, newSingleThreadExecutor());
 
     stringFuture.setSuccess("value");
@@ -743,7 +747,8 @@ class FutureTests {
       return "a";
     };
 
-    Future<String> futureResult = whenAllComplete(stringFuture, booleanFuture)
+    Future<String> futureResult = combine(stringFuture, booleanFuture)
+            .acceptFailure()
             .call(combiner, newSingleThreadExecutor());
 
     stringFuture.setSuccess("value");
@@ -770,7 +775,8 @@ class FutureTests {
       result[0] = createCombinedResult(futureInteger.obtain(), futureBoolean.obtain());
     };
 
-    Future<?> futureResult = whenAllComplete(futureInteger, futureBoolean)
+    Future<?> futureResult = combine(futureInteger, futureBoolean)
+            .acceptFailure()
             .run(combiner, directExecutor());
 
     Integer integerPartial = 1;
@@ -794,7 +800,7 @@ class FutureTests {
     };
 
     Future<?> futureResult =
-            whenAllComplete(futureInteger, futureBoolean).run(combiner, directExecutor());
+            combine(futureInteger, futureBoolean).acceptFailure().run(combiner, directExecutor());
     Integer integerPartial = 1;
     futureInteger.setSuccess(integerPartial);
     Boolean booleanPartial = true;
@@ -831,7 +837,9 @@ class FutureTests {
     };
 
     Future<?> futureResult =
-            whenAllComplete(stringFuture, booleanFuture).run(combiner, newSingleThreadExecutor());
+            combine(stringFuture, booleanFuture)
+                    .acceptFailure()
+                    .run(combiner, newSingleThreadExecutor());
 
     stringFuture.setSuccess("value");
     booleanFuture.setSuccess(true);
@@ -865,7 +873,8 @@ class FutureTests {
       }
     };
 
-    Future<?> futureResult = whenAllComplete(stringFuture, booleanFuture)
+    Future<?> futureResult = combine(stringFuture, booleanFuture)
+            .acceptFailure()
             .run(combiner, newSingleThreadExecutor());
 
     stringFuture.setSuccess("value");
@@ -894,7 +903,7 @@ class FutureTests {
       }
     };
 
-    Future<String> futureResult = whenAllSucceed(futureInteger, futureBoolean)
+    Future<String> futureResult = Future.combine(futureInteger, futureBoolean)
             .call(combiner, directExecutor());
 
     PartialResultException partialResultException = new PartialResultException();
@@ -915,8 +924,8 @@ class FutureTests {
     Promise<Long> future1 = Future.forPromise();
     Promise<Long> future2 = Future.forPromise();
 
-    Future<Void> combine = whenAllSucceed(future1, future2)
-            .combine();
+    Future<Void> combine = Future.combine(future1, future2)
+            .asVoid();
 
     assertThat(combine).isNotDone();
 
@@ -943,8 +952,8 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_combineEmpty() throws Exception {
-    Future<Void> combine = whenAllSucceed(List.of())
-            .combine();
+    Future<Void> combine = Future.combine(List.of())
+            .asVoid();
 
     assertThat(combine).isDone();
     assertThat(combine).isNotCancelled();
@@ -954,7 +963,7 @@ class FutureTests {
 
   @Test
   void whenAllSucceed_callEmpty() throws Exception {
-    Future<Void> combine = whenAllSucceed()
+    Future<Void> combine = Future.combine()
             .call(() -> null, null);
 
     assertThat(combine.awaitUninterruptibly()).isDone();
@@ -968,8 +977,8 @@ class FutureTests {
     Promise<Long> future1 = Future.forPromise();
     Promise<Long> future2 = Future.forPromise();
 
-    Future<Void> combine = whenAllSucceed(future1, future2)
-            .combine();
+    Future<Void> combine = Future.combine(future1, future2)
+            .asVoid();
 
     assertThat(combine).isNotDone();
 
@@ -1000,7 +1009,7 @@ class FutureTests {
     Promise<Long> future2 = Future.forPromise();
 
     AtomicInteger counter = new AtomicInteger(0);
-    Future<Void> combine = whenAllSucceed(future1, future2)
+    Future<Void> combine = Future.combine(future1, future2)
             .run(counter::incrementAndGet);
 
     assertThat(combine).isNotDone();
@@ -1032,7 +1041,7 @@ class FutureTests {
     Promise<Long> future1 = Future.forPromise();
     Promise<Long> future2 = Future.forPromise();
 
-    Future<Long> combine = whenAllSucceed(future1, future2)
+    Future<Long> combine = Future.combine(future1, future2)
             .call(() -> future1.obtain() + future2.obtain());
 
     assertThat(combine).isNotDone();
@@ -1066,7 +1075,7 @@ class FutureTests {
     Promise<Long> future1 = Future.forPromise();
     Promise<Long> future2 = Future.forPromise();
 
-    Future<Long> combine = whenAllSucceed(future1, future2)
+    Future<Long> combine = Future.combine(future1, future2)
             .call(() -> future1.obtain() + future2.obtain(), null);
 
     assertThat(combine).isInstanceOf(ListenableFutureTask.class);
@@ -1087,8 +1096,8 @@ class FutureTests {
     Promise<Long> future1 = Future.forPromise();
     Promise<Long> future2 = Future.forPromise();
 
-    Future<Void> combine = whenAllSucceed(future1, future2)
-            .combine();
+    Future<Void> combine = Future.combine(future1, future2)
+            .asVoid();
 
     assertThat(combine).isInstanceOf(Promise.class);
     assertThat(combine).isNotDone();
@@ -1613,8 +1622,9 @@ class FutureTests {
 
   @Test
   void whenAllCompleteStream() throws InterruptedException {
-    Future<Void> future = whenAllComplete(Stream.of(ok(), failed(new RuntimeException("msg"))))
-            .combine()
+    Future<Void> future = combine(Stream.of(ok(), failed(new RuntimeException("msg"))))
+            .acceptFailure()
+            .asVoid()
             .onSuccess(() -> fail("ok"));
 
     assertThat(future).succeedsWithin(Duration.ofSeconds(1));
@@ -1622,21 +1632,22 @@ class FutureTests {
     future.await();
     assertThat(future.isSuccess()).isTrue();
 
-    assertThat(whenAllComplete(Stream.of(1, 2, 3).map(Future::ok))
-            .combine()
+    assertThat(combine(Stream.of(1, 2, 3).map(Future::ok))
+            .acceptFailure()
+            .asVoid()
             .onFailure(e -> fail())).succeedsWithin(Duration.ofSeconds(1));
   }
 
   @Test
   void whenAllSucceedStream() {
-    Future<Void> future = whenAllSucceed(Stream.of(ok(), failed(new RuntimeException("msg"))))
-            .combine()
+    Future<Void> future = combine(Stream.of(ok(), failed(new RuntimeException("msg"))))
+            .asVoid()
             .onSuccess(() -> fail());
 
     assertThat(future).failsWithin(Duration.ofSeconds(1));
     assertThat(future.isFailed()).isTrue();
 
-    assertThat(whenAllSucceed(Stream.of(1, 2, "3").map(Future::ok)).combine()).succeedsWithin(Duration.ofSeconds(1));
+    assertThat(combine(Stream.of(1, 2, "3").map(Future::ok)).asVoid()).succeedsWithin(Duration.ofSeconds(1));
   }
 
   @Test
