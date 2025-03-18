@@ -365,7 +365,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
           // Second candidate we've found - ambiguous binding
           throw new AmbiguousBindingException("Binding of throwing parameter '" +
                   this.throwingName + "' is ambiguous: could be bound to argument " +
-                  throwableIndex + " or argument " + i);
+                  throwableIndex + " or " + i);
         }
       }
     }
@@ -448,7 +448,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
       int numAnnotationSlots = countNumberOfUnboundAnnotationArguments();
       if (numAnnotationSlots > 1) {
         throw new AmbiguousBindingException("Found " + varNames.size() +
-                " potential annotation variable(s), and " +
+                " potential annotation variable(s) and " +
                 numAnnotationSlots + " potential argument slots");
       }
       else if (numAnnotationSlots == 1) {
@@ -504,8 +504,8 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
    */
   private void maybeBindThisOrTargetOrArgsFromPointcutExpression() {
     if (this.numberOfRemainingUnboundArguments > 1) {
-      throw new AmbiguousBindingException("Still " + this.numberOfRemainingUnboundArguments
-              + " unbound args at this(),target(),args() binding stage, with no way to determine between them");
+      throw new AmbiguousBindingException("Still " + this.numberOfRemainingUnboundArguments +
+              " unbound args at this()/target()/args() binding stage, with no way to determine between them");
     }
 
     List<String> varNames = new ArrayList<>();
@@ -539,7 +539,7 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
 
     if (varNames.size() > 1) {
       throw new AmbiguousBindingException("Found " + varNames.size() +
-              " candidate this(), target() or args() variables but only one unbound argument slot");
+              " candidate this(), target(), or args() variables but only one unbound argument slot");
     }
     else if (varNames.size() == 1) {
       for (int j = 0; j < this.parameterNameBindings.length; j++) {
