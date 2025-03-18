@@ -18,7 +18,7 @@ antora {
       '@antora/collector-extension'              : '1.0.0-alpha.3',
       '@asciidoctor/tabs'                        : '1.0.0-beta.3',
       '@opendevise/antora-release-line-extension': '1.0.0',
-      '@today-tech/antora-extensions'            : '1.0.0'
+      '@today-tech/antora-extensions'            : '1.0.1'
   ]
 }
 
