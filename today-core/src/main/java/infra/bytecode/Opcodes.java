@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -263,8 +263,12 @@ public interface Opcodes {
   int V19 = 0 << 16 | 63;
   int V20 = 0 << 16 | 64;
   int V21 = 0 << 16 | 65;
+  int V22 = 0 << 16 | 66;
+  int V23 = 0 << 16 | 67;
+  int V24 = 0 << 16 | 68;
+  int V25 = 0 << 16 | 69;
 
-  int JAVA_VERSION = V1_8;
+  int JAVA_VERSION = V17;
 
   /**
    * Version flag indicating that the class is using 'preview' features.

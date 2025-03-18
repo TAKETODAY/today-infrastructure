@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ public class ClassReader {
     this.classFileBuffer = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V21) {
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V25) {
       throw new IllegalArgumentException(
               "Unsupported class file major version " + readShort(classFileOffset + 6));
     }
@@ -193,8 +193,8 @@ public class ClassReader {
       int cpInfoSize;
       switch (classFileBuffer[currentCpInfoOffset]) {
         case Symbol.CONSTANT_FIELDREF_TAG, Symbol.CONSTANT_METHODREF_TAG,
-                Symbol.CONSTANT_INTERFACE_METHODREF_TAG, Symbol.CONSTANT_INTEGER_TAG,
-                Symbol.CONSTANT_FLOAT_TAG, Symbol.CONSTANT_NAME_AND_TYPE_TAG -> cpInfoSize = 5;
+             Symbol.CONSTANT_INTERFACE_METHODREF_TAG, Symbol.CONSTANT_INTEGER_TAG,
+             Symbol.CONSTANT_FLOAT_TAG, Symbol.CONSTANT_NAME_AND_TYPE_TAG -> cpInfoSize = 5;
         case Symbol.CONSTANT_DYNAMIC_TAG -> {
           cpInfoSize = 5;
           hasBootstrapMethods = true;
@@ -219,8 +219,8 @@ public class ClassReader {
         }
         case Symbol.CONSTANT_METHOD_HANDLE_TAG -> cpInfoSize = 4;
         case Symbol.CONSTANT_CLASS_TAG, Symbol.CONSTANT_STRING_TAG,
-                Symbol.CONSTANT_METHOD_TYPE_TAG, Symbol.CONSTANT_PACKAGE_TAG,
-                Symbol.CONSTANT_MODULE_TAG -> cpInfoSize = 3;
+             Symbol.CONSTANT_METHOD_TYPE_TAG, Symbol.CONSTANT_PACKAGE_TAG,
+             Symbol.CONSTANT_MODULE_TAG -> cpInfoSize = 3;
         default -> throw new IllegalArgumentException();
       }
       currentCpInfoOffset += cpInfoSize;
@@ -1491,39 +1491,39 @@ public class ClassReader {
       final int opcode = classBuffer[currentOffset] & 0xFF;
       switch (opcode) {
         case Opcodes.NOP, Opcodes.ACONST_NULL, Opcodes.ICONST_M1,
-                Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5,
-                Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2, Opcodes.DCONST_0,
-                Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
-                Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE,
-                Opcodes.BASTORE, Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2,
-                Opcodes.DUP2, Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD,
-                Opcodes.ISUB, Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL,
-                Opcodes.IDIV, Opcodes.LDIV, Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM,
-                Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG, Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR,
-                Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND, Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR,
-                Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D, Opcodes.F2I, Opcodes.F2L, Opcodes.F2D,
-                Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP, Opcodes.FCMPL, Opcodes.FCMPG,
-                Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN,
-                Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT, Constants.ILOAD_0,
-                Constants.ILOAD_1, Constants.ILOAD_2, Constants.ILOAD_3, Constants.LLOAD_0, Constants.LLOAD_1, Constants.LLOAD_2,
-                Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0,
-                Constants.DLOAD_1, Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2,
-                Constants.ALOAD_3, Constants.ISTORE_0, Constants.ISTORE_1, Constants.ISTORE_2, Constants.ISTORE_3, Constants.LSTORE_0,
-                Constants.LSTORE_1, Constants.LSTORE_2, Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2,
-                Constants.FSTORE_3, Constants.DSTORE_0, Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0,
-                Constants.ASTORE_1, Constants.ASTORE_2, Constants.ASTORE_3 -> currentOffset += 1;
+             Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5,
+             Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2, Opcodes.DCONST_0,
+             Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
+             Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE,
+             Opcodes.BASTORE, Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2,
+             Opcodes.DUP2, Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD,
+             Opcodes.ISUB, Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL,
+             Opcodes.IDIV, Opcodes.LDIV, Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM,
+             Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG, Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR,
+             Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND, Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR,
+             Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D, Opcodes.F2I, Opcodes.F2L, Opcodes.F2D,
+             Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP, Opcodes.FCMPL, Opcodes.FCMPG,
+             Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN,
+             Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT, Constants.ILOAD_0,
+             Constants.ILOAD_1, Constants.ILOAD_2, Constants.ILOAD_3, Constants.LLOAD_0, Constants.LLOAD_1, Constants.LLOAD_2,
+             Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0,
+             Constants.DLOAD_1, Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2,
+             Constants.ALOAD_3, Constants.ISTORE_0, Constants.ISTORE_1, Constants.ISTORE_2, Constants.ISTORE_3, Constants.LSTORE_0,
+             Constants.LSTORE_1, Constants.LSTORE_2, Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2,
+             Constants.FSTORE_3, Constants.DSTORE_0, Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0,
+             Constants.ASTORE_1, Constants.ASTORE_2, Constants.ASTORE_3 -> currentOffset += 1;
 
         case Opcodes.IFEQ, Opcodes.IFNE, Opcodes.IFLT, Opcodes.IFGE, Opcodes.IFGT, Opcodes.IFLE, Opcodes.IF_ICMPEQ, Opcodes.IF_ICMPNE,
-                Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
-                Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
+             Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
+             Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
           createLabel(bytecodeOffset + readShort(currentOffset + 1), labels);
           currentOffset += 3;
         }
 
         case Constants.ASM_IFEQ, Constants.ASM_IFNE, Constants.ASM_IFLT, Constants.ASM_IFGE, Constants.ASM_IFGT, Constants.ASM_IFLE,
-                Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE, Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT,
-                Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO, Constants.ASM_JSR,
-                Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
+             Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE, Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT,
+             Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO, Constants.ASM_JSR,
+             Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
           createLabel(bytecodeOffset + readUnsignedShort(currentOffset + 1), labels);
           currentOffset += 3;
         }
@@ -1534,7 +1534,7 @@ public class ClassReader {
         case Constants.WIDE -> {
           switch (classBuffer[currentOffset + 1] & 0xFF) {
             case Opcodes.ILOAD, Opcodes.FLOAD, Opcodes.ALOAD, Opcodes.LLOAD, Opcodes.DLOAD, Opcodes.ISTORE,
-                    Opcodes.FSTORE, Opcodes.ASTORE, Opcodes.LSTORE, Opcodes.DSTORE, Opcodes.RET -> currentOffset += 4;
+                 Opcodes.FSTORE, Opcodes.ASTORE, Opcodes.LSTORE, Opcodes.DSTORE, Opcodes.RET -> currentOffset += 4;
             case Opcodes.IINC -> currentOffset += 6;
             default -> throw new IllegalArgumentException();
           }
@@ -1566,11 +1566,11 @@ public class ClassReader {
           }
         }
         case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD, Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE,
-                Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET, Opcodes.BIPUSH, Opcodes.NEWARRAY, Opcodes.LDC -> currentOffset += 2;
+             Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET, Opcodes.BIPUSH, Opcodes.NEWARRAY, Opcodes.LDC -> currentOffset += 2;
 
         case Opcodes.SIPUSH, Constants.LDC_W, Constants.LDC2_W, Opcodes.GETSTATIC, Opcodes.PUTSTATIC, Opcodes.GETFIELD,
-                Opcodes.PUTFIELD, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKESPECIAL, Opcodes.INVOKESTATIC, Opcodes.NEW, Opcodes.ANEWARRAY,
-                Opcodes.CHECKCAST, Opcodes.INSTANCEOF, Opcodes.IINC -> currentOffset += 3;
+             Opcodes.PUTFIELD, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKESPECIAL, Opcodes.INVOKESTATIC, Opcodes.NEW, Opcodes.ANEWARRAY,
+             Opcodes.CHECKCAST, Opcodes.INSTANCEOF, Opcodes.IINC -> currentOffset += 3;
 
         case Opcodes.INVOKEINTERFACE, Opcodes.INVOKEDYNAMIC -> currentOffset += 5;
         case Opcodes.MULTIANEWARRAY -> currentOffset += 4;
@@ -1826,39 +1826,39 @@ public class ClassReader {
       int opcode = classBuffer[currentOffset] & 0xFF;
       switch (opcode) {
         case Opcodes.NOP, Opcodes.ACONST_NULL, Opcodes.ICONST_M1, Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3,
-                Opcodes.ICONST_4, Opcodes.ICONST_5, Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2,
-                Opcodes.DCONST_0, Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
-                Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE, Opcodes.BASTORE,
-                Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2, Opcodes.DUP2,
-                Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD, Opcodes.ISUB,
-                Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL, Opcodes.IDIV, Opcodes.LDIV,
-                Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM, Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG,
-                Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR, Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND,
-                Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR, Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D,
-                Opcodes.F2I, Opcodes.F2L, Opcodes.F2D, Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP,
-                Opcodes.FCMPL, Opcodes.FCMPG, Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN,
-                Opcodes.ARETURN, Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT -> {
+             Opcodes.ICONST_4, Opcodes.ICONST_5, Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2,
+             Opcodes.DCONST_0, Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
+             Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE, Opcodes.BASTORE,
+             Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2, Opcodes.DUP2,
+             Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD, Opcodes.ISUB,
+             Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL, Opcodes.IDIV, Opcodes.LDIV,
+             Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM, Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG,
+             Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR, Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND,
+             Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR, Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D,
+             Opcodes.F2I, Opcodes.F2L, Opcodes.F2D, Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP,
+             Opcodes.FCMPL, Opcodes.FCMPG, Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN,
+             Opcodes.ARETURN, Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT -> {
           methodVisitor.visitInsn(opcode);
           currentOffset += 1;
         }
         case Constants.ILOAD_0, Constants.ILOAD_1, Constants.ILOAD_2, Constants.ILOAD_3, Constants.LLOAD_0, Constants.LLOAD_1, Constants.LLOAD_2,
-                Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0, Constants.DLOAD_1,
-                Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2, Constants.ALOAD_3 -> {
+             Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0, Constants.DLOAD_1,
+             Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2, Constants.ALOAD_3 -> {
           opcode -= Constants.ILOAD_0;
           methodVisitor.visitVarInsn(Opcodes.ILOAD + (opcode >> 2), opcode & 0x3);
           currentOffset += 1;
         }
         case Constants.ISTORE_0, Constants.ISTORE_1, Constants.ISTORE_2, Constants.ISTORE_3, Constants.LSTORE_0, Constants.LSTORE_1, Constants.LSTORE_2,
-                Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2, Constants.FSTORE_3, Constants.DSTORE_0,
-                Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0, Constants.ASTORE_1, Constants.ASTORE_2,
-                Constants.ASTORE_3 -> {
+             Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2, Constants.FSTORE_3, Constants.DSTORE_0,
+             Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0, Constants.ASTORE_1, Constants.ASTORE_2,
+             Constants.ASTORE_3 -> {
           opcode -= Constants.ISTORE_0;
           methodVisitor.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
           currentOffset += 1;
         }
         case Opcodes.IFEQ, Opcodes.IFNE, Opcodes.IFLT, Opcodes.IFGE, Opcodes.IFGT, Opcodes.IFLE, Opcodes.IF_ICMPEQ, Opcodes.IF_ICMPNE,
-                Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
-                Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
+             Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
+             Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
           methodVisitor.visitJumpInsn(opcode, labels[currentBytecodeOffset + readShort(currentOffset + 1)]);
           currentOffset += 3;
         }
@@ -1867,7 +1867,9 @@ public class ClassReader {
                   labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
           currentOffset += 5;
         }
-        case Constants.ASM_IFEQ, Constants.ASM_IFNE, Constants.ASM_IFLT, Constants.ASM_IFGE, Constants.ASM_IFGT, Constants.ASM_IFLE, Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE, Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT, Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO, Constants.ASM_JSR, Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
+        case Constants.ASM_IFEQ, Constants.ASM_IFNE, Constants.ASM_IFLT, Constants.ASM_IFGE, Constants.ASM_IFGT, Constants.ASM_IFLE, Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE,
+             Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT, Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO,
+             Constants.ASM_JSR, Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
           // A forward jump with an offset > 32767. In this case we automatically replace ASM_GOTO
           // with GOTO_W, ASM_JSR with JSR_W and ASM_IFxxx <l> with IFNOTxxx <L> GOTO_W <l> L:...,
           // where IFNOTxxx is the "opposite" opcode of ASMS_IFxxx (e.g. IFNE for ASM_IFEQ) and
@@ -1946,7 +1948,7 @@ public class ClassReader {
           methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, values);
         }
         case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD, Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE,
-                Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET -> {
+             Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET -> {
           methodVisitor.visitVarInsn(opcode, classBuffer[currentOffset + 1] & 0xFF);
           currentOffset += 2;
         }
@@ -1967,7 +1969,7 @@ public class ClassReader {
           currentOffset += 3;
         }
         case Opcodes.GETSTATIC, Opcodes.PUTSTATIC, Opcodes.GETFIELD, Opcodes.PUTFIELD, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKESPECIAL,
-                Opcodes.INVOKESTATIC, Opcodes.INVOKEINTERFACE -> {
+             Opcodes.INVOKESTATIC, Opcodes.INVOKEINTERFACE -> {
           int cpInfoOffset = cpInfoOffsets[readUnsignedShort(currentOffset + 1)];
           int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
           String owner = readClass(cpInfoOffset, charBuffer);
@@ -2264,11 +2266,11 @@ public class ClassReader {
           }
         }
         case TypeReference.CAST, TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT, TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT,
-                TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT, TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT -> currentOffset += 4;
+             TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT, TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT -> currentOffset += 4;
 
         case TypeReference.CLASS_EXTENDS, TypeReference.CLASS_TYPE_PARAMETER_BOUND, TypeReference.METHOD_TYPE_PARAMETER_BOUND,
-                TypeReference.THROWS, TypeReference.EXCEPTION_PARAMETER, TypeReference.INSTANCEOF, TypeReference.NEW,
-                TypeReference.CONSTRUCTOR_REFERENCE, TypeReference.METHOD_REFERENCE -> currentOffset += 3;
+             TypeReference.THROWS, TypeReference.EXCEPTION_PARAMETER, TypeReference.INSTANCEOF, TypeReference.NEW,
+             TypeReference.CONSTRUCTOR_REFERENCE, TypeReference.METHOD_REFERENCE -> currentOffset += 3;
         default -> throw new IllegalArgumentException(); // TypeReference type which can't be used in Code attribute, or which is unknown.
       }
       // Parse the rest of the type_annotation structure, starting with the target_path structure
