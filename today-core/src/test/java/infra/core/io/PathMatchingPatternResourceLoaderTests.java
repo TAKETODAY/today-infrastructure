@@ -50,6 +50,7 @@ import java.util.zip.ZipEntry;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.util.FileSystemUtils;
+import infra.util.ResourceUtils;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
 
@@ -337,6 +338,8 @@ class PathMatchingPatternResourceLoaderTests {
         StreamUtils.copy("test", StandardCharsets.UTF_8, jar);
         jar.closeEntry();
       }
+      assertThat(new FileSystemResource(path).exists()).isTrue();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
     }
 
     private void writeApplicationJar(Path path) throws Exception {
@@ -347,8 +350,7 @@ class PathMatchingPatternResourceLoaderTests {
       mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
       try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(path.toFile()), manifest)) {
         String appClassResource = ClassUtils.convertClassNameToResourcePath(
-                ClassPathManifestEntriesTestApplication.class.getName())
-                + ClassUtils.CLASS_FILE_SUFFIX;
+                ClassPathManifestEntriesTestApplication.class.getName()) + ClassUtils.CLASS_FILE_SUFFIX;
         String folder = "";
         for (String name : appClassResource.split("/")) {
           if (!name.endsWith(ClassUtils.CLASS_FILE_SUFFIX)) {
@@ -365,6 +367,8 @@ class PathMatchingPatternResourceLoaderTests {
           }
         }
       }
+      assertThat(new FileSystemResource(path).exists()).isTrue();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
     }
 
     private String buildSpringClassPath() throws Exception {
@@ -375,8 +379,8 @@ class PathMatchingPatternResourceLoaderTests {
     private String copyClasses(Class<?> sourceClass, String destinationName)
             throws URISyntaxException, IOException {
       Path destination = this.temp.resolve(destinationName);
-      String resourcePath = ClassUtils.convertClassNameToResourcePath(sourceClass.getName())
-              + ClassUtils.CLASS_FILE_SUFFIX;
+      String resourcePath = ClassUtils.convertClassNameToResourcePath(
+              sourceClass.getName()) + ClassUtils.CLASS_FILE_SUFFIX;
       URL resource = getClass().getClassLoader().getResource(resourcePath);
       URL url = new URL(resource.toString().replace(resourcePath, ""));
       URLConnection connection = url.openConnection();
