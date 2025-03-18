@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,12 +41,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.beans.testfixture.beans.ITestBean;
-import infra.beans.testfixture.beans.TestBean;
-import infra.core.OrderComparator;
-import infra.core.Ordered;
-import infra.core.annotation.Order;
-import infra.util.ObjectUtils;
 import infra.aop.Advisor;
 import infra.aop.framework.Advised;
 import infra.aop.framework.AopConfigException;
@@ -57,6 +51,12 @@ import infra.aop.testfixture.PerTargetAspect;
 import infra.aop.testfixture.TwoAdviceAspect;
 import infra.aop.testfixture.mixin.DefaultLockable;
 import infra.aop.testfixture.mixin.Lockable;
+import infra.beans.testfixture.beans.ITestBean;
+import infra.beans.testfixture.beans.TestBean;
+import infra.core.OrderComparator;
+import infra.core.Ordered;
+import infra.core.annotation.Order;
+import infra.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -796,19 +796,19 @@ class ReflectiveAspectJAdvisorFactoryTests {
       invocations.add("before");
     }
 
-    @AfterReturning("echo()")
-    void afterReturning() {
-      invocations.add("after returning");
-    }
-
-    @AfterThrowing("echo()")
-    void afterThrowing() {
-      invocations.add("after throwing");
-    }
-
     @After("echo()")
     void after() {
       invocations.add("after");
+    }
+
+    @AfterReturning(pointcut = "this(target) && execution(* echo(*))", returning = "returnValue")
+    void afterReturning(JoinPoint joinPoint, Echo target, Object returnValue) {
+      invocations.add("after returning");
+    }
+
+    @AfterThrowing(pointcut = "this(target) && execution(* echo(*))", throwing = "exception")
+    void afterThrowing(JoinPoint joinPoint, Echo target, Throwable exception) {
+      invocations.add("after throwing");
     }
   }
 

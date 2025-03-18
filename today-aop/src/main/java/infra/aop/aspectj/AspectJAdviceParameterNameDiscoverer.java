@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -391,7 +391,8 @@ public class AspectJAdviceParameterNameDiscoverer extends ParameterNameDiscovere
     if (this.returningName != null) {
       if (this.numberOfRemainingUnboundArguments > 1) {
         throw new AmbiguousBindingException("Binding of returning parameter '" + this.returningName +
-                "' is ambiguous, there are " + this.numberOfRemainingUnboundArguments + " candidates.");
+                "' is ambiguous: there are " + this.numberOfRemainingUnboundArguments + " candidates. " +
+                "Consider compiling with -parameters in order to make declared parameter names available.");
       }
 
       // We're all set... find the unbound parameter, and bind it.
