@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import static infra.http.MediaType.MULTIPART_RELATED;
 import static infra.http.MediaType.TEXT_XML;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for {@link FormHttpMessageConverter} and
@@ -375,6 +376,38 @@ public class FormHttpMessageConverterTests {
     parameters = outputMessage.getHeaders().getContentType().getParameters();
     assertThat(parameters).containsOnlyKeys("boundary", "charset");
     assertThat(parameters).containsEntry("charset", "ISO-8859-1");
+  }
+
+  @Test
+  void readInvalidFormWithValueThatWontUrlDecode() {
+    //java.net.URLDecoder doesn't like negative integer values after a % character
+    String body = "name+1=value+1&name+2=value+2%" + ((char) -1);
+    assertInvalidFormIsRejectedWithSpecificException(body);
+  }
+
+  @Test
+  void readInvalidFormWithNameThatWontUrlDecode() {
+    //java.net.URLDecoder doesn't like negative integer values after a % character
+    String body = "name+1=value+1&name+2%" + ((char) -1) + "=value+2";
+    assertInvalidFormIsRejectedWithSpecificException(body);
+  }
+
+  @Test
+  void readInvalidFormWithNameWithNoValueThatWontUrlDecode() {
+    //java.net.URLDecoder doesn't like negative integer values after a % character
+    String body = "name+1=value+1&name+2%" + ((char) -1);
+    assertInvalidFormIsRejectedWithSpecificException(body);
+  }
+
+  private void assertInvalidFormIsRejectedWithSpecificException(String body) {
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.ISO_8859_1));
+    inputMessage.getHeaders().setContentType(
+            new MediaType("application", "x-www-form-urlencoded", StandardCharsets.ISO_8859_1));
+
+    assertThatThrownBy(() -> this.converter.read(null, inputMessage))
+            .isInstanceOf(HttpMessageNotReadableException.class)
+            .hasCauseInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Could not decode HTTP form payload");
   }
 
   private void assertCanRead(MediaType mediaType) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -345,18 +345,23 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
     LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
-    for (String pair : pairs) {
-      int idx = pair.indexOf('=');
-      if (idx == -1) {
-        result.add(URLDecoder.decode(pair, charset), null);
+    try {
+      for (String pair : pairs) {
+        int idx = pair.indexOf('=');
+        if (idx == -1) {
+          result.add(URLDecoder.decode(pair, charset), null);
+        }
+        else {
+          String name = URLDecoder.decode(pair.substring(0, idx), charset);
+          String value = URLDecoder.decode(pair.substring(idx + 1), charset);
+          result.add(name, value);
+        }
       }
-      else {
-        String name = URLDecoder.decode(pair.substring(0, idx), charset);
-        String value = URLDecoder.decode(pair.substring(idx + 1), charset);
-        result.add(name, value);
-      }
+      return result;
     }
-    return result;
+    catch (IllegalArgumentException ex) {
+      throw new HttpMessageNotReadableException("Could not decode HTTP form payload", ex, inputMessage);
+    }
   }
 
   @Override
