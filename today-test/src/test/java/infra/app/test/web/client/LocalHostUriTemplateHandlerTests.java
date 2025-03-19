@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ class LocalHostUriTemplateHandlerTests {
   @Test
   void getRootUriShouldUseContextPath() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("server.servlet.context-path", "/foo");
+    environment.setProperty("server.mock.context-path", "/foo");
     LocalHostUriTemplateHandler handler = new LocalHostUriTemplateHandler(environment);
     assertThat(handler.getRootUri()).isEqualTo("http://localhost:8080/foo");
   }

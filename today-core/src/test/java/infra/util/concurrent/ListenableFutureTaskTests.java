@@ -214,7 +214,7 @@ class ListenableFutureTaskTests {
     RuntimeException expected = new RuntimeException("test");
     ListenableFutureTask<String> task = Future.forFutureTask(() -> {
       throw expected;
-    });
+    }, Runnable::run);
 
     FailureCallback failureCallback = mock(FailureCallback.class);
     task.onCompleted(s -> fail("Should not succeed"), failureCallback);
