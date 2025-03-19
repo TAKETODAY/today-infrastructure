@@ -177,6 +177,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     getDelegate().addCookie(name, value);
   }
 
+  @Nullable
   @Override
   public List<HttpCookie> removeCookie(String name) {
     return getDelegate().removeCookie(name);
@@ -269,6 +270,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     return getDelegate().isMultipart();
   }
 
+  @Nullable
   @Override
   public String getContentType() {
     return getDelegate().getContentType();
@@ -450,6 +452,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     return getDelegate().nativeRequest();
   }
 
+  @Nullable
   @Override
   public HandlerMatchingMetadata getMatchingMetadata() {
     return getDelegate().getMatchingMetadata();
@@ -465,6 +468,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     return getDelegate().hasMatchingMetadata();
   }
 
+  @Nullable
   @Override
   public Object getAttribute(String name) {
     return getDelegate().getAttribute(name);
@@ -475,6 +479,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     getDelegate().setAttribute(name, value);
   }
 
+  @Nullable
   @Override
   public Object removeAttribute(String name) {
     return getDelegate().removeAttribute(name);
@@ -540,6 +545,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
     getDelegate().setBinding(bindingContext);
   }
 
+  @Nullable
   @Override
   public BindingContext getBinding() {
     return getDelegate().getBinding();

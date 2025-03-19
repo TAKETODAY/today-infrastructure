@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
   }
 
   @Override
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     super.setAttribute(name, value);
     if (this.explicitAttributes == null) {
       this.explicitAttributes = new HashSet<>(8);
