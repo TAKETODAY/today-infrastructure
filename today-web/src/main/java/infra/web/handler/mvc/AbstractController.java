@@ -131,7 +131,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
    * <p>In many cases, the WebSession reference itself is a safe mutex
    * as well, since it will always be the same object reference for the
    * same active logical session. However, this is not guaranteed across
-   * different servlet containers; the only 100% safe way is a session mutex.
+   * different containers; the only 100% safe way is a session mutex.
    *
    * @see AbstractController#handleRequestInternal
    * @see infra.web.util.WebUtils#getSessionMutex(WebSession)

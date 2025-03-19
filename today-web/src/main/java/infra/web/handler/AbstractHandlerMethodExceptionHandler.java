@@ -37,7 +37,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
 
   /**
    * Checks if the handler is a {@link HandlerMethod} and then delegates to the
-   * base class implementation of {@code #shouldApplyTo(HttpServletRequest, Object)}
+   * base class implementation of {@code #shouldApplyTo(RequestContext, Object)}
    * passing the bean of the {@code HandlerMethod}. Otherwise returns {@code false}.
    */
   @Override

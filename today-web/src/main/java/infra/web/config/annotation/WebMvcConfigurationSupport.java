@@ -134,7 +134,7 @@ import infra.web.view.ViewReturnValueHandler;
  * <li>{@link HandlerMapping}
  * ordered at {@code Integer.MAX_VALUE-1} to serve static resource requests.
  * <li>{@link HandlerMapping}
- * ordered at {@code Integer.MAX_VALUE} to forward requests to the default servlet.
+ * ordered at {@code Integer.MAX_VALUE} to forward requests to the default handler.
  * </ul>
  *
  * <p>Registers these {@link HandlerAdapter HandlerAdapters}:

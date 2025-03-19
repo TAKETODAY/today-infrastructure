@@ -30,7 +30,7 @@ import infra.util.StringUtils;
  * web application.
  * <p>
  * {@link #exists()} always returns {@code false} in order to avoid exposing the whole
- * classpath in a non-servlet environment.
+ * classpath in a non-mock environment.
  *
  * @author Brian Clozel
  * @since 4.0

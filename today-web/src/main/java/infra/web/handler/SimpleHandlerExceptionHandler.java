@@ -436,7 +436,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   /**
    * Handle an Exception that indicates the client has gone away. This is
    * typically an {@link IOException} of a specific subtype or with a message
-   * specific to the underlying Servlet container. Those are detected through
+   * specific to the underlying container. Those are detected through
    * {@link DisconnectedClientHelper#isClientDisconnectedException(Throwable)}
    * <p>By default, do nothing since the response is not usable.
    *

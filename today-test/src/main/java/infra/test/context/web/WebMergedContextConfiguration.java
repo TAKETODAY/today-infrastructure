@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ import infra.test.context.MergedContextConfiguration;
 import infra.test.context.SmartContextLoader;
 import infra.test.context.TestContext;
 import infra.util.StringUtils;
-import infra.web.mock.WebApplicationContext;
 
 /**
  * {@code WebMergedContextConfiguration} encapsulates the <em>merged</em>
@@ -49,7 +48,7 @@ import infra.web.mock.WebApplicationContext;
  * #getResourceBasePath() resource base path} configured via {@code @WebAppConfiguration}.
  * This allows the {@link TestContext TestContext}
  * to properly cache the corresponding {@link
- * WebApplicationContext WebApplicationContext}
+ * infra.web.mock.WebApplicationContext WebApplicationContext}
  * that was loaded using properties of this {@code WebMergedContextConfiguration}.
  *
  * @author Sam Brannen
@@ -108,13 +107,13 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param parent the parent configuration or {@code null} if there is no parent
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
-      @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-      @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
-      String resourceBasePath, ContextLoader contextLoader,
-      CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
+          @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
+          @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
+          String resourceBasePath, ContextLoader contextLoader,
+          CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 
     this(testClass, locations, classes, contextInitializerClasses, activeProfiles, propertySourceLocations,
-        propertySourceProperties, null, resourceBasePath, contextLoader, cacheAwareContextLoaderDelegate, parent);
+            propertySourceProperties, null, resourceBasePath, contextLoader, cacheAwareContextLoaderDelegate, parent);
   }
 
   /**
@@ -144,15 +143,15 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param parent the parent configuration or {@code null} if there is no parent
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
-      @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-      @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
-      @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
-      CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
+          @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
+          @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,
+          @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
+          CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 
     this(testClass, locations, classes, contextInitializerClasses, activeProfiles,
-        List.of(new PropertySourceDescriptor(processStrings(propertySourceLocations))),
-        propertySourceProperties, contextCustomizers, resourceBasePath, contextLoader,
-        cacheAwareContextLoaderDelegate, parent);
+            List.of(new PropertySourceDescriptor(processStrings(propertySourceLocations))),
+            propertySourceProperties, contextCustomizers, resourceBasePath, contextLoader,
+            cacheAwareContextLoaderDelegate, parent);
   }
 
   /**
@@ -180,14 +179,14 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param parent the parent configuration or {@code null} if there is no parent
    */
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
-      @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
-      @Nullable String[] activeProfiles,
-      List<PropertySourceDescriptor> propertySourceDescriptors, @Nullable String[] propertySourceProperties,
-      @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
-      CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
+          @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
+          @Nullable String[] activeProfiles,
+          List<PropertySourceDescriptor> propertySourceDescriptors, @Nullable String[] propertySourceProperties,
+          @Nullable Set<ContextCustomizer> contextCustomizers, String resourceBasePath, ContextLoader contextLoader,
+          CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate, @Nullable MergedContextConfiguration parent) {
 
     super(testClass, locations, classes, contextInitializerClasses, activeProfiles, propertySourceDescriptors,
-        propertySourceProperties, contextCustomizers, contextLoader, cacheAwareContextLoaderDelegate, parent);
+            propertySourceProperties, contextCustomizers, contextLoader, cacheAwareContextLoaderDelegate, parent);
 
     this.resourceBasePath = (StringUtils.hasText(resourceBasePath) ? resourceBasePath : "");
   }
@@ -218,7 +217,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
   @Override
   public boolean equals(@Nullable Object other) {
     return (this == other || (super.equals(other) &&
-        this.resourceBasePath.equals(((WebMergedContextConfiguration) other).resourceBasePath)));
+            this.resourceBasePath.equals(((WebMergedContextConfiguration) other).resourceBasePath)));
   }
 
   /**
@@ -246,18 +245,18 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("testClass", getTestClass())
-        .append("locations", getLocations())
-        .append("classes", getClasses())
-        .append("contextInitializerClasses", getContextInitializerClasses())
-        .append("activeProfiles", getActiveProfiles())
-        .append("propertySourceDescriptors", getPropertySourceDescriptors())
-        .append("propertySourceProperties", getPropertySourceProperties())
-        .append("contextCustomizers", getContextCustomizers())
-        .append("resourceBasePath", getResourceBasePath())
-        .append("contextLoader", (getContextLoader() != null ? getContextLoader().getClass() : null))
-        .append("parent", getParent())
-        .toString();
+            .append("testClass", getTestClass())
+            .append("locations", getLocations())
+            .append("classes", getClasses())
+            .append("contextInitializerClasses", getContextInitializerClasses())
+            .append("activeProfiles", getActiveProfiles())
+            .append("propertySourceDescriptors", getPropertySourceDescriptors())
+            .append("propertySourceProperties", getPropertySourceProperties())
+            .append("contextCustomizers", getContextCustomizers())
+            .append("resourceBasePath", getResourceBasePath())
+            .append("contextLoader", (getContextLoader() != null ? getContextLoader().getClass() : null))
+            .append("parent", getParent())
+            .toString();
   }
 
 }

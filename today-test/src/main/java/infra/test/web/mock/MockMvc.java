@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,9 @@ import infra.web.mock.MockRequestContext;
  * <h3>Example</h3>
  *
  * <pre class="code">
- * import static infra.test.web.servlet.request.MockMvcRequestBuilders.*;
- * import static infra.test.web.servlet.result.MockMvcResultMatchers.*;
- * import static infra.test.web.servlet.setup.MockMvcBuilders.*;
+ * import static infra.test.web.mock.request.MockMvcRequestBuilders.*;
+ * import static infra.test.web.mock.result.MockMvcResultMatchers.*;
+ * import static infra.test.web.mock.setup.MockMvcBuilders.*;
  *
  * // ...
  *
@@ -148,7 +148,7 @@ public final class MockMvc {
    * Return the underlying {@link MockDispatcher} instance that this
    * {@code MockMvc} was initialized with.
    * <p>This is intended for use in custom request processing scenario where a
-   * request handling component happens to delegate to the {@code DispatcherServlet}
+   * request handling component happens to delegate to the {@code Dispatcher}
    * at runtime and therefore needs to be injected with it.
    * <p>For most processing scenarios, simply use {@link MockMvc#perform},
    * or if you need to configure the {@code DispatcherServlet}, provide a

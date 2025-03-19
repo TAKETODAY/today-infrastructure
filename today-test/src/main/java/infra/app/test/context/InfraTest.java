@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,15 +138,15 @@ public @interface InfraTest {
   enum WebEnvironment {
 
     /**
-     * Creates a {@link WebApplicationContext} with a mock servlet environment if
-     * servlet APIs are on the classpath, a {@link ReactiveWebApplicationContext} if
+     * Creates a {@link WebApplicationContext} with a mock environment if
+     * mock APIs are on the classpath, a {@link ReactiveWebApplicationContext} if
      * Infra WebFlux is on the classpath or a regular {@link ApplicationContext}
      * otherwise.
      */
     MOCK(false),
 
     /**
-     * Creates a web application context (reactive or servlet based) and sets a
+     * Creates a web application context (reactive or mock based) and sets a
      * {@code server.port=0} {@link Environment} property (which usually triggers
      * listening on a random port). Often used in conjunction with a
      * {@link LocalServerPort @LocalServerPort} injected field on the test.

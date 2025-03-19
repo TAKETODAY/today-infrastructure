@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import infra.web.ErrorResponse;
  * treat binding exceptions as unrecoverable.
  *
  * <p>Extends RuntimeException for convenient throwing in any resource
- * (such as a Filter), and NestedServletException for proper root cause handling
+ * (such as a Filter), and Nested*Exception for proper root cause handling
  * (as the plain Exception doesn't expose its root cause at all).
  *
  * @author Rod Johnson

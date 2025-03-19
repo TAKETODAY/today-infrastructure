@@ -55,7 +55,7 @@ public abstract class AbstractTemplateViewResolver extends UrlBasedViewResolver 
   }
 
   /**
-   * Set whether HttpServletRequest attributes are allowed to override (hide)
+   * Set whether HttpRequest attributes are allowed to override (hide)
    * controller generated model attributes of the same name. Default is "false",
    * which causes an exception to be thrown if request attributes of the same
    * name as model attributes are found.

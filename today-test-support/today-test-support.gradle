@@ -3,6 +3,7 @@ description = 'Infra Test Support'
 dependencies {
   api project(':today-test')
   optional project(':today-web')
+  optional(project(":today-web-mock"))
 
   optional "org.hamcrest:hamcrest"
   optional "org.mockito:mockito-core"
@@ -25,7 +26,6 @@ dependencies {
 
   testImplementation 'commons-logging:commons-logging:1.2'
   testImplementation 'org.hibernate.validator:hibernate-validator'
-
   compileOnly 'com.datastax.oss:java-driver-core'
   compileOnly 'org.elasticsearch:elasticsearch:7.15.2'
 }

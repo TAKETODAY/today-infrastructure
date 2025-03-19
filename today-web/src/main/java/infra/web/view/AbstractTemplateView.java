@@ -31,7 +31,7 @@ import infra.web.RequestContextUtils;
  * the option to expose helper objects for Framework's FreeMarker macro library.
  *
  * <p>JSP/JSTL and other view technologies automatically have access to the
- * HttpServletRequest object and thereby the request/session attributes
+ * HttpRequest object and thereby the request/session attributes
  * for the current user. Furthermore, they are able to create and cache
  * helper objects as request attributes themselves.
  *

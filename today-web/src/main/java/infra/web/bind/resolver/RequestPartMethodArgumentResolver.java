@@ -144,7 +144,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
 
   @Override
   void closeStreamIfNecessary(InputStream body) {
-    // RequestPartServletServerHttpRequest exposes individual part streams,
+    // RequestPartServerHttpRequest exposes individual part streams,
     // potentially from temporary files -> explicit close call after resolution
     // in order to prevent file descriptor leaks.
     try {

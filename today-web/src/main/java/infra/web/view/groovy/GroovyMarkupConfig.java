@@ -35,7 +35,7 @@ public interface GroovyMarkupConfig {
 
   /**
    * Return the Groovy {@link MarkupTemplateEngine} for the current
-   * web application context. May be unique to one servlet, or shared
+   * web application context. May be unique to one, or shared
    * in the root context.
    *
    * @return the Groovy MarkupTemplateEngine engine

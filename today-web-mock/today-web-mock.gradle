@@ -1,0 +1,13 @@
+
+
+dependencies {
+  api(project(":today-web"))
+
+  optional 'org.reactivestreams:reactive-streams'
+  optional 'io.projectreactor:reactor-core'
+
+  optional 'org.assertj:assertj-core'
+  optional("org.mockito:mockito-core")
+  optional("org.mockito:mockito-junit-jupiter")
+
+}

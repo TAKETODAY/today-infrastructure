@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Initialize the strategy objects that this servlet uses.
+   * Initialize the strategy objects that this handler uses.
    * <p>May be overridden in subclasses in order to initialize further strategy objects.
    */
   protected void initStrategies(ApplicationContext context) {
@@ -514,7 +514,7 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Set whether to detect all HandlerMapping beans in this handler's context. Otherwise,
    * just a single bean with name "HandlerMapping" will be expected.
-   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * <p>Default is "true". Turn this off if you want this handler to use a single
    * HandlerMapping, despite multiple HandlerMapping beans being defined in the context.
    *
    * @since 4.0
@@ -526,7 +526,7 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Set whether to detect all HandlerAdapter beans in this handler's context. Otherwise,
    * just a single bean with name "handlerAdapter" will be expected.
-   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * <p>Default is "true". Turn this off if you want this handler to use a single
    * HandlerAdapter, despite multiple HandlerAdapter beans being defined in the context.
    *
    * @since 4.0
@@ -538,7 +538,7 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Set whether to detect all HandlerExceptionHandler beans in this handler's context. Otherwise,
    * just a single bean with name "handlerExceptionHandler" will be expected.
-   * <p>Default is "true". Turn this off if you want this servlet to use a single
+   * <p>Default is "true". Turn this off if you want this handler to use a single
    * HandlerExceptionHandler, despite multiple HandlerExceptionHandler beans being defined in the context.
    *
    * @since 4.0

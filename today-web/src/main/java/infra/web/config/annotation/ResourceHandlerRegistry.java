@@ -53,7 +53,6 @@ import infra.web.resource.ResourceHttpRequestHandler;
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DefaultServletHandlerConfigurer
  * @since 4.0 2022/2/15 17:07
  */
 public class ResourceHandlerRegistry {

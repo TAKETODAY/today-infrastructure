@@ -28,6 +28,7 @@ include 'infra-dependencies'
 
 include 'today-tx'
 include 'today-web'
+include 'today-web-mock'
 include 'today-aspects'
 include 'today-websocket'
 include 'today-jcache'

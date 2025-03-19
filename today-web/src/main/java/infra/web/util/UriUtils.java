@@ -262,7 +262,7 @@ public abstract class UriUtils {
    * MultiValueMap<String, String> params = new DefaultMultiValueMap<>(2);
    * // add to params...
    *
-   * ServletUriComponentsBuilder.fromCurrentRequest()
+   * UriComponentsBuilder.fromCurrentRequest()
    *         .queryParams(UriUtils.encodeQueryParams(params))
    *         .build(true)
    *         .toUriString();

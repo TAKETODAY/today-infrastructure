@@ -92,7 +92,7 @@ public interface ServerResponse {
   MultiValueMap<String, HttpCookie> cookies();
 
   /**
-   * Write this response to the given servlet response.
+   * Write this response to the given response.
    *
    * @param request the current request
    * @param context the context to use when writing
@@ -538,7 +538,7 @@ public interface ServerResponse {
     interface WriteFunction {
 
       /**
-       * Write to the given {@code servletResponse}, or return a
+       * Write to the given {@code response}, or return a
        * {@code ModelAndView} to be rendered.
        *
        * @param request the HTTP request, HTTP response to write to

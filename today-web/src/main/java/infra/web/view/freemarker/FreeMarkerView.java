@@ -80,7 +80,7 @@ import infra.web.view.AbstractTemplateView;
  * <p>Note: Infra FreeMarker support requires FreeMarker 2.3.26 or higher.
  * As of Infra 5.0, FreeMarker templates are rendered in a minimal
  * fashion without JSP support, just exposing request attributes in addition
- * to the MVC-provided model map for alignment with common Servlet resources.
+ * to the MVC-provided model map for alignment with common resources.
  *
  * @author Darren Davison
  * @author Juergen Hoeller
@@ -371,7 +371,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    *
    * @param template the template to process
    * @param model the model for the template
-   * @param response servlet response (use this to get the OutputStream or Writer)
+   * @param response response (use this to get the OutputStream or Writer)
    * @throws IOException if the template file could not be retrieved
    * @throws TemplateException if thrown by FreeMarker
    * @see freemarker.template.Template#createProcessingEnvironment(Object, java.io.Writer)

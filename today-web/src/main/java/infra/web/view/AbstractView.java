@@ -515,7 +515,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
     response.setContentType(getContentType());
     response.setContentLength(baos.size());
 
-    // Flush byte array to servlet output stream.
+    // Flush byte array to output stream.
     OutputStream out = response.getOutputStream();
     baos.writeTo(out);
     out.flush();

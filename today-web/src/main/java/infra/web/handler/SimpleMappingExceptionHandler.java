@@ -141,7 +141,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * It will not be set for an include request, since the HTTP status cannot be modified
    * from within an include.
    * <p>If not specified, no status code will be applied, either leaving this to the
-   * controller or view, or keeping the servlet engine's default of 200 (OK).
+   * controller or view.
    *
    * @param defaultStatusCode the HTTP status code value, for example 500
    * ({@link infra.http.HttpStatus#INTERNAL_SERVER_ERROR}) or
@@ -291,7 +291,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    *
    * @param request current HTTP request
    * @param viewName the name of the error view
-   * @return the HTTP status code to use, or {@code null} for the servlet container's default
+   * @return the HTTP status code to use, or {@code null} for the container's default
    * (200 in case of a standard error view)
    * @see #setDefaultStatusCode
    * @see #applyStatusCodeIfPossible

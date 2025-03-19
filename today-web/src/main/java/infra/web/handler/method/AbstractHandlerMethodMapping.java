@@ -478,7 +478,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Invoked when a matching mapping is found.
    *
    * @param bestMatch the best match metadata
-   * @param directLookupPath mapping lookup path within the current servlet mapping
+   * @param directLookupPath mapping lookup path within the current mapping
    * @param request the current request
    */
   protected abstract void handleMatch(Match<T> bestMatch, String directLookupPath, RequestContext request);
@@ -487,7 +487,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Invoked when no matching mapping is not found.
    *
    * @param mappings all registered mappings
-   * @param lookupPath mapping lookup path within the current servlet mapping
+   * @param lookupPath mapping lookup path within the current mapping
    * @param request the current request
    */
   @Nullable
@@ -670,7 +670,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * new) mapping with conditions relevant to the current request.
    *
    * @param mapping the mapping to get a match for
-   * @param request the current HTTP servlet request
+   * @param request the current HTTP request
    * @return the match, or {@code null} if the mapping doesn't match
    */
   @Nullable

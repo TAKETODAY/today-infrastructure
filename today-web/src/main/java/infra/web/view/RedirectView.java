@@ -53,7 +53,7 @@ import infra.web.util.UriUtils;
  * {@link #isEligibleProperty(String, Object)} method.
  *
  * <p>A URL for this view is supposed to be an HTTP redirect URL, i.e.
- * suitable for HttpServletResponse's {@code sendRedirect} method, which
+ * suitable for HttpResponse's {@code sendRedirect} method, which
  * is what actually does the redirect if the HTTP 1.0 flag is on, or via sending
  * back an HTTP 303 code - if the HTTP 1.0 compatibility flag is off.
  *
@@ -148,7 +148,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   /**
    * Set whether to stay compatible with HTTP 1.0 clients.
    * <p>In the default implementation, this will enforce HTTP status code 302
-   * in any case, i.e. delegate to {@code HttpServletResponse.sendRedirect}.
+   * in any case, i.e. delegate to {@code HttpResponse.sendRedirect}.
    * Turning this off will send HTTP status code 303, which is the correct
    * code for HTTP 1.1 clients, but not understood by HTTP 1.0 clients.
    * <p>Many HTTP 1.1 clients treat 302 just like 303, not making any

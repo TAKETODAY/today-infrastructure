@@ -307,7 +307,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
    */
   void closeStreamIfNecessary(InputStream body) {
     // No-op by default: A standard HttpInputMessage exposes the HTTP request stream
-    // (ServletRequest#getInputStream), with its lifecycle managed by the container.
+    // (Request#getInputStream), with its lifecycle managed by the container.
   }
 
   private static class EmptyBodyCheckingHttpInputMessage implements HttpInputMessage {

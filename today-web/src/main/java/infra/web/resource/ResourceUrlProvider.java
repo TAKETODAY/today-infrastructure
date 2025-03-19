@@ -134,7 +134,7 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
 
   /**
    * A variation on {@link #getForLookupPath(String)} that accepts a full request
-   * URL path (i.e. including context and servlet path) and returns the full request
+   * URL path (i.e. including context and handler path) and returns the full request
    * URL path to expose for public use.
    *
    * @param request the current request
@@ -180,7 +180,7 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
    * {@code ResourceHttpRequestHandler} to resolve the URL path to expose for
    * public use.
    * <p>It is expected that the given path is what MVC would use for
-   * request mapping purposes, i.e. excluding context and servlet path portions.
+   * request mapping purposes, i.e. excluding context and handler path portions.
    * <p>If several handler mappings match, the handler used will be the one
    * configured with the most specific pattern.
    *

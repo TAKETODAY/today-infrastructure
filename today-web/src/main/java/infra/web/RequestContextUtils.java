@@ -394,7 +394,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the Integer value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -447,7 +447,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static int getRequiredIntParameter(RequestContext request, String name)
@@ -461,7 +461,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static int[] getRequiredIntParameters(RequestContext request, String name)
@@ -477,7 +477,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the Long value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -530,7 +530,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static long getRequiredLongParameter(RequestContext request, String name)
@@ -544,7 +544,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static long[] getRequiredLongParameters(RequestContext request, String name)
@@ -560,7 +560,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the Float value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -613,7 +613,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static float getRequiredFloatParameter(RequestContext request, String name)
@@ -627,7 +627,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static float[] getRequiredFloatParameters(RequestContext request, String name)
@@ -643,7 +643,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the Double value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -696,7 +696,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static double getRequiredDoubleParameter(RequestContext request, String name)
@@ -710,7 +710,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static double[] getRequiredDoubleParameters(RequestContext request, String name)
@@ -728,7 +728,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the Boolean value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -788,7 +788,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static boolean getRequiredBooleanParameter(RequestContext request, String name)
@@ -805,7 +805,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static boolean[] getRequiredBooleanParameters(RequestContext request, String name)
@@ -819,7 +819,7 @@ public final class RequestContextUtils {
    * @param request current HTTP request
    * @param name the name of the parameter
    * @return the String value, or {@code null} if not present
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   @Nullable
@@ -865,7 +865,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static String getRequiredStringParameter(RequestContext request, String name)
@@ -879,7 +879,7 @@ public final class RequestContextUtils {
    *
    * @param request current HTTP request
    * @param name the name of the parameter
-   * @throws RequestBindingException a subclass of ServletException,
+   * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
   public static String[] getRequiredStringParameters(RequestContext request, String name)

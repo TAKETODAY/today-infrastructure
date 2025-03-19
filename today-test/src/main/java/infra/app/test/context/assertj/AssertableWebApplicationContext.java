@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,13 @@ package infra.app.test.context.assertj;
 
 import java.util.function.Supplier;
 
-import infra.app.test.context.runner.WebApplicationContextRunner;
 import infra.web.mock.ConfigurableWebApplicationContext;
 import infra.web.server.context.ConfigurableWebServerApplicationContext;
 import infra.web.server.context.WebServerApplicationContext;
 
 /**
  * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.
- * Can be used to decorate an existing servlet web application context or an application
+ * Can be used to decorate an existing mock web application context or an application
  * context that failed to start.
  * <p>
  * See {@link ApplicationContextAssertProvider} for more details.

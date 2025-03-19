@@ -675,10 +675,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   }
 
   /**
-   * Set headers on the given servlet response.
+   * Set headers on the given response.
    * Called for GET requests as well as HEAD requests.
    *
-   * @param response current servlet response
+   * @param response current response
    * @param resource the identified resource (never {@code null})
    * @param mediaType the resource's media type (never {@code null})
    * @throws IOException in case of errors while setting the headers

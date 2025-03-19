@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
    * Create a new UnsatisfiedRequestParameterException.
    *
    * @param paramConditions the parameter conditions that have been violated
-   * @param actualParams the actual parameter Map associated with the ServletRequest
+   * @param actualParams the actual parameter Map associated with the Request
    */
   public UnsatisfiedRequestParameterException(String[] paramConditions, MultiValueMap<String, String> actualParams) {
     this(List.<String[]>of(paramConditions), actualParams);
@@ -59,7 +59,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
    * Create a new UnsatisfiedRequestParameterException.
    *
    * @param paramConditions all sets of parameter conditions that have been violated
-   * @param actualParams the actual parameter Map associated with the ServletRequest
+   * @param actualParams the actual parameter Map associated with the Request
    */
   public UnsatisfiedRequestParameterException(List<String[]> paramConditions, MultiValueMap<String, String> actualParams) {
     super("", null, new Object[] { paramsToStringList(paramConditions) });
@@ -102,7 +102,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
   }
 
   /**
-   * Return the actual parameter Map associated with the ServletRequest.
+   * Return the actual parameter Map associated with the Request.
    *
    * @see RequestContext#getParameters()
    */

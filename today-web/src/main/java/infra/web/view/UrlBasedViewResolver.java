@@ -242,7 +242,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   /**
    * Set whether redirects should stay compatible with HTTP 1.0 clients.
    * <p>In the default implementation, this will enforce HTTP status code 302
-   * in any case, i.e. delegate to {@code HttpServletResponse.sendRedirect}.
+   * in any case, i.e. delegate to {@code HttpResponse.sendRedirect}.
    * Turning this off will send HTTP status code 303, which is the correct
    * code for HTTP 1.1 clients, but not understood by HTTP 1.0 clients.
    * <p>Many HTTP 1.1 clients treat 302 just like 303, not making any

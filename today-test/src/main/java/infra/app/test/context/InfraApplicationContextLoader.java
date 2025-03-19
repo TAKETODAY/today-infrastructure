@@ -66,7 +66,7 @@ import infra.web.server.reactive.context.GenericReactiveWebApplicationContext;
  * <p>
  * The loader supports both standard {@link MergedContextConfiguration} as well as
  * {@link WebMergedContextConfiguration}. If {@link WebMergedContextConfiguration} is used
- * the context will either use a mock servlet environment, or start the full embedded web
+ * the context will either use a mock environment, or start the full embedded web
  * server.
  * <p>
  * If {@code @ActiveProfiles} are provided in the test class they will be used to create

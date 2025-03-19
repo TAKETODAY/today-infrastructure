@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,9 +30,9 @@ import infra.test.web.mock.result.MockMvcResultMatchers;
  * <h3>Example Using Status and Content Result Matchers</h3>
  *
  * <pre class="code">
- * import static infra.test.web.servlet.request.MockMvcRequestBuilders.*;
- * import static infra.test.web.servlet.result.MockMvcResultMatchers.*;
- * import static infra.test.web.servlet.setup.MockMvcBuilders.*;
+ * import static infra.test.web.mock.request.MockMvcRequestBuilders.*;
+ * import static infra.test.web.mock.result.MockMvcResultMatchers.*;
+ * import static infra.test.web.mock.setup.MockMvcBuilders.*;
  *
  * // ...
  *

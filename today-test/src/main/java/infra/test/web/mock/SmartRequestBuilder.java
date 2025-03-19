@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ import infra.test.web.mock.request.RequestPostProcessor;
 
 /**
  * Extended variant of a {@link RequestBuilder} that applies its
- * {@link RequestPostProcessor infra.test.web.servlet.request.RequestPostProcessors}
+ * {@link RequestPostProcessor infra.test.web.mock.request.RequestPostProcessors}
  * as a separate step from the {@link #buildRequest} method.
  *
  * @author Rossen Stoyanchev
@@ -32,7 +32,7 @@ public interface SmartRequestBuilder extends RequestBuilder {
 
   /**
    * Apply request post-processing. Typically, that means invoking one or more
-   * {@link RequestPostProcessor infra.test.web.servlet.request.RequestPostProcessors}.
+   * {@link RequestPostProcessor infra.test.web.mock.request.RequestPostProcessors}.
    *
    * @param request the request to initialize
    * @return the request to use, either the one passed in or a wrapped one
