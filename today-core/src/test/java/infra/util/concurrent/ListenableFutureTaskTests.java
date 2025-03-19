@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -139,6 +142,125 @@ class ListenableFutureTaskTests {
     futureTask.cascadeTo(promise);
 
     assertThat(promise.await().getNow()).isEqualTo(1);
+  }
+
+  @Test
+  void cancelBeforeExecution() {
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test");
+    task.cancel(true);
+
+    assertThat(task.isCancelled()).isTrue();
+    assertThat(task.isDone()).isTrue();
+    assertThatExceptionOfType(CancellationException.class).isThrownBy(task::get);
+  }
+
+  @Test
+  void nullCallableThrowsException() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> Future.forFutureTask((Callable<? extends Object>) null));
+  }
+
+  @Test
+  void interruptedExecution() throws Exception {
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> {
+      Thread.sleep(1000);
+      return "test";
+    });
+
+    Thread thread = new Thread(task);
+    thread.start();
+    thread.interrupt();
+
+    assertThatExceptionOfType(ExecutionException.class)
+            .isThrownBy(task::get)
+            .withCauseInstanceOf(InterruptedException.class);
+  }
+
+  @Test
+  void multipleListenersNotified() {
+    AtomicInteger counter = new AtomicInteger();
+    ListenableFutureTask<Integer> task = Future.forFutureTask(() -> 42, Runnable::run);
+
+    task.onCompleted(f -> counter.incrementAndGet());
+    task.onCompleted(f -> counter.incrementAndGet());
+    task.onCompleted(f -> counter.incrementAndGet());
+
+    task.run();
+
+    assertThat(counter.get()).isEqualTo(3);
+  }
+
+  @Test
+  void completedBeforeListenerAdded() {
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test", Runnable::run);
+    task.run();
+
+    AtomicBoolean listenerCalled = new AtomicBoolean();
+    task.onCompleted(f -> listenerCalled.set(true));
+
+    assertThat(listenerCalled.get()).isTrue();
+  }
+
+  @Test
+  void taskReturnsNullSuccessfully() {
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> null);
+    task.run();
+    assertThat(task.getNow()).isNull();
+    assertThat(task.isSuccess()).isTrue();
+  }
+
+  @Test
+  void runtimeExceptionPropagatedToListeners() throws Throwable {
+    RuntimeException expected = new RuntimeException("test");
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> {
+      throw expected;
+    });
+
+    FailureCallback failureCallback = mock(FailureCallback.class);
+    task.onCompleted(s -> fail("Should not succeed"), failureCallback);
+
+    task.run();
+
+    verify(failureCallback).onFailure(expected);
+  }
+
+  @Test
+  void listenerThrowingExceptionDoesNotAffectOtherListeners() {
+    AtomicInteger callCount = new AtomicInteger();
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test", Runnable::run);
+
+    task.onCompleted(f -> { throw new RuntimeException("oops"); });
+    task.onCompleted(f -> callCount.incrementAndGet());
+    task.onCompleted(f -> callCount.incrementAndGet());
+
+    task.run();
+
+    assertThat(callCount.get()).isEqualTo(2);
+  }
+
+  @Test
+  void cancelWithInterruptFalseDoesNotInterruptThread() throws Exception {
+    AtomicBoolean interrupted = new AtomicBoolean();
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> {
+      if (Thread.interrupted()) {
+        interrupted.set(true);
+      }
+      return "test";
+    });
+
+    Thread thread = new Thread(task);
+    thread.start();
+    task.cancel(false);
+    thread.join();
+
+    assertThat(interrupted.get()).isFalse();
+    assertThat(task.isCancelled()).isTrue();
+  }
+
+  @Test
+  void notCompletedStringContainsTaskInfo() {
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test");
+    assertThat(task.notCompletedString()).contains("task =");
   }
 
 }
