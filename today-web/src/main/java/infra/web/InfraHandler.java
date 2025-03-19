@@ -95,7 +95,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   protected final AtomicBoolean initialized = new AtomicBoolean(false);
 
   protected InfraHandler() {
-
   }
 
   /**
