@@ -146,7 +146,7 @@ class ListenableFutureTaskTests {
 
   @Test
   void cancelBeforeExecution() {
-    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test");
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> "test", Runnable::run);
     task.cancel(true);
 
     assertThat(task.isCancelled()).isTrue();
@@ -165,7 +165,7 @@ class ListenableFutureTaskTests {
     ListenableFutureTask<String> task = Future.forFutureTask(() -> {
       Thread.sleep(1000);
       return "test";
-    });
+    }, Runnable::run);
 
     Thread thread = new Thread(task);
     thread.start();
@@ -203,7 +203,7 @@ class ListenableFutureTaskTests {
 
   @Test
   void taskReturnsNullSuccessfully() {
-    ListenableFutureTask<String> task = Future.forFutureTask(() -> null);
+    ListenableFutureTask<String> task = Future.forFutureTask(() -> null, Runnable::run);
     task.run();
     assertThat(task.getNow()).isNull();
     assertThat(task.isSuccess()).isTrue();
@@ -246,7 +246,7 @@ class ListenableFutureTaskTests {
         interrupted.set(true);
       }
       return "test";
-    });
+    }, Runnable::run);
 
     Thread thread = new Thread(task);
     thread.start();
