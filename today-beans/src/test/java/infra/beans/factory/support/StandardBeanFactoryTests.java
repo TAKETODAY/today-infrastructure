@@ -1497,34 +1497,34 @@ class StandardBeanFactoryTests {
     bd2.setBeanClass(DerivedTestBean.class);
     bd2.setPropertyValues(new PropertyValues(List.of(new PropertyValue("name", "highest"))));
     bd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
+    bd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("bean2", bd2);
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
             .containsExactly("highest", "lowest");
-    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
-            .containsExactly("highest", "lowest");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(clazz -> !DerivedTestBean.class.isAssignableFrom(clazz))
             .map(TestBean::getName)).containsExactly("lowest");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
+            .containsExactly("highest", "lowest");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED, false).map(TestBean::getName))
+            .containsExactly("lowest");
   }
 
   @Test
-  void orderFromAttributeOverrideAnnotation() {
+  void orderFromAttributeOverridesAnnotation() {
     lbf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
     RootBeanDefinition rbd1 = new RootBeanDefinition(LowestPrecedenceTestBeanFactoryBean.class);
     rbd1.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
     lbf.registerBeanDefinition("lowestPrecedenceFactory", rbd1);
     RootBeanDefinition rbd2 = new RootBeanDefinition(HighestPrecedenceTestBeanFactoryBean.class);
     rbd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.LOWEST_PRECEDENCE);
+    rbd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("highestPrecedenceFactory", rbd2);
-    GenericBeanDefinition bd1 = new GenericBeanDefinition();
-    bd1.setFactoryBeanName("highestPrecedenceFactory");
-    lbf.registerBeanDefinition("bean1", bd1);
-    GenericBeanDefinition bd2 = new GenericBeanDefinition();
-    bd2.setFactoryBeanName("lowestPrecedenceFactory");
-    lbf.registerBeanDefinition("bean2", bd2);
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED, false).map(TestBean::getName))
+            .containsExactly("fromLowestPrecedenceTestBeanFactoryBean");
   }
 
   @Test
@@ -1952,7 +1952,6 @@ class StandardBeanFactoryTests {
   void getBeanByTypeInstanceWithAmbiguity() {
     RootBeanDefinition bd1 = createConstructorDependencyBeanDefinition(99);
     RootBeanDefinition bd2 = new RootBeanDefinition(ConstructorDependency.class);
-    bd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bd2.getConstructorArgumentValues().addGenericArgumentValue("43");
     lbf.registerBeanDefinition("bd1", bd1);
     lbf.registerBeanDefinition("bd2", bd2);
@@ -1992,6 +1991,10 @@ class StandardBeanFactoryTests {
     resolved = provider.stream(ObjectProvider.UNFILTERED).collect(Collectors.toSet());
     assertThat(resolved).hasSize(2);
     assertThat(resolved).contains(lbf.getBean("bd1"));
+    assertThat(resolved).contains(lbf.getBean("bd2"));
+
+    resolved = provider.stream(ObjectProvider.UNFILTERED, false).collect(Collectors.toSet());
+    assertThat(resolved).hasSize(1);
     assertThat(resolved).contains(lbf.getBean("bd2"));
   }
 

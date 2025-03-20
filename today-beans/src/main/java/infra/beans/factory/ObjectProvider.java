@@ -273,6 +273,41 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
   }
 
   /**
+   * Return a custom-filtered {@link Stream} over all matching object instances,
+   * without specific ordering guarantees (but typically in registration order).
+   *
+   * @param customFilter a custom type filter for selecting beans among the raw
+   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
+   * any default filtering)
+   * @see #stream()
+   * @see #orderedStream(Predicate)
+   * @since 5.0
+   */
+  default Stream<T> stream(Predicate<Class<?>> customFilter) {
+    return stream(customFilter, true);
+  }
+
+  /**
+   * Return a custom-filtered {@link Stream} over all matching object instances,
+   * without specific ordering guarantees (but typically in registration order).
+   *
+   * @param customFilter a custom type filter for selecting beans among the raw
+   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
+   * any default filtering)
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @see #stream(Predicate)
+   * @see #orderedStream(Predicate, boolean)
+   * @since 5.0
+   */
+  default Stream<T> stream(Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
+    if (!includeNonSingletons) {
+      throw new UnsupportedOperationException("Only supports includeNonSingletons=true by default");
+    }
+    return stream().filter(obj -> customFilter.test(obj.getClass()));
+  }
+
+  /**
    * Return a sequential {@link Stream} over all matching object instances,
    * pre-ordered according to the factory's common order comparator.
    * <p>In a standard application context, this will be ordered
@@ -294,21 +329,6 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
 
   /**
    * Return a custom-filtered {@link Stream} over all matching object instances,
-   * without specific ordering guarantees (but typically in registration order).
-   *
-   * @param customFilter a custom type filter for selecting beans among the raw
-   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
-   * any default filtering)
-   * @see #stream()
-   * @see #orderedStream(Predicate)
-   * @since 5.0
-   */
-  default Stream<T> stream(Predicate<Class<?>> customFilter) {
-    return stream().filter(obj -> customFilter.test(obj.getClass()));
-  }
-
-  /**
-   * Return a custom-filtered {@link Stream} over all matching object instances,
    * pre-ordered according to the factory's common order comparator.
    *
    * @param customFilter a custom type filter for selecting beans among the raw
@@ -319,6 +339,26 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @since 5.0
    */
   default Stream<T> orderedStream(Predicate<Class<?>> customFilter) {
+    return orderedStream(customFilter, true);
+  }
+
+  /**
+   * Return a custom-filtered {@link Stream} over all matching object instances,
+   * pre-ordered according to the factory's common order comparator.
+   *
+   * @param customFilter a custom type filter for selecting beans among the raw
+   * bean type matches (or {@link #UNFILTERED} for all raw type matches without
+   * any default filtering)
+   * @param includeNonSingletons whether to include prototype or scoped beans too
+   * or just singletons (also applies to FactoryBeans)
+   * @see #orderedStream()
+   * @see #stream(Predicate)
+   * @since 5.0
+   */
+  default Stream<T> orderedStream(Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
+    if (!includeNonSingletons) {
+      throw new UnsupportedOperationException("Only supports includeNonSingletons=true by default");
+    }
     return orderedStream().filter(obj -> customFilter.test(obj.getClass()));
   }
 

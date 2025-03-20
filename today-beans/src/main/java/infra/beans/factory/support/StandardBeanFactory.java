@@ -1090,8 +1090,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     };
   }
 
-  private Set<String> getBeanNamesForTypedStream(ResolvableType requiredType, boolean allowEagerInit) {
-    return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this, requiredType, true, allowEagerInit);
+  private Set<String> getBeanNamesForTypedStream(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+    return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this, requiredType, includeNonSingletons, allowEagerInit);
   }
 
   private Comparator<Object> adaptOrderComparator(Map<String, ?> matchingBeans) {
@@ -1152,7 +1152,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   @Modifiable
-  public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public Set<String> getBeanNamesForType(@Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
       return doGetBeanNamesForType(
               ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
@@ -1339,6 +1339,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return names;
   }
 
+  @Nullable
   @Override
   public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) {
     return findAnnotationOnBean(beanName, annotationType)
@@ -1728,7 +1729,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
-  private Object resolveInstance(Object candidate, DependencyDescriptor descriptor, Class<?> type, String name) {
+  private Object resolveInstance(@Nullable Object candidate, DependencyDescriptor descriptor, Class<?> type, String name) {
     if (candidate == null) {
       // Raise exception if null encountered for required injection point
       if (isRequired(descriptor)) {
@@ -2297,6 +2298,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         return false;
       }
 
+      @Nullable
       @Override
       public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) {
         return ObjectUtils.isNotEmpty(args)
@@ -2392,25 +2394,25 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     @Override
     public Stream<T> stream() {
-      return stream(null);
+      return stream(null, true);
     }
 
     @Override
     public Stream<T> orderedStream() {
-      return orderedStream(null);
+      return orderedStream(null, true);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Stream<T> stream(@Nullable Predicate<Class<?>> customFilter) {
+    public Stream<T> stream(@Nullable Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
       if (customFilter != null) {
-        return getBeanNamesForTypedStream(requiredType(), allowEagerInit)
+        return getBeanNamesForTypedStream(requiredType(), includeNonSingletons, allowEagerInit)
                 .stream()
                 .filter(name -> filterInternal(name) && customFilter.test(getType(name)))
                 .map(name -> (T) getBean(name))
                 .filter(Objects::nonNull);
       }
-      return getBeanNamesForTypedStream(requiredType(), allowEagerInit)
+      return getBeanNamesForTypedStream(requiredType(), includeNonSingletons, allowEagerInit)
               .stream()
               .map(name -> (T) getBean(name))
               .filter(Objects::nonNull);
@@ -2422,8 +2424,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     @Override
     @SuppressWarnings("unchecked")
-    public Stream<T> orderedStream(@Nullable Predicate<Class<?>> customFilter) {
-      var beanNames = getBeanNamesForTypedStream(requiredType(), allowEagerInit);
+    public Stream<T> orderedStream(@Nullable Predicate<Class<?>> customFilter, boolean includeNonSingletons) {
+      var beanNames = getBeanNamesForTypedStream(requiredType(), includeNonSingletons, allowEagerInit);
       if (beanNames.isEmpty()) {
         return Stream.empty();
       }

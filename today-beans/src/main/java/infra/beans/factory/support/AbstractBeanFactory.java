@@ -187,6 +187,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------
 
+  @Nullable
   @Override
   public Object getBean(String name) {
     return doGetBean(name, null, null, false);
@@ -197,6 +198,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     return doGetBean(name, requiredType, null, false);
   }
 
+  @Nullable
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
     return doGetBean(name, null, args, false);
