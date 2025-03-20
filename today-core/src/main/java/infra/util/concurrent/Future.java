@@ -908,6 +908,42 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Creates a <strong>new</strong> {@link Future} that will complete
+   * with the result of this {@link Future} flat-mapped through the
+   * given mapper function.
+   * <p>
+   * The "flat" in "flat-map" means the given mapper function produces
+   * a result that itself is a future-of-R, yet this method also returns
+   * a future-of-R, rather than a future-of-future-of-R. In other words,
+   * if the same mapper function was used with the {@link #map(ThrowingFunction)}
+   * method, you would get back a {@code Future<Future<R>>}. These nested
+   * futures are "flattened" into a {@code Future<R>} by this method.
+   * <p>
+   * Effectively, this method behaves similar to this serial code, except
+   * asynchronously and with proper exception and cancellation handling:
+   * <pre>{@code
+   * V x = future.sync().getNow();
+   * Future<R> y = mapper.apply(x);
+   * R result = y.sync().getNow();
+   * }</pre>
+   * <p>
+   * If the given future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel the
+   * other. If the mapper function throws, the returned future will fail,
+   * but this future will be unaffected.
+   *
+   * @param futureSupplier The function that will supply of the result of the returned future.
+   * @param <R> The result type of the mapper function, and of the returned future.
+   * @return A new future instance that will complete with the mapped result
+   * of this future.
+   * @since 5.0
+   */
+  public final <R> Future<R> flatMap(ThrowingSupplier<Future<R>> futureSupplier) {
+    Assert.notNull(futureSupplier, "futureSupplier is required");
+    return Futures.flatMap(this, v -> futureSupplier.get());
+  }
+
+  /**
    * Link the {@link Future} and {@link Promise} such that if the
    * {@link Future} completes the {@link Promise}
    * will be notified. Cancellation is propagated both ways such that if

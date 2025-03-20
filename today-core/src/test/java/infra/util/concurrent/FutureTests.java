@@ -547,7 +547,7 @@ class FutureTests {
     Promise<String> promise = Future.forPromise();
 
     Future<String> future = ok("ok")
-            .flatMap(s -> promise);
+            .flatMap(() -> promise);
 
     future.awaitUninterruptibly(500);
 
@@ -561,7 +561,7 @@ class FutureTests {
     IllegalStateException exception = new IllegalStateException();
     Promise<Void> promise = Future.forPromise();
     Future<Void> failedFuture = promise
-            .flatMap(s -> {
+            .flatMap(() -> {
               throw exception;
             });
 
@@ -597,7 +597,7 @@ class FutureTests {
 
     promise = Future.forPromise();
     stringFuture = promise
-            .flatMap(s -> Future.forPromise());
+            .flatMap(() -> Future.forPromise());
     promise.cancel();
 
     assertThat(promise.awaitUninterruptibly()).isCancelled();
