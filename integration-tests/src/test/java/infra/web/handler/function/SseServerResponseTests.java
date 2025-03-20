@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ class SseServerResponseTests {
             :comment line 2
             retry:1000
             data:data
-
+            
             """;
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
@@ -179,6 +179,26 @@ class SseServerResponseTests {
     assertThat(response.writeTo(requestContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
 
     String expected = "event:custom\n\n";
+    assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
+  }
+
+  @Test
+  void sendHeartbeat() throws Throwable {
+    ServerResponse response = ServerResponse.sse(sse -> {
+      try {
+        sse.comment("").send();
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    });
+
+    ServerResponse.Context context = Collections::emptyList;
+    var requestContext = new MockRequestContext(null, mockRequest, mockResponse);
+
+    assertThat(response.writeTo(requestContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
+
+    String expected = ":\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,7 +141,6 @@ final class SseServerResponse extends AbstractServerResponse {
 
     @Override
     public SseBuilder comment(String comment) {
-      Assert.hasLength(comment, "Comment must not be empty");
       String[] lines = comment.split("\n");
       for (String line : lines) {
         field("", line);
