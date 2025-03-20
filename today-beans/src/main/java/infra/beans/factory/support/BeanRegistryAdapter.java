@@ -123,6 +123,11 @@ public class BeanRegistryAdapter implements BeanRegistry {
     registrar.register(this, this.environment);
   }
 
+  @Override
+  public void registerAlias(String name, String alias) {
+    this.beanRegistry.registerAlias(name, alias);
+  }
+
   /**
    * {@link RootBeanDefinition} subclass for {@code #registerBean} based
    * registrations with constructors resolution match{@link BeanUtils#getConstructor}
