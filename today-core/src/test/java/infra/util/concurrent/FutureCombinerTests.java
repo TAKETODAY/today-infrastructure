@@ -100,12 +100,12 @@ class FutureCombinerTests {
     RuntimeException ex1 = new RuntimeException("first");
     RuntimeException ex2 = new RuntimeException("second");
 
-    Future<String> future1 = Future.failed(ex1);
-    Future<String> future2 = Future.failed(ex2);
+    Future<String> future1 = Future.failed(ex1, directExecutor());
+    Future<String> future2 = Future.failed(ex2, directExecutor());
 
     Future<List<Object>> combined = new FutureCombiner(false, List.of(future1, future2))
             .requireAllSucceed()
-            .asList();
+            .asList(directExecutor());
 
     RuntimeException thrown = assertThrows(RuntimeException.class, combined::join);
     assertThat(thrown).isSameAs(ex1);
@@ -113,11 +113,11 @@ class FutureCombinerTests {
 
   @Test
   void combineFuturesSuccessfully() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
-    Promise<Boolean> p3 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
+    Promise<Boolean> p3 = Future.forPromise(directExecutor());
 
-    Future<List<Object>> combined = Future.combine(p1, p2, p3).asList();
+    Future<List<Object>> combined = Future.combine(p1, p2, p3).asList(directExecutor());
 
     p1.setSuccess("test");
     p2.setSuccess(42);
@@ -128,10 +128,10 @@ class FutureCombinerTests {
 
   @Test
   void combinedFutureFailsIfAnyInputFails() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
-    Future<List<Object>> combined = Future.combine(p1, p2).asList();
+    Future<List<Object>> combined = Future.combine(p1, p2).asList(directExecutor());
 
     RuntimeException error = new RuntimeException("failed");
     p1.setSuccess("test");
@@ -142,11 +142,11 @@ class FutureCombinerTests {
 
   @Test
   void combinedFutureFailsIfAnyInputIsCancelled() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
     Future<List<Object>> combined = Future.combine(p1, p2)
-            .asList();
+            .asList(directExecutor());
 
     p1.setSuccess("test");
     p2.cancel();
@@ -156,19 +156,19 @@ class FutureCombinerTests {
 
   @Test
   void combinedEmptyListCompletesImmediately() {
-    Future<List<Object>> combined = Future.combine(Collections.emptyList()).asList();
+    Future<List<Object>> combined = Future.combine(Collections.emptyList()).asList(directExecutor());
     assertThat(combined.join()).isEmpty();
   }
 
   @Test
   void combineWithStreamSuccessfully() {
     List<Promise<Integer>> promises = Arrays.asList(
-            Future.forPromise(),
-            Future.forPromise(),
-            Future.forPromise()
+            Future.forPromise(directExecutor()),
+            Future.forPromise(directExecutor()),
+            Future.forPromise(directExecutor())
     );
 
-    Future<List<Object>> combined = Future.combine(promises.stream()).asList();
+    Future<List<Object>> combined = Future.combine(promises.stream()).asList(directExecutor());
 
     promises.forEach(p -> p.setSuccess(42));
 
@@ -177,10 +177,10 @@ class FutureCombinerTests {
 
   @Test
   void combineAsVoidSuccessfully() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
-    Future<Void> combined = Future.combine(p1, p2).asVoid();
+    Future<Void> combined = Future.combine(p1, p2).asVoid(directExecutor());
 
     p1.setSuccess("test");
     p2.setSuccess(42);
@@ -190,10 +190,10 @@ class FutureCombinerTests {
 
   @Test
   void combineAsVoidFailsIfAnyInputFails() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
-    Future<Void> combined = Future.combine(p1, p2).asVoid();
+    Future<Void> combined = Future.combine(p1, p2).asVoid(directExecutor());
 
     RuntimeException error = new RuntimeException("failed");
     p1.setSuccess("test");
@@ -204,10 +204,10 @@ class FutureCombinerTests {
 
   @Test
   void cancellingCombinedFutureCancelsAllInputFutures() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
-    Future<?> combined = Future.combine(p1, p2).asVoid();
+    Future<?> combined = Future.combine(p1, p2).asVoid(directExecutor());
 
     combined.cancel();
 
@@ -217,10 +217,10 @@ class FutureCombinerTests {
 
   @Test
   void combinedFutureCompletesAfterAllInputsComplete() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
-    Future<List<Object>> combined = Future.combine(p1, p2).asList();
+    Future<List<Object>> combined = Future.combine(p1, p2).asList(directExecutor());
 
     assertThat(combined.isDone()).isFalse();
 
@@ -233,7 +233,7 @@ class FutureCombinerTests {
 
   @Test
   void combineEmptyCollectionCompletesImmediately() {
-    Future<Void> combined = Future.combine(Collections.emptyList()).asVoid();
+    Future<Void> combined = Future.combine(Collections.emptyList()).asVoid(directExecutor());
     assertThat(combined.isDone()).isTrue();
     assertThat(combined.isSuccess()).isTrue();
   }
@@ -284,8 +284,8 @@ class FutureCombinerTests {
 
   @Test
   void asListCombinesResultsInOrder() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<String> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<String> p2 = Future.forPromise(directExecutor());
 
     Future<List<String>> combined = Future.combine(p1, p2).asList();
 
@@ -313,8 +313,8 @@ class FutureCombinerTests {
 
   @Test
   void callWithMapperCombinesResults() {
-    Promise<String> p1 = Future.forPromise();
-    Promise<Integer> p2 = Future.forPromise();
+    Promise<String> p1 = Future.forPromise(directExecutor());
+    Promise<Integer> p2 = Future.forPromise(directExecutor());
 
     Future<String> combined = Future.combine(p1, p2)
             .call(fs -> fs.stream()

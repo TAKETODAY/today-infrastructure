@@ -279,7 +279,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
    * FutureCombiner}).
    */
   public Future<Void> run(Runnable combiner) {
-    return run(combiner, null);
+    return run(combiner, Future.defaultScheduler);
   }
 
   /**
