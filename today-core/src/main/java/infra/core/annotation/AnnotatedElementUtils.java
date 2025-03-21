@@ -99,7 +99,7 @@ public abstract class AnnotatedElementUtils {
    * @param annotations the annotations to expose through the {@code AnnotatedElement}
    */
   public static AnnotatedElement forAnnotations(Annotation... annotations) {
-    return new AnnotatedElementForAnnotations(annotations);
+    return AnnotatedElementAdapter.forAnnotations(annotations);
   }
 
   /**
@@ -848,35 +848,6 @@ public abstract class AnnotatedElementUtils {
     }
     return annotation.asAnnotationAttributes(
             MergedAnnotation.Adapt.values(classValuesAsString, nestedAnnotationsAsMap));
-  }
-
-  /**
-   * Adapted {@link AnnotatedElement} that hold specific annotations.
-   */
-  private record AnnotatedElementForAnnotations(Annotation... annotations) implements AnnotatedElement {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-      for (Annotation annotation : this.annotations) {
-        if (annotation.annotationType() == annotationClass) {
-          return (T) annotation;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-      return this.annotations.clone();
-    }
-
-    @Override
-    public Annotation[] getDeclaredAnnotations() {
-      return this.annotations.clone();
-    }
-
   }
 
 }

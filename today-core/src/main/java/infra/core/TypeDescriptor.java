@@ -32,15 +32,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import infra.core.annotation.AnnotatedElementAdapter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.conversion.ConversionService;
 import infra.lang.Assert;
-import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.reflect.Property;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
-import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
 /**
@@ -110,7 +109,7 @@ public class TypeDescriptor implements Serializable {
   public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
-    this.annotatedElement = AnnotatedElementAdapter.from(annotations);
+    this.annotatedElement = AnnotatedElementAdapter.forAnnotations(annotations);
   }
 
   /**
@@ -827,110 +826,6 @@ public class TypeDescriptor implements Serializable {
   public static TypeDescriptor fromParameter(Parameter parameter) {
     ResolvableType resolvableType = ResolvableType.forParameter(parameter);
     return new TypeDescriptor(resolvableType, parameter.getType(), parameter);
-  }
-
-  /**
-   * Adapter class for exposing a {@code TypeDescriptor}'s annotations as an
-   * {@link AnnotatedElement}, in particular to {@link AnnotatedElementUtils}.
-   *
-   * @see AnnotatedElementUtils#isAnnotated(AnnotatedElement, Class)
-   * @see AnnotatedElementUtils#getMergedAnnotation(AnnotatedElement, Class)
-   */
-  private static class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
-    private static final AnnotatedElementAdapter EMPTY = new AnnotatedElementAdapter(Constant.EMPTY_ANNOTATIONS, null);
-
-    @Nullable
-    private volatile Annotation[] annotations;
-
-    @Nullable
-    private final AnnotatedElement annotated;
-
-    public AnnotatedElementAdapter(@Nullable Annotation[] annotations, @Nullable AnnotatedElement annotated) {
-      this.annotations = annotations;
-      this.annotated = annotated;
-    }
-
-    private static AnnotatedElementAdapter from(@Nullable Annotation[] annotations) {
-      if (annotations == null || annotations.length == 0) {
-        return EMPTY;
-      }
-      return new AnnotatedElementAdapter(annotations, null);
-    }
-
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-      for (Annotation annotation : getAnnotations(false)) {
-        if (annotation.annotationType() == annotationClass) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    @Override
-    @Nullable
-    @SuppressWarnings("unchecked")
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-      for (Annotation annotation : getAnnotations(false)) {
-        if (annotation.annotationType() == annotationClass) {
-          return (T) annotation;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-      return getAnnotations(true);
-    }
-
-    private Annotation[] getAnnotations(boolean cloneArray) {
-      Annotation[] annotations = this.annotations;
-      if (annotations == null) {
-        synchronized(this) {
-          annotations = this.annotations;
-          if (annotations == null) {
-            if (annotated != null) {
-              annotations = annotated.getAnnotations();
-            }
-            else {
-              annotations = Constant.EMPTY_ANNOTATIONS;
-            }
-            this.annotations = annotations;
-          }
-        }
-      }
-      if (cloneArray && annotations.length > 0) {
-        return annotations.clone();
-      }
-      return annotations;
-    }
-
-    @Override
-    public Annotation[] getDeclaredAnnotations() {
-      return getAnnotations(true);
-    }
-
-    public boolean isEmpty() {
-      return ObjectUtils.isEmpty(getAnnotations(false));
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-      return (this == obj || (obj instanceof AnnotatedElementAdapter that &&
-              Arrays.equals(getAnnotations(false), that.getAnnotations(false))));
-    }
-
-    @Override
-    public int hashCode() {
-      return Arrays.hashCode(getAnnotations(false));
-    }
-
-    @Override
-    public String toString() {
-      return "AnnotatedElementAdapter annotations=" + Arrays.toString(this.annotations);
-    }
-
   }
 
 }
