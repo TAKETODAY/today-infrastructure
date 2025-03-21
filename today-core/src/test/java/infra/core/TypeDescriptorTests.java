@@ -29,6 +29,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -780,7 +782,6 @@ class TypeDescriptorTests {
   }
 
   @Test
-    // gh-33932
   void recursiveTypeWithInterface() {
     assertThat(TypeDescriptor.valueOf(RecursiveMapWithInterface.class)).isEqualTo(
             TypeDescriptor.valueOf(RecursiveMapWithInterface.class));
@@ -790,6 +791,219 @@ class TypeDescriptorTests {
     TypeDescriptor typeDescriptor2 = TypeDescriptor.map(Map.class,
             TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(RecursiveMapWithInterface.class));
     assertThat(typeDescriptor1).isEqualTo(typeDescriptor2);
+  }
+
+  @Test
+  void arrayTypeDescriptor() {
+    TypeDescriptor arrayDesc = TypeDescriptor.array(TypeDescriptor.valueOf(String.class));
+    assertThat(arrayDesc.getType()).isEqualTo(String[].class);
+    assertThat(arrayDesc.isArray()).isTrue();
+    assertThat(arrayDesc.getElementDescriptor().getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void arrayTypeDescriptorWithNull() {
+    assertThat(TypeDescriptor.array(null)).isNull();
+  }
+
+  @Test
+  void nestedMapValueType() {
+    TypeDescriptor mapDesc = TypeDescriptor.map(Map.class,
+            TypeDescriptor.valueOf(String.class),
+            TypeDescriptor.map(Map.class,
+                    TypeDescriptor.valueOf(Integer.class),
+                    TypeDescriptor.valueOf(Boolean.class)));
+
+    assertThat(mapDesc.getMapValueDescriptor().getMapKeyDescriptor().getType()).isEqualTo(Integer.class);
+    assertThat(mapDesc.getMapValueDescriptor().getMapValueDescriptor().getType()).isEqualTo(Boolean.class);
+  }
+
+  @Test
+  void fromParameterRetainsAnnotations() throws Exception {
+    Method method = getClass().getMethod("methodWithAnnotatedParameter", String.class);
+    Parameter param = method.getParameters()[0];
+    TypeDescriptor desc = TypeDescriptor.fromParameter(param);
+
+    assertThat(desc.hasAnnotation(ParameterAnnotation.class)).isTrue();
+    assertThat(desc.getAnnotation(ParameterAnnotation.class).value()).isEqualTo(123);
+  }
+
+  @Test
+  void getObjectTypeForPrimitive() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(int.class);
+    assertThat(desc.getObjectType()).isEqualTo(Integer.class);
+    assertThat(desc.isPrimitive()).isTrue();
+  }
+
+  @Test
+  void isInstanceChecksDerivedTypes() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(Number.class);
+    assertThat(desc.isInstance(42)).isTrue();
+    assertThat(desc.isInstance(42.0)).isTrue();
+    assertThat(desc.isInstance("string")).isFalse();
+  }
+
+  @Test
+  void getNameReturnsCanonicalName() {
+    TypeDescriptor desc = new TypeDescriptor(ResolvableType.forClass(Integer.class), Integer.class, (Annotation[]) null);
+    assertThat(desc.getName()).isEqualTo("java.lang.Integer");
+  }
+
+  @Test
+  void getSimpleNameReturnsClassName() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String.class);
+    assertThat(desc.getSimpleName()).isEqualTo("String");
+  }
+
+  @Test
+  void equalsWithDifferentAnnotationValues() throws Exception {
+    TypeDescriptor desc1 = new TypeDescriptor(MethodParameter.forExecutable(
+            getClass().getMethod("methodWithAnnotatedParameter", String.class), 0));
+    TypeDescriptor desc2 = new TypeDescriptor(MethodParameter.forExecutable(
+            getClass().getMethod("methodWithDifferentAnnotationValue", String.class), 0));
+    assertThat(desc1).isNotEqualTo(desc2);
+  }
+
+  @Test
+  void nestedMapWithMultipleLevelsValueType() {
+    TypeDescriptor mapDesc = TypeDescriptor.map(Map.class,
+            TypeDescriptor.valueOf(String.class),
+            TypeDescriptor.map(Map.class,
+                    TypeDescriptor.valueOf(Integer.class),
+                    TypeDescriptor.map(Map.class,
+                            TypeDescriptor.valueOf(Long.class),
+                            TypeDescriptor.valueOf(Boolean.class))));
+
+    assertThat(mapDesc.getMapKeyDescriptor().getType()).isEqualTo(String.class);
+    assertThat(mapDesc.getMapValueDescriptor().getMapKeyDescriptor().getType()).isEqualTo(Integer.class);
+    assertThat(mapDesc.getMapValueDescriptor().getMapValueDescriptor().getMapKeyDescriptor().getType()).isEqualTo(Long.class);
+    assertThat(mapDesc.getMapValueDescriptor().getMapValueDescriptor().getMapValueDescriptor().getType()).isEqualTo(Boolean.class);
+    assertThat(mapDesc.toString()).isEqualTo("java.util.Map<java.lang.String, java.util.Map<java.lang.Integer, java.util.Map<java.lang.Long, java.lang.Boolean>>>");
+  }
+
+  @Test
+  void arrayNestedCollectionType() {
+    TypeDescriptor arrayDesc = TypeDescriptor.array(
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
+
+    assertThat(arrayDesc.getType()).isEqualTo(List[].class);
+    assertThat(arrayDesc.isArray()).isTrue();
+    assertThat(arrayDesc.getElementDescriptor().getType()).isEqualTo(List.class);
+    assertThat(arrayDesc.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void nestedCollectionWithArrayType() {
+    TypeDescriptor desc = TypeDescriptor.collection(List.class,
+            TypeDescriptor.array(TypeDescriptor.valueOf(String.class)));
+
+    assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getElementDescriptor().getType()).isEqualTo(String[].class);
+    assertThat(desc.getElementDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void mapWithArrayKeyAndCollectionValue() {
+    TypeDescriptor mapDesc = TypeDescriptor.map(Map.class,
+            TypeDescriptor.array(TypeDescriptor.valueOf(Integer.class)),
+            TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
+
+    assertThat(mapDesc.getMapKeyDescriptor().getType()).isEqualTo(Integer[].class);
+    assertThat(mapDesc.getMapKeyDescriptor().getElementDescriptor().getType()).isEqualTo(Integer.class);
+    assertThat(mapDesc.getMapValueDescriptor().getType()).isEqualTo(List.class);
+    assertThat(mapDesc.getMapValueDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void collectionOfOptionals() {
+    TypeDescriptor desc = TypeDescriptor.collection(List.class,
+            TypeDescriptor.valueOf(Optional.class));
+
+    assertThat(desc.getType()).isEqualTo(List.class);
+    assertThat(desc.getElementDescriptor().getType()).isEqualTo(Optional.class);
+    assertThat(desc.isCollection()).isTrue();
+    assertThat(desc.toString()).isEqualTo("java.util.List<java.util.Optional<?>>");
+  }
+
+  @Test
+  void primitiveArrayDescriptor() {
+    TypeDescriptor arrayDesc = TypeDescriptor.array(TypeDescriptor.valueOf(int.class));
+
+    assertThat(arrayDesc.getType()).isEqualTo(int[].class);
+    assertThat(arrayDesc.isArray()).isTrue();
+    assertThat(arrayDesc.isPrimitive()).isFalse();
+    assertThat(arrayDesc.getElementDescriptor().getType()).isEqualTo(int.class);
+    assertThat(arrayDesc.getElementDescriptor().isPrimitive()).isTrue();
+  }
+
+  @Test
+  void arrayTypeDescriptorDetectsArray() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String[].class);
+    assertThat(desc.isArray()).isTrue();
+    assertThat(desc.getComponentType()).isEqualTo(String.class);
+  }
+
+  @Test
+  void nonArrayTypeDescriptorHandling() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String.class);
+    assertThat(desc.isArray()).isFalse();
+    assertThat(desc.getComponentType()).isNull();
+  }
+
+  @Test
+  void primitiveArrayTypeDescriptorDetection() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(int[].class);
+    assertThat(desc.isArray()).isTrue();
+    assertThat(desc.getComponentType()).isEqualTo(int.class);
+  }
+
+  @Test
+  void multiDimensionalArrayDetection() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String[][].class);
+    assertThat(desc.isArray()).isTrue();
+    assertThat(desc.getComponentType()).isEqualTo(String[].class);
+  }
+
+  @Test
+  void typeIsExactMatch() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String.class);
+    assertThat(desc.is(String.class)).isTrue();
+    assertThat(desc.is(Object.class)).isFalse();
+  }
+
+  @Test
+  void typeAssignability() {
+    TypeDescriptor numberDesc = TypeDescriptor.valueOf(Number.class);
+    assertThat(numberDesc.isAssignableFrom(Integer.class)).isTrue();
+    assertThat(numberDesc.isAssignableFrom(String.class)).isFalse();
+    assertThat(numberDesc.isAssignableTo(Object.class)).isTrue();
+    assertThat(numberDesc.isAssignableTo(Integer.class)).isFalse();
+  }
+
+  @Test
+  void interfaceAssignability() {
+    TypeDescriptor comparableDesc = TypeDescriptor.valueOf(Comparable.class);
+    assertThat(comparableDesc.isAssignableFrom(String.class)).isTrue();
+    assertThat(comparableDesc.isAssignableTo(Object.class)).isTrue();
+  }
+
+  @Test
+  void enumTypeDetection() {
+    enum TestEnum {A, B}
+    TypeDescriptor desc = TypeDescriptor.valueOf(TestEnum.class);
+    assertThat(desc.isEnum()).isTrue();
+  }
+
+  @Test
+  void nonEnumTypeHandling() {
+    TypeDescriptor desc = TypeDescriptor.valueOf(String.class);
+    assertThat(desc.isEnum()).isFalse();
+  }
+
+  public void methodWithAnnotatedParameter(@ParameterAnnotation(123) String param) {
+  }
+
+  public void methodWithDifferentAnnotationValue(@ParameterAnnotation(456) String param) {
   }
 
   // Methods designed for test introspection

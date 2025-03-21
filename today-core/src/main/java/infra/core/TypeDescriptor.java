@@ -64,14 +64,13 @@ public class TypeDescriptor implements Serializable {
 
   private static final HashMap<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
 
-  private static final Class<?>[] CACHED_COMMON_TYPES = {
-          boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
-          double.class, Double.class, float.class, Float.class, int.class, Integer.class,
-          long.class, Long.class, short.class, Short.class, String.class, Object.class
-  };
-
   static {
-    for (Class<?> preCachedClass : CACHED_COMMON_TYPES) {
+    final Class<?>[] cachedCommonTypes = {
+            boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
+            double.class, Double.class, float.class, Float.class, int.class, Integer.class,
+            long.class, Long.class, short.class, Short.class, String.class, Object.class
+    };
+    for (Class<?> preCachedClass : cachedCommonTypes) {
       commonTypesCache.put(preCachedClass, valueOf(preCachedClass));
     }
   }
@@ -184,34 +183,92 @@ public class TypeDescriptor implements Serializable {
     return type;
   }
 
+  /**
+   * Returns whether this type descriptor represents an array type.
+   *
+   * @return true if this type descriptor represents an array type
+   */
   public boolean isArray() {
     return type.isArray();
   }
 
+  /**
+   * Returns whether this type descriptor represents a collection type.
+   * This includes arrays, JDK collections, and collections from other frameworks.
+   * <p>For example, returns true for Collections such as List and Set,
+   * and other collection types such as Multiset.
+   *
+   * @return true if this type descriptor represents a collection type
+   * @see java.util.Collection
+   */
   public boolean isCollection() {
     return CollectionUtils.isCollection(type);
   }
 
+  /**
+   * Returns the component type for an array type descriptor. For example,
+   * returns String for String[] arrays, returns Integer for Integer[] arrays, etc.
+   * Returns null if this type descriptor does not represent an array.
+   *
+   * @return the component type for arrays, null for non-array types
+   */
+  @Nullable
   public Class<?> getComponentType() {
     return type.getComponentType();
   }
 
+  /**
+   * Returns whether an object is an instance of this type descriptor's type.
+   * For example, returns true if this type descriptor represents {@code Number}
+   * and the object is an {@code Integer}.
+   *
+   * @param source the object to check
+   * @return true if the object is an instance of this type
+   */
   public boolean isInstance(Object source) {
     return type.isInstance(source);
   }
 
+  /**
+   * Tests whether the given class matches this type descriptor's
+   * resolved class exactly. Similar to a direct equality check (==).
+   *
+   * @param testClass the class to test with
+   * @return true if this type descriptor's resolved class matches exactly
+   */
   public boolean is(Class<?> testClass) {
     return type == testClass;
   }
 
+  /**
+   * Tests whether objects of the specified subtype can be assigned to objects of
+   * the type represented by this type descriptor.
+   * For example, considering A is superclass of B, A.isAssignableFrom(B) returns true.
+   *
+   * @param subType the class to check
+   * @return true if objects of specified type can be assigned to objects of this type
+   */
   public boolean isAssignableFrom(Class<?> subType) {
     return type.isAssignableFrom(subType);
   }
 
+  /**
+   * Tests whether objects of the type represented by this type descriptor can be
+   * assigned to objects of the specified supertype.
+   * For example, considering A is superclass of B, B.isAssignableTo(A) returns true.
+   *
+   * @param superType the class to check
+   * @return true if objects of this type can be assigned to objects of specified type
+   */
   public boolean isAssignableTo(Class<?> superType) {
     return superType.isAssignableFrom(type);
   }
 
+  /**
+   * Returns whether this type descriptor represents an enumerated type.
+   *
+   * @return true if this type descriptor represents an enum type
+   */
   public boolean isEnum() {
     return type.isEnum();
   }
@@ -223,6 +280,13 @@ public class TypeDescriptor implements Serializable {
     return ClassUtils.getQualifiedName(getType());
   }
 
+  /**
+   * Returns the simple name of this type descriptor's type.
+   * For example, returns "String" for java.lang.String, or "Integer[]" for int[].
+   *
+   * @return the simple name of the type
+   * @see Class#getSimpleName()
+   */
   public String getSimpleName() {
     return type.getSimpleName();
   }
