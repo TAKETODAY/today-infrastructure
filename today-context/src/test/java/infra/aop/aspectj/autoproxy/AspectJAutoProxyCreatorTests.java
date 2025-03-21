@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -339,11 +339,11 @@ class AspectJAutoProxyCreatorTests {
     assertThat(tb.getAge()).isEqualTo(68);
   }
 
+  @SuppressWarnings("unchecked")
   @ParameterizedTest(name = "[{index}] {0}")
   @ValueSource(classes = { ProxyTargetClassFalseConfig.class, ProxyTargetClassTrueConfig.class })
   void lambdaIsAlwaysProxiedWithJdkProxy(Class<?> configClass) {
-    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
-      @SuppressWarnings("unchecked")
+    try (var context = new AnnotationConfigApplicationContext(configClass)) {
       Supplier<String> supplier = context.getBean(Supplier.class);
       assertThat(AopUtils.isAopProxy(supplier)).as("AOP proxy").isTrue();
       assertThat(AopUtils.isJdkDynamicProxy(supplier)).as("JDK Dynamic proxy").isTrue();
