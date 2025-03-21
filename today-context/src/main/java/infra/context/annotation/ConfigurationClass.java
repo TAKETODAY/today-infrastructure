@@ -79,7 +79,7 @@ final class ConfigurationClass {
 
   public final HashSet<String> skippedComponentMethods = new HashSet<>();
 
-  public final LinkedHashSet<BeanRegistrar> beanRegistrars = new LinkedHashSet<>();
+  public final LinkedHashMap<String, BeanRegistrar> beanRegistrars = new LinkedHashMap<>();
 
   /**
    * Create a new {@link ConfigurationClass} with the given name.
@@ -188,8 +188,8 @@ final class ConfigurationClass {
     this.componentMethods.add(method);
   }
 
-  void addBeanRegistrar(BeanRegistrar beanRegistrar) {
-    this.beanRegistrars.add(beanRegistrar);
+  void addBeanRegistrar(String sourceClassName, BeanRegistrar beanRegistrar) {
+    this.beanRegistrars.put(sourceClassName, beanRegistrar);
   }
 
   void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {

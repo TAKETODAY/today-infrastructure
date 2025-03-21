@@ -25,12 +25,14 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.testfixture.beans.factory.GenericBeanRegistrar;
+import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Bar;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Baz;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Foo;
 import infra.context.testfixture.beans.factory.SampleBeanRegistrar.Init;
 import infra.context.testfixture.context.annotation.registrar.BeanRegistrarConfiguration;
 import infra.context.testfixture.context.annotation.registrar.GenericBeanRegistrarConfiguration;
+import infra.context.testfixture.context.annotation.registrar.ImportAwareBeanRegistrarConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -81,6 +83,15 @@ public class BeanRegistrarConfigurationTests {
     context.refresh();
     RootBeanDefinition beanDefinition = (RootBeanDefinition) context.getBeanDefinition("fooSupplier");
     assertThat(beanDefinition.getResolvableType().resolveGeneric(0)).isEqualTo(GenericBeanRegistrar.Foo.class);
+  }
+
+  @Test
+  void beanRegistrarWithImportAware() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(ImportAwareBeanRegistrarConfiguration.class);
+    context.refresh();
+    assertThat(context.getBean(ImportAwareBeanRegistrar.ClassNameHolder.class).className())
+            .isEqualTo(ImportAwareBeanRegistrarConfiguration.class.getName());
   }
 
 }

@@ -96,9 +96,12 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
+import infra.core.type.classreading.CachingMetadataReaderFactory;
+import infra.core.type.classreading.MetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
+import infra.javapoet.NameAllocator;
 import infra.javapoet.ParameterizedTypeName;
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -111,6 +114,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
+import infra.util.StringUtils;
 
 import static infra.context.annotation.ConfigurationClassUtils.CONFIGURATION_CLASS_LITE;
 
@@ -148,6 +152,8 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   private final Set<Integer> factoriesPostProcessed = new HashSet<>();
 
+  private final LinkedHashMap<String, BeanRegistrar> beanRegistrars = new LinkedHashMap<>();
+
   @Nullable
   private ConfigurationClassBeanDefinitionReader reader;
 
@@ -161,8 +167,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   @Nullable
   private List<PropertySourceDescriptor> propertySourceDescriptors;
-
-  private LinkedHashSet<BeanRegistrar> beanRegistrars = new LinkedHashSet<>();
 
   public ConfigurationClassPostProcessor() {
   }
@@ -369,7 +373,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       }
       reader.loadBeanDefinitions(configClasses);
       for (ConfigurationClass configClass : configClasses) {
-        this.beanRegistrars.addAll(configClass.beanRegistrars);
+        beanRegistrars.putAll(configClass.beanRegistrars);
       }
       alreadyParsed.addAll(configClasses);
 
@@ -762,15 +766,15 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     private static final String ENVIRONMENT_VARIABLE = "environment";
 
-    private final Set<BeanRegistrar> beanRegistrars;
-
     private final ConfigurableBeanFactory beanFactory;
+
+    private final Map<String, BeanRegistrar> beanRegistrars;
 
     private final AotServices<BeanRegistrationAotProcessor> aotProcessors;
 
-    public BeanRegistrarAotContribution(Set<BeanRegistrar> beanRegistrars, ConfigurableBeanFactory beanFactory) {
-      this.beanRegistrars = beanRegistrars;
+    public BeanRegistrarAotContribution(Map<String, BeanRegistrar> beanRegistrars, ConfigurableBeanFactory beanFactory) {
       this.beanFactory = beanFactory;
+      this.beanRegistrars = beanRegistrars;
       this.aotProcessors = AotServices.factoriesAndBeans(this.beanFactory).load(BeanRegistrationAotProcessor.class);
     }
 
@@ -851,13 +855,29 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     private CodeBlock generateRegisterCode() {
       var code = CodeBlock.builder();
-      for (BeanRegistrar beanRegistrar : this.beanRegistrars) {
-        code.addStatement("new $T().register(new $T(($T)$L, $L, $L, $T.class, $L), $L)", beanRegistrar.getClass(),
+      CodeBlock.Builder metadataReaderFactoryCode = null;
+      NameAllocator nameAllocator = new NameAllocator();
+      for (Map.Entry<String, BeanRegistrar> beanRegistrarEntry : this.beanRegistrars.entrySet()) {
+        BeanRegistrar beanRegistrar = beanRegistrarEntry.getValue();
+        String beanRegistrarName = nameAllocator.newName(StringUtils.uncapitalize(beanRegistrar.getClass().getSimpleName()));
+        code.addStatement("$T $L = new $T()", beanRegistrar.getClass(), beanRegistrarName, beanRegistrar.getClass());
+        if (beanRegistrar instanceof ImportAware) {
+          if (metadataReaderFactoryCode == null) {
+            metadataReaderFactoryCode = CodeBlock.builder();
+            metadataReaderFactoryCode.addStatement("$T metadataReaderFactory = new $T()", MetadataReaderFactory.class, CachingMetadataReaderFactory.class);
+          }
+          code.beginControlFlow("try")
+                  .addStatement("$L.setImportMetadata(metadataReaderFactory.getMetadataReader($S).getAnnotationMetadata())", beanRegistrarName, beanRegistrarEntry.getKey())
+                  .nextControlFlow("catch ($T ex)", IOException.class)
+                  .addStatement("throw new $T(\"Failed to read metadata for '$L'\", ex)", IllegalStateException.class, beanRegistrarEntry.getKey())
+                  .endControlFlow();
+        }
+        code.addStatement("$L.register(new $T(($T)$L, $L, $L, $T.class, $L), $L)", beanRegistrarName,
                 BeanRegistryAdapter.class, BeanDefinitionRegistry.class, BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE,
                 BeanFactoryInitializationCode.BEAN_FACTORY_VARIABLE, ENVIRONMENT_VARIABLE, beanRegistrar.getClass(),
                 CUSTOMIZER_MAP_VARIABLE, ENVIRONMENT_VARIABLE);
       }
-      return code.build();
+      return (metadataReaderFactoryCode == null ? code.build() : metadataReaderFactoryCode.add(code.build()).build());
     }
 
     private CodeBlock generateInitDestroyMethods(String beanName, AbstractBeanDefinition beanDefinition,

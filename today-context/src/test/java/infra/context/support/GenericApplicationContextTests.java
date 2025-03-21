@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ import infra.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
+import infra.context.testfixture.beans.factory.ImportAwareBeanRegistrar;
+import infra.context.testfixture.beans.factory.SampleBeanRegistrar;
 import infra.core.DecoratingProxy;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Environment;
@@ -622,6 +624,22 @@ public class GenericApplicationContextTests {
     context.refreshForAotProcessing(runtimeHints);
     assertThat(RuntimeHintsPredicates.proxies().forInterfaces(Map.class, DecoratingProxy.class)).accepts(runtimeHints);
     context.close();
+  }
+
+  @Test
+  void beanRegistrar() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.register(new SampleBeanRegistrar());
+    context.refresh();
+    assertThat(context.getBean(SampleBeanRegistrar.Bar.class).foo()).isEqualTo(context.getBean(SampleBeanRegistrar.Foo.class));
+  }
+
+  @Test
+  void importAwareBeanRegistrar() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.register(new ImportAwareBeanRegistrar());
+    context.refresh();
+    assertThat(context.getBean(ImportAwareBeanRegistrar.ClassNameHolder.class).className()).isNull();
   }
 
   private MergedBeanDefinitionPostProcessor registerMockMergedBeanDefinitionPostProcessor(GenericApplicationContext context) {

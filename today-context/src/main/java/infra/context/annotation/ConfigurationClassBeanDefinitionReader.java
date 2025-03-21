@@ -417,8 +417,8 @@ class ConfigurationClassBeanDefinitionReader {
     }
   }
 
-  private void loadBeanDefinitionsFromBeanRegistrars(Set<BeanRegistrar> registrars) {
-    for (BeanRegistrar registrar : registrars) {
+  private void loadBeanDefinitionsFromBeanRegistrars(Map<String, BeanRegistrar> registrars) {
+    for (BeanRegistrar registrar : registrars.values()) {
       registrar.register(new BeanRegistryAdapter(bootstrapContext.getRegistry(),
               bootstrapContext.getBeanFactory(), bootstrapContext.getEnvironment(), registrar.getClass()), bootstrapContext.getEnvironment());
     }

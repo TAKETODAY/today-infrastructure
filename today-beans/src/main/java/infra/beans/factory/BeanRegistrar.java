@@ -20,18 +20,21 @@ package infra.beans.factory;
 import infra.core.env.Environment;
 
 /**
- * Contract for registering beans programmatically.
- *
- * <p>Typically imported with an {@link infra.context.annotation.Import @Import}
- * annotation on {@link infra.context.annotation.Configuration @Configuration}
- * classes.
+ * Contract for registering beans programmatically, typically imported with an
+ * {@link infra.context.annotation.Import @Import} annotation on
+ * a {@link infra.context.annotation.Configuration @Configuration}
+ * class.
  * <pre>{@code
  * @Configuration
  * @Import(MyBeanRegistrar.class)
  * class MyConfiguration {
- * }}</pre>
+ * }
+ * }</pre>
+ * Can also be applied to an application context via
+ * {@link infra.context.support.GenericApplicationContext#register(BeanRegistrar...)}.
  *
- * <p>The bean registrar implementation uses {@link BeanRegistry} and {@link Environment}
+ *
+ * <p>Bean registrar implementations use {@link BeanRegistry} and {@link Environment}
  * APIs to register beans programmatically in a concise and flexible way.
  * <pre>{@code
  * class MyBeanRegistrar implements BeanRegistrar {
@@ -51,8 +54,9 @@ import infra.core.env.Environment;
  *     }
  * }}</pre>
  *
- * <p>In Kotlin, it is recommended to use {@code BeanRegistrarDsl} instead of
- * implementing {@code BeanRegistrar}.
+ * <p>A {@code BeanRegistrar} implementing {@link infra.context.annotation.ImportAware}
+ * can optionally introspect import metadata when used in an import scenario, otherwise the
+ * {@code setImportMetadata} method is simply not being called.
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
