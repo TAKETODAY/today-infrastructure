@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -489,8 +489,7 @@ abstract class RfcUriParser {
     // Component capture
 
     public InternalParser resolveIfOpaque() {
-      boolean hasSlash = (this.uri.indexOf('/', this.index + 1) == -1);
-      this.isOpaque = (hasSlash && !hierarchicalSchemes.contains(this.scheme));
+      this.isOpaque = (this.uri.charAt(this.index) != '/' && !hierarchicalSchemes.contains(this.scheme));
       return this;
     }
 

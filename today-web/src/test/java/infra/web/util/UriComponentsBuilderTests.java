@@ -891,4 +891,16 @@ class UriComponentsBuilderTests {
     assertThat(uri.toString()).isEqualTo("ws://localhost:7777/test");
   }
 
+  @ParameterizedTest
+  @EnumSource
+  void fromOpaqueUriWithUrnScheme(ParserType parserType) {
+    URI uri = UriComponentsBuilder
+            .forURIString("urn:text:service-{region}:{prefix}/{id}", parserType).build()
+            .expand("US", "prefix1", "Id-2")
+            .toURI();
+
+    assertThat(uri.getScheme()).isEqualTo("urn");
+    assertThat(uri.isOpaque()).isTrue();
+    assertThat(uri.getSchemeSpecificPart()).isEqualTo("text:service-US:prefix1/Id-2");
+  }
 }
