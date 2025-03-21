@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -218,11 +218,10 @@ public class RepeatableContainers {
           throw new NoSuchMethodException("No value method found");
         }
         Class<?> returnType = valueMethod.getReturnType();
-        if (!returnType.isArray() || returnType.getComponentType() != repeatable) {
+        if (returnType.componentType() != repeatable) {
           throw new AnnotationConfigurationException(
-                  "Container type [" + container.getName() +
-                          "] must declare a 'value' attribute for an array of type ["
-                          + repeatable.getName() + "]");
+                  "Container type [%s] must declare a 'value' attribute for an array of type [%s]"
+                          .formatted(container.getName(), repeatable.getName()));
         }
       }
       catch (AnnotationConfigurationException ex) {
@@ -230,8 +229,8 @@ public class RepeatableContainers {
       }
       catch (Throwable ex) {
         throw new AnnotationConfigurationException(
-                "Invalid declaration of container type [" + container.getName() +
-                        "] for repeatable annotation [" + repeatable.getName() + "]", ex);
+                "Invalid declaration of container type [%s] for repeatable annotation [%s]"
+                        .formatted(container.getName(), repeatable.getName()), ex);
       }
       this.container = container;
       this.repeatable = repeatable;

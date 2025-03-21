@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ import jakarta.xml.bind.attachment.AttachmentUnmarshaller;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setContextPath
  * @see #setClassesToBeBound
  * @see #setJaxbContextProperties
@@ -647,10 +647,10 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
               && parameterizedType.getActualTypeArguments().length == 1) {
         Type typeArgument = parameterizedType.getActualTypeArguments()[0];
         if (typeArgument instanceof Class<?> classArgument) {
-          return ((classArgument.isArray() && byte.class == classArgument.componentType())
+          return byte.class == classArgument.componentType()
                   || isPrimitiveWrapper(classArgument)
                   || isStandardClass(classArgument)
-                  || supportsInternal(classArgument, false));
+                  || supportsInternal(classArgument, false);
         }
         else if (typeArgument instanceof GenericArrayType arrayType) {
           return (byte.class == arrayType.getGenericComponentType());

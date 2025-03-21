@@ -298,7 +298,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     String lastKey = keys[keys.length - 1];
 
     if (propValue.getClass().isArray()) {
-      Class<?> requiredType = propValue.getClass().getComponentType();
+      Class<?> componentType = propValue.getClass().getComponentType();
       int arrayIndex = Integer.parseInt(lastKey);
       Object oldValue = null;
       try {
@@ -306,10 +306,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           oldValue = Array.get(propValue, arrayIndex);
         }
         Object convertedValue = convertIfNecessary(
-                tokens.canonicalName, oldValue, pv.getValue(), requiredType, ph.nested(keys.length));
+                tokens.canonicalName, oldValue, pv.getValue(), componentType, ph.nested(keys.length));
         int length = Array.getLength(propValue);
         if (arrayIndex >= length && arrayIndex < this.autoGrowCollectionLimit) {
-          Class<?> componentType = propValue.getClass().getComponentType();
           Object newArray = Array.newInstance(componentType, arrayIndex + 1);
           System.arraycopy(propValue, 0, newArray, 0, length);
           int lastKeyIndex = tokens.canonicalName.lastIndexOf('[');
