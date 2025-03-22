@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Properties;
 
 import infra.lang.Assert;
@@ -159,13 +158,6 @@ public abstract class PropertiesUtils {
     }
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void fillProperties(Map properties, Resource resource) throws IOException {
-    if (properties != null) {
-      properties.putAll(loadProperties(resource));
-    }
-  }
-
   /**
    * Load all properties from the specified class path resource
    * (in ISO-8859-1 encoding), using the default class loader.
@@ -199,7 +191,7 @@ public abstract class PropertiesUtils {
       classLoaderToUse = ClassUtils.getDefaultClassLoader();
     }
     Enumeration<URL> urls = (classLoaderToUse != null ? classLoaderToUse.getResources(resourceName) :
-                             ClassLoader.getSystemResources(resourceName));
+            ClassLoader.getSystemResources(resourceName));
     Properties props = new Properties();
     while (urls.hasMoreElements()) {
       URL url = urls.nextElement();
