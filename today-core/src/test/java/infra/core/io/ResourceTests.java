@@ -46,6 +46,7 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import infra.lang.Nullable;
 import infra.util.FileCopyUtils;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -59,6 +60,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author TODAY 2021/3/9 20:14
@@ -125,6 +128,60 @@ class ResourceTests {
     assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::readableChannel);
     assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(relative4::getContentAsByteArray);
     assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(() -> relative4.getContentAsString(UTF_8));
+  }
+
+  @Test
+  void defaultsMethods() {
+    Resource resource = new Resource() {
+      @Nullable
+      @Override
+      public String getName() {
+        return "";
+      }
+
+      @Override
+      public long contentLength() throws IOException {
+        return 0;
+      }
+
+      @Override
+      public long lastModified() throws IOException {
+        return 0;
+      }
+
+      @Override
+      public URL getURL() throws IOException {
+        return null;
+      }
+
+      @Override
+      public URI getURI() throws IOException {
+        return null;
+      }
+
+      @Override
+      public File getFile() throws IOException {
+        return null;
+      }
+
+      @Override
+      public boolean exists() {
+        return true;
+      }
+
+      @Override
+      public Resource createRelative(String relativePath) throws IOException {
+        return null;
+      }
+
+      @Override
+      public InputStream getInputStream() throws IOException {
+        return null;
+      }
+    };
+    assertThat(resource.isFile()).isFalse();
+    assertThat(resource.isOpen()).isFalse();
+    assertThat(resource.isReadable()).isTrue();
   }
 
   private static Stream<Arguments> resource() throws URISyntaxException {
