@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +28,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -85,8 +89,8 @@ class MultiValueMapTests {
   void addAllWithEmptyList(MultiValueMap<String, String> map) {
     int initialSize = map.size();
     map.addAll("key", List.of());
-    assertThat(map).hasSize(initialSize + 1);
-    assertThat(map.get("key")).isEmpty();
+    assertThat(map).hasSize(initialSize);
+    assertThat(map.get("key")).isNull();
     assertThat(map.getFirst("key")).isNull();
   }
 
@@ -163,6 +167,279 @@ class MultiValueMapTests {
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.remove("key1"));
     });
+  }
+
+  @Test
+  void emptyReturnsSameUnmodifiableInstance() {
+    MultiValueMap<String, String> empty1 = MultiValueMap.empty();
+    MultiValueMap<String, String> empty2 = MultiValueMap.empty();
+
+    assertThat(empty1).isSameAs(empty2);
+    assertThatThrownBy(() -> empty1.add("key", "value"))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void forAdaptionCreatesMultiValueMapFromExistingMap() {
+    Map<String, List<String>> source = new HashMap<>();
+    source.put("key", List.of("value"));
+
+    MultiValueMap<String, String> adapted = MultiValueMap.forAdaption(source);
+    assertThat(adapted.get("key")).containsExactly("value");
+  }
+
+  @Test
+  void forSmartListAdaptionUsesSmartList() {
+    MultiValueMap<String, String> map = MultiValueMap.forSmartListAdaption();
+    map.add("key", "value");
+
+    assertThat(map.get("key"))
+            .isInstanceOf(SmartList.class)
+            .containsExactly("value");
+  }
+
+  @Test
+  void copyOfCreatesIndependentCopy() {
+    Map<String, List<String>> source = new HashMap<>();
+    source.put("key", new ArrayList<>(List.of("value")));
+
+    MultiValueMap<String, String> copy = MultiValueMap.copyOf(source);
+    source.get("key").add("another");
+
+    assertThat(copy.get("key")).containsExactly("value", "another");
+  }
+
+  @Test
+  void forLinkedHashMapCreatesEmptyMapWithDefaultCapacity() {
+    MultiValueMap<String, String> map = MultiValueMap.forLinkedHashMap();
+    assertThat(map).isEmpty();
+    assertThat(map).isInstanceOf(LinkedMultiValueMap.class);
+  }
+
+  @Test
+  void forLinkedHashMapWithSizeCreatesEmptyMapWithCapacity() {
+    MultiValueMap<String, String> map = MultiValueMap.forLinkedHashMap(10);
+    assertThat(map).isEmpty();
+    assertThat(map).isInstanceOf(LinkedMultiValueMap.class);
+  }
+
+  @Test
+  void copyOfWithMappingFunctionCreatesNewMapWithCustomLists() {
+    Map<String, List<String>> source = new HashMap<>();
+    source.put("key", List.of("value"));
+
+    MultiValueMap<String, String> copy = MultiValueMap.copyOf(
+            k -> new LinkedList<>(), source);
+
+    assertThat(copy.get("key"))
+            .isInstanceOf(LinkedList.class)
+            .containsExactly("value");
+  }
+
+  @Test
+  void addAllWithMapPreservesOrderOfValues() {
+    Map<String, List<String>> source = new LinkedHashMap<>();
+    source.put("key", List.of("value1", "value2"));
+
+    MultiValueMap<String, String> map = MultiValueMap.forLinkedHashMap();
+    map.addAll(source);
+
+    assertThat(map.get("key")).containsExactly("value1", "value2");
+  }
+
+  @Test
+  void copyToArrayMapConvertsListsToArrays() {
+    MultiValueMap<String, String> source = MultiValueMap.forLinkedHashMap();
+    source.add("key", "value1");
+    source.add("key", "value2");
+
+    Map<String, String[]> arrayMap = new HashMap<>();
+    source.copyToArrayMap(arrayMap, String[]::new);
+
+    assertThat(arrayMap.get("key")).containsExactly("value1", "value2");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void putIfAbsentWhenKeyExists(MultiValueMap<String, String> map) {
+    map.put("key", List.of("value1"));
+    List<String> previous = map.putIfAbsent("key", List.of("value2"));
+    assertThat(previous).containsExactly("value1");
+    assertThat(map.get("key")).containsExactly("value1");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void putIfAbsentWhenKeyDoesNotExist(MultiValueMap<String, String> map) {
+    List<String> previous = map.putIfAbsent("key", List.of("value1"));
+    assertThat(previous).isNull();
+    assertThat(map.get("key")).containsExactly("value1");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void setOrRemoveWithArrayValuesReplacesExistingList(MultiValueMap<String, String> map) {
+    map.add("key", "original");
+    map.setOrRemove("key", new String[] { "value1", "value2" });
+    assertThat(map.get("key")).containsExactly("value1", "value2");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void toArrayMapConvertsToCorrectFormat(MultiValueMap<String, String> map) {
+    map.add("key1", "value1");
+    map.add("key1", "value2");
+    map.add("key2", "value3");
+
+    Map<String, String[]> arrayMap = map.toArrayMap(String[]::new);
+
+    assertThat(arrayMap.get("key1")).containsExactly("value1", "value2");
+    assertThat(arrayMap.get("key2")).containsExactly("value3");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void copyToArrayMapCopiesAllValues(MultiValueMap<String, String> map) {
+    map.add("key1", "value1");
+    map.add("key1", "value2");
+
+    Map<String, String[]> target = new HashMap<>();
+    map.copyToArrayMap(target, String[]::new);
+
+    assertThat(target.get("key1")).containsExactly("value1", "value2");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void emptyMultiValueMapIsImmutable() {
+    MultiValueMap<String, String> empty = MultiValueMap.empty();
+    assertThatThrownBy(() -> empty.add("key", "value"))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void asWritableReturnsOriginalInstance(MultiValueMap<String, String> map) {
+    MultiValueMap<String, String> writable = map.asWritable();
+    assertThat(writable).isSameAs(map);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addingEntryPairAddsKeyAndValue(MultiValueMap<String, String> map) {
+    Entry<String, String> entry = Map.entry("key", "value");
+    map.add(entry);
+    assertThat(map.get("key")).containsExactly("value");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addAllWithEntryPairAddsAllValues(MultiValueMap<String, String> map) {
+    Entry<String, List<String>> entry = Map.entry("key", List.of("value1", "value2"));
+    map.addAll(entry);
+    assertThat(map.get("key")).containsExactly("value1", "value2");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addAllWithNullMapDoesNothing(MultiValueMap<String, String> map) {
+    int initialSize = map.size();
+    map.addAll((Map<String, List<String>>) null);
+    assertThat(map).hasSize(initialSize);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void nullValueInListIsAllowed(MultiValueMap<String, String> map) {
+    map.add("key", null);
+    assertThat(map.get("key")).containsExactly((String) null);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void setOrRemoveWithCollectionPreservesOrder(MultiValueMap<String, String> map) {
+    map.setOrRemove("key", Arrays.asList("value1", "value2", "value3"));
+    assertThat(map.get("key")).containsExactly("value1", "value2", "value3");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addingEntryWithNullKeyThrowsException(MultiValueMap<String, String> map) {
+    assertThatThrownBy(() -> map.add(Map.entry(null, "value")))
+            .isInstanceOf(NullPointerException.class);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void toArrayMapWithEmptyListsCreatesEmptyArrays(MultiValueMap<String, String> map) {
+    map.add("key1", "");
+    map.add("key2", null);
+
+    Map<String, String[]> arrayMap = map.toArrayMap(String[]::new);
+
+    assertThat(arrayMap.get("key1")).containsExactly("");
+    assertThat(arrayMap.get("key2")).containsExactly((String) null);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void removeValueFromListRemovesOnlyThatValue(MultiValueMap<String, String> map) {
+    map.addAll("key", Arrays.asList("value1", "value2", "value3"));
+    map.get("key").remove("value2");
+
+    assertThat(map.get("key")).containsExactly("value1", "value3");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void putAllFromEmptyMapDoesNothing(MultiValueMap<String, String> map) {
+    int initialSize = map.size();
+    map.putAll(new HashMap<>());
+    assertThat(map).hasSize(initialSize);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void asReadOnlyPreventsMutationButAllowsReading(MultiValueMap<String, String> map) {
+    map.add("key", "value");
+    MultiValueMap<String, String> readOnly = map.asReadOnly();
+
+    assertThat(readOnly.get("key")).containsExactly("value");
+    assertThatThrownBy(() -> readOnly.add("key2", "value2"))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addingAllEntriesWithNullValuesIsAllowed(MultiValueMap<String, String> map) {
+    Entry<String, List<String>> entry = Map.entry("key", Arrays.asList(null, "value", null));
+    map.addAll(entry);
+    assertThat(map.get("key")).containsExactly(null, "value", null);
+  }
+
+  @ParameterizedMultiValueMapTest
+  void addingAllWithEmptyEnumerationDoesNotModifyMap(MultiValueMap<String, String> map) {
+    map.add("key", "value");
+    map.addAll("key", new Vector<String>().elements());
+    assertThat(map.get("key")).containsExactly("value");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void setOrRemoveWithNullArrayRemovesKey(MultiValueMap<String, String> map) {
+    map.add("key", "value");
+    map.setOrRemove("key", (String[]) null);
+    assertThat(map).doesNotContainKey("key");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void toArrayMapWithNullValueReturnsEmptyArray(MultiValueMap<String, String> map) {
+    map.add("key", null);
+    assertThat(map.toArrayMap(String[]::new)).containsEntry("key", new String[] { null });
+  }
+
+  @ParameterizedMultiValueMapTest
+  void copyToArrayMapWithEmptyMapCreatesNoEntries(MultiValueMap<String, String> map) {
+    Map<String, String[]> target = new HashMap<>();
+    map.copyToArrayMap(target, String[]::new);
+    assertThat(target).hasSize(map.size());
+  }
+
+  //
+
+  @ParameterizedMultiValueMapTest
+  void setAllWithNullMapDoesNothing(MultiValueMap<String, String> map) {
+    map.add("key", "value");
+    map.setAll(null);
+    assertThat(map.get("key")).containsExactly("value");
+  }
+
+  @ParameterizedMultiValueMapTest
+  void setAllReplacesExistingValues(MultiValueMap<String, String> map) {
+    map.add("key", "original");
+    map.setAll(Map.of("key", List.of("new")));
+    assertThat(map.get("key")).containsExactly("new");
   }
 
   private static List<String> exampleListOfValues() {
