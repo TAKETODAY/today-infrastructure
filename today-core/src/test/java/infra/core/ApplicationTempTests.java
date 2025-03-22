@@ -18,6 +18,7 @@
 package infra.core;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.util.Set;
 import infra.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ApplicationTempTests {
 
-//  @BeforeEach
+  //  @BeforeEach
 //  @AfterEach
   void cleanup() throws IOException {
     FileSystemUtils.deleteRecursively(new ApplicationTemp().getDir());
@@ -81,6 +83,126 @@ class ApplicationTempTests {
       assertDirectoryPermissions(path);
       assertDirectoryPermissions(temp.getDir("sub"));
     }
+  }
+
+  @Test
+  void createFileGeneratesUniqueFiles() throws IOException {
+    ApplicationTemp temp = new ApplicationTemp();
+    Path file1 = temp.createFile("subdir", "prefix");
+    Path file2 = temp.createFile("subdir", "prefix");
+    assertThat(file1).exists();
+    assertThat(file2).exists();
+    assertThat(file1).isNotEqualTo(file2);
+  }
+
+  @Test
+  void createFileWithSuffixGeneratesCorrectExtension() throws IOException {
+    ApplicationTemp temp = new ApplicationTemp();
+    Path file = temp.createFile("subdir", "prefix", ".txt");
+    assertThat(file.toString()).endsWith(".txt");
+  }
+
+  @Test
+  void createFileInSubdirCreatesParentDirectories() throws IOException {
+    ApplicationTemp temp = new ApplicationTemp();
+    Path file = temp.createFile("deep/nested/dir", "test");
+    assertThat(file.getParent()).exists();
+    assertThat(Files.isDirectory(file.getParent())).isTrue();
+  }
+
+  @Test
+  void sourceClassSpecificDirectoriesAreDifferent() {
+    ApplicationTemp temp1 = new ApplicationTemp(String.class);
+    ApplicationTemp temp2 = new ApplicationTemp(Integer.class);
+    assertThat(temp1.getDir()).isNotEqualTo(temp2.getDir());
+  }
+
+  @Test
+  void staticCreateDirectoryMethodUsesDefaultInstance() {
+    Path dir = ApplicationTemp.createDirectory("test");
+    assertThat(dir).isEqualTo(ApplicationTemp.instance.getDir("test"));
+  }
+
+  @Test
+  void staticCreateFileMethodUsesDefaultInstance() {
+    Path file = ApplicationTemp.createFile("test");
+    assertThat(file.getParent()).isEqualTo(ApplicationTemp.instance.getDir());
+  }
+
+  @Test
+  void toStringReturnsDirectoryPath() {
+    ApplicationTemp temp = new ApplicationTemp();
+    assertThat(temp.toString()).isEqualTo(temp.getDir().toString());
+  }
+
+  @Test
+  void multipleGetDirCallsReturnSamePath() {
+    ApplicationTemp temp = new ApplicationTemp();
+    Path first = temp.getDir();
+    Path second = temp.getDir();
+    assertThat(first).isSameAs(second);
+  }
+
+  @Test
+  void nullSubDirReturnsBasePath() {
+    ApplicationTemp temp = new ApplicationTemp();
+    assertThat(temp.getDir(null)).isEqualTo(temp.getDir());
+  }
+
+  @Test
+  void tempDirectoryInvalidLocationThrowsException() {
+    String original = System.getProperty("java.io.tmpdir");
+    try {
+      System.setProperty("java.io.tmpdir", "/invalid/location");
+      ApplicationTemp temp = new ApplicationTemp();
+      assertThatIllegalStateException()
+              .isThrownBy(temp::getDir)
+              .withMessageContaining("Temp directory '/invalid/location' does not exist");
+    }
+    finally {
+      System.setProperty("java.io.tmpdir", original);
+    }
+  }
+
+  @Test
+  void tempDirectoryPointingToFileThrowsException(@TempDir Path tempDir) throws IOException {
+    String original = System.getProperty("java.io.tmpdir");
+    Path file = tempDir.resolve("file");
+    Files.createFile(file);
+    try {
+      System.setProperty("java.io.tmpdir", file.toString());
+      ApplicationTemp temp = new ApplicationTemp();
+      assertThatIllegalStateException()
+              .isThrownBy(temp::getDir)
+              .withMessageContaining("is not a directory");
+    }
+    finally {
+      System.setProperty("java.io.tmpdir", original);
+    }
+  }
+
+  @Test
+  void createFileWithNullPrefixAndSuffix() throws IOException {
+    ApplicationTemp temp = new ApplicationTemp();
+    Path file = temp.createFile(null, null, null);
+    assertThat(file).exists();
+    assertThat(file.getParent()).isEqualTo(temp.getDir());
+  }
+
+  @Test
+  void createFileInNonExistentSubDirectoryCreatesDirectory() throws IOException {
+    ApplicationTemp temp = new ApplicationTemp();
+    String subDir = "nonexistent/subdirectory";
+    Path file = temp.createFile(subDir, "test");
+    assertThat(file).exists();
+    assertThat(file.getParent()).isEqualTo(temp.getDir(subDir));
+  }
+
+  @Test
+  void differentInstancesWithSameSourceClassShareDirectory() {
+    ApplicationTemp temp1 = new ApplicationTemp(ApplicationTemp.class);
+    ApplicationTemp temp2 = new ApplicationTemp(ApplicationTemp.class);
+    assertThat(temp1.getDir()).isEqualTo(temp2.getDir());
   }
 
   private void assertDirectoryPermissions(Path path) throws IOException {

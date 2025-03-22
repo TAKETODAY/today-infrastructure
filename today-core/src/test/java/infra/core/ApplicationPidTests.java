@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.contentOf;
 
 /**
@@ -62,7 +65,6 @@ class ApplicationPidTests {
 
   @Test
   void writeNewPid() throws Exception {
-    // gh-10784
     ApplicationPid pid = new ApplicationPid(123L);
     File file = new File(this.tempDir, "pid");
     file.delete();
@@ -99,4 +101,93 @@ class ApplicationPidTests {
     assertThat(new ApplicationPid().toString()).isNotEmpty();
   }
 
+  @Test
+  void equalsAndHashCodeWhenSamePid() {
+    ApplicationPid pid1 = new ApplicationPid(123L);
+    ApplicationPid pid2 = new ApplicationPid(123L);
+    assertThat(pid1).isEqualTo(pid2);
+    assertThat(pid1.hashCode()).isEqualTo(pid2.hashCode());
+  }
+
+  @Test
+  void equalsAndHashCodeWhenDifferentPid() {
+    ApplicationPid pid1 = new ApplicationPid(123L);
+    ApplicationPid pid2 = new ApplicationPid(456L);
+    assertThat(pid1).isNotEqualTo(pid2);
+    assertThat(pid1.hashCode()).isNotEqualTo(pid2.hashCode());
+  }
+
+  @Test
+  void equalsAndHashCodeWhenNullPid() {
+    ApplicationPid pid1 = new ApplicationPid(null);
+    ApplicationPid pid2 = new ApplicationPid(null);
+    assertThat(pid1).isEqualTo(pid2);
+    assertThat(pid1.hashCode()).isEqualTo(pid2.hashCode());
+  }
+
+  @Test
+  void writeCreatesParentDirectories(@TempDir File tempDir) throws Exception {
+    File pidFile = new File(tempDir, "sub/dir/pid");
+    new ApplicationPid(123L).write(pidFile);
+    assertThat(pidFile).exists();
+    assertThat(contentOf(pidFile)).isEqualTo("123");
+  }
+
+  @Test
+  void writeFailsWhenFileNotWritable(@TempDir File tempDir) throws Exception {
+    File pidFile = new File(tempDir, "pid");
+    pidFile.createNewFile();
+    pidFile.setReadOnly();
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThatThrownBy(() -> pid.write(pidFile))
+            .isInstanceOf(FileNotFoundException.class);
+  }
+
+  @Test
+  void currentProcessPidIsAvailable() {
+    ApplicationPid pid = new ApplicationPid();
+    assertThat(pid.isAvailable()).isTrue();
+    assertThat(pid.toLong()).isPositive();
+  }
+
+  @Test
+  void writeToNonExistentParentDirectoryCreatesDirectory(@TempDir File tempDir) throws Exception {
+    File pidFile = new File(tempDir, "deep/nested/dir/pid");
+    new ApplicationPid(123L).write(pidFile);
+    assertThat(pidFile.getParentFile()).exists();
+    assertThat(contentOf(pidFile)).isEqualTo("123");
+  }
+
+  @Test
+  void writeFailsWhenDirectoryNotWritable(@TempDir File tempDir) throws Exception {
+    File directory = new File(tempDir, "not-writable");
+    directory.mkdirs();
+    directory.setReadOnly();
+    File pidFile = new File(directory, "pid");
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThatThrownBy(() -> pid.write(pidFile))
+            .isInstanceOf(FileNotFoundException.class);
+  }
+
+  @Test
+  void writeOverwritesExistingFile(@TempDir File tempDir) throws Exception {
+    File pidFile = new File(tempDir, "pid");
+    try (FileWriter writer = new FileWriter(pidFile)) {
+      writer.write("old-pid");
+    }
+    new ApplicationPid(123L).write(pidFile);
+    assertThat(contentOf(pidFile)).isEqualTo("123");
+  }
+
+  @Test
+  void equalsWhenComparedToNonApplicationPid() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThat(pid.equals("123")).isFalse();
+  }
+
+  @Test
+  void equalsWhenComparedToSelf() {
+    ApplicationPid pid = new ApplicationPid(123L);
+    assertThat(pid.equals(pid)).isTrue();
+  }
 }

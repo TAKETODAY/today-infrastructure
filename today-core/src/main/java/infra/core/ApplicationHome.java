@@ -45,6 +45,7 @@ import infra.util.StringUtils;
  */
 public class ApplicationHome {
 
+  @Nullable
   private final File source;
 
   private final File dir;
@@ -140,7 +141,7 @@ public class ApplicationHome {
     return new File(name);
   }
 
-  private File findHomeDir(File source) {
+  private File findHomeDir(@Nullable File source) {
     File homeDir = source;
     homeDir = (homeDir != null) ? homeDir : findDefaultHomeDir();
     if (homeDir.isFile()) {
