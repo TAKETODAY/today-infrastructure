@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,6 +107,85 @@ class ResourceEditorTests {
     finally {
       System.clearProperty("test.prop");
     }
+  }
+
+  @Test
+  void nestedPlaceholderResolution() {
+    System.setProperty("outer.prop", "test");
+    System.setProperty("test.inner", "value");
+    try {
+      PropertyEditor editor = new ResourceEditor();
+      editor.setAsText("${${outer.prop}.inner}");
+      Resource resolved = (Resource) editor.getValue();
+      assertThat(resolved.getName()).isEqualTo("value");
+    }
+    finally {
+      System.clearProperty("outer.prop");
+      System.clearProperty("test.inner");
+    }
+  }
+
+  @Test
+  void relativePathResolution() {
+    PropertyEditor editor = new ResourceEditor();
+    editor.setAsText("./src/test/resources/test.txt");
+    Resource resource = (Resource) editor.getValue();
+    assertThat(resource.getName()).endsWith("test.txt");
+  }
+
+  @Test
+  void urlResourceResolution() {
+    PropertyEditor editor = new ResourceEditor();
+    editor.setAsText("https://example.com/test.txt");
+    Resource resource = (Resource) editor.getValue();
+    assertThat(resource).isInstanceOf(UrlResource.class);
+    assertThat(resource.getName()).isEqualTo("test.txt");
+  }
+
+  @Test
+  void nonExistentResourceStillReturnsResource() {
+    PropertyEditor editor = new ResourceEditor();
+    editor.setAsText("classpath:nonexistent.txt");
+    Resource resource = (Resource) editor.getValue();
+    assertThat(resource).isNotNull();
+    assertThat(resource.exists()).isFalse();
+  }
+
+  @Test
+  void multiplePropertyPlaceholders() {
+    System.setProperty("test.dir", "mydir");
+    System.setProperty("test.file", "myfile.txt");
+    try {
+      PropertyEditor editor = new ResourceEditor();
+      editor.setAsText("classpath:${test.dir}/${test.file}");
+      Resource resource = (Resource) editor.getValue();
+      assertThat(resource.getName()).isEqualTo("myfile.txt");
+    }
+    finally {
+      System.clearProperty("test.dir");
+      System.clearProperty("test.file");
+    }
+  }
+
+  @Test
+  void getAsTextForInvalidResource() {
+    PropertyEditor editor = new ResourceEditor();
+    editor.setAsText("classpath:invalid:resource");
+    assertThat(editor.getAsText()).isNull();
+  }
+
+  @Test
+  void customResourceLoaderResolution() {
+    ResourceLoader loader = new DefaultResourceLoader() {
+      @Override
+      public Resource getResource(String location) {
+        return new ClassPathResource("custom-" + location);
+      }
+    };
+    PropertyEditor editor = new ResourceEditor(loader, null);
+    editor.setAsText("test.txt");
+    Resource resource = (Resource) editor.getValue();
+    assertThat(resource.getName()).isEqualTo("custom-test.txt");
   }
 
 }
