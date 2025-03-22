@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,14 +75,7 @@ public abstract class ExceptionUtils {
     if (message != null) {
       sb.append(message).append("; ");
     }
-    sb.append("Nested exception is ");
-    String nested = cause.getMessage();
-    if (nested == null) {
-      sb.append(cause);
-    }
-    else {
-      sb.append(getNestedMessage(cause.getCause(), cause.getMessage()));
-    }
+    sb.append("nested exception is ").append(cause);
     return sb.toString();
   }
 
