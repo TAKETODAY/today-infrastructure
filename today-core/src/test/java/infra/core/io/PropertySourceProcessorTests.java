@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
 
+import infra.core.env.CompositePropertySource;
 import infra.core.env.PropertySource;
 import infra.core.env.StandardEnvironment;
 import infra.util.ClassUtils;
@@ -64,6 +65,70 @@ class PropertySourceProcessorTests {
     processor.processPropertySource(descriptor);
     assertThat(environment.getPropertySources()).hasSize(3);
     assertThat(environment.getProperty("enigma")).isEqualTo("42");
+  }
+
+  @Test
+  void processPropertySourceWithWildcardLocation() throws Exception {
+    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
+            List.of("classpath*:infra/core/io/*.properties"),
+            false, null, DefaultPropertySourceFactory.class, null);
+    processor.processPropertySource(descriptor);
+    assertThat(environment.getPropertySources()).hasSize(8);
+  }
+
+  @Test
+  void processPropertySourceWithUnresolvedPlaceholder() {
+    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
+            List.of("${unresolved.placeholder}/test.properties"),
+            false, null, DefaultPropertySourceFactory.class, null);
+    assertThatExceptionOfType(PlaceholderResolutionException.class)
+            .isThrownBy(() -> processor.processPropertySource(descriptor));
+  }
+
+  @Test
+  void processPropertySourceWithCustomEncoding() throws Exception {
+    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
+            List.of(PROPS_FILE), false, "UTF-16", DefaultPropertySourceFactory.class, null);
+    processor.processPropertySource(descriptor);
+    assertThat(environment.getPropertySources()).hasSize(3);
+  }
+
+  @Test
+  void processPropertySourceWithSameNameAppendsToExisting() throws Exception {
+    PropertySourceDescriptor first = new PropertySourceDescriptor(
+            List.of(PROPS_FILE), false, null, DefaultPropertySourceFactory.class, "UTF-8");
+    PropertySourceDescriptor second = new PropertySourceDescriptor(
+            List.of(PROPS_FILE), false, null, DefaultPropertySourceFactory.class, "UTF-8");
+    processor.processPropertySource(first);
+    processor.processPropertySource(second);
+    assertThat(environment.getPropertySources()).hasSize(3);
+    List<PropertySource<?>> list = environment.getPropertySources().stream().toList();
+    assertThat(list.get(2)).isInstanceOf(CompositePropertySource.class);
+  }
+
+  @Test
+  void processPropertySourceWithEmptyLocations() {
+    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
+            List.of(), false, null, DefaultPropertySourceFactory.class, null);
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> processor.processPropertySource(descriptor));
+  }
+
+  @Test
+  void processPropertySourceWithInvalidCustomFactory() {
+    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
+            List.of(PROPS_FILE), false, null, InvalidPropertySourceFactory.class, null);
+    assertThatExceptionOfType(IllegalStateException.class)
+            .isThrownBy(() -> processor.processPropertySource(descriptor));
+  }
+
+  private static class InvalidPropertySourceFactory implements PropertySourceFactory {
+    private InvalidPropertySourceFactory(String invalid) { }
+
+    @Override
+    public PropertySource<?> createPropertySource(String name, EncodedResource resource) {
+      return null;
+    }
   }
 
   @Nested
