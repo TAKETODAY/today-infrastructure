@@ -19,6 +19,7 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -26,15 +27,18 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.nio.file.InvalidPathException;
 
+import infra.core.io.ClassPathResource;
+import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author TODAY <br>
  * 2019-05-15 14:04
  */
-public class ResourceUtilsTest {
+class ResourceUtilsTests {
 
   @Test
   public void testGetResource() throws IOException {
@@ -118,6 +122,65 @@ public class ResourceUtilsTest {
             "file:myjar.jar"));
     assertThat(ResourceUtils.extractArchiveURL(new URL(null, "jar:war:file:mywar.war*/myjar.jar!/", new DummyURLStreamHandler())))
             .isEqualTo(new URL("file:mywar.war"));
+  }
+
+  @Test
+  void isUrlReturnsTrueForClasspathPrefix() {
+    assertThat(ResourceUtils.isUrl("classpath:test.txt")).isTrue();
+  }
+
+  @Test
+  void isUrlReturnsTrueForValidUrl() {
+    assertThat(ResourceUtils.isUrl("file:///test.txt")).isTrue();
+    assertThat(ResourceUtils.isUrl("http://localhost/test.txt")).isTrue();
+  }
+
+  @Test
+  void isUrlReturnsFalseForInvalidUrl() {
+    assertThat(ResourceUtils.isUrl(null)).isFalse();
+    assertThat(ResourceUtils.isUrl("")).isFalse();
+    assertThat(ResourceUtils.isUrl("not-a-url")).isFalse();
+  }
+
+  @Test
+  void getResourceReturnsClasspathResourceForEmptyLocation() {
+    Resource resource = ResourceUtils.getResource("");
+    assertThat(resource).isInstanceOf(ClassPathResource.class);
+  }
+
+  @Test
+  void getResourceReturnsClasspathResourceForClasspathUrl() {
+    Resource resource = ResourceUtils.getResource("classpath:test.txt");
+    assertThat(resource).isInstanceOf(ClassPathResource.class);
+    assertThat(resource.getName()).isEqualTo("test.txt");
+  }
+
+  @Test
+  void getResourceReturnsFileSystemResourceForFileUrl() {
+    Resource resource = ResourceUtils.getResource("file:///test.txt");
+    assertThat(resource).isInstanceOf(FileSystemResource.class);
+  }
+
+  @Test
+  void getResourceWithSpacesInPath() throws IOException {
+    Resource resource = ResourceUtils.getResource("classpath:blank dir/test.txt");
+    assertThat(resource.exists()).isTrue();
+    assertThat(resource.getName()).isEqualTo("test.txt");
+  }
+
+  @Test
+  void useCachesIfNecessarySetsFalseForNonJarUrls() throws Exception {
+    URL url = new URL("file:///test.txt");
+    URLConnection conn = url.openConnection();
+    ResourceUtils.useCachesIfNecessary(conn);
+    assertThat(conn.getUseCaches()).isFalse();
+  }
+
+  @Test
+  void getFileThrowsFileNotFoundForNonExistentClasspathResource() {
+    assertThatThrownBy(() -> ResourceUtils.getFile("classpath:non-existent.txt"))
+            .isInstanceOf(FileNotFoundException.class)
+            .hasMessageContaining("cannot be resolved to absolute file path");
   }
 
   /**
