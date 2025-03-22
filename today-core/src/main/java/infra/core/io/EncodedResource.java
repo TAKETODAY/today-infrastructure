@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.io;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * Holder that combines a {@link Resource} descriptor with a specific encoding
@@ -35,17 +37,21 @@ import infra.lang.Assert;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-05 23:17
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Resource#getInputStream()
  * @see java.io.Reader
  * @see java.nio.charset.Charset
+ * @since 2019-12-05 23:17
  * @since 4.0
  */
 public class EncodedResource implements InputStreamSource {
 
+  @Nullable
   private final String encoding;
+
+  @Nullable
   private final Charset charset;
+
   private final Resource resource;
 
   /**
@@ -65,7 +71,7 @@ public class EncodedResource implements InputStreamSource {
    * @param resource the {@code Resource} to hold (never {@code null})
    * @param encoding the encoding to use for reading from the resource
    */
-  public EncodedResource(Resource resource, String encoding) {
+  public EncodedResource(Resource resource, @Nullable String encoding) {
     this(resource, encoding, null);
   }
 
@@ -76,11 +82,11 @@ public class EncodedResource implements InputStreamSource {
    * @param resource the {@code Resource} to hold (never {@code null})
    * @param charset the {@code Charset} to use for reading from the resource
    */
-  public EncodedResource(Resource resource, Charset charset) {
+  public EncodedResource(Resource resource, @Nullable Charset charset) {
     this(resource, null, charset);
   }
 
-  private EncodedResource(Resource resource, String encoding, Charset charset) {
+  private EncodedResource(Resource resource, @Nullable String encoding, @Nullable Charset charset) {
     Assert.notNull(resource, "Resource is required");
     this.resource = resource;
     this.encoding = encoding;
@@ -98,7 +104,7 @@ public class EncodedResource implements InputStreamSource {
    * Return the encoding to use for reading from the {@linkplain #getResource()
    * resource}, or {@code null} if none specified.
    */
-
+  @Nullable
   public final String getEncoding() {
     return this.encoding;
   }
@@ -107,7 +113,7 @@ public class EncodedResource implements InputStreamSource {
    * Return the {@code Charset} to use for reading from the
    * {@linkplain #getResource() resource}, or {@code null} if none specified.
    */
-
+  @Nullable
   public final Charset getCharset() {
     return this.charset;
   }
@@ -186,12 +192,12 @@ public class EncodedResource implements InputStreamSource {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof EncodedResource otherResource)) {
+    if (!(other instanceof EncodedResource o)) {
       return false;
     }
-    return (this.resource.equals(otherResource.resource) &&
-            Objects.equals(this.charset, otherResource.charset) &&
-            Objects.equals(this.encoding, otherResource.encoding));
+    return this.resource.equals(o.resource)
+            && Objects.equals(this.charset, o.charset)
+            && Objects.equals(this.encoding, o.encoding);
   }
 
   @Override
