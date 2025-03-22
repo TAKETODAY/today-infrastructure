@@ -587,7 +587,7 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
-    requestCompletedActions.add(array);
+    requestCompletedActions.addAll(array);
   }
 
   /**

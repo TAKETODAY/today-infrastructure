@@ -798,7 +798,7 @@ public abstract class CollectionUtils {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(ArrayHolder c, @Nullable Object[] elements) {
     if (elements != null) {
-      c.add(elements);
+      c.addAll(elements);
     }
   }
 

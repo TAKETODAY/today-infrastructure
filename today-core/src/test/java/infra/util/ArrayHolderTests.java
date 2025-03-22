@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -106,6 +108,389 @@ class ArrayHolderTests {
     valueOf.add("123");
     assertThat(valueOf.getRequired()).contains("123");
 
+  }
+
+  @Test
+  void setArrayShouldStoreElements() {
+    ArrayHolder<Integer> holder = new ArrayHolder<>();
+    holder.set(1, 2, 3);
+    assertThat(holder.array).containsExactly(1, 2, 3);
+  }
+
+  @Test
+  void addElementToEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    holder.add("test");
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void addElementToNonEmptyHolder() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("first");
+    holder.add("second");
+    assertThat(holder.array).containsExactly("first", "second");
+  }
+
+  @Test
+  void addArrayShouldAppendElements() {
+    ArrayHolder<Integer> holder = ArrayHolder.valueOf(1, 2);
+    holder.addAll(List.of(3, 4));
+    assertThat(holder.array).containsExactly(1, 2, 3, 4);
+  }
+
+  @Test
+  void setAtIndexShouldReplaceElement() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("a", "b", "c");
+    holder.set(1, "x");
+    assertThat(holder.array).containsExactly("a", "x", "c");
+  }
+
+  @Test
+  void addAtIndexShouldInsertElement() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("a", "c");
+    holder.add(1, "b");
+    assertThat(holder.array).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  void sortShouldOrderElements() {
+    ArrayHolder<Integer> holder = ArrayHolder.valueOf(3, 1, 2);
+    holder.sort(Integer::compareTo);
+    assertThat(holder.array).containsExactly(1, 2, 3);
+  }
+
+  @Test
+  void clearShouldRemoveAllElements() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    holder.clear();
+    assertThat(holder.array).isNull();
+  }
+
+  @Test
+  void sizeShouldReturnNumberOfElements() {
+    ArrayHolder<Integer> holder = ArrayHolder.valueOf(1, 2, 3);
+    assertThat(holder.size()).isEqualTo(3);
+
+    holder.clear();
+    assertThat(holder.size()).isZero();
+  }
+
+  @Test
+  void isPresentShouldCheckForElements() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThat(holder.isPresent()).isFalse();
+
+    holder.add("test");
+    assertThat(holder.isPresent()).isTrue();
+
+    holder.clear();
+    assertThat(holder.isPresent()).isFalse();
+  }
+
+  @Test
+  void isEmptyShouldCheckForNoElements() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThat(holder.isEmpty()).isTrue();
+
+    holder.add("test");
+    assertThat(holder.isEmpty()).isFalse();
+
+    holder.clear();
+    assertThat(holder.isEmpty()).isTrue();
+  }
+
+  @Test
+  void copyOfShouldCreateNewInstance() {
+    ArrayHolder<String> original = ArrayHolder.valueOf("test");
+    ArrayHolder<String> copy = ArrayHolder.copyOf(original);
+
+    assertThat(copy).isNotSameAs(original);
+    assertThat(copy.array).containsExactly("test");
+
+    original.clear();
+    assertThat(copy.array).containsExactly("test");
+  }
+
+  @Test
+  void toStringShouldHandleEmptyAndNonEmpty() {
+    ArrayHolder<Integer> holder = new ArrayHolder<>();
+    assertThat(holder.toString()).isEqualTo("[]");
+
+    holder.addAll(1, 2, 3);
+    assertThat(holder.toString()).isEqualTo("[1, 2, 3]");
+  }
+
+  @Test
+  void equalsAndHashCodeShouldWorkCorrectly() {
+    ArrayHolder<String> holder1 = ArrayHolder.valueOf("test");
+    ArrayHolder<String> holder2 = ArrayHolder.valueOf("test");
+    ArrayHolder<String> holder3 = ArrayHolder.valueOf("different");
+
+    assertThat(holder1)
+            .isEqualTo(holder2)
+            .hasSameHashCodeAs(holder2)
+            .isNotEqualTo(holder3);
+  }
+
+  @Test
+  void addAllShouldNotModifyWhenNullCollectionGiven() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    holder.addAll((Collection) null);
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void mapShouldTransformPresentValue() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    Integer result = holder.map(arr -> arr.length);
+    assertThat(result).isEqualTo(1);
+  }
+
+  @Test
+  void mapShouldReturnNullForEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    Integer result = holder.map(arr -> arr.length);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  void mapWithSupplierShouldUseSupplierForEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    Integer result = holder.map(arr -> arr.length, () -> 42);
+    assertThat(result).isEqualTo(42);
+  }
+
+  @Test
+  void ifPresentShouldExecuteActionForNonEmptyHolder() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    List<String> result = new ArrayList<>();
+    holder.ifPresent(arr -> result.add(arr[0]));
+    assertThat(result).containsExactly("test");
+  }
+
+  @Test
+  void ifPresentShouldNotExecuteActionForEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    List<String> result = new ArrayList<>();
+    holder.ifPresent(arr -> result.add(arr[0]));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void orElseThrowShouldReturnValueWhenPresent() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    assertThat(holder.orElseThrow()).containsExactly("test");
+  }
+
+  @Test
+  void orElseThrowShouldThrowWhenEmpty() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThatThrownBy(holder::orElseThrow)
+            .isInstanceOf(NoSuchElementException.class)
+            .hasMessage("No value present");
+  }
+
+  @Test
+  void orElseThrowWithSupplierShouldThrowCustomException() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThatThrownBy(() -> holder.orElseThrow(IllegalArgumentException::new))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void forClassShouldCreateHolderWithElementClass() {
+    ArrayHolder<String> holder = ArrayHolder.forClass(String.class);
+    holder.add("test");
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void forGeneratorShouldCreateHolderWithArrayGenerator() {
+    ArrayHolder<String> holder = ArrayHolder.forGenerator(String[]::new);
+    holder.add("test");
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void sortShouldHandleNullOrEmptyArray() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    holder.sort(String::compareTo);
+    assertThat(holder.array).isNull();
+
+    holder.set(new String[0]);
+    holder.sort(String::compareTo);
+    assertThat(holder.array).isEmpty();
+  }
+
+  @Test
+  void valueOfWithListShouldCreateArrayHolder() {
+    List<String> input = List.of("a", "b", "c");
+    ArrayHolder<String> holder = ArrayHolder.valueOf(input);
+    assertThat(holder.array).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  void ifPresentOrElseShouldHandleBothCases() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    List<String> result = new ArrayList<>();
+    holder.ifPresentOrElse(
+            arr -> result.add(arr[0]),
+            () -> result.add("empty")
+    );
+    assertThat(result).containsExactly("test");
+
+    holder.clear();
+    holder.ifPresentOrElse(
+            arr -> result.add(arr[0]),
+            () -> result.add("empty")
+    );
+    assertThat(result).containsExactly("test", "empty");
+  }
+
+  @Test
+  void setWithNullOrEmptyCollectionShouldClearArray() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    holder.set((Collection<String>) null);
+    assertThat(holder.array).isNull();
+
+    holder = ArrayHolder.valueOf("test");
+    holder.set(List.of());
+    assertThat(holder.array).isNull();
+  }
+
+  @Test
+  void setWithCollectionShouldDetermineElementClass() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    holder.set(List.of("test"));
+    assertThat(holder.array).isInstanceOf(String[].class);
+  }
+
+  @Test
+  void iteratorShouldWorkWithEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    Iterator<String> iterator = holder.iterator();
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  @Test
+  void getRequiredWithCustomMessageShouldThrowWithMessage() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    String message = "Custom error message";
+    assertThatThrownBy(() -> holder.getRequired(message))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage(message);
+  }
+
+  @Test
+  void streamShouldHandleNullArray() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThat(holder.stream()).isEmpty();
+  }
+
+  @Test
+  void orElseShouldReturnDefaultForEmptyArray() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf(new String[0]);
+    String[] defaultArray = { "default" };
+    assertThat(holder.orElse(defaultArray)).isEqualTo(defaultArray);
+  }
+
+  @Test
+  void orElseGetShouldReturnDefaultForNullArray() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThat(holder.orElseGet(() -> new String[] { "default" })).containsExactly("default");
+  }
+
+  @Test
+  void iteratorShouldHandleNullArray() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    Iterator<String> iterator = holder.iterator();
+    assertThat(iterator).isExhausted();
+  }
+
+  @Test
+  void mapWithNullSupplierShouldReturnNullForEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThat((Object) (holder.map(arr -> arr.length, null))).isNull();
+  }
+
+  @Test
+  void setCollectionShouldUseArrayGenerator() {
+    ArrayHolder<String> holder = ArrayHolder.forGenerator(String[]::new);
+    holder.set(List.of("test"));
+    assertThat(holder.array).isInstanceOf(String[].class);
+  }
+
+  @Test
+  void copyOfShouldHandleNullArray() {
+    ArrayHolder<String> original = new ArrayHolder<>();
+    ArrayHolder<String> copy = ArrayHolder.copyOf(original);
+    assertThat(copy.array).isNull();
+  }
+
+  @Test
+  void addAtIndexShouldHandleEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    holder.add(0, "test");
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void setAtIndexShouldThrowForInvalidIndex() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    assertThatThrownBy(() -> holder.set(1, "invalid"))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void shouldPreserveElementOrderWhenAddingMultipleTimes() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    holder.add("first");
+    holder.add("second");
+    holder.add("third");
+    assertThat(holder.array).containsExactly("first", "second", "third");
+  }
+
+  @Test
+  void forClassShouldHandleNullElementClass() {
+    ArrayHolder<Object> holder = ArrayHolder.forClass(null);
+    holder.add("test");
+    assertThat(holder.array).isInstanceOf(String[].class);
+  }
+
+  @Test
+  void getRequiredShouldReturnArrayWhenPresent() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    assertThat(holder.getRequired()).containsExactly("test");
+  }
+
+  @Test
+  void addAllWithNullArrayShouldNotModifyHolder() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("test");
+    holder.addAll((String[]) null);
+    assertThat(holder.array).containsExactly("test");
+  }
+
+  @Test
+  void iteratorShouldSupportRemoveOperation() {
+    ArrayHolder<String> holder = ArrayHolder.valueOf("a", "b", "c");
+    Iterator<String> iterator = holder.iterator();
+    iterator.next();
+    assertThatThrownBy(iterator::remove)
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void addShouldThrowWhenNullElementProvided() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThatThrownBy(() -> holder.add(null))
+            .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  void setAtIndexShouldWorkWithEmptyHolder() {
+    ArrayHolder<String> holder = new ArrayHolder<>();
+    assertThatThrownBy(() -> holder.set(0, "test"))
+            .isInstanceOf(IndexOutOfBoundsException.class);
   }
 
   @Test

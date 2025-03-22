@@ -93,20 +93,15 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
       array[0] = element;
     }
     else {
-      Class<E> elementClass = this.elementClass;
-      if (elementClass == null) {
-        E first = array[0];
-        elementClass = (Class<E>) first.getClass();
-      }
       int length = array.length;
-      array = (E[]) Array.newInstance(elementClass, length + 1);
+      array = Arrays.copyOf(array, length + 1);
       array[length] = element;
     }
     this.array = array;
   }
 
   @SafeVarargs
-  public final void add(@Nullable E... array) {
+  public final void addAll(@Nullable E... array) {
     if (ObjectUtils.isNotEmpty(array)) {
       ArrayList<E> objects = new ArrayList<>(array.length + size());
       CollectionUtils.addAll(objects, this.array);
