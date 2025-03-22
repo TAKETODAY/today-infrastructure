@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,6 +86,77 @@ class Base64UtilsTests {
 
     assertThat(Base64Utils.encodeToUrlSafeString(bytes)).isEqualTo("-_A=");
     assertThat(Base64Utils.decodeFromUrlSafeString(Base64Utils.encodeToUrlSafeString(bytes))).isEqualTo(bytes);
+  }
+
+  @Test
+  void emptyByteArrayShouldReturnEmpty() {
+    byte[] empty = new byte[0];
+    assertThat(Base64Utils.encode(empty)).isEmpty();
+    assertThat(Base64Utils.decode(empty)).isEmpty();
+    assertThat(Base64Utils.encodeUrlSafe(empty)).isEmpty();
+    assertThat(Base64Utils.decodeUrlSafe(empty)).isEmpty();
+  }
+
+  @Test
+  void emptyStringShouldReturnEmpty() {
+    assertThat(Base64Utils.encodeToString(new byte[0])).isEmpty();
+    assertThat(Base64Utils.decodeFromString("")).isEmpty();
+  }
+
+  @Test
+  void specialCharactersShouldBeEncodedAndDecoded() {
+    byte[] data = "!@#$%^&*()_+".getBytes(StandardCharsets.UTF_8);
+    assertThat(Base64Utils.decode(Base64Utils.encode(data))).isEqualTo(data);
+
+    String encoded = Base64Utils.encodeToString(data);
+    assertThat(Base64Utils.decodeFromString(encoded)).isEqualTo(data);
+  }
+
+  @Test
+  void binaryDataShouldBeEncodedAndDecoded() {
+    byte[] data = { (byte) 0xFF, (byte) 0x00, (byte) 0xAA, (byte) 0x55 };
+    assertThat(Base64Utils.decode(Base64Utils.encode(data))).isEqualTo(data);
+
+    String encoded = Base64Utils.encodeToString(data);
+    assertThat(Base64Utils.decodeFromString(encoded)).isEqualTo(data);
+  }
+
+  @Test
+  void urlSafeEncodingShouldNotContainPlusOrSlash() {
+    byte[] data = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+    String urlSafe = Base64Utils.encodeToUrlSafeString(data);
+    assertThat(urlSafe).doesNotContain("+", "/");
+  }
+
+  @Test
+  void largeDataShouldBeEncodedAndDecoded() {
+    byte[] data = new byte[10000];
+    for (int i = 0; i < data.length; i++) {
+      data[i] = (byte) (i % 256);
+    }
+    assertThat(Base64Utils.decode(Base64Utils.encode(data))).isEqualTo(data);
+
+    String encoded = Base64Utils.encodeToString(data);
+    assertThat(Base64Utils.decodeFromString(encoded)).isEqualTo(data);
+  }
+
+  @Test
+  void unicodeStringShouldBeEncodedAndDecoded() {
+    byte[] data = "こんにちは世界".getBytes(StandardCharsets.UTF_8);
+    assertThat(Base64Utils.decode(Base64Utils.encode(data))).isEqualTo(data);
+
+    String encoded = Base64Utils.encodeToString(data);
+    assertThat(Base64Utils.decodeFromString(encoded)).isEqualTo(data);
+  }
+
+  @Test
+  void paddedAndUnpaddedInputShouldBeDecoded() {
+    String padded = "SGVsbG8=";
+    String unpadded = "SGVsbG8";
+
+    byte[] expected = "Hello".getBytes(StandardCharsets.UTF_8);
+    assertThat(Base64Utils.decodeFromString(padded)).isEqualTo(expected);
+    assertThat(Base64Utils.decodeFromString(unpadded)).isEqualTo(expected);
   }
 
 }
