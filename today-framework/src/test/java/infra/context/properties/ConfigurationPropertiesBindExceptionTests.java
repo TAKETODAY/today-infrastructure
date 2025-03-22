@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class ConfigurationPropertiesBindExceptionTests {
     assertThat(exception.getNestedMessage()).isEqualTo("Error creating bean with name 'example': "
             + "Could not bind properties to 'ConfigurationPropertiesBindExceptionTests.Example' : "
             + "prefix=, ignoreInvalidFields=false, ignoreUnknownFields=true; "
-            + "Nested exception is java.lang.IllegalStateException");
+            + "nested exception is java.lang.IllegalStateException");
     assertThat(exception.getBeanType()).isEqualTo(Example.class);
     assertThat(exception.getBeanName()).isEqualTo("example");
     assertThat(exception.getAnnotation()).isInstanceOf(ConfigurationProperties.class);

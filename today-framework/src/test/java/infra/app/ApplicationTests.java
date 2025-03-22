@@ -206,10 +206,11 @@ class ApplicationTests {
 
   @Test
   void sourcesMustBeAccessible() {
-    assertThatThrownBy(() -> new ApplicationBuilder(InaccessibleConfiguration.class).type(ApplicationType.NORMAL).run())
-            .isInstanceOf(BeanDefinitionStoreException.class)
-            .satisfies(ex -> assertThat(ExceptionUtils.getNestedMessage(ex, null))
-                    .contains("No visible constructors"));
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> new Application(InaccessibleConfiguration.class).run())
+            .havingRootCause()
+            .isInstanceOf(IllegalArgumentException.class)
+            .withMessageContaining("No visible constructors");
   }
 
   @Test
