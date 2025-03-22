@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,12 @@ package infra.instrument.classloading;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.instrument.ClassFileTransformer;
+
 import infra.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -39,7 +42,42 @@ class TomcatLoadTimeWeaverTests {
     assertThatThrownBy(TomcatLoadTimeWeaver::new)
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("Could not initialize TomcatLoadTimeWeaver because Tomcat API classes are not available");
+  }
 
+  @Test
+  void nullClassLoaderNotAllowed() {
+    assertThatThrownBy(() -> new TomcatLoadTimeWeaver(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("ClassLoader is required");
+  }
+
+  @Test
+  void customInstrumentableClassLoaderVariant() {
+    ClassLoader mockLoader = mock(ClassLoader.class);
+    SimpleInstrumentableClassLoader instrumentableLoader = new SimpleInstrumentableClassLoader(mockLoader);
+
+    assertThatThrownBy(() -> new TomcatLoadTimeWeaver(instrumentableLoader))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Could not initialize TomcatLoadTimeWeaver");
+  }
+
+  @Test
+  void defaultConstructorUsesDefaultClassLoader() {
+    assertThatThrownBy(TomcatLoadTimeWeaver::new)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Could not initialize TomcatLoadTimeWeaver because Tomcat API classes are not available");
+  }
+
+  @Test
+  void instrumentableClassLoaderMethodsNotAvailable() {
+    ClassLoader mockLoader = mock(ClassLoader.class);
+    SimpleInstrumentableClassLoader instrumentableLoader = new SimpleInstrumentableClassLoader(mockLoader);
+
+    assertThatThrownBy(() -> {
+      TomcatLoadTimeWeaver weaver = new TomcatLoadTimeWeaver(instrumentableLoader);
+      weaver.addTransformer(mock(ClassFileTransformer.class));
+    }).isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Could not initialize TomcatLoadTimeWeaver");
   }
 
 }
