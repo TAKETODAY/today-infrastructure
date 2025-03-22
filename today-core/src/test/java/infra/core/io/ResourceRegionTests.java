@@ -17,7 +17,11 @@
 
 package infra.core.io;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -25,4 +29,64 @@ import static org.assertj.core.api.Assertions.*;
  */
 class ResourceRegionTests {
 
+  @Test
+  void validResourceRegionIsCreatedSuccessfully() {
+    Resource resource = mock(Resource.class);
+    ResourceRegion region = new ResourceRegion(resource, 0, 100);
+
+    assertThat(region.getResource()).isSameAs(resource);
+    assertThat(region.getPosition()).isEqualTo(0);
+    assertThat(region.getCount()).isEqualTo(100);
+  }
+
+  @Test
+  void nullResourceThrowsException() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ResourceRegion(null, 0, 100))
+            .withMessage("Resource is required");
+  }
+
+  @Test
+  void negativePositionThrowsException() {
+    Resource resource = mock(Resource.class);
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ResourceRegion(resource, -1, 100))
+            .withMessage("'position' must be greater than or equal to 0");
+  }
+
+  @Test
+  void negativeCountThrowsException() {
+    Resource resource = mock(Resource.class);
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new ResourceRegion(resource, 0, -1))
+            .withMessage("'count' must be greater than or equal to 0");
+  }
+
+  @Test
+  void zeroCountIsAllowed() {
+    Resource resource = mock(Resource.class);
+    ResourceRegion region = new ResourceRegion(resource, 100, 0);
+    assertThat(region.getCount()).isZero();
+  }
+
+  @Test
+  void toStringContainsAllFields() {
+    Resource resource = mock(Resource.class);
+    ResourceRegion region = new ResourceRegion(resource, 50, 100);
+
+    assertThat(region.toString())
+            .contains("count = 100")
+            .contains("position = 50")
+            .contains("resource = " + resource);
+  }
+
+  @Test
+  void largePositionAndCountValuesAreSupported() {
+    Resource resource = mock(Resource.class);
+    long maxLong = Long.MAX_VALUE;
+    ResourceRegion region = new ResourceRegion(resource, maxLong, maxLong);
+
+    assertThat(region.getPosition()).isEqualTo(maxLong);
+    assertThat(region.getCount()).isEqualTo(maxLong);
+  }
 }
