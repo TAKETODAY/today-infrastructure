@@ -31,7 +31,7 @@ class NestedCheckedExceptionTests {
   void nestedMessageIncludesRootCauseMessage() {
     IllegalArgumentException rootCause = new IllegalArgumentException("Root cause");
     CustomNestedException exception = new CustomNestedException("Outer message", rootCause);
-    assertThat(exception.getNestedMessage()).isEqualTo("Outer message; Nested exception is Root cause");
+    assertThat(exception.getNestedMessage()).isEqualTo("Outer message; nested exception is java.lang.IllegalArgumentException: Root cause");
   }
 
   @Test
