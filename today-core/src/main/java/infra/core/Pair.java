@@ -137,12 +137,12 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Serializable {
   }
 
   @Nullable
-  public static <T> T getFirst(@Nullable Pair<T, ?> pair) {
+  public static <T> T first(@Nullable Pair<T, ?> pair) {
     return pair != null ? pair.first : null;
   }
 
   @Nullable
-  public static <T> T getSecond(@Nullable Pair<?, T> pair) {
+  public static <T> T second(@Nullable Pair<?, T> pair) {
     return pair != null ? pair.second : null;
   }
 
