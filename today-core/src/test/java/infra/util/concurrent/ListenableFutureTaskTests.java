@@ -242,11 +242,12 @@ class ListenableFutureTaskTests {
   void cancelWithInterruptFalseDoesNotInterruptThread() throws Exception {
     AtomicBoolean interrupted = new AtomicBoolean();
     ListenableFutureTask<String> task = Future.forFutureTask(() -> {
+      Thread.sleep(1000);
       if (Thread.interrupted()) {
         interrupted.set(true);
       }
       return "test";
-    }, Runnable::run);
+    });
 
     Thread thread = new Thread(task);
     thread.start();
