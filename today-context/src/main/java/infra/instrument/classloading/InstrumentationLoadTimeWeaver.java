@@ -56,7 +56,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
   @Nullable
   private final Instrumentation instrumentation;
 
-  private final ArrayList<ClassFileTransformer> transformers = new ArrayList<>(4);
+  final ArrayList<ClassFileTransformer> transformers = new ArrayList<>(4);
 
   /**
    * Create a new InstrumentationLoadTimeWeaver for the default ClassLoader.
