@@ -254,7 +254,7 @@ class ListenableFutureTaskTests {
     thread.join();
 
     assertThat(interrupted.get()).isFalse();
-    assertThat(task.isCancelled()).isTrue();
+    assertThat(task.awaitUninterruptibly().isCancelled()).isTrue();
   }
 
   @Test
