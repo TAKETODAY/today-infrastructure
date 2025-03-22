@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author TODAY 2021/8/21 01:26
@@ -229,6 +231,286 @@ class FastByteArrayOutputStreamTests {
     builder.append('"');
     String actual = builder.toString();
     assertThat(actual).isEqualTo("\"06225ca1e4533354c516e74512065331d\"");
+  }
+
+  @Test
+  void writeSingleByteIncrementsSize() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write(65);
+    assertThat(os.size()).isEqualTo(1);
+  }
+
+  @Test
+  void writeMultipleBytesIncrementsSizeCorrectly() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    byte[] data = "Hello".getBytes();
+    os.write(data);
+    assertThat(os.size()).isEqualTo(5);
+  }
+
+  @Test
+  void writeByteArrayWithOffsetAndLength() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    byte[] data = "Hello World".getBytes();
+    os.write(data, 6, 5);
+    assertThat(os.toString()).isEqualTo("World");
+  }
+
+  @Test
+  void writingAfterClosedStreamThrowsException() {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.close();
+    assertThatIOException().isThrownBy(() -> os.write(1));
+  }
+
+  @Test
+  void writingNegativeOffsetThrowsException() {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    byte[] data = "Test".getBytes();
+    assertThatThrownBy(() -> os.write(data, -1, 4))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void writingNegativeLengthThrowsException() {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    byte[] data = "Test".getBytes();
+    assertThatThrownBy(() -> os.write(data, 0, -1))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void writingBeyondArrayBoundsThrowsException() {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    byte[] data = "Test".getBytes();
+    assertThatThrownBy(() -> os.write(data, 2, 4))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void resettingStreamClearsContent() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Hello".getBytes());
+    os.reset();
+    assertThat(os.size()).isZero();
+    assertThat(os.toString()).isEmpty();
+  }
+
+  @Test
+  void resizingToSmallerCapacityThrowsException() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Hello".getBytes());
+    assertThatIllegalArgumentException().isThrownBy(() -> os.resize(2));
+  }
+
+  @Test
+  void autoResizingWorksForLargeWrites() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    byte[] largeData = new byte[1000];
+    os.write(largeData);
+    assertThat(os.size()).isEqualTo(1000);
+  }
+
+  @Test
+  void readingFromInputStreamMatchesWrittenData() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Test Data".getBytes());
+
+    InputStream is = os.getInputStream();
+    byte[] readData = new byte[9];
+    int bytesRead = is.read(readData);
+
+    assertThat(bytesRead).isEqualTo(9);
+    assertThat(new String(readData)).isEqualTo("Test Data");
+  }
+
+  @Test
+  void writeToOutputStreamTransfersAllData() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Test Data".getBytes());
+
+    ByteArrayOutputStream target = new ByteArrayOutputStream();
+    os.writeTo(target);
+
+    assertThat(target.toString()).isEqualTo("Test Data");
+  }
+
+  @Test
+  void getInputStreamSkipNegativeBytesThrowsException() throws IOException {
+    os.write(helloBytes);
+    InputStream inputStream = os.getInputStream();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> inputStream.skip(-1));
+  }
+
+  @Test
+  void getInputStreamSkipZeroReturnsZero() throws IOException {
+    os.write(helloBytes);
+    InputStream inputStream = os.getInputStream();
+    assertThat(inputStream.skip(0)).isZero();
+  }
+
+  @Test
+  void multipleBuffersAreHandledCorrectly() throws IOException {
+    int size = 1000;
+    byte[] data = new byte[size];
+    for (int i = 0; i < size; i++) {
+      data[i] = (byte) (i % 256);
+    }
+
+    os.write(data);
+    assertThat(os.size()).isEqualTo(size);
+    assertThat(os.toByteArray()).isEqualTo(data);
+  }
+
+  @Test
+  void getInputStreamReadEmptyArray() throws IOException {
+    os.write(helloBytes);
+    InputStream is = os.getInputStream();
+    byte[] empty = new byte[0];
+    assertThat(is.read(empty)).isZero();
+  }
+
+  @Test
+  void getInputStreamReadWithInvalidOffset() throws IOException {
+    os.write(helloBytes);
+    InputStream is = os.getInputStream();
+    byte[] buffer = new byte[10];
+    assertThatThrownBy(() -> is.read(buffer, -1, 5))
+            .isInstanceOf(IndexOutOfBoundsException.class);
+  }
+
+  @Test
+  void getInputStreamReadPartialBuffer() throws IOException {
+    os.write(helloBytes);
+    InputStream is = os.getInputStream();
+    byte[] buffer = new byte[5];
+    int read = is.read(buffer, 0, 3);
+    assertThat(read).isEqualTo(3);
+    assertThat(buffer[0]).isEqualTo(helloBytes[0]);
+    assertThat(buffer[1]).isEqualTo(helloBytes[1]);
+    assertThat(buffer[2]).isEqualTo(helloBytes[2]);
+    assertThat(buffer[3]).isZero();
+    assertThat(buffer[4]).isZero();
+  }
+
+  @Test
+  void writeToClosedStreamThrowsException() {
+    os.close();
+    byte[] data = "test".getBytes();
+    assertThatIOException()
+            .isThrownBy(() -> os.write(data, 0, data.length));
+  }
+
+  @Test
+  void inputStreamUpdateMessageDigestWithNegativeLengthThrowsException() throws IOException {
+    os.write(helloBytes);
+    FastByteArrayOutputStream.FastByteArrayInputStream is = (FastByteArrayOutputStream.FastByteArrayInputStream) os.getInputStream();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> is.updateMessageDigest(MessageDigest.getInstance("MD5"), -1));
+  }
+
+  @Test
+  void getInputStreamReadReturnsSameDataWithMultipleBuffers() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    byte[] data = "Hello World".getBytes();
+    for (int i = 0; i < data.length; i++) {
+      os.write(data[i]);
+    }
+
+    InputStream is = os.getInputStream();
+    byte[] result = new byte[data.length];
+    is.read(result);
+
+    assertThat(result).isEqualTo(data);
+  }
+
+  @Test
+  void getInputStreamReadPartialData() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Hello World".getBytes());
+
+    InputStream is = os.getInputStream();
+    byte[] result = new byte[5];
+    int read = is.read(result);
+
+    assertThat(read).isEqualTo(5);
+    assertThat(new String(result)).isEqualTo("Hello");
+  }
+
+  @Test
+  void getInputStreamAvailableReturnsRemainingBytes() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    os.write("Hello".getBytes());
+
+    InputStream is = os.getInputStream();
+    is.read();
+    assertThat(is.available()).isEqualTo(4);
+  }
+
+  @Test
+  void resizeExpandsCapacityAndPreservesContent() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    os.write("Test".getBytes());
+    os.resize(8);
+    os.write("Data".getBytes());
+
+    assertThat(os.toString()).isEqualTo("TestData");
+  }
+
+  @Test
+  void writeByteArraySpanningMultipleBuffers() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    byte[] data = "Hello World".getBytes();
+    os.write(data);
+
+    assertThat(os.size()).isEqualTo(data.length);
+    assertThat(os.toString()).isEqualTo("Hello World");
+  }
+
+  @Test
+  void nextPowerOf2HandlesLargeValues() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    byte[] data = new byte[1025];
+    os.write(data);
+
+    assertThat(os.size()).isEqualTo(1025);
+  }
+
+  @Test
+  void getInputStreamSkipMultipleBuffers() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream(4);
+    os.write("Hello World".getBytes());
+
+    InputStream is = os.getInputStream();
+    is.skip(6);
+    byte[] result = new byte[5];
+    is.read(result);
+
+    assertThat(new String(result)).isEqualTo("World");
+  }
+
+  @Test
+  void writeToTransfersAllDataBetweenBuffers() throws IOException {
+    FastByteArrayOutputStream source = new FastByteArrayOutputStream(4);
+    source.write("Hello World".getBytes());
+
+    FastByteArrayOutputStream target = new FastByteArrayOutputStream();
+    source.writeTo(target);
+
+    assertThat(target.toString()).isEqualTo("Hello World");
+    assertThat(target.size()).isEqualTo(source.size());
+  }
+
+  @Test
+  void getInputStreamReadEmptyBuffer() throws IOException {
+    FastByteArrayOutputStream os = new FastByteArrayOutputStream();
+    InputStream is = os.getInputStream();
+
+    byte[] result = new byte[10];
+    int bytesRead = is.read(result);
+
+    assertThat(bytesRead).isEqualTo(-1);
   }
 
   private void assertByteArrayEqualsString(FastByteArrayOutputStream actual) {
