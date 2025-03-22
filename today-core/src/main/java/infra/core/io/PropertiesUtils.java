@@ -28,7 +28,6 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import infra.lang.Assert;
-import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.util.ClassUtils;
 import infra.util.DefaultPropertiesPersister;
@@ -65,16 +64,6 @@ public abstract class PropertiesUtils {
   }
 
   /**
-   * Check properties file name
-   *
-   * @param fileName Input file name
-   * @return checked properties file name
-   */
-  public static String checkPropertiesName(String fileName) {
-    return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
-  }
-
-  /**
    * Actually load properties from the given EncodedResource into the given Properties instance.
    *
    * @param props the Properties instance to load into
@@ -82,9 +71,7 @@ public abstract class PropertiesUtils {
    * @param persister the PropertiesPersister to use
    * @throws IOException in case of I/O errors
    */
-  static void fillProperties(
-          Properties props, EncodedResource resource, PropertiesPersister persister) throws IOException {
-
+  static void fillProperties(Properties props, EncodedResource resource, PropertiesPersister persister) throws IOException {
     InputStream stream = null;
     Reader reader = null;
     try {
@@ -121,8 +108,7 @@ public abstract class PropertiesUtils {
    * @see #fillProperties(java.util.Properties, Resource)
    */
   public static Properties loadProperties(String resource) throws IOException {
-    String location = checkPropertiesName(resource);
-    return loadProperties(ResourceUtils.getResource(location));
+    return loadProperties(ResourceUtils.getResource(resource));
   }
 
   /**
@@ -147,6 +133,8 @@ public abstract class PropertiesUtils {
    * @throws IOException if loading failed
    */
   public static void fillProperties(Properties props, Resource resource) throws IOException {
+    Assert.notNull(props, "Properties is required");
+    Assert.notNull(resource, "Resource is required");
     try (InputStream is = resource.getInputStream()) {
       String filename = resource.getName();
       if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
