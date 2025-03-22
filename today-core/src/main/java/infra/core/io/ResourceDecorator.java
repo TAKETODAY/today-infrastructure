@@ -26,7 +26,6 @@ import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Objects;
 
-import infra.core.style.ToStringBuilder;
 import infra.lang.Assert;
 
 /**
@@ -40,7 +39,6 @@ public class ResourceDecorator implements Resource {
   protected Resource delegate;
 
   protected ResourceDecorator() {
-
   }
 
   public ResourceDecorator(Resource delegate) {
@@ -163,9 +161,7 @@ public class ResourceDecorator implements Resource {
 
   @Override
   public String toString() {
-    return ToStringBuilder.forInstance(this)
-            .append("delegate", delegate)
-            .toString();
+    return delegate.toString();
   }
 
 }

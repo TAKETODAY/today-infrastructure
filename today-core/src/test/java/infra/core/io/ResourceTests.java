@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -55,6 +56,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -446,6 +448,83 @@ class ResourceTests {
       assertThat(authorization).isNotNull().startsWith("Basic ");
       assertThat(new String(Base64.getDecoder().decode(authorization.substring(6)),
               StandardCharsets.ISO_8859_1)).isEqualTo("alice:secret");
+    }
+
+    @Test
+    void createUrlResourceWithFileProtocol() throws Exception {
+      UrlResource resource = new UrlResource("file", "/path/to/file.txt");
+      assertThat(resource.getURL().toString()).isEqualTo("file:/path/to/file.txt");
+    }
+
+    @Test
+    void createUrlResourceWithHttpProtocol() throws Exception {
+      UrlResource resource = new UrlResource("http", "//example.com/path");
+      assertThat(resource.getURL().toString()).isEqualTo("http://example.com/path");
+    }
+
+    @Test
+    void createUrlResourceWithNullProtocolThrowsException() {
+      assertThrows(IllegalArgumentException.class, () -> new UrlResource(null, "location"));
+    }
+
+    @Test
+    void createUrlResourceWithNullLocationThrowsException() {
+      assertThrows(MalformedURLException.class, () -> new UrlResource("file", null));
+    }
+
+    @Test
+    void createUrlResourceWithInvalidProtocolThrowsMalformedURLException() {
+      assertThrows(MalformedURLException.class, () -> new UrlResource("invalid:", "/path"));
+    }
+
+    @Test
+    void createUrlResourceWithSpecialCharactersInLocation() throws Exception {
+      UrlResource resource = new UrlResource("file", "/path with spaces/file#1.txt");
+      assertThat(resource.getURL().toString()).isEqualTo("file:/path%20with%20spaces/file%231.txt");
+    }
+
+    @Test
+    void createUrlResourceWithEmptyLocationThrowsMalformedURLException() {
+      assertThrows(MalformedURLException.class, () -> new UrlResource("file", ""));
+    }
+
+    @Test
+    void getURIReturnsUnderlying() throws Exception {
+      URI uri = new URI("file:/path/to/file.txt");
+      UrlResource resource = new UrlResource(uri);
+      assertThat(resource.getURI()).isSameAs(uri);
+    }
+
+    @Test
+    void getURICreatesFromURL() throws Exception {
+      URL url = new URL("file:/path/to/file.txt");
+      UrlResource resource = new UrlResource(url);
+      assertThat(resource.getURI()).isEqualTo(new URI("file:/path/to/file.txt"));
+    }
+
+    @Test
+    void getFileForHttpURLThrowsException() throws MalformedURLException {
+      UrlResource resource = new UrlResource("http", "//example.com/file.txt");
+      assertThatExceptionOfType(FileNotFoundException.class).isThrownBy(resource::getFile);
+    }
+
+    @Test
+    void hashCodeEqualityBasedOnCleanedUrl() throws Exception {
+      UrlResource resource1 = new UrlResource("file:dir/../dir/file.txt");
+      UrlResource resource2 = new UrlResource("file:dir/file.txt");
+      assertThat(resource1.hashCode()).isEqualTo(resource2.hashCode());
+    }
+
+    @Test
+    void toStringIncludesUnderlyingUri() throws Exception {
+      URI uri = new URI("file:/path/test.txt");
+      UrlResource resource = new UrlResource(uri);
+      assertThat(resource.toString()).isEqualTo("URL [file:/path/test.txt]");
+    }
+
+    @Test
+    void factoryMethodWrapsExceptionInUnchecked() {
+      assertThrows(UncheckedIOException.class, () -> UrlResource.from(":::invalid:::"));
     }
 
     @AfterEach
