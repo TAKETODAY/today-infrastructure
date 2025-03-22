@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -334,4 +335,81 @@ class PathResourceTests {
     assertThat(resource.contentLength()).isEqualTo(4L);
   }
 
+  @Test
+  void getContentAsByteArrayReturnsFileContents() throws IOException {
+    PathResource resource = new PathResource(TEST_FILE);
+    byte[] content = resource.getContentAsByteArray();
+    assertThat(content).isNotEmpty();
+  }
+
+  @Test
+  void getContentAsByteArrayForNonExistingFileThrowsException() {
+    PathResource resource = new PathResource(NON_EXISTING_FILE);
+    assertThatExceptionOfType(FileNotFoundException.class)
+            .isThrownBy(resource::getContentAsByteArray);
+  }
+
+  @Test
+  void getContentAsStringReturnsFileContents() throws IOException {
+    PathResource resource = new PathResource(TEST_FILE);
+    String content = resource.getContentAsString(StandardCharsets.UTF_8);
+    assertThat(content).isNotEmpty();
+  }
+
+  @Test
+  void getContentAsStringForNonExistingFileThrowsException() {
+    PathResource resource = new PathResource(NON_EXISTING_FILE);
+    assertThatExceptionOfType(FileNotFoundException.class)
+            .isThrownBy(() -> resource.getContentAsString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void pathNormalizationRemovesRedundantElements() {
+    PathResource resource = new PathResource("src/test/../test/resources/infra/core/io/example.properties");
+    assertThat(resource.getPath()).isEqualTo(TEST_FILE);
+  }
+
+  @Test
+  void pathWithinContextProvidesDotPrefixedRelativePath(@TempDir Path temporaryFolder) throws IOException {
+    Path parentDir = temporaryFolder.resolve("parent");
+    Path childFile = parentDir.resolve("child.txt");
+    Files.createDirectories(parentDir);
+    Files.createFile(childFile);
+
+    PathResource resource = new PathResource(childFile);
+    assertThat(resource.isFile()).isTrue();
+  }
+
+  @Test
+  void writableChannelCreatesNewFileIfNotExists(@TempDir Path temporaryFolder) throws IOException {
+    Path newFile = temporaryFolder.resolve("new.txt");
+    PathResource resource = new PathResource(newFile);
+
+    try (WritableByteChannel channel = resource.writableChannel()) {
+      ByteBuffer buffer = ByteBuffer.wrap("test".getBytes());
+      channel.write(buffer);
+    }
+
+    assertThat(Files.exists(newFile)).isTrue();
+  }
+
+  @Test
+  void writableChannelToDirectoryThrowsException() {
+    PathResource resource = new PathResource(TEST_DIR);
+    assertThatExceptionOfType(FileSystemException.class)
+            .isThrownBy(resource::writableChannel);
+  }
+
+  @Test
+  void readableChannelReturnsEmptyStreamForEmptyFile(@TempDir Path temporaryFolder) throws IOException {
+    Path emptyFile = temporaryFolder.resolve("empty.txt");
+    Files.createFile(emptyFile);
+
+    PathResource resource = new PathResource(emptyFile);
+    try (ReadableByteChannel channel = resource.readableChannel()) {
+      ByteBuffer buffer = ByteBuffer.allocate(1);
+      int bytesRead = channel.read(buffer);
+      assertThat(bytesRead).isEqualTo(-1);
+    }
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -259,7 +259,7 @@ public class PathResource extends AbstractResource implements WritableResource {
    */
   @Override
   public WritableByteChannel writableChannel() throws IOException {
-    return Files.newByteChannel(this.path, StandardOpenOption.WRITE);
+    return Files.newByteChannel(this.path, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
   }
 
   /**
