@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import jakarta.xml.bind.DatatypeConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -157,6 +158,45 @@ class Base64UtilsTests {
     byte[] expected = "Hello".getBytes(StandardCharsets.UTF_8);
     assertThat(Base64Utils.decodeFromString(padded)).isEqualTo(expected);
     assertThat(Base64Utils.decodeFromString(unpadded)).isEqualTo(expected);
+  }
+
+  @Test
+  void invalidBase64InputShouldThrowException() {
+    assertThatThrownBy(() -> Base64Utils.decodeFromString("Invalid!@#"))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void multiLineInputShouldBeHandled() {
+    String input = """
+            Line 1
+            Line 2
+            Line 3""";
+    byte[] data = input.getBytes(StandardCharsets.UTF_8);
+    String encoded = Base64Utils.encodeToString(data);
+    assertThat(new String(Base64Utils.decodeFromString(encoded)))
+            .isEqualTo(input);
+  }
+
+  @Test
+  void nullCharactersShouldBePreserved() {
+    byte[] data = "Hello\0World".getBytes(StandardCharsets.UTF_8);
+    assertThat(Base64Utils.decode(Base64Utils.encode(data)))
+            .isEqualTo(data);
+  }
+
+  @Test
+  void whitespaceInEncodedStringShouldBeRejected() {
+    String encoded = "SGVs bG8=";
+    assertThatThrownBy(() -> Base64Utils.decodeFromString(encoded))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void nonAsciiCharactersShouldBeRejected() {
+    String encoded = "SGVsbG8世界=";
+    assertThatThrownBy(() -> Base64Utils.decodeFromString(encoded))
+            .isInstanceOf(IllegalArgumentException.class);
   }
 
 }
