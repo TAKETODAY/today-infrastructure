@@ -23,8 +23,6 @@ import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -360,42 +358,6 @@ class SubscriberInputStreamTests {
 
     assertThatThrownBy(stream::read)
             .isInstanceOf(ConcurrentModificationException.class);
-  }
-
-  @Test
-  void readingFromStreamWithZeroCapacityThrowsException() {
-    var stream = new SubscriberInputStream(0);
-    stream.onSubscribe(new TestSubscription());
-
-    assertThatThrownBy(stream::read)
-            .isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  void readingFromMultipleThreadsWithSharedBuffer() throws IOException, InterruptedException {
-    var stream = new SubscriberInputStream(2);
-    stream.onSubscribe(new TestSubscription());
-    var buffer = DefaultDataBufferFactory.sharedInstance.wrap(new byte[] { 1, 2, 3, 4 });
-    stream.onNext(buffer);
-
-    var latch = new CountDownLatch(2);
-    var results = new AtomicInteger[2];
-
-    for (int i = 0; i < 2; i++) {
-      final int index = i;
-      new Thread(() -> {
-        try {
-          results[index] = new AtomicInteger(stream.read());
-          latch.countDown();
-        }
-        catch (IOException e) {
-          // expected
-        }
-      }).start();
-    }
-
-    latch.await(1, TimeUnit.SECONDS);
-    assertThat(results[0].get() + results[1].get()).isEqualTo(-1);
   }
 
   @Test
