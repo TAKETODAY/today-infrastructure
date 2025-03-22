@@ -52,7 +52,7 @@ public class DefaultDataBuffer extends DataBuffer {
 
   private final DefaultDataBufferFactory dataBufferFactory;
 
-  private ByteBuffer byteBuffer;
+  ByteBuffer byteBuffer;
 
   private int capacity;
 
