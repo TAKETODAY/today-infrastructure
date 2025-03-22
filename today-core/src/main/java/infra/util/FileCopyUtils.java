@@ -186,6 +186,7 @@ public abstract class FileCopyUtils {
   public static int copy(Reader in, Writer out, int bufferSize) throws IOException {
     Assert.notNull(in, "No Reader specified");
     Assert.notNull(out, "No Writer specified");
+    Assert.isTrue(bufferSize > 0, "Buffer size must be greater than 0");
 
     try {
       int charCount = 0;
