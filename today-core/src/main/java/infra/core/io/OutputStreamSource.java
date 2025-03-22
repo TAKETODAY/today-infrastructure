@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.core.io;
 
 import java.io.IOException;
@@ -26,9 +27,8 @@ import java.nio.channels.WritableByteChannel;
 import infra.lang.Constant;
 
 /**
- * @author TODAY <br>
- * 2019-07-08 00:11
- * @since 2.1.6
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 2.1.6 2019-07-08 00:11
  */
 @FunctionalInterface
 public interface OutputStreamSource {
