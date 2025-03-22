@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Unit tests for {@link Conventions}.
@@ -107,6 +109,75 @@ class ConventionsTests {
     Class<String> cls = String.class;
     String desiredResult = "java.lang.String.foo";
     assertThat(Conventions.getQualifiedAttributeName(cls, baseName)).isEqualTo(desiredResult);
+  }
+
+  @Test
+  void nullValueThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Conventions.getVariableName(null));
+  }
+
+  @Test
+  void emptyCollectionThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Conventions.getVariableName(Collections.emptyList()));
+  }
+
+  @Test
+  void collectionWithNullElementThrowsException() {
+    List<Object> list = Collections.singletonList(null);
+    assertThatIllegalStateException().isThrownBy(() ->
+            Conventions.getVariableName(list));
+  }
+
+  @Test
+  void proxyClassReturnsInterfaceName() {
+    Object proxy = Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class<?>[] { Runnable.class },
+            (p, m, args) -> null);
+    assertThat(Conventions.getVariableName(proxy)).isEqualTo("runnable");
+  }
+
+  @Test
+  void arrayComponentNameIsPluralizedCorrectly() {
+    String[] array = new String[0];
+    assertThat(Conventions.getVariableName(array)).isEqualTo("stringList");
+  }
+
+  @Test
+  void innerClassNameIsHandledCorrectly() {
+    InnerTestClass inner = new InnerTestClass();
+    assertThat(Conventions.getVariableName(inner)).isEqualTo("innerTestClass");
+  }
+
+  @Test
+  void nullAttributeNameThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Conventions.attributeNameToPropertyName(null));
+  }
+
+  @Test
+  void nullClassForQualifiedNameThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Conventions.getQualifiedAttributeName(null, "test"));
+  }
+
+  @Test
+  void nullAttributeForQualifiedNameThrowsException() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Conventions.getQualifiedAttributeName(String.class, null));
+  }
+
+  @Test
+  void returnTypeWithNonEmptyCollectionValue() {
+    Method method = ReflectionUtils.getMethod(TestBean.class, "handleToList", (Class<?>[]) null);
+    List<TestObject> value = Collections.singletonList(new TestObject());
+    assertThat(Conventions.getVariableNameForReturnType(method, value))
+            .isEqualTo("testObjectList");
+  }
+
+  private static class InnerTestClass {
   }
 
   private static Parameter getMethodParameter(Class<?> parameterType) {
