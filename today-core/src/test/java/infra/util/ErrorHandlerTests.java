@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,4 +90,126 @@ class ErrorHandlerTests {
     assertThat(errorHandler.toString()).endsWith("message = 'Unexpected error occurred', loggerName = 'infra.util.LoggingErrorHandler']");
 
   }
+
+  @Test
+  void nullMessageAndNullLoggerNameLogsDefaultValues() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler(null, null);
+    assertThat(handler).extracting("message").isEqualTo("Unexpected error occurred");
+    assertThat(handler).extracting("loggerName").isEqualTo("infra.util.PropagatingErrorHandler");
+  }
+
+  @Test
+  void customMessageAndLoggerNameAreUsed() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Custom message", "custom.logger");
+    assertThat(handler).extracting("message").isEqualTo("Custom message");
+    assertThat(handler).extracting("loggerName").isEqualTo("custom.logger");
+  }
+
+  @Test
+  void handleErrorLogsAndPropagatesError(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    RuntimeException exception = new RuntimeException("Test error");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isSameAs(exception);
+
+    assertThat(output.toString())
+            .contains("Test message")
+            .contains("test.logger")
+            .contains("Test error");
+  }
+
+  @Test
+  void handleErrorWrapsCheckedExceptions(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    IOException exception = new IOException("IO error");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isInstanceOf(UndeclaredThrowableException.class)
+            .hasCause(exception);
+
+    assertThat(output.toString())
+            .contains("Test message")
+            .contains("test.logger")
+            .contains("IO error");
+  }
+
+  @Test
+  void toStringIncludesMessageAndLoggerName() {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    assertThat(handler.toString())
+            .contains("message = 'Test message'")
+            .contains("loggerName = 'test.logger'");
+  }
+
+  @Test
+  void handleErrorWithEmptyMessageAndLoggerName(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("", "");
+    RuntimeException exception = new RuntimeException("Test error");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isSameAs(exception);
+
+    assertThat(output.toString())
+            .contains("Unexpected error occurred")
+            .contains("infra.util.PropagatingErrorHandler")
+            .contains("Test error");
+  }
+
+  @Test
+  void handleErrorWithBlankMessageAndLoggerName(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("  ", "  ");
+    RuntimeException exception = new RuntimeException("Test error");
+
+    assertThatThrownBy(() -> handler.handleError(exception))
+            .isSameAs(exception);
+
+    assertThat(output.toString())
+            .contains("Unexpected error occurred")
+            .contains("infra.util.PropagatingErrorHandler")
+            .contains("Test error");
+  }
+
+  @Test
+  void handleErrorPreservesStackTrace(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+
+    RuntimeException original = new RuntimeException("Test");
+    original.fillInStackTrace();
+    StackTraceElement[] originalStack = original.getStackTrace();
+
+    try {
+      handler.handleError(original);
+    }
+    catch (RuntimeException thrown) {
+      assertThat(thrown.getStackTrace()).isEqualTo(originalStack);
+    }
+  }
+
+  @Test
+  void handleErrorWithNestedExceptions(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+    IOException inner = new IOException("Inner");
+    RuntimeException outer = new RuntimeException("Outer", inner);
+
+    assertThatThrownBy(() -> handler.handleError(outer))
+            .isSameAs(outer)
+            .hasCause(inner);
+
+    assertThat(output.toString())
+            .contains("Test message")
+            .contains("Outer")
+            .contains("Inner");
+  }
+
+  @Test
+  void handleErrorWithNullException(CapturedOutput output) {
+    PropagatingErrorHandler handler = new PropagatingErrorHandler("Test message", "test.logger");
+
+    assertThatThrownBy(() -> handler.handleError(null))
+            .isInstanceOf(UndeclaredThrowableException.class);
+
+    assertThat(output.toString()).contains("Test message");
+  }
+
 }
