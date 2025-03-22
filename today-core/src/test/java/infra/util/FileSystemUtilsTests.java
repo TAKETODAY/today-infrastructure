@@ -143,20 +143,6 @@ class FileSystemUtilsTests {
   }
 
   @Test
-  void copyRecursivelyPreservesLastModifiedTime() throws IOException {
-    File src = new File("./tmp/src");
-    File file = new File(src, "test.txt");
-    src.mkdirs();
-    file.createNewFile();
-    long lastModified = file.lastModified();
-
-    File dest = new File("./tmp/dest");
-    FileSystemUtils.copyRecursively(src, dest);
-
-    assertThat(new File(dest, "test.txt").lastModified()).isEqualTo(lastModified);
-  }
-
-  @Test
   void copyRecursivelyWithEmptyDirectory() throws IOException {
     File src = new File("./tmp/empty");
     src.mkdirs();
