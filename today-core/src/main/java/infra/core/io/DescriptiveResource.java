@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import infra.lang.Constant;
+import infra.lang.Nullable;
 
 /**
  * Simple {@link Resource} implementation that holds a resource description
@@ -43,7 +44,7 @@ public class DescriptiveResource extends AbstractResource {
    *
    * @param description the resource description
    */
-  public DescriptiveResource(String description) {
+  public DescriptiveResource(@Nullable String description) {
     this.description = (description != null ? description : Constant.BLANK);
   }
 
