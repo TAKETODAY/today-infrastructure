@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import infra.lang.Constant;
 import infra.tests.sample.objects.TestObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,6 +84,61 @@ class ParameterNameDiscovererTests {
     pnd.addDiscoverer(returnsFooBar);
     assertThat(Arrays.equals(SOMETHING_ELSE, pnd.getParameterNames(anyMethod))).isTrue();
     assertThat(Arrays.equals(SOMETHING_ELSE, pnd.getParameterNames(null))).isTrue();
+  }
+
+  @Test
+  void getParameterNamesWithEmptyParametersReturnsEmptyArray() throws NoSuchMethodException {
+    var discoverer = new TestParameterNameDiscoverer();
+    var method = ParameterNameDiscovererTests.class.getMethod("noParams");
+    assertThat(discoverer.getParameterNames(method)).isEqualTo(Constant.EMPTY_STRING_ARRAY);
+  }
+
+  @Test
+  void bridgedMethodParameterNamesResolvedFromOriginalMethod() throws NoSuchMethodException {
+    var discoverer = new TestParameterNameDiscoverer();
+    var bridgedMethod = BridgeMethodTest.class.getMethod("bridged", Object.class);
+    var originalMethod = BridgeMethodTest.class.getMethod("original", String.class);
+
+    discoverer.names = new String[] { "originalParam" };
+    assertThat(discoverer.getParameterNames(bridgedMethod))
+            .isEqualTo(new String[] { "originalParam" });
+  }
+
+  @Test
+  void sharedInstanceReturnsSingletonDiscoverer() {
+    var instance1 = ParameterNameDiscoverer.getSharedInstance();
+    var instance2 = ParameterNameDiscoverer.getSharedInstance();
+    assertThat(instance1).isSameAs(instance2);
+  }
+
+  @Test
+  void findParameterNamesUsesSharedInstance() throws NoSuchMethodException {
+    var method = ParameterNameDiscovererTests.class.getMethod("test", String.class, Integer.class);
+    String[] names = ParameterNameDiscoverer.findParameterNames(method);
+    assertThat(names).containsExactly("name", "i");
+  }
+
+  public void noParams() {
+  }
+
+  private static class TestParameterNameDiscoverer extends ParameterNameDiscoverer {
+    String[] names;
+
+    @Override
+    protected String[] doGet(Executable executable) {
+      return names;
+    }
+  }
+
+  private interface BridgeInterface<T> {
+    void bridged(T param);
+  }
+
+  private static class BridgeMethodTest implements BridgeInterface<String> {
+    @Override
+    public void bridged(String param) { }
+
+    public void original(String originalParam) { }
   }
 
   public void test(String name, Integer i) {
