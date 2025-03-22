@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -321,12 +321,12 @@ public class StopWatch {
     StringBuilder sb = new StringBuilder(128);
     sb.append("StopWatch '").append(getId()).append("': ");
     String total = (timeUnit == TimeUnit.NANOSECONDS ?
-                    nf.format(getTotalTimeNanos()) : nf.format(getTotalTime(timeUnit)));
+            nf.format(getTotalTimeNanos()) : nf.format(getTotalTime(timeUnit)));
     sb.append(total).append(" ").append(timeUnit.name().toLowerCase(Locale.ROOT));
     int width = Math.max(sb.length(), 40);
     sb.append("\n");
 
-    if (this.taskList != null) {
+    if (CollectionUtils.isNotEmpty(taskList)) {
       String line = "-".repeat(width) + "\n";
       String unitName = timeUnit.name();
       unitName = unitName.charAt(0) + unitName.substring(1).toLowerCase(Locale.ROOT);
@@ -344,7 +344,7 @@ public class StopWatch {
 
       for (TaskInfo task : this.taskList) {
         sb.append(String.format("%-14s", (timeUnit == TimeUnit.NANOSECONDS ?
-                                          nf.format(task.getTimeNanos()) : nf.format(task.getTime(timeUnit)))));
+                nf.format(task.getTimeNanos()) : nf.format(task.getTime(timeUnit)))));
         sb.append(String.format("%-8s",
                 pf.format(task.getTimeSeconds() / getTotalTimeSeconds())));
         sb.append(task.getTaskName()).append('\n');
