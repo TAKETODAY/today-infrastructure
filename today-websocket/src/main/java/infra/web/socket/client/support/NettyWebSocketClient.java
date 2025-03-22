@@ -538,8 +538,8 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
           try {
             handshaker.finishHandshake(channel, res);
             session = createSession(channel, secure, handshaker, new NettyDataBufferFactory(channel.alloc()));
-            handler.onOpen(session);
             promise.setSuccess(session);
+            handler.onOpen(session);
             headers.clear();
             uri = null;
             headers = null;
@@ -560,7 +560,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
       if (!promise.isDone()) {
         promise.setFailure(cause);
       }
-      else if (session != null) {
+      if (session != null) {
         try {
           handler.onError(session, cause);
         }
