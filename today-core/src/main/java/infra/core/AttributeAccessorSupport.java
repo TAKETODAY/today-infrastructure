@@ -27,7 +27,6 @@ import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
-import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
 /**
@@ -172,14 +171,13 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public int hashCode() {
-    return ObjectUtils.nullSafeHashCode(attributes);
+    return Objects.hashCode(attributes);
   }
 
   @Override
   public boolean equals(Object other) {
-    return (this == other
-            || (other instanceof AttributeAccessorSupport &&
-            Objects.equals(attributes, (((AttributeAccessorSupport) other).attributes))));
+    return (this == other || (other instanceof AttributeAccessorSupport that
+            && Objects.equals(attributes, that.attributes)));
   }
 
   @Override
