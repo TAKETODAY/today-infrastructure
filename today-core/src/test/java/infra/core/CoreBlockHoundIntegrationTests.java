@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.condition.DisabledForJreRange;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.util.ConcurrentReferenceHashMap;
 import reactor.blockhound.BlockHound;
 import reactor.core.scheduler.ReactorBlockHoundIntegration;
@@ -79,6 +80,7 @@ class CoreBlockHoundIntegrationTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void concurrentReferenceHashMapSegmentClear() {
     int size = 10000;
     Map<String, String> map = new ConcurrentReferenceHashMap<>(size);
