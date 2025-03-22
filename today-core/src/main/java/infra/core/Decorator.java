@@ -17,6 +17,8 @@
 
 package infra.core;
 
+import infra.lang.Assert;
+
 /**
  * A callback interface for a decorator to be applied to any {@code T}
  *
@@ -40,6 +42,7 @@ public interface Decorator<T> {
    * call it after this decoration
    */
   default Decorator<T> andThen(Decorator<T> decorator) {
+    Assert.notNull(decorator, "decorator is required");
     return delegate -> {
       delegate = decorate(delegate);
       return decorator.decorate(delegate);
