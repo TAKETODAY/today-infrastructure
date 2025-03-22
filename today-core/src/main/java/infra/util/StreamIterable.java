@@ -22,6 +22,8 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import infra.lang.Assert;
+
 /**
  * Stream Iterable
  * <p>
@@ -32,9 +34,11 @@ import java.util.stream.Stream;
  * @since 4.0 2024/2/14 18:46
  */
 public class StreamIterable<T> implements Iterable<T> {
+
   private final Stream<T> stream;
 
   public StreamIterable(Stream<T> stream) {
+    Assert.notNull(stream, "stream is required");
     this.stream = stream;
   }
 
