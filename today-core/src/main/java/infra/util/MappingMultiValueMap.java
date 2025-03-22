@@ -106,7 +106,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
 
   @Override
   public void addAll(K key, @Nullable Collection<? extends V> values) {
-    if (values != null) {
+    if (CollectionUtils.isNotEmpty(values)) {
       targetMap.computeIfAbsent(key, mappingFunction)
               .addAll(values);
     }
@@ -127,6 +127,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
   }
 
   @Override
+  @Nullable
   public List<V> setOrRemove(K key, @Nullable V value) {
     if (value != null) {
       List<V> values = mappingFunction.apply(key);
@@ -138,6 +139,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
     }
   }
 
+  @Nullable
   @Override
   public List<V> setOrRemove(K key, @Nullable V[] value) {
     if (value != null) {
@@ -148,6 +150,7 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
     return targetMap.remove(key);
   }
 
+  @Nullable
   @Override
   public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
     if (value != null) {

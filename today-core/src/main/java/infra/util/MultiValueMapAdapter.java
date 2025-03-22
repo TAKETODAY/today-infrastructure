@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
     }
   }
 
+  @Nullable
   @Override
   public List<V> setOrRemove(K key, @Nullable V value) {
     if (value != null) {
@@ -93,6 +94,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
     }
   }
 
+  @Nullable
   @Override
   public List<V> setOrRemove(K key, @Nullable V[] value) {
     if (value != null) {
@@ -101,6 +103,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
     return targetMap.remove(key);
   }
 
+  @Nullable
   @Override
   public List<V> setOrRemove(K key, @Nullable Collection<V> value) {
     if (value != null) {
