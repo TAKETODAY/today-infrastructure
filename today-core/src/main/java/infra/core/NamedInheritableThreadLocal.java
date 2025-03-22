@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,7 @@ public class NamedInheritableThreadLocal<T> extends InheritableThreadLocal<T> {
    * @since 4.0
    */
   public static <S> NamedInheritableThreadLocal<S> withInitial(String name, Supplier<? extends S> supplier) {
+    Assert.notNull(supplier, "Supplier is required");
     final class Supplied extends NamedInheritableThreadLocal<S> {
       Supplied(String name) {
         super(name);
