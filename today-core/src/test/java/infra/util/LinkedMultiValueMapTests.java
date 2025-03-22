@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,8 +75,8 @@ class LinkedMultiValueMapTests {
   @Test
   void addAllWithEmptyList() {
     map.addAll("key", Collections.emptyList());
-    assertThat(map).hasSize(1);
-    assertThat(map.get("key")).isEmpty();
+    assertThat(map).isEmpty();
+    assertThat(map.get("key")).isNull();
     assertThat(map.getFirst("key")).isNull();
   }
 
