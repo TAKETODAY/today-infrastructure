@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,12 +50,12 @@ import infra.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2021/3/7 11:18
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ByteArrayResource
  * @see ClassPathResource
  * @see FileSystemResource
  * @see UrlResource
- * @since 3.0
+ * @since 3.0 2021/3/7 11:18
  */
 public class InputStreamResource extends AbstractResource {
 
