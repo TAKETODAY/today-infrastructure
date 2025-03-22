@@ -359,9 +359,7 @@ public class NettyDataBuffer extends DataBuffer {
       return byteBuf.release();
     }
     catch (IllegalStateException ex) {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Failed to release DataBuffer: {}", this, ex);
-      }
+      logger.debug("Failed to release DataBuffer: {}", this, ex);
     }
     return false;
   }
