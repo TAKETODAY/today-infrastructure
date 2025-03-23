@@ -62,13 +62,13 @@ class FutureCombinerTests {
 
   @Test
   void requireAllSucceedWithCancelledFutureFailsImmediately() {
-    Future<String> future1 = Future.ok("result1");
-    Promise<String> future2 = Future.forPromise();
+    Future<String> future1 = Future.ok("result1", directExecutor());
+    Promise<String> future2 = Future.forPromise(directExecutor());
     future2.cancel();
 
     Future<List<Object>> combined = new FutureCombiner(false, List.of(future1, future2))
             .requireAllSucceed()
-            .asList();
+            .asList(directExecutor());
 
     assertThrows(CancellationException.class, combined::join);
   }
