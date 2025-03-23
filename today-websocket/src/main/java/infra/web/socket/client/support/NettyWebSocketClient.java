@@ -193,8 +193,9 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * If the length of the aggregated content exceeds this value,
    * @see HttpObjectAggregator#maxContentLength
    */
-  public void setMaxContentLength(int maxContentLength) {
-    this.maxContentLength = maxContentLength;
+  public void setMaxContentLength(DataSize maxContentLength) {
+    Assert.notNull(maxContentLength, "maxContentLength is required");
+    this.maxContentLength = maxContentLength.toBytesInt();
   }
 
   /**
@@ -238,6 +239,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    * @since 5.0
    */
   public void setConnectTimeout(Duration connectTimeout) {
+    Assert.notNull(connectTimeout, "connectTimeout is required");
     this.connectTimeout = connectTimeout;
   }
 
