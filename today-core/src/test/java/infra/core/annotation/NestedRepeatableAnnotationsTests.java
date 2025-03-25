@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,8 +110,8 @@ class NestedRepeatableAnnotationsTests {
     @Test
     void streamRepeatableAnnotationsWithExplicitRepeatables_MergedAnnotationsApi() {
       var repeatableContainers =
-              RepeatableContainers.valueOf(A.class, A.Container.class)
-                      .and(B.Container.class, B.class);
+              RepeatableContainers.explicit(A.class, A.Container.class)
+                      .plus(B.Container.class, B.class);
       Set<A> annotations = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY, repeatableContainers)
               .stream(A.class).collect(MergedAnnotationCollectors.toAnnotationSet());
       // Merged, so we expect to find @A twice with values coming from @B(5) and @B(10).

@@ -30,15 +30,38 @@ import infra.util.ConcurrentReferenceHashMap;
 import infra.util.ObjectUtils;
 
 /**
- * Strategy used to determine annotations that act as containers for other
- * annotations. The {@link #standard()} method provides a default
- * strategy that respects Java's {@link Repeatable @Repeatable} support and
- * should be suitable for most situations.
+ * Strategy used to find repeatable annotations within container annotations.
  *
- * <p>The {@link #valueOf} method can be used to register relationships for
- * annotations that do not wish to use {@link Repeatable @Repeatable}.
+ * <p>{@link #standard() RepeatableContainers.standard()}
+ * provides a default strategy that respects Java's {@link Repeatable @Repeatable}
+ * support and is suitable for most situations.
  *
- * <p>To completely disable repeatable support use {@link #none()}.
+ * <p>If you need to register repeatable annotation types that do not make use of
+ * {@code @Repeatable}, you should typically use {@code standard()}
+ * combined with {@link #plus(Class, Class)}. Note that multiple invocations of
+ * {@code plus()} can be chained together to register multiple repeatable/container
+ * type pairs. For example:
+ *
+ * <pre class="code">
+ * RepeatableContainers repeatableContainers =
+ *     RepeatableContainers.standard()
+ *         .plus(MyRepeatable1.class, MyContainer1.class)
+ *         .plus(MyRepeatable2.class, MyContainer2.class);</pre>
+ *
+ * <p>For special use cases where you are certain that you do not need Java's
+ * {@code @Repeatable} support, you can use {@link #explicit(Class, Class)
+ * RepeatableContainers.explicit()} to create an instance of
+ * {@code RepeatableContainers} that only supports explicit repeatable/container
+ * type pairs. As with {@code standard()}, {@code plus()} can be used
+ * to register additional repeatable/container type pairs. For example:
+ *
+ * <pre class="code">
+ * RepeatableContainers repeatableContainers =
+ *     RepeatableContainers.explicit(MyRepeatable1.class, MyContainer1.class)
+ *         .plus(MyRepeatable2.class, MyContainer2.class);</pre>
+ *
+ * <p>To completely disable repeatable annotation support use
+ * {@link #none() RepeatableContainers.none()}.
  *
  * @author Phillip Webb
  * @author Sam Brannen
@@ -46,6 +69,7 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public class RepeatableContainers {
+
   static final ConcurrentReferenceHashMap<Class<? extends Annotation>, Object>
           cache = new ConcurrentReferenceHashMap<>();
 
@@ -62,19 +86,26 @@ public class RepeatableContainers {
   }
 
   /**
-   * Add an additional explicit relationship between a container and
-   * repeatable annotation.
-   * <p>WARNING: the arguments supplied to this method are in the reverse order
-   * of those supplied to {@link #valueOf(Class, Class)}
+   * Register a pair of repeatable and container annotation types.
+   * <p>See the {@linkplain RepeatableContainers class-level javadoc} for examples.
    *
-   * @param container the container annotation type
    * @param repeatable the repeatable annotation type
-   * @return a new {@link RepeatableContainers} instance
+   * @param container the container annotation type
+   * @return a new {@code RepeatableContainers} instance that is chained to
+   * the current instance
    */
-  public RepeatableContainers and(Class<? extends Annotation> container, Class<? extends Annotation> repeatable) {
+  public RepeatableContainers plus(Class<? extends Annotation> container, Class<? extends Annotation> repeatable) {
     return new ExplicitRepeatableContainer(this, repeatable, container);
   }
 
+  /**
+   * Find repeated annotations contained in the supplied {@code annotation}.
+   *
+   * @param annotation the candidate container annotation
+   * @return the repeated annotations found in the supplied container annotation
+   * (potentially an empty array), or {@code null} if the supplied annotation is
+   * not a supported container annotation
+   */
   @Nullable
   Annotation[] findRepeatedAnnotations(Annotation annotation) {
     if (this.parent == null) {
@@ -112,32 +143,46 @@ public class RepeatableContainers {
   }
 
   /**
-   * Create a {@link RepeatableContainers} instance that searches using Java's
-   * {@link Repeatable @Repeatable} annotation.
+   * Create a {@link RepeatableContainers} instance that searches for repeated
+   * annotations according to the semantics of Java's {@link Repeatable @Repeatable}
+   * annotation.
+   * <p>See the {@linkplain RepeatableContainers class-level javadoc} for examples.
    *
-   * @return a {@link RepeatableContainers} instance
+   * @return a {@code RepeatableContainers} instance that supports {@code @Repeatable}
+   * @see #plus(Class, Class)
    */
   public static RepeatableContainers standard() {
     return StandardRepeatableContainers.INSTANCE;
   }
 
   /**
-   * Create a {@link RepeatableContainers} instance that uses predefined
-   * repeatable and container types.
+   * Create a {@link RepeatableContainers} instance that searches for repeated
+   * annotations by taking into account the supplied repeatable and container
+   * annotation types.
+   * <p><strong>WARNING</strong>: The {@code RepeatableContainers} instance
+   * returned by this factory method does <strong>not</strong> respect Java's
+   * {@link Repeatable @Repeatable} support. Use {@link #standard()}
+   * for standard {@code @Repeatable} support, optionally combined with
+   * {@link #plus(Class, Class)}.
+   * <p>If the supplied container annotation type is not {@code null}, it must
+   * declare a {@code value} attribute returning an array of repeatable
+   * annotations. If the supplied container annotation type is {@code null}, the
+   * container will be deduced by inspecting the {@code @Repeatable} annotation
+   * on the {@code repeatable} annotation type.
+   * <p>See the {@linkplain RepeatableContainers class-level javadoc} for examples.
    *
-   * @param repeatable the contained repeatable annotation type
-   * @param container the container annotation type or {@code null}. If specified,
-   * this annotation must declare a {@code value} attribute returning an array
-   * of repeatable annotations. If not specified, the container will be
-   * deduced by inspecting the {@code @Repeatable} annotation on
-   * {@code repeatable}.
-   * @return a {@link RepeatableContainers} instance
+   * @param repeatable the repeatable annotation type
+   * @param container the container annotation type or {@code null}
+   * @return a {@code RepeatableContainers} instance that does not support
+   * {@link Repeatable @Repeatable}
    * @throws IllegalArgumentException if the supplied container type is
    * {@code null} and the annotation type is not a repeatable annotation
    * @throws AnnotationConfigurationException if the supplied container type
    * is not a properly configured container for a repeatable annotation
+   * @see #standard()
+   * @see #plus(Class, Class)
    */
-  public static RepeatableContainers valueOf(Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
+  public static RepeatableContainers explicit(Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
     return new ExplicitRepeatableContainer(null, repeatable, container);
   }
 

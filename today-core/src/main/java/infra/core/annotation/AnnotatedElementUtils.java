@@ -394,9 +394,9 @@ public abstract class AnnotatedElementUtils {
    * hierarchy and synthesize the results back into an annotation of the specified
    * {@code annotationType}.
    * <p>The container type that holds the repeatable annotations will be looked up
-   * via {@link java.lang.annotation.Repeatable}.
-   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within a
-   * single annotation and within annotation hierarchies.
+   * via {@link java.lang.annotation.Repeatable @Repeatable}.
+   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within
+   * a single annotation and within the annotation hierarchy.
    * <p>This method follows <em>get semantics</em> as described in the
    * {@linkplain AnnotatedElementUtils class-level javadoc}.
    *
@@ -421,8 +421,8 @@ public abstract class AnnotatedElementUtils {
    * <em>matching</em> attributes from annotations in lower levels of the annotation
    * hierarchy and synthesize the results back into an annotation of the specified
    * {@code annotationType}.
-   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within a
-   * single annotation and within annotation hierarchies.
+   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within
+   * a single annotation and within the annotation hierarchy.
    * <p>This method follows <em>get semantics</em> as described in the
    * {@linkplain AnnotatedElementUtils class-level javadoc}.
    * <p><strong>WARNING</strong>: if the supplied {@code containerType} is not
@@ -433,14 +433,18 @@ public abstract class AnnotatedElementUtils {
    * support such a use case, favor {@link #getMergedRepeatableAnnotations(AnnotatedElement, Class)}
    * over this method or alternatively use the {@link MergedAnnotations} API
    * directly in conjunction with {@link RepeatableContainers} that are
-   * {@linkplain RepeatableContainers#and(Class, Class) composed} to support
-   * multiple repeatable annotation types.
+   * {@linkplain RepeatableContainers#plus(Class, Class) composed} to support
+   * multiple repeatable annotation types &mdash; for example:
+   * <pre class="code">
+   * RepeatableContainers.standard()
+   *     .plus(MyRepeatable1.class, MyContainer1.class)
+   *     .plus(MyRepeatable2.class, MyContainer2.class);</pre>
    *
    * @param element the annotated element (never {@code null})
-   * @param annotationType the annotation type to find (never {@code null})
-   * @param containerType the type of the container that holds the annotations;
-   * may be {@code null} if the container type should be looked up via
-   * {@link java.lang.annotation.Repeatable}
+   * @param annotationType the repeatable annotation type to find (never {@code null})
+   * @param containerType the type of the container that holds the repeatable
+   * annotations; may be {@code null} if the container type should be looked up
+   * via {@link java.lang.annotation.Repeatable @Repeatable}
    * @return the set of all merged repeatable {@code Annotations} found,
    * or an empty set if none were found
    * @throws IllegalArgumentException if the {@code element} or {@code annotationType}
@@ -500,7 +504,7 @@ public abstract class AnnotatedElementUtils {
   public static MultiValueMap<String, Object> getAllAnnotationAttributes(AnnotatedElement element,
           String annotationName, final boolean classValuesAsString, final boolean nestedAnnotationsAsMap) {
 
-    MergedAnnotation.Adapt[] adaptations = MergedAnnotation.Adapt.values(classValuesAsString, nestedAnnotationsAsMap);
+    var adaptations = MergedAnnotation.Adapt.values(classValuesAsString, nestedAnnotationsAsMap);
     return getAnnotations(element).stream(annotationName)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
             .map(MergedAnnotation::withNonMergedAttributes)
@@ -692,9 +696,9 @@ public abstract class AnnotatedElementUtils {
    * hierarchy and synthesize the results back into an annotation of the specified
    * {@code annotationType}.
    * <p>The container type that holds the repeatable annotations will be looked up
-   * via {@link java.lang.annotation.Repeatable}.
-   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within a
-   * single annotation and within annotation hierarchies.
+   * via {@link java.lang.annotation.Repeatable @Repeatable}.
+   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within
+   * a single annotation and within the annotation hierarchy.
    * <p>This method follows <em>find semantics</em> as described in the
    * {@linkplain AnnotatedElementUtils class-level javadoc}.
    *
@@ -719,8 +723,8 @@ public abstract class AnnotatedElementUtils {
    * <em>matching</em> attributes from annotations in lower levels of the annotation
    * hierarchy and synthesize the results back into an annotation of the specified
    * {@code annotationType}.
-   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within a
-   * single annotation and within annotation hierarchies.
+   * <p>{@link AliasFor @AliasFor} semantics are fully supported, both within
+   * a single annotation and within the annotation hierarchy.
    * <p>This method follows <em>find semantics</em> as described in the
    * {@linkplain AnnotatedElementUtils class-level javadoc}.
    * <p><strong>WARNING</strong>: if the supplied {@code containerType} is not
@@ -731,14 +735,18 @@ public abstract class AnnotatedElementUtils {
    * support such a use case, favor {@link #findMergedRepeatableAnnotations(AnnotatedElement, Class)}
    * over this method or alternatively use the {@link MergedAnnotations} API
    * directly in conjunction with {@link RepeatableContainers} that are
-   * {@linkplain RepeatableContainers#and(Class, Class) composed} to support
-   * multiple repeatable annotation types.
+   * {@linkplain RepeatableContainers#plus(Class, Class) composed} to support
+   * multiple repeatable annotation types &mdash; for example:
+   * <pre class="code">
+   * RepeatableContainers.standard()
+   *     .plus(MyRepeatable1.class, MyContainer1.class)
+   *     .plus(MyRepeatable2.class, MyContainer2.class);</pre>
    *
    * @param element the annotated element (never {@code null})
-   * @param annotationType the annotation type to find (never {@code null})
-   * @param containerType the type of the container that holds the annotations;
-   * may be {@code null} if the container type should be looked up via
-   * {@link java.lang.annotation.Repeatable}
+   * @param annotationType the repeatable annotation type to find (never {@code null})
+   * @param containerType the type of the container that holds the repeatable
+   * annotations; may be {@code null} if the container type should be looked up
+   * via {@link java.lang.annotation.Repeatable @Repeatable}
    * @return the set of all merged repeatable {@code Annotations} found,
    * or an empty set if none were found
    * @throws IllegalArgumentException if the {@code element} or {@code annotationType}
@@ -757,26 +765,6 @@ public abstract class AnnotatedElementUtils {
             .collect(MergedAnnotationCollectors.toAnnotationSet());
   }
 
-  public static <A extends Annotation> AnnotationAttributes[] getMergedAttributesArray(AnnotatedElement annotated, Class<A> annotationType) {
-    // Shortcut: directly present on the element, with no merging needed?
-    if (AnnotationFilter.PLAIN.matches(annotationType) ||
-            AnnotationsScanner.hasPlainJavaAnnotationsOnly(annotated)) {
-      A declaredAnnotation = annotated.getDeclaredAnnotation(annotationType);
-      if (declaredAnnotation == null) {
-        return AnnotationAttributes.EMPTY_ARRAY;
-      }
-      return new AnnotationAttributes[] {
-              AnnotationUtils.getAnnotationAttributes(
-                      annotated, declaredAnnotation)
-      };
-    }
-
-    return MergedAnnotations.from(annotated, MergedAnnotations.SearchStrategy.DIRECT, RepeatableContainers.NONE)
-            .stream(annotationType)
-            .map(MergedAnnotation::asAnnotationAttributes)
-            .toArray(AnnotationAttributes[]::new);
-  }
-
   private static MergedAnnotations getAnnotations(AnnotatedElement element) {
     return MergedAnnotations.from(element, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE);
   }
@@ -790,16 +778,15 @@ public abstract class AnnotatedElementUtils {
       // getMergedRepeatableAnnotations() which states that an IllegalArgumentException
       // will be thrown if the the container cannot be resolved.
       //
-      // In any case, we use standardRepeatables() in order to support repeatable
+      // In any case, we use standard() in order to support repeatable
       // annotations on other types of repeatable annotations (i.e., nested repeatable
       // annotation types).
       //
-      // See https://github.com/spring-projects/spring-framework/issues/20279
-      RepeatableContainers.valueOf(annotationType, null);
+      RepeatableContainers.explicit(annotationType, null);
       repeatableContainers = RepeatableContainers.standard();
     }
     else {
-      repeatableContainers = RepeatableContainers.valueOf(annotationType, containerType);
+      repeatableContainers = RepeatableContainers.explicit(annotationType, containerType);
     }
     return MergedAnnotations.from(element, MergedAnnotations.SearchStrategy.INHERITED_ANNOTATIONS, repeatableContainers);
   }
@@ -820,12 +807,11 @@ public abstract class AnnotatedElementUtils {
       // annotations on other types of repeatable annotations (i.e., nested repeatable
       // annotation types).
       //
-      // See https://github.com/spring-projects/spring-framework/issues/20279
-      RepeatableContainers.valueOf(annotationType, null);
+      RepeatableContainers.explicit(annotationType, null);
       repeatableContainers = RepeatableContainers.standard();
     }
     else {
-      repeatableContainers = RepeatableContainers.valueOf(annotationType, containerType);
+      repeatableContainers = RepeatableContainers.explicit(annotationType, containerType);
     }
     return MergedAnnotations.from(element, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, repeatableContainers);
   }

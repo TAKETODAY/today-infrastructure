@@ -444,7 +444,7 @@ public abstract class AnnotationUtils {
 
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    ? RepeatableContainers.explicit(annotationType, containerAnnotationType)
                     : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, MergedAnnotations.SearchStrategy.SUPERCLASS, repeatableContainers)
@@ -520,7 +520,7 @@ public abstract class AnnotationUtils {
           AnnotatedElement annotatedElement, Class<A> annotationType, @Nullable Class<? extends Annotation> containerAnnotationType) {
     RepeatableContainers repeatableContainers =
             containerAnnotationType != null
-                    ? RepeatableContainers.valueOf(annotationType, containerAnnotationType)
+                    ? RepeatableContainers.explicit(annotationType, containerAnnotationType)
                     : RepeatableContainers.standard();
 
     return MergedAnnotations.from(annotatedElement, MergedAnnotations.SearchStrategy.DIRECT, repeatableContainers)

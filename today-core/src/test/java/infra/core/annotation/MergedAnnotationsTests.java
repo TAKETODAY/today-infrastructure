@@ -137,7 +137,7 @@ class MergedAnnotationsTests {
     @Test
     void searchFromClassWithCustomRepeatableContainers() {
       assertThat(MergedAnnotations.from(HierarchyClass.class).stream(TestConfiguration.class)).isEmpty();
-      RepeatableContainers containers = RepeatableContainers.valueOf(TestConfiguration.class, Hierarchy.class);
+      RepeatableContainers containers = RepeatableContainers.explicit(TestConfiguration.class, Hierarchy.class);
 
       MergedAnnotations annotations = MergedAnnotations.search(SearchStrategy.DIRECT)
               .withRepeatableContainers(containers)
@@ -1406,7 +1406,7 @@ class MergedAnnotationsTests {
   void getRepeatableDeclaredOnClassWithAttributeAliases() {
     assertThat(MergedAnnotations.from(HierarchyClass.class).stream(
             TestConfiguration.class)).isEmpty();
-    RepeatableContainers containers = RepeatableContainers.valueOf(TestConfiguration.class,
+    RepeatableContainers containers = RepeatableContainers.explicit(TestConfiguration.class,
             Hierarchy.class);
     MergedAnnotations annotations = MergedAnnotations.from(HierarchyClass.class,
             SearchStrategy.DIRECT, containers, AnnotationFilter.NONE);
@@ -1482,7 +1482,7 @@ class MergedAnnotationsTests {
 
   private void testExplicitRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MergedAnnotations annotations = MergedAnnotations.from(element, searchStrategy,
-            RepeatableContainers.valueOf(MyRepeatable.class, MyRepeatableContainer.class),
+            RepeatableContainers.explicit(MyRepeatable.class, MyRepeatableContainer.class),
             AnnotationFilter.PLAIN);
     assertThat(annotations.stream(MyRepeatable.class).filter(
             MergedAnnotationPredicates.firstRunOf(
