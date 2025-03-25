@@ -1106,8 +1106,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeansOfType(ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
+  public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) {
+    return getBeansOfType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
   }
 
   @Override
@@ -1146,28 +1146,28 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   // getBeanNamesOfType
 
   @Override
-  public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons) {
-    return getBeanNamesForType(requiredType, true, includeNonSingletons);
+  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
+    return getBeanNamesForType(type, true, true);
   }
 
   @Override
   @Modifiable
-  public Set<String> getBeanNamesForType(@Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
+  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
+    if (!isConfigurationFrozen() || type == null || !allowEagerInit) {
       return doGetBeanNamesForType(
-              ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
+              ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
     }
 
     Map<Class<?>, String[]> cache = includeNonSingletons ? this.allBeanNamesByType : this.singletonBeanNamesByType;
-    String[] resolvedBeanNames = cache.get(requiredType);
+    String[] resolvedBeanNames = cache.get(type);
     if (resolvedBeanNames != null) {
       return CollectionUtils.newLinkedHashSet(resolvedBeanNames);
     }
 
     Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(
-            ResolvableType.forRawClass(requiredType), includeNonSingletons, true);
-    if (ClassUtils.isCacheSafe(requiredType, getBeanClassLoader())) {
-      cache.put(requiredType, StringUtils.toStringArray(resolvedBeanNamesSet));
+            ResolvableType.forRawClass(type), includeNonSingletons, true);
+    if (ClassUtils.isCacheSafe(type, getBeanClassLoader())) {
+      cache.put(type, StringUtils.toStringArray(resolvedBeanNamesSet));
     }
     return resolvedBeanNamesSet;
   }

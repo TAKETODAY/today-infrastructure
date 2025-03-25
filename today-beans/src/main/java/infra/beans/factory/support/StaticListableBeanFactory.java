@@ -400,11 +400,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons) {
-    return getBeanNamesForType(requiredType, includeNonSingletons, false);
-  }
-
-  @Override
   public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeanNamesForType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }

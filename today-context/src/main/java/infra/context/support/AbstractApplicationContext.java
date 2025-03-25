@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -457,6 +457,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   // Implementation of MessageSource interface
   //---------------------------------------------------------------------
 
+  @Nullable
   @Override
   public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
     return getMessageSource().getMessage(code, args, defaultMessage, locale);
@@ -1128,12 +1129,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
   }
 
+  @Nullable
   @Override
   public Object getBean(String name) {
     assertBeanFactoryActive();
     return getBeanFactory().getBean(name);
   }
 
+  @Nullable
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
     assertBeanFactoryActive();
@@ -1158,6 +1161,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     return getBeanFactory().getBean(name, requiredType);
   }
 
+  @Nullable
   @Override
   public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) {
     assertBeanFactoryActive();
@@ -1216,6 +1220,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     return getBeanFactory().isPrototype(name);
   }
 
+  @Nullable
   @Override
   public Class<?> getType(String name) {
     assertBeanFactoryActive();
@@ -1291,22 +1296,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons) {
+  public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
     assertBeanFactoryActive();
-    return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons);
+    return getBeanFactory().getBeanNamesForType(type);
   }
 
   @Override
-  public Set<String> getBeanNamesForType(
-          @Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
-    return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
+    return getBeanFactory().getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
   }
 
   @Override
-  public <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+  public <T> Map<String, T> getBeansOfType(Class<T> type) {
     assertBeanFactoryActive();
-    return getBeanFactory().getBeansOfType(requiredType);
+    return getBeanFactory().getBeansOfType(type);
   }
 
   @Override

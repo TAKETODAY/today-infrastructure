@@ -558,33 +558,36 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * subclasses), judging from either bean definitions or the value of
    * {@code getObjectType} in the case of FactoryBeans.
    * <p><b>NOTE: This method introspects top-level beans only.</b> It does <i>not</i>
-   * check nested beans which might match the specified type as well.
+   * check nested beans which might match the specified type as well. Also, it
+   * <b>suppresses exceptions for beans that are currently in creation in a circular
+   * reference scenario:</b> typically, references back to the caller of this method.
    * <p>Does consider objects created by FactoryBeans, which means that FactoryBeans
    * will get initialized. If the object created by the FactoryBean doesn't match,
    * the raw FactoryBean itself will be matched against the type.
    * <p>Does not consider any hierarchy this factory may participate in.
    * Use BeanFactoryUtils' {@code beansOfTypeIncludingAncestors}
    * to include beans in ancestor factories too.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
    * <p>This version of getBeansOfType matches all kinds of beans, be it
    * singletons, prototypes, or FactoryBeans. In most implementations, the
    * result will be the same as for {@code getBeansOfType(type, true, true)}.
    * <p>The Map returned by this method should always return bean names and
    * corresponding bean instances <i>in the order of definition</i> in the
    * backend configuration, as far as possible.
+   * <p><b>Consider {@link #getBeanNamesForType(Class)} with selective {@link #getBean}
+   * calls for specific bean names in preference to this Map-based retrieval method.</b>
+   * Aside from lazy instantiation benefits, this also avoids any exception suppression.
    *
-   * @param requiredType the class or interface to match, or {@code null} for all concrete beans
+   * @param type the class or interface to match, or {@code null} for all concrete beans
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getObjectType()
+   * @see FactoryBean#getObjectType
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class)
    * @since 2.1.6
    */
   @Modifiable
-  default <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
-    return getBeansOfType(requiredType, true, true);
+  default <T> Map<String, T> getBeansOfType(Class<T> type) {
+    return getBeansOfType(type, true, true);
   }
 
   /**
@@ -592,7 +595,9 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * subclasses), judging from either bean definitions or the value of
    * {@code getObjectType} in the case of FactoryBeans.
    * <p><b>NOTE: This method introspects top-level beans only.</b> It does <i>not</i>
-   * check nested beans which might match the specified type as well.
+   * check nested beans which might match the specified type as well. Also, it
+   * <b>suppresses exceptions for beans that are currently in creation in a circular
+   * reference scenario:</b> typically, references back to the caller of this method.
    * <p>Does consider objects created by FactoryBeans if the "allowEagerInit" flag is set,
    * which means that FactoryBeans will get initialized. If the object created by the
    * FactoryBean doesn't match, the raw FactoryBean itself will be matched against the
@@ -601,11 +606,12 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Does not consider any hierarchy this factory may participate in.
    * Use BeanFactoryUtils' {@code beansOfTypeIncludingAncestors}
    * to include beans in ancestor factories too.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
    * <p>The Map returned by this method should always return bean names and
    * corresponding bean instances <i>in the order of definition</i> in the
    * backend configuration, as far as possible.
+   * <p><b>Consider {@link #getBeanNamesForType(Class)} with selective {@link #getBean}
+   * calls for specific bean names in preference to this Map-based retrieval method.</b>
+   * Aside from lazy instantiation benefits, this also avoids any exception suppression.
    *
    * @param type the class or interface to match, or {@code null} for all concrete beans
    * @param includeNonSingletons whether to include prototype or scoped beans too
@@ -620,26 +626,38 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
-   * @see FactoryBean#getObjectType()
+   * @see FactoryBean#getObjectType
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
   @Modifiable
-  default <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
-    return getBeansOfType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
-  }
+  <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
+          throws BeansException;
 
   /**
    * Return the bean instances that match the given object type (including
    * subclasses), judging from either bean definitions or the value of
-   * {@code getBeanClass} in the case of FactoryBeans.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
-   * <p>
-   * Get a map of beans with given type
-   * </p>
+   * {@code getObjectType} in the case of FactoryBeans.
+   * <p><b>NOTE: This method introspects top-level beans only.</b> It does <i>not</i>
+   * check nested beans which might match the specified type as well. Also, it
+   * <b>suppresses exceptions for beans that are currently in creation in a circular
+   * reference scenario:</b> typically, references back to the caller of this method.
+   * <p>Does consider objects created by FactoryBeans if the "allowEagerInit" flag is set,
+   * which means that FactoryBeans will get initialized. If the object created by the
+   * FactoryBean doesn't match, the raw FactoryBean itself will be matched against the
+   * type. If "allowEagerInit" is not set, only raw FactoryBeans will be checked
+   * (which doesn't require initialization of each FactoryBean).
+   * <p>Does not consider any hierarchy this factory may participate in.
+   * Use BeanFactoryUtils' {@code beansOfTypeIncludingAncestors}
+   * to include beans in ancestor factories too.
+   * <p>The Map returned by this method should always return bean names and
+   * corresponding bean instances <i>in the order of definition</i> in the
+   * backend configuration, as far as possible.
+   * <p><b>Consider {@link #getBeanNamesForType(Class)} with selective {@link #getBean}
+   * calls for specific bean names in preference to this Map-based retrieval method.</b>
+   * Aside from lazy instantiation benefits, this also avoids any exception suppression.
    *
-   * @param requiredType the ResolvableType or interface to match, or {@code null} for all concrete beans
+   * @param type the generically typed class or interface to match
    * @param includeNonSingletons whether to include prototype or scoped beans too
    * or just singletons (also applies to FactoryBeans)
    * @param allowEagerInit whether to introspect <i>lazy-init singletons</i>
@@ -649,7 +667,6 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * for this flag will initialize FactoryBeans and "factory-bean" references. Only
    * actually necessary initialization for type checking purposes will be performed;
    * constructor and method invocations will still be avoided as far as possible.
-   * @param <T> required type
    * @return a Map with the matching beans, containing the bean names as
    * keys and the corresponding bean instances as values
    * @throws BeansException if a bean could not be created
@@ -657,44 +674,37 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 3.0
    */
   @Modifiable
-  <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
+  <T> Map<String, T> getBeansOfType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit);
 
   //
 
   /**
    * Return the names of beans matching the given type (including subclasses),
-   * judging from either bean definitions or the value of {@code getBeanClass}
+   * judging from either bean definitions or the value of {@code getObjectType}
    * in the case of FactoryBeans.
+   * <p><b>NOTE: This method introspects top-level beans only.</b> It does <i>not</i>
+   * check nested beans which might match the specified type as well.
+   * <p>Does consider objects created by FactoryBeans, which means that FactoryBeans
+   * will get initialized. If the object created by the FactoryBean doesn't match,
+   * the raw FactoryBean itself will be matched against the type.
+   * <p>Does not consider any hierarchy this factory may participate in.
+   * Use BeanFactoryUtils' {@code beanNamesForTypeIncludingAncestors}
+   * to include beans in ancestor factories too.
+   * <p>This version of {@code getBeanNamesForType} matches all kinds of beans,
+   * be it singletons, prototypes, or FactoryBeans. In most implementations, the
+   * result will be the same as for {@code getBeanNamesForType(type, true, true)}.
+   * <p>Bean names returned by this method should always return bean names <i>in the
+   * order of definition</i> in the backend configuration, as far as possible.
    *
-   * @param requiredType the class or interface to match, or {@code null} for all bean names
+   * @param type the class or interface to match, or {@code null} for all bean names
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty Set if none
-   * @see FactoryBean#getObjectType()
+   * the given object type (including subclasses), or an empty array if none
+   * @see FactoryBean#getObjectType
+   * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class)
    * @since 3.0
    */
   @Modifiable
-  default Set<String> getBeanNamesForType(Class<?> requiredType) {
-    return getBeanNamesForType(requiredType, true);
-  }
-
-  /**
-   * Return the names of beans matching the given type (including subclasses),
-   * judging from either bean definitions or the value of {@code getBeanClass}
-   * in the case of FactoryBeans.
-   * <p>
-   * include singletons already in {@code singletons} but not in {@code beanDefinitionMap}
-   * </p>
-   *
-   * @param requiredType the class or interface to match, or {@code null} for all bean names
-   * @param includeNonSingletons whether to include prototype or scoped beans too
-   * or just singletons (also applies to FactoryBeans)
-   * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty Set if none
-   * @see FactoryBean#getObjectType()
-   * @since 3.0
-   */
-  @Modifiable
-  Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons);
+  Set<String> getBeanNamesForType(@Nullable Class<?> type);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -710,12 +720,10 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Does not consider any hierarchy this factory may participate in.
    * Use BeanFactoryUtils' {@code beanNamesForTypeIncludingAncestors}
    * to include beans in ancestor factories too.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
    * <p>Bean names returned by this method should always return bean names <i>in the
    * order of definition</i> in the backend configuration, as far as possible.
    *
-   * @param requiredType the class or interface to match, or {@code null} for all bean names
+   * @param type the class or interface to match, or {@code null} for all bean names
    * @param includeNonSingletons whether to include prototype or scoped beans too
    * or just singletons (also applies to FactoryBeans)
    * @param allowEagerInit whether to introspect <i>lazy-init singletons</i>
@@ -726,15 +734,13 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * actually necessary initialization for type checking purposes will be performed;
    * constructor and method invocations will still be avoided as far as possible.
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty Set if none
-   * @see FactoryBean#getObjectType()
+   * the given object type (including subclasses), or an empty array if none
+   * @see FactoryBean#getObjectType
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
   @Modifiable
-  default Set<String> getBeanNamesForType(@Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeanNamesForType(ResolvableType.forClass(requiredType), includeNonSingletons, allowEagerInit);
-  }
+  Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit);
 
   /**
    * Return the names of beans matching the given type (including subclasses),
@@ -748,8 +754,6 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Does not consider any hierarchy this factory may participate in.
    * Use BeanFactoryUtils' {@code beanNamesForTypeIncludingAncestors}
    * to include beans in ancestor factories too.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
    * <p>This version of {@code getBeanNamesForType} matches all kinds of beans,
    * be it singletons, prototypes, or FactoryBeans. In most implementations, the
    * result will be the same as for {@code getBeanNamesForType(type, true, true)}.
@@ -758,7 +762,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param type the generically typed class or interface to match
    * @return the names of beans (or objects created by FactoryBeans) matching
-   * the given object type (including subclasses), or an empty set if none
+   * the given object type (including subclasses), or an empty array if none
    * @see #isTypeMatch(String, ResolvableType)
    * @see FactoryBean#getObjectType
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, ResolvableType)
@@ -781,8 +785,6 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * <p>Does not consider any hierarchy this factory may participate in.
    * Use BeanFactoryUtils' {@code beanNamesForTypeIncludingAncestors}
    * to include beans in ancestor factories too.
-   * <p>Note: Does <i>not</i> ignore singleton beans that have been registered
-   * by other means than bean definitions.
    * <p>Bean names returned by this method should always return bean names <i>in the
    * order of definition</i> in the backend configuration, as far as possible.
    *
@@ -798,7 +800,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * constructor and method invocations will still be avoided as far as possible.
    * @return the names of beans (or objects created by FactoryBeans) matching
    * the given object type (including subclasses), or an empty array if none
-   * @see FactoryBean#getObjectType()
+   * @see FactoryBean#getObjectType
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, ResolvableType, boolean, boolean)
    * @since 4.0
    */
