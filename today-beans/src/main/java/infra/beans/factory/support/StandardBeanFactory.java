@@ -1499,7 +1499,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   protected boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor, AutowireCandidateResolver resolver)
           throws NoSuchBeanDefinitionException {
 
-    String bdName = BeanFactoryUtils.transformedBeanName(beanName);
+    String bdName = transformedBeanName(beanName);
     if (containsBeanDefinition(bdName)) {
       return isAutowireCandidate(beanName, getMergedLocalBeanDefinition(bdName), descriptor, resolver);
     }
@@ -1535,7 +1535,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   protected boolean isAutowireCandidate(String beanName, RootBeanDefinition merged,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
 
-    String bdName = BeanFactoryUtils.transformedBeanName(beanName);
+    String bdName = transformedBeanName(beanName);
     resolveBeanClass(bdName, merged);
     if (merged.isFactoryMethodUnique && merged.factoryMethodToIntrospect == null) {
       new ConstructorResolver(this).resolveFactoryMethodIfPossible(merged);
