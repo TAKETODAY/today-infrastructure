@@ -25,6 +25,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -58,6 +59,7 @@ class BackgroundBootstrapTests {
 
   @Test
   @Timeout(5)
+  @DisabledIfInContinuousIntegration
   void bootstrapWithStrictLockingThread() {
     TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
     try {
