@@ -86,6 +86,7 @@ import infra.lang.Assert;
 import infra.lang.Modifiable;
 import infra.lang.NullValue;
 import infra.lang.Nullable;
+import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.CompositeIterator;
@@ -127,6 +128,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Serial
   private static final long serialVersionUID = 1L;
+
+  /**
+   * System property that instructs Infra to enforce string locking during bean creation,
+   * Setting this flag to "true" restores locking in the entire pre-instantiation phase.
+   *
+   * @see #preInstantiateSingletons()
+   * @since 5.0
+   */
+  public static final String STRICT_LOCKING_PROPERTY_NAME = "infra.locking.strict";
+
+  private static final boolean lenientLockingAllowed = !TodayStrategies.getFlag(STRICT_LOCKING_PROPERTY_NAME);
 
   @Nullable
   private static final Class<?> injectProviderClass = // JSR-330 API not available - Provider interface simply not supported then.
@@ -494,7 +506,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Nullable
   @Override
   protected Boolean isCurrentThreadAllowedToHoldSingletonLock() {
-    return preInstantiationPhase ? preInstantiationThread.get() != PreInstantiation.BACKGROUND : null;
+    return (lenientLockingAllowed && preInstantiationPhase)
+            ? preInstantiationThread.get() != PreInstantiation.BACKGROUND
+            : null;
   }
 
   @Override

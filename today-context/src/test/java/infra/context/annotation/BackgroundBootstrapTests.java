@@ -21,11 +21,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import infra.beans.factory.ObjectProvider;
+import infra.beans.factory.config.ConfigurableBeanFactory;
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
+import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static infra.stereotype.Component.Bootstrap.BACKGROUND;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Juergen Hoeller
@@ -50,6 +54,20 @@ class BackgroundBootstrapTests {
     ctx.getBean("testBean3", TestBean.class);
     ctx.getBean("testBean4", TestBean.class);
     ctx.close();
+  }
+
+  @Test
+  @Timeout(5)
+  void bootstrapWithStrictLockingThread() {
+    TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
+    try {
+      ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(StrictLockingBeanConfig.class);
+      assertThat(ctx.getBean("testBean2", TestBean.class).getSpouse()).isSameAs(ctx.getBean("testBean1"));
+      ctx.close();
+    }
+    finally {
+      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+    }
   }
 
   @Test
@@ -136,6 +154,27 @@ class BackgroundBootstrapTests {
         throw new RuntimeException(ex);
       }
       return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class StrictLockingBeanConfig {
+
+    @Bean
+    public TestBean testBean1(ObjectProvider<TestBean> testBean2) {
+      new Thread(testBean2::get).start();
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return new TestBean();
+    }
+
+    @Bean
+    public TestBean testBean2(ConfigurableBeanFactory beanFactory) {
+      return new TestBean((TestBean) beanFactory.getSingleton("testBean1"));
     }
   }
 
