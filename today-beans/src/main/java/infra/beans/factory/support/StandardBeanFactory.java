@@ -163,6 +163,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   // Set of bean definition names with a primary marker. */
   private final Set<String> primaryBeanNames = ConcurrentHashMap.newKeySet(16);
 
+  private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
+          new NamedThreadLocal<>("Pre-instantiation thread marker");
+
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable
   private String serializationId;
@@ -199,9 +202,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   /** List of names of manually registered singletons, in registration order. */
   private volatile LinkedHashSet<String> manualSingletonNames = new LinkedHashSet<>(16);
-
-  private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
-          new NamedThreadLocal<>("Pre-instantiation thread marker");
 
   /**
    * Create a new StandardBeanFactory.
