@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 
 import infra.bytecode.AnnotationVisitor;
 import infra.bytecode.MethodVisitor;
+import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
@@ -90,7 +91,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
   private Object getSource() {
     Source source = this.source;
     if (source == null) {
-      source = new Source(declaringClassName, methodName, descriptor);
+      source = new Source(declaringClassName, methodName, access, descriptor);
       this.source = source;
     }
     return source;
@@ -105,14 +106,17 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
 
     private final String methodName;
 
+    private final int access;
+
     private final String descriptor;
 
     @Nullable
     private String toStringValue;
 
-    Source(String declaringClassName, String methodName, String descriptor) {
+    Source(String declaringClassName, String methodName, int access, String descriptor) {
       this.declaringClassName = declaringClassName;
       this.methodName = methodName;
+      this.access = access;
       this.descriptor = descriptor;
     }
 
@@ -121,6 +125,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
       int result = 1;
       result = 31 * result + this.declaringClassName.hashCode();
       result = 31 * result + this.methodName.hashCode();
+      result = 31 * result + this.access;
       result = 31 * result + this.descriptor.hashCode();
       return result;
     }
@@ -134,9 +139,9 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         return false;
       }
       Source otherSource = (Source) other;
-      return (this.declaringClassName.equals(otherSource.declaringClassName)
-              && this.methodName.equals(otherSource.methodName)
-              && this.descriptor.equals(otherSource.descriptor));
+      return (this.declaringClassName.equals(otherSource.declaringClassName) &&
+              this.methodName.equals(otherSource.methodName) &&
+              this.access == otherSource.access && this.descriptor.equals(otherSource.descriptor));
     }
 
     @Override
@@ -144,6 +149,27 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
       String value = this.toStringValue;
       if (value == null) {
         StringBuilder builder = new StringBuilder();
+        if ((this.access & Opcodes.ACC_PUBLIC) != 0) {
+          builder.append("public ");
+        }
+        if ((this.access & Opcodes.ACC_PROTECTED) != 0) {
+          builder.append("protected ");
+        }
+        if ((this.access & Opcodes.ACC_PRIVATE) != 0) {
+          builder.append("private ");
+        }
+        if ((this.access & Opcodes.ACC_ABSTRACT) != 0) {
+          builder.append("abstract ");
+        }
+        if ((this.access & Opcodes.ACC_STATIC) != 0) {
+          builder.append("static ");
+        }
+        if ((this.access & Opcodes.ACC_FINAL) != 0) {
+          builder.append("final ");
+        }
+        Type returnType = Type.forReturnType(this.descriptor);
+        builder.append(returnType.getClassName());
+        builder.append(' ');
         builder.append(this.declaringClassName);
         builder.append('.');
         builder.append(this.methodName);

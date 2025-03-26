@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation;
@@ -24,11 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import infra.context.BootstrapContext;
-import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.annotation.Bean;
-import infra.context.annotation.ComponentMethod;
-import infra.context.annotation.ConfigurationClass;
-import infra.context.annotation.ConfigurationClassParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -130,7 +125,7 @@ class ConfigurationClassAndBeanMethodTests {
             .startsWith("ConfigurationClass: beanName 'Config1', class path resource");
 
     List<ComponentMethod> beanMethods = getBeanMethods(configurationClass);
-    String prefix = "ComponentMethod: " + Config1.class.getName();
+    String prefix = "BeanMethod: java.lang.String " + Config1.class.getName();
     assertThat(beanMethods.get(0).toString()).isEqualTo(prefix + ".bean0()");
     assertThat(beanMethods.get(1).toString()).isEqualTo(prefix + ".bean1(java.lang.String)");
     assertThat(beanMethods.get(2).toString()).isEqualTo(prefix + ".bean2(java.lang.String,java.lang.Integer)");

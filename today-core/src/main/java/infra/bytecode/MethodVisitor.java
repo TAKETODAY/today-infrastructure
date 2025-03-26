@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ public class MethodVisitor {
    * 'name' parameters passed to the methods of this annotation visitor are ignored. Moreover,
    * exacly one visit method must be called on this annotation visitor, followed by visitEnd.
    */
+  @Nullable
   public AnnotationVisitor visitAnnotationDefault() {
     if (mv != null) {
       return mv.visitAnnotationDefault();
@@ -107,6 +108,7 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
+  @Nullable
   public AnnotationVisitor visitAnnotation(final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitAnnotation(descriptor, visible);
@@ -130,8 +132,8 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitTypeAnnotation(
-          final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+  @Nullable
+  public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
@@ -172,8 +174,8 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitParameterAnnotation(
-          final int parameter, final String descriptor, final boolean visible) {
+  @Nullable
+  public AnnotationVisitor visitParameterAnnotation(final int parameter, final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitParameterAnnotation(parameter, descriptor, visible);
     }
@@ -255,12 +257,8 @@ public class MethodVisitor {
    * instruction between the two (unless this frame is a Opcodes#F_SAME frame, in which case it
    * is silently ignored).
    */
-  public void visitFrame(
-          final int type,
-          final int numLocal,
-          final Object[] local,
-          final int numStack,
-          final Object[] stack) {
+  public void visitFrame(final int type, final int numLocal,
+          final Object[] local, final int numStack, final Object[] stack) {
     if (mv != null) {
       mv.visitFrame(type, numLocal, local, numStack, stack);
     }
@@ -350,8 +348,7 @@ public class MethodVisitor {
    * @param name the field's name.
    * @param descriptor the field's descriptor (see {@link Type}).
    */
-  public void visitFieldInsn(
-          final int opcode, final String owner, final String name, final String descriptor) {
+  public void visitFieldInsn(final int opcode, final String owner, final String name, final String descriptor) {
     if (mv != null) {
       mv.visitFieldInsn(opcode, owner, name, descriptor);
     }
@@ -367,8 +364,7 @@ public class MethodVisitor {
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    */
-  public void visitMethodInsn(
-          final int opcode, final String owner, final String name, final String descriptor) {
+  public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor) {
     visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
   }
 
@@ -383,12 +379,8 @@ public class MethodVisitor {
    * @param descriptor the method's descriptor (see {@link Type}).
    * @param isInterface if the method's owner class is an interface.
    */
-  public void visitMethodInsn(
-          final int opcode,
-          final String owner,
-          final String name,
-          final String descriptor,
-          final boolean isInterface) {
+  public void visitMethodInsn(final int opcode, final String owner,
+          final String name, final String descriptor, final boolean isInterface) {
     if (mv != null) {
       mv.visitMethodInsn(opcode & ~Opcodes.SOURCE_MASK, owner, name, descriptor, isInterface);
     }
@@ -405,11 +397,8 @@ public class MethodVisitor {
    * Type}, {@link Handle} or {@link ConstantDynamic} value. This method is allowed to modify
    * the content of the array so a caller should expect that this array may change.
    */
-  public void visitInvokeDynamicInsn(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public void visitInvokeDynamicInsn(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     if (mv != null) {
       mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     }
@@ -516,8 +505,7 @@ public class MethodVisitor {
    * @param labels beginnings of the handler blocks. {@code labels[i]} is the beginning of the
    * handler block for the {@code min + i} key.
    */
-  public void visitTableSwitchInsn(
-          final int min, final int max, final Label dflt, final Label... labels) {
+  public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label... labels) {
     if (mv != null) {
       mv.visitTableSwitchInsn(min, max, dflt, labels);
     }
@@ -568,8 +556,9 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitInsnAnnotation(
-          final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+  @Nullable
+  public AnnotationVisitor visitInsnAnnotation(final int typeRef,
+          final TypePath typePath, final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
     }
@@ -591,8 +580,7 @@ public class MethodVisitor {
    * @throws IllegalArgumentException if one of the labels has already been visited by this visitor
    * (by the {@link #visitLabel} method).
    */
-  public void visitTryCatchBlock(
-          final Label start, final Label end, final Label handler, final String type) {
+  public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final String type) {
     if (mv != null) {
       mv.visitTryCatchBlock(start, end, handler, type);
     }
@@ -613,8 +601,9 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitTryCatchAnnotation(
-          final int typeRef, final TypePath typePath, final String descriptor, final boolean visible) {
+  @Nullable
+  public AnnotationVisitor visitTryCatchAnnotation(final int typeRef,
+          final TypePath typePath, final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
     }
@@ -635,13 +624,8 @@ public class MethodVisitor {
    * @throws IllegalArgumentException if one of the labels has not already been visited by this
    * visitor (by the {@link #visitLabel} method).
    */
-  public void visitLocalVariable(
-          final String name,
-          final String descriptor,
-          final String signature,
-          final Label start,
-          final Label end,
-          final int index) {
+  public void visitLocalVariable(final String name, final String descriptor,
+          final String signature, final Label start, final Label end, final int index) {
     if (mv != null) {
       mv.visitLocalVariable(name, descriptor, signature, start, end, index);
     }
@@ -667,14 +651,9 @@ public class MethodVisitor {
    * @return a visitor to visit the annotation values, or {@literal null} if this visitor is not
    * interested in visiting this annotation.
    */
-  public AnnotationVisitor visitLocalVariableAnnotation(
-          final int typeRef,
-          final TypePath typePath,
-          final Label[] start,
-          final Label[] end,
-          final int[] index,
-          final String descriptor,
-          final boolean visible) {
+  @Nullable
+  public AnnotationVisitor visitLocalVariableAnnotation(final int typeRef, final TypePath typePath, final Label[] start,
+          final Label[] end, final int[] index, final String descriptor, final boolean visible) {
     if (mv != null) {
       return mv.visitLocalVariableAnnotation(
               typeRef, typePath, start, end, index, descriptor, visible);
