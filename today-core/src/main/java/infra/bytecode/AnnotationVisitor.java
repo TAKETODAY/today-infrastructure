@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +93,7 @@ public abstract class AnnotationVisitor {
    * visitor is not interested in visiting this nested annotation. <i>The nested annotation
    * value must be fully visited before calling other methods on this annotation visitor</i>.
    */
+  @Nullable
   public AnnotationVisitor visitAnnotation(final String name, final String descriptor) {
     if (av != null) {
       return av.visitAnnotation(name, descriptor);
@@ -111,6 +112,7 @@ public abstract class AnnotationVisitor {
    * this visitor are ignored. <i>All the array values must be visited before calling other
    * methods on this annotation visitor</i>.
    */
+  @Nullable
   public AnnotationVisitor visitArray(final String name) {
     if (av != null) {
       return av.visitArray(name);
