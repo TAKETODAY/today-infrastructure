@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import infra.lang.Nullable;
  */
 final class SimpleMethodMetadata implements MethodMetadata {
 
-  private final int access;
+  final int access;
 
   private final String declaringClassName;
 
@@ -91,7 +91,7 @@ final class SimpleMethodMetadata implements MethodMetadata {
     return !isStatic() && !isFinal() && !isPrivate();
   }
 
-  private boolean isPrivate() {
+  boolean isPrivate() {
     return (this.access & Opcodes.ACC_PRIVATE) != 0;
   }
 

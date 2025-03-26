@@ -57,8 +57,7 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
 
   private final String descriptor;
 
-  SimpleMethodMetadataReadingVisitor(
-          @Nullable ClassLoader classLoader, String declaringClassName,
+  SimpleMethodMetadataReadingVisitor(@Nullable ClassLoader classLoader, String declaringClassName,
           int access, String methodName, String descriptor, Consumer<SimpleMethodMetadata> consumer) {
 
     this.access = access;
