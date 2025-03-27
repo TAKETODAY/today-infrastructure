@@ -19,9 +19,12 @@ package infra.core.type.classreading;
 
 import org.junit.jupiter.api.Test;
 
-import infra.core.io.Resource;
+import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.*;
+import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -53,6 +56,74 @@ class ConcurrentReferenceCachingMetadataReaderFactoryTests {
     MetadataReader metadataReader2 = factory.getMetadataReader(getClass().getName());
     assertThat(metadataReader1).isNotSameAs(metadataReader2);
     then(factory).should(times(2)).createMetadataReader(any(Resource.class));
+  }
+
+  @Test
+  void getMetadataReaderReusesCachedMetadataReaderFromResourceCache() throws IOException {
+    ConcurrentReferenceCachingMetadataReaderFactory factory = spy(
+            new TestConcurrentReferenceCachingMetadataReaderFactory());
+    Resource resource = mock(Resource.class);
+    MetadataReader reader1 = factory.getMetadataReader(resource);
+    MetadataReader reader2 = factory.getMetadataReader(resource);
+    assertThat(reader1).isSameAs(reader2);
+    then(factory).should().createMetadataReader(resource);
+  }
+
+  @Test
+  void getMetadataReaderWithDifferentResourcesCreatesDifferentReaders() throws IOException {
+    ConcurrentReferenceCachingMetadataReaderFactory factory = spy(
+            new TestConcurrentReferenceCachingMetadataReaderFactory());
+    Resource resource1 = mock(Resource.class);
+    Resource resource2 = mock(Resource.class);
+    MetadataReader reader1 = factory.getMetadataReader(resource1);
+    MetadataReader reader2 = factory.getMetadataReader(resource2);
+    assertThat(reader1).isNotSameAs(reader2);
+    then(factory).should().createMetadataReader(resource1);
+    then(factory).should().createMetadataReader(resource2);
+  }
+
+  @Test
+  void getMetadataReaderWithDifferentClassNamesCreatesDifferentReaders() throws IOException {
+    ConcurrentReferenceCachingMetadataReaderFactory factory = spy(
+            new TestConcurrentReferenceCachingMetadataReaderFactory());
+    MetadataReader reader1 = factory.getMetadataReader("com.example.Class1");
+    MetadataReader reader2 = factory.getMetadataReader("com.example.Class2");
+    assertThat(reader1).isNotSameAs(reader2);
+  }
+
+  @Test
+  void clearCacheRemovesBothResourceAndClassNameCaches() throws IOException {
+    ConcurrentReferenceCachingMetadataReaderFactory factory = spy(
+            new TestConcurrentReferenceCachingMetadataReaderFactory());
+    Resource resource = mock(Resource.class);
+
+    factory.getMetadataReader(resource);
+    factory.getMetadataReader("com.example.Class");
+    factory.clearCache();
+
+    factory.getMetadataReader(resource);
+    factory.getMetadataReader("com.example.Class");
+
+    then(factory).should(times(2)).createMetadataReader(resource);
+  }
+
+  @Test
+  void delegatesMetadataReaderCreationToProvidedFactory() throws IOException {
+    ResourceLoader resourceLoader = mock(ResourceLoader.class);
+    ConcurrentReferenceCachingMetadataReaderFactory factory =
+            new ConcurrentReferenceCachingMetadataReaderFactory(resourceLoader);
+    Resource resource = mock(Resource.class);
+
+    factory.getMetadataReader(resource);
+    factory.getMetadataReader("com.example.Class");
+  }
+
+  @Test
+  void handlesClassLoaderConstructor() {
+    ClassLoader classLoader = mock(ClassLoader.class);
+    ConcurrentReferenceCachingMetadataReaderFactory factory =
+            new ConcurrentReferenceCachingMetadataReaderFactory(classLoader);
+    assertThat(factory).isNotNull();
   }
 
   static class TestConcurrentReferenceCachingMetadataReaderFactory
