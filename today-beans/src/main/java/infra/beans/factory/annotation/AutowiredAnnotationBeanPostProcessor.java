@@ -83,7 +83,6 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
-import infra.core.type.classreading.SimpleMetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
 import infra.lang.Assert;
@@ -635,7 +634,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   private List<InjectedElement> sortMethodElements(List<InjectedElement> methodElements, Class<?> targetClass) {
     if (methodElements.size() > 1) {
       if (metadataReaderFactory == null) {
-        metadataReaderFactory = new SimpleMetadataReaderFactory(beanFactory != null
+        metadataReaderFactory = MetadataReaderFactory.create(beanFactory != null
                 ? beanFactory.getBeanClassLoader() : ClassUtils.getDefaultClassLoader());
       }
       // Try reading the class file via ASM for deterministic declaration order...

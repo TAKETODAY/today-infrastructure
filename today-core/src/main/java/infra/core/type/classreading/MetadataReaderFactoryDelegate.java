@@ -31,6 +31,10 @@ import infra.lang.Nullable;
  */
 abstract class MetadataReaderFactoryDelegate {
 
+  static MetadataReaderFactory create() {
+    return new SimpleMetadataReaderFactory();
+  }
+
   static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
     return new SimpleMetadataReaderFactory(resourceLoader);
   }

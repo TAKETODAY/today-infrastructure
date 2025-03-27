@@ -34,17 +34,20 @@ import infra.util.ConcurrentReferenceHashMap;
  * @see CachingMetadataReaderFactory
  * @since 4.0
  */
-public class ConcurrentReferenceCachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
+public class ConcurrentReferenceCachingMetadataReaderFactory implements MetadataReaderFactory {
 
   private final Map<String, MetadataReader> classNameCache = new ConcurrentReferenceHashMap<>();
 
   private final Map<Resource, MetadataReader> resourceCache = new ConcurrentReferenceHashMap<>();
+
+  private final MetadataReaderFactory delegate;
 
   /**
    * Create a new {@link ConcurrentReferenceCachingMetadataReaderFactory} instance for
    * the default class loader.
    */
   public ConcurrentReferenceCachingMetadataReaderFactory() {
+    this.delegate = MetadataReaderFactory.create();
   }
 
   /**
@@ -55,7 +58,7 @@ public class ConcurrentReferenceCachingMetadataReaderFactory extends SimpleMetad
    * ClassLoader to use)
    */
   public ConcurrentReferenceCachingMetadataReaderFactory(ResourceLoader resourceLoader) {
-    super(resourceLoader);
+    this.delegate = MetadataReaderFactory.create(resourceLoader);
   }
 
   /**
@@ -65,14 +68,14 @@ public class ConcurrentReferenceCachingMetadataReaderFactory extends SimpleMetad
    * @param classLoader the ClassLoader to use
    */
   public ConcurrentReferenceCachingMetadataReaderFactory(ClassLoader classLoader) {
-    super(classLoader);
+    this.delegate = MetadataReaderFactory.create(classLoader);
   }
 
   @Override
   public MetadataReader getMetadataReader(String className) throws IOException {
     MetadataReader metadataReader = this.classNameCache.get(className);
     if (metadataReader == null) {
-      metadataReader = super.getMetadataReader(className);
+      metadataReader = delegate.getMetadataReader(className);
       this.classNameCache.put(className, metadataReader);
     }
     return metadataReader;
@@ -96,7 +99,7 @@ public class ConcurrentReferenceCachingMetadataReaderFactory extends SimpleMetad
    * @throws IOException on error
    */
   protected MetadataReader createMetadataReader(Resource resource) throws IOException {
-    return super.getMetadataReader(resource);
+    return delegate.getMetadataReader(resource);
   }
 
   /**

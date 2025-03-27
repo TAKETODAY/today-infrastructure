@@ -62,6 +62,17 @@ public interface MetadataReaderFactory {
    * @return a new factory instance
    * @since 5.0
    */
+  static MetadataReaderFactory create() {
+    return MetadataReaderFactoryDelegate.create();
+  }
+
+  /**
+   * Create a default {@link MetadataReaderFactory} implementation that's suitable
+   * for the current JVM.
+   *
+   * @return a new factory instance
+   * @since 5.0
+   */
   static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
     return MetadataReaderFactoryDelegate.create(resourceLoader);
   }
