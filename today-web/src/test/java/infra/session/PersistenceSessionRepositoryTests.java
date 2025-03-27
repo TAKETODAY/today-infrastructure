@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import lombok.Data;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -40,10 +38,25 @@ class PersistenceSessionRepositoryTests {
 
 //  static class
 
-  @Data
   static class User implements Serializable {
     public int age;
     public String name;
+
+    public int getAge() {
+      return age;
+    }
+
+    public void setAge(int age) {
+      this.age = age;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
   }
 
   @Test

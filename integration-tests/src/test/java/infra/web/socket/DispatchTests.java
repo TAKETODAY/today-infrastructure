@@ -31,6 +31,8 @@ import infra.app.InfraApplication;
 import infra.app.test.context.InfraTest;
 import infra.app.test.web.server.LocalServerPort;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.test.context.ActiveProfiles;
 import infra.test.context.TestPropertySource;
 import infra.util.StringUtils;
@@ -42,7 +44,6 @@ import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.handler.LoggingWebSocketHandler;
 import infra.web.socket.server.HandshakeCapable;
-import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,11 +52,12 @@ import static org.assertj.core.api.Assertions.fail;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/12/16 14:23
  */
-@Slf4j
 @TestPropertySource(properties = "logging.level.web=info")
 @ActiveProfiles("dev")
 @InfraTest(webEnvironment = InfraTest.WebEnvironment.RANDOM_PORT)
 class DispatchTests {
+
+  static final Logger log = LoggerFactory.getLogger(DispatchTests.class);
 
   static final int connections = 32;
 

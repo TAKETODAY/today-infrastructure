@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ import infra.jdbc.issues.pojos.Issue1Pojo;
 import infra.jdbc.issues.pojos.KeyValueEntity;
 import infra.jdbc.Row;
 import infra.jdbc.Table;
-import lombok.Setter;
 
 import static org.junit.Assert.assertEquals;
 
@@ -161,10 +160,17 @@ public class IssuesTest {
 
   }
 
-  @Setter
   public static class Issue5POJO {
     public int id;
     public int val;
+
+    public void setVal(int val) {
+      this.val = val;
+    }
+
+    public void setId(int id) {
+      this.id = id;
+    }
   }
 
   public static class Issue5POJO2 {

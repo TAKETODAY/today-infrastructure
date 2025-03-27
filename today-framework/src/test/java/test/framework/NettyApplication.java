@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,12 @@ import infra.context.annotation.Configuration;
 import infra.context.event.EventListener;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
+import infra.core.style.ToStringBuilder;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;
 import infra.web.RequestContext;
 import infra.web.annotation.ExceptionHandler;
@@ -49,17 +52,15 @@ import infra.web.socket.client.support.NettyWebSocketClient;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.server.HandshakeCapable;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY 2021/3/30 22:41
  */
-@Slf4j
 @RestController
 @InfraApplication
 public class NettyApplication {
+
+  static final Logger log = LoggerFactory.getLogger(NettyApplication.class);
 
   public static void main(String[] args) {
     Application.forBuilder(NettyApplication.class)
@@ -121,7 +122,6 @@ public class NettyApplication {
     return queryString;
   }
 
-  @Getter
   static class Body {
     final String name;
     final int age;
@@ -129,6 +129,14 @@ public class NettyApplication {
     Body(String name, int age) {
       this.name = name;
       this.age = age;
+    }
+
+    public int getAge() {
+      return age;
+    }
+
+    public String getName() {
+      return name;
     }
   }
 
@@ -147,12 +155,18 @@ public class NettyApplication {
     }
   }
 
-  @ToString
   static class MyEvent {
     final String name;
 
     MyEvent(String name) {
       this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.forInstance(this)
+              .append("name", name)
+              .toString();
     }
   }
 

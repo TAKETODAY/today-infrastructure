@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,6 @@ import infra.reflect.MethodInvoker;
 import infra.reflect.PropertyAccessor;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import lombok.Getter;
-import lombok.Setter;
 import test.demo.config.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -177,10 +175,16 @@ class BenchmarkTests {
     System.out.println("MethodHandles used: " + (System.currentTimeMillis() - start) + "ms");
   }
 
-  @Setter
-  @Getter
   static class PropertyTestBean {
     private String value;
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
   }
 
   @Test

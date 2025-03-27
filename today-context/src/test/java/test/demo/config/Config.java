@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +12,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package test.demo.config;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Objects;
 
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Value;
 import infra.stereotype.Prototype;
 import infra.stereotype.Singleton;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 @Singleton
 @SuppressWarnings("serial")
 @Prototype("prototype_config")
@@ -89,39 +83,131 @@ public final class Config implements Serializable {
 
   }
 
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("{\n\t\"id\":\"");
-    builder.append(id);
-    builder.append("\", \n\t\"cdn\":\"");
-    builder.append(cdn);
-    builder.append("\", \n\t\"icp\":\"");
-    builder.append(icp);
-    builder.append("\", \n\t\"host\":\"");
-    builder.append(host);
-    builder.append("\", \n\t\"index\":\"");
-    builder.append(index);
-    builder.append("\", \n\t\"upload\":\"");
-    builder.append(upload);
-    builder.append("\", \n\t\"keywords\":\"");
-    builder.append(keywords);
-    builder.append("\", \n\t\"siteName\":\"");
-    builder.append(siteName);
-    builder.append("\", \n\t\"copyright\":\"");
-    builder.append(copyright);
-    builder.append("\", \n\t\"serverPath\":\"");
-    builder.append(serverPath);
-    builder.append("\", \n\t\"description\":\"");
-    builder.append(description);
-    builder.append("\", \n\t\"otherFooterInfo\":\"");
-    builder.append(otherFooterInfo);
-    builder.append("\", \n\t\"user\":\"");
-    builder.append(user);
-    builder.append("\", \n\t\"admin\":\"");
-    builder.append(admin);
-    builder.append("\"\n}");
-    return builder.toString();
+  public User getAdmin() {
+    return admin;
   }
 
+  public void setAdmin(User admin) {
+    this.admin = admin;
+  }
+
+  public String getCdn() {
+    return cdn;
+  }
+
+  public void setCdn(String cdn) {
+    this.cdn = cdn;
+  }
+
+  public String getCopyright() {
+    return copyright;
+  }
+
+  public void setCopyright(String copyright) {
+    this.copyright = copyright;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
+  public String getIcp() {
+    return icp;
+  }
+
+  public void setIcp(String icp) {
+    this.icp = icp;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public File getIndex() {
+    return index;
+  }
+
+  public void setIndex(File index) {
+    this.index = index;
+  }
+
+  public String getKeywords() {
+    return keywords;
+  }
+
+  public void setKeywords(String keywords) {
+    this.keywords = keywords;
+  }
+
+  public String getOtherFooterInfo() {
+    return otherFooterInfo;
+  }
+
+  public void setOtherFooterInfo(String otherFooterInfo) {
+    this.otherFooterInfo = otherFooterInfo;
+  }
+
+  public File getServerPath() {
+    return serverPath;
+  }
+
+  public void setServerPath(File serverPath) {
+    this.serverPath = serverPath;
+  }
+
+  public String getSiteName() {
+    return siteName;
+  }
+
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
+
+  public File getUpload() {
+    return upload;
+  }
+
+  public void setUpload(File upload) {
+    this.upload = upload;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Config config))
+      return false;
+    return Objects.equals(id, config.id) && Objects.equals(cdn, config.cdn) && Objects.equals(icp, config.icp) && Objects.equals(host,
+            config.host) && Objects.equals(index, config.index) && Objects.equals(upload, config.upload) && Objects.equals(keywords,
+            config.keywords) && Objects.equals(siteName, config.siteName) && Objects.equals(copyright, config.copyright) && Objects.equals(serverPath,
+            config.serverPath) && Objects.equals(description, config.description) && Objects.equals(otherFooterInfo, config.otherFooterInfo) && Objects.equals(user,
+            config.user) && Objects.equals(admin, config.admin);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, cdn, icp, host, index, upload, keywords, siteName, copyright, serverPath, description, otherFooterInfo, user, admin);
+  }
 }

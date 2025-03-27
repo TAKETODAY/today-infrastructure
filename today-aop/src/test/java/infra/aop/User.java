@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,14 @@
 package infra.aop;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
+import infra.core.style.ToStringBuilder;
 
 /**
  * @author TODAY <br>
  * 2018-12-06 19:56
  */
-@Setter
-@Getter
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
@@ -51,20 +49,115 @@ public class User implements Serializable {
   /** back ground **/
   private String background;
 
-  @Override
-  public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"id\":\"").append(id)//
-            .append("\",\n\t\"name\":\"").append(name)//
-            .append("\",\n\t\"site\":\"").append(site)//
-            .append("\",\n\t\"type\":\"").append(type)//
-            .append("\",\n\t\"state\":\"").append(state)//
-            .append("\",\n\t\"image\":\"").append(image)//
-            .append("\",\n\t\"email\":\"").append(email)//
-            .append("\",\n\t\"password\":\"").append(password)//
-            .append("\",\n\t\"background\":\"").append(background)//
-            .append("\",\n\t\"introduce\":\"").append(introduce)//
-            .append("\"\n}").toString();
+  public void setBackground(String background) {
+    this.background = background;
   }
 
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setImage(String image) {
+    this.image = image;
+  }
+
+  public void setIntroduce(String introduce) {
+    this.introduce = introduce;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setSite(String site) {
+    this.site = site;
+  }
+
+  public void setState(byte state) {
+    this.state = state;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getBackground() {
+    return background;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public String getImage() {
+    return image;
+  }
+
+  public String getIntroduce() {
+    return introduce;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getSite() {
+    return site;
+  }
+
+  public byte getState() {
+    return state;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof User user))
+      return false;
+    return state == user.state && Objects.equals(id, user.id) && Objects.equals(name, user.name)
+            && Objects.equals(email, user.email) && Objects.equals(site, user.site)
+            && Objects.equals(type, user.type) && Objects.equals(password, user.password)
+            && Objects.equals(image, user.image) && Objects.equals(introduce, user.introduce)
+            && Objects.equals(background, user.background);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, state, name, email, site, type, password, image, introduce, background);
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.forInstance(this)
+            .append("background", background)
+            .append("id", id)
+            .append("state", state)
+            .append("name", name)
+            .append("email", email)
+            .append("site", site)
+            .append("type", type)
+            .append("password", password)
+            .append("image", image)
+            .append("introduce", introduce)
+            .toString();
+  }
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package test.demo.config;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
@@ -40,18 +30,73 @@ public class User implements Serializable {
   private String sex;
   private Date brithday;
 
-  @Override
-  public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"id\":\"").append(id)//
-            .append("\",\n\t\"userName\":\"").append(userName)//
-            .append("\",\n\t\"age\":\"").append(age)//
-            .append("\",\n\t\"passwd\":\"").append(passwd)//
-            .append("\",\n\t\"userId\":\"").append(userId)//
-            .append("\",\n\t\"sex\":\"").append(sex)//
-            .append("\",\n\t\"brithday\":\"").append(brithday)//
-            .append("\"\n}")//
-            .toString();
+  public User() {
+
   }
 
+  public User(int id, String userName,Integer age, String passwd, String userId, String sex, Date brithday) {
+    this.id = id;
+    this.age = age;
+    this.brithday = brithday;
+    this.passwd = passwd;
+    this.sex = sex;
+    this.userId = userId;
+    this.userName = userName;
+  }
+
+  public Integer getAge() {
+    return age;
+  }
+
+  public void setAge(Integer age) {
+    this.age = age;
+  }
+
+  public Date getBrithday() {
+    return brithday;
+  }
+
+  public void setBrithday(Date brithday) {
+    this.brithday = brithday;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getPasswd() {
+    return passwd;
+  }
+
+  public void setPasswd(String passwd) {
+    this.passwd = passwd;
+  }
+
+  public String getSex() {
+    return sex;
+  }
+
+  public void setSex(String sex) {
+    this.sex = sex;
+  }
+
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 }

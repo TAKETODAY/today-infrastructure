@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package infra.context.aware;
 
@@ -27,7 +24,6 @@ import infra.context.ApplicationContextAware;
 import infra.context.EnvironmentAware;
 import infra.core.env.Environment;
 import infra.stereotype.Singleton;
-import lombok.Getter;
 
 /**
  * @author Today <br>
@@ -35,7 +31,6 @@ import lombok.Getter;
  * 2018-08-08 16:32
  */
 @Singleton
-@Getter
 public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware, EnvironmentAware {
 
   private String beanName;
@@ -66,19 +61,19 @@ public class AwareBean implements ApplicationContextAware, BeanFactoryAware, Bea
     this.environment = environment;
   }
 
-  @Override
-  public String toString() {
-    return new StringBuilder()//
-            .append("{\n\t\"beanName\":\"")//
-            .append(beanName)//
-            .append("\",\n\t\"beanFactory\":\"")//
-            .append(beanFactory)//
-            .append("\",\n\t\"applicationContext\":\"")//
-            .append(applicationContext)//
-            .append("\",\n\t\"environment\":\"")//
-            .append(environment)//
-            .append("\"\n}")//
-            .toString();
+  public ApplicationContext getApplicationContext() {
+    return applicationContext;
   }
 
+  public BeanFactory getBeanFactory() {
+    return beanFactory;
+  }
+
+  public String getBeanName() {
+    return beanName;
+  }
+
+  public Environment getEnvironment() {
+    return environment;
+  }
 }

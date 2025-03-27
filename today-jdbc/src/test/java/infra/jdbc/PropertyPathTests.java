@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@ package infra.jdbc;
 
 import org.junit.jupiter.api.Test;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.Objects;
+
+import infra.core.style.ToStringBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,9 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PropertyPathTests {
 
-  @Data
-  @NoArgsConstructor
   static class Nested {
+
+    public Nested() {
+    }
 
     public Nested(String name) {
       this.name = name;
@@ -42,6 +44,42 @@ class PropertyPathTests {
 
     Nested nested;
 
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public Nested getNested() {
+      return nested;
+    }
+
+    public void setNested(Nested nested) {
+      this.nested = nested;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Nested nested1))
+        return false;
+      return Objects.equals(name, nested1.name)
+              && Objects.equals(nested, nested1.nested);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(name, nested);
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.forInstance(this)
+              .append("name", name)
+              .append("nested", nested)
+              .toString();
+    }
   }
 
   @Test

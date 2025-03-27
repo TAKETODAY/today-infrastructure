@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import infra.web.MockMethodParameter;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.ResolvableMethodParameter;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
-import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ParameterResolverRegistryTests {
 
-  @Data
   public static class UserForm {
     int age;
 
@@ -58,6 +56,70 @@ class ParameterResolverRegistryTests {
     UserForm nested;
     List<UserForm> nestedList;
     Map<String, UserForm> nestedMap;
+
+    public int getAge() {
+      return age;
+    }
+
+    public void setAge(int age) {
+      this.age = age;
+    }
+
+    public String[] getArr() {
+      return arr;
+    }
+
+    public void setArr(String[] arr) {
+      this.arr = arr;
+    }
+
+    public Map<String, Integer> getMap() {
+      return map;
+    }
+
+    public void setMap(Map<String, Integer> map) {
+      this.map = map;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public UserForm getNested() {
+      return nested;
+    }
+
+    public void setNested(UserForm nested) {
+      this.nested = nested;
+    }
+
+    public List<UserForm> getNestedList() {
+      return nestedList;
+    }
+
+    public void setNestedList(List<UserForm> nestedList) {
+      this.nestedList = nestedList;
+    }
+
+    public Map<String, UserForm> getNestedMap() {
+      return nestedMap;
+    }
+
+    public void setNestedMap(Map<String, UserForm> nestedMap) {
+      this.nestedMap = nestedMap;
+    }
+
+    public List<String> getStringList() {
+      return stringList;
+    }
+
+    public void setStringList(List<String> stringList) {
+      this.stringList = stringList;
+    }
 
     @Override
     public boolean equals(Object o) {

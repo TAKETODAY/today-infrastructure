@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import infra.beans.factory.config.DependencyDescriptor;
 import infra.lang.Nullable;
-import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,10 +73,9 @@ class DependencyInjectorTests {
     assertThat(testBean.intProperty.value).isEqualTo(1);
   }
 
-  @Data
   static class ParameterHandlerBean {
 
-    int age;
+    public int age;
   }
 
   static class TestBean {
