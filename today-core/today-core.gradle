@@ -1,17 +1,15 @@
-plugins {
-  id 'me.champeau.mrjar'
-}
-
 description = "Infra Core Technologies"
 
+apply plugin: "infra.building.multiReleaseJar"
 
 multiRelease {
-  targetVersions 17, 21
+  releaseVersions 21, 24
 }
 
 configurations {
   java21Api.extendsFrom(api)
   java21Implementation.extendsFrom(implementation)
+  java24Api.extendsFrom(api)
 }
 
 dependencies {

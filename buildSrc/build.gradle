@@ -13,7 +13,7 @@ repositories {
 dependencies {
   implementation 'org.yaml:snakeyaml:2.0'
   implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
-  implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
+  implementation "org.gradle:test-retry-gradle-plugin:1.6.2"
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
   implementation "org.apache.maven:maven-artifact:3.6.3"
@@ -33,6 +33,10 @@ gradlePlugin {
     conventionsPlugin {
       id = "infra.building.conventions"
       implementationClass = "infra.building.ConventionsPlugin"
+    }
+    multiReleasePlugin {
+      id = "infra.building.multiReleaseJar"
+      implementationClass = "infra.building.multirelease.MultiReleaseJarPlugin"
     }
     optionalDependenciesPlugin {
       id = "infra.building.optional-dependencies"
