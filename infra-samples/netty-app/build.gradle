@@ -9,7 +9,6 @@ dependencies {
   implementation 'cn.taketoday:today-starter-freemarker'
 
   implementation 'ch.qos.logback:logback-classic'
-  compileOnly 'org.projectlombok:lombok'
 }
 
 
