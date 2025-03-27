@@ -17,26 +17,24 @@
 
 package infra.core.type.classreading;
 
-import infra.core.type.AbstractAnnotationMetadataTests;
-import infra.core.type.AnnotationMetadata;
+import infra.core.io.ResourceLoader;
+import infra.lang.Nullable;
 
 /**
- * Tests for {@link SimpleAnnotationMetadata} and
- * {@link SimpleAnnotationMetadataReadingVisitor}.
+ * Internal delegate for instantiating {@link MetadataReaderFactory} implementations.
+ * For JDK >= 24, the {@link ClassFileMetadataReaderFactory} is being used.
  *
- * @author Phillip Webb
+ * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see MetadataReaderFactory
  */
-class SimpleAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
+abstract class MetadataReaderFactoryDelegate {
 
-  @Override
-  protected AnnotationMetadata get(Class<?> source) {
-    try {
-      return MetadataReaderFactory.create(source.getClassLoader())
-              .getMetadataReader(source.getName()).getAnnotationMetadata();
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
+  static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
+    return new ClassFileMetadataReaderFactory(resourceLoader);
   }
 
+  static MetadataReaderFactory create(@Nullable ClassLoader classLoader) {
+    return new ClassFileMetadataReaderFactory(classLoader);
+  }
 }

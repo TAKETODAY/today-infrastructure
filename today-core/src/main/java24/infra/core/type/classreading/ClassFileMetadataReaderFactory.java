@@ -20,7 +20,6 @@ package infra.core.type.classreading;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import infra.bytecode.ClassReader;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
@@ -28,40 +27,40 @@ import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
- * Simple implementation of the {@link MetadataReaderFactory} interface,
- * creating a new ASM {@link ClassReader} for every request.
+ * Implementation of the {@link MetadataReaderFactory} interface,
+ * using the {@link java.lang.classfile.ClassFile} API for parsing the bytecode.
  *
- * @author Juergen Hoeller
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 4.0
+ * @since 5.0
  */
-public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
+public class ClassFileMetadataReaderFactory implements MetadataReaderFactory {
 
   private final ResourceLoader resourceLoader;
 
   /**
-   * Create a new SimpleMetadataReaderFactory for the default class loader.
+   * Create a new ClassFileMetadataReaderFactory for the default class loader.
    */
-  public SimpleMetadataReaderFactory() {
+  public ClassFileMetadataReaderFactory() {
     this.resourceLoader = new DefaultResourceLoader();
   }
 
   /**
-   * Create a new SimpleMetadataReaderFactory for the given resource loader.
+   * Create a new ClassFileMetadataReaderFactory for the given resource loader.
    *
-   * @param resourceLoader the ResourceLoader to use
+   * @param resourceLoader the Spring ResourceLoader to use
    * (also determines the ClassLoader to use)
    */
-  public SimpleMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
+  public ClassFileMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
   }
 
   /**
-   * Create a new SimpleMetadataReaderFactory for the given class loader.
+   * Create a new ClassFileMetadataReaderFactory for the given class loader.
    *
    * @param classLoader the ClassLoader to use
    */
-  public SimpleMetadataReaderFactory(@Nullable ClassLoader classLoader) {
+  public ClassFileMetadataReaderFactory(@Nullable ClassLoader classLoader) {
     this.resourceLoader =
             (classLoader != null ? new DefaultResourceLoader(classLoader) : new DefaultResourceLoader());
   }
@@ -102,7 +101,6 @@ public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
 
   @Override
   public MetadataReader getMetadataReader(Resource resource) throws IOException {
-    return new SimpleMetadataReader(resource, this.resourceLoader.getClassLoader());
+    return new ClassFileMetadataReader(resource, this.resourceLoader.getClassLoader());
   }
-
 }

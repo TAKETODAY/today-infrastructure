@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.core.type.classreading;
 import java.io.IOException;
 
 import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
+import infra.lang.Nullable;
 
 /**
  * Factory interface for {@link MetadataReader} instances.
@@ -52,5 +54,27 @@ public interface MetadataReaderFactory {
    * @throws ClassFormatException in case of an incompatible class format
    */
   MetadataReader getMetadataReader(Resource resource) throws IOException;
+
+  /**
+   * Create a default {@link MetadataReaderFactory} implementation that's suitable
+   * for the current JVM.
+   *
+   * @return a new factory instance
+   * @since 5.0
+   */
+  static MetadataReaderFactory create(@Nullable ResourceLoader resourceLoader) {
+    return MetadataReaderFactoryDelegate.create(resourceLoader);
+  }
+
+  /**
+   * Create a default {@link MetadataReaderFactory} implementation that's suitable
+   * for the current JVM.
+   *
+   * @return a new factory instance
+   * @since 5.0
+   */
+  static MetadataReaderFactory create(@Nullable ClassLoader classLoader) {
+    return MetadataReaderFactoryDelegate.create(classLoader);
+  }
 
 }

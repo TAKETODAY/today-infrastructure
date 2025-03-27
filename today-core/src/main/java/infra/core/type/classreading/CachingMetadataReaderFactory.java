@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,10 +37,12 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
+public class CachingMetadataReaderFactory implements MetadataReaderFactory {
 
   /** Default maximum number of entries for a local MetadataReader cache: 256. */
   public static final int DEFAULT_CACHE_LIMIT = 256;
+
+  private final MetadataReaderFactory delegate;
 
   /** MetadataReader cache: either local or shared at the ResourceLoader level. */
   @Nullable
@@ -51,8 +53,7 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
    * using a local resource cache.
    */
   public CachingMetadataReaderFactory() {
-    super();
-    setCacheLimit(DEFAULT_CACHE_LIMIT);
+    this((ClassLoader) null);
   }
 
   /**
@@ -62,7 +63,7 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
    * @param classLoader the ClassLoader to use
    */
   public CachingMetadataReaderFactory(@Nullable ClassLoader classLoader) {
-    super(classLoader);
+    this.delegate = MetadataReaderFactory.create(classLoader);
     setCacheLimit(DEFAULT_CACHE_LIMIT);
   }
 
@@ -75,9 +76,9 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
    * @see DefaultResourceLoader#getResourceCache
    */
   public CachingMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
-    super(resourceLoader);
-    if (resourceLoader instanceof DefaultResourceLoader loader) {
-      this.metadataReaderCache = loader.getResourceCache(MetadataReader.class);
+    this.delegate = MetadataReaderFactory.create(resourceLoader);
+    if (resourceLoader instanceof DefaultResourceLoader drl) {
+      this.metadataReaderCache = drl.getResourceCache(MetadataReader.class);
     }
     else {
       setCacheLimit(DEFAULT_CACHE_LIMIT);
@@ -115,12 +116,17 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
   }
 
   @Override
+  public MetadataReader getMetadataReader(String className) throws IOException {
+    return delegate.getMetadataReader(className);
+  }
+
+  @Override
   public MetadataReader getMetadataReader(Resource resource) throws IOException {
     if (this.metadataReaderCache instanceof ConcurrentMap) {
       // No synchronization necessary...
       MetadataReader metadataReader = this.metadataReaderCache.get(resource);
       if (metadataReader == null) {
-        metadataReader = super.getMetadataReader(resource);
+        metadataReader = delegate.getMetadataReader(resource);
         this.metadataReaderCache.put(resource, metadataReader);
       }
       return metadataReader;
@@ -129,14 +135,14 @@ public class CachingMetadataReaderFactory extends SimpleMetadataReaderFactory {
       synchronized(this.metadataReaderCache) {
         MetadataReader metadataReader = this.metadataReaderCache.get(resource);
         if (metadataReader == null) {
-          metadataReader = super.getMetadataReader(resource);
+          metadataReader = delegate.getMetadataReader(resource);
           this.metadataReaderCache.put(resource, metadataReader);
         }
         return metadataReader;
       }
     }
     else {
-      return super.getMetadataReader(resource);
+      return delegate.getMetadataReader(resource);
     }
   }
 

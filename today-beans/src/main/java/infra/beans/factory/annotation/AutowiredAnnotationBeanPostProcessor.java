@@ -282,7 +282,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
               "AutowiredAnnotationBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
     }
     this.beanFactory = cbf;
-    this.metadataReaderFactory = new SimpleMetadataReaderFactory(cbf.getBeanClassLoader());
+    this.metadataReaderFactory = MetadataReaderFactory.create(cbf.getBeanClassLoader());
   }
 
   @Override
