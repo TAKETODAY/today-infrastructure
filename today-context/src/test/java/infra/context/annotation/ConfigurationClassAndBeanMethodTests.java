@@ -125,7 +125,7 @@ class ConfigurationClassAndBeanMethodTests {
             .startsWith("ConfigurationClass: beanName 'Config1', class path resource");
 
     List<ComponentMethod> beanMethods = getBeanMethods(configurationClass);
-    String prefix = "BeanMethod: java.lang.String " + Config1.class.getName();
+    String prefix = "ComponentMethod: java.lang.String " + Config1.class.getName();
     assertThat(beanMethods.get(0).toString()).isEqualTo(prefix + ".bean0()");
     assertThat(beanMethods.get(1).toString()).isEqualTo(prefix + ".bean1(java.lang.String)");
     assertThat(beanMethods.get(2).toString()).isEqualTo(prefix + ".bean2(java.lang.String,java.lang.Integer)");
