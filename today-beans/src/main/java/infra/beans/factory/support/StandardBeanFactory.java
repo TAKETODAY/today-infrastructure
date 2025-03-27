@@ -482,6 +482,14 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  protected void cacheMergedBeanDefinition(RootBeanDefinition mbd, String beanName) {
+    super.cacheMergedBeanDefinition(mbd, beanName);
+    if (mbd.isPrimary()) {
+      this.primaryBeanNames.add(beanName);
+    }
+  }
+
+  @Override
   protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args) {
     super.checkMergedBeanDefinition(mbd, beanName, args);
 

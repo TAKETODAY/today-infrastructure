@@ -2029,7 +2029,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         // Cache the merged bean definition for the time being
         // (it might still get re-merged later on in order to pick up metadata changes)
         if (containingBd == null && (isCacheBeanMetadata() || isBeanEligibleForMetadataCaching(beanName))) {
-          this.mergedBeanDefinitions.put(beanName, mbd);
+          cacheMergedBeanDefinition(mbd, beanName);
         }
       }
       if (previous != null) {
@@ -2056,6 +2056,19 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         mbd.setMethodOverrides(new MethodOverrides(previous.getMethodOverrides()));
       }
     }
+  }
+
+  /**
+   * Cache the given merged bean definition.
+   * <p>Subclasses can override this to derive additional cached state
+   * from the final post-processed bean definition.
+   *
+   * @param mbd the merged bean definition to cache
+   * @param beanName the name of the bean
+   * @since 5.0
+   */
+  protected void cacheMergedBeanDefinition(RootBeanDefinition mbd, String beanName) {
+    this.mergedBeanDefinitions.put(beanName, mbd);
   }
 
   /**
