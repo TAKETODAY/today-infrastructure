@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.scheduling;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Date;
 
 import infra.lang.Nullable;
 
@@ -48,16 +47,6 @@ public interface TriggerContext {
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  default Date lastScheduledExecutionTime() {
-    Instant instant = lastScheduledExecution();
-    return instant != null ? Date.from(instant) : null;
-  }
-
-  /**
-   * Return the last <i>scheduled</i> execution time of the task,
-   * or {@code null} if not scheduled before.
-   */
-  @Nullable
   Instant lastScheduledExecution();
 
   /**
@@ -65,27 +54,7 @@ public interface TriggerContext {
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  default Date lastActualExecutionTime() {
-    Instant instant = lastActualExecution();
-    return instant != null ? Date.from(instant) : null;
-  }
-
-  /**
-   * Return the last <i>actual</i> execution time of the task,
-   * or {@code null} if not scheduled before.
-   */
-  @Nullable
   Instant lastActualExecution();
-
-  /**
-   * Return the last completion time of the task,
-   * or {@code null} if not scheduled before.
-   */
-  @Nullable
-  default Date lastCompletionTime() {
-    Instant instant = lastCompletion();
-    return instant != null ? Date.from(instant) : null;
-  }
 
   /**
    * Return the last completion time of the task,
