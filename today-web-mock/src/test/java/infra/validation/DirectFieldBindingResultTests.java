@@ -156,6 +156,56 @@ class DirectFieldBindingResultTests {
     );
   }
 
+  @Test
+  void addErrorAddsObjectError() {
+    DirectFieldBindingResult result = new DirectFieldBindingResult(new TestBean(), "testBean");
+    ObjectError error = new ObjectError("testBean", "message");
+
+    result.addError(error);
+
+    assertThat(result.getAllErrors()).containsExactly(error);
+  }
+
+  @Test
+  void addErrorAddsFieldError() {
+    DirectFieldBindingResult result = new DirectFieldBindingResult(new TestBean(), "testBean");
+    FieldError error = new FieldError("testBean", "field", "message");
+
+    result.addError(error);
+
+    assertThat(result.getFieldErrors()).containsExactly(error);
+  }
+
+  @Test
+  void recordSuppressedFieldAddsToSuppressedFields() {
+    DirectFieldBindingResult result = new DirectFieldBindingResult(new TestBean(), "testBean");
+    result.recordSuppressedField("field1");
+    result.recordSuppressedField("field2");
+
+    assertThat(result.getSuppressedFields()).containsExactly("field1", "field2");
+  }
+
+  @Test
+  void getSuppressedFieldsReturnsCopyOfList() {
+    DirectFieldBindingResult result = new DirectFieldBindingResult(new TestBean(), "testBean");
+    result.recordSuppressedField("field1");
+
+    String[] fields1 = result.getSuppressedFields();
+    String[] fields2 = result.getSuppressedFields();
+
+    assertThat(fields1).isNotSameAs(fields2);
+    assertThat(fields1).containsExactly("field1");
+  }
+
+  @Test
+  void resolveMessageCodesForNullFieldReturnsGeneralCodes() {
+    DirectFieldBindingResult result = new DirectFieldBindingResult(new TestBean(), "testBean");
+
+    String[] codes = result.resolveMessageCodes("error.code", null);
+
+    assertThat(codes).containsExactly("error.code.testBean", "error.code");
+  }
+
   private static class TestBean {
     private String field;
   }
