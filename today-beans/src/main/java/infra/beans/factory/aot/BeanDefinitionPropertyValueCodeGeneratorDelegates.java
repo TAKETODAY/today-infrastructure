@@ -38,6 +38,7 @@ import infra.beans.factory.support.ManagedMap;
 import infra.beans.factory.support.ManagedSet;
 import infra.javapoet.AnnotationSpec;
 import infra.javapoet.CodeBlock;
+import infra.lang.Nullable;
 
 /**
  * Code generator {@link Delegate} for common bean definition property values.
@@ -134,6 +135,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    */
   private static final class LinkedHashMapDelegate extends MapDelegate {
 
+    @Nullable
     @Override
     protected CodeBlock generateMapCode(ValueCodeGenerator valueCodeGenerator, Map<?, ?> map) {
       GeneratedMethods generatedMethods = valueCodeGenerator.getGeneratedMethods();
@@ -151,6 +153,10 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
                 .builder(SuppressWarnings.class)
                 .addMember("value", "{\"rawtypes\", \"unchecked\"}")
                 .build());
+
+        method.addModifiers(javax.lang.model.element.Modifier.PRIVATE,
+                javax.lang.model.element.Modifier.STATIC);
+
         method.returns(Map.class);
         method.addStatement("$T map = new $T($L)", Map.class,
                 LinkedHashMap.class, map.size());
@@ -167,7 +173,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    * {@link Delegate} for {@link BeanReference} types.
    */
   private static final class BeanReferenceDelegate implements Delegate {
-
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof RuntimeBeanReference runtimeBeanReference
@@ -187,7 +193,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    * {@link Delegate} for {@link TypedStringValue} types.
    */
   private static final class TypedStringValueDelegate implements Delegate {
-
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof TypedStringValue typedStringValue) {

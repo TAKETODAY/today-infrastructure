@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.ChronoUnit;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import javax.lang.model.element.Modifier;
 
@@ -55,12 +55,12 @@ import infra.core.testfixture.aot.generate.value.ExampleClass;
 import infra.core.testfixture.aot.generate.value.ExampleClass$$GeneratedBy;
 import infra.javapoet.CodeBlock;
 import infra.javapoet.MethodSpec;
-import infra.javapoet.ParameterizedTypeName;
+import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link BeanDefinitionPropertyValueCodeGenerator}.
+ * Tests for {@link BeanDefinitionPropertyValueCodeGeneratorDelegates}.
  *
  * @author Stephane Nicoll
  * @author Phillip Webb
@@ -83,14 +83,23 @@ class BeanDefinitionPropertyValueCodeGeneratorDelegatesTests {
     CodeBlock generatedCode = createValueCodeGenerator(generatedClass).generateCode(value);
     typeBuilder.set(type -> {
       type.addModifiers(Modifier.PUBLIC);
-      type.addSuperinterface(
-              ParameterizedTypeName.get(Supplier.class, Object.class));
-      type.addMethod(MethodSpec.methodBuilder("get").addModifiers(Modifier.PUBLIC)
+      type.addMethod(MethodSpec.methodBuilder("get").addModifiers(Modifier.PUBLIC, Modifier.STATIC)
               .returns(Object.class).addStatement("return $L", generatedCode).build());
     });
     generationContext.writeGeneratedContent();
     TestCompiler.forSystem().with(generationContext).compile(compiled ->
-            result.accept(compiled.getInstance(Supplier.class).get(), compiled));
+            result.accept(getGeneratedCodeReturnValue(compiled, generatedClass), compiled));
+  }
+
+  private static Object getGeneratedCodeReturnValue(Compiled compiled, GeneratedClass generatedClass) {
+    try {
+      Object instance = compiled.getInstance(Object.class, generatedClass.getName().reflectionName());
+      Method get = ReflectionUtils.findMethod(instance.getClass(), "get");
+      return get.invoke(null);
+    }
+    catch (Exception ex) {
+      throw new RuntimeException("Failed to invoke generated code '%s':".formatted(generatedClass.getName()), ex);
+    }
   }
 
   @Nested
