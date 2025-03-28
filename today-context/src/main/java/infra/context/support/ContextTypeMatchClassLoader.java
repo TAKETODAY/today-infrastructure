@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,10 @@ import infra.util.ReflectionUtils;
  * pick up recently loaded types in the parent ClassLoader.
  *
  * @author Juergen Hoeller
- * @author TODAY 2021/10/30 17:50
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AbstractApplicationContext
  * @see ConfigurableBeanFactory#setTempClassLoader
- * @since 4.0
+ * @since 4.0 2021/10/30 17:50
  */
 final class ContextTypeMatchClassLoader extends DecoratingClassLoader implements SmartClassLoader {
 
@@ -119,6 +119,7 @@ final class ContextTypeMatchClassLoader extends DecoratingClassLoader implements
       return true;
     }
 
+    @Nullable
     @Override
     protected Class<?> loadClassForOverriding(String name) throws ClassNotFoundException {
       byte[] bytes = bytesCache.get(name);
