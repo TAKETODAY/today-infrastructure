@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,6 +58,20 @@ class PersistenceSessionRepositoryTests {
     public void setName(String name) {
       this.name = name;
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof User user))
+        return false;
+      return age == user.age && Objects.equals(name, user.name);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(age, name);
+    }
+
+
   }
 
   @Test
