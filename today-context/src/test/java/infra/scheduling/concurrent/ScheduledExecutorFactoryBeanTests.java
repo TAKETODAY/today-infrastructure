@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,13 @@ package infra.scheduling.concurrent;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -207,6 +211,133 @@ class ScheduledExecutorFactoryBeanTests {
   void objectTypeReportsCorrectType() {
     ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
     assertThat(factory.getObjectType()).isEqualTo(ScheduledExecutorService.class);
+  }
+
+  @Test
+  void disallowsNegativePoolSize() {
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> factory.setPoolSize(-5));
+  }
+
+  @Test
+  void allowsZeroScheduledTasks() throws Exception {
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setScheduledExecutorTasks(new ScheduledExecutorTask[0]);
+    factory.afterPropertiesSet();
+    assertThat(factory.getObject()).isNotNull();
+  }
+
+  @Test
+  void executorContinuesAfterExceptionWhenConfigured() throws Exception {
+    AtomicInteger counter = new AtomicInteger();
+    Runnable failingTask = () -> {
+      counter.incrementAndGet();
+      throw new RuntimeException("Expected");
+    };
+
+    ScheduledExecutorTask task = new ScheduledExecutorTask(failingTask);
+    task.setPeriod(100);
+
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setScheduledExecutorTasks(task);
+    factory.setContinueScheduledExecutionAfterException(true);
+    factory.afterPropertiesSet();
+
+    Thread.sleep(250);
+    assertThat(counter.get()).isGreaterThanOrEqualTo(2);
+  }
+
+  @Test
+  void appliesRemoveOnCancelPolicyWhenConfigured() throws Exception {
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setRemoveOnCancelPolicy(true);
+    factory.afterPropertiesSet();
+
+    ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) factory.getObject();
+    assertThat(executor.getRemoveOnCancelPolicy()).isTrue();
+  }
+
+  @Test
+  void schedulesFixedDelayTasksCorrectly() throws Exception {
+    CountDownLatch latch = new CountDownLatch(2);
+    Runnable countingTask = latch::countDown;
+
+    ScheduledExecutorTask task = new ScheduledExecutorTask(countingTask);
+    task.setPeriod(100);
+    task.setFixedRate(false);
+
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setScheduledExecutorTasks(task);
+    factory.afterPropertiesSet();
+
+    assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+  }
+
+  @Test
+  void schedulesFixedRateTasksCorrectly() throws Exception {
+    CountDownLatch latch = new CountDownLatch(3);
+    Runnable countingTask = latch::countDown;
+
+    ScheduledExecutorTask task = new ScheduledExecutorTask(countingTask);
+    task.setPeriod(100);
+    task.setFixedRate(true);
+
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setScheduledExecutorTasks(task);
+    factory.afterPropertiesSet();
+
+    assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+  }
+
+  @Test
+  void delayedTaskExecutesAfterInitialDelay() throws Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    Runnable delayedTask = latch::countDown;
+
+    ScheduledExecutorTask task = new ScheduledExecutorTask(delayedTask);
+    task.setDelay(500);
+    task.setFixedRate(false);
+    task.setPeriod(100);
+
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setScheduledExecutorTasks(task);
+    factory.afterPropertiesSet();
+
+    assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
+  }
+
+  @Test
+  void respectsPoolSizeSettings() throws Exception {
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setPoolSize(3);
+    factory.afterPropertiesSet();
+
+    ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) factory.getObject();
+    assertThat(executor.getCorePoolSize()).isEqualTo(3);
+  }
+
+  @Test
+  void customThreadFactoryIsUsed() throws Exception {
+    ThreadFactory threadFactory = new CustomThreadFactory();
+
+    ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean();
+    factory.setThreadFactory(threadFactory);
+    factory.afterPropertiesSet();
+
+    CountDownLatch latch = new CountDownLatch(1);
+    factory.getObject().execute(latch::countDown);
+
+    assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue();
+  }
+
+  static class CustomThreadFactory implements ThreadFactory {
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = new Thread(r);
+      thread.setDaemon(true);
+      return thread;
+    }
   }
 
   private static void pauseToLetTaskStart(int seconds) {
