@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,19 @@ package infra.scheduling.concurrent;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.task.AsyncTaskExecutor;
+import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.scheduling.Trigger;
 import infra.scheduling.TriggerContext;
 import infra.util.ErrorHandler;
@@ -159,6 +164,166 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
     await(task);
     assertThat(taskRun.get()).isTrue();
     assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void fixedRateTaskExecutesMultipleTimes() throws Exception {
+    TestTask task = new TestTask(testName, 3);
+    Future<?> future = scheduler.scheduleAtFixedRate(task, Duration.ofMillis(10));
+    await(task);
+    future.cancel(true);
+    assertThat(taskRun.get()).isTrue();
+    assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void taskTerminationTimeoutIsRespected() throws Exception {
+    scheduler.setTaskTerminationTimeout(100);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch endLatch = new CountDownLatch(1);
+
+    Runnable longRunningTask = () -> {
+      startLatch.countDown();
+      try {
+        Thread.sleep(500);
+      }
+      catch (InterruptedException ex) {
+        // Expected
+      }
+      endLatch.countDown();
+    };
+
+    scheduler.execute(longRunningTask);
+    assertThat(startLatch.await(100, TimeUnit.MILLISECONDS)).isTrue();
+
+    scheduler.stop();
+    assertThat(endLatch.getCount()).isEqualTo(1);
+  }
+
+  @Test
+  void customErrorHandlerReceivesSchedulingExceptions() {
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+
+    scheduler.schedule(() -> { throw new RuntimeException("Test Exception"); },
+            new TestTrigger(1));
+
+    await(errorHandler);
+    assertThat(errorHandler.lastError)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Test Exception");
+  }
+
+  @Test
+  void targetExecutorIsUsedForTaskExecution() throws Exception {
+    CountDownLatch taskLatch = new CountDownLatch(1);
+    AtomicReference<String> threadName = new AtomicReference<>();
+
+    SimpleAsyncTaskExecutor targetExecutor = new SimpleAsyncTaskExecutor();
+    targetExecutor.setThreadNamePrefix("target-");
+    scheduler.setTargetTaskExecutor(targetExecutor);
+
+    scheduler.execute(() -> {
+      threadName.set(Thread.currentThread().getName());
+      taskLatch.countDown();
+    });
+
+    assertThat(taskLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(threadName.get()).startsWith("target-");
+  }
+
+  @Test
+  void lifecycleStartAndStopAreIdempotent() {
+    scheduler.start();
+    scheduler.start(); // Second call should be no-op
+    assertThat(scheduler.isRunning()).isTrue();
+
+    scheduler.stop();
+    scheduler.stop(); // Second call should be no-op
+    assertThat(scheduler.isRunning()).isFalse();
+  }
+
+  @Test
+  void shutdownCancelsScheduledTasks() throws Exception {
+    CountDownLatch taskLatch = new CountDownLatch(1);
+    AtomicInteger execCount = new AtomicInteger();
+
+    Future<?> future = scheduler.scheduleAtFixedRate(() -> {
+      execCount.incrementAndGet();
+      taskLatch.countDown();
+    }, Duration.ofMillis(10));
+
+    assertThat(taskLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+    future.cancel(true);
+
+    Thread.sleep(50);
+    int finalCount = execCount.get();
+    Thread.sleep(50);
+    assertThat(execCount.get()).isEqualTo(finalCount);
+  }
+
+  @Test
+  void scheduledTasksAreExecutedWithCustomClock() {
+    Clock fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    scheduler.setClock(fixedClock);
+
+    TestTask task = new TestTask(testName, 1);
+    Future<?> future = scheduler.schedule(task, fixedClock.instant().plusMillis(100));
+
+    await(task);
+    future.cancel(true);
+    assertThat(taskRun.get()).isTrue();
+    assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void gracefulShutdownWaitsForScheduledTasks() throws Exception {
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch endLatch = new CountDownLatch(1);
+
+    scheduler.schedule(() -> {
+      startLatch.countDown();
+      try {
+        Thread.sleep(200);
+      }
+      catch (InterruptedException ex) {
+        // Expected
+      }
+      endLatch.countDown();
+    }, Instant.now());
+
+    assertThat(startLatch.await(100, TimeUnit.MILLISECONDS)).isTrue();
+    scheduler.stop();
+    assertThat(endLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  void scheduledTaskErrorsAreHandledByErrorHandler() {
+    TestErrorHandler errorHandler = new TestErrorHandler(2);
+    scheduler.setErrorHandler(errorHandler);
+
+    RuntimeException expected = new RuntimeException("Expected test exception");
+    scheduler.scheduleAtFixedRate(() -> {
+      throw expected;
+    }, Duration.ofMillis(10));
+
+    await(errorHandler);
+    assertThat(errorHandler.lastError).isSameAs(expected);
+  }
+
+  @Test
+  void multipleSchedulersCanRunConcurrently() throws Exception {
+    SimpleAsyncTaskScheduler scheduler2 = new SimpleAsyncTaskScheduler();
+    scheduler2.setThreadNamePrefix("scheduler2-");
+
+    CountDownLatch latch1 = new CountDownLatch(1);
+    CountDownLatch latch2 = new CountDownLatch(1);
+
+    scheduler.scheduleAtFixedRate(latch1::countDown, Duration.ofMillis(10));
+    scheduler2.scheduleAtFixedRate(latch2::countDown, Duration.ofMillis(10));
+
+    assertThat(latch1.await(1000, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(latch2.await(1000, TimeUnit.MILLISECONDS)).isTrue();
   }
 
   private void await(TestTask task) {
