@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ import infra.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
- * @author TODAY 2021/9/11 12:10
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 4.0 2021/9/11 12:10
  */
 public abstract class DecoratingClassLoader extends ClassLoader {
 
@@ -45,7 +45,8 @@ public abstract class DecoratingClassLoader extends ClassLoader {
   /**
    * Create a new DecoratingClassLoader with no parent ClassLoader.
    */
-  public DecoratingClassLoader() { }
+  public DecoratingClassLoader() {
+  }
 
   /**
    * Create a new DecoratingClassLoader using the given parent ClassLoader
