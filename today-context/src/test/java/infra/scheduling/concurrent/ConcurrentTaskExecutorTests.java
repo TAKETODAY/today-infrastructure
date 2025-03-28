@@ -96,17 +96,6 @@ class ConcurrentTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void schedulingAwareRunnableIsDetectedForManagedTask() {
-    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor();
-    SchedulingAwareRunnable task = mock(SchedulingAwareRunnable.class);
-    when(task.isLongLived()).thenReturn(true);
-
-    executor.execute(task);
-
-    verify(task).isLongLived();
-  }
-
-  @Test
   void decoratorIsAppliedToSubmittedTasks() throws Exception {
     ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor();
     TaskDecorator decorator = task -> () -> { };

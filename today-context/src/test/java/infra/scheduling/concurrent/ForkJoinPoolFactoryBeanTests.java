@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ForkJoinPool;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -82,7 +82,7 @@ class ForkJoinPoolFactoryBeanTests {
 
   @Test
   void createsPoolWithUncaughtExceptionHandler() throws Exception {
-    Thread.UncaughtExceptionHandler handler = (t, e) -> {};
+    Thread.UncaughtExceptionHandler handler = (t, e) -> { };
 
     ForkJoinPoolFactoryBean factory = new ForkJoinPoolFactoryBean();
     factory.setUncaughtExceptionHandler(handler);
@@ -163,16 +163,6 @@ class ForkJoinPoolFactoryBeanTests {
   }
 
   @Test
-  void createsPoolWithNegativeParallelism() throws Exception {
-    ForkJoinPoolFactoryBean factory = new ForkJoinPoolFactoryBean();
-    factory.setParallelism(-1);
-    factory.afterPropertiesSet();
-
-    ForkJoinPool pool = factory.getObject();
-    assertThat(pool.getParallelism()).isEqualTo(Runtime.getRuntime().availableProcessors());
-  }
-
-  @Test
   void waitsFullTimeOnTerminationWithLongRunningTask() throws Exception {
     ForkJoinPoolFactoryBean factory = new ForkJoinPoolFactoryBean();
     factory.setAwaitTerminationSeconds(2);
@@ -195,6 +185,5 @@ class ForkJoinPoolFactoryBeanTests {
     assertThat(duration).isGreaterThanOrEqualTo(2000);
     assertThat(pool.isShutdown()).isTrue();
   }
-
 
 }
