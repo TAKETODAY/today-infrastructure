@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -440,4 +441,154 @@ public class TypeTest implements Opcodes {
             Type.forInternalName("java/lang/Object").hashCode());
     assertNotEquals(Type.INT_TYPE.hashCode(), Type.forInternalName("I").hashCode());
   }
+
+  @Test
+  public void testParse() {
+    assertEquals(Type.INT_TYPE, Type.parse("int"));
+    assertEquals(Type.VOID_TYPE, Type.parse("void"));
+    assertEquals(Type.BOOLEAN_TYPE, Type.parse("boolean"));
+    assertEquals(Type.forInternalName("java/lang/String"), Type.parse("java.lang.String"));
+    assertEquals(Type.forInternalName("[Ljava/lang/String;"), Type.parse("java.lang.String[]"));
+  }
+
+  @Test
+  public void testResolvePrimitiveTypeDescriptor() {
+    assertEquals("V", Type.resolvePrimitiveTypeDescriptor("void"));
+    assertEquals("I", Type.resolvePrimitiveTypeDescriptor("int"));
+    assertEquals("Z", Type.resolvePrimitiveTypeDescriptor("boolean"));
+    assertEquals(null, Type.resolvePrimitiveTypeDescriptor("String"));
+  }
+
+  @Test
+  public void testForInternalNames() {
+    String[] names = { "java/lang/String", "java/lang/Integer" };
+    Type[] types = Type.forInternalNames(names);
+    assertEquals(2, types.length);
+    assertEquals(Type.forInternalName("java/lang/String"), types[0]);
+    assertEquals(Type.forInternalName("java/lang/Integer"), types[1]);
+    assertNull(Type.forInternalNames(null));
+  }
+
+  @Test
+  public void testGetComponentType() {
+    assertEquals(Type.INT_TYPE, Type.forDescriptor("[I").getComponentType());
+    assertEquals(Type.forInternalName("java/lang/String"),
+            Type.forDescriptor("[Ljava/lang/String;").getComponentType());
+
+    assertThrows(IllegalArgumentException.class,
+            () -> Type.forInternalName("java/lang/String").getComponentType());
+  }
+
+  @Test
+  public void testEmulateClassGetName() {
+    assertEquals("java.lang.String", Type.forInternalName("java/lang/String").emulateClassGetName());
+    assertEquals("[Ljava.lang.String;",
+            Type.forDescriptor("[Ljava/lang/String;").emulateClassGetName());
+  }
+
+  @Test
+  public void testToInternalNames() {
+    Type[] types = new Type[] {
+            Type.forInternalName("java/lang/String"),
+            Type.forInternalName("java/lang/Integer")
+    };
+    String[] names = Type.toInternalNames(types);
+    assertEquals(2, names.length);
+    assertEquals("java/lang/String", names[0]);
+    assertEquals("java/lang/Integer", names[1]);
+    assertNull(Type.toInternalNames((Type[]) null));
+  }
+
+  @Test
+  public void testGetBoxedAndUnboxedType() {
+    assertEquals(Type.TYPE_INTEGER, Type.INT_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_BOOLEAN, Type.BOOLEAN_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_CHARACTER, Type.CHAR_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_BYTE, Type.BYTE_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_SHORT, Type.SHORT_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_FLOAT, Type.FLOAT_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_LONG, Type.LONG_TYPE.getBoxedType());
+    assertEquals(Type.TYPE_DOUBLE, Type.DOUBLE_TYPE.getBoxedType());
+
+    assertEquals(Type.INT_TYPE, Type.TYPE_INTEGER.getUnboxedType());
+    assertEquals(Type.BOOLEAN_TYPE, Type.TYPE_BOOLEAN.getUnboxedType());
+    assertEquals(Type.CHAR_TYPE, Type.TYPE_CHARACTER.getUnboxedType());
+    assertEquals(Type.BYTE_TYPE, Type.TYPE_BYTE.getUnboxedType());
+    assertEquals(Type.SHORT_TYPE, Type.TYPE_SHORT.getUnboxedType());
+    assertEquals(Type.FLOAT_TYPE, Type.TYPE_FLOAT.getUnboxedType());
+    assertEquals(Type.LONG_TYPE, Type.TYPE_LONG.getUnboxedType());
+    assertEquals(Type.DOUBLE_TYPE, Type.TYPE_DOUBLE.getUnboxedType());
+
+    Type stringType = Type.forInternalName("java/lang/String");
+    assertEquals(stringType, stringType.getBoxedType());
+    assertEquals(stringType, stringType.getUnboxedType());
+  }
+
+  @Test
+  public void testIsPrimitive() {
+    assertTrue(Type.INT_TYPE.isPrimitive());
+    assertTrue(Type.BOOLEAN_TYPE.isPrimitive());
+    assertTrue(Type.CHAR_TYPE.isPrimitive());
+    assertTrue(Type.BYTE_TYPE.isPrimitive());
+    assertTrue(Type.SHORT_TYPE.isPrimitive());
+    assertTrue(Type.FLOAT_TYPE.isPrimitive());
+    assertTrue(Type.LONG_TYPE.isPrimitive());
+    assertTrue(Type.DOUBLE_TYPE.isPrimitive());
+    assertTrue(Type.VOID_TYPE.isPrimitive());
+
+    assertFalse(Type.forInternalName("java/lang/String").isPrimitive());
+    assertFalse(Type.forDescriptor("[I").isPrimitive());
+  }
+
+  @Test
+  public void testGetTypes() {
+    Class<?>[] classes = { String.class, Integer.class, void.class };
+    Type[] types = Type.getTypes(classes);
+    assertEquals(3, types.length);
+    assertEquals(Type.forInternalName("java/lang/String"), types[0]);
+    assertEquals(Type.forInternalName("java/lang/Integer"), types[1]);
+    assertEquals(Type.VOID_TYPE, types[2]);
+    assertNull(Type.getTypes((Class<?>[]) null));
+
+    String[] descriptors = { "Ljava/lang/String;", "Ljava/lang/Integer;", "V" };
+    types = Type.getTypes(descriptors);
+    assertEquals(3, types.length);
+    assertEquals(Type.forDescriptor("Ljava/lang/String;"), types[0]);
+    assertEquals(Type.forDescriptor("Ljava/lang/Integer;"), types[1]);
+    assertEquals(Type.VOID_TYPE, types[2]);
+    assertNull(Type.getTypes((String[]) null));
+  }
+
+  @Test
+  public void testGetStackSize() {
+    Type[] types = { Type.INT_TYPE, Type.LONG_TYPE, Type.DOUBLE_TYPE };
+    assertEquals(5, Type.getStackSize(types));
+  }
+
+  @Test
+  public void testArrayType() {
+    Type arrayType = Type.forDescriptor("[[[Ljava/lang/String;");
+    assertTrue(arrayType.isArray());
+    assertEquals(3, arrayType.getDimensions());
+    assertEquals(Type.forInternalName("java/lang/String"), arrayType.getElementType());
+    assertEquals("java.lang.String[][][]", arrayType.getClassName());
+  }
+
+  @Test
+  public void testForObjectTypes() {
+    String[] names = { "java/lang/String", "java/lang/Integer" };
+    Type[] types = Type.forObjectTypes(names);
+    assertEquals(2, types.length);
+    assertEquals(Type.forInternalName("java/lang/String"), types[0]);
+    assertEquals(Type.forInternalName("java/lang/Integer"), types[1]);
+    assertNull(Type.forObjectTypes(null));
+  }
+
+  @Test
+  public void testEmptyArrayConstants() {
+    assertEquals(0, Type.EMPTY_ARRAY.length);
+    Type[] emptyArray = {};
+    assertArrayEquals(Type.EMPTY_ARRAY, emptyArray);
+  }
+
 }
