@@ -20,7 +20,9 @@ package infra.context.annotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.ObjectProvider;
+import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
@@ -31,6 +33,7 @@ import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static infra.stereotype.Component.Bootstrap.BACKGROUND;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Juergen Hoeller
@@ -79,6 +82,14 @@ class BackgroundBootstrapTests {
     ctx.getBean("testBean1", TestBean.class);
     ctx.getBean("testBean2", TestBean.class);
     ctx.close();
+  }
+
+  @Test
+  @Timeout(5)
+  void bootstrapWithCircularReferenceInSameThread() {
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInSameThreadBeanConfig.class))
+            .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
   }
 
   @Test
@@ -171,7 +182,7 @@ class BackgroundBootstrapTests {
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
       }
-      return new TestBean();
+      return new TestBean("testBean1");
     }
 
     @Bean
@@ -203,6 +214,38 @@ class BackgroundBootstrapTests {
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
       }
+      return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CircularReferenceInSameThreadBeanConfig {
+
+    @Bean
+    public TestBean testBean1(ObjectProvider<TestBean> testBean2) {
+      new Thread(testBean2::get).start();
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return new TestBean();
+    }
+
+    @Bean
+    public TestBean testBean2(TestBean testBean3) {
+      try {
+        Thread.sleep(2000);
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return new TestBean();
+    }
+
+    @Bean
+    public TestBean testBean3(TestBean testBean2) {
       return new TestBean();
     }
   }

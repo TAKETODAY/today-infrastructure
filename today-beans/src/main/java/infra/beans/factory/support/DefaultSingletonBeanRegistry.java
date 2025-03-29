@@ -123,7 +123,10 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   private final Condition lenientCreationFinished = this.lenientCreationLock.newCondition();
 
   /** Names of beans that are currently in lenient creation. */
-  private final Set<String> singletonsInLenientCreation = new HashSet<>();
+  private final HashSet<String> singletonsInLenientCreation = new HashSet<>();
+
+  /** Map from bean name to actual creation thread for leniently created beans. */
+  private final ConcurrentHashMap<String, Thread> lenientCreationThreads = new ConcurrentHashMap<>();
 
   /** Flag that indicates whether we're currently within destroySingletons. */
   private boolean singletonsCurrentlyInDestruction = false;
@@ -312,6 +315,9 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
               if (!this.singletonsInLenientCreation.contains(beanName)) {
                 break;
               }
+              if (this.lenientCreationThreads.get(beanName) == Thread.currentThread()) {
+                throw ex;
+              }
               try {
                 this.lenientCreationFinished.await();
               }
@@ -349,7 +355,18 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
           // Leniently created singleton object could have appeared in the meantime.
           singletonObject = this.singletonObjects.get(beanName);
           if (singletonObject == null) {
-            singletonObject = singletonFactory.get();
+            if (locked) {
+              singletonObject = singletonFactory.get();
+            }
+            else {
+              this.lenientCreationThreads.put(beanName, Thread.currentThread());
+              try {
+                singletonObject = singletonFactory.get();
+              }
+              finally {
+                this.lenientCreationThreads.remove(beanName);
+              }
+            }
             newSingleton = true;
           }
         }
