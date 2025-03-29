@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.lang.Nullable;
 import infra.lang.VersionExtractor;
+import infra.origin.Origin;
+import infra.origin.OriginLookup;
 import infra.util.StringUtils;
 
 /**
@@ -37,7 +39,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-class ApplicationInfoPropertySource extends MapPropertySource {
+class ApplicationInfoPropertySource extends MapPropertySource implements OriginLookup<String> {
 
   static final String NAME = "applicationInfo";
 
@@ -47,6 +49,17 @@ class ApplicationInfoPropertySource extends MapPropertySource {
 
   ApplicationInfoPropertySource(@Nullable String applicationVersion) {
     super(NAME, getProperties(applicationVersion));
+  }
+
+  @Nullable
+  @Override
+  public Origin getOrigin(String key) {
+    return null;
+  }
+
+  @Override
+  public boolean isImmutable() {
+    return true;
   }
 
   private static Map<String, Object> getProperties(@Nullable String applicationVersion) {
