@@ -36,8 +36,6 @@ configure(subprojects) {
     testImplementation("org.mockito:mockito-junit-jupiter")
     testImplementation("junit:junit")
     testImplementation("org.assertj:assertj-core")
-    testImplementation 'org.projectlombok:lombok'
-    testAnnotationProcessor("org.projectlombok:lombok")
 
     // Pull in the latest JUnit 5 Launcher API to ensure proper support in IDEs.
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
