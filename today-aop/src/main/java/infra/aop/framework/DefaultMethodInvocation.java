@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,9 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
     this(proxy, null, method, targetClass, arguments, EMPTY_INTERCEPTOR);
   }
 
+  /**
+   * @throws NullPointerException if advices is {@code null}
+   */
   public DefaultMethodInvocation(Object proxy, @Nullable Object target,
           Method method, @Nullable Class<?> targetClass, Object[] arguments, MethodInterceptor[] advices) {
     this.proxy = proxy;
@@ -76,11 +79,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
     this.targetClass = targetClass;
     this.args = ClassUtils.adaptArgumentsIfNecessary(method, arguments);
     this.advices = advices;
-    if (advices != null)
-      this.adviceLength = advices.length;
-    else {
-      this.adviceLength = 0;
-    }
+    this.adviceLength = advices.length;
   }
 
   /**
@@ -104,6 +103,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
    * @see CglibAopProxy.CglibMethodInvocation
    * @see DefaultMethodInvocation
    */
+  @Nullable
   @Override
   public Object proceed() throws Throwable {
     if (currentAdviceIndex < adviceLength) {
@@ -188,6 +188,7 @@ public class DefaultMethodInvocation extends AttributeAccessorSupport implements
     args = arguments;
   }
 
+  @Nullable
   @Override
   public Object getThis() {
     return target;
