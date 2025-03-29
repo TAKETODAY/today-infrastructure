@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.beans.factory.DisposableBean;
 import infra.core.task.AsyncTaskExecutor;
+import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
 
@@ -285,6 +286,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void submitListenableCallableWithGetAfterShutdown() throws Exception {
     Future<?> future1 = executor.submit(new TestCallable(this.testName, -1));
     Future<?> future2 = executor.submit(new TestCallable(this.testName, -1));

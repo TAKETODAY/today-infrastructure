@@ -40,7 +40,7 @@ import infra.util.CollectionUtils;
  * @since 4.0 2022/1/5 11:13
  */
 public class SynchronizationInfo implements Serializable {
-  
+
   private static final Logger log = LoggerFactory.getLogger(SynchronizationInfo.class);
 
   @Serial
