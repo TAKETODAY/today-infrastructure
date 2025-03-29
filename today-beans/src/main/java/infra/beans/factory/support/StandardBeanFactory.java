@@ -138,8 +138,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   public static final String STRICT_LOCKING_PROPERTY_NAME = "infra.locking.strict";
 
-  private static final boolean lenientLockingAllowed = !TodayStrategies.getFlag(STRICT_LOCKING_PROPERTY_NAME);
-
   @Nullable
   private static final Class<?> injectProviderClass = // JSR-330 API not available - Provider interface simply not supported then.
           ClassUtils.load("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
@@ -165,6 +163,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
           new NamedThreadLocal<>("Pre-instantiation thread marker");
+
+  private final boolean lenientLockingAllowed = !TodayStrategies.getFlag(STRICT_LOCKING_PROPERTY_NAME);
 
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable
