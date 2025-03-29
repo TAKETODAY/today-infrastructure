@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
@@ -66,14 +68,19 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private final CharSequence[] uniformElements;
 
-  @Nullable
-  private String string;
-
   private int hashCode;
+
+  private final String[] string = new String[ToStringFormat.values().length];
+
+  @Nullable
+  private Boolean hasDashedElement;
+
+  @Nullable
+  private ConfigurationPropertyName systemEnvironmentLegacyName;
 
   private ConfigurationPropertyName(Elements elements) {
     this.elements = elements;
-    this.uniformElements = new CharSequence[elements.getSize()];
+    this.uniformElements = new CharSequence[elements.size];
   }
 
   /**
@@ -82,7 +89,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if the name is empty
    */
   public boolean isEmpty() {
-    return this.elements.getSize() == 0;
+    return this.elements.size == 0;
   }
 
   /**
@@ -204,7 +211,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return the number of elements
    */
   public int getNumberOfElements() {
-    return this.elements.getSize();
+    return this.elements.size;
   }
 
   /**
@@ -308,7 +315,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     if (getNumberOfElements() >= name.getNumberOfElements()) {
       return false;
     }
-    return elementsEqual(name);
+    return endsWithElementsEqualTo(name);
   }
 
   @Override
@@ -369,11 +376,21 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
             && other.elements.canShortcutWithSource(ElementType.UNIFORM)) {
       return toString().equals(other.toString());
     }
-    return elementsEqual(other);
+    if (hashCode() != other.hashCode()) {
+      return false;
+    }
+    if (toStringMatches(toString(), other.toString())) {
+      return true;
+    }
+    return endsWithElementsEqualTo(other);
   }
 
-  private boolean elementsEqual(ConfigurationPropertyName name) {
-    for (int i = this.elements.getSize() - 1; i >= 0; i--) {
+  private boolean toStringMatches(String s1, String s2) {
+    return s1.hashCode() == s2.hashCode() && s1.equals(s2);
+  }
+
+  private boolean endsWithElementsEqualTo(ConfigurationPropertyName name) {
+    for (int i = this.elements.size - 1; i >= 0; i--) {
       if (elementDiffers(this.elements, name.elements, i)) {
         return false;
       }
@@ -518,36 +535,50 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public int hashCode() {
     int hashCode = this.hashCode;
     Elements elements = this.elements;
-    if (hashCode == 0 && elements.getSize() != 0) {
-      for (int elementIndex = 0; elementIndex < elements.getSize(); elementIndex++) {
-        int elementHashCode = 0;
-        boolean indexed = elements.getType(elementIndex).isIndexed();
-        int length = elements.getLength(elementIndex);
-        for (int i = 0; i < length; i++) {
-          char ch = elements.charAt(elementIndex, i);
-          if (!indexed) {
-            ch = Character.toLowerCase(ch);
-          }
-          if (ElementsParser.isAlphaNumeric(ch)) {
-            elementHashCode = 31 * elementHashCode + ch;
-          }
-        }
-        hashCode = 31 * hashCode + elementHashCode;
+    if (hashCode == 0 && elements.size != 0) {
+      for (int elementIndex = 0; elementIndex < elements.size; elementIndex++) {
+        hashCode = 31 * hashCode + elements.hashCode(elementIndex);
       }
       this.hashCode = hashCode;
     }
     return hashCode;
   }
 
-  @Override
-  public String toString() {
-    if (this.string == null) {
-      this.string = buildToString();
+  @Nullable
+  ConfigurationPropertyName asSystemEnvironmentLegacyName() {
+    ConfigurationPropertyName name = this.systemEnvironmentLegacyName;
+    if (name == null) {
+      name = ConfigurationPropertyName
+              .ofIfValid(buildSimpleToString('.', (i) -> getElement(i, Form.DASHED).replace('-', '.')));
+      this.systemEnvironmentLegacyName = (name != null) ? name : EMPTY;
     }
-    return this.string;
+    return name != EMPTY ? name : null;
   }
 
-  private String buildToString() {
+  @Override
+  public String toString() {
+    return toString(ToStringFormat.DEFAULT);
+  }
+
+  String toString(ToStringFormat format) {
+    String string = this.string[format.ordinal()];
+    if (string == null) {
+      string = buildToString(format);
+      this.string[format.ordinal()] = string;
+    }
+    return string;
+  }
+
+  private String buildToString(ToStringFormat format) {
+    return switch (format) {
+      case DEFAULT -> buildDefaultToString();
+      case SYSTEM_ENVIRONMENT -> buildSimpleToString('_', (i) -> getElement(i, Form.UNIFORM).toUpperCase(Locale.ENGLISH));
+      case LEGACY_SYSTEM_ENVIRONMENT -> buildSimpleToString('_',
+              (i) -> getElement(i, Form.ORIGINAL).replace('-', '_').toUpperCase(Locale.ENGLISH));
+    };
+  }
+
+  private String buildDefaultToString() {
     if (this.elements.canShortcutWithSource(ElementType.UNIFORM, ElementType.DASHED)) {
       return this.elements.source.toString();
     }
@@ -568,6 +599,32 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       }
     }
     return result.toString();
+  }
+
+  private String buildSimpleToString(char joinChar, IntFunction<String> elementConverter) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < getNumberOfElements(); i++) {
+      if (!result.isEmpty()) {
+        result.append(joinChar);
+      }
+      result.append(elementConverter.apply(i));
+    }
+    return result.toString();
+  }
+
+  boolean hasDashedElement() {
+    Boolean hasDashedElement = this.hasDashedElement;
+    if (hasDashedElement != null) {
+      return hasDashedElement;
+    }
+    for (int i = 0; i < getNumberOfElements(); i++) {
+      if (getElement(i, Form.DASHED).indexOf('-') != -1) {
+        this.hasDashedElement = true;
+        return true;
+      }
+    }
+    this.hasDashedElement = false;
+    return false;
   }
 
   /**
@@ -644,7 +701,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       throw new InvalidConfigurationPropertyNameException(name, Collections.singletonList('.'));
     }
     Elements elements = new ElementsParser(name, '.', parserCapacity).parse();
-    for (int i = 0; i < elements.getSize(); i++) {
+    for (int i = 0; i < elements.size; i++) {
       if (elements.getType(i) == ElementType.NON_UNIFORM) {
         if (returnNullIfInvalid) {
           return null;
@@ -700,7 +757,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return EMPTY;
     }
     Elements elements = new ElementsParser(name, separator).parse(elementValueProcessor);
-    if (elements.getSize() == 0) {
+    if (elements.size == 0) {
       return EMPTY;
     }
     return new ConfigurationPropertyName(elements);
@@ -759,7 +816,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     private static final ElementType[] NO_TYPE = {};
 
-    public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null);
+    public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null, null);
 
     public final CharSequence source;
 
@@ -770,6 +827,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     private final int[] end;
 
     private final ElementType[] type;
+
+    private final int[] hashCode;
 
     /**
      * Contains any resolved elements or can be {@code null} if there aren't any.
@@ -783,31 +842,34 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     private final CharSequence[] resolved;
 
     Elements(CharSequence source, int size, int[] start, int[] end,
-            ElementType[] type, @Nullable CharSequence[] resolved) {
-      super();
+            ElementType[] type, @Nullable int[] hashCode, @Nullable CharSequence[] resolved) {
       this.source = source;
       this.size = size;
       this.start = start;
       this.end = end;
       this.type = type;
+      this.hashCode = hashCode != null ? hashCode : new int[size];
       this.resolved = resolved;
     }
 
     Elements append(Elements additional) {
       int size = this.size + additional.size;
       ElementType[] type = new ElementType[size];
+      int[] hashCode = new int[size];
       System.arraycopy(this.type, 0, type, 0, this.size);
       System.arraycopy(additional.type, 0, type, this.size, additional.size);
+      System.arraycopy(this.hashCode, 0, hashCode, 0, this.size);
+      System.arraycopy(additional.hashCode, 0, hashCode, this.size, additional.size);
       CharSequence[] resolved = newResolved(0, size);
       for (int i = 0; i < additional.size; i++) {
         resolved[this.size + i] = additional.get(i);
       }
-      return new Elements(this.source, size, this.start, this.end, type, resolved);
+      return new Elements(this.source, size, this.start, this.end, type, hashCode, resolved);
     }
 
     Elements chop(int size) {
       CharSequence[] resolved = newResolved(0, size);
-      return new Elements(this.source, size, this.start, this.end, this.type, resolved);
+      return new Elements(this.source, size, this.start, this.end, this.type, this.hashCode, resolved);
     }
 
     Elements subElements(int offset) {
@@ -819,7 +881,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       System.arraycopy(this.end, offset, end, 0, size);
       ElementType[] type = new ElementType[size];
       System.arraycopy(this.type, offset, type, 0, size);
-      return new Elements(this.source, size, start, end, type, resolved);
+      int[] hashCode = new int[size];
+      System.arraycopy(this.hashCode, offset, hashCode, 0, size);
+      return new Elements(this.source, size, start, end, type, hashCode, resolved);
     }
 
     private CharSequence[] newResolved(int offset, int size) {
@@ -828,10 +892,6 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
         System.arraycopy(this.resolved, offset, resolved, 0, Math.min(size, this.size));
       }
       return resolved;
-    }
-
-    int getSize() {
-      return this.size;
     }
 
     CharSequence get(int index) {
@@ -862,6 +922,25 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     ElementType getType(int index) {
       return this.type[index];
+    }
+
+    int hashCode(int index) {
+      int hashCode = this.hashCode[index];
+      if (hashCode == 0) {
+        boolean indexed = getType(index).isIndexed();
+        int length = getLength(index);
+        for (int i = 0; i < length; i++) {
+          char ch = charAt(index, i);
+          if (!indexed) {
+            ch = Character.toLowerCase(ch);
+          }
+          if (ElementsParser.isAlphaNumeric(ch)) {
+            hashCode = 31 * hashCode + ch;
+          }
+        }
+        this.hashCode[index] = hashCode;
+      }
+      return hashCode;
     }
 
     /**
@@ -979,7 +1058,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
         type = ElementType.NON_UNIFORM;
       }
       add(start, length, type, valueProcessor);
-      return new Elements(this.source, this.size, this.start, this.end, this.type, this.resolved);
+      return new Elements(this.source, this.size, this.start, this.end, this.type, null, this.resolved);
     }
 
     private ElementType updateType(ElementType existingType, char ch, int index) {
@@ -1021,7 +1100,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
         }
         CharSequence resolved = valueProcessor.apply(this.source.subSequence(start, end));
         Elements resolvedElements = new ElementsParser(resolved, '.').parse();
-        Assert.state(resolvedElements.getSize() == 1, "Resolved element must not contain multiple elements");
+        Assert.state(resolvedElements.size == 1, "Resolved element must not contain multiple elements");
         this.resolved[this.size] = resolvedElements.get(0);
         type = resolvedElements.getType(0);
       }
@@ -1133,6 +1212,15 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   private interface ElementCharPredicate {
 
     boolean test(char ch, int index);
+
+  }
+
+  /**
+   * Formats for {@code toString}.
+   */
+  enum ToStringFormat {
+
+    DEFAULT, SYSTEM_ENVIRONMENT, LEGACY_SYSTEM_ENVIRONMENT
 
   }
 
