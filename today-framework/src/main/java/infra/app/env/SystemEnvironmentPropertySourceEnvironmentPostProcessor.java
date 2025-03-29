@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,7 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
   protected static class OriginAwareSystemEnvironmentPropertySource
           extends SystemEnvironmentPropertySource implements OriginLookup<String> {
 
+    @Nullable
     private final String prefix;
 
     OriginAwareSystemEnvironmentPropertySource(String name, Map<String, Object> source, @Nullable String environmentPrefix) {
@@ -90,6 +91,7 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
       this.prefix = determinePrefix(environmentPrefix);
     }
 
+    @Nullable
     private String determinePrefix(@Nullable String environmentPrefix) {
       if (StringUtils.isBlank(environmentPrefix)) {
         return null;
@@ -105,11 +107,13 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
       return super.containsProperty(name);
     }
 
+    @Nullable
     @Override
     public Object getProperty(String name) {
       return super.getProperty(name);
     }
 
+    @Nullable
     @Override
     public Origin getOrigin(String key) {
       String property = resolvePropertyName(key);
@@ -119,9 +123,15 @@ public class SystemEnvironmentPropertySourceEnvironmentPostProcessor implements 
       return null;
     }
 
+    @Nullable
     @Override
     public String getPrefix() {
       return this.prefix;
+    }
+
+    @Override
+    public boolean isImmutable() {
+      return (Object) getSource() == System.getenv();
     }
 
   }
