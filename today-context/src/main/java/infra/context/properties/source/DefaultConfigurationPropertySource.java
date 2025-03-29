@@ -67,6 +67,8 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
 
   private final PropertySource<?> propertySource;
 
+  private final boolean systemEnvironmentSource;
+
   private final PropertyMapper[] mappers;
 
   /**
@@ -75,9 +77,10 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
    * @param propertySource the source property source
    * @param mappers the property mappers
    */
-  DefaultConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
+  DefaultConfigurationPropertySource(PropertySource<?> propertySource, boolean systemEnvironmentSource, PropertyMapper... mappers) {
     Assert.notNull(propertySource, "PropertySource is required");
     Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
+    this.systemEnvironmentSource = systemEnvironmentSource;
     this.propertySource = propertySource;
     this.mappers = mappers;
   }
@@ -91,7 +94,7 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
     for (PropertyMapper mapper : this.mappers) {
       try {
         for (String candidate : mapper.map(name)) {
-          Object value = getPropertySource().getProperty(candidate);
+          Object value = getPropertySourceProperty(candidate);
           if (value != null) {
             Origin origin = PropertySourceOrigin.get(this.propertySource, candidate);
             return ConfigurationProperty.of(this, name, value, origin);
@@ -102,6 +105,19 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
       }
     }
     return null;
+  }
+
+  @Nullable
+  protected final Object getPropertySourceProperty(String name) {
+    // Save calls to SystemEnvironmentPropertySource.resolvePropertyName(...)
+    // since we've already done the mapping
+    PropertySource<?> propertySource = getPropertySource();
+    return (!this.systemEnvironmentSource) ? propertySource.getProperty(name)
+            : getSystemEnvironmentProperty(((SystemEnvironmentPropertySource) propertySource).getSource(), name);
+  }
+
+  Object getSystemEnvironmentProperty(Map<String, Object> systemEnvironment, String name) {
+    return systemEnvironment.get(name);
   }
 
   @Override
@@ -135,6 +151,10 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
     return this.propertySource;
   }
 
+  protected final boolean isSystemEnvironmentSource() {
+    return this.systemEnvironmentSource;
+  }
+
   protected final PropertyMapper[] getMappers() {
     return this.mappers;
   }
@@ -154,32 +174,27 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
    */
   static DefaultConfigurationPropertySource from(PropertySource<?> source) {
     Assert.notNull(source, "Source is required");
-    PropertyMapper[] mappers = getPropertyMappers(source);
-    if (isFullEnumerable(source)) {
-      return new DefaultIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);
-    }
-    return new DefaultConfigurationPropertySource(source, mappers);
+    boolean systemEnvironmentSource = isSystemEnvironmentPropertySource(source);
+    PropertyMapper[] mappers = (!systemEnvironmentSource) ? DEFAULT_MAPPERS : SYSTEM_ENVIRONMENT_MAPPERS;
+    return (!isFullEnumerable(source))
+            ? new DefaultConfigurationPropertySource(source, systemEnvironmentSource, mappers)
+            : new DefaultIterableConfigurationPropertySource((EnumerablePropertySource<?>) source,
+                    systemEnvironmentSource, mappers);
   }
 
-  private static PropertyMapper[] getPropertyMappers(PropertySource<?> source) {
-    if (source instanceof SystemEnvironmentPropertySource && hasSystemEnvironmentName(source)) {
-      return SYSTEM_ENVIRONMENT_MAPPERS;
-    }
-    return DEFAULT_MAPPERS;
-  }
-
-  private static boolean hasSystemEnvironmentName(PropertySource<?> source) {
+  private static boolean isSystemEnvironmentPropertySource(PropertySource<?> source) {
     String name = source.getName();
-    return StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME.equals(name)
-            || name.endsWith("-" + StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
+    return (source instanceof SystemEnvironmentPropertySource)
+            && (StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME.equals(name)
+            || name.endsWith("-" + StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME));
   }
 
   private static boolean isFullEnumerable(PropertySource<?> source) {
     PropertySource<?> rootSource = getRootSource(source);
-    if (rootSource.getSource() instanceof Map) {
+    if (rootSource.getSource() instanceof Map map) {
       // Check we're not security restricted
       try {
-        ((Map<?, ?>) rootSource.getSource()).size();
+        map.size();
       }
       catch (UnsupportedOperationException ex) {
         return false;

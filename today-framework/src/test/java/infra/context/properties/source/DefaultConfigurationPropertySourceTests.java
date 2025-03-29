@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
 package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import infra.app.env.RandomValuePropertySource;
@@ -31,6 +31,7 @@ import infra.origin.OriginLookup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link DefaultConfigurationPropertySource}.
@@ -43,7 +44,7 @@ class DefaultConfigurationPropertySourceTests {
   @Test
   void createWhenPropertySourceIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new DefaultConfigurationPropertySource(null, Mockito.mock(PropertyMapper.class)))
+            .isThrownBy(() -> new DefaultConfigurationPropertySource(null, false, mock(PropertyMapper.class)))
             .withMessageContaining("PropertySource is required");
   }
 
@@ -57,7 +58,7 @@ class DefaultConfigurationPropertySourceTests {
     TestPropertyMapper mapper = new TestPropertyMapper();
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key2");
-    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, mapper);
+    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, false, mapper);
     assertThat(adapter.getConfigurationProperty(name).getValue()).isEqualTo("value2");
   }
 
@@ -69,9 +70,10 @@ class DefaultConfigurationPropertySourceTests {
     TestPropertyMapper mapper = new TestPropertyMapper();
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key");
-    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, mapper);
+    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, false,
+            mapper);
     ConfigurationProperty configurationProperty = adapter.getConfigurationProperty(name);
-    assertThat(configurationProperty.getOrigin().toString()).isEqualTo("\"key\" from property source \"test\"");
+    assertThat(configurationProperty.getOrigin()).hasToString("\"key\" from property source \"test\"");
     assertThat(configurationProperty.getSource()).isEqualTo(adapter);
   }
 
@@ -83,8 +85,9 @@ class DefaultConfigurationPropertySourceTests {
     TestPropertyMapper mapper = new TestPropertyMapper();
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key");
-    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, mapper);
-    assertThat(adapter.getConfigurationProperty(name).getOrigin().toString()).isEqualTo("TestOrigin key");
+    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, false,
+            mapper);
+    assertThat(adapter.getConfigurationProperty(name).getOrigin()).hasToString("TestOrigin key");
   }
 
   @Test
@@ -92,7 +95,7 @@ class DefaultConfigurationPropertySourceTests {
     Map<String, Object> source = new LinkedHashMap<>();
     source.put("foo.bar", "value");
     PropertySource<?> propertySource = new MapPropertySource("test", source);
-    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource,
+    DefaultConfigurationPropertySource adapter = new DefaultConfigurationPropertySource(propertySource, false,
             DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.containsDescendantOf(ConfigurationPropertyName.of("foo")))
             .isEqualTo(ConfigurationPropertyState.UNKNOWN);
@@ -106,7 +109,7 @@ class DefaultConfigurationPropertySourceTests {
 
   @Test
   void fromWhenNonEnumerableShouldReturnNonIterable() {
-    PropertySource<?> propertySource = new PropertySource<Object>("test", new Object()) {
+    PropertySource<?> propertySource = new PropertySource<>("test", new Object()) {
 
       @Override
       public Object getProperty(String name) {
@@ -121,7 +124,7 @@ class DefaultConfigurationPropertySourceTests {
 
   @Test
   void fromWhenEnumerableButRestrictedShouldReturnNonIterable() {
-    Map<String, Object> source = new LinkedHashMap<String, Object>() {
+    Map<String, Object> source = new LinkedHashMap<>() {
 
       @Override
       public int size() {
@@ -240,7 +243,7 @@ class DefaultConfigurationPropertySourceTests {
 
     @Override
     public Object getProperty(String name) {
-      name = name.toLowerCase();
+      name = name.toLowerCase(Locale.ROOT);
       if (!name.startsWith(this.prefix)) {
         return null;
       }

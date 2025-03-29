@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.context.properties.source;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -28,7 +29,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import infra.core.env.EnumerablePropertySource;
@@ -40,6 +40,7 @@ import infra.lang.Nullable;
 import infra.origin.Origin;
 import infra.origin.OriginLookup;
 import infra.origin.PropertySourceOrigin;
+import infra.util.ConcurrentReferenceHashMap;
 
 /**
  * {@link ConfigurationPropertySource} backed by an {@link EnumerablePropertySource}.
@@ -59,22 +60,27 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
 
   private final BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck;
 
-  private final SoftReferenceConfigurationPropertyCache<Mappings> cache;
+  private final SoftReferenceConfigurationPropertyCache<Cache> cache;
 
   @Nullable
   private volatile ConfigurationPropertyName[] configurationPropertyNames;
 
-  DefaultIterableConfigurationPropertySource(EnumerablePropertySource<?> propertySource, PropertyMapper... mappers) {
-    super(propertySource, mappers);
+  @Nullable
+  private final Map<ConfigurationPropertyName, ConfigurationPropertyState> containsDescendantOfCache;
+
+  DefaultIterableConfigurationPropertySource(EnumerablePropertySource<?> propertySource,
+          boolean systemEnvironmentSource, PropertyMapper... mappers) {
+    super(propertySource, systemEnvironmentSource, mappers);
     assertEnumerablePropertySource();
+    boolean immutable = isImmutablePropertySource();
     this.ancestorOfCheck = getAncestorOfCheck(mappers);
-    this.cache = new SoftReferenceConfigurationPropertyCache<>(isImmutablePropertySource());
+    this.cache = new SoftReferenceConfigurationPropertyCache<>(immutable);
+    this.containsDescendantOfCache = (!systemEnvironmentSource) ? null : new ConcurrentReferenceHashMap<>();
   }
 
-  private BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> getAncestorOfCheck(
-          PropertyMapper[] mappers) {
-    BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck
-            = mappers[0].getAncestorOfCheck();
+  private BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> getAncestorOfCheck(PropertyMapper[] mappers) {
+    BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck = mappers[0]
+            .getAncestorOfCheck();
     for (int i = 1; i < mappers.length; i++) {
       ancestorOfCheck = ancestorOfCheck.or(mappers[i].getAncestorOfCheck());
     }
@@ -82,9 +88,9 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
   }
 
   private void assertEnumerablePropertySource() {
-    if (getPropertySource() instanceof MapPropertySource) {
+    if (getPropertySource() instanceof MapPropertySource mapSource) {
       try {
-        ((MapPropertySource) getPropertySource()).getSource().size();
+        mapSource.getSource().size();
       }
       catch (UnsupportedOperationException ex) {
         throw new IllegalArgumentException("PropertySource must be fully enumerable");
@@ -97,6 +103,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return this.cache;
   }
 
+  @Nullable
   @Override
   public ConfigurationProperty getConfigurationProperty(@Nullable ConfigurationPropertyName name) {
     if (name == null) {
@@ -106,14 +113,19 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     if (configurationProperty != null) {
       return configurationProperty;
     }
-    for (String candidate : getMappings().getMapped(name)) {
-      Object value = getPropertySource().getProperty(candidate);
+    for (String candidate : getCache().getMapped(name)) {
+      Object value = getPropertySourceProperty(candidate);
       if (value != null) {
         Origin origin = PropertySourceOrigin.get(getPropertySource(), candidate);
         return ConfigurationProperty.of(this, name, value, origin);
       }
     }
     return null;
+  }
+
+  @Override
+  protected Object getSystemEnvironmentProperty(Map<String, Object> systemEnvironment, String name) {
+    return getCache().getSystemEnvironmentProperty(name);
   }
 
   @Override
@@ -134,48 +146,67 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
       return result;
     }
     if (this.ancestorOfCheck == PropertyMapper.DEFAULT_ANCESTOR_OF_CHECK) {
-      return getMappings().containsDescendantOf(name, this.ancestorOfCheck);
+      Set<ConfigurationPropertyName> descendants = getCache().getDescendants();
+      if (descendants != null) {
+        if (name.isEmpty() && !descendants.isEmpty()) {
+          return ConfigurationPropertyState.PRESENT;
+        }
+        return !descendants.contains(name) ? ConfigurationPropertyState.ABSENT
+                : ConfigurationPropertyState.PRESENT;
+      }
     }
+    result = (this.containsDescendantOfCache != null) ? this.containsDescendantOfCache.get(name) : null;
+    if (result == null) {
+      result = (!ancestorOfCheck(name)) ? ConfigurationPropertyState.ABSENT : ConfigurationPropertyState.PRESENT;
+      if (this.containsDescendantOfCache != null) {
+        this.containsDescendantOfCache.put(name, result);
+      }
+    }
+    return result;
+  }
+
+  private boolean ancestorOfCheck(ConfigurationPropertyName name) {
     ConfigurationPropertyName[] candidates = getConfigurationPropertyNames();
     for (ConfigurationPropertyName candidate : candidates) {
       if (candidate != null && this.ancestorOfCheck.test(name, candidate)) {
-        return ConfigurationPropertyState.PRESENT;
+        return true;
       }
     }
-    return ConfigurationPropertyState.ABSENT;
+    return false;
   }
 
   private ConfigurationPropertyName[] getConfigurationPropertyNames() {
     if (!isImmutablePropertySource()) {
-      return getMappings().getConfigurationPropertyNames(getPropertySource().getPropertyNames());
+      return getCache().getConfigurationPropertyNames(getPropertySource().getPropertyNames());
     }
     ConfigurationPropertyName[] configurationPropertyNames = this.configurationPropertyNames;
     if (configurationPropertyNames == null) {
-      configurationPropertyNames = getMappings()
+      configurationPropertyNames = getCache()
               .getConfigurationPropertyNames(getPropertySource().getPropertyNames());
       this.configurationPropertyNames = configurationPropertyNames;
     }
     return configurationPropertyNames;
   }
 
-  private Mappings getMappings() {
-    return this.cache.get(this::createMappings, this::updateMappings);
+  private Cache getCache() {
+    return this.cache.get(this::createCache, this::updateCache);
   }
 
-  private Mappings createMappings() {
-    return new Mappings(getMappers(), isImmutablePropertySource(),
-            this.ancestorOfCheck == PropertyMapper.DEFAULT_ANCESTOR_OF_CHECK);
+  private Cache createCache() {
+    boolean immutable = isImmutablePropertySource();
+    boolean captureDescendants = this.ancestorOfCheck == PropertyMapper.DEFAULT_ANCESTOR_OF_CHECK;
+    return new Cache(getMappers(), immutable, captureDescendants, isSystemEnvironmentSource());
   }
 
-  private Mappings updateMappings(Mappings mappings) {
-    mappings.updateMappings(() -> getPropertySource().getPropertyNames());
-    return mappings;
+  private Cache updateCache(Cache cache) {
+    cache.update(getPropertySource());
+    return cache;
   }
 
   private boolean isImmutablePropertySource() {
     EnumerablePropertySource<?> source = getPropertySource();
-    if (source instanceof OriginLookup) {
-      return ((OriginLookup<?>) source).isImmutable();
+    if (source instanceof OriginLookup<?> originLookup) {
+      return originLookup.isImmutable();
     }
     if (StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME.equals(source.getName())) {
       return source.getSource() == System.getenv();
@@ -188,7 +219,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return (EnumerablePropertySource<?>) super.getPropertySource();
   }
 
-  private static class Mappings {
+  private static class Cache {
 
     private static final ConfigurationPropertyName[] EMPTY_NAMES_ARRAY = {};
 
@@ -196,34 +227,26 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
 
     private final boolean immutable;
 
-    private final boolean trackDescendants;
-    @Nullable
-    private volatile Map<ConfigurationPropertyName, Set<String>> mappings;
+    private final boolean captureDescendants;
+
+    private final boolean systemEnvironmentSource;
 
     @Nullable
-    private volatile Map<String, ConfigurationPropertyName> reverseMappings;
+    private volatile Data data;
 
-    @Nullable
-    private volatile Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants;
-
-    @Nullable
-    private volatile ConfigurationPropertyName[] configurationPropertyNames;
-
-    @Nullable
-    private volatile String[] lastUpdated;
-
-    Mappings(PropertyMapper[] mappers, boolean immutable, boolean trackDescendants) {
+    Cache(PropertyMapper[] mappers, boolean immutable, boolean captureDescendants, boolean systemEnvironmentSource) {
       this.mappers = mappers;
       this.immutable = immutable;
-      this.trackDescendants = trackDescendants;
+      this.captureDescendants = captureDescendants;
+      this.systemEnvironmentSource = systemEnvironmentSource;
     }
 
-    void updateMappings(Supplier<String[]> propertyNames) {
-      if (this.mappings == null || !this.immutable) {
+    void update(EnumerablePropertySource<?> propertySource) {
+      if (this.data == null || !this.immutable) {
         int count = 0;
         while (true) {
           try {
-            updateMappings(propertyNames.get());
+            tryUpdate(propertySource);
             return;
           }
           catch (ConcurrentModificationException ex) {
@@ -235,16 +258,20 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
       }
     }
 
-    private void updateMappings(String[] propertyNames) {
-      String[] lastUpdated = this.lastUpdated;
+    private void tryUpdate(EnumerablePropertySource<?> propertySource) {
+      Data data = this.data;
+      String[] lastUpdated = (data != null) ? data.lastUpdated() : null;
+      String[] propertyNames = propertySource.getPropertyNames();
       if (lastUpdated != null && Arrays.equals(lastUpdated, propertyNames)) {
         return;
       }
       int size = propertyNames.length;
-      Map<ConfigurationPropertyName, Set<String>> mappings = cloneOrCreate(this.mappings, size);
-      Map<String, ConfigurationPropertyName> reverseMappings = cloneOrCreate(this.reverseMappings, size);
-      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants = cloneOrCreate(this.descendants, size);
-
+      Map<ConfigurationPropertyName, Set<String>> mappings = cloneOrCreate(
+              (data != null) ? data.mappings() : null, size);
+      Map<String, ConfigurationPropertyName> reverseMappings = cloneOrCreate(
+              (data != null) ? data.reverseMappings() : null, size);
+      Set<ConfigurationPropertyName> descendants = (!this.captureDescendants) ? null : new HashSet<>();
+      Map<String, Object> systemEnvironmentCopy = (!this.systemEnvironmentSource) ? null : copySource(propertySource);
       for (PropertyMapper propertyMapper : this.mappers) {
         for (String propertyName : propertyNames) {
           if (!reverseMappings.containsKey(propertyName)) {
@@ -252,31 +279,36 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
             if (configurationPropertyName != null && !configurationPropertyName.isEmpty()) {
               add(mappings, configurationPropertyName, propertyName);
               reverseMappings.put(propertyName, configurationPropertyName);
-              if (this.trackDescendants) {
-                addParents(descendants, configurationPropertyName);
-              }
+              addParents(descendants, configurationPropertyName);
             }
           }
         }
       }
-      this.mappings = mappings;
-      this.reverseMappings = reverseMappings;
-      this.descendants = descendants;
-      this.lastUpdated = this.immutable ? null : propertyNames;
-      this.configurationPropertyNames =
-              this.immutable
+      ConfigurationPropertyName[] configurationPropertyNames = this.immutable
               ? reverseMappings.values().toArray(new ConfigurationPropertyName[0]) : null;
+      lastUpdated = this.immutable ? null : propertyNames;
+      this.data = new Data(mappings, reverseMappings, descendants, configurationPropertyNames,
+              systemEnvironmentCopy, lastUpdated);
+    }
+
+    @SuppressWarnings("unchecked")
+    private HashMap<String, Object> copySource(EnumerablePropertySource<?> propertySource) {
+      return new HashMap<>((Map<String, Object>) propertySource.getSource());
     }
 
     private <K, V> Map<K, V> cloneOrCreate(@Nullable Map<K, V> source, int size) {
-      return (source != null) ? new LinkedHashMap<>(source) : new LinkedHashMap<>(size);
+      return source != null ? new LinkedHashMap<>(source) : new LinkedHashMap<>(size);
     }
 
-    private void addParents(Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants,
-            ConfigurationPropertyName name) {
-      ConfigurationPropertyName parent = name;
+    private void addParents(@Nullable Set<ConfigurationPropertyName> descendants, ConfigurationPropertyName name) {
+      if (descendants == null || name.isEmpty()) {
+        return;
+      }
+      ConfigurationPropertyName parent = name.getParent();
       while (!parent.isEmpty()) {
-        add(descendants, parent, name);
+        if (!descendants.add(parent)) {
+          return;
+        }
         parent = parent.getParent();
       }
     }
@@ -286,39 +318,41 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     }
 
     Set<String> getMapped(ConfigurationPropertyName configurationPropertyName) {
-      return this.mappings.getOrDefault(configurationPropertyName, Collections.emptySet());
+      return this.data.mappings().getOrDefault(configurationPropertyName, Collections.emptySet());
     }
 
     ConfigurationPropertyName[] getConfigurationPropertyNames(String[] propertyNames) {
-      ConfigurationPropertyName[] names = this.configurationPropertyNames;
+      Data data = this.data;
+      ConfigurationPropertyName[] names = data.configurationPropertyNames();
       if (names != null) {
         return names;
       }
-      Map<String, ConfigurationPropertyName> reverseMappings = this.reverseMappings;
+      Map<String, ConfigurationPropertyName> reverseMappings = data.reverseMappings();
       if (reverseMappings == null || reverseMappings.isEmpty()) {
         return EMPTY_NAMES_ARRAY;
       }
       names = new ConfigurationPropertyName[propertyNames.length];
-      int i = 0;
-      for (String propertyName : propertyNames) {
-        names[i++] = reverseMappings.get(propertyName);
+      for (int i = 0; i < propertyNames.length; i++) {
+        names[i] = reverseMappings.get(propertyNames[i]);
       }
       return names;
     }
 
-    ConfigurationPropertyState containsDescendantOf(
-            ConfigurationPropertyName name, BiPredicate<ConfigurationPropertyName, ConfigurationPropertyName> ancestorOfCheck) {
-      Map<ConfigurationPropertyName, Set<ConfigurationPropertyName>> descendants = this.descendants;
-      if (name.isEmpty() && !descendants.isEmpty()) {
-        return ConfigurationPropertyState.PRESENT;
-      }
-      Set<ConfigurationPropertyName> candidates = descendants.getOrDefault(name, Collections.emptySet());
-      for (ConfigurationPropertyName candidate : candidates) {
-        if (ancestorOfCheck.test(name, candidate)) {
-          return ConfigurationPropertyState.PRESENT;
-        }
-      }
-      return ConfigurationPropertyState.ABSENT;
+    @Nullable
+    Set<ConfigurationPropertyName> getDescendants() {
+      return this.data.descendants();
+    }
+
+    Object getSystemEnvironmentProperty(String name) {
+      return this.data.systemEnvironmentCopy().get(name);
+    }
+
+    private record Data(Map<ConfigurationPropertyName, Set<String>> mappings,
+            @Nullable Map<String, ConfigurationPropertyName> reverseMappings,
+            @Nullable Set<ConfigurationPropertyName> descendants,
+            @Nullable ConfigurationPropertyName[] configurationPropertyNames,
+            @Nullable Map<String, Object> systemEnvironmentCopy, @Nullable String[] lastUpdated) {
+
     }
 
   }

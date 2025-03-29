@@ -71,7 +71,7 @@ public class Binder {
 
   private final ConcurrentReferenceHashMap<Object, Object> cache = new ConcurrentReferenceHashMap<>();
 
-  private ConfigurationPropertyCaching configurationPropertyCaching;
+  private final ConfigurationPropertyCaching configurationPropertyCaching;
 
   /**
    * Create a new {@link Binder} instance for the specified sources. A
@@ -660,7 +660,7 @@ public class Binder {
       return Binder.this;
     }
 
-    Map<Object, Object> getCache() {
+    ConcurrentReferenceHashMap<Object, Object> getCache() {
       return Binder.this.cache;
     }
 
