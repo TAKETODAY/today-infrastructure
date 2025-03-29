@@ -653,6 +653,7 @@ class CglibAopProxy implements AopProxy, Serializable {
       this.target = config.getTargetSource().getTarget();
     }
 
+    @Nullable
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object retVal = createInvocation(proxy, method, args, methodProxy, target, targetClass, adviceChain)
