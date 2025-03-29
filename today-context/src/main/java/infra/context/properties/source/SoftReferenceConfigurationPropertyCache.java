@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.context.properties.source;
 import java.lang.ref.SoftReference;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -38,12 +39,15 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
 
   private static final Duration UNLIMITED = Duration.ZERO;
 
+  static final CacheOverride NO_OP_OVERRIDE = () -> {
+  };
+
   private final boolean neverExpire;
 
   @Nullable
   private volatile Duration timeToLive;
 
-  private volatile SoftReference<T> valueRef = new SoftReference<>(null);
+  private volatile SoftReference<T> value = new SoftReference<>(null);
 
   @Nullable
   private volatile Instant lastAccessed = now();
@@ -70,6 +74,25 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
   @Override
   public void clear() {
     this.lastAccessed = null;
+  }
+
+  @Override
+  public CacheOverride override() {
+    if (this.neverExpire) {
+      return NO_OP_OVERRIDE;
+    }
+    ActiveCacheOverride override = new ActiveCacheOverride(this);
+    if (override.timeToLive() == null) {
+      // Ensure we don't use stale data on the first access
+      clear();
+    }
+    this.timeToLive = UNLIMITED;
+    return override;
+  }
+
+  void restore(ActiveCacheOverride override) {
+    this.timeToLive = override.timeToLive();
+    this.lastAccessed = override.lastAccessed();
   }
 
   /**
@@ -113,11 +136,30 @@ class SoftReferenceConfigurationPropertyCache<T> implements ConfigurationPropert
 
   @Nullable
   protected T getValue() {
-    return this.valueRef.get();
+    return this.value.get();
   }
 
   protected void setValue(T value) {
-    this.valueRef = new SoftReference<>(value);
+    this.value = new SoftReference<>(value);
+  }
+
+  /**
+   * An active {@link CacheOverride} with a stored time-to-live.
+   */
+  private record ActiveCacheOverride(SoftReferenceConfigurationPropertyCache<?> cache,
+          @Nullable Duration timeToLive, @Nullable Instant lastAccessed, AtomicBoolean active) implements CacheOverride {
+
+    ActiveCacheOverride(SoftReferenceConfigurationPropertyCache<?> cache) {
+      this(cache, cache.timeToLive, cache.lastAccessed, new AtomicBoolean());
+    }
+
+    @Override
+    public void close() {
+      if (active().compareAndSet(false, true)) {
+        this.cache.restore(this);
+      }
+    }
+
   }
 
 }

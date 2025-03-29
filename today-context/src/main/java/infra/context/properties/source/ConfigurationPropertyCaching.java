@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,15 @@ public interface ConfigurationPropertyCaching {
    * Clear the cache and force it to be reloaded on next access.
    */
   void clear();
+
+  /**
+   * Override caching to temporarily enable it. Once caching is no longer needed the
+   * returned {@link CacheOverride} should be closed to restore previous cache settings.
+   *
+   * @return a {@link CacheOverride}
+   * @since 5.0
+   */
+  CacheOverride override();
 
   /**
    * Get for all configuration property sources in the environment.
@@ -115,4 +124,16 @@ public interface ConfigurationPropertyCaching {
     throw new IllegalStateException("Unable to find cache from configuration property sources");
   }
 
+  /**
+   * {@link AutoCloseable} used to control a
+   * {@link ConfigurationPropertyCaching#override() cache override}.
+   *
+   * @since 5.0
+   */
+  interface CacheOverride extends AutoCloseable {
+
+    @Override
+    void close();
+
+  }
 }

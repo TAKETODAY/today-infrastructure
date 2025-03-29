@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import infra.context.properties.source.ConfigurationPropertyCaching.CacheOverride;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -38,7 +40,7 @@ class SoftReferenceConfigurationPropertyCacheTests {
 
   private Clock clock = FIXED_CLOCK;
 
-  private AtomicInteger createCount = new AtomicInteger();
+  private final AtomicInteger createCount = new AtomicInteger();
 
   private TestSoftReferenceConfigurationPropertyCache cache = new TestSoftReferenceConfigurationPropertyCache(false);
 
@@ -98,6 +100,68 @@ class SoftReferenceConfigurationPropertyCacheTests {
     get(this.cache).assertCounts(0, 0);
     this.cache.clear();
     get(this.cache).assertCounts(0, 1);
+  }
+
+  @Test
+  void overrideWhenNeverExpiresReturnsNoOpOverride() {
+    TestSoftReferenceConfigurationPropertyCache cache = new TestSoftReferenceConfigurationPropertyCache(true);
+    assertThat(cache.override()).isSameAs(SoftReferenceConfigurationPropertyCache.NO_OP_OVERRIDE);
+  }
+
+  @Test
+  void overrideEnablesCaching() {
+    get(this.cache).assertCounts(0, 0);
+    get(this.cache).assertCounts(0, 1);
+    try (CacheOverride override = this.cache.override()) {
+      get(this.cache).assertCounts(0, 2);
+      get(this.cache).assertCounts(0, 2);
+      get(this.cache).assertCounts(0, 2);
+    }
+    get(this.cache).assertCounts(0, 3);
+  }
+
+  @Test
+  void overrideWhenHasExistingTimeToLiveEnablesCaching() {
+    this.cache.setTimeToLive(Duration.ofHours(1));
+    get(this.cache).assertCounts(0, 0);
+    get(this.cache).assertCounts(0, 0);
+    tick(Duration.ofHours(2));
+    get(this.cache).assertCounts(0, 1);
+    try (CacheOverride override = this.cache.override()) {
+      get(this.cache).assertCounts(0, 1);
+      tick(Duration.ofHours(2));
+      get(this.cache).assertCounts(0, 1);
+    }
+    get(this.cache).assertCounts(0, 2);
+    get(this.cache).assertCounts(0, 2);
+    tick(Duration.ofHours(2));
+    get(this.cache).assertCounts(0, 3);
+  }
+
+  @Test
+  void overrideWhenDisabledDoesNotReturnStaleData() {
+    get(this.cache).assertCounts(0, 0);
+    get(this.cache).assertCounts(0, 1);
+    this.cache.disable();
+    try (CacheOverride override = this.cache.override()) {
+      get(this.cache).assertCounts(0, 2);
+      get(this.cache).assertCounts(0, 2);
+    }
+    get(this.cache).assertCounts(0, 3);
+  }
+
+  @Test
+  void overrideCanBeClosedTwiceWithoutIssue() {
+    get(this.cache).assertCounts(0, 0);
+    get(this.cache).assertCounts(0, 1);
+    this.cache.disable();
+    try (CacheOverride override = this.cache.override()) {
+      get(this.cache).assertCounts(0, 2);
+      get(this.cache).assertCounts(0, 2);
+      override.close();
+      get(this.cache).assertCounts(0, 3);
+    }
+    get(this.cache).assertCounts(0, 4);
 
   }
 
@@ -153,7 +217,7 @@ class SoftReferenceConfigurationPropertyCacheTests {
 
     private final int createCount;
 
-    private int refreshCount;
+    private final int refreshCount;
 
     Value(int createCount, int refreshCount) {
       this.createCount = createCount;

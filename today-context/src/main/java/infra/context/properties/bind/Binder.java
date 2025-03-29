@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import infra.beans.PropertyEditorRegistry;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.properties.source.ConfigurationProperty;
+import infra.context.properties.source.ConfigurationPropertyCaching;
 import infra.context.properties.source.ConfigurationPropertyName;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.ConfigurationPropertySources;
@@ -66,6 +67,8 @@ public class Binder {
   private final BindHandler defaultBindHandler;
 
   private final Map<BindMethod, List<DataObjectBinder>> dataObjectBinders;
+
+  private ConfigurationPropertyCaching configurationPropertyCaching;
 
   /**
    * Create a new {@link Binder} instance for the specified sources. A
@@ -191,6 +194,7 @@ public class Binder {
       Assert.notNull(source, "Sources must not contain null elements");
     }
     this.sources = sources;
+    this.configurationPropertyCaching = ConfigurationPropertyCaching.get(sources);
     this.bindConverter = BindConverter.get(conversionServices, propertyEditorInitializer);
     this.defaultBindHandler = defaultBindHandler != null ? defaultBindHandler : BindHandler.DEFAULT;
     this.placeholdersResolver = placeholdersResolver != null ? placeholdersResolver : PlaceholdersResolver.NONE;
@@ -351,17 +355,19 @@ public class Binder {
 
   private <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, boolean allowRecursiveBinding, boolean create) {
-    try {
-      Bindable<T> replacementTarget = handler.onStart(name, target, context);
-      if (replacementTarget == null) {
-        return handleBindResult(name, target, handler, context, null, create);
+    try (var ignored = this.configurationPropertyCaching.override()) {
+      try {
+        Bindable<T> replacementTarget = handler.onStart(name, target, context);
+        if (replacementTarget == null) {
+          return handleBindResult(name, target, handler, context, null, create);
+        }
+        target = replacementTarget;
+        Object bound = bindObject(name, target, handler, context, allowRecursiveBinding);
+        return handleBindResult(name, target, handler, context, bound, create);
       }
-      target = replacementTarget;
-      Object bound = bindObject(name, target, handler, context, allowRecursiveBinding);
-      return handleBindResult(name, target, handler, context, bound, create);
-    }
-    catch (Exception ex) {
-      return handleBindError(name, target, handler, context, ex);
+      catch (Exception ex) {
+        return handleBindError(name, target, handler, context, ex);
+      }
     }
   }
 
