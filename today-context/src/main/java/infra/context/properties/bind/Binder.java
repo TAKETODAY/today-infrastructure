@@ -44,6 +44,7 @@ import infra.format.support.ApplicationConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.ConcurrentReferenceHashMap;
 
 /**
  * A container object which Binds objects from one or more
@@ -67,6 +68,8 @@ public class Binder {
   private final BindHandler defaultBindHandler;
 
   private final Map<BindMethod, List<DataObjectBinder>> dataObjectBinders;
+
+  private final ConcurrentReferenceHashMap<Object, Object> cache = new ConcurrentReferenceHashMap<>();
 
   private ConfigurationPropertyCaching configurationPropertyCaching;
 
@@ -572,6 +575,7 @@ public class Binder {
     private int sourcePushCount;
 
     private final ArrayDeque<Class<?>> dataObjectBindings = new ArrayDeque<>();
+
     private final ArrayDeque<Class<?>> constructorBindings = new ArrayDeque<>();
 
     @Nullable
@@ -654,6 +658,10 @@ public class Binder {
     @Override
     public Binder getBinder() {
       return Binder.this;
+    }
+
+    Map<Object, Object> getCache() {
+      return Binder.this.cache;
     }
 
     @Override
