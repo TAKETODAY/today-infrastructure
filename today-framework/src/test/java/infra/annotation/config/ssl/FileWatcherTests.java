@@ -24,13 +24,17 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import infra.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -191,9 +195,146 @@ class FileWatcherTests {
     }
   }
 
+  /*
+   * Replicating a letsencrypt folder structure like:
+   * "/folder/live/certname/privkey.pem -> ../../archive/certname/privkey32.pem"
+   */
+  @Test
+  void shouldFollowRelativePathSymlinks(@TempDir Path tempDir) throws Exception {
+    Path folder = tempDir.resolve("folder");
+    Path live = folder.resolve("live").resolve("certname");
+    Path archive = folder.resolve("archive").resolve("certname");
+    Path link = live.resolve("privkey.pem");
+    Path targetFile = archive.resolve("privkey32.pem");
+    Files.createDirectories(live);
+    Files.createDirectories(archive);
+    Files.createFile(targetFile);
+    Path relativePath = Path.of("../../archive/certname/privkey32.pem");
+    Files.createSymbolicLink(link, relativePath);
+    try {
+      WaitingCallback callback = new WaitingCallback();
+      this.fileWatcher.watch(Set.of(link), callback);
+      Files.writeString(targetFile, "Some content");
+      callback.expectChanges();
+    }
+    finally {
+      FileSystemUtils.deleteRecursively(folder);
+    }
+  }
+
+  /*
+   * Replicating a k8s configmap folder structure like:
+   * "secret.txt -> ..data/secret.txt",
+   * "..data/ -> ..a72e81ff-f0e1-41d8-a19b-068d3d1d4e2f/",
+   * "..a72e81ff-f0e1-41d8-a19b-068d3d1d4e2f/secret.txt"
+   *
+   * After a secret update, this will look like: "secret.txt -> ..data/secret.txt",
+   * "..data/ -> ..bba2a61f-ce04-4c35-93aa-e455110d4487/",
+   * "..bba2a61f-ce04-4c35-93aa-e455110d4487/secret.txt"
+   */
+  @Test
+  void shouldTriggerOnConfigMapUpdates(@TempDir Path tempDir) throws Exception {
+    Path configMap1 = createConfigMap(tempDir, "secret.txt");
+    Path configMap2 = createConfigMap(tempDir, "secret.txt");
+    Path data = tempDir.resolve("..data");
+    Files.createSymbolicLink(data, configMap1);
+    Path secretFile = tempDir.resolve("secret.txt");
+    Files.createSymbolicLink(secretFile, data.resolve("secret.txt"));
+    try {
+      WaitingCallback callback = new WaitingCallback();
+      this.fileWatcher.watch(Set.of(secretFile), callback);
+      Files.delete(data);
+      Files.createSymbolicLink(data, configMap2);
+      FileSystemUtils.deleteRecursively(configMap1);
+      callback.expectChanges();
+    }
+    finally {
+      FileSystemUtils.deleteRecursively(configMap2);
+      Files.delete(data);
+      Files.delete(secretFile);
+    }
+  }
+
+  /**
+   * Updates many times K8s ConfigMap/Secret with atomic move. <pre>
+   * .
+   * ├── ..a72e81ff-f0e1-41d8-a19b-068d3d1d4e2f
+   * │   ├── keystore.jks
+   * ├── ..data -> ..a72e81ff-f0e1-41d8-a19b-068d3d1d4e2f
+   * ├── keystore.jks -> ..data/keystore.jks
+   * </pre>
+   *
+   * After a first a ConfigMap/Secret update, this will look like: <pre>
+   * .
+   * ├── ..bba2a61f-ce04-4c35-93aa-e455110d4487
+   * │   ├── keystore.jks
+   * ├── ..data -> ..bba2a61f-ce04-4c35-93aa-e455110d4487
+   * ├── keystore.jks -> ..data/keystore.jks
+   * </pre> After a second a ConfigMap/Secret update, this will look like: <pre>
+   * .
+   * ├── ..134887f0-df8f-4433-b70c-7784d2a33bd1
+   * │   ├── keystore.jks
+   * ├── ..data -> ..134887f0-df8f-4433-b70c-7784d2a33bd1
+   * ├── keystore.jks -> ..data/keystore.jks
+   * </pre>
+   * <p>
+   * When Kubernetes updates either the ConfigMap or Secret, it performs the following
+   * steps:
+   * <ul>
+   * <li>Creates a new unique directory.</li>
+   * <li>Writes the ConfigMap/Secret content to the newly created directory.</li>
+   * <li>Creates a symlink {@code ..data_tmp} pointing to the newly created
+   * directory.</li>
+   * <li>Performs an atomic rename of {@code ..data_tmp} to {@code ..data}.</li>
+   * <li>Deletes the old ConfigMap/Secret directory.</li>
+   * </ul>
+   *
+   * @param tempDir temp directory
+   * @throws Exception if a failure occurs
+   */
+  @Test
+  void shouldTriggerOnConfigMapAtomicMoveUpdates(@TempDir Path tempDir) throws Exception {
+    Path configMap1 = createConfigMap(tempDir, "keystore.jks");
+    Path data = Files.createSymbolicLink(tempDir.resolve("..data"), configMap1);
+    Files.createSymbolicLink(tempDir.resolve("keystore.jks"), data.resolve("keystore.jks"));
+    WaitingCallback callback = new WaitingCallback();
+    this.fileWatcher.watch(Set.of(tempDir.resolve("keystore.jks")), callback);
+    // First update
+    Path configMap2 = createConfigMap(tempDir, "keystore.jks");
+    Path dataTmp = Files.createSymbolicLink(tempDir.resolve("..data_tmp"), configMap2);
+    move(dataTmp, data);
+    FileSystemUtils.deleteRecursively(configMap1);
+    callback.expectChanges();
+    callback.reset();
+    // Second update
+    Path configMap3 = createConfigMap(tempDir, "keystore.jks");
+    dataTmp = Files.createSymbolicLink(tempDir.resolve("..data_tmp"), configMap3);
+    move(dataTmp, data);
+    FileSystemUtils.deleteRecursively(configMap2);
+    callback.expectChanges();
+  }
+
+  Path createConfigMap(Path parentDir, String secretFileName) throws IOException {
+    Path configMapFolder = parentDir.resolve(".." + UUID.randomUUID());
+    Files.createDirectory(configMapFolder);
+    Path secret = configMapFolder.resolve(secretFileName);
+    Files.createFile(secret);
+    return configMapFolder;
+  }
+
+  private void move(Path source, Path target) throws IOException {
+    try {
+      Files.move(source, target, StandardCopyOption.ATOMIC_MOVE);
+    }
+    catch (AccessDeniedException ex) {
+      // Windows
+      Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+    }
+  }
+
   private static final class WaitingCallback implements Runnable {
 
-    private final CountDownLatch latch = new CountDownLatch(1);
+    private CountDownLatch latch = new CountDownLatch(1);
 
     volatile boolean changed = false;
 
@@ -219,6 +360,11 @@ class FileWatcherTests {
           fail("Timeout while waiting for changes");
         }
       }
+    }
+
+    void reset() {
+      this.latch = new CountDownLatch(1);
+      this.changed = false;
     }
 
   }
