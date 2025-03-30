@@ -158,9 +158,8 @@ public class SynchronizationInfo implements Serializable {
       oldValue = null;
     }
     if (oldValue != null) {
-      throw new IllegalStateException(
-              "Already value [" + oldValue + "] for key [" + actualKey + "] bound to thread ["
-                      + Thread.currentThread().getName() + "]");
+      throw new IllegalStateException("Already value [%s] for key [%s] bound to thread [%s]"
+              .formatted(oldValue, actualKey, Thread.currentThread().getName()));
     }
   }
 
@@ -176,7 +175,7 @@ public class SynchronizationInfo implements Serializable {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
     Object value = doUnbindResource(actualKey);
     if (value == null) {
-      throw new IllegalStateException("No value for key [" + actualKey + "] bound to thread");
+      throw new IllegalStateException("No value for key [%s] bound to thread".formatted(actualKey));
     }
     return value;
   }
