@@ -42,6 +42,7 @@ class ResourceHolderSynchronizationTests {
 
     sync.resume();
     assertThat(TransactionSynchronizationManager.hasResource(key)).isTrue();
+    TransactionSynchronizationManager.unbindResource(key);
   }
 
   @Test
