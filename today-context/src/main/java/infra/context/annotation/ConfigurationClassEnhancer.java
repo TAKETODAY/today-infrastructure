@@ -25,6 +25,7 @@ import java.util.Arrays;
 
 import infra.aop.framework.StandardProxy;
 import infra.aop.scope.ScopedProxyFactoryBean;
+import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.BeanFactory;
@@ -136,24 +137,19 @@ class ConfigurationClassEnhancer {
     Enhancer enhancer = new Enhancer();
     if (classLoader != null) {
       enhancer.setClassLoader(classLoader);
+      if (classLoader instanceof SmartClassLoader scl && scl.isClassReloadable(configSuperClass)) {
+        enhancer.setUseCache(false);
+      }
     }
     enhancer.setUseFactory(false);
     enhancer.setSuperclass(configSuperClass);
     enhancer.setInterfaces(EnhancedConfiguration.class);
     enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
     enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
-    enhancer.setAttemptLoad(!isClassReloadable(configSuperClass, classLoader));
+    enhancer.setAttemptLoad(enhancer.getUseCache() && AotDetector.useGeneratedArtifacts());
     enhancer.setCallbackFilter(CALLBACK_FILTER);
     enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
     return enhancer;
-  }
-
-  /**
-   * Checks whether the given configuration class is reloadable.
-   */
-  private boolean isClassReloadable(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
-    return classLoader instanceof SmartClassLoader scl
-            && scl.isClassReloadable(configSuperClass);
   }
 
   /**

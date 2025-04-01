@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.support.BeanInstantiator;
@@ -778,7 +779,7 @@ public class MvcUriComponentsBuilder {
       }
       else {
         Enhancer enhancer = new Enhancer();
-        enhancer.setAttemptLoad(true);
+        enhancer.setAttemptLoad(AotDetector.useGeneratedArtifacts());
         enhancer.setSuperclass(controllerType);
         enhancer.setInterfaces(MethodInvocationInfo.class);
         enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
