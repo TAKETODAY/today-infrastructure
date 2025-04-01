@@ -155,6 +155,7 @@ class PathMatchingPatternResourceLoaderTests {
       Path rootDir = Paths.get("src/test/resources/custom%23root").toAbsolutePath();
       URL root = new URL("file:" + rootDir + "/");
       resolver = new PathMatchingPatternResourceLoader(new DefaultResourceLoader(new URLClassLoader(new URL[] { root })));
+      resolver.setUseCaches(false);
       assertExactFilenames("classpath*:scanned/*.txt", "resource#test1.txt", "resource#test2.txt");
     }
 

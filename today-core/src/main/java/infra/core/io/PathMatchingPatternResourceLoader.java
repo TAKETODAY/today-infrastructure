@@ -239,6 +239,8 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   @Nullable
   private volatile Set<ClassPathManifestEntry> manifestEntriesCache;
 
+  private boolean useCaches = true;
+
   /**
    * Create a new PathMatchingPatternResourceLoader with a DefaultResourceLoader.
    * <p>ClassLoader access will happen via the thread context class loader.
@@ -271,6 +273,23 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    */
   public PathMatchingPatternResourceLoader(@Nullable ClassLoader classLoader) {
     this.resourceLoader = new DefaultResourceLoader(classLoader);
+  }
+
+  /**
+   * Specify whether this resolver should use jar caches. Default is {@code true}.
+   * <p>Switch this flag to {@code false} in order to avoid any jar caching, at
+   * the {@link JarURLConnection} level as well as within this resolver instance.
+   * <p>Note that {@link JarURLConnection#setDefaultUseCaches} can be turned off
+   * independently. This resolver-level setting is designed to only enforce
+   * {@code JarURLConnection#setUseCaches(false)} if necessary but otherwise
+   * leaves the JVM-level default in place.
+   *
+   * @see JarURLConnection#setUseCaches
+   * @see #clearCache()
+   * @since 5.0
+   */
+  public void setUseCaches(boolean useCaches) {
+    this.useCaches = useCaches;
   }
 
   @Nullable
@@ -479,7 +498,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     Set<ClassPathManifestEntry> entries = this.manifestEntriesCache;
     if (entries == null) {
       entries = getClassPathManifestEntries();
-      this.manifestEntriesCache = entries;
+      if (this.useCaches) {
+        this.manifestEntriesCache = entries;
+      }
     }
 
     for (ClassPathManifestEntry entry : entries) {
@@ -628,7 +649,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       if (rootDirResources == null) {
         // Lookup for specific directory, creating a cache entry for it.
         rootDirResources = getResourcesArray(rootDirPath);
-        this.rootDirCache.put(rootDirPath, rootDirResources);
+        if (this.useCaches) {
+          this.rootDirCache.put(rootDirPath, rootDirResources);
+        }
       }
     }
 
@@ -769,6 +792,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (con instanceof JarURLConnection jarCon) {
       // Should usually be the case for traditional JAR files.
+      if (!this.useCaches) {
+        jarCon.setUseCaches(false);
+      }
       try {
         jarFile = jarCon.getJarFile();
         jarFileUrl = jarCon.getJarFileURL().toExternalForm();
@@ -833,8 +859,10 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           }
         }
       }
-      // Cache jar entries in TreeSet for efficient searching on re-encounter.
-      this.jarEntriesCache.put(jarFileUrl, entriesCache);
+      if (this.useCaches) {
+        // Cache jar entries in TreeSet for efficient searching on re-encounter.
+        this.jarEntriesCache.put(jarFileUrl, entriesCache);
+      }
     }
     finally {
       if (closeJarFile) {
