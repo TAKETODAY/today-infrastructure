@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.expression.AccessException;
 import infra.expression.Expression;
+import infra.expression.TypedValue;
 import infra.expression.spel.standard.SpelCompiler;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.StandardEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -111,6 +115,124 @@ class MapAccessorTests {
 
     sec.setPropertyAccessors(List.of(new MapAccessor(false)));
     assertThat(ex.isWritable(sec, testMap)).isFalse();
+  }
+
+  @Test
+  void readNonExistentKeyThrowsMapAccessException() {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = new HashMap<>();
+
+    assertThatExceptionOfType(AccessException.class)
+            .isThrownBy(() -> accessor.read(null, map, "nonexistent"))
+            .withMessage("Map does not contain a value for key 'nonexistent'");
+  }
+
+  @Test
+  void readWithNullTargetThrowsException() {
+    MapAccessor accessor = new MapAccessor();
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> accessor.read(null, null, "key"))
+            .withMessage("Target must be of type Map");
+  }
+
+  @Test
+  void writeWithNullTargetThrowsException() {
+    MapAccessor accessor = new MapAccessor();
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> accessor.write(null, null, "key", "value"))
+            .withMessage("Target must be of type Map");
+  }
+
+  @Test
+  void readNullValueFromMap() throws AccessException {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = new HashMap<>();
+    map.put("nullKey", null);
+
+    TypedValue result = accessor.read(null, map, "nullKey");
+    assertThat(result.getValue()).isNull();
+  }
+
+  @Test
+  void canReadWithNonMapTarget() throws AccessException {
+    MapAccessor accessor = new MapAccessor();
+    Object nonMapTarget = new Object();
+
+    assertThat(accessor.canRead(null, nonMapTarget, "key")).isFalse();
+  }
+
+  @Test
+  void writeToUnmodifiableMap() {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = Map.of("key", "value");
+
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> accessor.write(null, map, "newKey", "newValue"));
+  }
+
+  @Test
+  void propertyTypeIsObject() {
+    MapAccessor accessor = new MapAccessor();
+    assertThat(accessor.getPropertyType()).isEqualTo(Object.class);
+  }
+
+  @Test
+  void isCompilableReturnsTrue() {
+    MapAccessor accessor = new MapAccessor();
+    assertThat(accessor.isCompilable()).isTrue();
+  }
+
+  @Test
+  void canReadWithNullKey() throws AccessException {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = new HashMap<>();
+    map.put(null, "value");
+
+    assertThat(accessor.canRead(null, map, null)).isTrue();
+  }
+
+  @Test
+  void writeAndReadComplexObject() throws AccessException {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = new HashMap<>();
+    List<String> complexValue = List.of("one", "two");
+
+    accessor.write(null, map, "complex", complexValue);
+    TypedValue result = accessor.read(null, map, "complex");
+
+    assertThat(result.getValue()).isEqualTo(complexValue);
+  }
+
+  @Test
+  void specificTargetClassesReturnsMapClass() {
+    MapAccessor accessor = new MapAccessor();
+    Class<?>[] targetClasses = accessor.getSpecificTargetClasses();
+    assertThat(targetClasses).containsExactly(Map.class);
+  }
+
+  @Test
+  void readMapWithMultipleEntries() throws AccessException {
+    MapAccessor accessor = new MapAccessor();
+    Map<String, Object> map = new HashMap<>();
+    map.put("key1", "value1");
+    map.put("key2", 123);
+    map.put("key3", true);
+
+    assertThat(accessor.read(null, map, "key1").getValue()).isEqualTo("value1");
+    assertThat(accessor.read(null, map, "key2").getValue()).isEqualTo(123);
+    assertThat(accessor.read(null, map, "key3").getValue()).isEqualTo(true);
+  }
+
+  @Test
+  void writeOnlyMapAccessor() throws AccessException {
+    MapAccessor accessor = new MapAccessor(false);
+    Map<String, Object> map = new HashMap<>();
+    map.put("test", "value");
+
+    assertThat(accessor.canRead(null, map, "test")).isTrue();
+    assertThat(accessor.canWrite(null, map, "test")).isFalse();
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
