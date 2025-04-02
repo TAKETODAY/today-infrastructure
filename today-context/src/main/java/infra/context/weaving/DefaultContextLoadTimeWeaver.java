@@ -42,7 +42,7 @@ import infra.logging.LoggerFactory;
  *
  * <p>This class implements a runtime environment check for obtaining the
  * appropriate weaver implementation, including
- * {@link InstrumentationSavingAgent Framework's VM agent} and any {@link ClassLoader}
+ * {@link InstrumentationSavingAgent Infra VM agent} and any {@link ClassLoader}
  * supported by Framework's {@link ReflectiveLoadTimeWeaver}.
  *
  * @author Juergen Hoeller
