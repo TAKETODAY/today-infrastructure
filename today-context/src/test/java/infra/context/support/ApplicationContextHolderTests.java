@@ -36,6 +36,7 @@ import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ExpressionEvaluator;
 import infra.beans.factory.support.DependencyInjector;
 import infra.context.ApplicationContext;
+import infra.context.ApplicationEvent;
 import infra.context.MessageSourceResolvable;
 import infra.context.NoSuchMessageException;
 import infra.core.ResolvableType;
@@ -387,6 +388,11 @@ class ApplicationContextHolderTests {
     @Override
     public DependencyInjector getInjector() {
       return null;
+    }
+
+    @Override
+    public void publishEvent(ApplicationEvent event) {
+
     }
 
     @Override
