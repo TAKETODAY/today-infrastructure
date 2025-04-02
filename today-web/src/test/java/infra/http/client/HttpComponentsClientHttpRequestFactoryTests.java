@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
 
   @Test
   @SuppressWarnings("deprecation")
-  void assertCustomConfig() throws Exception {
+  void assertCustomConfig() {
     HttpClient httpClient = HttpClientBuilder.create().build();
     HttpComponentsClientHttpRequestFactory hrf = new HttpComponentsClientHttpRequestFactory(httpClient);
     hrf.setConnectTimeout(1234);
@@ -182,7 +182,8 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
     return Stream.of(HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.TRACE);
   }
 
-  private RequestConfig retrieveRequestConfig(HttpComponentsClientHttpRequestFactory factory) throws Exception {
+  @SuppressWarnings("deprecation")
+  private RequestConfig retrieveRequestConfig(HttpComponentsClientHttpRequestFactory factory) {
     URI uri = URI.create(baseUrl + "/status/ok");
     HttpComponentsClientHttpRequest request = (HttpComponentsClientHttpRequest)
             factory.createRequest(uri, HttpMethod.GET);
