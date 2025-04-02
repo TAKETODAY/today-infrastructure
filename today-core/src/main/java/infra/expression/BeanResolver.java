@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 
 package infra.expression;
+
+import infra.lang.Nullable;
 
 /**
  * A bean resolver can be registered with the evaluation context and will kick in
@@ -37,6 +39,7 @@ public interface BeanResolver {
    * @return an object representing the bean
    * @throws AccessException if there is an unexpected problem resolving the bean
    */
+  @Nullable
   Object resolve(EvaluationContext context, String beanName) throws AccessException;
 
 }
