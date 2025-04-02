@@ -103,7 +103,7 @@ public abstract class CachedExpressionEvaluator {
   protected static class ExpressionKey implements Comparable<ExpressionKey> {
 
     private final String expression;
-    
+
     private final AnnotatedElementKey element;
 
     protected ExpressionKey(AnnotatedElementKey element, String expression) {
