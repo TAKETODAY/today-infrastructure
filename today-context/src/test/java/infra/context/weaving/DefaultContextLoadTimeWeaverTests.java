@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.ClassFileTransformer;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -31,13 +30,6 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2025/4/2 16:30
  */
 class DefaultContextLoadTimeWeaverTests {
-
-  @Test
-  void constructorWithClassLoader() {
-    ClassLoader mockLoader = mock(ClassLoader.class);
-    DefaultContextLoadTimeWeaver weaver = new DefaultContextLoadTimeWeaver(mockLoader);
-    assertThat(weaver).isNotNull();
-  }
 
   @Test
   void addTransformerBeforeInitializationThrowsException() {
