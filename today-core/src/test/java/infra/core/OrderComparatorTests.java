@@ -332,14 +332,14 @@ class OrderComparatorTests {
   @Test
   void sortEmptyListWithNullComparator() {
     List<Object> list = new ArrayList<>();
-    OrderComparator.INSTANCE.sort(list);
+    OrderComparator.sort(list);
     assertThat(list).isEmpty();
   }
 
   @Test
   void sortEmptyArrayWithNullComparator() {
     Object[] array = new Object[0];
-    OrderComparator.INSTANCE.sort(array);
+    OrderComparator.sort(array);
     assertThat(array).isEmpty();
   }
 
