@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.expression;
@@ -25,10 +22,17 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.support.GenericApplicationContext;
+import infra.core.env.Environment;
 import infra.core.testfixture.env.MockPropertySource;
+import infra.expression.AccessException;
+import infra.expression.TypedValue;
 
 import static infra.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -49,6 +53,82 @@ class EnvironmentAccessorTests {
     ctx.refresh();
 
     assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("myBean");
+    ctx.close();
+  }
+
+  @Test
+  void canReadAlwaysReturnsTrue() throws AccessException {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    Environment environment = mock(Environment.class);
+    assertThat(accessor.canRead(null, environment, "any.property")).isTrue();
+  }
+
+  @Test
+  void readReturnsPropertyValue() throws AccessException {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    Environment environment = mock(Environment.class);
+    when(environment.getProperty("test.property")).thenReturn("test-value");
+
+    TypedValue result = accessor.read(null, environment, "test.property");
+    assertThat(result.getValue()).isEqualTo("test-value");
+  }
+
+  @Test
+  void readWithNonEnvironmentTargetThrowsException() {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+
+    assertThatIllegalStateException()
+            .isThrownBy(() -> accessor.read(null, new Object(), "property"))
+            .withMessage("Target must be of type Environment");
+  }
+
+  @Test
+  void cannotWriteProperties() throws AccessException {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    Environment environment = mock(Environment.class);
+
+    assertThat(accessor.canWrite(null, environment, "property")).isFalse();
+  }
+
+  @Test
+  void writeIsNoOp() throws AccessException {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    Environment environment = mock(Environment.class);
+
+    accessor.write(null, environment, "property", "value");
+    verifyNoInteractions(environment);
+  }
+
+  @Test
+  void specificTargetClassesReturnsEnvironment() {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    assertThat(accessor.getSpecificTargetClasses()).contains(Environment.class);
+  }
+
+  @Test
+  void readNullPropertyReturnsNull() throws AccessException {
+    EnvironmentAccessor accessor = new EnvironmentAccessor();
+    Environment environment = mock(Environment.class);
+    when(environment.getProperty("null.property")).thenReturn(null);
+
+    TypedValue result = accessor.read(null, environment, "null.property");
+    assertThat(result.getValue()).isNull();
+  }
+
+  @Test
+  void dotNotationAccess() {
+    StandardBeanFactory bf = new StandardBeanFactory();
+    bf.registerBeanDefinition("testBean",
+            genericBeanDefinition(TestBean.class)
+                    .addPropertyValue("name", "#{environment.myProperty}")
+                    .getBeanDefinition());
+
+    GenericApplicationContext ctx = new GenericApplicationContext(bf);
+    ctx.getEnvironment().getPropertySources().addFirst(
+            new MockPropertySource().withProperty("myProperty", "dotValue"));
+    ctx.refresh();
+
+    assertThat(ctx.getBean(TestBean.class).getName()).isEqualTo("dotValue");
     ctx.close();
   }
 
