@@ -109,7 +109,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   private final ApplicationContext applicationContext;
 
   @Nullable
-  private ConditionEvaluator conditionEvaluator;
+  ConditionEvaluator conditionEvaluator;
 
   @Nullable
   private MetadataReaderFactory metadataReaderFactory;
@@ -132,7 +132,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   private Environment environment;
 
   @Nullable
-  private ExpressionEvaluator expressionEvaluator;
+  ExpressionEvaluator expressionEvaluator;
 
   public BootstrapContext(ApplicationContext context) {
     this(context.unwrapFactory(ConfigurableBeanFactory.class), context);
