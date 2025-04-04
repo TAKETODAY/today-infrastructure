@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -193,8 +193,7 @@ public class MediaType extends MimeType implements Serializable {
   /**
    * Public constant media type for {@code text/event-stream}.
    *
-   * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C
-   * recommendation</a>
+   * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
    */
   public static final MediaType TEXT_EVENT_STREAM = new MediaType("text", "event-stream");
 

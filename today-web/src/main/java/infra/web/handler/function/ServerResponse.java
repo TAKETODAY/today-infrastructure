@@ -312,7 +312,7 @@ public interface ServerResponse {
    *
    * @param consumer consumer that will be provided with an event builder
    * @return the server-side event response
-   * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events</a>
+   * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
    */
   static ServerResponse sse(Consumer<SseBuilder> consumer) {
     return new SseServerResponse(consumer, null);
@@ -342,7 +342,7 @@ public interface ServerResponse {
    * @param consumer consumer that will be provided with an event builder
    * @param timeout maximum time period to wait before timing out
    * @return the server-side event response
-   * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events</a>
+   * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
    */
   static ServerResponse sse(Consumer<SseBuilder> consumer, Duration timeout) {
     return new SseServerResponse(consumer, timeout);
