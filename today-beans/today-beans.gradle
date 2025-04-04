@@ -16,5 +16,4 @@ dependencies {
   testFixturesApi("org.junit.jupiter:junit-jupiter-api")
   testFixturesImplementation("org.assertj:assertj-core")
 
-  testImplementation 'org.projectlombok:lombok'
 }
