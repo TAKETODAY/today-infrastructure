@@ -198,19 +198,19 @@ public abstract class StringUtils {
   }
 
   /**
-   * Decode the given encoded URI component value. Based on the following rules:
-   * <ul>
-   * <li>Alphanumeric characters {@code "a"} through {@code "z"}, {@code "A"} through {@code "Z"},
-   * and {@code "0"} through {@code "9"} stay the same.</li>
-   * <li>Special characters {@code "-"}, {@code "_"}, {@code "."}, and {@code "*"} stay the same.</li>
-   * <li>A sequence "{@code %<i>xy</i>}" is interpreted as a hexadecimal representation of the character.</li>
-   * </ul>
+   * Decode the given encoded URI component value by replacing each
+   * "<i>{@code %xy}</i>" sequence with a hexadecimal representation of the
+   * character in the specified character encoding, leaving other characters
+   * unmodified.
    *
-   * @param source the encoded String
-   * @param charset the character set
+   * @param source the encoded URI component value
+   * @param charset the character encoding to use to decode the "<i>{@code %xy}</i>"
+   * sequences
    * @return the decoded value
-   * @throws IllegalArgumentException when the given source contains invalid encoded sequences
-   * @see java.net.URLDecoder#decode(String, String)
+   * @throws IllegalArgumentException if the given source contains invalid encoded
+   * sequences
+   * @see java.net.URLDecoder#decode(String, String) java.net.URLDecoder#decode
+   * for HTML form decoding
    * @since 4.0
    */
   public static String uriDecode(String source, Charset charset) {
