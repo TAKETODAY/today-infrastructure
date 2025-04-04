@@ -73,9 +73,12 @@ final class HttpRequestValuesInitializer {
 
   private final Supplier<HttpRequestValues.Builder> requestValuesSupplier;
 
+  @Nullable
+  private final String version;
+
   HttpRequestValuesInitializer(@Nullable HttpMethod method, @Nullable String url, @Nullable MediaType contentType,
           @Nullable List<MediaType> acceptMediaTypes, @Nullable MultiValueMap<String, String> otherHeaders,
-          @Nullable MultiValueMap<String, String> params, Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
+          @Nullable MultiValueMap<String, String> params, Supplier<HttpRequestValues.Builder> requestValuesSupplier, @Nullable String version) {
     this.url = url;
     this.params = params;
     this.httpMethod = method;
@@ -83,6 +86,7 @@ final class HttpRequestValuesInitializer {
     this.otherHeaders = otherHeaders;
     this.acceptMediaTypes = acceptMediaTypes;
     this.requestValuesSupplier = requestValuesSupplier;
+    this.version = version;
   }
 
   public HttpRequestValues.Builder initializeRequestValuesBuilder() {
@@ -117,6 +121,11 @@ final class HttpRequestValuesInitializer {
         }
       }
     }
+
+    if (version != null) {
+      requestValues.setApiVersion(version);
+    }
+
     return requestValues;
   }
 
@@ -150,8 +159,10 @@ final class HttpRequestValuesInitializer {
     var params = initKeyValues("params", typeAnnotation, methodAnnotation, embeddedValueResolver);
     var headers = initKeyValues("headers", typeAnnotation, methodAnnotation, embeddedValueResolver);
 
+    String version = initVersion(typeAnnotation, methodAnnotation);
+
     return new HttpRequestValuesInitializer(
-            httpMethod, url, contentType, acceptableMediaTypes, headers, params, requestValuesSupplier);
+            httpMethod, url, contentType, acceptableMediaTypes, headers, params, requestValuesSupplier, version);
   }
 
   @Nullable
@@ -171,6 +182,21 @@ final class HttpRequestValuesInitializer {
       }
       else if (value1 instanceof HttpMethod[] m && m.length > 0) {
         return m[0];
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private static String initVersion(@Nullable MergedAnnotation<?> typeAnnotation, MergedAnnotation<?> methodAnnotation) {
+    String version = methodAnnotation.getValue("version", String.class);
+    if (StringUtils.hasText(version)) {
+      return version;
+    }
+    if (typeAnnotation != null) {
+      version = typeAnnotation.getValue("version", String.class);
+      if (StringUtils.hasText(version)) {
+        return version;
       }
     }
     return null;

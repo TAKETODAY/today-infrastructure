@@ -39,6 +39,7 @@ import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
+import infra.web.client.ApiVersionInserter;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriBuilderFactory;
 import infra.web.util.UriComponentsBuilder;
@@ -101,6 +102,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private ExchangeFunction exchangeFunction;
 
+  @Nullable
+  private ApiVersionInserter apiVersionInserter;
+
   public DefaultWebClientBuilder() {
   }
 
@@ -121,6 +125,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     }
 
     this.defaultRequest = other.defaultRequest;
+    this.apiVersionInserter = other.apiVersionInserter;
     this.defaultCookies = (other.defaultCookies != null ? new LinkedMultiValueMap<>(other.defaultCookies) : null);
     this.statusHandlers = (other.statusHandlers != null ? new LinkedHashMap<>(other.statusHandlers) : null);
     this.filters = (other.filters != null ? new ArrayList<>(other.filters) : null);
@@ -173,6 +178,12 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Override
   public WebClient.Builder defaultHeaders(HttpHeaders headers) {
     initHeaders().setAll(headers);
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder apiVersionInserter(@Nullable ApiVersionInserter apiVersionInserter) {
+    this.apiVersionInserter = apiVersionInserter;
     return this;
   }
 
@@ -314,7 +325,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
 
     return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
-            this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this));
+            this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this), apiVersionInserter);
   }
 
   private ExchangeFunction filterExchangeFunction(ExchangeFunction exchange) {

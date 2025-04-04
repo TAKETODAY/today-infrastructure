@@ -75,13 +75,16 @@ public class HttpRequestValues {
   @Nullable
   private final Object bodyValue;
 
+  @Nullable
+  private final Object version;
+
   /**
    * Construct {@link HttpRequestValues}.
    */
   protected HttpRequestValues(@Nullable HttpMethod httpMethod, @Nullable URI uri,
           @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate,
           Map<String, String> uriVariables, HttpHeaders headers, MultiValueMap<String, String> cookies,
-          Map<String, Object> attributes, @Nullable Object bodyValue) {
+          Map<String, Object> attributes, @Nullable Object bodyValue, @Nullable Object version) {
 
     Assert.isTrue(uri != null || uriTemplate != null, "Neither URI nor URI template");
 
@@ -94,6 +97,7 @@ public class HttpRequestValues {
     this.cookies = cookies;
     this.attributes = attributes;
     this.bodyValue = bodyValue;
+    this.version = version;
   }
 
   /**
@@ -111,7 +115,7 @@ public class HttpRequestValues {
    * uriTemplate} from class and method {@code HttpExchange} annotations.
    */
   @Nullable
-  public URI getUri() {
+  public URI getURI() {
     return this.uri;
   }
 
@@ -170,6 +174,11 @@ public class HttpRequestValues {
   @Nullable
   public Object getBodyValue() {
     return this.bodyValue;
+  }
+
+  @Nullable
+  public Object getApiVersion() {
+    return this.version;
   }
 
   public static Builder builder() {
@@ -245,6 +254,9 @@ public class HttpRequestValues {
 
     @Nullable
     private Object bodyValue;
+
+    @Nullable
+    private Object version;
 
     /**
      * Set the HTTP method for the request.
@@ -376,10 +388,26 @@ public class HttpRequestValues {
     }
 
     /**
+     * Set an API version for the request. The version is passed on to the
+     * underlying {@code RestClient} or {@code WebClient} that in turn are
+     * configured with an {@code ApiVersionInserter}.
+     *
+     * @param version the API version of the request; this can be a String or
+     * some Object that can be formatted the inserter, e.g. through an
+     * {@link infra.web.client.ApiVersionFormatter}.
+     * @since 5.0
+     */
+    public Builder setApiVersion(Object version) {
+      this.version = version;
+      return this;
+    }
+
+    /**
      * Set the request body as an Object to be serialized.
      */
-    public void setBodyValue(Object bodyValue) {
+    public Builder setBodyValue(Object bodyValue) {
       this.bodyValue = bodyValue;
+      return this;
     }
 
     // Implementation of {@link Metadata} methods
@@ -412,7 +440,6 @@ public class HttpRequestValues {
      * Build the {@link HttpRequestValues} instance.
      */
     public HttpRequestValues build() {
-
       URI uri = this.uri;
       UriBuilderFactory uriBuilderFactory = this.uriBuilderFactory;
       String uriTemplate = this.uriTemplate;
@@ -461,7 +488,7 @@ public class HttpRequestValues {
               new HashMap<>(this.attributes) : Collections.emptyMap());
 
       return createRequestValues(this.httpMethod, uri, uriBuilderFactory,
-              uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
+              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
     }
 
     protected boolean hasParts() {
@@ -503,10 +530,10 @@ public class HttpRequestValues {
     protected HttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod,
             @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate,
             Map<String, String> uriVars, HttpHeaders headers, MultiValueMap<String, String> cookies,
-            Map<String, Object> attributes, @Nullable Object bodyValue) {
+            Map<String, Object> attributes, @Nullable Object bodyValue, @Nullable Object version) {
 
       return new HttpRequestValues(httpMethod, uri, uriBuilderFactory,
-              uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
+              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
     }
   }
 

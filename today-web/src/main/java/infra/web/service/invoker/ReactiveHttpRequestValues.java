@@ -52,9 +52,10 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
           @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory,
           @Nullable String uriTemplate, Map<String, String> uriVars,
           HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-          @Nullable Object bodyValue, @Nullable Publisher<?> body, @Nullable ParameterizedTypeReference<?> elementType) {
+          @Nullable Object bodyValue, @Nullable Publisher<?> body,
+          @Nullable ParameterizedTypeReference<?> elementType, @Nullable Object version) {
 
-    super(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
+    super(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
     this.body = body;
     this.bodyElementType = elementType;
   }
@@ -200,10 +201,11 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
      * {@linkplain #setBodyPublisher(Publisher, ParameterizedTypeReference)}.
      */
     @Override
-    public void setBodyValue(Object bodyValue) {
+    public Builder setBodyValue(Object bodyValue) {
       super.setBodyValue(bodyValue);
       this.body = null;
       this.bodyElementType = null;
+      return this;
     }
 
     /**
@@ -212,14 +214,16 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
      * {@linkplain #setBodyValue(Object) body value}.
      */
     @SuppressWarnings("DataFlowIssue")
-    public <T, P extends Publisher<T>> void setBodyPublisher(P body, ParameterizedTypeReference<T> elementTye) {
+    public <T, P extends Publisher<T>> Builder setBodyPublisher(P body, ParameterizedTypeReference<T> elementTye) {
       this.body = body;
       this.bodyElementType = elementTye;
       super.setBodyValue(null);
+      return this;
     }
 
-    public <T, P extends Publisher<T>> void setBody(P body, ParameterizedTypeReference<T> elementTye) {
+    public <T, P extends Publisher<T>> Builder setBody(P body, ParameterizedTypeReference<T> elementTye) {
       setBodyPublisher(body, elementTye);
+      return this;
     }
 
     @Override
@@ -244,16 +248,13 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
     }
 
     @Override
-    protected ReactiveHttpRequestValues createRequestValues(
-            @Nullable HttpMethod httpMethod,
-            @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory,
-            @Nullable String uriTemplate, Map<String, String> uriVars,
+    protected ReactiveHttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod, @Nullable URI uri,
+            @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate, Map<String, String> uriVars,
             HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-            @Nullable Object bodyValue) {
+            @Nullable Object bodyValue, @Nullable Object version) {
 
-      return new ReactiveHttpRequestValues(
-              httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
-              headers, cookies, attributes, bodyValue, this.body, this.bodyElementType);
+      return new ReactiveHttpRequestValues(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
+              headers, cookies, attributes, bodyValue, this.body, this.bodyElementType, version);
     }
   }
 

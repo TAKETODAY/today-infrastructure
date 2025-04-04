@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.service.invoker;
@@ -44,7 +44,7 @@ class UrlArgumentResolverTests {
     URI dynamicUrl = URI.create("dynamic-path");
     this.service.execute(dynamicUrl);
 
-    assertThat(getRequestValues().getUri()).isEqualTo(dynamicUrl);
+    assertThat(getRequestValues().getURI()).isEqualTo(dynamicUrl);
     assertThat(getRequestValues().getUriTemplate()).isEqualTo("/path");
   }
 
@@ -62,7 +62,7 @@ class UrlArgumentResolverTests {
   void ignoreNull() {
     this.service.execute(null);
 
-    assertThat(getRequestValues().getUri()).isNull();
+    assertThat(getRequestValues().getURI()).isNull();
     assertThat(getRequestValues().getUriTemplate()).isEqualTo("/path");
   }
 

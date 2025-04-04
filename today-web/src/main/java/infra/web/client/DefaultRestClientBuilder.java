@@ -156,8 +156,10 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private boolean detectEmptyMessageBody = true;
 
-  public DefaultRestClientBuilder() {
+  @Nullable
+  private ApiVersionInserter apiVersionInserter;
 
+  public DefaultRestClientBuilder() {
   }
 
   public DefaultRestClientBuilder(DefaultRestClientBuilder other) {
@@ -169,6 +171,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.uriBuilderFactory = other.uriBuilderFactory;
     this.bufferingPredicate = other.bufferingPredicate;
     this.detectEmptyMessageBody = other.detectEmptyMessageBody;
+    this.apiVersionInserter = other.apiVersionInserter;
 
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
@@ -306,6 +309,12 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Override
   public RestClient.Builder defaultCookies(MultiValueMap<String, String> cookies) {
     initCookies().setAll(cookies);
+    return this;
+  }
+
+  @Override
+  public RestClient.Builder apiVersionInserter(@Nullable ApiVersionInserter apiVersionInserter) {
+    this.apiVersionInserter = apiVersionInserter;
     return this;
   }
 
@@ -489,10 +498,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     List<HttpMessageConverter<?>> messageConverters =
             this.messageConverters != null ? this.messageConverters : initMessageConverters();
 
-    return new DefaultRestClient(requestFactory,
-            this.interceptors, this.initializers, uriBuilderFactory,
+    return new DefaultRestClient(requestFactory, this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers, bufferingPredicate,
-            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody);
+            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody, apiVersionInserter);
   }
 
   private ClientHttpRequestFactory initRequestFactory() {

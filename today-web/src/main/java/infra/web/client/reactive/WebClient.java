@@ -42,6 +42,8 @@ import infra.http.client.reactive.ClientHttpResponse;
 import infra.http.codec.ClientCodecConfigurer;
 import infra.lang.Nullable;
 import infra.util.MultiValueMap;
+import infra.web.client.ApiVersionFormatter;
+import infra.web.client.ApiVersionInserter;
 import infra.web.client.RestClient;
 import infra.web.reactive.function.BodyExtractor;
 import infra.web.reactive.function.BodyInserter;
@@ -290,6 +292,16 @@ public interface WebClient {
      * @since 5.0
      */
     Builder defaultHeaders(HttpHeaders headers);
+
+    /**
+     * Configure an {@link ApiVersionInserter} to abstract how an API version
+     * specified via {@link RequestHeadersSpec#apiVersion(Object)}
+     * is inserted into the request.
+     *
+     * @param apiVersionInserter the inserter to use
+     * @since 5.0
+     */
+    Builder apiVersionInserter(@Nullable ApiVersionInserter apiVersionInserter);
 
     /**
      * Global option to specify a cookie to be added to every request,
@@ -570,6 +582,18 @@ public interface WebClient {
      * @since 5.0
      */
     S headers(@Nullable HttpHeaders headers);
+
+    /**
+     * Set an API version for the request. The version is inserted into the
+     * request by the {@link Builder#apiVersionInserter(ApiVersionInserter)
+     * configured} {@code ApiVersionInserter}.
+     *
+     * @param version the API version of the request; this can be a String or
+     * some Object that can be formatted the inserter, e.g. through an
+     * {@link ApiVersionFormatter}.
+     * @since 5.0
+     */
+    S apiVersion(@Nullable Object version);
 
     /**
      * Set the attribute with the given name to the given value.
