@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -64,6 +65,7 @@ import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
+import infra.util.concurrent.Future;
 import infra.util.function.SingletonSupplier;
 import infra.util.function.SupplierUtils;
 import reactor.core.publisher.Flux;
@@ -443,11 +445,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
       Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
       Cache cache = context.getCaches().iterator().next();
-      if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
+      if (isAsync(method.getReturnType())) {
         AtomicBoolean invokeFailure = new AtomicBoolean(false);
         CompletableFuture<?> result = doRetrieve(cache, key,
                 () -> {
-                  CompletableFuture<?> invokeResult = ((CompletableFuture<?>) invokeOperation(invoker));
+                  CompletableFuture<?> invokeResult = invokeAsCompletableFuture(invoker);
                   if (invokeResult == null) {
                     return null;
                   }
@@ -455,22 +457,27 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
                     invokeFailure.set(true);
                     return CompletableFuture.failedFuture(ex);
                   });
+                })
+                .exceptionallyCompose(ex -> {
+                  if (!(ex instanceof RuntimeException rex)) {
+                    return CompletableFuture.failedFuture(ex);
+                  }
+                  try {
+                    getErrorHandler().handleCacheGetError(rex, cache, key);
+                    if (invokeFailure.get()) {
+                      return CompletableFuture.failedFuture(ex);
+                    }
+                    return invokeAsCompletableFuture(invoker);
+                  }
+                  catch (Throwable ex2) {
+                    return CompletableFuture.failedFuture(ex2);
+                  }
                 });
-        return result.exceptionallyCompose(ex -> {
-          if (!(ex instanceof RuntimeException rex)) {
-            return CompletableFuture.failedFuture(ex);
-          }
-          try {
-            getErrorHandler().handleCacheGetError(rex, cache, key);
-            if (invokeFailure.get()) {
-              return CompletableFuture.failedFuture(ex);
-            }
-            return (CompletableFuture) invokeOperation(invoker);
-          }
-          catch (Throwable ex2) {
-            return CompletableFuture.failedFuture(ex2);
-          }
-        });
+
+        if (Future.class == context.getMethod().getReturnType()) {
+          return Future.forAdaption(result);
+        }
+        return result;
       }
       if (this.reactiveCachingHandler != null) {
         Object returnValue = this.reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
@@ -493,6 +500,16 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       // No caching required, just call the underlying method
       return invokeOperation(invoker);
     }
+  }
+
+  @Nullable
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private <T> CompletableFuture<T> invokeAsCompletableFuture(CacheOperationInvoker invoker) {
+    Object object = invokeOperation(invoker);
+    if (object instanceof Future future) {
+      return future.completable();
+    }
+    return (CompletableFuture<T>) object;
   }
 
   /**
@@ -528,11 +545,12 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private Object findInCaches(CacheOperationContext context, Object key,
           CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
 
+    boolean async = isAsync(context.getMethod().getReturnType());
     for (Cache cache : context.getCaches()) {
-      if (CompletableFuture.class.isAssignableFrom(context.getMethod().getReturnType())) {
+      if (async) {
         CompletableFuture<?> result = doRetrieve(cache, key);
         if (result != null) {
-          return result.exceptionallyCompose(ex -> {
+          result = result.exceptionallyCompose(ex -> {
             if (!(ex instanceof RuntimeException rex)) {
               return CompletableFuture.failedFuture(ex);
             }
@@ -546,6 +564,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           }).thenCompose(value -> (CompletableFuture<?>) evaluate(
                   (value != null ? CompletableFuture.completedFuture(unwrapCacheValue(value)) : null),
                   invoker, method, contexts));
+
+          if (Future.class == context.getMethod().getReturnType()) {
+            return Future.forAdaption(result);
+          }
+          return result;
         }
         else {
           continue;
@@ -563,6 +586,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       }
     }
     return null;
+  }
+
+  private static boolean isAsync(Class<?> type) {
+    return java.util.concurrent.Future.class == type || Future.class == type
+            || CompletionStage.class == type || CompletableFuture.class == type;
   }
 
   @Nullable
