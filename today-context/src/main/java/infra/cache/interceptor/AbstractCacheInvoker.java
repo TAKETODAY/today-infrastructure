@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ public abstract class AbstractCacheInvoker {
         return valueLoader.call();
       }
       catch (Exception ex2) {
-        throw new RuntimeException(ex2);
+        throw new Cache.ValueRetrievalException(key, valueLoader, ex);
       }
     }
   }
@@ -123,9 +123,6 @@ public abstract class AbstractCacheInvoker {
   protected CompletableFuture<?> doRetrieve(Cache cache, Object key) {
     try {
       return cache.retrieve(key);
-    }
-    catch (Cache.ValueRetrievalException ex) {
-      throw ex;
     }
     catch (RuntimeException ex) {
       getErrorHandler().handleCacheGetError(ex, cache, key);
@@ -145,9 +142,6 @@ public abstract class AbstractCacheInvoker {
   protected <T> CompletableFuture<T> doRetrieve(Cache cache, Object key, Supplier<CompletableFuture<T>> valueLoader) {
     try {
       return cache.retrieve(key, valueLoader);
-    }
-    catch (Cache.ValueRetrievalException ex) {
-      throw ex;
     }
     catch (RuntimeException ex) {
       getErrorHandler().handleCacheGetError(ex, cache, key);
