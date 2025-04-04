@@ -17,7 +17,6 @@
 
 package infra.util;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,7 +38,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
 import infra.lang.Nullable;
@@ -216,37 +215,48 @@ public abstract class StringUtils {
    */
   public static String uriDecode(String source, Charset charset) {
     int length = source.length();
-    if (length == 0) {
+    int firstPercentIndex = source.indexOf('%');
+    if (length == 0 || firstPercentIndex < 0) {
       return source;
     }
-    Assert.notNull(charset, "Charset is required");
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
-    boolean changed = false;
-    for (int i = 0; i < length; i++) {
-      int ch = source.charAt(i);
+    StringBuilder output = new StringBuilder(length);
+    output.append(source, 0, firstPercentIndex);
+    byte[] bytes = null;
+    int i = firstPercentIndex;
+    while (i < length) {
+      char ch = source.charAt(i);
       if (ch == '%') {
-        if (i + 2 < length) {
-          char hex1 = source.charAt(i + 1);
-          char hex2 = source.charAt(i + 2);
-          int u = Character.digit(hex1, 16);
-          int l = Character.digit(hex2, 16);
-          if (u == -1 || l == -1) {
-            throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
+        try {
+          if (bytes == null) {
+            bytes = new byte[(length - i) / 3];
           }
-          baos.write((char) ((u << 4) + l));
-          i += 2;
-          changed = true;
+
+          int pos = 0;
+          while (i + 2 < length && ch == '%') {
+            bytes[pos++] = (byte) HexFormat.fromHexDigits(source, i + 1, i + 3);
+            i += 3;
+            if (i < length) {
+              ch = source.charAt(i);
+            }
+          }
+
+          if (i < length && ch == '%') {
+            throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
+          }
+
+          output.append(new String(bytes, 0, pos, charset));
         }
-        else {
-          throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
+        catch (NumberFormatException ex) {
+          throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
         }
       }
       else {
-        baos.write(ch);
+        output.append(ch);
+        i++;
       }
     }
-    return (changed ? StreamUtils.copyToString(baos, charset) : source);
+    return output.toString();
   }
 
   //---------------------------------------------------------------------
