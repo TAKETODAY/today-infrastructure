@@ -114,12 +114,18 @@ class ConfigurationClassEnhancer {
       boolean classLoaderMismatch = (classLoader != null && classLoader != configClass.getClassLoader());
       if (classLoaderMismatch && classLoader instanceof SmartClassLoader smartClassLoader) {
         classLoader = smartClassLoader.getOriginalClassLoader();
+        classLoaderMismatch = (classLoader != configClass.getClassLoader());
+      }
+      // Use original ClassLoader if config class relies on package visibility
+      if (classLoaderMismatch && reliesOnPackageVisibility(configClass)) {
+        classLoader = configClass.getClassLoader();
+        classLoaderMismatch = false;
       }
       Enhancer enhancer = newEnhancer(configClass, classLoader);
       Class<?> enhancedClass = createClass(enhancer, classLoaderMismatch);
       if (log.isTraceEnabled()) {
-        log.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",
-                configClass.getName(), enhancedClass.getName()));
+        log.trace("Successfully enhanced {}; enhanced class name is: {}",
+                configClass.getName(), enhancedClass.getName());
       }
       return enhancedClass;
     }
@@ -128,6 +134,26 @@ class ConfigurationClassEnhancer {
               "]. Consider declaring @Configuration(proxyBeanMethods=false) without inter-bean references " +
               "between @Bean methods on the configuration class, avoiding the need for CGLIB enhancement.", ex);
     }
+  }
+
+  /**
+   * Checks whether the given config class relies on package visibility,
+   * either for the class itself or for any of its {@code @Bean} methods.
+   */
+  private boolean reliesOnPackageVisibility(Class<?> configSuperClass) {
+    int mod = configSuperClass.getModifiers();
+    if (!Modifier.isPublic(mod) && !Modifier.isProtected(mod)) {
+      return true;
+    }
+    for (Method method : ReflectionUtils.getDeclaredMethods(configSuperClass)) {
+      if (BeanAnnotationHelper.isBeanAnnotated(method)) {
+        mod = method.getModifiers();
+        if (!Modifier.isPublic(mod) && !Modifier.isProtected(mod)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
