@@ -1213,8 +1213,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Modifiable
-  private Set<String> doGetBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-
+  private Set<String> doGetBeanNamesForType(ResolvableType type, boolean includeNonSingletons, boolean allowEagerInit) {
     LinkedHashSet<String> beanNames = new LinkedHashSet<>();
     // 1. Check all bean definitions.
     for (String beanName : beanDefinitionNames) {
@@ -1232,21 +1231,28 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           if (isFactoryBean(beanName, merged)) {
             boolean isNonLazyDecorated = decorated != null && !merged.isLazyInit();
             boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-            if (includeNonSingletons || isNonLazyDecorated || (allowFactoryBeanInit && isSingleton(beanName, merged, decorated))) {
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+            if (includeNonSingletons || isNonLazyDecorated) {
+              matchFound = isTypeMatch(beanName, type, allowFactoryBeanInit);
             }
+            else if (allowFactoryBeanInit) {
+              // Type check before singleton check, avoiding FactoryBean instantiation
+              // for early FactoryBean.isSingleton() calls on non-matching beans.
+              matchFound = isTypeMatch(beanName, type, true)
+                      && isSingleton(beanName, merged, decorated);
+            }
+
             if (!matchFound) {
               // In case of FactoryBean, try to match FactoryBean instance itself next.
               beanName = FACTORY_BEAN_PREFIX + beanName;
               if (includeNonSingletons || isSingleton(beanName, merged, decorated)) {
-                matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+                matchFound = isTypeMatch(beanName, type, allowFactoryBeanInit);
               }
             }
           }
           else {
             if (includeNonSingletons || isSingleton(beanName, merged, decorated)) {
               boolean allowFactoryBeanInit = allowEagerInit || containsSingleton(beanName);
-              matchFound = isTypeMatch(beanName, requiredType, allowFactoryBeanInit);
+              matchFound = isTypeMatch(beanName, type, allowFactoryBeanInit);
             }
           }
           if (matchFound) {
@@ -1282,7 +1288,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       try {
         // In case of FactoryBean, match object created by FactoryBean.
         if (isFactoryBean(beanName)) {
-          if ((includeNonSingletons || isSingleton(beanName)) && isTypeMatch(beanName, requiredType)) {
+          if ((includeNonSingletons || isSingleton(beanName)) && isTypeMatch(beanName, type)) {
             beanNames.add(beanName);
             // Match found for this bean: do not match FactoryBean itself anymore.
             continue;
@@ -1291,7 +1297,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           beanName = FACTORY_BEAN_PREFIX + beanName;
         }
         // Match raw bean instance (might be raw FactoryBean).
-        if (isTypeMatch(beanName, requiredType)) {
+        if (isTypeMatch(beanName, type)) {
           beanNames.add(beanName);
         }
       }
