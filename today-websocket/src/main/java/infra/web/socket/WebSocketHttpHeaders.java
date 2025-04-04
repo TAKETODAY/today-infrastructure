@@ -274,16 +274,19 @@ public class WebSocketHttpHeaders extends HttpHeaders {
     return this.headers.containsValue(value);
   }
 
+  @Nullable
   @Override
   public List<String> get(Object name) {
     return this.headers.get(name);
   }
 
+  @Nullable
   @Override
   public List<String> put(String key, List<String> value) {
     return this.headers.put(key, value);
   }
 
+  @Nullable
   @Override
   public List<String> remove(Object name) {
     return this.headers.remove(name);
@@ -319,6 +322,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
     this.headers.forEach(action);
   }
 
+  @Nullable
   @Override
   public List<String> putIfAbsent(String key, List<String> value) {
     return this.headers.putIfAbsent(key, value);
