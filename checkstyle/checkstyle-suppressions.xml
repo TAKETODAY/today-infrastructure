@@ -65,6 +65,7 @@
   <suppress files="infra.mail.javamail.JavaMailSenderImpl" id="EmptyBlock" />
   <suppress files="infra.scheduling.annotation.SchedulingConfiguration" id="HideUtilityClassConstructor" />
   <suppress files="SchedulingConfiguration" checks="HideUtilityClassConstructor" />
+  <suppress files="DefaultLifecycleProcessor" checks="FinalClass" />
 
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />

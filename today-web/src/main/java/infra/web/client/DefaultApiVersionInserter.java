@@ -17,14 +17,12 @@
 
 package infra.web.client;
 
-import org.jspecify.annotations.Nullable;
-
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 import infra.web.util.UriComponentsBuilder;
 
 /**
