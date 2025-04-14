@@ -69,5 +69,4 @@ dependencies {
   testFixturesImplementation("org.assertj:assertj-core")
   testFixturesImplementation("io.projectreactor:reactor-test")
 
-  testImplementation 'org.projectlombok:lombok'
 }
