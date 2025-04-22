@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -429,11 +429,18 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
         return null;
       }
 
-      // Target Connection already fetched,
-      // or target Connection necessary for current operation ->
-      // invoke method on target connection.
+      // Target Connection already fetched, or target Connection necessary for current operation
+      // -> invoke method on target connection.
       try {
-        return method.invoke(getTargetConnection(method), args);
+        Connection conToUse = getTargetConnection(method);
+
+        if ("rollback".equals(method.getName()) && conToUse.isClosed()) {
+          // Connection closed in the meantime, probably due to a resource timeout. Since a
+          // rollback attempt typically happens right before close, we leniently suppress it.
+          return null;
+        }
+
+        return method.invoke(conToUse, args);
       }
       catch (InvocationTargetException ex) {
         throw ex.getTargetException();
@@ -460,7 +467,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
         // Fetch physical Connection from DataSource.
         DataSource dataSource = getDataSourceToUse();
         this.target = (this.username != null ? dataSource.getConnection(this.username, this.password) :
-                       dataSource.getConnection());
+                dataSource.getConnection());
         if (this.target == null) {
           throw new IllegalStateException("DataSource returned null from getConnection(): " + dataSource);
         }
