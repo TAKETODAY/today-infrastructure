@@ -171,5 +171,7 @@
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]retry[\\/]" checks="JavadocPackage" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]classify[\\/]" checks="JavadocPackage" />
 
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
 </suppressions>
