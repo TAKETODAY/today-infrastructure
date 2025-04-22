@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import infra.lang.Nullable;
  * An immutable collection of {@link ResourceFile} instances.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public final class ResourceFiles implements Iterable<ResourceFile> {
@@ -84,11 +85,11 @@ public final class ResourceFiles implements Iterable<ResourceFile> {
    * Return a new {@link ResourceFiles} instance that merges files from
    * another {@link ResourceFiles} instance.
    *
-   * @param ResourceFiles the instance to merge
+   * @param resourceFiles the instance to merge
    * @return a new {@link ResourceFiles} instance containing merged content
    */
-  public ResourceFiles and(ResourceFiles ResourceFiles) {
-    return new ResourceFiles(this.files.and(ResourceFiles.files));
+  public ResourceFiles and(ResourceFiles resourceFiles) {
+    return new ResourceFiles(this.files.and(resourceFiles.files));
   }
 
   @Override
