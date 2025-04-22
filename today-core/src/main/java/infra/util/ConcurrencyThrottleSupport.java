@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,35 +115,46 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
               "Currently no invocations allowed - concurrency limit set to NO_CONCURRENCY");
     }
     if (this.concurrencyLimit > 0) {
-      boolean debug = logger.isDebugEnabled();
       this.concurrencyLock.lock();
       try {
-        boolean interrupted = false;
-        while (this.concurrencyCount >= this.concurrencyLimit) {
-          if (interrupted) {
-            throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
-                    "but concurrency limit still does not allow for entering");
-          }
-          if (debug) {
-            logger.debug("Concurrency count {} has reached limit {} - blocking",
-                    this.concurrencyCount, this.concurrencyLimit);
-          }
-          try {
-            this.concurrencyCondition.await();
-          }
-          catch (InterruptedException ex) {
-            // Re-interrupt current thread, to allow other threads to react.
-            Thread.currentThread().interrupt();
-            interrupted = true;
-          }
+        if (this.concurrencyCount >= this.concurrencyLimit) {
+          onLimitReached();
         }
-        if (debug) {
-          logger.debug("Entering throttle at concurrency count {}", this.concurrencyCount);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Entering throttle at concurrency count " + this.concurrencyCount);
         }
         this.concurrencyCount++;
       }
       finally {
         this.concurrencyLock.unlock();
+      }
+    }
+  }
+
+  /**
+   * Triggered by {@link #beforeAccess()} when the concurrency limit has been reached.
+   * The default implementation blocks until the concurrency count allows for entering.
+   *
+   * @since 5.0
+   */
+  protected void onLimitReached() {
+    boolean interrupted = false;
+    while (this.concurrencyCount >= this.concurrencyLimit) {
+      if (interrupted) {
+        throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
+                "but concurrency limit still does not allow for entering");
+      }
+      if (logger.isDebugEnabled()) {
+        logger.debug("Concurrency count " + this.concurrencyCount +
+                " has reached limit " + this.concurrencyLimit + " - blocking");
+      }
+      try {
+        this.concurrencyCondition.await();
+      }
+      catch (InterruptedException ex) {
+        // Re-interrupt current thread, to allow other threads to react.
+        Thread.currentThread().interrupt();
+        interrupted = true;
       }
     }
   }

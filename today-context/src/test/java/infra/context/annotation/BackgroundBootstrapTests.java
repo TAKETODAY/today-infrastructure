@@ -33,6 +33,7 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
+import infra.stereotype.Component;
 
 import static infra.stereotype.Component.Bootstrap.BACKGROUND;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -263,7 +264,7 @@ class BackgroundBootstrapTests {
   @Configuration(proxyBeanMethods = false)
   static class InferredLockingBeanConfig {
 
-    @Bean
+    @Component
     public TestBean testBean1() {
       try {
         Thread.sleep(1000);
@@ -274,7 +275,7 @@ class BackgroundBootstrapTests {
       return new TestBean("testBean1");
     }
 
-    @Bean
+    @Component
     public TestBean testBean2(ConfigurableBeanFactory beanFactory) {
       return new TestBean((TestBean) beanFactory.getSingleton("testBean1"));
     }
