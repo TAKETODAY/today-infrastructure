@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -465,7 +465,8 @@ class DefaultCorsProcessorTests {
 
     this.processor.process(null, request);
     assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isFalse();
-    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_FORBIDDEN);
+    assertThat(this.mockResponse.containsHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isFalse();
+    assertThat(this.mockResponse.getStatus()).isEqualTo(MockHttpResponseImpl.SC_OK);
   }
 
   @Test
