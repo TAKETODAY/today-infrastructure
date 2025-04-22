@@ -358,9 +358,9 @@ class ConfigurationClassEnhancer {
       // First, check to see if the requested bean is a FactoryBean. If so, create a subclass
       // proxy that intercepts calls to getObject() and returns any cached bean instance.
       // This ensures that the semantics of calling a FactoryBean from within @Component methods
-      if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName)
-              && factoryContainsBean(beanFactory, beanName)) {
-        Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+      String factoryBeanName = BeanFactory.FACTORY_BEAN_PREFIX + beanName;
+      if (factoryContainsBean(beanFactory, factoryBeanName) && factoryContainsBean(beanFactory, beanName)) {
+        Object factoryBean = beanFactory.getBean(factoryBeanName);
         if (factoryBean instanceof ScopedProxyFactoryBean) {
           // Scoped proxy factory beans are a special case and should not be further proxied
         }
