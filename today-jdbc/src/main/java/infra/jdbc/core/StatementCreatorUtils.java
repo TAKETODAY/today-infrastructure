@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,12 +39,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import infra.jdbc.core.support.SqlLobValue;
 import infra.jdbc.support.SqlValue;
 import infra.lang.Nullable;
 import infra.lang.TodayStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.jdbc.core.support.SqlLobValue;
 
 /**
  * Utility methods for PreparedStatementSetter/Creator and CallableStatementCreator
@@ -87,7 +87,7 @@ public abstract class StatementCreatorUtils {
   private static final Map<Class<?>, Integer> javaTypeToSqlTypeMap = new HashMap<>(32);
 
   @Nullable
-  static Boolean shouldIgnoreGetParameterType;
+  static Boolean shouldIgnoreGetParameterType = TodayStrategies.checkFlag(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
 
   static {
     javaTypeToSqlTypeMap.put(boolean.class, Types.BOOLEAN);
@@ -117,10 +117,6 @@ public abstract class StatementCreatorUtils {
     javaTypeToSqlTypeMap.put(Blob.class, Types.BLOB);
     javaTypeToSqlTypeMap.put(Clob.class, Types.CLOB);
 
-    String flag = TodayStrategies.getProperty(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
-    if (flag != null) {
-      shouldIgnoreGetParameterType = Boolean.valueOf(flag);
-    }
   }
 
   /**

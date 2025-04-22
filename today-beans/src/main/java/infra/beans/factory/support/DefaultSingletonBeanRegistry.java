@@ -448,13 +448,17 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
   /**
    * Determine whether the current thread is allowed to hold the singleton lock.
-   * <p>By default, any thread may acquire and hold the singleton lock, except
-   * background threads from {@link StandardBeanFactory#setBootstrapExecutor}.
+   * <p>By default, all threads are forced to hold a full lock through {@code null}.
+   * {@link StandardBeanFactory} overrides this to specifically handle its
+   * threads during the pre-instantiation phase: {@code true} for the main thread,
+   * {@code false} for managed background threads, and configuration-dependent
+   * behavior for unmanaged threads.
    *
-   * @return {@code false} if the current thread is explicitly not allowed to hold
-   * the lock, {@code true} if it is explicitly allowed to hold the lock but also
-   * accepts lenient fallback behavior, or {@code null} if there is no specific
-   * indication (traditional behavior: always holding a full lock)
+   * @return {@code true} if the current thread is explicitly allowed to hold the
+   * lock but also accepts lenient fallback behavior, {@code false} if it is
+   * explicitly not allowed to hold the lock and therefore forced to use lenient
+   * fallback behavior, or {@code null} if there is no specific indication
+   * (traditional behavior: forced to always hold a full lock)
    * @since 5.0
    */
   @Nullable

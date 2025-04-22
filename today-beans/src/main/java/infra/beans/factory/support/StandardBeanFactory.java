@@ -130,8 +130,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private static final long serialVersionUID = 1L;
 
   /**
-   * System property that instructs Infra to enforce string locking during bean creation,
+   * System property that instructs Infra to enforce strict locking during bean creation,
    * Setting this flag to "true" restores locking in the entire pre-instantiation phase.
+   * <p>By default, the factory infers strict locking from the encountered thread names:
+   * If additional threads have names that match the thread prefix of the main bootstrap thread,
+   * they are considered external (multiple external bootstrap threads calling into the factory)
+   * and therefore have strict locking applied to them. This inference can be turned off through
+   * explicitly setting this flag to "false" rather than leaving it unspecified.
    *
    * @see #preInstantiateSingletons()
    * @since 5.0
@@ -164,7 +169,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
           new NamedThreadLocal<>("Pre-instantiation thread marker");
 
-  private final boolean lenientLockingAllowed = !TodayStrategies.getFlag(STRICT_LOCKING_PROPERTY_NAME);
+  /** Whether strict locking is enforced or relaxed in this factory. */
+  @Nullable
+  private final Boolean strictLocking = TodayStrategies.checkFlag(STRICT_LOCKING_PROPERTY_NAME);
 
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable
@@ -190,8 +197,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /** Whether bean definition metadata may be cached for all beans. */
   private volatile boolean configurationFrozen;
 
-  // @since 5.0
-  private volatile boolean preInstantiationPhase;
+  /** Name prefix of main thread: only set during pre-instantiation phase. */
+  @Nullable
+  private volatile String mainThreadPrefix;
 
   /** Cached array of bean definition names in case of frozen configuration. */
   @Nullable
@@ -514,9 +522,39 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Nullable
   @Override
   protected Boolean isCurrentThreadAllowedToHoldSingletonLock() {
-    return (lenientLockingAllowed && preInstantiationPhase)
-            ? preInstantiationThread.get() != PreInstantiation.BACKGROUND
-            : null;
+    String mainThreadPrefix = this.mainThreadPrefix;
+    if (this.mainThreadPrefix != null) {
+      // We only differentiate in the preInstantiateSingletons phase.
+
+      PreInstantiation preInstantiation = this.preInstantiationThread.get();
+      if (preInstantiation != null) {
+        // A Spring-managed bootstrap thread:
+        // MAIN is allowed to lock (true) or even forced to lock (null),
+        // BACKGROUND is never allowed to lock (false).
+        return switch (preInstantiation) {
+          case MAIN -> (Boolean.TRUE.equals(this.strictLocking) ? null : true);
+          case BACKGROUND -> false;
+        };
+      }
+
+      // Not a Spring-managed bootstrap thread...
+      if (Boolean.FALSE.equals(this.strictLocking)) {
+        // Explicitly configured to use lenient locking wherever possible.
+        return true;
+      }
+      else if (this.strictLocking == null) {
+        // No explicit locking configuration -> infer appropriate locking.
+        if (mainThreadPrefix != null && !getThreadNamePrefix().equals(mainThreadPrefix)) {
+          // An unmanaged thread (assumed to be application-internal) with lenient locking,
+          // and not part of the same thread pool that provided the main bootstrap thread
+          // (excluding scenarios where we are hit by multiple external bootstrap threads).
+          return true;
+        }
+      }
+    }
+
+    // Traditional behavior: forced to always hold a full lock.
+    return null;
   }
 
   @Override
@@ -532,8 +570,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     // Trigger initialization of all non-lazy singleton beans...
     var futures = new ArrayList<>();
 
-    this.preInstantiationPhase = true;
     this.preInstantiationThread.set(PreInstantiation.MAIN);
+    this.mainThreadPrefix = getThreadNamePrefix();
     try {
       for (String beanName : beanNames) {
         RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
@@ -546,8 +584,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
     finally {
+      this.mainThreadPrefix = null;
       this.preInstantiationThread.remove();
-      this.preInstantiationPhase = false;
     }
     if (!futures.isEmpty()) {
       try {
@@ -635,6 +673,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     else {
       getBean(beanName);
     }
+  }
+
+  private static String getThreadNamePrefix() {
+    String name = Thread.currentThread().getName();
+    int numberSeparator = name.lastIndexOf('-');
+    return (numberSeparator >= 0 ? name.substring(0, numberSeparator) : name);
   }
 
   //---------------------------------------------------------------------
