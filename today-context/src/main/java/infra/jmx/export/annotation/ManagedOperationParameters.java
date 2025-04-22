@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * corresponding to an array of {@code ManagedOperationParameter} attributes.
  *
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see infra.jmx.export.metadata.ManagedOperationParameter
  * @since 4.0
  */
@@ -36,6 +37,6 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ManagedOperationParameters {
 
-  ManagedOperationParameter[] value() default {};
+  ManagedOperationParameter[] value();
 
 }
