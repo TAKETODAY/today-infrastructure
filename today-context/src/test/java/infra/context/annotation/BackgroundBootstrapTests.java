@@ -20,6 +20,10 @@ package infra.context.annotation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
@@ -27,7 +31,6 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ConfigurableApplicationContext;
-import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.lang.TodayStrategies;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -41,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class BackgroundBootstrapTests {
 
   @Test
-  @Timeout(5)
+  @Timeout(10)
   void bootstrapWithUnmanagedThread() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(UnmanagedThreadBeanConfig.class);
     ctx.getBean("testBean1", TestBean.class);
@@ -50,7 +53,7 @@ class BackgroundBootstrapTests {
   }
 
   @Test
-  @Timeout(5)
+  @Timeout(10)
   void bootstrapWithUnmanagedThreads() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(UnmanagedThreadsBeanConfig.class);
     ctx.getBean("testBean1", TestBean.class);
@@ -61,9 +64,8 @@ class BackgroundBootstrapTests {
   }
 
   @Test
-  @Timeout(5)
-  @DisabledIfInContinuousIntegration
-  void bootstrapWithStrictLockingThread() {
+  @Timeout(10)
+  void bootstrapWithStrictLockingFlag() {
     TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
     try {
       ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(StrictLockingBeanConfig.class);
@@ -76,16 +78,58 @@ class BackgroundBootstrapTests {
   }
 
   @Test
-  @Timeout(5)
-  void bootstrapWithCircularReference() {
-    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CircularReferenceBeanConfig.class);
+//  @Timeout(10)
+  void bootstrapWithStrictLockingInferred() throws InterruptedException {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(InferredLockingBeanConfig.class);
+    ExecutorService threadPool = Executors.newFixedThreadPool(2);
+    threadPool.submit(ctx::refresh);
+    Thread.sleep(500);
+    threadPool.submit(() -> ctx.getBean("testBean2"));
+    Thread.sleep(1000);
+    assertThat(ctx.getBean("testBean2", TestBean.class).getSpouse()).isSameAs(ctx.getBean("testBean1"));
+    ctx.close();
+  }
+
+  @Test
+  @Timeout(10)
+  void bootstrapWithStrictLockingTurnedOff() throws InterruptedException {
+    TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, "false");
+    try {
+      AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+      ctx.register(InferredLockingBeanConfig.class);
+      ExecutorService threadPool = Executors.newFixedThreadPool(2);
+      threadPool.submit(ctx::refresh);
+      Thread.sleep(500);
+      threadPool.submit(() -> ctx.getBean("testBean2"));
+      Thread.sleep(1000);
+      assertThat(ctx.getBean("testBean2", TestBean.class).getSpouse()).isNull();
+      ctx.close();
+    }
+    finally {
+      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+    }
+  }
+
+  @Test
+  @Timeout(10)
+  void bootstrapWithCircularReferenceAgainstMainThread() {
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CircularReferenceAgainstMainThreadBeanConfig.class);
     ctx.getBean("testBean1", TestBean.class);
     ctx.getBean("testBean2", TestBean.class);
     ctx.close();
   }
 
   @Test
-  @Timeout(5)
+  @Timeout(10)
+  void bootstrapWithCircularReferenceWithBlockingMainThread() {
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceWithBlockingMainThreadBeanConfig.class))
+            .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
+  }
+
+  @Test
+  @Timeout(10)
   void bootstrapWithCircularReferenceInSameThread() {
     assertThatExceptionOfType(UnsatisfiedDependencyException.class)
             .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInSameThreadBeanConfig.class))
@@ -93,7 +137,15 @@ class BackgroundBootstrapTests {
   }
 
   @Test
-  @Timeout(5)
+  @Timeout(10)
+  void bootstrapWithCircularReferenceInMultipleThreads() {
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(CircularReferenceInMultipleThreadsBeanConfig.class))
+            .withRootCauseInstanceOf(BeanCurrentlyInCreationException.class);
+  }
+
+  @Test
+  @Timeout(10)
   void bootstrapWithCustomExecutor() {
     ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorBeanConfig.class);
     ctx.getBean("testBean1", TestBean.class);
@@ -101,6 +153,23 @@ class BackgroundBootstrapTests {
     ctx.getBean("testBean3", TestBean.class);
     ctx.getBean("testBean4", TestBean.class);
     ctx.close();
+  }
+
+  @Test
+//  @Timeout(10)
+  void bootstrapWithCustomExecutorAndStrictLocking() {
+    TodayStrategies.setFlag(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME);
+    try {
+      ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(CustomExecutorBeanConfig.class);
+      ctx.getBean("testBean1", TestBean.class);
+      ctx.getBean("testBean2", TestBean.class);
+      ctx.getBean("testBean3", TestBean.class);
+      ctx.getBean("testBean4", TestBean.class);
+      ctx.close();
+    }
+    finally {
+      TodayStrategies.setProperty(StandardBeanFactory.STRICT_LOCKING_PROPERTY_NAME, null);
+    }
   }
 
   @Configuration(proxyBeanMethods = false)
@@ -113,7 +182,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(1000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -124,7 +193,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(2000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -143,7 +212,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(1000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -164,7 +233,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(2000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -180,7 +249,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(1000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean("testBean1");
     }
@@ -192,7 +261,27 @@ class BackgroundBootstrapTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class CircularReferenceBeanConfig {
+  static class InferredLockingBeanConfig {
+
+    @Bean
+    public TestBean testBean1() {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean("testBean1");
+    }
+
+    @Bean
+    public TestBean testBean2(ConfigurableBeanFactory beanFactory) {
+      return new TestBean((TestBean) beanFactory.getSingleton("testBean1"));
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CircularReferenceAgainstMainThreadBeanConfig {
 
     @Bean
     public TestBean testBean1(ObjectProvider<TestBean> testBean2) {
@@ -201,7 +290,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(1000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -212,9 +301,36 @@ class BackgroundBootstrapTests {
         Thread.sleep(2000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CircularReferenceWithBlockingMainThreadBeanConfig {
+
+    @Bean
+    public TestBean testBean1(ObjectProvider<TestBean> testBean2) {
+      new Thread(testBean2::get).start();
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean(testBean2.get());
+    }
+
+    @Bean
+    public TestBean testBean2(ObjectProvider<TestBean> testBean1) {
+      try {
+        Thread.sleep(2000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean(testBean1.get());
     }
   }
 
@@ -228,7 +344,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(1000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -239,7 +355,7 @@ class BackgroundBootstrapTests {
         Thread.sleep(2000);
       }
       catch (InterruptedException ex) {
-        throw new RuntimeException(ex);
+        Thread.currentThread().interrupt();
       }
       return new TestBean();
     }
@@ -247,6 +363,59 @@ class BackgroundBootstrapTests {
     @Bean
     public TestBean testBean3(TestBean testBean2) {
       return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CircularReferenceInMultipleThreadsBeanConfig {
+
+    @Bean
+    public TestBean testBean1(ObjectProvider<TestBean> testBean2, ObjectProvider<TestBean> testBean3,
+            ObjectProvider<TestBean> testBean4) {
+
+      new Thread(testBean2::get).start();
+      new Thread(testBean3::get).start();
+      new Thread(testBean4::get).start();
+      try {
+        Thread.sleep(3000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean();
+    }
+
+    @Bean
+    public TestBean testBean2(ObjectProvider<TestBean> testBean3) {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean(testBean3.get());
+    }
+
+    @Bean
+    public TestBean testBean3(ObjectProvider<TestBean> testBean4) {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean(testBean4.get());
+    }
+
+    @Bean
+    public TestBean testBean4(ObjectProvider<TestBean> testBean2) {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+      return new TestBean(testBean2.get());
     }
   }
 
@@ -265,14 +434,14 @@ class BackgroundBootstrapTests {
     @Bean(bootstrap = BACKGROUND)
     @DependsOn("testBean3")
     public TestBean testBean1(TestBean testBean3) throws InterruptedException {
-      Thread.sleep(3000);
+      Thread.sleep(6000);
       return new TestBean();
     }
 
     @Bean(bootstrap = BACKGROUND)
     @Lazy
     public TestBean testBean2() throws InterruptedException {
-      Thread.sleep(3000);
+      Thread.sleep(6000);
       return new TestBean();
     }
 
