@@ -17,6 +17,7 @@
 
 package infra.beans.factory.aot;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,6 +75,25 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   );
 
   /**
+   * Create a {@link ValueCodeGenerator} instance with both these
+   * {@link #INSTANCES delegate} and the {@link ValueCodeGeneratorDelegates#INSTANCES
+   * core delegates}.
+   *
+   * @param generatedMethods the {@link GeneratedMethods} to use
+   * @param customDelegates additional delegates that should be considered first
+   * @return a configured value code generator
+   * @see ValueCodeGenerator#add(List)
+   * @since 5.0
+   */
+  public static ValueCodeGenerator createValueCodeGenerator(GeneratedMethods generatedMethods, List<Delegate> customDelegates) {
+    ArrayList<Delegate> allDelegates = new ArrayList<>();
+    allDelegates.addAll(customDelegates);
+    allDelegates.addAll(INSTANCES);
+    allDelegates.addAll(ValueCodeGeneratorDelegates.INSTANCES);
+    return ValueCodeGenerator.with(allDelegates).scoped(generatedMethods);
+  }
+
+  /**
    * {@link Delegate} for {@link ManagedList} types.
    */
   private static class ManagedListDelegate extends CollectionDelegate<ManagedList<?>> {
@@ -100,6 +120,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
 
     private static final CodeBlock EMPTY_RESULT = CodeBlock.of("$T.ofEntries()", ManagedMap.class);
 
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof ManagedMap<?, ?> managedMap) {

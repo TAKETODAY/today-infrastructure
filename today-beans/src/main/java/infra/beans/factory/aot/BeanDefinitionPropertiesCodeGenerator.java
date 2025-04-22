@@ -37,7 +37,6 @@ import java.util.function.Predicate;
 import infra.aot.generate.GeneratedMethods;
 import infra.aot.generate.ValueCodeGenerator;
 import infra.aot.generate.ValueCodeGenerator.Delegate;
-import infra.aot.generate.ValueCodeGeneratorDelegates;
 import infra.aot.hint.ExecutableMode;
 import infra.aot.hint.MemberCategory;
 import infra.aot.hint.RuntimeHints;
@@ -101,12 +100,12 @@ class BeanDefinitionPropertiesCodeGenerator {
 
     this.hints = hints;
     this.attributeFilter = attributeFilter;
-    List<Delegate> allDelegates = new ArrayList<>();
-    allDelegates.add((valueCodeGenerator, value) -> customValueCodeGenerator.apply(PropertyNamesStack.peek(), value));
-    allDelegates.addAll(additionalDelegates);
-    allDelegates.addAll(BeanDefinitionPropertyValueCodeGeneratorDelegates.INSTANCES);
-    allDelegates.addAll(ValueCodeGeneratorDelegates.INSTANCES);
-    this.valueCodeGenerator = ValueCodeGenerator.with(allDelegates).scoped(generatedMethods);
+    ArrayList<Delegate> customDelegates = new ArrayList<>();
+    customDelegates.add((valueCodeGenerator, value) ->
+            customValueCodeGenerator.apply(PropertyNamesStack.peek(), value));
+    customDelegates.addAll(additionalDelegates);
+    this.valueCodeGenerator = BeanDefinitionPropertyValueCodeGeneratorDelegates
+            .createValueCodeGenerator(generatedMethods, customDelegates);
   }
 
   CodeBlock generateCode(RootBeanDefinition beanDefinition) {

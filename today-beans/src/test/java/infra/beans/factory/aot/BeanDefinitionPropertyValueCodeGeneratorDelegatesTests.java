@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -38,7 +39,6 @@ import javax.lang.model.element.Modifier;
 
 import infra.aot.generate.GeneratedClass;
 import infra.aot.generate.ValueCodeGenerator;
-import infra.aot.generate.ValueCodeGeneratorDelegates;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.config.BeanReference;
 import infra.beans.factory.config.RuntimeBeanNameReference;
@@ -71,9 +71,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BeanDefinitionPropertyValueCodeGeneratorDelegatesTests {
 
   private static ValueCodeGenerator createValueCodeGenerator(GeneratedClass generatedClass) {
-    return ValueCodeGenerator.with(BeanDefinitionPropertyValueCodeGeneratorDelegates.INSTANCES)
-            .add(ValueCodeGeneratorDelegates.INSTANCES)
-            .scoped(generatedClass.getMethods());
+    return BeanDefinitionPropertyValueCodeGeneratorDelegates.createValueCodeGenerator(
+            generatedClass.getMethods(), Collections.emptyList());
   }
 
   private void compile(Object value, BiConsumer<Object, Compiled> result) {
