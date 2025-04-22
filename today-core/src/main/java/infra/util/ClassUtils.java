@@ -1403,10 +1403,11 @@ public abstract class ClassUtils {
       Class<?> resolvedPrimitive = primitiveWrapperTypeMap.get(rhsType);
       return lhsType == resolvedPrimitive;
     }
-    else {
+    else if (rhsType.isPrimitive()) {
       Class<?> resolvedWrapper = primitiveTypeToWrapperMap.get(rhsType);
       return resolvedWrapper != null && lhsType.isAssignableFrom(resolvedWrapper);
     }
+    return false;
   }
 
   /**

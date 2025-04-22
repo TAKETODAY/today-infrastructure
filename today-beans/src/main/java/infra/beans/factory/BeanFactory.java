@@ -137,6 +137,13 @@ public interface BeanFactory extends DependencyInjectorProvider {
    */
   String FACTORY_BEAN_PREFIX = "&";
 
+  /**
+   * Character variant of {@link #FACTORY_BEAN_PREFIX}.
+   *
+   * @since 5.0
+   */
+  char FACTORY_BEAN_PREFIX_CHAR = '&';
+
   //---------------------------------------------------------------------
   // Get operations for name-lookup
   //---------------------------------------------------------------------
