@@ -34,6 +34,7 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -802,9 +803,9 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
         closeJarFile = !jarCon.getUseCaches();
       }
-      catch (ZipException | FileNotFoundException ex) {
+      catch (ZipException | FileNotFoundException | NoSuchFileException ex) {
         // Happens in case of a non-jar file or in case of a cached root directory
-        // without specific subdirectory present, respectively.
+        // without the specific subdirectory present, respectively.
         return;
       }
     }
