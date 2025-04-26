@@ -25,6 +25,7 @@ import java.util.Arrays;
 
 import infra.aop.framework.StandardProxy;
 import infra.aop.scope.ScopedProxyFactoryBean;
+import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.BeanFactory;
@@ -113,12 +114,18 @@ class ConfigurationClassEnhancer {
       boolean classLoaderMismatch = (classLoader != null && classLoader != configClass.getClassLoader());
       if (classLoaderMismatch && classLoader instanceof SmartClassLoader smartClassLoader) {
         classLoader = smartClassLoader.getOriginalClassLoader();
+        classLoaderMismatch = (classLoader != configClass.getClassLoader());
+      }
+      // Use original ClassLoader if config class relies on package visibility
+      if (classLoaderMismatch && reliesOnPackageVisibility(configClass)) {
+        classLoader = configClass.getClassLoader();
+        classLoaderMismatch = false;
       }
       Enhancer enhancer = newEnhancer(configClass, classLoader);
       Class<?> enhancedClass = createClass(enhancer, classLoaderMismatch);
       if (log.isTraceEnabled()) {
-        log.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",
-                configClass.getName(), enhancedClass.getName()));
+        log.trace("Successfully enhanced {}; enhanced class name is: {}",
+                configClass.getName(), enhancedClass.getName());
       }
       return enhancedClass;
     }
@@ -130,30 +137,45 @@ class ConfigurationClassEnhancer {
   }
 
   /**
+   * Checks whether the given config class relies on package visibility,
+   * either for the class itself or for any of its {@code @Bean} methods.
+   */
+  private boolean reliesOnPackageVisibility(Class<?> configSuperClass) {
+    int mod = configSuperClass.getModifiers();
+    if (!Modifier.isPublic(mod) && !Modifier.isProtected(mod)) {
+      return true;
+    }
+    for (Method method : ReflectionUtils.getDeclaredMethods(configSuperClass)) {
+      if (BeanAnnotationHelper.isBeanAnnotated(method)) {
+        mod = method.getModifiers();
+        if (!Modifier.isPublic(mod) && !Modifier.isProtected(mod)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * Creates a new CGLIB {@link Enhancer} instance.
    */
   private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
     Enhancer enhancer = new Enhancer();
     if (classLoader != null) {
       enhancer.setClassLoader(classLoader);
+      if (classLoader instanceof SmartClassLoader scl && scl.isClassReloadable(configSuperClass)) {
+        enhancer.setUseCache(false);
+      }
     }
     enhancer.setUseFactory(false);
     enhancer.setSuperclass(configSuperClass);
     enhancer.setInterfaces(EnhancedConfiguration.class);
     enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
     enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
-    enhancer.setAttemptLoad(!isClassReloadable(configSuperClass, classLoader));
+    enhancer.setAttemptLoad(enhancer.getUseCache() && AotDetector.useGeneratedArtifacts());
     enhancer.setCallbackFilter(CALLBACK_FILTER);
     enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
     return enhancer;
-  }
-
-  /**
-   * Checks whether the given configuration class is reloadable.
-   */
-  private boolean isClassReloadable(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
-    return classLoader instanceof SmartClassLoader scl
-            && scl.isClassReloadable(configSuperClass);
   }
 
   /**
@@ -336,9 +358,9 @@ class ConfigurationClassEnhancer {
       // First, check to see if the requested bean is a FactoryBean. If so, create a subclass
       // proxy that intercepts calls to getObject() and returns any cached bean instance.
       // This ensures that the semantics of calling a FactoryBean from within @Component methods
-      if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName)
-              && factoryContainsBean(beanFactory, beanName)) {
-        Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+      String factoryBeanName = BeanFactory.FACTORY_BEAN_PREFIX + beanName;
+      if (factoryContainsBean(beanFactory, factoryBeanName) && factoryContainsBean(beanFactory, beanName)) {
+        Object factoryBean = beanFactory.getBean(factoryBeanName);
         if (factoryBean instanceof ScopedProxyFactoryBean) {
           // Scoped proxy factory beans are a special case and should not be further proxied
         }

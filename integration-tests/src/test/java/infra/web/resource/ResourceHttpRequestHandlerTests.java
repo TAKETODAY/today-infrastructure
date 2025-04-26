@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.accept.ContentNegotiationManager;
@@ -42,7 +43,6 @@ import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.mock.MockRequestContext;
 import infra.web.mock.support.StaticWebApplicationContext;
-import lombok.SneakyThrows;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -128,7 +128,6 @@ public class ResourceHttpRequestHandlerTests {
     }
 
     @Test
-
     void getResourceWithRegisteredMediaType() throws Throwable {
       ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
       factory.addMediaType("bar", new MediaType("foo", "bar"));
@@ -665,9 +664,13 @@ public class ResourceHttpRequestHandlerTests {
       assertNotFound();
     }
 
-    @SneakyThrows
     private void assertNotFound() {
-      assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
+      try {
+        assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
+      }
+      catch (Throwable e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
     }
 
     @Test

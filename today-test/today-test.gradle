@@ -105,7 +105,7 @@ dependencies {
   testImplementation("com.rometools:rome")
   testImplementation("org.hsqldb:hsqldb")
   testImplementation 'org.eclipse:yasson'
-  testImplementation("ch.qos.logback:logback-classic")
+//  testImplementation("ch.qos.logback:logback-classic")
   testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
   testImplementation("org.awaitility:awaitility")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {

@@ -125,7 +125,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
     }
 
     private void replaceMappingNodeKeys(MappingNode node) {
-      ArrayList<NodeTuple> newValue = new ArrayList<>();
+      ArrayList<NodeTuple> newValue = new ArrayList<>(node.getValue().size());
       for (NodeTuple nodeTuple : node.getValue()) {
         newValue.add(KeyScalarNode.get(nodeTuple));
       }
@@ -137,7 +137,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
       return OriginTrackedValue.of(getValue(value), origin);
     }
 
-    private Object getValue(Object value) {
+    private Object getValue(@Nullable Object value) {
       return value != null ? value : "";
     }
 

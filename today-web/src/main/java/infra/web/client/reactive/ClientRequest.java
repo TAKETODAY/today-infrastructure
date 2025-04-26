@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,11 +139,11 @@ public interface ClientRequest {
    * Create a request builder with the given HTTP method and url.
    *
    * @param method the HTTP method (GET, POST, etc)
-   * @param url the url (as a URI instance)
+   * @param uri the url (as a URI instance)
    * @return the created builder
    */
-  static Builder create(HttpMethod method, URI url) {
-    return new DefaultClientRequestBuilder(method, url);
+  static Builder create(HttpMethod method, URI uri) {
+    return new DefaultClientRequestBuilder(method, uri);
   }
 
   /**

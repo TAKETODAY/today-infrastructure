@@ -118,8 +118,8 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
     RestClient.RequestBodyUriSpec uriSpec = this.restClient.method(httpMethod);
 
     RestClient.RequestBodySpec bodySpec;
-    if (values.getUri() != null) {
-      bodySpec = uriSpec.uri(values.getUri());
+    if (values.getURI() != null) {
+      bodySpec = uriSpec.uri(values.getURI());
     }
     else if (values.getUriTemplate() != null) {
       UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
@@ -152,6 +152,10 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
 
     if (values.getBodyValue() != null) {
       bodySpec.body(values.getBodyValue());
+    }
+
+    if (values.getApiVersion() != null) {
+      bodySpec.apiVersion(values.getApiVersion());
     }
 
     return bodySpec;

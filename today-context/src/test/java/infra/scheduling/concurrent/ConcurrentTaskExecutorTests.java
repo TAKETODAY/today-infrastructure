@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package infra.scheduling.concurrent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -29,8 +31,16 @@ import java.util.concurrent.TimeUnit;
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.lang.Assert;
+import infra.scheduling.SchedulingAwareRunnable;
+import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.enterprise.concurrent.ManagedTask;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rick Evans
@@ -83,6 +93,73 @@ class ConcurrentTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
     executor.setTaskDecorator(new RunnableDecorator());
     executor.setConcurrentExecutor(new DecoratedExecutor());
     assertThatCode(() -> executor.execute(new NoOpRunnable())).doesNotThrowAnyException();
+  }
+
+  @Test
+  void decoratorIsAppliedToSubmittedTasks() throws Exception {
+    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor();
+    TaskDecorator decorator = task -> () -> { };
+    executor.setTaskDecorator(decorator);
+
+    Runnable originalTask = () -> { };
+    Callable<String> originalCallable = () -> "test";
+
+    executor.submit(originalTask);
+    executor.submit(originalCallable);
+
+    Runnable decoratedTask = executor.decorateTaskIfNecessary(originalTask);
+    assertThat(decoratedTask).isNotSameAs(originalTask);
+  }
+
+  @Test
+  void nullExecutorThrowsIllegalStateException() {
+    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(null);
+    assertThatCode(() -> executor.execute(() -> { }))
+            .hasMessage("Executor not configured");
+  }
+
+  @Test
+  void startTimeoutParameterIsRespected() {
+    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor();
+    CountDownLatch taskStarted = new CountDownLatch(1);
+
+    executor.execute(() -> {
+      try {
+        Thread.sleep(200);
+        taskStarted.countDown();
+      }
+      catch (InterruptedException ex) {
+        // ignore
+      }
+    }, 100);
+
+    assertThat(taskStarted.getCount()).isEqualTo(1);
+  }
+
+  @Test
+  void submittedTasksReturnFutureResults() throws Exception {
+    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor();
+
+    Future<String> future = executor.submit(() -> "test");
+    assertThat(future.get()).isEqualTo("test");
+
+    Future<Void> voidFuture = executor.submit(() -> { });
+    assertThat(voidFuture.get()).isNull();
+  }
+
+  @Test
+  void longRunningTasksAreMarkedInManagedProperties() {
+    ManagedExecutorService managedExecutor = mock(ManagedExecutorService.class);
+    ConcurrentTaskExecutor executor = new ConcurrentTaskExecutor(managedExecutor);
+
+    SchedulingAwareRunnable task = mock(SchedulingAwareRunnable.class);
+    when(task.isLongLived()).thenReturn(true);
+
+    executor.execute(task);
+
+    verify(managedExecutor).execute(argThat(t ->
+            ((ManagedTask) t).getExecutionProperties()
+                    .get(ManagedTask.LONGRUNNING_HINT).equals("true")));
   }
 
   private static class DecoratedRunnable implements Runnable {

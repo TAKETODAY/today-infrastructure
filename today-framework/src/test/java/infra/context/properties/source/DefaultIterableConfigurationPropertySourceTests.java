@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package infra.context.properties.source;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -38,6 +37,7 @@ import infra.origin.OriginLookup;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link DefaultIterableConfigurationPropertySource}.
@@ -51,7 +51,7 @@ class DefaultIterableConfigurationPropertySourceTests {
   @Test
   void createWhenPropertySourceIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new DefaultIterableConfigurationPropertySource(null, Mockito.mock(PropertyMapper.class)))
+            .isThrownBy(() -> new DefaultIterableConfigurationPropertySource(null, false, mock(PropertyMapper.class)))
             .withMessageContaining("PropertySource is required");
   }
 
@@ -70,9 +70,10 @@ class DefaultIterableConfigurationPropertySourceTests {
     TestPropertyMapper mapper2 = new TestPropertyMapper();
     mapper2.addFromPropertySource("key2", "my.key2b");
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, mapper1, mapper2);
-    assertThat(adapter.iterator()).toIterable().extracting(Object::toString).containsExactly("my.key1", "my.key2a",
-            "my.key4");
+            propertySource, false, mapper1, mapper2);
+    assertThat(adapter.iterator()).toIterable()
+            .extracting(Object::toString)
+            .containsExactly("my.key1", "my.key2a", "my.key4");
   }
 
   @Test
@@ -86,7 +87,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key2");
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, mapper);
+            propertySource, false, mapper);
     assertThat(adapter.getConfigurationProperty(name).getValue()).isEqualTo("value2");
   }
 
@@ -101,7 +102,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     mapper.addFromPropertySource("key1", "my.missing");
     mapper.addFromPropertySource("key2", "my.k-e-y");
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, mapper);
+            propertySource, false, mapper);
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     assertThat(adapter.getConfigurationProperty(name).getValue()).isEqualTo("value2");
   }
@@ -115,9 +116,9 @@ class DefaultIterableConfigurationPropertySourceTests {
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key");
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, mapper);
-    assertThat(adapter.getConfigurationProperty(name).getOrigin().toString())
-            .isEqualTo("\"key\" from property source \"test\"");
+            propertySource, false, mapper);
+    assertThat(adapter.getConfigurationProperty(name).getOrigin())
+            .hasToString("\"key\" from property source \"test\"");
   }
 
   @Test
@@ -130,8 +131,8 @@ class DefaultIterableConfigurationPropertySourceTests {
     ConfigurationPropertyName name = ConfigurationPropertyName.of("my.key");
     mapper.addFromConfigurationProperty(name, "key");
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, mapper);
-    assertThat(adapter.getConfigurationProperty(name).getOrigin().toString()).isEqualTo("TestOrigin key");
+            propertySource, false, mapper);
+    assertThat(adapter.getConfigurationProperty(name).getOrigin()).hasToString("TestOrigin key");
   }
 
   @Test
@@ -142,7 +143,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     EnumerablePropertySource<?> propertySource = new OriginCapablePropertySource<>(
             new MapPropertySource("test", source));
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, DefaultPropertyMapper.INSTANCE);
+            propertySource, false, DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.containsDescendantOf(ConfigurationPropertyName.of("foo")))
             .isEqualTo(ConfigurationPropertyState.PRESENT);
     assertThat(adapter.containsDescendantOf(ConfigurationPropertyName.of("faf")))
@@ -159,7 +160,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     SystemEnvironmentPropertySource propertySource = new SystemEnvironmentPropertySource(
             StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, source);
     DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(
-            propertySource, SystemEnvironmentPropertyMapper.INSTANCE);
+            propertySource, true, SystemEnvironmentPropertyMapper.INSTANCE);
     assertThat(adapter.containsDescendantOf(ConfigurationPropertyName.of("foo.bar-baz")))
             .isEqualTo(ConfigurationPropertyState.PRESENT);
     assertThat(adapter.containsDescendantOf(ConfigurationPropertyName.of("foo.alpha-bravo")))
@@ -175,7 +176,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     map.put("key1", "value1");
     map.put("key2", "value2");
     EnumerablePropertySource<?> source = new MapPropertySource("test", map);
-    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source,
+    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source, false,
             DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.stream()).hasSize(2);
     map.put("key3", "value3");
@@ -189,7 +190,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     map.put("key1", "value1");
     map.put("key2", "value2");
     EnumerablePropertySource<?> source = new MapPropertySource("test", map);
-    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source,
+    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source, false,
             DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.stream()).hasSize(2);
     map.setThrowException(true);
@@ -204,7 +205,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     map.put("key1", "value1");
     map.put("key2", "value2");
     EnumerablePropertySource<?> source = new OriginTrackedMapPropertySource("test", map);
-    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source,
+    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source, false,
             DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.stream()).hasSize(2);
     map.put("key3", "value3");
@@ -218,7 +219,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     map.put("key1", "value1");
     map.put("key2", "value2");
     EnumerablePropertySource<?> source = new OriginTrackedMapPropertySource("test", map, true);
-    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source,
+    DefaultIterableConfigurationPropertySource adapter = new DefaultIterableConfigurationPropertySource(source, false,
             DefaultPropertyMapper.INSTANCE);
     assertThat(adapter.stream()).hasSize(2);
     map.put("key3", "value3");
@@ -234,7 +235,7 @@ class DefaultIterableConfigurationPropertySourceTests {
     map.put("test.map.delta", "value4");
     EnumerablePropertySource<?> source = new OriginTrackedMapPropertySource("test", map, true);
     DefaultIterableConfigurationPropertySource propertySource = new DefaultIterableConfigurationPropertySource(source,
-            DefaultPropertyMapper.INSTANCE);
+            false, DefaultPropertyMapper.INSTANCE);
     assertThat(propertySource.stream().map(ConfigurationPropertyName::toString)).containsExactly("test.map.alpha",
             "test.map.bravo", "test.map.charlie", "test.map.delta");
   }
@@ -277,7 +278,6 @@ class DefaultIterableConfigurationPropertySourceTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class ConcurrentModificationThrowingMap<K, V> extends LinkedHashMap<K, V> {
 
     private boolean throwException;
@@ -288,10 +288,9 @@ class DefaultIterableConfigurationPropertySourceTests {
 
     @Override
     public Set<K> keySet() {
-      return new KeySet(super.keySet());
+      return new ConcurrentModificationThrowingMap.KeySet(super.keySet());
     }
 
-    @SuppressWarnings("serial")
     private class KeySet extends LinkedHashSet<K> {
 
       KeySet(Set<K> keySet) {

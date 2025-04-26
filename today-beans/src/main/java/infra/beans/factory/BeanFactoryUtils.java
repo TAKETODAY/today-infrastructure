@@ -68,7 +68,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static boolean isFactoryDereference(@Nullable String name) {
-    return name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX);
+    return (name != null && !name.isEmpty() && name.charAt(0) == BeanFactory.FACTORY_BEAN_PREFIX_CHAR);
   }
 
   /**
@@ -81,14 +81,14 @@ public abstract class BeanFactoryUtils {
    */
   public static String transformedBeanName(String name) {
     Assert.notNull(name, "'name' is required");
-    if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
+    if (name.isEmpty() || name.charAt(0) != BeanFactory.FACTORY_BEAN_PREFIX_CHAR) {
       return name;
     }
     return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
       do {
-        beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
+        beanName = beanName.substring(1);  // length of '&'
       }
-      while (beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
+      while (beanName.charAt(0) == BeanFactory.FACTORY_BEAN_PREFIX_CHAR);
       return beanName;
     });
   }

@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import infra.beans.factory.config.Scope;
 import infra.core.AttributeAccessor;
+import infra.lang.Nullable;
 
 /**
  * Abstract {@link Scope} implementation that reads from a particular scope
@@ -55,6 +56,7 @@ public abstract class AbstractRequestContextScope<T> implements Scope {
     return scopedObject;
   }
 
+  @Nullable
   protected Object remove(T context, String name) {
     Object scopedObject = getAttribute(context, name);
     if (scopedObject != null) {
@@ -70,6 +72,7 @@ public abstract class AbstractRequestContextScope<T> implements Scope {
 
   protected abstract void setAttribute(T context, String beanName, Object scopedObject);
 
+  @Nullable
   protected abstract Object getAttribute(T context, String beanName);
 
   protected abstract void removeAttribute(T context, String name);

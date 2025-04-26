@@ -17,7 +17,6 @@
 
 package infra.util;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,7 +38,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import infra.lang.Assert;
 import infra.lang.Constant;
 import infra.lang.Contract;
 import infra.lang.Nullable;
@@ -199,54 +198,65 @@ public abstract class StringUtils {
   }
 
   /**
-   * Decode the given encoded URI component value. Based on the following rules:
-   * <ul>
-   * <li>Alphanumeric characters {@code "a"} through {@code "z"}, {@code "A"} through {@code "Z"},
-   * and {@code "0"} through {@code "9"} stay the same.</li>
-   * <li>Special characters {@code "-"}, {@code "_"}, {@code "."}, and {@code "*"} stay the same.</li>
-   * <li>A sequence "{@code %<i>xy</i>}" is interpreted as a hexadecimal representation of the character.</li>
-   * </ul>
+   * Decode the given encoded URI component value by replacing each
+   * "<i>{@code %xy}</i>" sequence with a hexadecimal representation of the
+   * character in the specified character encoding, leaving other characters
+   * unmodified.
    *
-   * @param source the encoded String
-   * @param charset the character set
+   * @param source the encoded URI component value
+   * @param charset the character encoding to use to decode the "<i>{@code %xy}</i>"
+   * sequences
    * @return the decoded value
-   * @throws IllegalArgumentException when the given source contains invalid encoded sequences
-   * @see java.net.URLDecoder#decode(String, String)
+   * @throws IllegalArgumentException if the given source contains invalid encoded
+   * sequences
+   * @see java.net.URLDecoder#decode(String, String) java.net.URLDecoder#decode
+   * for HTML form decoding
    * @since 4.0
    */
   public static String uriDecode(String source, Charset charset) {
     int length = source.length();
-    if (length == 0) {
+    int firstPercentIndex = source.indexOf('%');
+    if (length == 0 || firstPercentIndex < 0) {
       return source;
     }
-    Assert.notNull(charset, "Charset is required");
 
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
-    boolean changed = false;
-    for (int i = 0; i < length; i++) {
-      int ch = source.charAt(i);
+    StringBuilder output = new StringBuilder(length);
+    output.append(source, 0, firstPercentIndex);
+    byte[] bytes = null;
+    int i = firstPercentIndex;
+    while (i < length) {
+      char ch = source.charAt(i);
       if (ch == '%') {
-        if (i + 2 < length) {
-          char hex1 = source.charAt(i + 1);
-          char hex2 = source.charAt(i + 2);
-          int u = Character.digit(hex1, 16);
-          int l = Character.digit(hex2, 16);
-          if (u == -1 || l == -1) {
-            throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
+        try {
+          if (bytes == null) {
+            bytes = new byte[(length - i) / 3];
           }
-          baos.write((char) ((u << 4) + l));
-          i += 2;
-          changed = true;
+
+          int pos = 0;
+          while (i + 2 < length && ch == '%') {
+            bytes[pos++] = (byte) HexFormat.fromHexDigits(source, i + 1, i + 3);
+            i += 3;
+            if (i < length) {
+              ch = source.charAt(i);
+            }
+          }
+
+          if (i < length && ch == '%') {
+            throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
+          }
+
+          output.append(new String(bytes, 0, pos, charset));
         }
-        else {
-          throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
+        catch (NumberFormatException ex) {
+          throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
         }
       }
       else {
-        baos.write(ch);
+        output.append(ch);
+        i++;
       }
     }
-    return (changed ? StreamUtils.copyToString(baos, charset) : source);
+    return output.toString();
   }
 
   //---------------------------------------------------------------------

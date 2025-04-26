@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,10 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
   @Override
   public boolean process(@Nullable CorsConfiguration config, RequestContext context) throws IOException {
+    if (config == null) {
+      return true;
+    }
+
     HttpHeaders responseHeaders = context.responseHeaders();
 
     List<String> varyHeaders = responseHeaders.getVary();
@@ -94,15 +98,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
       log.trace("Skip: response already contains \"Access-Control-Allow-Origin\"");
       return true;
     }
-    boolean preFlightRequest = context.isPreFlightRequest();
-    if (config == null) {
-      if (preFlightRequest) {
-        rejectRequest(context);
-        return false;
-      }
-      return true;
-    }
-    return handleInternal(context, config, preFlightRequest);
+    return handleInternal(context, config, context.isPreFlightRequest());
   }
 
   /**

@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,13 +54,17 @@ import infra.util.ReflectionUtils;
  */
 class JavaBeanBinder implements DataObjectBinder {
 
+  private static final String HAS_KNOWN_BINDABLE_PROPERTIES_CACHE = JavaBeanBinder.class.getName()
+          + ".HAS_KNOWN_BINDABLE_PROPERTIES_CACHE";
+
   static final JavaBeanBinder INSTANCE = new JavaBeanBinder();
 
+  @Nullable
   @Override
-  public <T> T bind(ConfigurationPropertyName name,
-          Bindable<T> target, Binder.Context context, DataObjectPropertyBinder propertyBinder) {
+  public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
+          Binder.Context context, DataObjectPropertyBinder propertyBinder) {
     boolean hasKnownBindableProperties = target.getValue() != null && hasKnownBindableProperties(name, context);
-    Bean<T> bean = Bean.get(target, hasKnownBindableProperties);
+    Bean<T> bean = Bean.get(target, context, hasKnownBindableProperties);
     if (bean == null) {
       return null;
     }
@@ -68,6 +73,7 @@ class JavaBeanBinder implements DataObjectBinder {
     return (bound ? beanSupplier.get() : null);
   }
 
+  @Nullable
   @Override
   @SuppressWarnings("unchecked")
   public <T> T create(Bindable<T> target, Binder.Context context) {
@@ -76,12 +82,32 @@ class JavaBeanBinder implements DataObjectBinder {
   }
 
   private boolean hasKnownBindableProperties(ConfigurationPropertyName name, Binder.Context context) {
+    var cache = getHasKnownBindablePropertiesCache(context);
+    Boolean hasKnownBindableProperties = cache.get(name);
+    if (hasKnownBindableProperties == null) {
+      hasKnownBindableProperties = computeHasKnownBindableProperties(name, context);
+      cache.put(name, hasKnownBindableProperties);
+    }
+    return hasKnownBindableProperties;
+  }
+
+  private boolean computeHasKnownBindableProperties(ConfigurationPropertyName name, Binder.Context context) {
     for (ConfigurationPropertySource source : context.getSources()) {
       if (source.containsDescendantOf(name) == ConfigurationPropertyState.PRESENT) {
         return true;
       }
     }
     return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<ConfigurationPropertyName, Boolean> getHasKnownBindablePropertiesCache(Binder.Context context) {
+    Object cache = context.getCache().get(HAS_KNOWN_BINDABLE_PROPERTIES_CACHE);
+    if (cache == null) {
+      cache = new ConcurrentHashMap<ConfigurationPropertyName, Boolean>();
+      context.getCache().put(HAS_KNOWN_BINDABLE_PROPERTIES_CACHE, cache);
+    }
+    return (Map<ConfigurationPropertyName, Boolean>) cache;
   }
 
   private <T> boolean bind(DataObjectPropertyBinder propertyBinder,
@@ -166,21 +192,14 @@ class JavaBeanBinder implements DataObjectBinder {
     }
 
     protected void addProperties(Method[] declaredMethods, Field[] declaredFields) {
-      // todo 减少时间复杂度
-      for (int i = 0; i < declaredMethods.length; i++) {
-        if (!isCandidate(declaredMethods[i])) {
-          declaredMethods[i] = null;
+      for (Method method : declaredMethods) {
+        if (isCandidate(method)) {
+          addMethodIfPossible(method, "is", 0, BeanProperty::addGetter);
+          addMethodIfPossible(method, "get", 0, BeanProperty::addGetter);
+          addMethodIfPossible(method, "set", 1, BeanProperty::addSetter);
         }
       }
-      for (Method method : declaredMethods) {
-        addMethodIfPossible(method, "is", 0, BeanProperty::addGetter);
-      }
-      for (Method method : declaredMethods) {
-        addMethodIfPossible(method, "get", 0, BeanProperty::addGetter);
-      }
-      for (Method method : declaredMethods) {
-        addMethodIfPossible(method, "set", 1, BeanProperty::addSetter);
-      }
+
       for (Field field : declaredFields) {
         addField(field);
       }
@@ -256,9 +275,6 @@ class JavaBeanBinder implements DataObjectBinder {
    */
   static class Bean<T> extends BeanProperties {
 
-    @Nullable
-    private static Bean<?> cached;
-
     Bean(ResolvableType type, Class<?> resolvedType) {
       super(type, resolvedType);
     }
@@ -279,7 +295,7 @@ class JavaBeanBinder implements DataObjectBinder {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    static <T> Bean<T> get(Bindable<T> bindable, boolean canCallGetValue) {
+    static <T> Bean<T> get(Bindable<T> bindable, Binder.Context context, boolean canCallGetValue) {
       ResolvableType type = bindable.getType();
       Class<?> resolvedType = type.resolve(Object.class);
       Supplier<T> value = bindable.getValue();
@@ -291,12 +307,24 @@ class JavaBeanBinder implements DataObjectBinder {
       if (instance == null && !isInstantiable(resolvedType)) {
         return null;
       }
-      Bean<?> bean = Bean.cached;
-      if (bean == null || !bean.isOfType(type, resolvedType)) {
+      Map<CacheKey, Bean<?>> cache = getCache(context);
+      CacheKey cacheKey = new CacheKey(type, resolvedType);
+      Bean<?> bean = cache.get(cacheKey);
+      if (bean == null) {
         bean = new Bean<>(type, resolvedType);
-        cached = bean;
+        cache.put(cacheKey, bean);
       }
       return (Bean<T>) bean;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<CacheKey, Bean<?>> getCache(Binder.Context context) {
+      Map<CacheKey, Bean<?>> cache = (Map<CacheKey, Bean<?>>) context.getCache().get(Bean.class);
+      if (cache == null) {
+        cache = new ConcurrentHashMap<>();
+        context.getCache().put(Bean.class, cache);
+      }
+      return cache;
     }
 
     private static boolean isInstantiable(Class<?> type) {
@@ -312,11 +340,8 @@ class JavaBeanBinder implements DataObjectBinder {
       }
     }
 
-    private boolean isOfType(ResolvableType type, Class<?> resolvedType) {
-      if (getType().hasGenerics() || type.hasGenerics()) {
-        return getType().equals(type);
-      }
-      return getResolvedType() != null && getResolvedType().equals(resolvedType);
+    private record CacheKey(ResolvableType type, Class<?> resolvedType) {
+
     }
 
   }

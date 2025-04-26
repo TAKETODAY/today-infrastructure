@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    *
    * @see TransactionSynchronizationManager#unbindResource
    */
-  default void suspend() { }
+  default void suspend() {
+  }
 
   /**
    * Resume this synchronization.
@@ -78,7 +79,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    *
    * @see TransactionSynchronizationManager#bindResource
    */
-  default void resume() { }
+  default void resume() {
+  }
 
   /**
    * Flush the underlying session to the datastore, if applicable:
@@ -87,7 +89,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * @see infra.transaction.TransactionStatus#flush()
    */
   @Override
-  default void flush() { }
+  default void flush() {
+  }
 
   /**
    * Invoked before transaction commit (before "beforeCompletion").
@@ -104,7 +107,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * (note: do not throw TransactionException subclasses here!)
    * @see #beforeCompletion
    */
-  default void beforeCommit(boolean readOnly) { }
+  default void beforeCommit(boolean readOnly) {
+  }
 
   /**
    * Invoked before transaction commit/rollback.
@@ -118,7 +122,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * @see #beforeCommit
    * @see #afterCompletion
    */
-  default void beforeCompletion() { }
+  default void beforeCompletion() {
+  }
 
   /**
    * Invoked after transaction commit. Can perform further operations right
@@ -136,7 +141,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b>
    * (note: do not throw TransactionException subclasses here!)
    */
-  default void afterCommit() { }
+  default void afterCommit() {
+  }
 
   /**
    * Invoked after transaction commit/rollback.
@@ -157,7 +163,8 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * @see #STATUS_UNKNOWN
    * @see #beforeCompletion
    */
-  default void afterCompletion(int status) { }
+  default void afterCompletion(int status) {
+  }
 
   /**
    * Invoked on creation of a new savepoint, either when a nested transaction

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.beans.factory.support;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import infra.aot.AotDetector;
 import infra.beans.BeanInstantiationException;
 import infra.beans.BeanUtils;
 import infra.beans.factory.BeanFactory;
@@ -143,7 +144,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
      */
     private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
       Enhancer enhancer = new Enhancer();
-      enhancer.setAttemptLoad(true);
+      enhancer.setAttemptLoad(AotDetector.useGeneratedArtifacts());
       enhancer.setSuperclass(beanDefinition.getBeanClass());
       enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
       if (this.owner instanceof ConfigurableBeanFactory cbf) {

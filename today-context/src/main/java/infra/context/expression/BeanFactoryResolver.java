@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import infra.expression.AccessException;
 import infra.expression.BeanResolver;
 import infra.expression.EvaluationContext;
 import infra.lang.Assert;
+import infra.lang.Nullable;
 
 /**
  * EL bean resolver that operates against a {@link BeanFactory}.
@@ -45,6 +46,7 @@ public class BeanFactoryResolver implements BeanResolver {
     this.beanFactory = beanFactory;
   }
 
+  @Nullable
   @Override
   public Object resolve(EvaluationContext context, String beanName) throws AccessException {
     try {

@@ -831,7 +831,8 @@ public final class Type {
   /**
    * @since 4.0
    */
-  public static String[] toInternalNames(Type... types) {
+  @Nullable
+  public static String[] toInternalNames(@Nullable Type... types) {
     if (types == null) {
       return null;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,11 @@ public class TaskExecutionProperties {
   private final Shutdown shutdown = new Shutdown();
 
   /**
+   * Determine when the task executor is to be created.
+   */
+  private Mode mode = Mode.AUTO;
+
+  /**
    * Prefix to use for the names of newly created threads.
    */
   private String threadNamePrefix = "task-";
@@ -61,6 +66,14 @@ public class TaskExecutionProperties {
 
   public void setThreadNamePrefix(String threadNamePrefix) {
     this.threadNamePrefix = threadNamePrefix;
+  }
+
+  public Mode getMode() {
+    return this.mode;
+  }
+
+  public void setMode(Mode mode) {
+    this.mode = mode;
   }
 
   public static class Simple {
@@ -207,6 +220,25 @@ public class TaskExecutionProperties {
     public void setAwaitTerminationPeriod(Duration awaitTerminationPeriod) {
       this.awaitTerminationPeriod = awaitTerminationPeriod;
     }
+
+  }
+
+  /**
+   * Determine when the task executor is to be created.
+   *
+   * @since 5.0
+   */
+  public enum Mode {
+
+    /**
+     * Create the task executor if no user-defined executor is present.
+     */
+    AUTO,
+
+    /**
+     * Create the task executor even if a user-defined executor is present.
+     */
+    FORCE
 
   }
 

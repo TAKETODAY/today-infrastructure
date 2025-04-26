@@ -49,6 +49,7 @@ import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.client.ApiVersionInserter;
 import infra.web.reactive.function.BodyExtractor;
 import infra.web.reactive.function.BodyInserter;
 import infra.web.reactive.function.BodyInserters;
@@ -91,19 +92,23 @@ class DefaultWebClient implements WebClient {
 
   private final List<DefaultResponseSpec.StatusHandler> defaultStatusHandlers;
 
+  @Nullable
+  private final ApiVersionInserter apiVersionInserter;
+
   DefaultWebClient(ExchangeFunction exchangeFunction, UriBuilderFactory uriBuilderFactory,
           @Nullable HttpHeaders defaultHeaders, @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable Map<Predicate<HttpStatusCode>, Function<ClientResponse, Mono<? extends Throwable>>> statusHandlerMap,
-          DefaultWebClientBuilder builder) {
+          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter) {
 
+    this.builder = builder;
     this.exchangeFunction = exchangeFunction;
     this.uriBuilderFactory = uriBuilderFactory;
     this.defaultHeaders = defaultHeaders;
     this.defaultCookies = defaultCookies;
     this.defaultRequest = defaultRequest;
+    this.apiVersionInserter = apiVersionInserter;
     this.defaultStatusHandlers = initStatusHandlers(statusHandlerMap);
-    this.builder = builder;
   }
 
   private static List<DefaultResponseSpec.StatusHandler> initStatusHandlers(
@@ -176,7 +181,7 @@ class DefaultWebClient implements WebClient {
     return response.releaseBody().onErrorComplete().then(Mono.error(ex));
   }
 
-  private class DefaultRequestBodyUriSpec implements RequestBodyUriSpec {
+  private class DefaultRequestBodyUriSpec implements RequestBodyUriSpec, Consumer<HttpHeaders> {
 
     private final HttpMethod httpMethod;
 
@@ -199,6 +204,9 @@ class DefaultWebClient implements WebClient {
 
     @Nullable
     private Consumer<ClientHttpRequest> httpRequestConsumer;
+
+    @Nullable
+    private Object apiVersion;
 
     DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
@@ -263,6 +271,12 @@ class DefaultWebClient implements WebClient {
     @Override
     public DefaultRequestBodyUriSpec headers(@Nullable HttpHeaders headers) {
       headers().setAll(headers);
+      return this;
+    }
+
+    @Override
+    public DefaultRequestBodyUriSpec apiVersion(@Nullable Object version) {
+      this.apiVersion = version;
       return this;
     }
 
@@ -394,7 +408,7 @@ class DefaultWebClient implements WebClient {
     @Override
     public ResponseSpec retrieve() {
       return new DefaultResponseSpec(
-              this.httpMethod, initUri(), exchange(), DefaultWebClient.this.defaultStatusHandlers);
+              this.httpMethod, initURI(), exchange(), DefaultWebClient.this.defaultStatusHandlers);
     }
 
     @Override
@@ -443,9 +457,8 @@ class DefaultWebClient implements WebClient {
     }
 
     private ClientRequest.Builder initRequestBuilder() {
-      var builder = ClientRequest.create(this.httpMethod, initUri())
-              .headers(defaultHeaders)
-              .headers(headers)
+      var builder = ClientRequest.create(this.httpMethod, initURI())
+              .headers(this)
               .cookies(defaultCookies)
               .cookies(cookies)
               .attributes(attributes);
@@ -459,8 +472,27 @@ class DefaultWebClient implements WebClient {
       return builder;
     }
 
-    private URI initUri() {
-      return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
+    private URI initURI() {
+      URI uriToUse = this.uri != null ? this.uri : uriBuilderFactory.expand("");
+      if (this.apiVersion != null) {
+        Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
+        uriToUse = apiVersionInserter.insertVersion(this.apiVersion, uriToUse);
+      }
+      return uriToUse;
+    }
+
+    @Override
+    public void accept(HttpHeaders headers) {
+      if (defaultHeaders != null && !defaultHeaders.isEmpty()) {
+        headers.putAll(defaultHeaders);
+      }
+      if (this.headers != null && !this.headers.isEmpty()) {
+        headers.putAll(this.headers);
+      }
+      if (apiVersion != null) {
+        Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
+        apiVersionInserter.insertVersion(apiVersion, headers);
+      }
     }
 
   }

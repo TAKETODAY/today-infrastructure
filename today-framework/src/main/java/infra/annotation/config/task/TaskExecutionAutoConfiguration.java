@@ -20,13 +20,17 @@ package infra.annotation.config.task;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
+import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
+import infra.context.condition.AnyNestedCondition;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
+import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnThreading;
 import infra.context.condition.Threading;
 import infra.context.properties.EnableConfigurationProperties;
@@ -34,7 +38,7 @@ import infra.core.env.Environment;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.core.task.TaskDecorator;
 import infra.core.task.TaskExecutor;
-import infra.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
+import infra.scheduling.annotation.AsyncConfigurer;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.scheduling.support.SimpleAsyncTaskExecutorBuilder;
 import infra.scheduling.support.SimpleAsyncTaskExecutorCustomizer;
@@ -109,20 +113,49 @@ public class TaskExecutionAutoConfiguration {
 
   @Lazy
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnMissingBean(Executor.class)
+  @Conditional(OnExecutorCondition.class)
   public static class TaskExecutorConfiguration {
 
     @ConditionalOnThreading(Threading.VIRTUAL)
-    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+    @Component(APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     public static SimpleAsyncTaskExecutor applicationTaskExecutorVirtualThreads(SimpleAsyncTaskExecutorBuilder builder) {
       return builder.build();
     }
 
     @Lazy
     @ConditionalOnThreading(Threading.PLATFORM)
-    @Component({ APPLICATION_TASK_EXECUTOR_BEAN_NAME, AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+    @Component(APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     public static ThreadPoolTaskExecutor applicationTaskExecutor(ThreadPoolTaskExecutorBuilder builder) {
       return builder.build();
+    }
+
+    @Component
+    @ConditionalOnMissingBean(AsyncConfigurer.class)
+    public static AsyncConfigurer applicationTaskExecutorAsyncConfigurer(BeanFactory beanFactory) {
+      return new AsyncConfigurer() {
+        @Override
+        public Executor getAsyncExecutor() {
+          return beanFactory.getBean(APPLICATION_TASK_EXECUTOR_BEAN_NAME, Executor.class);
+        }
+      };
+    }
+
+  }
+
+  static class OnExecutorCondition extends AnyNestedCondition {
+
+    OnExecutorCondition() {
+      super(ConfigurationPhase.REGISTER_BEAN);
+    }
+
+    @ConditionalOnMissingBean(Executor.class)
+    private static final class ExecutorBeanCondition {
+
+    }
+
+    @ConditionalOnProperty(value = "infra.task.execution.mode", havingValue = "force")
+    private static final class ModeCondition {
+
     }
 
   }

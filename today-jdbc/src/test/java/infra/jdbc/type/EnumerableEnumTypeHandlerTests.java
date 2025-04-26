@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,10 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
+import infra.core.style.ToStringBuilder;
 import infra.lang.Enumerable;
-import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -70,12 +71,47 @@ class EnumerableEnumTypeHandlerTests {
     TEST2;
   }
 
-  @Data
   static class UserModel {
 
     Gender gender;
 
     StringValue stringValue;
+
+    public Gender getGender() {
+      return gender;
+    }
+
+    public void setGender(Gender gender) {
+      this.gender = gender;
+    }
+
+    public StringValue getStringValue() {
+      return stringValue;
+    }
+
+    public void setStringValue(StringValue stringValue) {
+      this.stringValue = stringValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof UserModel userModel))
+        return false;
+      return gender == userModel.gender && stringValue == userModel.stringValue;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(gender, stringValue);
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.forInstance(this)
+              .append("gender", gender)
+              .append("stringValue", stringValue)
+              .toString();
+    }
   }
 
   @Test

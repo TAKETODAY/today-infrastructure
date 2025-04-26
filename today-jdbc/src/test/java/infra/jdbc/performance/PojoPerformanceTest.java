@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,6 @@ import infra.jdbc.JdbcConnection;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
 import infra.stereotype.Singleton;
-import lombok.SneakyThrows;
 
 /**
  * @author aldenquimby@gmail.com
@@ -479,7 +478,6 @@ public class PojoPerformanceTest {
     private Session session;
     private AnnotationConfigApplicationContext context;
 
-    @SneakyThrows
     @Override
     public void init() {
       Logger.getLogger("org.hibernate").setLevel(Level.OFF);

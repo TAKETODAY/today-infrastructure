@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.support;
@@ -40,6 +40,7 @@ import infra.util.CollectionUtils;
  * @since 4.0 2022/1/5 11:13
  */
 public class SynchronizationInfo implements Serializable {
+
   private static final Logger log = LoggerFactory.getLogger(SynchronizationInfo.class);
 
   @Serial
@@ -157,9 +158,8 @@ public class SynchronizationInfo implements Serializable {
       oldValue = null;
     }
     if (oldValue != null) {
-      throw new IllegalStateException(
-              "Already value [" + oldValue + "] for key [" + actualKey + "] bound to thread ["
-                      + Thread.currentThread().getName() + "]");
+      throw new IllegalStateException("Already value [%s] for key [%s] bound to thread [%s]"
+              .formatted(oldValue, actualKey, Thread.currentThread().getName()));
     }
   }
 
@@ -175,7 +175,7 @@ public class SynchronizationInfo implements Serializable {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
     Object value = doUnbindResource(actualKey);
     if (value == null) {
-      throw new IllegalStateException("No value for key [" + actualKey + "] bound to thread");
+      throw new IllegalStateException("No value for key [%s] bound to thread".formatted(actualKey));
     }
     return value;
   }

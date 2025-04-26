@@ -142,8 +142,8 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     WebClient.RequestBodyUriSpec uriSpec = this.webClient.method(httpMethod);
 
     WebClient.RequestBodySpec bodySpec;
-    if (values.getUri() != null) {
-      bodySpec = uriSpec.uri(values.getUri());
+    if (values.getURI() != null) {
+      bodySpec = uriSpec.uri(values.getURI());
     }
     else if (values.getUriTemplate() != null) {
       UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
@@ -161,6 +161,10 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     bodySpec.headers(values.getHeaders())
             .cookies(values.getCookies())
             .attributes(values.getAttributes());
+
+    if (values.getApiVersion() != null) {
+      bodySpec.apiVersion(values.getApiVersion());
+    }
 
     if (values.getBodyValue() != null) {
       bodySpec.bodyValue(values.getBodyValue());

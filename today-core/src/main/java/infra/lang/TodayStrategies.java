@@ -124,6 +124,21 @@ public class TodayStrategies {
   }
 
   /**
+   * Retrieve the flag for the given property key, returning {@code null}
+   * instead of {@code false} in case of no actual flag set.
+   *
+   * @param key the property key
+   * @return {@code true} if the property is set to the string "true"
+   * (ignoring case), {@code} false if it is set to any other value,
+   * {@code null} if it is not set at all
+   * @since 5.0
+   */
+  public static @Nullable Boolean checkFlag(String key) {
+    String flag = getProperty(key);
+    return flag != null ? Boolean.valueOf(flag) : null;
+  }
+
+  /**
    * Programmatically set a local property, overriding an entry in the
    * {@link #PROPERTIES_RESOURCE_LOCATION} file (if any).
    *

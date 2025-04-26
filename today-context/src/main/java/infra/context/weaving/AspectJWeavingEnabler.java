@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,9 +83,7 @@ public class AspectJWeavingEnabler implements BeanFactoryPostProcessor, BeanClas
    * @param weaverToUse the LoadTimeWeaver to apply to (or {@code null} for a default weaver)
    * @param beanClassLoader the class loader to create a default weaver for (if necessary)
    */
-  public static void enableAspectJWeaving(
-          @Nullable LoadTimeWeaver weaverToUse, @Nullable ClassLoader beanClassLoader) {
-
+  public static void enableAspectJWeaving(@Nullable LoadTimeWeaver weaverToUse, @Nullable ClassLoader beanClassLoader) {
     if (weaverToUse == null) {
       if (InstrumentationLoadTimeWeaver.isInstrumentationAvailable()) {
         weaverToUse = new InstrumentationLoadTimeWeaver(beanClassLoader);
@@ -94,8 +92,7 @@ public class AspectJWeavingEnabler implements BeanFactoryPostProcessor, BeanClas
         throw new IllegalStateException("No LoadTimeWeaver available");
       }
     }
-    weaverToUse.addTransformer(
-            new AspectJClassBypassingClassFileTransformer(new ClassPreProcessorAgentAdapter()));
+    weaverToUse.addTransformer(new AspectJClassBypassingClassFileTransformer(new ClassPreProcessorAgentAdapter()));
   }
 
   /**
@@ -104,12 +101,11 @@ public class AspectJWeavingEnabler implements BeanFactoryPostProcessor, BeanClas
    *
    * @see LoadTimeWeavingConfiguration
    */
-  private record AspectJClassBypassingClassFileTransformer(ClassFileTransformer delegate)
+  record AspectJClassBypassingClassFileTransformer(ClassFileTransformer delegate)
           implements ClassFileTransformer {
 
     @Override
-    public byte[] transform(
-            ClassLoader loader, String className, Class<?> classBeingRedefined,
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
       if (className.startsWith("org.aspectj") || className.startsWith("org/aspectj")) {

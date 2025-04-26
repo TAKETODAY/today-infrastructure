@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiPredicate;
 
-import infra.context.properties.source.ConfigurationPropertyName.Form;
-import infra.lang.Nullable;
+import infra.context.properties.source.ConfigurationPropertyName.ToStringFormat;
 
 /**
  * {@link PropertyMapper} for system environment variables. Names are mapped by removing
@@ -41,46 +40,17 @@ import infra.lang.Nullable;
  * @since 4.0
  */
 final class SystemEnvironmentPropertyMapper implements PropertyMapper {
+
   public static final PropertyMapper INSTANCE = new SystemEnvironmentPropertyMapper();
 
   @Override
   public List<String> map(ConfigurationPropertyName configurationPropertyName) {
-    String name = convertName(configurationPropertyName);
-    String legacyName = convertLegacyName(configurationPropertyName);
+    String name = configurationPropertyName.toString(ToStringFormat.SYSTEM_ENVIRONMENT);
+    String legacyName = configurationPropertyName.toString(ToStringFormat.LEGACY_SYSTEM_ENVIRONMENT);
     if (name.equals(legacyName)) {
       return Collections.singletonList(name);
     }
     return Arrays.asList(name, legacyName);
-  }
-
-  private String convertName(ConfigurationPropertyName name) {
-    return convertName(name, name.getNumberOfElements());
-  }
-
-  private String convertName(ConfigurationPropertyName name, int numberOfElements) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < numberOfElements; i++) {
-      if (!result.isEmpty()) {
-        result.append('_');
-      }
-      result.append(name.getElement(i, Form.UNIFORM).toUpperCase(Locale.ROOT));
-    }
-    return result.toString();
-  }
-
-  private String convertLegacyName(ConfigurationPropertyName name) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < name.getNumberOfElements(); i++) {
-      if (!result.isEmpty()) {
-        result.append('_');
-      }
-      result.append(convertLegacyNameElement(name.getElement(i, Form.ORIGINAL)));
-    }
-    return result.toString();
-  }
-
-  private Object convertLegacyNameElement(String element) {
-    return element.replace('-', '_').toUpperCase(Locale.ROOT);
   }
 
   @Override
@@ -98,7 +68,7 @@ final class SystemEnvironmentPropertyMapper implements PropertyMapper {
   }
 
   private CharSequence processElementValue(CharSequence value) {
-    String result = value.toString().toLowerCase(Locale.ROOT);
+    String result = value.toString().toLowerCase(Locale.ENGLISH);
     return isNumber(result) ? "[" + result + "]" : result;
   }
 
@@ -116,32 +86,11 @@ final class SystemEnvironmentPropertyMapper implements PropertyMapper {
   }
 
   private boolean isLegacyAncestorOf(ConfigurationPropertyName name, ConfigurationPropertyName candidate) {
-    if (!hasDashedEntries(name)) {
+    if (!name.hasDashedElement()) {
       return false;
     }
-    ConfigurationPropertyName legacyCompatibleName = buildLegacyCompatibleName(name);
+    ConfigurationPropertyName legacyCompatibleName = name.asSystemEnvironmentLegacyName();
     return legacyCompatibleName != null && legacyCompatibleName.isAncestorOf(candidate);
-  }
-
-  @Nullable
-  private ConfigurationPropertyName buildLegacyCompatibleName(ConfigurationPropertyName name) {
-    StringBuilder legacyCompatibleName = new StringBuilder();
-    for (int i = 0; i < name.getNumberOfElements(); i++) {
-      if (i != 0) {
-        legacyCompatibleName.append('.');
-      }
-      legacyCompatibleName.append(name.getElement(i, Form.DASHED).replace('-', '.'));
-    }
-    return ConfigurationPropertyName.ofIfValid(legacyCompatibleName);
-  }
-
-  boolean hasDashedEntries(ConfigurationPropertyName name) {
-    for (int i = 0; i < name.getNumberOfElements(); i++) {
-      if (name.getElement(i, Form.DASHED).indexOf('-') != -1) {
-        return true;
-      }
-    }
-    return false;
   }
 
 }

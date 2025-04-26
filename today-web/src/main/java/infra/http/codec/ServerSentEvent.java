@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import infra.util.StringUtils;
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServerSentEventHttpMessageWriter
- * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C recommendation</a>
+ * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>
  * @since 4.0
  */
 public final class ServerSentEvent<T> {
@@ -53,8 +53,8 @@ public final class ServerSentEvent<T> {
   @Nullable
   private final T data;
 
-  private ServerSentEvent(@Nullable String id, @Nullable String event, @Nullable Duration retry,
-          @Nullable String comment, @Nullable T data) {
+  private ServerSentEvent(@Nullable String id, @Nullable String event,
+          @Nullable Duration retry, @Nullable String comment, @Nullable T data) {
 
     this.id = id;
     this.event = event;

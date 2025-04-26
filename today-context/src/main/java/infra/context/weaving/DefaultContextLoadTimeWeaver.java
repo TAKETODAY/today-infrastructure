@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import infra.logging.LoggerFactory;
  *
  * <p>This class implements a runtime environment check for obtaining the
  * appropriate weaver implementation, including
- * {@link InstrumentationSavingAgent Framework's VM agent} and any {@link ClassLoader}
+ * {@link InstrumentationSavingAgent Infra VM agent} and any {@link ClassLoader}
  * supported by Framework's {@link ReflectiveLoadTimeWeaver}.
  *
  * @author Juergen Hoeller
@@ -60,7 +60,6 @@ public class DefaultContextLoadTimeWeaver implements LoadTimeWeaver, BeanClassLo
   private LoadTimeWeaver loadTimeWeaver;
 
   public DefaultContextLoadTimeWeaver() {
-
   }
 
   public DefaultContextLoadTimeWeaver(ClassLoader beanClassLoader) {

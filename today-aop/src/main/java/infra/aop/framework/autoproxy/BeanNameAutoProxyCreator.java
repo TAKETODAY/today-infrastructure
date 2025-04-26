@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see #setBeanNames
  * @see #isMatch
  * @see #setInterceptorNames
@@ -80,10 +81,11 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
    *
    * @see #setBeanNames(String...)
    */
+  @Nullable
   @Override
   protected TargetSource getCustomTargetSource(Class<?> beanClass, String beanName) {
-    return (isSupportedBeanName(beanClass, beanName) ?
-            super.getCustomTargetSource(beanClass, beanName) : null);
+    return isSupportedBeanName(beanClass, beanName) ?
+            super.getCustomTargetSource(beanClass, beanName) : null;
   }
 
   /**
@@ -94,11 +96,11 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
    */
   @Override
   @Nullable
-  protected Object[] getAdvicesAndAdvisorsForBean(
-          Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
+  protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass,
+          String beanName, @Nullable TargetSource targetSource) {
 
     return isSupportedBeanName(beanClass, beanName)
-           ? PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS : DO_NOT_PROXY;
+            ? PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS : DO_NOT_PROXY;
   }
 
   /**
@@ -115,10 +117,10 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
       boolean isFactoryBean = FactoryBean.class.isAssignableFrom(beanClass);
       for (String mappedName : this.beanNames) {
         if (isFactoryBean) {
-          if (!mappedName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
+          if (mappedName.isEmpty() || mappedName.charAt(0) != BeanFactory.FACTORY_BEAN_PREFIX_CHAR) {
             continue;
           }
-          mappedName = mappedName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
+          mappedName = mappedName.substring(1);  // length of '&'
         }
         if (isMatch(beanName, mappedName)) {
           return true;
@@ -126,7 +128,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
       }
 
       BeanFactory beanFactory = getBeanFactory();
-      String[] aliases = (beanFactory != null ? beanFactory.getAliases(beanName) : NO_ALIASES);
+      String[] aliases = beanFactory != null ? beanFactory.getAliases(beanName) : NO_ALIASES;
       for (String alias : aliases) {
         for (String mappedName : this.beanNames) {
           if (isMatch(alias, mappedName)) {

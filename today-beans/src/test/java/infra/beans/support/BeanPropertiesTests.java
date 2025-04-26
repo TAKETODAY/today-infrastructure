@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import infra.beans.factory.BeanMappingTestBean;
-import lombok.Data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,21 +36,19 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class BeanPropertiesTests {
 
-  @Data
   static class VO {
-    int age;
-    float aFloat;
-    String name;
-    double aDouble;
-    String missed;
+    public int age;
+    public float aFloat;
+    public String name;
+    public double aDouble;
+    public String missed;
   }
 
-  @Data
   static class DTO {
-    int age;
-    float aFloat;
-    double aDouble;
-    String name;
+    public int age;
+    public float aFloat;
+    public double aDouble;
+    public String name;
   }
 
   @Test

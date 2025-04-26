@@ -928,11 +928,11 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * Indicates whether or not a particular bean name is present in the excluded beans list.
    */
   private boolean isExcluded(String beanName) {
-    return excludedBeans.contains(beanName)
+    return this.excludedBeans.contains(beanName)
             || (
-            beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)
-                    && excludedBeans.contains(beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length()))
-    );
+            !beanName.isEmpty()
+                    && (beanName.charAt(0) == BeanFactory.FACTORY_BEAN_PREFIX_CHAR)
+                    && this.excludedBeans.contains(beanName.substring(1)));  // length of '&'
   }
 
   /**

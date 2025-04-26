@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.web.client.support;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -44,6 +45,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
+import infra.web.client.DefaultApiVersionInserter;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplate;
 import infra.web.multipart.MultipartFile;
@@ -245,6 +247,22 @@ class RestClientAdapterTests {
     assertThat(this.anotherServer.getRequestCount()).isEqualTo(0);
   }
 
+  @Test
+  void apiVersion() throws Exception {
+    RestClient restClient = RestClient.builder()
+            .baseURI(anotherServer.url("/").toString())
+            .apiVersionInserter(DefaultApiVersionInserter.fromHeader("X-API-Version").build())
+            .build();
+
+    RestClientAdapter adapter = RestClientAdapter.create(restClient);
+    Service service = HttpServiceProxyFactory.forAdapter(adapter).build().createClient(Service.class);
+
+    service.getGreetingWithVersion();
+
+    RecordedRequest request = anotherServer.takeRequest();
+    assertThat(request.getHeader("X-API-Version")).isEqualTo("1.2");
+  }
+
   private static MockWebServer anotherServer() {
     MockWebServer server = new MockWebServer();
     MockResponse response = new MockResponse();
@@ -257,6 +275,9 @@ class RestClientAdapterTests {
 
     @GetExchange("/greeting")
     String getGreeting();
+
+    @GetExchange(url = "/greeting", version = "1.2")
+    String getGreetingWithVersion();
 
     @GetExchange("/greeting/{id}")
     ResponseEntity<String> getGreetingById(@PathVariable String id);

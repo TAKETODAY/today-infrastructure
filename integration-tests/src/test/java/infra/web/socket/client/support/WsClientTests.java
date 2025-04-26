@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import infra.app.Application;
 import infra.app.InfraApplication;
 import infra.core.io.buffer.DataBuffer;
 import infra.lang.Nullable;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.web.RequestContext;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -34,7 +36,6 @@ import infra.web.socket.config.EnableWebSocket;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
 import infra.web.socket.server.HandshakeCapable;
-import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -43,8 +44,10 @@ import static org.assertj.core.api.Assertions.fail;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/5/2 22:55
  */
-@Slf4j
 class WsClientTests {
+
+  static final Logger log = LoggerFactory.getLogger(WsClientTests.class);
+
   final NettyWebSocketClient client = new NettyWebSocketClient();
 
   @Test

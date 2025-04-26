@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,6 +153,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
     return this.errors.getGlobalErrors();
   }
 
+  @Nullable
   @Override
   public ObjectError getGlobalError() {
     return this.errors.getGlobalError();
@@ -173,6 +174,7 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
     return this.errors.getFieldErrors();
   }
 
+  @Nullable
   @Override
   public FieldError getFieldError() {
     return this.errors.getFieldError();
@@ -193,16 +195,19 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
     return this.errors.getFieldErrors(field);
   }
 
+  @Nullable
   @Override
   public FieldError getFieldError(String field) {
     return this.errors.getFieldError(field);
   }
 
+  @Nullable
   @Override
   public Object getFieldValue(String field) {
     return this.errors.getFieldError(field);
   }
 
+  @Nullable
   @Override
   public Class<?> getFieldType(String field) {
     return this.errors.getFieldType(field);

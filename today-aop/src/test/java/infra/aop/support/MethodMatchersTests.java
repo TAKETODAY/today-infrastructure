@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package infra.aop.support;
 
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
@@ -88,7 +89,7 @@ public class MethodMatchersTests {
     assertThat(intersection.matches(ITESTBEAN_SETAGE, TestBean.class)).as("2Matched setAge method").isTrue();
 
     DefaultMethodInvocation defaultMethodInvocation = new DefaultMethodInvocation(
-            null, new TestBean(), ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 }, null);
+            null, new TestBean(), ITESTBEAN_SETAGE, TestBean.class, new Object[] { 5 }, new MethodInterceptor[0]);
 
     assertThat(intersection.matches(defaultMethodInvocation)).as("3Matched setAge method").isTrue();
     // Knock out dynamic part

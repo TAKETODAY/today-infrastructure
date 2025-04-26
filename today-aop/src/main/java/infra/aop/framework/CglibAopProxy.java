@@ -32,6 +32,7 @@ import infra.aop.AopInvocationException;
 import infra.aop.RawTargetAccess;
 import infra.aop.TargetSource;
 import infra.aop.support.AopUtils;
+import infra.aot.AotDetector;
 import infra.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import infra.bytecode.core.CodeGenerationException;
 import infra.bytecode.core.GeneratorStrategy;
@@ -195,7 +196,7 @@ class CglibAopProxy implements AopProxy, Serializable {
         }
       }
 
-      enhancer.setAttemptLoad(true);
+      enhancer.setAttemptLoad(enhancer.getUseCache() && AotDetector.useGeneratedArtifacts());
       enhancer.setSuperclass(proxySuperClass);
       enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
       enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
@@ -653,6 +654,7 @@ class CglibAopProxy implements AopProxy, Serializable {
       this.target = config.getTargetSource().getTarget();
     }
 
+    @Nullable
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object retVal = createInvocation(proxy, method, args, methodProxy, target, targetClass, adviceChain)

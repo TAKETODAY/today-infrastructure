@@ -17,6 +17,7 @@
 
 package infra.beans.factory.aot;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import infra.beans.factory.support.ManagedMap;
 import infra.beans.factory.support.ManagedSet;
 import infra.javapoet.AnnotationSpec;
 import infra.javapoet.CodeBlock;
+import infra.lang.Nullable;
 
 /**
  * Code generator {@link Delegate} for common bean definition property values.
@@ -73,6 +75,25 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
   );
 
   /**
+   * Create a {@link ValueCodeGenerator} instance with both these
+   * {@link #INSTANCES delegate} and the {@link ValueCodeGeneratorDelegates#INSTANCES
+   * core delegates}.
+   *
+   * @param generatedMethods the {@link GeneratedMethods} to use
+   * @param customDelegates additional delegates that should be considered first
+   * @return a configured value code generator
+   * @see ValueCodeGenerator#add(List)
+   * @since 5.0
+   */
+  public static ValueCodeGenerator createValueCodeGenerator(GeneratedMethods generatedMethods, List<Delegate> customDelegates) {
+    ArrayList<Delegate> allDelegates = new ArrayList<>();
+    allDelegates.addAll(customDelegates);
+    allDelegates.addAll(INSTANCES);
+    allDelegates.addAll(ValueCodeGeneratorDelegates.INSTANCES);
+    return ValueCodeGenerator.with(allDelegates).scoped(generatedMethods);
+  }
+
+  /**
    * {@link Delegate} for {@link ManagedList} types.
    */
   private static class ManagedListDelegate extends CollectionDelegate<ManagedList<?>> {
@@ -99,6 +120,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
 
     private static final CodeBlock EMPTY_RESULT = CodeBlock.of("$T.ofEntries()", ManagedMap.class);
 
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof ManagedMap<?, ?> managedMap) {
@@ -134,6 +156,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    */
   private static final class LinkedHashMapDelegate extends MapDelegate {
 
+    @Nullable
     @Override
     protected CodeBlock generateMapCode(ValueCodeGenerator valueCodeGenerator, Map<?, ?> map) {
       GeneratedMethods generatedMethods = valueCodeGenerator.getGeneratedMethods();
@@ -151,6 +174,10 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
                 .builder(SuppressWarnings.class)
                 .addMember("value", "{\"rawtypes\", \"unchecked\"}")
                 .build());
+
+        method.addModifiers(javax.lang.model.element.Modifier.PRIVATE,
+                javax.lang.model.element.Modifier.STATIC);
+
         method.returns(Map.class);
         method.addStatement("$T map = new $T($L)", Map.class,
                 LinkedHashMap.class, map.size());
@@ -167,7 +194,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    * {@link Delegate} for {@link BeanReference} types.
    */
   private static final class BeanReferenceDelegate implements Delegate {
-
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof RuntimeBeanReference runtimeBeanReference
@@ -187,7 +214,7 @@ abstract class BeanDefinitionPropertyValueCodeGeneratorDelegates {
    * {@link Delegate} for {@link TypedStringValue} types.
    */
   private static final class TypedStringValueDelegate implements Delegate {
-
+    @Nullable
     @Override
     public CodeBlock generateCode(ValueCodeGenerator valueCodeGenerator, Object value) {
       if (value instanceof TypedStringValue typedStringValue) {

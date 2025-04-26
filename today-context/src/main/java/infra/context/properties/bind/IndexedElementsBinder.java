@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.IterableConfigurationPropertySource;
 import infra.core.ResolvableType;
 import infra.lang.Nullable;
+import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 
 /**
@@ -45,7 +46,14 @@ import infra.util.MultiValueMap;
  */
 abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
 
-  private static final String INDEX_ZERO = "[0]";
+  private static final String[] INDEXES;
+
+  static {
+    INDEXES = new String[10];
+    for (int i = 0; i < INDEXES.length; i++) {
+      INDEXES[i] = "[" + i + "]";
+    }
+  }
 
   IndexedElementsBinder(Binder.Context context) {
     super(context);
@@ -66,10 +74,8 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
    * @param elementType the element type
    * @param result the destination for results
    */
-  protected final void bindIndexed(ConfigurationPropertyName name, Bindable<?> target,
-          AggregateElementBinder elementBinder, ResolvableType aggregateType,
-          ResolvableType elementType, IndexedCollectionSupplier result) {
-
+  protected final void bindIndexed(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder,
+          ResolvableType aggregateType, ResolvableType elementType, IndexedCollectionSupplier result) {
     for (ConfigurationPropertySource source : context.getSources()) {
       bindIndexed(source, name, target, elementBinder, result, aggregateType, elementType);
       if (result.wasSupplied() && result.get() != null) {
@@ -78,11 +84,9 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     }
   }
 
-  private void bindIndexed(ConfigurationPropertySource source,
-          ConfigurationPropertyName root, Bindable<?> target,
-          AggregateElementBinder elementBinder, IndexedCollectionSupplier collection,
-          ResolvableType aggregateType, ResolvableType elementType) {
-
+  private void bindIndexed(ConfigurationPropertySource source, ConfigurationPropertyName root, Bindable<?> target,
+          AggregateElementBinder elementBinder, IndexedCollectionSupplier collection, ResolvableType aggregateType,
+          ResolvableType elementType) {
     ConfigurationProperty property = source.getConfigurationProperty(root);
     if (property != null) {
       context.setConfigurationProperty(property);
@@ -93,9 +97,9 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     }
   }
 
-  private void bindValue(Bindable<?> target, Collection<Object> collection,
-          ResolvableType aggregateType, ResolvableType elementType, @Nullable Object value) {
-    if (value == null || value instanceof CharSequence sequence && sequence.isEmpty()) {
+  private void bindValue(Bindable<?> target, Collection<Object> collection, ResolvableType aggregateType,
+          ResolvableType elementType, @Nullable Object value) {
+    if (value == null || (value instanceof CharSequence cs && cs.isEmpty())) {
       return;
     }
     Object aggregate = convert(value, aggregateType, target.getAnnotations());
@@ -108,27 +112,45 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
 
   private void bindIndexed(ConfigurationPropertySource source, ConfigurationPropertyName root,
           AggregateElementBinder elementBinder, IndexedCollectionSupplier collection, ResolvableType elementType) {
-
-    MultiValueMap<String, ConfigurationPropertyName> knownIndexedChildren = getKnownIndexedChildren(source, root);
+    int firstUnboundIndex = 0;
+    boolean hasBindingGap = false;
     for (int i = 0; i < Integer.MAX_VALUE; i++) {
-      ConfigurationPropertyName name = root.append((i != 0) ? "[" + i + "]" : INDEX_ZERO);
+      ConfigurationPropertyName name = appendIndex(root, i);
       Object value = elementBinder.bind(name, Bindable.of(elementType), source);
-      if (value == null) {
+      if (value != null) {
+        collection.get().add(value);
+        hasBindingGap = hasBindingGap || firstUnboundIndex > 0;
+        continue;
+      }
+      firstUnboundIndex = (firstUnboundIndex <= 0) ? i : firstUnboundIndex;
+      if (i - firstUnboundIndex > 10) {
         break;
       }
+    }
+    if (hasBindingGap) {
+      assertNoUnboundChildren(source, root, firstUnboundIndex);
+    }
+  }
+
+  private ConfigurationPropertyName appendIndex(ConfigurationPropertyName root, int i) {
+    return root.append((i < INDEXES.length) ? INDEXES[i] : "[" + i + "]");
+  }
+
+  private void assertNoUnboundChildren(ConfigurationPropertySource source, ConfigurationPropertyName root, int firstUnboundIndex) {
+    MultiValueMap<String, ConfigurationPropertyName> knownIndexedChildren = getKnownIndexedChildren(source, root);
+    for (int i = 0; i < firstUnboundIndex; i++) {
+      ConfigurationPropertyName name = appendIndex(root, i);
       knownIndexedChildren.remove(name.getLastElement(Form.UNIFORM));
-      collection.get().add(value);
     }
     assertNoUnboundChildren(source, knownIndexedChildren);
   }
 
-  private MultiValueMap<String, ConfigurationPropertyName> getKnownIndexedChildren(
-          ConfigurationPropertySource source, ConfigurationPropertyName root) {
-    MultiValueMap<String, ConfigurationPropertyName> children = MultiValueMap.forLinkedHashMap();
-    if (!(source instanceof IterableConfigurationPropertySource)) {
+  private MultiValueMap<String, ConfigurationPropertyName> getKnownIndexedChildren(ConfigurationPropertySource source, ConfigurationPropertyName root) {
+    MultiValueMap<String, ConfigurationPropertyName> children = new LinkedMultiValueMap<>();
+    if (!(source instanceof IterableConfigurationPropertySource iterableSource)) {
       return children;
     }
-    for (ConfigurationPropertyName name : (IterableConfigurationPropertySource) source.filter(root::isAncestorOf)) {
+    for (ConfigurationPropertyName name : iterableSource.filter(root::isAncestorOf)) {
       ConfigurationPropertyName choppedName = name.chop(root.getNumberOfElements() + 1);
       if (choppedName.isLastElementIndexed()) {
         String key = choppedName.getLastElement(Form.UNIFORM);
@@ -138,17 +160,14 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     return children;
   }
 
-  private void assertNoUnboundChildren(
-          ConfigurationPropertySource source,
+  private void assertNoUnboundChildren(ConfigurationPropertySource source,
           MultiValueMap<String, ConfigurationPropertyName> children) {
     if (!children.isEmpty()) {
-      throw new UnboundConfigurationPropertiesException(
-              children.values()
-                      .stream()
-                      .flatMap(List::stream)
-                      .map(source::getConfigurationProperty)
-                      .collect(Collectors.toCollection(TreeSet::new))
-      );
+      throw new UnboundConfigurationPropertiesException(children.values()
+              .stream()
+              .flatMap(List::stream)
+              .map(source::getConfigurationProperty)
+              .collect(Collectors.toCollection(TreeSet::new)));
     }
   }
 

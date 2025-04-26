@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,11 @@ import java.util.Objects;
 import infra.core.style.ToStringBuilder;
 import infra.persistence.Id;
 import infra.persistence.Table;
-import lombok.Data;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:57
  */
-@Data
 @Table("t_user")
 public class UserModel {
 
@@ -46,12 +44,86 @@ public class UserModel {
 
   public Gender gender;
 
-  public UserModel() { }
+  public UserModel() {
+
+  }
 
   public UserModel(String name, Gender gender, int age) {
     this.age = age;
     this.name = name;
     this.gender = gender;
+  }
+
+  public Integer getAge() {
+    return age;
+  }
+
+  public String getAvatar() {
+    return avatar;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public Gender getGender() {
+    return gender;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getIntroduce() {
+    return introduce;
+  }
+
+  public String getMobilePhone() {
+    return mobilePhone;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setAge(Integer age) {
+    this.age = age;
+  }
+
+  public void setAvatar(String avatar) {
+    this.avatar = avatar;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setGender(Gender gender) {
+    this.gender = gender;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public void setIntroduce(String introduce) {
+    this.introduce = introduce;
+  }
+
+  public void setMobilePhone(String mobilePhone) {
+    this.mobilePhone = mobilePhone;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 
   public static UserModel male(String name, int age) {

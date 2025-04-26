@@ -31,6 +31,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import infra.beans.BeanUtils;
@@ -41,6 +42,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.conversion.ConversionException;
+import infra.lang.NullValue;
 import infra.lang.Nullable;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
@@ -67,11 +69,12 @@ class ValueObjectBinder implements DataObjectBinder {
     this.constructorProvider = constructorProvider;
   }
 
+  @Nullable
   @Override
   public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
           Binder.Context context, DataObjectPropertyBinder propertyBinder) {
 
-    ValueObject<T> valueObject = ValueObject.get(target, constructorProvider, context, Discoverer.LENIENT);
+    ValueObject<T> valueObject = ValueObject.get(target, context, this.constructorProvider, Discoverer.LENIENT);
     if (valueObject == null) {
       return null;
     }
@@ -90,9 +93,10 @@ class ValueObjectBinder implements DataObjectBinder {
     return bound ? valueObject.instantiate(args) : null;
   }
 
+  @Nullable
   @Override
   public <T> T create(Bindable<T> target, Binder.Context context) {
-    ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context, Discoverer.LENIENT);
+    ValueObject<T> valueObject = ValueObject.get(target, context, this.constructorProvider, Discoverer.LENIENT);
     if (valueObject == null) {
       return null;
     }
@@ -107,7 +111,7 @@ class ValueObjectBinder implements DataObjectBinder {
   @Override
   public <T> void onUnableToCreateInstance(Bindable<T> target, Binder.Context context, RuntimeException exception) {
     try {
-      ValueObject.get(target, this.constructorProvider, context, Discoverer.STRICT);
+      ValueObject.get(target, context, this.constructorProvider, Discoverer.STRICT);
     }
     catch (Exception ex) {
       exception.addSuppressed(ex);
@@ -207,17 +211,38 @@ class ValueObjectBinder implements DataObjectBinder {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    static <T> ValueObject<T> get(Bindable<T> bindable, BindConstructorProvider constructorProvider,
-            Binder.Context context, ParameterNameDiscoverer parameterNameDiscoverer) {
-      Class<T> type = (Class<T>) bindable.getType().resolve();
-      if (type == null || type.isEnum() || Modifier.isAbstract(type.getModifiers())) {
+    static <T> ValueObject<T> get(Bindable<T> bindable, Binder.Context context,
+            BindConstructorProvider constructorProvider, ParameterNameDiscoverer parameterNameDiscoverer) {
+      Class<T> resolvedType = (Class<T>) bindable.getType().resolve();
+      if (resolvedType == null || resolvedType.isEnum() || Modifier.isAbstract(resolvedType.getModifiers())) {
         return null;
       }
-      Constructor<?> bindConstructor = constructorProvider.getBindConstructor(bindable, context.isNestedConstructorBinding());
-      if (bindConstructor == null) {
-        return null;
+      Map<CacheKey, Object> cache = getCache(context);
+      CacheKey cacheKey = new CacheKey(bindable, constructorProvider, parameterNameDiscoverer);
+      Object valueObject = cache.get(cacheKey);
+      if (valueObject == null) {
+        Constructor<?> bindConstructor = constructorProvider.getBindConstructor(bindable, context.isNestedConstructorBinding());
+        if (bindConstructor != null) {
+          valueObject = DefaultValueObject.get(bindConstructor, bindable.getType(), parameterNameDiscoverer);
+        }
+        cache.put(cacheKey, valueObject != null ? valueObject : NullValue.INSTANCE);
       }
-      return DefaultValueObject.get(bindConstructor, bindable.getType(), parameterNameDiscoverer);
+      return valueObject != NullValue.INSTANCE ? (ValueObject<T>) valueObject : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<CacheKey, Object> getCache(Binder.Context context) {
+      Map<CacheKey, Object> cache = (Map<CacheKey, Object>) context.getCache().get(ValueObject.class);
+      if (cache == null) {
+        cache = new ConcurrentHashMap<>();
+        context.getCache().put(ValueObject.class, cache);
+      }
+      return cache;
+    }
+
+    private record CacheKey(Bindable<?> bindable, BindConstructorProvider constructorProvider,
+            ParameterNameDiscoverer parameterNameDiscoverer) {
+
     }
 
   }

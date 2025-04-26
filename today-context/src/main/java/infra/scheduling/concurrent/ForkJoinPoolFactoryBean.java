@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import infra.lang.Nullable;
  * A Framework {@link FactoryBean} that builds and exposes a preconfigured {@link ForkJoinPool}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class ForkJoinPoolFactoryBean implements FactoryBean<ForkJoinPool>, InitializingBean, DisposableBean {
@@ -124,7 +125,7 @@ public class ForkJoinPoolFactoryBean implements FactoryBean<ForkJoinPool>, Initi
   @Override
   public void afterPropertiesSet() {
     this.forkJoinPool = this.commonPool
-                        ? ForkJoinPool.commonPool() : new ForkJoinPool(
+            ? ForkJoinPool.commonPool() : new ForkJoinPool(
             this.parallelism, this.threadFactory, this.uncaughtExceptionHandler, this.asyncMode);
   }
 

@@ -20,8 +20,6 @@ package infra.util.function;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import infra.lang.Nullable;
-
 /**
  * A {@link Function} that allows invocation of code that throws a checked
  * exception.
@@ -30,7 +28,7 @@ import infra.lang.Nullable;
  * @param <R> the type of the result of the function
  * @author Stephane Nicoll
  * @author Phillip Webb
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -90,12 +88,12 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
     return new ThrowingFunction<>() {
 
       @Override
-      public R applyWithException(@Nullable T t) throws Throwable {
+      public R applyWithException(T t) throws Throwable {
         return ThrowingFunction.this.applyWithException(t);
       }
 
       @Override
-      public R apply(@Nullable T t) {
+      public R apply(T t) {
         return apply(t, exceptionWrapper);
       }
 

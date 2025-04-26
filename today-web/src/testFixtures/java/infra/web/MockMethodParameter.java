@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,10 @@ import infra.core.MethodParameter;
 import infra.core.TypeDescriptor;
 import infra.lang.Nullable;
 import infra.web.handler.method.ResolvableMethodParameter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 /**
  * @author TODAY 2021/9/26 23:13
  */
-@Setter
-@Accessors(chain = false)
 @SuppressWarnings("serial")
 public class MockMethodParameter extends ResolvableMethodParameter {
   private MethodParameter parameter;
@@ -57,6 +53,38 @@ public class MockMethodParameter extends ResolvableMethodParameter {
   @Override
   public Object resolveParameter(RequestContext request) throws Throwable {
     return super.resolveParameter(request);
+  }
+
+  public void setTypeDescriptor(TypeDescriptor typeDescriptor) {
+    this.typeDescriptor = typeDescriptor;
+  }
+
+  public void setAnnotatedElement(AnnotatedElement annotatedElement) {
+    this.annotatedElement = annotatedElement;
+  }
+
+  public void setDefaultValue(@Nullable String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setParameter(MethodParameter parameter) {
+    this.parameter = parameter;
+  }
+
+  public void setParameterClass(Class<?> parameterClass) {
+    this.parameterClass = parameterClass;
+  }
+
+  public void setParameterIndex(int parameterIndex) {
+    this.parameterIndex = parameterIndex;
+  }
+
+  public void setRequired(boolean required) {
+    this.required = required;
   }
 
   @Override

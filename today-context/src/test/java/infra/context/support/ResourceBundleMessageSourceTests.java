@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.support;
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -466,9 +467,96 @@ class ResourceBundleMessageSourceTests {
     assertThat(rbg.containsKey("code2")).isTrue();
   }
 
+
+  @Test 
+  void messageSourceResourceBundleLocale() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    
+    MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.GERMAN);
+    assertThat(bundle.getLocale()).isEqualTo(Locale.GERMAN);
+  }
+
+  @Test
+  void messageSourceResourceBundleWithMissingKey() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    
+    MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
+    assertThat(bundle.containsKey("nonexistent")).isFalse();
+    assertThatExceptionOfType(MissingResourceException.class)
+            .isThrownBy(() -> bundle.getString("nonexistent"));
+  }
+
+  @Test
+  void messageSourceResourceBundleGetKeys() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    
+    MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(bundle::getKeys)
+            .withMessage("MessageSourceResourceBundle does not support enumerating its keys");
+  }
+
+  @Test
+  void messageSourceResourceBundleNullSource() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new MessageSourceResourceBundle(null, Locale.ENGLISH))
+            .withMessage("MessageSource is required");
+  }
+
+  @Test
+  void messageSourceResourceBundleWithParent() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    
+    // 创建一个父 ResourceBundle
+    ResourceBundle parent = ResourceBundle.getBundle("infra/context/support/more-messages");
+    MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH, parent);
+    
+    // 测试从 MessageSource 获取消息
+    assertThat(bundle.getString("code1")).isEqualTo("message1");
+    
+    // 测试从父 bundle 获取消息
+    assertThat(bundle.getString("hello")).isEqualTo("{0}, {1}");
+  }
+
+  @Test
+  void messageSourceResourceBundleHandleGetObject() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    MessageSourceResourceBundle bundle = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
+    
+    // 测试成功获取对象
+    assertThat(bundle.handleGetObject("code1")).isEqualTo("message1");
+    
+    // 测试获取不存在的键
+    assertThat(bundle.handleGetObject("nonexistent")).isNull();
+  }
+
+  @Test
+  void messageSourceResourceBundleWithDifferentLocales() {
+    ResourceBundleMessageSource ms = new ResourceBundleMessageSource();
+    ms.setBasename("infra/context/support/messages");
+    
+    // 测试英文消息
+    MessageSourceResourceBundle bundleEn = new MessageSourceResourceBundle(ms, Locale.ENGLISH);
+    assertThat(bundleEn.getString("code1")).isEqualTo("message1");
+    
+    // 测试德文消息
+    MessageSourceResourceBundle bundleDe = new MessageSourceResourceBundle(ms, Locale.GERMAN);
+    assertThat(bundleDe.getString("code2")).isEqualTo("nachricht2");
+    
+    // 测试特定区域的德文消息
+    MessageSourceResourceBundle bundleDeAt = new MessageSourceResourceBundle(ms, new Locale("de", "AT"));
+    assertThat(bundleDeAt.getString("code2")).isEqualTo("nochricht2");
+  }
+
   @AfterEach
   void tearDown() {
     ResourceBundle.clearCache();
   }
 
 }
+

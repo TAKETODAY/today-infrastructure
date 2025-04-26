@@ -155,6 +155,7 @@ class PathMatchingPatternResourceLoaderTests {
       Path rootDir = Paths.get("src/test/resources/custom%23root").toAbsolutePath();
       URL root = new URL("file:" + rootDir + "/");
       resolver = new PathMatchingPatternResourceLoader(new DefaultResourceLoader(new URLClassLoader(new URL[] { root })));
+      resolver.setUseCaches(false);
       assertExactFilenames("classpath*:scanned/*.txt", "resource#test1.txt", "resource#test2.txt");
     }
 
@@ -340,6 +341,11 @@ class PathMatchingPatternResourceLoaderTests {
       }
       assertThat(new FileSystemResource(path).exists()).isTrue();
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/file.txt").exists()).isTrue();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/none.txt").exists()).isFalse();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isFalse();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/file.txt").exists()).isFalse();
+      assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/none.txt").exists()).isFalse();
     }
 
     private void writeApplicationJar(Path path) throws Exception {

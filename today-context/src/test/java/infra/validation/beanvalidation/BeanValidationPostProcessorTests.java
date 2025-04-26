@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,27 +17,41 @@
 
 package infra.validation.beanvalidation;
 
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import infra.aop.framework.ProxyFactory;
 import infra.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import infra.beans.factory.BeanCreationException;
+import infra.beans.factory.BeanInitializationException;
 import infra.beans.factory.support.RootBeanDefinition;
+import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.CommonAnnotationBeanPostProcessor;
 import infra.context.support.GenericApplicationContext;
 import infra.scheduling.annotation.Async;
 import infra.scheduling.annotation.AsyncAnnotationAdvisor;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Juergen Hoeller
  */
-public class BeanValidationPostProcessorTests {
+class BeanValidationPostProcessorTests {
 
   @Test
   public void testNotNullConstraint() {
@@ -115,6 +129,87 @@ public class BeanValidationPostProcessorTests {
     ac.registerBeanDefinition("bean", bd);
     ac.refresh();
     ac.close();
+  }
+
+  @Test
+  void validateWithCustomValidator() {
+    Validator customValidator = mock(Validator.class);
+    BeanValidationPostProcessor processor = new BeanValidationPostProcessor();
+    processor.setValidator(customValidator);
+    processor.afterPropertiesSet();
+
+    TestBean testBean = new TestBean();
+    processor.postProcessBeforeInitialization(testBean, "testBean");
+
+    verify(customValidator).validate(testBean);
+  }
+
+  @Test
+  void validateWithCustomValidatorFactory() {
+    ValidatorFactory factory = mock(ValidatorFactory.class);
+    Validator validator = mock(Validator.class);
+    when(factory.getValidator()).thenReturn(validator);
+
+    BeanValidationPostProcessor processor = new BeanValidationPostProcessor();
+    processor.setValidatorFactory(factory);
+    processor.afterPropertiesSet();
+
+    TestBean testBean = new TestBean();
+    processor.postProcessBeforeInitialization(testBean, "testBean");
+
+    verify(validator).validate(testBean);
+  }
+
+  @Test
+  void validateAopProxy() {
+    BeanValidationPostProcessor processor = new BeanValidationPostProcessor();
+    processor.afterPropertiesSet();
+
+    ProxyFactory factory = new ProxyFactory(new TestBean());
+    factory.addInterface(ITestBean.class);
+    Object proxy = factory.getProxy();
+
+    processor.postProcessBeforeInitialization(proxy, "testBean");
+  }
+
+  @Test
+  void validationAfterInitialization() {
+    BeanValidationPostProcessor processor = new BeanValidationPostProcessor();
+    processor.setAfterInitialization(true);
+    processor.afterPropertiesSet();
+
+    TestBean testBean = new TestBean();
+    processor.postProcessBeforeInitialization(testBean, "testBean");
+    processor.postProcessAfterInitialization(testBean, "testBean");
+  }
+
+  @Test
+  void multipleConstraintViolations() {
+    Validator validator = mock(Validator.class);
+    Set<ConstraintViolation<Object>> violations = new HashSet<>();
+    violations.add(createViolation("field1", "message1"));
+    violations.add(createViolation("field2", "message2"));
+
+    when(validator.validate(any())).thenReturn(violations);
+
+    BeanValidationPostProcessor processor = new BeanValidationPostProcessor();
+    processor.setValidator(validator);
+    processor.afterPropertiesSet();
+
+    TestBean testBean = new TestBean();
+    assertThatExceptionOfType(BeanInitializationException.class)
+            .isThrownBy(() -> processor.postProcessBeforeInitialization(testBean, "testBean"))
+            .withMessageContaining("field1")
+            .withMessageContaining("message1")
+            .withMessageContaining("field2")
+            .withMessageContaining("message2");
+  }
+
+  private ConstraintViolation<Object> createViolation(String path, String message) {
+    ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+    when(violation.getPropertyPath()).thenReturn(PathImpl.createPathFromString(path));
+    when(violation.getMessage()).thenReturn(message);
+    return violation;
   }
 
   public static class NotNullConstrainedBean {

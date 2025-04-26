@@ -65,6 +65,7 @@
   <suppress files="infra.mail.javamail.JavaMailSenderImpl" id="EmptyBlock" />
   <suppress files="infra.scheduling.annotation.SchedulingConfiguration" id="HideUtilityClassConstructor" />
   <suppress files="SchedulingConfiguration" checks="HideUtilityClassConstructor" />
+  <suppress files="DefaultLifecycleProcessor" checks="FinalClass" />
 
   <!-- today-core -->
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/](asm|cglib|objenesis|javapoet)[\\/]" checks=".*" />
@@ -170,5 +171,7 @@
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]retry[\\/]" checks="JavadocPackage" />
   <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]classify[\\/]" checks="JavadocPackage" />
 
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullApiAnnotation" />
+  <suppress files="[\\/]src[\\/]main[\\/]java[\\/]infra[\\/]util[\\/]function[\\/]" checks="RegexpSinglelineJava" id="packageLevelNonNullFieldsAnnotation" />
 
 </suppressions>

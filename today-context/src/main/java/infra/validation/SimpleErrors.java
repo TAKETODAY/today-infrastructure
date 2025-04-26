@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,9 +56,9 @@ public class SimpleErrors implements Errors, Serializable {
 
   private final String objectName;
 
-  private final List<ObjectError> globalErrors = new ArrayList<>();
+  private final ArrayList<FieldError> fieldErrors = new ArrayList<>();
 
-  private final List<FieldError> fieldErrors = new ArrayList<>();
+  private final ArrayList<ObjectError> globalErrors = new ArrayList<>();
 
   /**
    * Create a new {@link SimpleErrors} holder for the given target,
@@ -147,6 +147,7 @@ public class SimpleErrors implements Errors, Serializable {
     throw new IllegalArgumentException("Cannot retrieve value for field '%s' - neither a getter method nor a raw field found".formatted(field));
   }
 
+  @Nullable
   @Override
   public Class<?> getFieldType(String field) {
     PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(this.target.getClass(), field);

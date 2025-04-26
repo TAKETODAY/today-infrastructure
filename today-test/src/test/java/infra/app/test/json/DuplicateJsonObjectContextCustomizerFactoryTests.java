@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  */
 @ExtendWith(OutputCaptureExtension.class)
-@ClassPathOverrides("org.json:json:20140107")
+@ClassPathOverrides({ "org.json:json:20140107", "ch.qos.logback:logback-classic:1.5.15" })
 class DuplicateJsonObjectContextCustomizerFactoryTests {
 
   private CapturedOutput output;

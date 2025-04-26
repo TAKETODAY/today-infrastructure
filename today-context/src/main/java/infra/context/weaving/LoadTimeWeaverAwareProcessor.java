@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package infra.context.weaving;
 
 import infra.beans.BeansException;
@@ -43,8 +44,7 @@ import infra.lang.Nullable;
  * @see infra.context.ConfigurableApplicationContext#LOAD_TIME_WEAVER_BEAN_NAME
  * @since 4.0
  */
-public class LoadTimeWeaverAwareProcessor
-        implements InitializationBeanPostProcessor, BeanFactoryAware {
+public class LoadTimeWeaverAwareProcessor implements InitializationBeanPostProcessor, BeanFactoryAware {
 
   @Nullable
   private LoadTimeWeaver loadTimeWeaver;
@@ -58,7 +58,8 @@ public class LoadTimeWeaverAwareProcessor
    * {@link BeanFactory}, expecting a bean named
    * {@link ConfigurableApplicationContext#LOAD_TIME_WEAVER_BEAN_NAME "loadTimeWeaver"}.
    */
-  public LoadTimeWeaverAwareProcessor() { }
+  public LoadTimeWeaverAwareProcessor() {
+  }
 
   /**
    * Create a new {@code LoadTimeWeaverAwareProcessor} for the given

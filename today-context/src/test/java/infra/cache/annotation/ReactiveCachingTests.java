@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
@@ -36,11 +38,13 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.lang.Nullable;
+import infra.util.concurrent.Future;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
 /**
@@ -58,8 +62,8 @@ class ReactiveCachingTests {
           LateCacheHitDeterminationWithValueWrapperConfig.class })
   void cacheHitDetermination(Class<?> configClass) {
 
-    AnnotationConfigApplicationContext ctx =
-            new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            configClass, ReactiveCacheableService.class);
     ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
 
     Object key = new Object();
@@ -119,68 +123,6 @@ class ReactiveCachingTests {
     ctx.close();
   }
 
-  @Test
-  void cacheErrorHandlerWithLoggingCacheErrorHandler() {
-    AnnotationConfigApplicationContext ctx =
-            new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveCacheableService.class, ErrorHandlerCachingConfiguration.class);
-    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
-
-    Object key = new Object();
-    Long r1 = service.cacheFuture(key).join();
-
-    assertThat(r1).isNotNull();
-    assertThat(r1).as("cacheFuture").isEqualTo(0L);
-
-    key = new Object();
-
-    r1 = service.cacheMono(key).block();
-
-    assertThat(r1).isNotNull();
-    assertThat(r1).as("cacheMono").isEqualTo(1L);
-
-    key = new Object();
-
-    r1 = service.cacheFlux(key).blockFirst();
-
-    assertThat(r1).isNotNull();
-    assertThat(r1).as("cacheFlux blockFirst").isEqualTo(2L);
-  }
-
-  @Test
-  void cacheErrorHandlerWithLoggingCacheErrorHandlerAndMethodError() {
-    AnnotationConfigApplicationContext ctx =
-            new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveFailureCacheableService.class, ErrorHandlerCachingConfiguration.class);
-    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
-
-    Object key = new Object();
-    StepVerifier.create(service.cacheMono(key))
-            .expectErrorMessage("mono service error")
-            .verify();
-
-    key = new Object();
-    StepVerifier.create(service.cacheFlux(key))
-            .expectErrorMessage("flux service error")
-            .verify();
-  }
-
-  @Test
-  void cacheErrorHandlerWithSimpleCacheErrorHandler() {
-    AnnotationConfigApplicationContext ctx =
-            new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveCacheableService.class);
-    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
-
-    Throwable completableFuturThrowable = catchThrowable(() -> service.cacheFuture(new Object()).join());
-    assertThat(completableFuturThrowable).isInstanceOf(CompletionException.class)
-            .extracting(Throwable::getCause)
-            .isInstanceOf(UnsupportedOperationException.class);
-
-    Throwable monoThrowable = catchThrowable(() -> service.cacheMono(new Object()).block());
-    assertThat(monoThrowable).isInstanceOf(UnsupportedOperationException.class);
-
-    Throwable fluxThrowable = catchThrowable(() -> service.cacheFlux(new Object()).blockFirst());
-    assertThat(fluxThrowable).isInstanceOf(UnsupportedOperationException.class);
-  }
-
   @ParameterizedTest
   @ValueSource(classes = { EarlyCacheHitDeterminationConfig.class,
           EarlyCacheHitDeterminationWithoutNullValuesConfig.class,
@@ -188,8 +130,8 @@ class ReactiveCachingTests {
           LateCacheHitDeterminationWithValueWrapperConfig.class })
   void fluxCacheDoesntDependOnFirstRequest(Class<?> configClass) {
 
-    AnnotationConfigApplicationContext ctx =
-            new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            configClass, ReactiveCacheableService.class);
     ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
 
     Object key = new Object();
@@ -207,25 +149,145 @@ class ReactiveCachingTests {
     ctx.close();
   }
 
+  @Test
+  void cacheErrorHandlerWithSimpleCacheErrorHandler() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            ExceptionCacheManager.class, ReactiveCacheableService.class);
+    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
+
+    Throwable completableFutureThrowable = catchThrowable(() -> service.cacheFuture(new Object()).join());
+    assertThat(completableFutureThrowable).isInstanceOf(CompletionException.class)
+            .extracting(Throwable::getCause)
+            .isInstanceOf(UnsupportedOperationException.class);
+
+    Throwable monoThrowable = catchThrowable(() -> service.cacheMono(new Object()).block());
+    assertThat(monoThrowable).isInstanceOf(UnsupportedOperationException.class);
+
+    Throwable fluxThrowable = catchThrowable(() -> service.cacheFlux(new Object()).blockFirst());
+    assertThat(fluxThrowable).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void cacheErrorHandlerWithSimpleCacheErrorHandlerAndSync() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            ExceptionCacheManager.class, ReactiveSyncCacheableService.class);
+    ReactiveSyncCacheableService service = ctx.getBean(ReactiveSyncCacheableService.class);
+
+    Throwable completableFutureThrowable = catchThrowable(() -> service.cacheFuture(new Object()).join());
+    assertThat(completableFutureThrowable).isInstanceOf(CompletionException.class)
+            .extracting(Throwable::getCause)
+            .isInstanceOf(UnsupportedOperationException.class);
+
+    Throwable monoThrowable = catchThrowable(() -> service.cacheMono(new Object()).block());
+    assertThat(monoThrowable).isInstanceOf(UnsupportedOperationException.class);
+
+    Throwable fluxThrowable = catchThrowable(() -> service.cacheFlux(new Object()).blockFirst());
+    assertThat(fluxThrowable).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void cacheErrorHandlerWithLoggingCacheErrorHandler() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            ExceptionCacheManager.class, ReactiveCacheableService.class, ErrorHandlerCachingConfiguration.class);
+    ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
+
+    Long r1 = service.cacheFuture(new Object()).join();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheFuture").isEqualTo(0L);
+
+    r1 = service.cacheMono(new Object()).block();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheMono").isEqualTo(1L);
+
+    r1 = service.cacheFlux(new Object()).blockFirst();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheFlux blockFirst").isEqualTo(2L);
+  }
+
+  @Test
+  void cacheErrorHandlerWithLoggingCacheErrorHandlerAndSync() {
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(ExceptionCacheManager.class, ReactiveSyncCacheableService.class, ErrorHandlerCachingConfiguration.class);
+    ReactiveSyncCacheableService service = ctx.getBean(ReactiveSyncCacheableService.class);
+
+    Long r1 = service.cacheFuture(new Object()).join();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheFuture").isEqualTo(0L);
+
+    r1 = service.cacheCompletableFuture(new Object()).join();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheFuture").isEqualTo(1L);
+
+    r1 = service.cacheMono(new Object()).block();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheMono").isEqualTo(2L);
+
+    r1 = service.cacheFlux(new Object()).blockFirst();
+    assertThat(r1).isNotNull();
+    assertThat(r1).as("cacheFlux blockFirst").isEqualTo(3L);
+  }
+
+  @Test
+  void cacheErrorHandlerWithLoggingCacheErrorHandlerAndOperationException() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(EarlyCacheHitDeterminationConfig.class,
+            ReactiveFailureCacheableService.class, ErrorHandlerCachingConfiguration.class);
+    ReactiveFailureCacheableService service = ctx.getBean(ReactiveFailureCacheableService.class);
+
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> service.cacheFuture(new Object()).join())
+            .withMessage("future service error");
+
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> service.cacheCompletableFuture(new Object()).join())
+            .withMessage(IllegalStateException.class.getName() + ": future service invoked twice");
+
+    StepVerifier.create(service.cacheMono(new Object()))
+            .expectErrorMessage("mono service error")
+            .verify();
+
+    StepVerifier.create(service.cacheFlux(new Object()))
+            .expectErrorMessage("flux service error")
+            .verify();
+  }
+
+  @Test
+  void cacheErrorHandlerWithLoggingCacheErrorHandlerAndOperationExceptionAndSync() {
+    AnnotationConfigApplicationContext ctx =
+            new AnnotationConfigApplicationContext(EarlyCacheHitDeterminationConfig.class, ReactiveSyncFailureCacheableService.class, ErrorHandlerCachingConfiguration.class);
+    ReactiveSyncFailureCacheableService service = ctx.getBean(ReactiveSyncFailureCacheableService.class);
+
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> service.cacheFuture(new Object()).join())
+            .withMessage(IllegalStateException.class.getName() + ": future service error");
+
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> service.cacheCompletableFuture(new Object()).join())
+            .withMessage(IllegalStateException.class.getName() + ": future service invoked twice");
+
+    StepVerifier.create(service.cacheMono(new Object()))
+            .expectErrorMessage("mono service error")
+            .verify();
+
+    StepVerifier.create(service.cacheFlux(new Object()))
+            .expectErrorMessage("flux service error")
+            .verify();
+  }
+
   @CacheConfig(cacheNames = "first")
   static class ReactiveCacheableService {
 
     private final AtomicLong counter = new AtomicLong();
 
     @Cacheable
-    CompletableFuture<Long> cacheFuture(Object arg) {
+    public CompletableFuture<Long> cacheFuture(Object arg) {
       return CompletableFuture.completedFuture(this.counter.getAndIncrement());
     }
 
     @Cacheable
-    Mono<Long> cacheMono(Object arg) {
+    public Mono<Long> cacheMono(Object arg) {
       // here counter not only reflects invocations of cacheMono but subscriptions to
       // the returned Mono as well. See https://github.com/spring-projects/spring-framework/issues/32370
       return Mono.defer(() -> Mono.just(this.counter.getAndIncrement()));
     }
 
     @Cacheable
-    Flux<Long> cacheFlux(Object arg) {
+    public Flux<Long> cacheFlux(Object arg) {
       // here counter not only reflects invocations of cacheFlux but subscriptions to
       // the returned Flux as well. See https://github.com/spring-projects/spring-framework/issues/32370
       return Flux.defer(() -> Flux.just(this.counter.getAndIncrement(), 0L, -1L, -2L, -3L));
@@ -233,15 +295,111 @@ class ReactiveCachingTests {
   }
 
   @CacheConfig(cacheNames = "first")
-  static class ReactiveFailureCacheableService extends ReactiveCacheableService {
+  static class ReactiveSyncCacheableService {
+
+    private final AtomicLong counter = new AtomicLong();
+
+    @Cacheable(sync = true)
+    public CompletableFuture<Long> cacheCompletableFuture(Object arg) {
+      return CompletableFuture.completedFuture(this.counter.getAndIncrement());
+    }
+
+    @Cacheable(sync = true)
+    public Future<Long> cacheFuture(Object arg) {
+      return Future.ok(this.counter.getAndIncrement());
+    }
+
+    @Cacheable(sync = true)
+    public Mono<Long> cacheMono(Object arg) {
+      return Mono.defer(() -> Mono.just(this.counter.getAndIncrement()));
+    }
+
+    @Cacheable(sync = true)
+    public Flux<Long> cacheFlux(Object arg) {
+      return Flux.defer(() -> Flux.just(this.counter.getAndIncrement(), 0L, -1L, -2L, -3L));
+    }
+  }
+
+  @CacheConfig(cacheNames = "first")
+  static class ReactiveFailureCacheableService {
+
+    private final AtomicBoolean cacheFutureInvoked = new AtomicBoolean();
+
+    private final AtomicBoolean cacheMonoInvoked = new AtomicBoolean();
+
+    private final AtomicBoolean cacheFluxInvoked = new AtomicBoolean();
 
     @Cacheable
-    Mono<Long> cacheMono(Object arg) {
+    public CompletableFuture<Long> cacheCompletableFuture(Object arg) {
+      if (!this.cacheFutureInvoked.compareAndSet(false, true)) {
+        return CompletableFuture.failedFuture(new IllegalStateException("future service invoked twice"));
+      }
+      return CompletableFuture.failedFuture(new IllegalStateException("future service error"));
+    }
+
+    @Cacheable
+    public Future<Long> cacheFuture(Object arg) {
+      if (!this.cacheFutureInvoked.compareAndSet(false, true)) {
+        return Future.failed(new IllegalStateException("future service invoked twice"));
+      }
+      return Future.failed(new IllegalStateException("future service error"));
+    }
+
+    @Cacheable
+    public Mono<Long> cacheMono(Object arg) {
+      if (!this.cacheMonoInvoked.compareAndSet(false, true)) {
+        return Mono.error(new IllegalStateException("mono service invoked twice"));
+      }
       return Mono.error(new IllegalStateException("mono service error"));
     }
 
     @Cacheable
-    Flux<Long> cacheFlux(Object arg) {
+    public Flux<Long> cacheFlux(Object arg) {
+      if (!this.cacheFluxInvoked.compareAndSet(false, true)) {
+        return Flux.error(new IllegalStateException("flux service invoked twice"));
+      }
+      return Flux.error(new IllegalStateException("flux service error"));
+    }
+  }
+
+  @CacheConfig(cacheNames = "first")
+  static class ReactiveSyncFailureCacheableService {
+
+    private final AtomicBoolean cacheFutureInvoked = new AtomicBoolean();
+
+    private final AtomicBoolean cacheMonoInvoked = new AtomicBoolean();
+
+    private final AtomicBoolean cacheFluxInvoked = new AtomicBoolean();
+
+    @Cacheable(sync = true)
+    public CompletableFuture<Long> cacheCompletableFuture(Object arg) {
+      if (!this.cacheFutureInvoked.compareAndSet(false, true)) {
+        return CompletableFuture.failedFuture(new IllegalStateException("future service invoked twice"));
+      }
+      return CompletableFuture.failedFuture(new IllegalStateException("future service error"));
+    }
+
+    @Cacheable(sync = true)
+    public Future<Long> cacheFuture(Object arg) {
+      if (!this.cacheFutureInvoked.compareAndSet(false, true)) {
+        return Future.failed(new IllegalStateException("future service invoked twice"));
+      }
+      return Future.failed(new IllegalStateException("future service error"));
+    }
+
+    @Cacheable(sync = true)
+    public Mono<Long> cacheMono(Object arg) {
+      if (!this.cacheMonoInvoked.compareAndSet(false, true)) {
+        return Mono.error(new IllegalStateException("mono service invoked twice"));
+      }
+      return Mono.error(new IllegalStateException("mono service error"));
+    }
+
+    @Cacheable(sync = true)
+    public Flux<Long> cacheFlux(Object arg) {
+      if (!this.cacheFluxInvoked.compareAndSet(false, true)) {
+        return Flux.error(new IllegalStateException("flux service invoked twice"));
+      }
       return Flux.error(new IllegalStateException("flux service error"));
     }
   }
@@ -343,9 +501,12 @@ class ReactiveCachingTests {
           return new ConcurrentMapCache(name, isAllowNullValues()) {
             @Override
             public CompletableFuture<?> retrieve(Object key) {
-              return CompletableFuture.supplyAsync(() -> {
-                throw new UnsupportedOperationException("Test exception on retrieve");
-              });
+              return CompletableFuture.failedFuture(new UnsupportedOperationException("Test exception on retrieve"));
+            }
+
+            @Override
+            public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
+              return CompletableFuture.failedFuture(new UnsupportedOperationException("Test exception on retrieve"));
             }
 
             @Override

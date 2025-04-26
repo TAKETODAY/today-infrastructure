@@ -78,6 +78,8 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
 
   private volatile boolean active = true;
 
+  private boolean rejectTasksWhenLimitReached = false;
+
   /**
    * Create a new SimpleAsyncTaskExecutor with default thread name prefix.
    */
@@ -200,6 +202,18 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    */
   public void setConcurrencyLimit(int concurrencyLimit) {
     this.concurrencyThrottle.setConcurrencyLimit(concurrencyLimit);
+  }
+
+  /**
+   * Specify whether to reject tasks when the concurrency limit has been reached,
+   * throwing {@link TaskRejectedException} on any further submission attempts.
+   * <p>The default is {@code false}, blocking the caller until the submission can
+   * be accepted. Switch this to {@code true} for immediate rejection instead.
+   *
+   * @since 5.0
+   */
+  public void setRejectTasksWhenLimitReached(boolean rejectTasksWhenLimitReached) {
+    this.rejectTasksWhenLimitReached = rejectTasksWhenLimitReached;
   }
 
   /**
@@ -340,11 +354,19 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    * making {@code beforeAccess()} and {@code afterAccess()}
    * visible to the surrounding class.
    */
-  private static final class ConcurrencyThrottleAdapter extends ConcurrencyThrottleSupport {
+  private final class ConcurrencyThrottleAdapter extends ConcurrencyThrottleSupport {
 
     @Override
     protected void beforeAccess() {
       super.beforeAccess();
+    }
+
+    @Override
+    protected void onLimitReached() {
+      if (rejectTasksWhenLimitReached) {
+        throw new TaskRejectedException("Concurrency limit reached: " + getConcurrencyLimit());
+      }
+      super.onLimitReached();
     }
 
     @Override

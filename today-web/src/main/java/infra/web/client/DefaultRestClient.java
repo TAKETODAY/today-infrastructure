@@ -114,6 +114,9 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final Predicate<HttpRequest> bufferingPredicate;
 
+  @Nullable
+  private final ApiVersionInserter apiVersionInserter;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
@@ -123,7 +126,8 @@ final class DefaultRestClient implements RestClient {
           @Nullable List<ResponseErrorHandler> statusHandlers,
           @Nullable Predicate<HttpRequest> bufferingPredicate,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder,
-          boolean ignoreStatusHandlers, boolean detectEmptyMessageBody) {
+          boolean ignoreStatusHandlers, boolean detectEmptyMessageBody,
+          @Nullable ApiVersionInserter apiVersionInserter) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -139,6 +143,7 @@ final class DefaultRestClient implements RestClient {
     this.defaultStatusHandler = StatusHandler.defaultHandler(messageConverters);
     this.ignoreStatusHandlers = ignoreStatusHandlers;
     this.detectEmptyMessageBody = detectEmptyMessageBody;
+    this.apiVersionInserter = apiVersionInserter;
   }
 
   @Override
@@ -314,6 +319,9 @@ final class DefaultRestClient implements RestClient {
     @Nullable
     private Map<String, Object> attributes;
 
+    @Nullable
+    private Object apiVersion;
+
     public DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
     }
@@ -347,6 +355,12 @@ final class DefaultRestClient implements RestClient {
         URI baseUri = DefaultRestClient.this.uriBuilderFactory.expand("");
         this.uri = baseUri.resolve(uri);
       }
+      return this;
+    }
+
+    @Override
+    public RequestBodySpec apiVersion(@Nullable Object version) {
+      this.apiVersion = version;
       return this;
     }
 
@@ -554,7 +568,7 @@ final class DefaultRestClient implements RestClient {
     private Pair<ClientHttpRequest, Future<ClientHttpResponse>> asyncInternal(@Nullable Executor executor) {
       ClientHttpRequest clientRequest = null;
       try {
-        URI uri = initUri();
+        URI uri = initURI();
         clientRequest = createRequest(uri);
         return Pair.of(clientRequest, clientRequest.async(executor)
                 .onErrorMap(IOException.class, ex -> createResourceAccessException(uri, this.httpMethod, ex)));
@@ -582,7 +596,7 @@ final class DefaultRestClient implements RestClient {
     private <T> T exchangeInternal(ExchangeFunction<T> exchangeFunction, boolean close) {
       Assert.notNull(exchangeFunction, "ExchangeFunction is required");
 
-      URI uri = initUri();
+      URI uri = initURI();
       var clientRequest = createRequest(uri);
       ClientHttpResponse clientResponse = null;
       try {
@@ -600,8 +614,13 @@ final class DefaultRestClient implements RestClient {
       }
     }
 
-    private URI initUri() {
-      return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
+    private URI initURI() {
+      URI uriToUse = this.uri != null ? this.uri : uriBuilderFactory.expand("");
+      if (this.apiVersion != null) {
+        Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
+        uriToUse = apiVersionInserter.insertVersion(this.apiVersion, uriToUse);
+      }
+      return uriToUse;
     }
 
     private ClientHttpRequest createRequest(URI uri) throws ResourceAccessException {
@@ -609,8 +628,7 @@ final class DefaultRestClient implements RestClient {
       if (interceptors != null) {
         factory = interceptingRequestFactory;
         if (factory == null) {
-          factory = new InterceptingClientHttpRequestFactory(
-                  clientRequestFactory, interceptors, bufferingPredicate);
+          factory = new InterceptingClientHttpRequestFactory(clientRequestFactory, interceptors, bufferingPredicate);
           interceptingRequestFactory = factory;
         }
       }
@@ -626,6 +644,11 @@ final class DefaultRestClient implements RestClient {
         HttpHeaders headers = request.getHeaders();
         headers.setAll(defaultHeaders);
         headers.setAll(this.headers);
+
+        if (this.apiVersion != null) {
+          Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
+          apiVersionInserter.insertVersion(this.apiVersion, headers);
+        }
 
         String serializedCookies = serializeCookies();
         if (serializedCookies != null) {
