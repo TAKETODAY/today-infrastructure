@@ -327,8 +327,7 @@ public class TestContextAotGenerator {
   ClassName processAheadOfTime(MergedContextConfiguration mergedConfig,
           GenerationContext generationContext) throws TestContextAotException {
 
-    GenericApplicationContext gac = loadContextForAotProcessing(mergedConfig);
-    try {
+    try (GenericApplicationContext gac = loadContextForAotProcessing(mergedConfig)) {
       return this.aotGenerator.processAheadOfTime(gac, generationContext);
     }
     catch (Throwable ex) {
