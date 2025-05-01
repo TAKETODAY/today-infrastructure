@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,10 +150,17 @@ import infra.core.task.TaskExecutor;
  * compile-time weaving or load-time weaving applying the aspect to the affected classes.
  * There is no proxy involved in such a scenario; local calls will be intercepted as well.
  *
+ * <p><b>Note: {@code @EnableAsync} applies to its local application context only,
+ * allowing for selective activation at different levels.</b> Please redeclare
+ * {@code @EnableAsync} in each individual context, for example, the common root web
+ * application context and any separate {@code DispatcherServlet} application contexts,
+ * if you need to apply its behavior at multiple levels.
+ *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Async
  * @see AsyncConfigurer
  * @see AsyncConfigurationSelector
