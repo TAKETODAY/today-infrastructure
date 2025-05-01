@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import infra.aop.MethodMatcher;
 import infra.aop.Pointcut;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.StringUtils;
+import infra.util.PatternMatchUtils;
 
 /**
  * Pointcut and method matcher for use in simple <b>cflow</b>-style pointcut.
@@ -82,7 +82,7 @@ public class ControlFlowPointcut implements Pointcut, ClassFilter, MethodMatcher
     Assert.notNull(clazz, "Class is required");
     this.clazz = clazz;
     this.methodNamePatterns = (methodNamePattern != null ?
-                               Collections.singletonList(methodNamePattern) : Collections.emptyList());
+            Collections.singletonList(methodNamePattern) : Collections.emptyList());
   }
 
   /**
@@ -210,11 +210,11 @@ public class ControlFlowPointcut implements Pointcut, ClassFilter, MethodMatcher
    * @param methodNamePattern the method name pattern
    * @return {@code true} if the method name matches the pattern
    * @see #isMatch(String, int)
-   * @see StringUtils#simpleMatch(String, String)
+   * @see PatternMatchUtils#simpleMatch(String, String)
    */
   protected boolean isMatch(String methodName, String methodNamePattern) {
     return methodName.equals(methodNamePattern)
-            || StringUtils.simpleMatch(methodNamePattern, methodName);
+            || PatternMatchUtils.simpleMatch(methodNamePattern, methodName);
   }
 
   @Override

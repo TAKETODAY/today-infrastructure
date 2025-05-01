@@ -64,6 +64,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
+import infra.util.PatternMatchUtils;
 import infra.util.StringUtils;
 import infra.validation.annotation.ValidationAnnotationUtils;
 
@@ -1303,13 +1304,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @return {@code true} if the field is allowed
    * @see #setAllowedFields
    * @see #setDisallowedFields
-   * @see StringUtils#simpleMatch(String, String)
+   * @see PatternMatchUtils#simpleMatch(String, String)
    */
   protected boolean isAllowed(String field) {
     String[] allowed = getAllowedFields();
     String[] disallowed = getDisallowedFields();
-    return (ObjectUtils.isEmpty(allowed) || StringUtils.simpleMatch(allowed, field))
-            && (ObjectUtils.isEmpty(disallowed) || !StringUtils.simpleMatch(disallowed, field.toLowerCase(Locale.ROOT)));
+    return (ObjectUtils.isEmpty(allowed) || PatternMatchUtils.simpleMatch(allowed, field))
+            && (ObjectUtils.isEmpty(disallowed) || !PatternMatchUtils.simpleMatch(disallowed, field.toLowerCase(Locale.ROOT)));
   }
 
   /**
