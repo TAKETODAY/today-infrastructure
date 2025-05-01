@@ -903,4 +903,16 @@ class UriComponentsBuilderTests {
     assertThat(uri.isOpaque()).isTrue();
     assertThat(uri.getSchemeSpecificPart()).isEqualTo("text:service-US:prefix1/Id-2");
   }
+
+  @ParameterizedTest
+  @EnumSource
+  void parseBuildAndExpandQueryParamWithSameName(ParserType parserType) {
+    UriComponents result = UriComponentsBuilder
+            .forURIString("/?{pk1}={pv1}&{pk2}={pv2}", parserType)
+            .buildAndExpand("k1", "v1", "k1", "v2");
+
+    assertThat(result.getQuery()).isEqualTo("k1=v1&k1=v2");
+    assertThat(result.getQueryParams()).containsExactly(Map.entry("k1", List.of("v1", "v2")));
+  }
+
 }

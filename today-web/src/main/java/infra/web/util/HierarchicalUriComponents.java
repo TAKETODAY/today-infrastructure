@@ -461,11 +461,10 @@ final class HierarchicalUriComponents extends UriComponents {
     for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       String name = expandUriComponent(entry.getKey(), queryVariables, this.variableEncoder);
       List<String> values = entry.getValue();
-      ArrayList<String> expandedValues = new ArrayList<>(values.size());
+      List<String> expandedValues = result.computeIfAbsent(name, k -> new ArrayList<>(values.size()));
       for (String value : values) {
         expandedValues.add(expandUriComponent(value, queryVariables, this.variableEncoder));
       }
-      result.put(name, expandedValues);
     }
     return result.asReadOnly();
   }
