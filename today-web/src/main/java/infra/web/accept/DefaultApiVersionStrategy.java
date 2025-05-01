@@ -47,6 +47,10 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
 
   private final Set<Comparable<?>> supportedVersions = new TreeSet<>();
 
+  private final boolean detectSupportedVersions;
+
+  private final Set<Comparable<?>> detectedVersions = new TreeSet<>();
+
   /**
    * Create an instance.
    *
@@ -58,9 +62,12 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
    * validation fails with {@link MissingApiVersionException}
    * @param defaultVersion a default version to assign to requests that
    * don't specify one
+   * @param detectSupportedVersions whether to use API versions that appear in
+   * mappings for supported version validation (true), or use only explicitly
+   * configured versions (false).
    */
-  public DefaultApiVersionStrategy(List<ApiVersionResolver> versionResolvers,
-          ApiVersionParser<?> versionParser, boolean versionRequired, @Nullable String defaultVersion) {
+  public DefaultApiVersionStrategy(List<ApiVersionResolver> versionResolvers, ApiVersionParser<?> versionParser,
+          boolean versionRequired, @Nullable String defaultVersion, boolean detectSupportedVersions) {
 
     Assert.notEmpty(versionResolvers, "At least one ApiVersionResolver is required");
     Assert.notNull(versionParser, "ApiVersionParser is required");
@@ -69,6 +76,7 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     this.versionParser = versionParser;
     this.versionRequired = (versionRequired && defaultVersion == null);
     this.defaultVersion = (defaultVersion != null ? versionParser.parseVersion(defaultVersion) : null);
+    this.detectSupportedVersions = detectSupportedVersions;
   }
 
   @Nullable
@@ -78,16 +86,36 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
   }
 
   /**
-   * Add to the list of known, supported versions to check against in
-   * {@link ApiVersionStrategy#validateVersion}. Request versions that are not
-   * in the supported result in {@link InvalidApiVersionException}
-   * in {@link ApiVersionStrategy#validateVersion}.
+   * Add to the list of supported versions to check against in
+   * {@link ApiVersionStrategy#validateVersion} before raising
+   * {@link InvalidApiVersionException} for unknown versions.
+   * <p>By default, actual version values that appear in request mappings are
+   * considered supported, and use of this method is optional. However, if you
+   * prefer to use only explicitly configured, supported versions, then set
+   * {@code detectSupportedVersions} flag to {@code false}.
    *
-   * @param versions the versions to add
+   * @param versions the supported versions to add
+   * @see #addMappedVersion(String...)
    */
   public void addSupportedVersion(String... versions) {
     for (String version : versions) {
       this.supportedVersions.add(parseVersion(version));
+    }
+  }
+
+  /**
+   * Internal method to add to the list of actual version values that appear in
+   * request mappings, which allows supported versions to be discovered rather
+   * than {@link #addSupportedVersion(String...) configured}.
+   * <p>If you prefer to use explicitly configured, supported versions only,
+   * set the {@code detectSupportedVersions} flag to {@code false}.
+   *
+   * @param versions the versions to add
+   * @see #addSupportedVersion(String...)
+   */
+  public void addMappedVersion(String... versions) {
+    for (String version : versions) {
+      this.detectedVersions.add(parseVersion(version));
     }
   }
 
@@ -119,15 +147,20 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
       return;
     }
 
-    if (!this.supportedVersions.contains(requestVersion)) {
+    if (!isSupportedVersion(requestVersion)) {
       throw new InvalidApiVersionException(requestVersion.toString());
     }
   }
 
+  private boolean isSupportedVersion(Comparable<?> requestVersion) {
+    return (this.supportedVersions.contains(requestVersion) ||
+            this.detectSupportedVersions && this.detectedVersions.contains(requestVersion));
+  }
+
   @Override
   public String toString() {
-    return "DefaultApiVersionStrategy[supportedVersions=%s, versionRequired=%s, defaultVersion=%s]"
-            .formatted(this.supportedVersions, this.versionRequired, this.defaultVersion);
+    return "DefaultApiVersionStrategy[supportedVersions=%s, mappedVersions=%s, detectSupportedVersions=%s, versionRequired=%s, defaultVersion=%s]"
+            .formatted(this.supportedVersions, this.detectedVersions, this.detectSupportedVersions, this.versionRequired, this.defaultVersion);
   }
 
 }
