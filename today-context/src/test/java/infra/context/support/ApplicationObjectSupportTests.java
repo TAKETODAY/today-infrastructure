@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 
-import org.slf4j.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
