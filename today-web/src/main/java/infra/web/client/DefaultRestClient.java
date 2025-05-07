@@ -117,6 +117,9 @@ final class DefaultRestClient implements RestClient {
   @Nullable
   private final ApiVersionInserter apiVersionInserter;
 
+  @Nullable
+  private final Object defaultApiVersion;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
@@ -127,7 +130,7 @@ final class DefaultRestClient implements RestClient {
           @Nullable Predicate<HttpRequest> bufferingPredicate,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder,
           boolean ignoreStatusHandlers, boolean detectEmptyMessageBody,
-          @Nullable ApiVersionInserter apiVersionInserter) {
+          @Nullable ApiVersionInserter apiVersionInserter, @Nullable Object defaultApiVersion) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -144,6 +147,7 @@ final class DefaultRestClient implements RestClient {
     this.ignoreStatusHandlers = ignoreStatusHandlers;
     this.detectEmptyMessageBody = detectEmptyMessageBody;
     this.apiVersionInserter = apiVersionInserter;
+    this.defaultApiVersion = defaultApiVersion;
   }
 
   @Override
@@ -616,9 +620,10 @@ final class DefaultRestClient implements RestClient {
 
     private URI initURI() {
       URI uriToUse = this.uri != null ? this.uri : uriBuilderFactory.expand("");
-      if (this.apiVersion != null) {
+      Object version = getApiVersionOrDefault();
+      if (version != null) {
         Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
-        uriToUse = apiVersionInserter.insertVersion(this.apiVersion, uriToUse);
+        uriToUse = apiVersionInserter.insertVersion(version, uriToUse);
       }
       return uriToUse;
     }
@@ -645,9 +650,10 @@ final class DefaultRestClient implements RestClient {
         headers.setAll(defaultHeaders);
         headers.setAll(this.headers);
 
-        if (this.apiVersion != null) {
+        Object version = getApiVersionOrDefault();
+        if (version != null) {
           Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
-          apiVersionInserter.insertVersion(this.apiVersion, headers);
+          apiVersionInserter.insertVersion(version, headers);
         }
 
         String serializedCookies = serializeCookies();
@@ -675,6 +681,11 @@ final class DefaultRestClient implements RestClient {
       catch (IOException ex) {
         throw createResourceAccessException(uri, this.httpMethod, ex);
       }
+    }
+
+    @Nullable
+    private Object getApiVersionOrDefault() {
+      return this.apiVersion != null ? this.apiVersion : DefaultRestClient.this.defaultApiVersion;
     }
 
     @Nullable
