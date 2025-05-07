@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.web.client;
+package infra.web.client.reactive;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import infra.http.client.JdkClientHttpRequestFactory;
+import infra.web.client.ApiVersionInserter;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -33,17 +33,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * {@link RestClient} tests for sending API versions.
+ * {@link WebClient} tests for sending API versions.
  *
  * @author Rossen Stoyanchev
  */
-public class RestClientVersionTests {
+public class WebClientVersionTests {
 
   private final MockWebServer server = new MockWebServer();
 
-  private final RestClient.Builder restClientBuilder = RestClient.builder()
-          .requestFactory(new JdkClientHttpRequestFactory())
-          .baseURI(this.server.url("/").toString());
+  private final WebClient.Builder webClientBuilder =
+          WebClient.builder().baseURI(this.server.url("/").toString());
 
   @BeforeEach
   void setUp() {
@@ -91,21 +90,16 @@ public class RestClientVersionTests {
   @Test
   void defaultVersion() {
     ApiVersionInserter inserter = ApiVersionInserter.forHeader("X-API-Version").build();
-    RestClient restClient = restClientBuilder.defaultApiVersion(1.2).apiVersionInserter(inserter).build();
-    restClient.get().uri("/path").retrieve().body(String.class);
+    WebClient webClient = webClientBuilder.defaultApiVersion(1.2).apiVersionInserter(inserter).build();
+    webClient.get().uri("/path").retrieve().bodyToMono(String.class).block();
 
     expectRequest(request -> assertThat(request.getHeader("X-API-Version")).isEqualTo("1.2"));
   }
 
   private void performRequest(ApiVersionInserter.Builder builder) {
     ApiVersionInserter versionInserter = builder.build();
-    RestClient restClient = restClientBuilder.apiVersionInserter(versionInserter).build();
-
-    restClient.get()
-            .uri("/path")
-            .apiVersion(1.2)
-            .retrieve()
-            .body(String.class);
+    WebClient webClient = webClientBuilder.apiVersionInserter(versionInserter).build();
+    webClient.get().uri("/path").apiVersion(1.2).retrieve().bodyToMono(String.class).block();
   }
 
   private void expectRequest(Consumer<RecordedRequest> consumer) {

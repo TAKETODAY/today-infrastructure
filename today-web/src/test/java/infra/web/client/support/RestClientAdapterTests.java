@@ -45,7 +45,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
-import infra.web.client.DefaultApiVersionInserter;
+import infra.web.client.ApiVersionInserter;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplate;
 import infra.web.multipart.MultipartFile;
@@ -251,7 +251,7 @@ class RestClientAdapterTests {
   void apiVersion() throws Exception {
     RestClient restClient = RestClient.builder()
             .baseURI(anotherServer.url("/").toString())
-            .apiVersionInserter(DefaultApiVersionInserter.fromHeader("X-API-Version").build())
+            .apiVersionInserter(ApiVersionInserter.forHeader("X-API-Version").build())
             .build();
 
     RestClientAdapter adapter = RestClientAdapter.create(restClient);
