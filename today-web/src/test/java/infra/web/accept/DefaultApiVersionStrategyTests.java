@@ -17,11 +17,11 @@
 
 package infra.web.accept;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import infra.lang.Nullable;
 import infra.web.RequestContext;
 import infra.web.mock.MockRequestContext;
 
