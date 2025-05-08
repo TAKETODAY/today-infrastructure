@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,19 @@
 
 package infra.persistence;
 
+/**
+ * An enumeration representing the sorting order for query results.
+ *
+ * <p>This enum defines two constants:
+ * <ul>
+ *   <li>{@code ASC}: Represents ascending order.</li>
+ *   <li>{@code DESC}: Represents descending order.</li>
+ * </ul>
+ *
+ * <p>It is typically used in query operations to specify the desired order
+ * of the results. For example, it can be used in combination with sorting
+ * annotations or methods to define how data should be ordered.
+ */
 public enum Order {
   ASC, DESC
 }

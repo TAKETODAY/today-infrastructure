@@ -18,6 +18,7 @@
 package infra.persistence;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,28 @@ import infra.lang.Nullable;
 import infra.util.StringUtils;
 
 /**
+ * Metadata class representing the structure and configuration of an entity in a database context.
+ *
+ * <p>This class encapsulates metadata about an entity, including its table name, ID property,
+ * column mappings, and other related properties. It is used to provide a centralized source
+ * of information for operations involving the entity, such as database queries or persistence.
+ *
+ * <p>The metadata includes details about the entity's properties, their corresponding database
+ * columns, and annotations applied to the entity class. It also provides utility methods for
+ * retrieving specific properties, annotations, and determining whether certain annotations are present.
+ *
+ * <p>Instances of this class are immutable once created, ensuring thread safety and consistency
+ * in usage across different parts of an application.
+ *
+ * <p>Key features include:
+ * - Mapping between entity properties and database columns.
+ * - Support for identifying auto-generated IDs.
+ * - Retrieval of merged annotations for the entity class.
+ * - Efficient lookup of properties by name.
+ *
+ * <p>This class is typically instantiated by a metadata factory or builder and is not intended
+ * for direct instantiation by application code.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:43
  */
@@ -106,9 +129,14 @@ public class EntityMetadata {
   }
 
   /**
-   * obtain id property
+   * Returns the ID property of the entity.
    *
-   * @throws IllegalEntityException id property not found
+   * <p>This method retrieves the ID property by accessing the {@code idProperty} field.
+   * If the {@code idProperty} field is null, an {@link IllegalEntityException} is thrown
+   * to indicate that the ID property is required but not set.
+   *
+   * @return the ID property of the entity
+   * @throws IllegalEntityException if the ID property is not set
    */
   public EntityProperty idProperty() throws IllegalEntityException {
     EntityProperty idProperty = this.idProperty;
@@ -119,13 +147,30 @@ public class EntityMetadata {
   }
 
   /**
-   * Find property
+   * Finds and returns the entity property associated with the given name.
+   *
+   * <p>This method retrieves the property by looking up the internal property map
+   * using the provided name. If no property is found, the method returns {@code null}.
+   *
+   * @param name the name of the property to find; must not be null
+   * @return the {@code EntityProperty} associated with the specified name,
+   * or {@code null} if no such property exists
    */
   @Nullable
   public EntityProperty findProperty(String name) {
     return propertyMap.get(name);
   }
 
+  /**
+   * Retrieves the merged annotations associated with the entity class.
+   *
+   * <p>
+   * This method returns the cached annotations if they have already been loaded.
+   * If no annotations are cached, it retrieves them from the entity class using
+   * {@link MergedAnnotations#from(AnnotatedElement)} and caches the result for future use.
+   *
+   * @return the merged annotations for the entity class
+   */
   public MergedAnnotations getAnnotations() {
     MergedAnnotations annotations = this.annotations;
     if (annotations == null) {
@@ -135,10 +180,25 @@ public class EntityMetadata {
     return annotations;
   }
 
+  /**
+   * Retrieves the merged annotation of the specified type for the entity class.
+   *
+   * @param annType the annotation type to retrieve; must not be null
+   * @return the merged annotation of the specified type, or an empty annotation if not present
+   */
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
     return getAnnotations().get(annType);
   }
 
+  /**
+   * Determines whether the specified annotation type is present on the entity class.
+   *
+   * <p>This method checks if the given annotation type is either directly present or meta-present
+   * on the entity class by delegating to the {@link MergedAnnotations#isPresent(Class)} method.
+   *
+   * @param annType the annotation type to check; must not be null
+   * @return true if the specified annotation type is present on the entity class, false otherwise
+   */
   public <A extends Annotation> boolean isPresent(Class<A> annType) {
     return getAnnotations().isPresent(annType);
   }

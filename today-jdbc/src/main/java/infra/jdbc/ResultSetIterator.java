@@ -232,6 +232,35 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
+   * Returns an {@link ResultSetIterable} instance that allows iteration over the
+   * result set encapsulated by this iterator. The returned iterable can be used
+   * in enhanced for-loops or other contexts where an {@link Iterable} is required.
+   * <p>
+   * The returned {@link ResultSetIterable} also implements {@link AutoCloseable},
+   * ensuring that resources such as the underlying {@link ResultSet} and
+   * database connection are properly closed after use. It is recommended to use
+   * the returned iterable within a try-with-resources statement to ensure timely
+   * resource cleanup.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * try (ResultSetIterable<MyType> iterable = resultSetIterator.asIterable()) {
+   *   for (MyType item : iterable) {
+   *     System.out.println(item);
+   *   }
+   * }
+   * }</pre>
+   * <p>
+   * Alternatively, you can use it with streams:
+   * <pre>{@code
+   * try (ResultSetIterable<MyType> iterable = resultSetIterator.asIterable()) {
+   *   Stream<MyType> stream = iterable.stream();
+   *   stream.forEach(System.out::println);
+   * }
+   * }</pre>
+   *
+   * @return an {@link ResultSetIterable} instance that provides access to the
+   * elements of the result set encapsulated by this iterator
    * @since 4.0
    */
   public ResultSetIterable<T> asIterable() {
@@ -255,8 +284,29 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * consume elements
+   * Performs the given action for each element of the result set until all elements
+   * have been processed or the action throws an exception. The action is performed
+   * in the order of iteration, as defined by the underlying {@link ResultSet}.
+   * <p>
+   * This method ensures that the underlying resources (e.g., the {@link ResultSet})
+   * are properly closed after the operation completes, regardless of whether the
+   * operation completes normally or due to an exception. It is recommended to use
+   * this method when you need to process all elements in the result set without
+   * manually managing resource cleanup.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * resultSetIterator.consume(item -> {
+   *   System.out.println("Processing item: " + item);
+   * });
+   * }</pre>
+   * <p>
+   * If an exception occurs during processing, it is wrapped in a runtime exception
+   * and rethrown. The exact type of the runtime exception depends on the implementation
+   * of the {@link #handleReadError(SQLException)} method.
    *
+   * @param consumer the action to be performed for each element in the result set
+   * @throws NullPointerException if the specified consumer is null
    * @since 4.0
    */
   public void consume(Consumer<T> consumer) {
@@ -275,12 +325,39 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * Fetch unique element
+   * Retrieves the unique element from the result set encapsulated by this iterator.
+   * If the result set contains more than one element, an exception is thrown to indicate
+   * that the result size does not match the expected size of one.
    *
-   * @since 4.0
+   * <p>This method ensures that the underlying resources (e.g., the {@link ResultSet}) are
+   * properly closed after the operation completes, regardless of whether the operation
+   * completes normally or due to an exception. It is recommended to use this method when
+   * you expect exactly one element in the result set and want to retrieve it directly.
+   *
+   * <p><b>Example Usage:</b>
+   * <pre>{@code
+   * try {
+   *   MyType uniqueItem = resultSetIterator.unique();
+   *   if (uniqueItem != null) {
+   *     System.out.println("Unique item: " + uniqueItem);
+   *   }
+   *   else {
+   *     System.out.println("No item found.");
+   *   }
+   * }
+   * catch (IncorrectResultSizeDataAccessException e) {
+   *   System.err.println("Expected one item but found more than one.");
+   * }
+   * }</pre>
+   *
+   * <p><b>Note:</b> If the result set contains no elements, this method returns {@code null}.
+   * If more than one element exists, an {@link IncorrectResultSizeDataAccessException} is thrown.
+   *
+   * @return the unique element from the result set, or {@code null} if no element exists
+   * @throws IncorrectResultSizeDataAccessException if more than one element exists in the result set
    */
   @Nullable
-  public T unique() {
+  public T unique() throws IncorrectResultSizeDataAccessException {
     try {
       T returnValue = readNext();
       if (returnValue != null && readNext() != null) {
@@ -294,9 +371,36 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * Fetch first element
+   * Returns the first element from the result set encapsulated by this iterator, if available.
+   * If the result set is empty, this method returns {@code null}.
+   * <p>
+   * This method ensures that the underlying resources (e.g., the {@link ResultSet}) are
+   * properly closed after the operation completes, regardless of whether the operation
+   * completes normally or due to an exception. It is recommended to use this method when
+   * you need to retrieve only the first element from the result set without manually
+   * managing resource cleanup.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * try {
+   *   MyType firstItem = resultSetIterator.first();
+   *   if (firstItem != null) {
+   *     System.out.println("First item: " + firstItem);
+   *   }
+   *   else {
+   *     System.out.println("No items found in the result set.");
+   *   }
+   * }
+   * catch (RuntimeException e) {
+   *   System.err.println("An error occurred while reading the first item: " + e.getMessage());
+   * }
+   * }</pre>
+   * <p>
+   * If an exception occurs during the retrieval process, it is wrapped in a runtime
+   * exception and rethrown. The exact type of the runtime exception depends on the
+   * implementation of the {@link #handleReadError(SQLException)} method.
    *
-   * @since 4.0
+   * @return the first element from the result set, or {@code null} if the result set is empty
    */
   @Nullable
   public T first() {
@@ -309,9 +413,21 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * Fetch list of elements
+   * Returns a list of entities collected by the method.
+   * This method initializes an empty list, populates it by calling
+   * the {@code collect} method, and then returns the populated list.
    *
-   * @since 4.0
+   * <p>Example usage:
+   * <pre>{@code
+   *   List<T> result = list();
+   *
+   *   // Iterate through the list
+   *   for (T entity : result) {
+   *     System.out.println(entity);
+   *   }
+   * }</pre>
+   *
+   * @return a {@code List<T>} containing the collected entities
    */
   public List<T> list() {
     ArrayList<T> entities = new ArrayList<>();
@@ -320,9 +436,20 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * Fetch list of elements
+   * Creates and returns a list of elements collected using the specified
+   * initial capacity. The method initializes an ArrayList with the given
+   * capacity, collects elements into it, and returns the populated list.
    *
-   * @since 4.0
+   * <p>Example usage:
+   * <pre>{@code
+   *   List<String> result = list(10);
+   *   System.out.println(result);
+   * }</pre>
+   *
+   * @param initialCapacity the initial capacity of the list to be created;
+   * this value should be non-negative
+   * @return a list of elements collected by the {@code collect} method
+   * @throws IllegalArgumentException if the initial capacity is negative
    */
   public List<T> list(int initialCapacity) {
     ArrayList<T> entities = new ArrayList<>(initialCapacity);
@@ -331,9 +458,25 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   }
 
   /**
-   * Fetch list of elements
+   * Collects all remaining entities from the current {@code ResultSet}
+   * and adds them to the provided collection. This method reads each row
+   * from the {@code ResultSet}, converts it into an entity using the
+   * {@code readNext} method, and adds the entity to the specified collection.
+   * <p>
+   * If an SQL exception occurs during the reading process, it is handled
+   * by the {@code handleReadError} method, which may throw a runtime exception.
+   * After processing, the {@code ResultSet} is closed automatically.
    *
-   * @since 4.0
+   * <p>Example usage:
+   * <pre>{@code
+   *   List<MyEntity> entityList = new ArrayList<>();
+   *   myDataCollector.collect(entityList);
+   *
+   *   // The entityList now contains all entities from the ResultSet
+   * }</pre>
+   *
+   * @param entities the collection to which the entities will be added;
+   * must not be null
    */
   public void collect(Collection<T> entities) {
     final ResultSet resultSet = this.resultSet;

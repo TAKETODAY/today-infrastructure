@@ -64,7 +64,31 @@ import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
 
 /**
- * Default EntityManager implementation
+ * Default implementation of the EntityManager interface, providing a comprehensive
+ * set of operations for managing entities in a data store. This class supports
+ * persistence, retrieval, updating, and deletion of entities, as well as advanced
+ * querying capabilities such as sorting, pagination, and mapping results to custom
+ * structures.
+ *
+ * <p>
+ * The class is highly configurable, allowing customization of behavior through
+ * various setters for properties like platform, update strategy, batch processing,
+ * and transaction configuration. It also supports event listeners for batch
+ * persistence operations and integrates with repositories for entity management.
+ *
+ * <p>
+ * Key Features:
+ * - Entity persistence with support for auto-generated IDs and customizable update strategies.
+ * - Batch processing with configurable limits for batched commands.
+ * - Advanced query capabilities, including sorting, pagination, and result mapping.
+ * - Support for conditional queries and dynamic query handlers.
+ * - Transaction management with configurable transaction definitions.
+ * - Event listeners for monitoring batch persistence operations.
+ *
+ * <p>
+ * This class is designed to be flexible and extensible, making it suitable for a
+ * wide range of data access scenarios. It abstracts the underlying data store
+ * interactions, providing a consistent API for entity management.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/10 22:28
@@ -253,6 +277,18 @@ public class DefaultEntityManager implements EntityManager {
     return persist(entity, defaultUpdateStrategy(entity), autoGenerateId);
   }
 
+  /**
+   * Persists the given entity to the data store using the specified property update strategy.
+   * If the strategy is not provided, a default strategy may be used. The method delegates
+   * the persistence operation to an overloaded method, passing the entity, strategy, and
+   * auto-generation flag for the identifier.
+   *
+   * @param entity the entity to be persisted; must not be null
+   * @param strategy the strategy to apply for updating properties during persistence;
+   *                 can be null if no specific strategy is required
+   * @return the number of records affected by the persistence operation
+   * @throws DataAccessException if an error occurs while accessing the data store
+   */
   @Override
   public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
     return persist(entity, strategy, autoGenerateId);
