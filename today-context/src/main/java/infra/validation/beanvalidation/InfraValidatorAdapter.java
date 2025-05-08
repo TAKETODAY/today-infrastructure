@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
   private static final Set<String> internalAnnotationAttributes = Set.of("message", "groups", "payload");
 
   @Nullable
-  private Validator targetValidator;
+  Validator targetValidator;
 
   /**
    * Create a new ContextValidatorAdapter for the given JSR-303 Validator.
@@ -85,7 +85,8 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     this.targetValidator = targetValidator;
   }
 
-  InfraValidatorAdapter() { }
+  InfraValidatorAdapter() {
+  }
 
   void setTargetValidator(jakarta.validation.Validator targetValidator) {
     this.targetValidator = targetValidator;
@@ -294,8 +295,8 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    */
   protected MessageSourceResolvable getResolvableField(String objectName, String field) {
     String[] codes = StringUtils.hasText(field)
-                     ? new String[] { objectName + Errors.NESTED_PATH_SEPARATOR + field, field }
-                     : new String[] { objectName };
+            ? new String[] { objectName + Errors.NESTED_PATH_SEPARATOR + field, field }
+            : new String[] { objectName };
     return new DefaultMessageSourceResolvable(codes, field);
   }
 
@@ -484,8 +485,8 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     @Override
     public boolean shouldRenderDefaultMessage() {
       return this.adapter != null && this.violation != null
-             ? this.adapter.requiresMessageFormat(this.violation)
-             : containsInfraStylePlaceholder(getDefaultMessage());
+              ? this.adapter.requiresMessageFormat(this.violation)
+              : containsInfraStylePlaceholder(getDefaultMessage());
     }
   }
 
