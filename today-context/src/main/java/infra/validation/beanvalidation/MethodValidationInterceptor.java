@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.core.ReactiveStreams;
 import infra.core.annotation.AnnotationUtils;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.lang.VisibleForTesting;
 import infra.util.ReflectionUtils;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.Errors;
@@ -81,7 +82,8 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
   private final MethodValidationAdapter delegate;
 
-  private final boolean adaptViolations;
+  @VisibleForTesting
+  final boolean adaptViolations;
 
   /**
    * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
