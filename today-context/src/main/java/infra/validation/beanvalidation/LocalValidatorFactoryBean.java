@@ -42,6 +42,7 @@ import infra.core.ParameterNameDiscoverer;
 import infra.core.io.Resource;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.lang.VisibleForTesting;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import jakarta.validation.ClockProvider;
@@ -117,7 +118,8 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
   private ApplicationContext applicationContext;
 
   @Nullable
-  private ValidatorFactory validatorFactory;
+  @VisibleForTesting
+  ValidatorFactory validatorFactory;
 
   /**
    * Specify the desired provider class, if any.
@@ -377,7 +379,8 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
    * @param configuration the Configuration object, pre-populated with
    * settings driven by LocalValidatorFactoryBean's properties
    */
-  protected void postProcessConfiguration(Configuration<?> configuration) { }
+  protected void postProcessConfiguration(Configuration<?> configuration) {
+  }
 
   @Override
   public Validator getValidator() {
