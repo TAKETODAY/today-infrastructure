@@ -119,6 +119,15 @@ public interface Restriction {
    */
   void render(StringBuilder sqlBuffer);
 
+  /**
+   * Performs a logical AND operation.
+   * By default, this method returns {@code true}. It serves as a
+   * basic implementation that can be overridden to provide custom
+   * logical AND behavior.
+   *
+   * @return the result of the logical AND operation. By default,
+   * this method always returns {@code true}.
+   */
   default boolean logicalAnd() {
     return true;
   }
@@ -486,6 +495,42 @@ public interface Restriction {
    */
   static Restriction and(Restriction lhs, Restriction rhs) {
     return new LogicalRestriction(lhs, true, rhs);
+  }
+
+  /**
+   * Creates a new {@code Restriction} that represents a logical OR operation
+   * with the given {@code Restriction}. This method is typically used in the
+   * context of building dynamic SQL queries where conditions need to be combined.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *
+   *  Restriction orCondition = Restriction.or(Restriction.plain("column1 = 'value1'"));
+   * StringBuilder sql = new StringBuilder();
+   * orCondition.render(sql);
+   * System.out.println(sql.toString()); // OR column1 = 'value1'
+   * }</pre>
+   *
+   * @param rhs the right-hand side {@code Restriction} to be combined with the current one
+   * using a logical OR operation. Must not be null.
+   * @return a new {@code Restriction} instance that, when rendered, applies the logical OR
+   * operation between the current restriction and the provided one.
+   * @since 5.0
+   */
+  static Restriction or(Restriction rhs) {
+    return new Restriction() {
+
+      @Override
+      public void render(StringBuilder sqlBuffer) {
+        rhs.render(sqlBuffer);
+      }
+
+      @Override
+      public boolean logicalAnd() {
+        return false;
+      }
+
+    };
   }
 
   /**
