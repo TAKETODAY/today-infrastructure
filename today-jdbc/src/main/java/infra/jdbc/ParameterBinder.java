@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,20 +25,59 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 import infra.jdbc.type.TypeHandler;
+import infra.lang.Nullable;
 
 /**
- * Parameter Setter
+ * An abstract class that provides a mechanism to bind values to a
+ * {@link PreparedStatement} for database operations. This class defines
+ * various static factory methods to create specific implementations of
+ * {@code ParameterBinder} for different data types.
  *
- * @author TODAY 2021/1/7 15:09
+ * <p>The {@link #bind(PreparedStatement, int)} method is implemented by
+ * subclasses to handle the binding of specific types to a prepared statement.
+ *
+ * <p>Example usage:
+ * <pre>{@code
+ * // Bind an integer value to a PreparedStatement
+ * ParameterBinder intBinder = ParameterBinder.forInt(42);
+ * intBinder.bind(statement, 1);
+ *
+ * // Bind a string value to a PreparedStatement
+ * ParameterBinder stringBinder = ParameterBinder.forString("example");
+ * stringBinder.bind(statement, 2);
+ *
+ * // Bind a null value to a PreparedStatement
+ * ParameterBinder.null_binder.bind(statement, 3);
+ * }</pre>
+ *
+ * <p>This class also supports binding other types such as {@code long},
+ * {@code Timestamp}, {@code Time}, {@code Date}, {@code Boolean},
+ * {@code InputStream}, and custom objects using a {@code TypeHandler}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see PreparedStatement
+ * @see SQLException
+ * @since 2021/1/7 15:09
  */
 public abstract class ParameterBinder {
 
   /**
-   * Bind a value to statement
+   * Binds a value to the specified parameter index in a {@link PreparedStatement}.
+   * This method is typically implemented by subclasses to handle specific types
+   * of values and bind them to the prepared statement.
    *
-   * @param statement statement
-   * @param paramIdx parameter index
-   * @throws SQLException parameter set error
+   * <p>Example usage:
+   * <pre>{@code
+   * ParameterBinder binder = ParameterBinder.forString("example");
+   * try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO table (column) VALUES (?)")) {
+   *   binder.bind(stmt, 1);
+   *   stmt.executeUpdate();
+   * }
+   * }</pre>
+   *
+   * @param statement the {@link PreparedStatement} to bind the value to
+   * @param paramIdx the index of the parameter in the prepared statement (1-based)
+   * @throws SQLException if an error occurs while binding the value to the statement
    */
   public abstract void bind(PreparedStatement statement, int paramIdx)
           throws SQLException;
@@ -54,10 +93,24 @@ public abstract class ParameterBinder {
   };
 
   /**
-   * Bind int to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds an integer value to a
+   * {@link PreparedStatement}.
    *
-   * @param value int value
-   * @return Int ParameterBinder
+   * <p>This method is useful when you need to bind an integer parameter to a
+   * specific index in a prepared statement. The returned binder handles the
+   * binding logic internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * ParameterBinder binder = ParameterBinder.forInt(42);
+   * try (PreparedStatement stmt = connection.prepareStatement("INSERT INTO table (column) VALUES (?)")) {
+   *   binder.bind(stmt, 1);
+   *   stmt.executeUpdate();
+   * }
+   * }</pre>
+   *
+   * @param value the integer value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified integer value
    * @see PreparedStatement#setInt(int, int)
    */
   public static ParameterBinder forInt(int value) {
@@ -73,10 +126,25 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind long to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds a long value to a
+   * {@link PreparedStatement}.
    *
-   * @param value long value
-   * @return Long ParameterBinder
+   * <p>This method is useful when you need to bind a long parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * ParameterBinder binder = ParameterBinder.forLong(123456789L);
+   * try (PreparedStatement stmt = connection.prepareStatement(
+   *         "INSERT INTO table (long_column) VALUES (?)")) {
+   *   binder.bind(stmt, 1);
+   *   stmt.executeUpdate();
+   * }
+   * }</pre>
+   *
+   * @param value the long value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified long value
    * @see PreparedStatement#setLong(int, long)
    */
   public static ParameterBinder forLong(long value) {
@@ -92,10 +160,25 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind String to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds a string value to a
+   * {@link PreparedStatement}.
    *
-   * @param value String value
-   * @return String ParameterBinder
+   * <p>This method is useful when you need to bind a string parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   ParameterBinder binder = ParameterBinder.forString("example");
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the string value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified string value
    * @see PreparedStatement#setString(int, String)
    */
   public static ParameterBinder forString(String value) {
@@ -111,10 +194,26 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind Timestamp to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds a timestamp value to a
+   * {@link PreparedStatement}.
    *
-   * @param value Timestamp value
-   * @return Timestamp ParameterBinder
+   * <p>This method is useful when you need to bind a timestamp parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+   *   ParameterBinder binder = ParameterBinder.forTimestamp(timestamp);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (timestamp_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the timestamp value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified timestamp value
    * @see PreparedStatement#setTimestamp(int, Timestamp)
    */
   public static ParameterBinder forTimestamp(Timestamp value) {
@@ -130,10 +229,26 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind Time to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds a time value to a
+   * {@link PreparedStatement}.
    *
-   * @param value Time value
-   * @return Time ParameterBinder
+   * <p>This method is useful when you need to bind a time parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Time time = new Time(System.currentTimeMillis());
+   *   ParameterBinder binder = ParameterBinder.forTime(time);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (time_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the time value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified time value
    * @see PreparedStatement#setTime(int, Time)
    */
   public static ParameterBinder forTime(Time value) {
@@ -148,6 +263,29 @@ public abstract class ParameterBinder {
     return new TimeParameterBinder();
   }
 
+  /**
+   * Creates a {@link ParameterBinder} that binds a date value to a
+   * {@link PreparedStatement}.
+   *
+   * <p>This method is useful when you need to bind a date parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Date date = new Date(System.currentTimeMillis());
+   *   ParameterBinder binder = ParameterBinder.forDate(date);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (date_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the date value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified date value
+   * @see PreparedStatement#setDate(int, Date)
+   */
   public static ParameterBinder forDate(Date value) {
     final class DateParameterBinder extends ParameterBinder {
       @Override
@@ -159,10 +297,25 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind Boolean to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds a boolean value to a
+   * {@link PreparedStatement}.
    *
-   * @param value Boolean value
-   * @return Boolean ParameterBinder
+   * <p>This method is useful when you need to bind a boolean parameter to a specific
+   * index in a prepared statement. The returned binder handles the binding logic
+   * internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   ParameterBinder binder = ParameterBinder.forBoolean(true);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (boolean_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the boolean value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified boolean value
    * @see PreparedStatement#setBoolean(int, boolean)
    */
   public static ParameterBinder forBoolean(boolean value) {
@@ -178,10 +331,26 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind InputStream to {@link PreparedStatement}
+   * Creates a {@link ParameterBinder} that binds an input stream value to a
+   * {@link PreparedStatement}.
    *
-   * @param value InputStream value
-   * @return InputStream ParameterBinder
+   * <p>This method is useful when you need to bind binary data, such as a file or blob,
+   * to a specific index in a prepared statement. The returned binder handles the binding
+   * logic internally.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   InputStream inputStream = new FileInputStream("path/to/file");
+   *   ParameterBinder binder = ParameterBinder.forBinaryStream(inputStream);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (binary_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the input stream value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified input stream value
    * @see PreparedStatement#setBinaryStream(int, InputStream)
    */
   public static ParameterBinder forBinaryStream(InputStream value) {
@@ -195,11 +364,65 @@ public abstract class ParameterBinder {
   }
 
   /**
-   * Bind Object to {@link PreparedStatement} using TypeHandler
+   * Creates a {@link ParameterBinder} that binds an object value to a
+   * {@link PreparedStatement}.
    *
-   * @param value Object value
-   * @return InputStream ParameterBinder
-   * @see PreparedStatement#setBinaryStream(int, InputStream)
+   * <p>This method is useful when you need to bind an arbitrary object parameter to a
+   * specific index in a prepared statement. The returned binder uses the generic
+   * setObject method to handle the binding logic.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Object object = new Object();
+   *   ParameterBinder binder = ParameterBinder.forObject(object);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (object_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param value the object value to bind to the prepared statement
+   * @return a {@link ParameterBinder} instance that binds the specified object value
+   * @see PreparedStatement#setObject(int, Object)
+   */
+  public static ParameterBinder forObject(@Nullable Object value) {
+    final class ObjectParameterBinder extends ParameterBinder {
+
+      @Override
+      public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
+        statement.setObject(paramIdx, value);
+      }
+
+    }
+    return new ObjectParameterBinder();
+  }
+
+  /**
+   * Creates a {@link ParameterBinder} that binds an object value to a
+   * {@link PreparedStatement} using a custom {@link TypeHandler}.
+   *
+   * <p>This method is useful when you need to bind a custom object parameter to a
+   * specific index in a prepared statement. The provided {@link TypeHandler} handles
+   * the conversion and binding logic.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   TypeHandler<MyCustomType> typeHandler = new MyCustomTypeHandler();
+   *   MyCustomType customValue = new MyCustomType();
+   *   ParameterBinder binder = ParameterBinder.forTypeHandler(typeHandler, customValue);
+   *   try (PreparedStatement stmt = connection.prepareStatement(
+   *           "INSERT INTO table (custom_column) VALUES (?)")) {
+   *     binder.bind(stmt, 1);
+   *     stmt.executeUpdate();
+   *   }
+   * }</pre>
+   *
+   * @param typeHandler the {@link TypeHandler} to use for binding the value
+   * @param value the object value to bind to the prepared statement
+   * @param <T> the type of the object being bound
+   * @return a {@link ParameterBinder} instance that binds the specified object value
+   * using the provided {@link TypeHandler}
    */
   public static <T> ParameterBinder forTypeHandler(TypeHandler<T> typeHandler, T value) {
     final class TypeHandlerParameterBinder extends ParameterBinder {
@@ -210,4 +433,5 @@ public abstract class ParameterBinder {
     }
     return new TypeHandlerParameterBinder();
   }
+
 }

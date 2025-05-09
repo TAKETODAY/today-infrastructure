@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ public class BidirectionalConverterTest {
   @Test
   public void toDatabase_fromDatabase_doExecute() {
     List<String> notConverted = sql2o.createNamedQuery("select text from uuid_wrapper")
-            .fetchScalars(String.class);
+            .scalars(String.class);
 
     // if conversion to database worked, all "-" from UUID were replaced with "!"
     for (String s : notConverted) {

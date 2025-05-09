@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,48 @@ import infra.logging.LoggerFactory;
 import infra.util.LogFormatUtils;
 
 /**
- * Centralize logging for SQL statements.
+ * A utility class for logging SQL statements and slow queries with various
+ * formatting and highlighting options. It supports logging to both internal
+ * loggers and standard output (stdout) based on configuration.
+ *
+ * <p>This class provides methods to log SQL statements, format them, highlight
+ * syntax, and track slow queries. It is designed to be configurable through
+ * constructor parameters and environment strategies.
+ *
+ * <p><b>Usage Examples:</b>
+ *
+ * <pre>{@code
+ * // Log a simple SQL statement
+ * SqlStatementLogger.sharedInstance.logStatement("SELECT * FROM users");
+ *
+ * // Log a SQL statement with a description
+ * SqlStatementLogger.sharedInstance.logStatement("Fetch Users", "SELECT * FROM users WHERE active = 1");
+ *
+ * // Log a SQL statement with custom formatting
+ * SqlStatementLogger.sharedInstance.logStatement(
+ *   "Custom Formatter Example",
+ *   "SELECT * FROM orders WHERE status = 'shipped'",
+ *   sql -> "Formatted: " + sql
+ * );
+ *
+ * // Log a slow query
+ * long startTimeNanos = System.nanoTime();
+ * // Simulate query execution
+ * Thread.sleep(200);
+ * SqlStatementLogger.sharedInstance.logSlowQuery("SELECT * FROM large_table", startTimeNanos);
+ * }</pre>
+ *
+ * <p><b>Configuration Options:</b>
+ * <ul>
+ *   <li>{@code logToStdout}: Whether to log SQL statements to stdout in addition to the internal logger.</li>
+ *   <li>{@code format}: Whether to format SQL statements for better readability.</li>
+ *   <li>{@code highlight}: Whether to apply syntax highlighting to SQL statements.</li>
+ *   <li>{@code logSlowQuery}: Threshold (in milliseconds) for logging slow queries. Set to 0 to disable.</li>
+ *   <li>{@code stdoutOnly}: If true, logs are written only to stdout and not to the internal logger.</li>
+ *   <li>{@code stdoutOnlyPrefix}: Prefix for stdout-only logs.</li>
+ * </ul>
+ *
+ * <p>This class is thread-safe and can be used as a singleton via {@link #sharedInstance}.
  *
  * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

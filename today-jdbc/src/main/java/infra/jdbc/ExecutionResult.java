@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,18 @@ import infra.transaction.TransactionSystemException;
 import infra.transaction.UnexpectedRollbackException;
 
 /**
+ * Represents the result of a database execution and provides methods to create
+ * named queries, execute queries, and manage transactions. This class acts as
+ * a wrapper around a {@link JdbcConnection}, offering additional functionality
+ * for query creation and transaction management.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see JdbcConnection
+ * @see QueryProducer
  * @since 4.0 2023/1/17 11:26
  */
-public class ExecutionResult implements QueryProducer {
+public abstract class ExecutionResult implements QueryProducer {
+
   private final JdbcConnection connection;
 
   public ExecutionResult(JdbcConnection connection) {

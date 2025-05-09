@@ -408,7 +408,7 @@ public class IssuesTest {
 
       int cnt = connection.createNamedQuery("select count(*) from testIssue166OneCharacterParameterFail where id = :p")
               .addParameter("p", 1)
-              .fetchScalar(Integer.class);
+              .scalar(Integer.class);
 
       Assert.assertEquals(1, cnt);
     }
