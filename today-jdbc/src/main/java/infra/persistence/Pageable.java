@@ -20,7 +20,40 @@ package infra.persistence;
 import infra.lang.Nullable;
 
 /**
- * for page query
+ * Interface for pagination information. Provides methods to retrieve details
+ * about the current page and the number of items to be returned.
+ *
+ * <p>This interface is typically used in scenarios where data needs to be
+ * retrieved in chunks or pages, such as database queries or API responses.
+ *
+ * <p><strong>Usage Example:</strong>
+ * <pre>{@code
+ *   // Create a Pageable instance for the second page with 10 items per page
+ *   Pageable pageable = Pageable.of(2, 10);
+ *
+ *   // Retrieve the page number and page size
+ *   int pageNumber = pageable.pageNumber(); // Returns 2
+ *   int pageSize = pageable.pageSize();     // Returns 10
+ *
+ *   // Calculate the offset for database queries
+ *   int offset = pageable.offset();         // Returns 10
+ *
+ *   // Use the Pageable instance in a query
+ *   List<Item> items = repository.findItems(pageable);
+ * }</pre>
+ *
+ * <p>The {@link #offset()} method calculates the starting index for the current
+ * page based on the page number and page size. This is useful for database
+ * queries that require an offset.
+ *
+ * <p>The {@link #pageSize(int max)} method allows you to enforce a maximum limit
+ * on the page size, ensuring that the returned number of items does not exceed
+ * the specified maximum.
+ *
+ * <p>The static factory method {@link #of(int pageNumber, int pageSize)} provides
+ * a convenient way to create a {@code Pageable} instance. Additionally, the
+ * {@link #unwrap(Object)} method can be used to safely cast an object to a
+ * {@code Pageable} if applicable.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Page
