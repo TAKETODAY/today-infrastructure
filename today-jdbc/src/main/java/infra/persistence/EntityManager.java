@@ -82,8 +82,8 @@ public interface EntityManager {
    *   User user = new User("JohnDoe", "john.doe@example.com");
    *
    *   try {
-   *     int id = repository.persist(user);
-   *     System.out.println("Persisted user with ID: " + id);
+   *     int rowsAffected = entityManager.persist(user);
+   *     System.out.println("Rows updated: " + rowsAffected);
    *   }
    *   catch (DataAccessException e) {
    *     System.err.println("Failed to persist user: " + e.getMessage());
@@ -92,8 +92,7 @@ public interface EntityManager {
    *
    * @param entity the entity to be persisted; must not be null.
    * The exact type and structure of the entity depend  on the specific implementation.
-   * @return the identifier of the persisted entity. The type and
-   * meaning of the identifier (e.g., database primary key)
+   * @return the number of rows affected by the persistence operation
    * are determined by the underlying persistence mechanism.
    * @throws DataAccessException if an error occurs while accessing
    * the data store during the persist operation.
@@ -114,7 +113,7 @@ public interface EntityManager {
    * <pre>{@code
    *   User user = new User("JohnDoe", "john.doe@example.com");
    *   try {
-   *     int affectedRows = persist(user, PropertyUpdateStrategy.always());
+   *     int affectedRows = entityManager.persist(user, PropertyUpdateStrategy.always());
    *     System.out.println("Affected rows: " + affectedRows);
    *   }
    *   catch (DataAccessException e) {
@@ -142,13 +141,13 @@ public interface EntityManager {
    *   // Persist an entity with automatic ID generation
    *   MyEntity entity = new MyEntity();
    *   entity.setName("Sample Entity");
-   *   int rowsAffected = persist(entity, true);
+   *   int rowsAffected = entityManager.persist(entity, true);
    *
    *   // Persist an entity with a manually assigned ID
    *   MyEntity entityWithId = new MyEntity();
    *   entityWithId.setId(123);
    *   entityWithId.setName("Another Entity");
-   *   int rowsAffected = persist(entityWithId, false);
+   *   int rowsAffected = entityManager.persist(entityWithId, false);
    * }</pre>
    *
    * @param entity the entity object to be persisted; must not be null
@@ -176,7 +175,7 @@ public interface EntityManager {
    *   user.setEmail("john.doe@example.com");
    *
    *   // Persist the user with auto-generated ID and default update strategy
-   *   int rowsAffected = repository.persist(user, null, true);
+   *   int rowsAffected = entityManager.persist(user, null, true);
    *
    *   System.out.println("Rows affected: " + rowsAffected);
    *   System.out.println("User id: " + user.getId());
@@ -207,7 +206,7 @@ public interface EntityManager {
    *   );
    *
    *   try {
-   *     repository.persist(users);
+   *     entityManager.persist(users);
    *   }
    *   catch (DataAccessException e) {
    *     System.err.println("Error persisting entities: " + e.getMessage());
@@ -238,7 +237,7 @@ public interface EntityManager {
    *   new MyEntity("entity2")
    * );
    * try {
-   *   persist(entities, true);
+   *   entityManager.persist(entities, true);
    *   System.out.println("Entities persisted successfully.");
    * }
    * catch (DataAccessException e) {
@@ -270,7 +269,7 @@ public interface EntityManager {
    * );
    *
    * try {
-   *   persist(entities, PropertyUpdateStrategy.always());
+   *   entityManager.persist(entities, PropertyUpdateStrategy.always());
    * }
    * catch (DataAccessException e) {
    *   // Handle exceptions related to data access
@@ -311,7 +310,7 @@ public interface EntityManager {
    * );
    *
    * try {
-   *   persist(entities, PropertyUpdateStrategy.always(), true);
+   *   entityManager.persist(entities, PropertyUpdateStrategy.always(), true);
    * }
    * catch (DataAccessException e) {
    *   logger.error("Failed to persist entities", e);
@@ -336,7 +335,7 @@ public interface EntityManager {
    * <pre>{@code
    *   Stream<MyEntity> entityStream = Stream.of(new MyEntity("id1"), new MyEntity("id2"));
    *   try {
-   *     repository.persist(entityStream);
+   *     entityManager.persist(entityStream);
    *   }
    *   catch (DataAccessException e) {
    *     // Handle exception
@@ -361,7 +360,7 @@ public interface EntityManager {
    *   Stream<MyEntity> entityStream = Stream.of(new MyEntity("data1"), new MyEntity("data2"));
    *
    *   try {
-   *     repository.persist(entityStream, true);
+   *     entityManager.persist(entityStream, true);
    *     System.out.println("Entities persisted successfully.");
    *   }
    *   catch (DataAccessException e) {
@@ -389,7 +388,7 @@ public interface EntityManager {
    * <pre>{@code
    *   Stream<MyEntity> entityStream = Stream.of(entity1, entity2, entity3);
    *   try {
-   *     repository.persist(entityStream, PropertyUpdateStrategy.always());
+   *     entityManager.persist(entityStream, PropertyUpdateStrategy.always());
    *   }
    *   catch (DataAccessException e) {
    *     // Handle exceptions related to data access
@@ -423,7 +422,7 @@ public interface EntityManager {
    *   Stream<MyEntity> entities = Stream.of(new MyEntity("entity1"), new MyEntity("entity2"));
    *
    *   // Persist entities with auto-generated IDs and a custom update strategy
-   *   repository.persist(entities, PropertyUpdateStrategy.MERGE, true);
+   *   entityManager.persist(entities, PropertyUpdateStrategy.MERGE, true);
    * }</pre>
    *
    * @param entities a stream of entities to be persisted; must not be null
@@ -447,7 +446,7 @@ public interface EntityManager {
    *   user.setId(1);
    *   user.setName("John Doe");
    *
-   *   int rowsAffected = update(user);
+   *   int rowsAffected = entityManager.update(user);
    *   System.out.println("Rows updated: " + rowsAffected);
    * }</pre>
    *
@@ -476,7 +475,7 @@ public interface EntityManager {
    *
    *   PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull();
    *
-   *   int rowsAffected = repository.update(entity, strategy);
+   *   int rowsAffected = entityManager.update(entity, strategy);
    *   System.out.println("Rows updated: " + rowsAffected);
    *
    *   // Update using only an example (without a strategy)
@@ -511,7 +510,7 @@ public interface EntityManager {
    *   user.setName("John Doe");
    *   user.setEmail("john.doe@example.com");
    *
-   *   int rowsAffected = updateById(user);
+   *   int rowsAffected = entityManager.updateById(user);
    *   if (rowsAffected > 0) {
    *     System.out.println("Update successful.");
    *   }
@@ -542,7 +541,7 @@ public interface EntityManager {
    * user.setName("John Doe");
    * user.setEmail("john.doe@example.com");
    *
-   * int rowsUpdated = updateById(user, 123);
+   * int rowsUpdated = entityManager.updateById(user, 123);
    * if (rowsUpdated > 0) {
    *   System.out.println("Update successful!");
    * }
@@ -576,14 +575,14 @@ public interface EntityManager {
    * User user = new User();
    * user.setId(1);
    * user.setName("Updated Name");
-   * int rowsAffected = updateById(user, null);
+   * int rowsAffected = entityManager.updateById(user, null);
    * System.out.println(rowsAffected + " row(s) updated.");
    *
    * // Update with a custom strategy
    * PropertyUpdateStrategy strategy = (property, value) -> {
    *   return value != null; // Only update non-null properties
    * };
-   * int rowsAffectedWithStrategy = updateById(user, strategy);
+   * int rowsAffectedWithStrategy = entityManager.updateById(user, strategy);
    * System.out.println(rowsAffectedWithStrategy + " row(s) updated with strategy.");
    * }</pre>
    *
@@ -607,7 +606,7 @@ public interface EntityManager {
    *   user.setName("John Doe");
    *   user.setEmail("john.doe@example.com");
    *
-   *   int rowsAffected = updateById(user, 123L, PropertyUpdateStrategy.always());
+   *   int rowsAffected = entityManager.updateById(user, 123L, PropertyUpdateStrategy.always());
    *   if (rowsAffected > 0) {
    *     System.out.println("Update successful!");
    *   }
@@ -676,7 +675,7 @@ public interface EntityManager {
    *   user.setName("John Doe");
    *
    *   try {
-   *     int rowsAffected = repository.saveOrUpdate(user);
+   *     int rowsAffected = entityManager.saveOrUpdate(user);
    *     System.out.println(rowsAffected + " row(s) affected.");
    *   } catch (DataAccessException e) {
    *     System.err.println("Error while saving or updating: " + e.getMessage());
@@ -711,11 +710,11 @@ public interface EntityManager {
    *
    * // Save or update the entity with a custom update strategy
    * PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull();
-   * int affectedRows = saveOrUpdate(person, strategy);
+   * int affectedRows = entityManager.saveOrUpdate(person, strategy);
    * System.out.println("Affected rows: " + affectedRows);
    *
    * // Save or update without specifying a strategy
-   * int affectedRowsDefault = saveOrUpdate(person, null);
+   * int affectedRowsDefault = entityManager.saveOrUpdate(person, null);
    * System.out.println("Affected rows (default strategy): " + affectedRowsDefault);
    * }</pre>
    *
@@ -742,7 +741,7 @@ public interface EntityManager {
    * Example usage:
    * <pre>{@code
    *   // Assuming a User entity with ID 101 exists in the database
-   *   int rowsAffected = delete(User.class, 101);
+   *   int rowsAffected = entityManager.delete(User.class, 101);
    *   if (rowsAffected > 0) {
    *     System.out.println("Entity deleted successfully.");
    *   }
@@ -771,12 +770,12 @@ public interface EntityManager {
    *  // Deleting an entity
    *  MyEntity entity = new MyEntity();
    *  entity.setId(123);
-   *  int rowsDeleted = delete(entity);
+   *  int rowsDeleted = entityManager.delete(entity);
    *
    *  // Deleting by example (e.g., using a partial object)
    *  MyEntity example = new MyEntity();
    *  example.setStatus("inactive");
-   *  int rowsDeletedByExample = delete(example);
+   *  int rowsDeletedByExample = entityManager.delete(example);
    * }</pre>
    *
    * @param entityOrExample the entity instance or example object
@@ -799,7 +798,7 @@ public interface EntityManager {
    * <pre>{@code
    *  // Assuming we have an entity class named 'User'
    *  try {
-   *    truncate(User.class);
+   *    entityManager.truncate(User.class);
    *    System.out.println("All records in the User table have been truncated.");
    *  }
    *  catch (DataAccessException e) {
@@ -824,7 +823,7 @@ public interface EntityManager {
    * Assuming a persistent entity {@code User} with a primary key of type {@code Long}:
    * <pre>{@code
    *   Long userId = 1L;
-   *   User user = repository.findById(User.class, userId);
+   *   User user = entityManager.findById(User.class, userId);
    *
    *   if (user != null) {
    *     System.out.println("User found: " + user.getName());
@@ -853,7 +852,7 @@ public interface EntityManager {
    *   User user = new User();
    *   user.setId(1L);
    *
-   *   User result = repository.findFirst(user);
+   *   User result = entityManager.findFirst(user);
    *   if (result != null) {
    *     System.out.println("User found: " + result.getName());
    *   }
@@ -881,7 +880,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setActive(true);
    *
-   * User firstActiveUser = findFirst(User.class, exampleUser);
+   * User firstActiveUser = entityManager.findFirst(User.class, exampleUser);
    * if (firstActiveUser != null) {
    *   System.out.println("Found user: " + firstActiveUser.getName());
    * }
@@ -909,7 +908,7 @@ public interface EntityManager {
    * <p>Example usage:
    * <pre>{@code
    * QueryStatement query = qb -> qb.where("status").is("active");
-   * User user = findFirst(User.class, query);
+   * User user = entityManager.findFirst(User.class, query);
    * if (user != null) {
    *   System.out.println("Found user: " + user.getName());
    * }
@@ -942,7 +941,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setEmail("user@example.com");
    *
-   * User uniqueUser = findUnique(exampleUser);
+   * User uniqueUser = entityManager.findUnique(exampleUser);
    * if (uniqueUser != null) {
    *   System.out.println("Found user: " + uniqueUser.getName());
    * }
@@ -975,7 +974,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setEmail("example@example.com");
    *
-   * User uniqueUser = findUnique(User.class, exampleUser);
+   * User uniqueUser = entityManager.findUnique(User.class, exampleUser);
    * if (uniqueUser != null) {
    *   System.out.println("Found user: " + uniqueUser.getName());
    * }
@@ -1004,7 +1003,7 @@ public interface EntityManager {
    * <p>Example usage:
    * <pre>{@code
    * QueryStatement query = q -> q.where("name", isEqualTo("John Doe"));
-   * User user = findUnique(User.class, query);
+   * User user = entityManager.findUnique(User.class, query);
    * if (user != null) {
    *   System.out.println("Found user: " + user.getName());
    * }
@@ -1035,7 +1034,7 @@ public interface EntityManager {
    * <pre>{@code
    *   // Assuming EntityManager is properly initialized
    *   try {
-   *     List<User> users = find(User.class);
+   *     List<User> users = entityManager.find(User.class);
    *     for (User user : users) {
    *       System.out.println(user.getName());
    *     }
@@ -1065,7 +1064,7 @@ public interface EntityManager {
    * sortKeys.put("age", Order.DESC);
    *
    * try {
-   *   List<Person> people = find(Person.class, sortKeys);
+   *   List<Person> people = entityManager.find(Person.class, sortKeys);
    *   people.forEach(System.out::println);
    * }
    * catch (DataAccessException e) {
@@ -1092,7 +1091,7 @@ public interface EntityManager {
    * <pre>{@code
    *   Pair<String, Order> sortKey = new Pair<>("createdAt", Order.DESC);
    *   try {
-   *     List<User> users = find(User.class, sortKey);
+   *     List<User> users = entityManager.find(User.class, sortKey);
    *     users.forEach(user -> System.out.println(user.getName()));
    *   }
    *   catch (DataAccessException e) {
@@ -1125,7 +1124,7 @@ public interface EntityManager {
    *   Pair<String, Order> sortKey = new Pair<>("name", Order.ASC);
    *
    *   try {
-   *     List<User> users = find(userClass, sortKey);
+   *     List<User> users = entityManager.find(userClass, sortKey);
    *     users.forEach(System.out::println);
    *   }
    *   catch (DataAccessException e) {
@@ -1157,7 +1156,7 @@ public interface EntityManager {
    *   userExample.setRole("ADMIN");
    *
    *   try {
-   *     List<User> activeAdmins = find(userExample);
+   *     List<User> activeAdmins = entityManager.find(userExample);
    *     activeAdmins.forEach(System.out::println);
    *   }
    *   catch (DataAccessException e) {
@@ -1186,7 +1185,7 @@ public interface EntityManager {
    *   exampleUser.setActive(true);
    *
    *   // Find all active users
-   *   List<User> activeUsers = find(User.class, exampleUser);
+   *   List<User> activeUsers = entityManager.find(User.class, exampleUser);
    *
    *   // Iterate through the results
    *   for (User user : activeUsers) {
@@ -1215,10 +1214,10 @@ public interface EntityManager {
    * QueryStatement query = new Query("age > ?", 18);
    *
    * // Find all User entities older than 18
-   * List<User> users = find(User.class, query);
+   * List<User> users = entityManager.find(User.class, query);
    *
    * // Find all User entities without any filtering
-   * List<User> allUsers = find(User.class, null);
+   * List<User> allUsers = entityManager.find(User.class, null);
    * }</pre>
    *
    * @param <T> the type of the entity class to be queried
@@ -1239,7 +1238,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setActive(true);
    * try {
-   *   Map<Long, User> activeUsersById = find(exampleUser, "id");
+   *   Map<Long, User> activeUsersById = entityManager.find(exampleUser, "id");
    *   activeUsersById.forEach((id, user) -> System.out.println("User ID: " + id + ", User: " + user));
    * }
    * catch (DataAccessException e) {
@@ -1270,7 +1269,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setName("John");
    *
-   * Map<Long, User> usersById = find(User.class, exampleUser, "id");
+   * Map<Long, User> usersById = entityManager.find(User.class, exampleUser, "id");
    * // The above will return a map where the keys are user IDs and the values are User objects with name "John"
    * }
    * </pre>
@@ -1298,7 +1297,7 @@ public interface EntityManager {
    *
    *   // Find all active users and map them by their email addresses
    *   try {
-   *     Map<String, User> userMap = find(User.class, queryHandler, "email");
+   *     Map<String, User> userMap = entityManager.find(User.class, queryHandler, "email");
    *     userMap.forEach((email, user) -> {
    *       System.out.println("User with email " + email + ": " + user.getName());
    *     });
@@ -1329,7 +1328,7 @@ public interface EntityManager {
    * <p>Example usage:
    * <pre>{@code
    *    // Assuming a User entity with an 'id' field
-   *    Map<Long, User> userMap = find(User.class, User::getId);
+   *    Map<Long, User> userMap = entityManager.find(User.class, User::getId);
    *
    *    // The resulting map will have the user's ID as the key and the User
    *    // object as the value. For example:
@@ -1365,7 +1364,7 @@ public interface EntityManager {
    *   Function<String, Integer> keyMapper = String::length;
    *
    *   try {
-   *     Map<Integer, String> result = find(example, keyMapper);
+   *     Map<Integer, String> result = entityManager.find(example, keyMapper);
    *     result.forEach((key, value) -> {
    *       System.out.println("Key: " + key + ", Value: " + value);
    *     });
@@ -1401,7 +1400,7 @@ public interface EntityManager {
    *   exampleUser.setStatus("ACTIVE");
    *
    *   // Find users and map them by their user ID
-   *   Map<Long, User> userMap = find(User.class, exampleUser, User::getId);
+   *   Map<Long, User> userMap = entityManager.find(User.class, exampleUser, User::getId);
    *
    *   // Iterate over the result map
    *   userMap.forEach((id, user) -> {
@@ -1435,7 +1434,7 @@ public interface EntityManager {
    * indexed by their user IDs:
    * <pre>{@code
    *   QueryStatement query = QueryBuilder.select().from("users").where("active", true);
-   *   Map<Long, User> userMap = find(User.class, query, User::getId);
+   *   Map<Long, User> userMap = entityManager.find(User.class, query, User::getId);
    *
    *   // Accessing a specific user by ID
    *   User user = userMap.get(123L);
@@ -1467,7 +1466,7 @@ public interface EntityManager {
    *   userExample.setStatus("active");
    *
    *   try {
-   *     Number count = count(userExample);
+   *     Number count = entityManager.count(userExample);
    *     System.out.println("Number of active users: " + count);
    *   }
    *   catch (DataAccessException e) {
@@ -1490,7 +1489,7 @@ public interface EntityManager {
    *
    * Example usage:
    * <pre>{@code
-   *   long userCount = count(User.class);
+   *   long userCount = entityManager.count(User.class);
    *   System.out.println("Total users: " + userCount);
    * }</pre>
    *
@@ -1515,7 +1514,7 @@ public interface EntityManager {
    * User exampleUser = new User();
    * exampleUser.setName("John");
    *
-   * long userCount = dataAccess.count(User.class, exampleUser).longValue();
+   * long userCount = entityManager.count(User.class, exampleUser).longValue();
    * System.out.println("Number of users named John: " + userCount);
    * }</pre>
    *
@@ -1537,14 +1536,14 @@ public interface EntityManager {
    * <p>Example usage:
    * <pre>{@code
    * ConditionStatement condition = Condition.eq("status", "active");
-   * long activeUserCount = repository.count(User.class, condition).longValue();
+   * long activeUserCount = entityManager.count(User.class, condition).longValue();
    * System.out.println("Active users: " + activeUserCount);
    * }</pre>
    *
    * <p>If no condition is provided, the method will return the total count of all
    * entities of the specified class:
    * <pre>{@code
-   * long totalUsers = repository.count(User.class, null).longValue();
+   * long totalUsers = entityManager.count(User.class, null).longValue();
    * System.out.println("Total users: " + totalUsers);
    * }</pre>
    *
@@ -1573,7 +1572,7 @@ public interface EntityManager {
    * the first page of users with a page size of 10:
    * <pre>{@code
    * Pageable pageable = Pageable.of(1, 10);
-   * Page<User> userPage = repository.page(User.class, pageable);
+   * Page<User> userPage = entityManager.page(User.class, pageable);
    *
    * // Iterate over the content of the page
    * for (User user : userPage.getRows()) {
@@ -1605,7 +1604,7 @@ public interface EntityManager {
    *   exampleUser.setStatus("ACTIVE");
    *
    *   try {
-   *     Page<User> userPage = repository.page(exampleUser);
+   *     Page<User> userPage = entityManager.page(exampleUser);
    *
    *     // Process the paginated results
    *     List<User> users = userPage.getItems();
@@ -1630,15 +1629,33 @@ public interface EntityManager {
   <T> Page<T> page(T example) throws DataAccessException;
 
   /**
-   * Retrieves a paginated list of entities based on the provided example and pagination parameters.
-   * This method is useful for querying data with filtering and pagination capabilities.
-   * If no pagination is required, the {@code pageable} parameter can be set to {@code null}.
+   * Queries the database and returns a paginated result based on the provided example object
+   * and pagination parameters. This method is typically used for implementing query-by-example
+   * functionality with support for pagination.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * User userExample = new User();
+   * userExample.setStatus("active");
+   * Pageable pageable = Pageable.of(0, 10);
+   *
+   * try {
+   *   Page<User> result = entityManager.page(userExample, pageable);
+   *   List<User> users = result.getRows();
+   *   long totalElements = result.getTotalRows();
+   * } catch (DataAccessException e) {
+   *   // Handle data access exception
+   * }
+   * }</pre>
    *
    * @param <T> the type of the entity being queried
-   * @param example the example entity used as a filter; must not be {@code null}
-   * @param pageable the pagination information; can be {@code null} if no pagination is needed
-   * @return a {@link Page} containing the filtered and paginated results
-   * @throws DataAccessException if there is an issue accessing the underlying data store
+   * @param example the example object used to define query criteria. Non-null fields in this
+   * object will be used to filter the results. Must not be null.
+   * @param pageable the pagination and sorting configuration. If null, no pagination or sorting
+   * will be applied, and all matching records will be returned as a single page.
+   * @return a {@link Page} object containing the query results, including the content
+   * of the current page and metadata such as total elements and total pages.
+   * @throws DataAccessException if there is an issue accessing the underlying database
    */
   <T> Page<T> page(T example, @Nullable Pageable pageable) throws DataAccessException;
 
@@ -1654,7 +1671,7 @@ public interface EntityManager {
    *   example.createCriteria().andNameLike("%John%");
    *
    *   // Query the paginated result
-   *   Page<User> userPage = page(User.class, example);
+   *   Page<User> userPage = entityManager.page(User.class, example);
    *
    *   // Iterate through the results
    *   for (User user : userPage.getRows()) {
@@ -1691,7 +1708,7 @@ public interface EntityManager {
    *   Pageable pageable = Pageable.of(1, 10);
    *
    *   // Perform the paginated query
-   *   Page<User> userPage = repository.page(userClass, exampleUser, pageable);
+   *   Page<User> userPage = entityManager.page(userClass, exampleUser, pageable);
    *
    *   // Process the results
    *   userPage.peek(user -> {
@@ -1720,7 +1737,7 @@ public interface EntityManager {
    * Example usage:
    * <pre>{@code
    *   ConditionStatement condition = query -> query.eq("status", "ACTIVE");
-   *   Page<User> userPage = page(User.class, condition);
+   *   Page<User> userPage = entityManager.page(User.class, condition);
    *   userPage.getRows().forEach(user -> {
    *     System.out.println(user.getName());
    *   });
@@ -1757,7 +1774,7 @@ public interface EntityManager {
    *   Pageable pageable = Pageable.of(1, 10); // Fetch the first 10 records
    *
    *   // Query the paginated result
-   *   Page<User> userPage = repository.page(User.class, condition, pageable);
+   *   Page<User> userPage = entityManager.page(User.class, condition, pageable);
    *
    *   // Iterate over the result
    *   userPage.peek(user -> {
@@ -1789,7 +1806,7 @@ public interface EntityManager {
    * ExampleEntity example = new ExampleEntity();
    * example.setStatus("ACTIVE");
    *
-   * iterate(example, entity -> {
+   * entityManager.iterate(example, entity -> {
    *   System.out.println("Processing entity: " + entity);
    *   // Perform additional operations on the entity
    * });
@@ -1818,7 +1835,7 @@ public interface EntityManager {
    *   MyEntity example = new MyEntity();
    *   example.setStatus("ACTIVE");
    *
-   *   iterate(MyEntity.class, example, entity -> {
+   *   entityManager.iterate(MyEntity.class, example, entity -> {
    *     System.out.println("Processing entity: " + entity.getId());
    *     // Perform additional operations on the entity
    *   });
@@ -1848,13 +1865,13 @@ public interface EntityManager {
    * <p><b>Example Usage:</b>
    * <pre>{@code
    * // Iterate over all User entities and print their names
-   * iterate(User.class, null, user -> {
+   * entityManager.iterate(User.class, null, user -> {
    *   System.out.println("User: " + user.getName());
    * });
    *
    * // Iterate with a custom query to filter active users
    * QueryStatement query = query -> query.where("active", true);
-   * iterate(User.class, query, user -> {
+   * entityManager.iterate(User.class, query, user -> {
    *   System.out.println("Active User: " + user.getName());
    * });
    * }</pre>
@@ -1877,7 +1894,7 @@ public interface EntityManager {
    * <p>Example usage:
    * <pre>{@code
    *   try {
-   *     EntityIterator<MyEntity> iterator = iterate(MyEntity.class);
+   *     EntityIterator<MyEntity> iterator = entityManager.iterate(MyEntity.class);
    *     while (iterator.hasNext()) {
    *       MyEntity entity = iterator.next();
    *       // Process the entity
@@ -1908,7 +1925,7 @@ public interface EntityManager {
    *   MyEntity example = new MyEntity();
    *   example.setStatus("ACTIVE");
    *
-   *   try (EntityIterator<MyEntity> iterator = iterate(example)) {
+   *   try (EntityIterator<MyEntity> iterator = entityManager.iterate(example)) {
    *     while (iterator.hasNext()) {
    *       MyEntity entity = iterator.next();
    *       System.out.println(entity.getId());
@@ -1938,7 +1955,7 @@ public interface EntityManager {
    *   MyClass example = new MyClass();
    *   example.setStatus("active");
    *
-   *   try (EntityIterator<MyClass> iterator = iterate(MyClass.class, example)) {
+   *   try (EntityIterator<MyClass> iterator = entityManager.iterate(MyClass.class, example)) {
    *     while (iterator.hasNext()) {
    *       MyClass entity = iterator.next();
    *       System.out.println(entity);
@@ -1968,7 +1985,7 @@ public interface EntityManager {
    *
    * <p>Example usage:
    * <pre>{@code
-   * EntityIterator<MyEntity> iterator = iterate(MyEntity.class, null);
+   * EntityIterator<MyEntity> iterator = entityManager.iterate(MyEntity.class, null);
    * while (iterator.hasNext()) {
    *   MyEntity entity = iterator.next();
    *   // Process the entity
@@ -1978,7 +1995,7 @@ public interface EntityManager {
    * <p>For more advanced queries, you can provide a {@link QueryStatement}:
    * <pre>{@code
    * var query = new Query("SELECT * FROM my_table WHERE status = ?", "active");
-   * EntityIterator<MyEntity> iterator = iterate(MyEntity.class, query);
+   * EntityIterator<MyEntity> iterator = entityManager.iterate(MyEntity.class, query);
    * while (iterator.hasNext()) {
    *   MyEntity entity = iterator.next();
    *   // Handle filtered entities
