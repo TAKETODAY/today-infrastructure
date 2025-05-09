@@ -44,8 +44,8 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.logging.LoggerFactory;
+import infra.util.ExceptionUtils;
 import infra.util.function.ThrowingSupplier;
-import lombok.SneakyThrows;
 
 import static infra.util.concurrent.Future.combine;
 import static infra.util.concurrent.Future.failed;
@@ -1116,12 +1116,13 @@ class FutureTests {
   void awaitOk() throws Exception {
     Promise<Void> promise = Future.forPromise();
     assertThat(promise).isNotDone();
-    Future.defaultScheduler.execute(new Runnable() {
-      @SneakyThrows
-      @Override
-      public void run() {
+    Future.defaultScheduler.execute(() -> {
+      try {
         Thread.sleep(1000);
         promise.setSuccess(null);
+      }
+      catch (InterruptedException e) {
+        throw ExceptionUtils.sneakyThrow(e);
       }
     });
 
