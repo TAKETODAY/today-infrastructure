@@ -82,7 +82,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    scan(condition -> select.addRestriction(condition.restriction));
+    scan(select::addRestriction);
     select.orderBy(example instanceof OrderBySource source ? source.orderByClause() : orderByClause);
   }
 

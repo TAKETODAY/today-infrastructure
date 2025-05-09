@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,31 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EntityRef {
 
+  /**
+   * Returns the class object representing the entity type
+   * referenced by this annotation.
+   *
+   * <p>This method is typically used to obtain the primary
+   * table reference for an annotated entity. It allows frameworks
+   * or libraries to dynamically resolve and interact with the
+   * specified entity class at runtime.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *    @EntityRef(User.class)
+   *    public class UpdateUser {
+   *      // Class body
+   *    }
+   *
+   *    // Retrieving the referenced entity class
+   *    EntityRef entityRef = UpdateUser.class.getAnnotation(EntityRef.class);
+   *    Class<?> entityClass = entityRef.value();
+   *
+   *    System.out.println("Referenced entity: " + entityClass.getName());
+   * }</pre>
+   *
+   * @return the {@link Class} object representing the referenced entity type
+   */
   Class<?> value();
 
 }
