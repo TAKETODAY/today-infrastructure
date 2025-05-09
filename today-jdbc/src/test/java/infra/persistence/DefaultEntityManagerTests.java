@@ -170,7 +170,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     String name;
 
     @Nullable
-    @Where(operator = ">")
+    @Where(operator = "=")
     Integer age;
 
     @Where("birthday >= ?")
