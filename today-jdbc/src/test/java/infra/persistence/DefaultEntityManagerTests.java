@@ -166,9 +166,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     @Column("id")
     Integer userId;
 
+    @Where("name = ?")
     String name;
 
     @Nullable
+    @Where(operator = ">")
     Integer age;
 
     @Where("birthday >= ?")
