@@ -80,6 +80,32 @@ public @interface Where {
    */
   String value() default Constant.DEFAULT_NONE;
 
+  /**
+   * Returns the operator associated with the annotation's condition.
+   * This attribute defines the logical operator to be applied, typically
+   * used in conjunction with the {@link #value()} attribute to construct
+   * complex query conditions or filtering logic.
+   *
+   * <p>If no operator is explicitly provided, the default is set to
+   * {@link Constant#DEFAULT_NONE}, which represents the absence of a meaningful
+   * default value. This ensures compatibility with annotation constraints that
+   * do not allow {@code null} values.
+   *
+   * <p><b>Usage Examples:</b>
+   *
+   * <pre>{@code
+   *   // Example 1: Specifying a custom operator
+   *   @Where(operator = "=")
+   *   private int status;
+   *
+   *   // Example 2: Using the default operator
+   *   @Where(value = "name LIKE ?")
+   *   private String name;
+   * }</pre>
+   *
+   * @return the string representation of the operator or
+   * {@link Constant#DEFAULT_NONE} if no operator is specified
+   */
   String operator() default Constant.DEFAULT_NONE;
 
 }

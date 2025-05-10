@@ -35,6 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FuzzyQueryConditionStrategyTests {
 
+  boolean logicalAnd = true;
+  
   FuzzyQueryConditionStrategy strategy = new FuzzyQueryConditionStrategy();
 
   EntityMetadata entityMetadata = new DefaultEntityMetadataFactory().getEntityMetadata(Model.class);
@@ -51,14 +53,14 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void noLikeAnnotation() {
-    assertThat(strategy.resolve(number, 2)).isNull();
+    assertThat(strategy.resolve(logicalAnd, number, 2)).isNull();
   }
 
   @Test
   void trimLike() {
     assertTrim(trimLike);
 
-    var condition = strategy.resolve(trimLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
     assertThat(condition.value).isEqualTo("%f%");
@@ -73,11 +75,11 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void notTrimLike() {
-    assertThat(strategy.resolve(notTrimLike, " ")).isNull();
-    assertThat(strategy.resolve(notTrimLike, "")).isNull();
-    assertThat(strategy.resolve(notTrimLike, " fd ")).isNotNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimLike, " ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimLike, "")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimLike, " fd ")).isNotNull();
 
-    var condition = strategy.resolve(notTrimLike, " f ");
+    var condition = strategy.resolve(logicalAnd, notTrimLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimLike);
     assertThat(condition.value).isEqualTo("% f %");
@@ -94,7 +96,7 @@ class FuzzyQueryConditionStrategyTests {
   void trimPrefixLike() {
     assertTrim(trimPrefixLike);
 
-    var condition = strategy.resolve(trimPrefixLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimPrefixLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
     assertThat(condition.value).isEqualTo("f%");
@@ -109,11 +111,11 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void notTrimPrefixLike() {
-    assertThat(strategy.resolve(notTrimPrefixLike, " ")).isNull();
-    assertThat(strategy.resolve(notTrimPrefixLike, "")).isNull();
-    assertThat(strategy.resolve(notTrimPrefixLike, " fd ")).isNotNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, " ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, "")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, " fd ")).isNotNull();
 
-    var condition = strategy.resolve(notTrimPrefixLike, " f ");
+    var condition = strategy.resolve(logicalAnd, notTrimPrefixLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimPrefixLike);
     assertThat(condition.value).isEqualTo(" f %");
@@ -130,7 +132,7 @@ class FuzzyQueryConditionStrategyTests {
   void trimSuffixLike() {
     assertTrim(trimSuffixLike);
 
-    var condition = strategy.resolve(trimSuffixLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimSuffixLike, " \n f");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
     assertThat(condition.value).isEqualTo("%f");
@@ -145,11 +147,11 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void notTrimSuffixLike() {
-    assertThat(strategy.resolve(notTrimSuffixLike, " ")).isNull();
-    assertThat(strategy.resolve(notTrimSuffixLike, "")).isNull();
-    assertThat(strategy.resolve(notTrimSuffixLike, " fd ")).isNotNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, " ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, "")).isNull();
+    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, " fd ")).isNotNull();
 
-    var condition = strategy.resolve(notTrimSuffixLike, " f ");
+    var condition = strategy.resolve(logicalAnd, notTrimSuffixLike, " f ");
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(notTrimSuffixLike);
     assertThat(condition.value).isEqualTo("% f ");
@@ -164,12 +166,12 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void numberLike() {
-    assertThat(strategy.resolve(numberLike, 1)).isNull();
+    assertThat(strategy.resolve(logicalAnd, numberLike, 1)).isNull();
   }
 
   @Test
   void column() {
-    var condition = strategy.resolve(column, " f");
+    var condition = strategy.resolve(logicalAnd, column, " f");
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(column);
@@ -191,19 +193,19 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   private void assertTrim(EntityProperty trimLike) {
-    assertThat(strategy.resolve(trimLike, "    ")).isNull();
-    assertThat(strategy.resolve(trimLike, " \n ")).isNull();
-    assertThat(strategy.resolve(trimLike, " \t ")).isNull();
-    assertThat(strategy.resolve(trimLike, " \r ")).isNull();
-    assertThat(strategy.resolve(trimLike, "\r")).isNull();
-    assertThat(strategy.resolve(trimLike, "\n")).isNull();
-    assertThat(strategy.resolve(trimLike, "\t")).isNull();
-    assertThat(strategy.resolve(trimLike, "\t \n \r")).isNull();
-    assertThat(strategy.resolve(trimLike, "\t\n\r")).isNull();
-    assertThat(strategy.resolve(trimLike, " \t\n\r")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "    ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \n ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \t ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \r ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "\r")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "\n")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "\t")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "\t \n \r")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "\t\n\r")).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \t\n\r")).isNull();
 
-    assertThat(strategy.resolve(trimLike, "f ")).isNotNull();
-    assertThat(strategy.resolve(trimLike, " f")).isNotNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, "f ")).isNotNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " f")).isNotNull();
   }
 
   static class Model {

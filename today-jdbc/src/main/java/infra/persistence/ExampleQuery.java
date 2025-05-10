@@ -58,7 +58,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
 
   private final Object example;
 
-  private final EntityMetadata exampleMetadata;
+  final EntityMetadata exampleMetadata;
 
   private final List<ConditionPropertyExtractor> extractors;
 
@@ -150,8 +150,10 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
           }
 
           if (extracted != null) {
+            boolean logicalAnd = !property.isPresent(OR.class);
+
             for (var strategy : strategies) {
-              var condition = strategy.resolve(property, extracted);
+              var condition = strategy.resolve(logicalAnd, property, extracted);
               if (condition != null) {
                 if (selected != null) {
                   if (Objects.equals(condition.value, extracted)) {

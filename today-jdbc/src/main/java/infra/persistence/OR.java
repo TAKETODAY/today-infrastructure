@@ -15,27 +15,23 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.persistence.support;
+package infra.persistence;
 
-import infra.lang.Nullable;
-import infra.persistence.EntityProperty;
-import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.sql.Restriction;
-import infra.util.StringUtils;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Represents a logical OR condition in the context of persistence operations.
+ * This annotation can be applied to types, methods, or fields to denote
+ * an OR relationship in query conditions or filtering logic.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/28 22:43
+ * @since 5.0 2025/5/9 17:34
  */
-public class DefaultConditionStrategy implements PropertyConditionStrategy {
-
-  @Nullable
-  @Override
-  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
-    if (value instanceof String string && StringUtils.isBlank(string)) {
-      return null;
-    }
-    return new Condition(value, Restriction.equal(entityProperty.columnName), entityProperty, logicalAnd);
-  }
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OR {
 
 }

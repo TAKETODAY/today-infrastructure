@@ -36,36 +36,37 @@ import infra.persistence.sql.Restriction;
 public interface PropertyConditionStrategy {
 
   /**
-   * Resolves an SQL WHERE condition based on the provided entity property and value.
+   * Resolves a condition based on the provided logical operator, entity property, and value.
    *
-   * <p>This method dynamically generates a {@link Condition} object that represents
-   * a restriction in an SQL query. The generated condition can be used to construct
-   * query statements or apply filters to database operations.
+   * <p>This method evaluates the given parameters and generates a {@link Condition} object
+   * if applicable. The logical operator determines how the condition is structured, while
+   * the entity property and value define the specific criteria for the condition.</p>
    *
-   * <p><b>Usage Example:</b>
+   * <p><strong>Example Usage:</strong></p>
+   *
    * <pre>{@code
-   * EntityProperty property = ...; // Obtain an EntityProperty instance
-   * Object value = "exampleValue";
+   * EntityProperty property = new EntityProperty("age");
+   * Object value = 30;
    *
-   * PropertyConditionStrategy strategy = ...; // Obtain a strategy implementation
-   * Condition condition = strategy.resolve(property, value);
-   *
+   * // Resolve a condition with logical AND
+   * Condition condition = strategy.resolve(true, property, value);
    * if (condition != null) {
-   *   StringBuilder sql = new StringBuilder("SELECT * FROM table WHERE ");
-   *   condition.render(sql);
-   *   System.out.println(sql.toString());
+   *   System.out.println("Condition resolved: " + condition);
    * }
    * }</pre>
    *
-   * @param entityProperty the metadata of the entity property for which the condition is resolved.
-   * Must not be {@code null}.
-   * @param value the value to be used in the condition. This can be {@code null}
-   * depending on the implementation and use case.
-   * @return a {@link Condition} object representing the resolved SQL WHERE condition,
-   * or {@code null} if no condition can be resolved for the given inputs.
+   * @param logicalAnd Indicates whether the condition should use a logical AND operator.
+   * If {@code true}, the condition will be resolved with AND logic;
+   * otherwise, it may use a different logical operator.
+   * @param entityProperty The property of the entity to be evaluated in the condition.
+   * This defines the field or attribute being queried.
+   * @param value The value to compare against the entity property.
+   * This can be {@code null}, depending on the use case.
+   * @return A {@link Condition} object representing the resolved condition,
+   * or {@code null} if no condition can be resolved based on the inputs.
    */
   @Nullable
-  Condition resolve(EntityProperty entityProperty, Object value);
+  Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value);
 
   /**
    * Represents a condition (predicate) that can be applied to an SQL query.
@@ -125,10 +126,64 @@ public interface PropertyConditionStrategy {
 
     public final boolean logicalAnd;
 
+    /**
+     * Constructs a new {@code Condition} instance with the specified value, restriction,
+     * and entity property. The logical AND operation is enabled by default.
+     *
+     * <p>This constructor is commonly used to define conditions for SQL queries, where
+     * the {@code value} represents the condition's value, the {@code restriction} defines
+     * the type of restriction (e.g., equality, inequality), and the {@code entityProperty}
+     * specifies the property of the entity being restricted.
+     *
+     * <p><strong>Example Usage:</strong>
+     * <pre>{@code
+     *   // Create a condition for an entity property "name" with the value "John"
+     *   EntityProperty nameProperty = ...;
+     *   Restriction equalsRestriction = Restriction.equal("name");
+     *
+     *   Condition condition = new Condition("John", equalsRestriction, nameProperty);
+     *
+     *   // This condition can now be used in query construction
+     * }</pre>
+     *
+     * @param value the value to be used in the condition
+     * @param restriction the restriction type defining the condition logic
+     * @param entityProperty the entity property to which the condition applies
+     */
     public Condition(Object value, Restriction restriction, EntityProperty entityProperty) {
       this(value, restriction, entityProperty, true);
     }
 
+    /**
+     * Constructs a new {@code Condition} instance with the specified value, restriction,
+     * entity property, and logical operator. This constructor allows explicit control
+     * over whether the condition should be combined using a logical AND or OR operation.
+     *
+     * <p>This constructor is commonly used to define conditions for SQL queries, where
+     * the {@code value} represents the condition's value, the {@code restriction} defines
+     * the type of restriction (e.g., equality, inequality), and the {@code entityProperty}
+     * specifies the property of the entity being restricted. The {@code logicalAnd} parameter
+     * determines how this condition will be logically combined with other conditions.
+     *
+     * <p><strong>Example Usage:</strong>
+     * <pre>{@code
+     *   // Create a condition for an entity property "age" with the value 30
+     *   EntityProperty ageProperty = ...;
+     *   Restriction greaterThanRestriction = Restriction.graterThan("age");
+     *
+     *   // Logical AND is enabled
+     *   Condition condition = new Condition(30, greaterThanRestriction, ageProperty, true);
+     *
+     *   // This condition can now be used in query construction
+     * }</pre>
+     *
+     * @param value the value to be used in the condition; can be null
+     * @param restriction the restriction type defining the condition logic; must not be null
+     * @param entityProperty the entity property to which the condition applies; must not be null
+     * @param logicalAnd a boolean flag indicating whether this condition should be combined
+     * using a logical AND operation (true) or a logical OR operation (false)
+     * @since 5.0
+     */
     public Condition(Object value, Restriction restriction, EntityProperty entityProperty, boolean logicalAnd) {
       this.value = value;
       this.restriction = restriction;
@@ -186,12 +241,12 @@ public interface PropertyConditionStrategy {
      *   // restriction and entity property as the originalCondition.
      * }</pre>
      *
-     * @param propertyValue the new value to be used in the condition; can be null
+     * @param propertyValue the new value to be used in the condition
      * @return a new {@code Condition} instance with the updated property value
      * @since 5.0
      */
     public Condition withValue(Object propertyValue) {
-      return new Condition(propertyValue, restriction, entityProperty);
+      return new Condition(propertyValue, restriction, entityProperty, logicalAnd);
     }
 
     /**

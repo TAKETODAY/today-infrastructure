@@ -36,7 +36,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object value) {
+  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
     MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
     if (annotation.isPresent()) {
       // handle string
@@ -64,7 +64,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
           }
 
           value = string;
-          return new Condition(value, new LikeRestriction(column), entityProperty);
+          return new Condition(value, new LikeRestriction(column), entityProperty, logicalAnd);
         }
       }
     }

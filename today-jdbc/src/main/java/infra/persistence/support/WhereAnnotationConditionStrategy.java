@@ -85,42 +85,38 @@ import infra.persistence.sql.Restriction;
 public class WhereAnnotationConditionStrategy implements PropertyConditionStrategy {
 
   /**
-   * Resolves a condition based on the provided entity property and extracted value.
-   * This method processes the extracted value and entity property annotations to
-   * construct a {@code Condition} object that can be used in SQL query building.
+   * Resolves a condition based on the provided parameters and annotations associated with the entity property.
+   * This method processes the {@code extracted} value and uses annotations like {@code @Where} and {@code @TrimWhere}
+   * to determine the appropriate condition to return.
    *
-   * <p>If the extracted value is a {@code String} and the entity property is annotated
-   * with {@code @TrimWhere}, the string is trimmed before further processing.
-   *
-   * <p>The method checks for the presence of a {@code @Where} annotation on the entity
-   * property. If the annotation is present, it uses its attributes to determine the
-   * restriction logic for the condition. If the annotation's value is not the default
-   * "none", it creates a plain restriction. Otherwise, it evaluates the "operator"
-   * attribute to determine the appropriate restriction type.
-   *
-   * <p><strong>Example Usage:</strong>
+   * <p>Usage example:
    * <pre>{@code
    *   EntityProperty property = ...; // Obtain an EntityProperty instance
-   *   Object extractedValue = " example ";
+   *   Object extractedValue = "  example  "; // Example extracted value
+   *   boolean logicalAnd = true; // Logical AND flag
    *
-   *   WhereAnnotationConditionStrategy strategy = new WhereAnnotationConditionStrategy();
-   *   Condition condition = strategy.resolve(property, extractedValue);
-   *
+   *   Condition condition = strategy.resolve(logicalAnd, property, extractedValue);
    *   if (condition != null) {
-   *     StringBuilder sqlBuffer = new StringBuilder("SELECT * FROM table WHERE ");
-   *     condition.render(sqlBuffer);
-   *     System.out.println(sqlBuffer.toString());
+   *     System.out.println("Resolved condition: " + condition);
    *   }
    * }</pre>
    *
-   * @param entityProperty the entity property to resolve the condition for; must not be null
-   * @param extracted the extracted value to be used in the condition; can be null
-   * @return a {@code Condition} object representing the resolved condition, or null
-   * if no condition can be resolved based on the provided inputs
+   * <p>This method handles the following scenarios:
+   * <ul>
+   *   <li>If the {@code extracted} value is a string and the {@code @TrimWhere} annotation is present,
+   *       the string is trimmed before further processing.</li>
+   *   <li>If the {@code @Where} annotation is present, its value or operator is used to construct the condition.</li>
+   *   <li>If no valid condition can be resolved, the method returns {@code null}.</li>
+   * </ul>
+   *
+   * @param logicalAnd Indicates whether the condition should be combined using a logical AND operation.
+   * @param entityProperty The entity property associated with the condition. Must not be {@code null}.
+   * @param extracted The extracted value to be used in the condition. Can be {@code null}.
+   * @return A {@link Condition} object if a valid condition is resolved, or {@code null} if no condition can be determined.
    */
   @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object extracted) {
+  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object extracted) {
     if (extracted instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
       extracted = string.trim();
     }
@@ -130,17 +126,17 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
     if (annotation.isPresent()) {
       String value = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(value)) {
-        return new Condition(extracted, Restriction.plain(value), entityProperty);
+        return new Condition(extracted, Restriction.plain(value), entityProperty, logicalAnd);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(extracted, Restriction.equal(entityProperty.columnName), entityProperty);
+          return new Condition(extracted, Restriction.equal(entityProperty.columnName), entityProperty, logicalAnd);
         }
         else {
           return new Condition(extracted, Restriction.forOperator(
-                  entityProperty.columnName, operator, "?"), entityProperty);
+                  entityProperty.columnName, operator, "?"), entityProperty, logicalAnd);
         }
       }
     }
