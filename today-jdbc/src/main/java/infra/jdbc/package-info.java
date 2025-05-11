@@ -16,8 +16,7 @@
  */
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/1/23 09:14
+ * This package contains classes and interfaces for working with JDBC (Java Database Connectivity).
  */
 @NonNullApi
 @NonNullFields
