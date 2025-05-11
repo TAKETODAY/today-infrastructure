@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,8 +36,7 @@ public final class Row {
   private final ConversionService conversionService;
   private final Map<String, Integer> columnNameToIdxMap;
 
-  public Row(
-          Map<String, Integer> columnNameToIdxMap,
+  public Row(Map<String, Integer> columnNameToIdxMap,
           int columnCnt, boolean isCaseSensitive, ConversionService conversionService) {
     this.columnNameToIdxMap = columnNameToIdxMap;
     this.isCaseSensitive = isCaseSensitive;
@@ -56,8 +55,7 @@ public final class Row {
 
   public Object getObject(String columnName) {
     Integer index = columnNameToIdxMap.get(
-            isCaseSensitive ? columnName
-                            : columnName.toLowerCase(Locale.ROOT));
+            isCaseSensitive ? columnName : columnName.toLowerCase(Locale.ROOT));
     if (index != null) {
       return getObject(index);
     }

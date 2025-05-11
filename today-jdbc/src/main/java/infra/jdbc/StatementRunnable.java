@@ -29,5 +29,35 @@ import infra.lang.Nullable;
  */
 public interface StatementRunnable<T> {
 
+  /**
+   * Executes the statement logic within a transaction using the provided JDBC connection.
+   * This method is typically used as part of a transactional operation managed by
+   * {@link RepositoryManager#runInTransaction(StatementRunnable)}.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * StatementRunnable<Integer> runnable = (connection, argument) -> {
+   *   // Perform database operations using the connection
+   *   String sql = "INSERT INTO example_table (value) VALUES (?)";
+   *   try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+   *     stmt.setInt(1, argument);
+   *     stmt.executeUpdate();
+   *   }
+   * };
+   *
+   * RepositoryManager manager = new RepositoryManager();
+   * manager.runInTransaction(runnable, 42); // Passes 42 as the argument
+   * }</pre>
+   *
+   * @param connection the {@link JdbcConnection} to use for executing statements.
+   * This connection is managed by the transaction and should not
+   * be closed manually.
+   * @param argument the optional argument passed to the statement logic.
+   * Can be {@code null} if no argument is required.
+   * @throws Throwable if an error occurs during the execution of the statement logic.
+   * This exception will be propagated to the caller of the
+   * transaction method.
+   */
   void run(JdbcConnection connection, @Nullable T argument) throws Throwable;
+
 }

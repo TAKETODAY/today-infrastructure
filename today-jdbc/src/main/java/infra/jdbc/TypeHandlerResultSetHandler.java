@@ -22,18 +22,21 @@ import java.sql.SQLException;
 
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.type.TypeHandler;
+import infra.lang.Nullable;
 
 /**
  * @param <T> target type
  * @author TODAY 2021/1/7 22:52
  */
 final class TypeHandlerResultSetHandler<T> implements ResultSetExtractor<T> {
+
   final TypeHandler<T> typeHandler;
 
   TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
     this.typeHandler = typeHandler;
   }
 
+  @Nullable
   @Override
   public T extractData(ResultSet resultSet) throws SQLException {
     return typeHandler.getResult(resultSet, 1);
