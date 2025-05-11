@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,8 +99,10 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
    *
    * @param propertySource the PropertySource to add
    */
-  public void addPropertySource(PropertySource<?> propertySource) {
-    this.propertySources.add(propertySource);
+  public void addPropertySource(@Nullable PropertySource<?> propertySource) {
+    if (propertySource != null) {
+      this.propertySources.add(propertySource);
+    }
   }
 
   /**
@@ -124,8 +126,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() +
-            " {name='" + this.name + "', propertySources=" + this.propertySources + "}";
+    return "%s {name='%s', propertySources=%s}".formatted(getClass().getSimpleName(), this.name, this.propertySources);
   }
 
 }

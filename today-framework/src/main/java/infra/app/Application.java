@@ -291,7 +291,15 @@ public class Application {
   }
 
   /**
-   * Application temp
+   * Returns the current {@code ApplicationTemp} instance associated with this context.
+   *
+   * <p>This method is typically used to retrieve temporary application data that might be
+   * required during the lifecycle of a session or request. The returned object can be used
+   * to store transient information that does not need to persist beyond the current
+   * application runtime.
+   *
+   * @return the {@code ApplicationTemp} instance currently held by this context,
+   * or {@code null} if no instance has been set
    */
   public ApplicationTemp getApplicationTemp() {
     return applicationTemp;
@@ -417,7 +425,8 @@ public class Application {
    * @param context the application context
    * @param args the application arguments
    */
-  protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
+  protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) {
+  }
 
   /**
    * find all ApplicationStartupListeners
@@ -743,7 +752,8 @@ public class Application {
    * @param args arguments passed to the {@code run} method
    * @see #configureEnvironment(ConfigurableEnvironment, String[])
    */
-  protected void configureProfiles(ConfigurableEnvironment environment, String[] args) { }
+  protected void configureProfiles(ConfigurableEnvironment environment, String[] args) {
+  }
 
   /**
    * Add, remove or re-order any {@link PropertySource}s in this application's
@@ -1460,12 +1470,47 @@ public class Application {
     Application.run(Constant.EMPTY_CLASSES, args);
   }
 
+  /**
+   * Creates a new {@link ApplicationBuilder} instance initialized with the specified sources.
+   * This method serves as a convenient entry point for constructing application builders
+   * by delegating to the {@link ApplicationBuilder#forSources(Class...)} method.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   ApplicationBuilder builder = forBuilder(MyAppConfig.class, AnotherConfig.class);
+   *   // Further configure the builder or build the application context
+   * }</pre>
+   *
+   * @param sources the configuration classes or sources to initialize the builder with;
+   * typically annotated with {@code @Configuration} or similar annotations
+   * @return a new instance of {@link ApplicationBuilder} configured with the provided sources
+   */
   public static ApplicationBuilder forBuilder(Class<?>... sources) {
-    return ApplicationBuilder.from(sources);
+    return ApplicationBuilder.forSources(sources);
   }
 
+  /**
+   * Creates a new {@link ApplicationBuilder} instance using the specified
+   * {@code resourceLoader} and application context sources.
+   *
+   * <p>This method serves as a convenient way to initialize an
+   * {@code ApplicationBuilder} with the provided resources and sources.
+   * It internally delegates to {@link ApplicationBuilder#forSources(ResourceLoader, Class[])}.
+   *
+   * <p><strong>Example Usage:</strong>
+   * <pre>{@code
+   * ResourceLoader resourceLoader = new DefaultResourceLoader();
+   * ApplicationBuilder builder = forBuilder(resourceLoader, MyAppConfig.class);
+   *
+   * Application app = builder.build();
+   * }</pre>
+   *
+   * @param resourceLoader the {@link ResourceLoader} to be used for loading resources
+   * @param sources the primary configuration classes or sources for the application
+   * @return a new instance of {@link ApplicationBuilder} initialized with the given parameters
+   */
   public static ApplicationBuilder forBuilder(ResourceLoader resourceLoader, Class<?>... sources) {
-    return ApplicationBuilder.from(resourceLoader, sources);
+    return ApplicationBuilder.forSources(resourceLoader, sources);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ import infra.util.StringUtils;
  * hierarchy:
  *
  * <pre class="code">
- * ApplicationBuilder.from(ParentConfig.class)
+ * ApplicationBuilder.forSources(ParentConfig.class)
  *   .child(ChildConfig.class)
  *   .run(args);
  * </pre>
@@ -61,7 +61,7 @@ import infra.util.StringUtils;
  * environment for an application:
  *
  * <pre class="code">
- * ApplicationBuilder.from(Application.class)
+ * ApplicationBuilder.forSources(Application.class)
  *   .profiles(&quot;server&quot;)
  *   .properties(&quot;transport=local&quot;)
  *   .run(args);
@@ -81,8 +81,10 @@ public class ApplicationBuilder {
 
   private final Application application;
 
+  @Nullable
   private volatile ConfigurableApplicationContext context;
 
+  @Nullable
   private ApplicationBuilder parent;
 
   private final AtomicBoolean running = new AtomicBoolean();
@@ -91,6 +93,7 @@ public class ApplicationBuilder {
 
   private final LinkedHashMap<String, Object> defaultProperties = new LinkedHashMap<>();
 
+  @Nullable
   private ConfigurableEnvironment environment;
 
   private LinkedHashSet<String> additionalProfiles = new LinkedHashSet<>();
@@ -125,6 +128,7 @@ public class ApplicationBuilder {
    *
    * @return the current application context (or null if not yet running)
    */
+  @Nullable
   public ConfigurableApplicationContext context() {
     return this.context;
   }
@@ -622,11 +626,11 @@ public class ApplicationBuilder {
 
   // static
 
-  public static ApplicationBuilder from(Class<?>... sources) {
+  public static ApplicationBuilder forSources(Class<?>... sources) {
     return new ApplicationBuilder(sources);
   }
 
-  public static ApplicationBuilder from(ResourceLoader resourceLoader, Class<?>... sources) {
+  public static ApplicationBuilder forSources(ResourceLoader resourceLoader, Class<?>... sources) {
     return new ApplicationBuilder(resourceLoader, sources);
   }
 
