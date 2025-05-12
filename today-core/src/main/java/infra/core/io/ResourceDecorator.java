@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 import infra.lang.Assert;
@@ -59,7 +60,7 @@ public class ResourceDecorator implements Resource {
   }
 
   @Override
-  public Reader getReader(String encoding) throws IOException {
+  public Reader getReader(Charset encoding) throws IOException {
     return getDelegate().getReader(encoding);
   }
 

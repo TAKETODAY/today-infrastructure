@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,8 @@ import infra.web.RequestContextUtils;
  * @since 4.0
  */
 public abstract class AbstractView extends ApplicationObjectSupport implements View, BeanNameAware {
+
+  public static final String DEFAULT_ENCODING = "UTF-8";
 
   /** Default content type. Overridable as bean property. */
   public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=UTF-8";

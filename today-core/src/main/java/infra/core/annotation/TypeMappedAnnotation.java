@@ -78,7 +78,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
           char.class, new char[0],
           double.class, new double[0],
           float.class, new float[0],
-          int.class, Constant.EMPTY_INT_ARRAY,
+          int.class, new int[0],
           long.class, new long[0],
           short.class, new short[0],
           String.class, Constant.EMPTY_STRING_ARRAY

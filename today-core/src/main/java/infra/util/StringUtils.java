@@ -118,11 +118,28 @@ public abstract class StringUtils {
   }
 
   /**
-   * Split with {@link Constant#SPLIT_REGEXP}
+   * Splits the given source string into an array of substrings based on
+   * a predefined delimiter. If the source string is null, an empty string
+   * array is returned.
    *
-   * @param source source string
-   * @return if source is null this will returns
-   * {@link Constant#EMPTY_STRING_ARRAY}
+   * <p>Example usage:
+   * <pre>{@code
+   * String input = "apple,banana,cherry";
+   * String[] result = split(input);
+   * for (String item : result) {
+   *   System.out.println(item);
+   * }
+   * }</pre>
+   * Output:
+   * <pre>
+   * apple
+   * banana
+   * cherry
+   * </pre>
+   *
+   * @param source the string to be split; can be null
+   * @return an array of substrings if the source is not null;
+   * otherwise, an empty string array
    */
   public static String[] split(@Nullable String source) {
     if (source == null) {
@@ -132,13 +149,34 @@ public abstract class StringUtils {
   }
 
   /**
-   * Split with {@link Constant#SPLIT_REGEXP}
+   * Splits the given source string into a list of substrings based on
+   * splittable characters. If the source is null, an empty list is returned.
+   * If the source is empty or contains no splitable characters, the returned
+   * list will contain the original source string.
    *
-   * @param source source string
-   * @return if source is null this will returns
-   * {@link Collections#emptyList()}
-   * @see Collections#emptyList()
-   * @since 4.0
+   * <p>Example usage:</p>
+   *
+   * <pre>{@code
+   * String input = "apple,banana,cherry";
+   * List<String> result = splitAsList(input);
+   * System.out.println(result);
+   * // Output: [apple, banana, cherry]
+   *
+   * String singleInput = "singleWord";
+   * List<String> singleResult = splitAsList(singleInput);
+   * System.out.println(singleResult);
+   * // Output: [singleWord]
+   *
+   * String nullInput = null;
+   * List<String> nullResult = splitAsList(nullInput);
+   * System.out.println(nullResult);
+   * // Output: []
+   * }</pre>
+   *
+   * @param source the string to be split; can be null or empty
+   * @return a list of substrings split by splitable characters,
+   * or a list containing the original string if no splits occur,
+   * or an empty list if the input is null
    */
   public static List<String> splitAsList(@Nullable String source) {
     if (source == null) {

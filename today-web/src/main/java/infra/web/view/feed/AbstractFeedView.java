@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web.view.feed;
@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
-import infra.lang.Constant;
 import infra.util.StringUtils;
 import infra.web.RequestContext;
 import infra.web.view.AbstractView;
@@ -44,6 +43,7 @@ import infra.web.view.AbstractView;
  * @param <T> the {@link WireFeed} type
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see AbstractRssFeedView
  * @see AbstractAtomFeedView
  * @since 4.0
@@ -51,16 +51,14 @@ import infra.web.view.AbstractView;
 public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView {
 
   @Override
-  protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
-
+  protected final void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
     T wireFeed = newFeed();
     buildFeedMetadata(model, wireFeed, request);
     buildFeedEntries(model, wireFeed, request);
 
     setResponseContentType(request);
     if (StringUtils.isBlank(wireFeed.getEncoding())) {
-      wireFeed.setEncoding(Constant.DEFAULT_ENCODING);
+      wireFeed.setEncoding(DEFAULT_ENCODING);
     }
 
     WireFeedOutput feedOutput = new WireFeedOutput();
@@ -85,7 +83,8 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param feed the feed being populated
    * @param request in case we need locale etc. Shouldn't look at attributes.
    */
-  protected void buildFeedMetadata(Map<String, Object> model, T feed, RequestContext request) { }
+  protected void buildFeedMetadata(Map<String, Object> model, T feed, RequestContext request) {
+  }
 
   /**
    * Subclasses must implement this method to build feed entries, given the model.
@@ -98,7 +97,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param context in case we need locale etc. Shouldn't look at attributes.
    * @throws Exception any exception that occurred during building
    */
-  protected abstract void buildFeedEntries(
-          Map<String, Object> model, T feed, RequestContext context) throws Exception;
+  protected abstract void buildFeedEntries(Map<String, Object> model, T feed, RequestContext context)
+          throws Exception;
 
 }

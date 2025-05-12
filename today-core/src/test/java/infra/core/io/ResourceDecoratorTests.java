@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 
 import infra.util.ExceptionUtils;
 
@@ -177,10 +178,10 @@ class ResourceDecoratorTests {
   void delegatesGetReaderWithEncoding() throws IOException {
     Resource delegate = mock(Resource.class);
     Reader expected = mock(Reader.class);
-    when(delegate.getReader("UTF-8")).thenReturn(expected);
+    when(delegate.getReader(StandardCharsets.UTF_8)).thenReturn(expected);
 
     TestResourceDecorator decorator = new TestResourceDecorator(delegate);
-    assertThat(decorator.getReader("UTF-8")).isSameAs(expected);
+    assertThat(decorator.getReader(StandardCharsets.UTF_8)).isSameAs(expected);
   }
 
   @Test
