@@ -60,6 +60,7 @@ import infra.web.RequestContextUtils;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
+import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
@@ -630,6 +631,51 @@ public class NettyRequestContext extends RequestContext {
     sendError(sc, null);
   }
 
+  /**
+   * Sends an HTTP error response to the client with the specified status code and
+   * an optional error message. This method resets the current response state before
+   * setting the new status code and delegating the error handling logic to the
+   * configured {@code sendErrorHandler}.
+   *
+   * <p>This method is typically used to notify the client of an error condition,
+   * such as a missing resource (404 Not Found) or an invalid request (400 Bad Request).
+   * The optional error message can provide additional details about the error, which
+   * may be logged or included in the response depending on the implementation of the
+   * {@code sendErrorHandler}.
+   *
+   * <p><strong>Usage Example:</strong></p>
+   * <pre>{@code
+   * try {
+   *   processRequest(request);
+   * }
+   * catch (InvalidInputException e) {
+   *   sendError(HttpResponseStatus.BAD_REQUEST.code(), "Invalid input: " + e.getMessage());
+   * }
+   * }</pre>
+   *
+   * <p>In the example above, if the {@code processRequest} method throws an
+   * {@code InvalidInputException}, the server responds with a 400 status code and
+   * includes a descriptive error message.
+   *
+   * <p><strong>Handling Internal Server Errors:</strong></p>
+   * <pre>{@code
+   * try {
+   *   executeCriticalOperation();
+   * }
+   * catch (Exception e) {
+   *   sendError(HttpResponseStatus.INTERNAL_SERVER_ERROR.code(), "An unexpected error occurred");
+   * }
+   * }</pre>
+   *
+   * <p>Here, the method is used to handle unexpected exceptions by sending a 500
+   * status code and a generic error message to the client.
+   *
+   * @param sc the HTTP status code to send (e.g., 404 for Not Found, 500 for Internal Server Error)
+   * @param msg an optional error message describing the issue; may be {@code null}
+   * if no specific message is available
+   * @throws IOException if an I/O error occurs while sending the error response
+   * @see SendErrorHandler#handleError(RequestContext, String)
+   */
   @Override
   public void sendError(int sc, @Nullable String msg) throws IOException {
     reset();
