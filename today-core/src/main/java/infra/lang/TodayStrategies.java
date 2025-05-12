@@ -44,14 +44,53 @@ import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 
 /**
- * Infra Strategies
+ * The {@code TodayStrategies} class provides utility methods for managing
+ * properties and flags, allowing programmatic access and modification of
+ * system or local property values. This class is designed to simplify the
+ * handling of configuration settings in an application.
+ *
  * <p>General purpose strategy loading mechanism for internal use within the framework.
  * <p>Reads a {@code META-INF/today.strategies} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.
- * <p>
- * Get keyed strategies
+ *
+ * <p>Properties can be retrieved, set, or overridden programmatically, with
+ * support for fallback to JVM-level system properties when necessary. The
+ * class also supports parsing integer values from property strings using
+ * various numeric formats.</p>
+ *
+ * <p><b>Usage Examples:</b></p>
+ *
+ * Retrieving a flag:
+ * <pre>{@code
+ * boolean isEnabled = TodayStrategies.getFlag("feature.enabled");
+ * }</pre>
+ *
+ * Setting a local flag programmatically:
+ * <pre>{@code
+ * TodayStrategies.setFlag("feature.enabled");
+ * }</pre>
+ *
+ * Retrieving a property value with a default fallback:
+ * <pre>{@code
+ * String timeout = TodayStrategies.getProperty("timeout", "30");
+ * }</pre>
+ *
+ * Parsing an integer property value:
+ * <pre>{@code
+ * int timeoutValue = TodayStrategies.getInt("timeout", 30);
+ * }</pre>
+ *
+ * Overriding a property value programmatically:
+ * <pre>{@code
+ * TodayStrategies.setProperty("timeout", "60");
+ * }</pre>
+ *
+ * Checking if a property is explicitly set:
+ * <pre>{@code
+ * Boolean isSet = TodayStrategies.checkFlag("debug.mode");
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/9/5 13:57
@@ -60,6 +99,18 @@ public class TodayStrategies {
 
   private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
 
+  /**
+   * The constant {@code STRATEGIES_LOCATION} specifies the default location
+   * where strategy configuration files are stored. This location is typically
+   * used by the application to load pluggable strategies dynamically at runtime.
+   * <p>
+   * The value of this constant is {@code "META-INF/today.strategies"}. It is
+   * expected that the file at this location contains a list of fully qualified
+   * class names, each representing a strategy implementation.
+   * <p>
+   * Ensure that the file exists in the classpath under the specified location
+   * and follows the expected format for proper functionality.
+   */
   public static final String STRATEGIES_LOCATION = "META-INF/today.strategies";
 
   static final ConcurrentReferenceHashMap<ClassLoader, Map<String, TodayStrategies>>
@@ -133,7 +184,8 @@ public class TodayStrategies {
    * {@code null} if it is not set at all
    * @since 5.0
    */
-  public static @Nullable Boolean checkFlag(String key) {
+  @Nullable
+  public static Boolean checkFlag(String key) {
     String flag = getProperty(key);
     return flag != null ? Boolean.valueOf(flag) : null;
   }
@@ -155,11 +207,14 @@ public class TodayStrategies {
   }
 
   /**
-   * Retrieve the property value for the given key, checking local
-   * properties first and falling back to JVM-level system properties.
+   * Retrieves the value of the specified property key. This method first attempts
+   * to fetch the property from a local properties store. If the property is not
+   * found, it falls back to retrieving it from the system properties. If both
+   * attempts fail, the method returns {@code null}.
    *
-   * @param key the property key
-   * @return the associated property value, or {@code null} if none found
+   * @param key the name of the property to retrieve; must not be {@code null}
+   * @return the value of the property, or {@code null} if the property is not
+   * found in either the local properties store or system properties
    */
   @Nullable
   public static String getProperty(String key) {
@@ -492,8 +547,32 @@ public class TodayStrategies {
   }
 
   /**
-   * @param strategies output
-   * @param properties input
+   * Reads strategies from a given {@link Properties} object and populates a {@link MultiValueMap}
+   * with the key-value pairs. Each value in the properties is split into a list of strings,
+   * trimmed of whitespace, and added to the map under the corresponding key.
+   *
+   * <p>This method is useful for loading configuration data where multiple strategies are
+   * associated with a single key. For example, it can be used to parse a properties file
+   * containing deployment strategies for different environments.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Properties properties = new Properties();
+   *   properties.setProperty("env", "dev,test");
+   *   properties.setProperty("region", "us-east-1, us-west-2 ");
+   *
+   *   MultiValueMap<String, String> strategies = new LinkedMultiValueMap<>();
+   *   readStrategies(strategies, properties);
+   *
+   *   System.out.println(strategies); // Output: {env=[dev, test], region=[us-east-1, us-west-2]}
+   * }</pre>
+   *
+   * @param strategies the {@link MultiValueMap} to populate with the parsed strategies.
+   * Keys are derived from the properties keys, and values are lists
+   * of trimmed strategy strings.
+   * @param properties the {@link Properties} object containing the raw key-value pairs
+   * to be processed. Each value is expected to be a comma-separated string.
+   * @throws NullPointerException if either {@code strategies} or {@code properties} is null.
    */
   public static void readStrategies(MultiValueMap<String, String> strategies, Properties properties) {
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -701,9 +780,26 @@ public class TodayStrategies {
   }
 
   /**
-   * get first strategy
+   * Finds the first instance of the specified strategy class using the default
+   * class loader. If no instance is found and a default value supplier is provided,
+   * the supplier's value will be returned.
    *
-   * @see #find(Class)
+   * <p>Example usage:
+   * <pre>{@code
+   * MyStrategy strategy = findFirst(MyStrategy.class, () -> new DefaultMyStrategy());
+   * if (strategy != null) {
+   *   strategy.execute();
+   * }
+   * }</pre>
+   *
+   * @param <T> the type of the strategy class to find
+   * @param strategyClass the class object representing the strategy type to search for;
+   * must not be null
+   * @param defaultValue a supplier providing a default value if no instance is found;
+   * can be null if no default is required
+   * @return the first instance of the specified strategy class, or the default value
+   * provided by the supplier if no instance is found and the supplier is non-null;
+   * returns null if neither is available
    */
   @Nullable
   public static <T> T findFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
@@ -715,11 +811,28 @@ public class TodayStrategies {
   }
 
   /**
-   * get none repeatable strategies by given class
+   * Finds and returns a list of implementations of the specified strategy class.
+   * This method searches for all classes that extend or implement the given
+   * {@code strategyClass} and returns instances of them. If no implementations
+   * are found, an empty list is returned.
    *
-   * @param strategyClass strategy class
-   * @param <T> target type
-   * @return returns none repeatable strategies by given class
+   * <p>Example usage:
+   * <pre>{@code
+   * List<MyStrategy> strategies = find(MyStrategy.class);
+   * for (MyStrategy strategy : strategies) {
+   *   strategy.execute();
+   * }
+   * }</pre>
+   *
+   * <p>This method internally delegates the search to an overloaded version of
+   * {@code find} with an additional {@code ClassLoader} parameter, passing
+   * {@code null} as the class loader.
+   *
+   * @param <T> the type of the strategy class
+   * @param strategyClass the class object representing the strategy interface
+   * or abstract class to search for implementations of
+   * @return a list of instances of classes that implement or extend
+   * the specified strategy class; an empty list if no implementations are found
    */
   @Modifiable
   public static <T> List<T> find(Class<T> strategyClass) {
