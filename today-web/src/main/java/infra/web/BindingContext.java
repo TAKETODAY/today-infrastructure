@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,8 +106,7 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext request,
-          @Nullable Object target, String objectName) throws Throwable {
+  public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
     return createBinder(request, target, objectName, null);
   }
 
@@ -117,8 +116,9 @@ public class BindingContext {
    * This may be used to construct the target, or otherwise provide more
    * insight on how to initialize the binder.
    */
-  public WebDataBinder createBinder(RequestContext request,
-          @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
+  public WebDataBinder createBinder(RequestContext request, @Nullable Object target,
+          String objectName, @Nullable ResolvableType targetType) throws Throwable {
+
     WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
     dataBinder.setNameResolver(new BindParamNameResolver());
 
@@ -143,9 +143,7 @@ public class BindingContext {
    * @param request the current request
    * @throws Exception in case of invalid state or arguments
    */
-  protected WebDataBinder createBinderInstance(
-          @Nullable Object target, String objectName, RequestContext request) throws Exception {
-
+  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
     return new WebDataBinder(target, objectName);
   }
 
@@ -155,7 +153,6 @@ public class BindingContext {
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
-
   }
 
   /**
@@ -207,7 +204,6 @@ public class BindingContext {
    * @throws Throwable if creating BindingResult attributes fails
    */
   public void updateModel(RequestContext request) throws Throwable {
-
   }
 
   /**
@@ -224,7 +220,6 @@ public class BindingContext {
    * @throws Throwable may arise from {@code @ModelAttribute} methods
    */
   public void initModel(RequestContext request) throws Throwable {
-
   }
 
   @Nullable

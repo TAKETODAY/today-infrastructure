@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.web;
@@ -23,10 +20,47 @@ package infra.web;
 import infra.lang.Nullable;
 
 /**
- * Plain handler interface for components that process HTTP requests
+ * Represents a interface for handling HTTP requests. This interface
+ * is typically used in web frameworks to process incoming requests and return
+ * results that can be further handled by the framework.
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * <p>The {@link #handleRequest(RequestContext)} method is the core of this interface.
+ * It processes the request and returns an object that represents the result of
+ * the processing. The returned object can be explicitly handled by a
+ * {@link ReturnValueHandler} or indicate that no further processing is needed.
+ *
+ * <p><b>Usage Examples:</b>
+ *
+ * <pre>{@code
+ *  // Example 1: A simple handler that returns a string response
+ *  HttpRequestHandler handler = request -> {
+ *    String responseBody = "Hello, World!";
+ *    return ResponseEntity.ok(responseBody);
+ *  };
+ * }</pre>
+ *
+ * <pre>{@code
+ *  // Example 2: A handler that processes the request and marks it as completed
+ *  HttpRequestHandler handler = request -> {
+ *    // Perform some business logic
+ *    if (request.getParameter("action").equals("logout")) {
+ *      request.getSession().invalidate();
+ *      return HttpRequestHandler.NONE_RETURN_VALUE; // No further processing needed
+ *    }
+ *    return null; // Let the framework handle the result
+ *  };
+ * }</pre>
+ *
+ * <p><b>Special Return Values:</b>
+ * <ul>
+ *   <li>{@code null}: Indicates that the handler has completed processing,
+ *       but the framework should still handle the result.</li>
+ *   <li>{@link #NONE_RETURN_VALUE}: Indicates that the handler has fully processed
+ *       the request and no further result handling is required.</li>
+ * </ul>
+ *
  * @see ReturnValueHandler
+ * @see RequestContext
  * @since 2019-12-21 17:37
  */
 @FunctionalInterface

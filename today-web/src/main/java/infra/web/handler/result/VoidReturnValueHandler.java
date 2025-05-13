@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,12 +40,12 @@ public class VoidReturnValueHandler implements SmartReturnValueHandler {
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue == null;
   }
 
   @Override
-  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+  public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
     if (returnValue == null) {
       HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
       return handlerMethod == null || handlerMethod.isReturn(void.class) || handlerMethod.isReturn(Void.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,68 @@ import infra.web.RequestContext;
 import infra.web.handler.method.ResolvableMethodParameter;
 
 /**
- * Composite ParameterResolvingStrategy
+ * A composite strategy class that manages a list of {@link ParameterResolvingStrategy}
+ * instances. This class implements the {@link Iterable} interface, allowing it to
+ * iterate over its strategies, and also acts as a {@link ParameterResolvingStrategy}
+ * itself by delegating calls to the underlying strategies.
+ *
+ * <p>This class provides methods to add, remove, replace, and query strategies,
+ * as well as methods to manage the internal list of strategies efficiently.
+ * It also supports trimming the internal list capacity to its size via the
+ * {@link ArraySizeTrimmer} interface.</p>
+ *
+ * <h3>Usage Examples</h3>
+ *
+ * Adding strategies:
+ * <pre>{@code
+ * ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
+ * strategies.add(new CustomParameterResolvingStrategy());
+ * strategies.add(new AnotherParameterResolvingStrategy());
+ * }</pre>
+ *
+ * Resolving arguments using the first supporting strategy:
+ * <pre>{@code
+ * RequestContext context = ...;
+ * ResolvableMethodParameter parameter = ...;
+ * Object result = strategies.resolveArgument(context, parameter);
+ * }</pre>
+ *
+ * Checking if a specific strategy is present:
+ * <pre>{@code
+ * boolean containsCustomStrategy = strategies.contains(CustomParameterResolvingStrategy.class);
+ * }</pre>
+ *
+ * Replacing an existing strategy:
+ * <pre>{@code
+ * boolean replaced = strategies.replace(CustomParameterResolvingStrategy.class, new UpdatedStrategy());
+ * }</pre>
+ *
+ * Iterating over all strategies:
+ * <pre>{@code
+ * for (ParameterResolvingStrategy strategy : strategies) {
+ *   System.out.println(strategy);
+ * }
+ * }</pre>
+ *
+ * Trimming the internal list to optimize memory usage:
+ * <pre>{@code
+ * strategies.trimToSize();
+ * }</pre>
+ *
+ * <h3>Implementation Details</h3>
+ *
+ * <p>This class delegates the {@link #supportsParameter(ResolvableMethodParameter)} and
+ * {@link #resolveArgument(RequestContext, ResolvableMethodParameter)} methods to the
+ * first strategy in the list that supports the given parameter. If no strategy supports
+ * the parameter, the methods return {@code false} or {@code null}, respectively.</p>
+ *
+ * <p>The internal list of strategies can be modified using methods like {@link #add},
+ * {@link #set}, and {@link #removeIf}. These methods ensure efficient management of
+ * the strategies while maintaining the integrity of the list.</p>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ParameterResolvingStrategy
+ * @see ArraySizeTrimmer
  * @since 4.0 2021/9/26 21:07
  */
 public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
