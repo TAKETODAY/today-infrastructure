@@ -773,6 +773,7 @@ public class NettyRequestContext extends RequestContext {
     parseParameters(params, s, semicolonAsNormalChar);
   }
 
+  @SuppressWarnings("fallthrough")
   static void parseParameters(MultiValueMap<String, String> params, String s, boolean semicolonAsNormalChar) {
     int paramsLimit = maxQueryParams;
     int nameStart = 0;
@@ -794,6 +795,7 @@ public class NettyRequestContext extends RequestContext {
           if (semicolonAsNormalChar) {
             continue;
           }
+          // fall through
         case '&':
           if (addParam(s, nameStart, valueStart, i, params)) {
             paramsLimit--;
