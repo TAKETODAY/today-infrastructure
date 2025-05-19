@@ -17,8 +17,6 @@
 
 package infra.web;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -637,7 +635,6 @@ public class DispatcherHandler extends InfraHandler {
         message += ", parameters={%s}".formatted(params);
       }
 
-      message = URLDecoder.decode(message, StandardCharsets.UTF_8);
       if (log.isTraceEnabled()) {
         StringBuilder headers = new StringBuilder();
         HttpHeaders httpHeaders = request.requestHeaders();
