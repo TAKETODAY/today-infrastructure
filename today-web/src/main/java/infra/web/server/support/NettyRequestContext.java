@@ -90,7 +90,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
-import static io.netty.util.internal.StringUtil.SPACE;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
@@ -128,6 +127,14 @@ public class NettyRequestContext extends RequestContext {
    * @since 5.0
    */
   private static final int maxQueryParams = TodayStrategies.getInt("infra.web.maxQueryParams", 1024);
+
+  /**
+   * {@code false} by default. If set to {@code true}, instead of allowing query parameters to be separated by
+   * semicolons, treat the semicolon as a normal character in a query value.
+   *
+   * @since 5.0
+   */
+  private static final boolean semicolonAsNormalChar = TodayStrategies.getFlag("infra.web.semicolonAsNormalChar", false);
 
   /**
    * For Chunk file written
@@ -763,6 +770,10 @@ public class NettyRequestContext extends RequestContext {
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {
+    parseParameters(params, s, semicolonAsNormalChar);
+  }
+
+  static void parseParameters(MultiValueMap<String, String> params, String s, boolean semicolonAsNormalChar) {
     int paramsLimit = maxQueryParams;
     int nameStart = 0;
     int valueStart = -1;
@@ -780,6 +791,9 @@ public class NettyRequestContext extends RequestContext {
           }
           break;
         case ';':
+          if (semicolonAsNormalChar) {
+            continue;
+          }
         case '&':
           if (addParam(s, nameStart, valueStart, i, params)) {
             paramsLimit--;
@@ -839,7 +853,7 @@ public class NettyRequestContext extends RequestContext {
     for (int i = firstEscaped; i < toExcluded; i++) {
       char c = s.charAt(i);
       if (c != '%') {
-        strBuf.append(c != '+' || !plusToSpace ? c : SPACE);
+        strBuf.append(c != '+' || !plusToSpace ? c : ' ');
         continue;
       }
 
