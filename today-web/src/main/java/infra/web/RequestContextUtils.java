@@ -34,8 +34,6 @@ import infra.lang.Nullable;
 import infra.session.SessionManager;
 import infra.session.WebSession;
 import infra.util.CollectionUtils;
-import infra.util.MultiValueMap;
-import infra.util.StringUtils;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.context.support.RequestScope;
@@ -309,60 +307,7 @@ public final class RequestContextUtils {
     }
   }
 
-  // parameters
-
   // static
-  public static void parseParameters(MultiValueMap<String, String> parameterMap, String s) {
-    if (StringUtils.isNotEmpty(s)) {
-      int nameStart = 0;
-      int valueStart = -1;
-      int i;
-      int len = s.length();
-      loop:
-      for (i = 0; i < len; i++) {
-        switch (s.charAt(i)) {
-          case '=':
-            if (nameStart == i) {
-              nameStart = i + 1;
-            }
-            else if (valueStart < nameStart) {
-              valueStart = i + 1;
-            }
-            break;
-          case '&':
-          case ';':
-            addParam(s, nameStart, valueStart, i, parameterMap);
-            nameStart = i + 1;
-            break;
-          case '#':
-            break loop;
-          default:
-            // continue
-        }
-      }
-      addParam(s, nameStart, valueStart, i, parameterMap);
-    }
-  }
-
-  private static void addParam(String s, int nameStart,
-          int valueStart, int valueEnd, MultiValueMap<String, String> params) //
-  {
-
-    if (nameStart < valueEnd) {
-      if (valueStart <= nameStart) {
-        valueStart = valueEnd + 1;
-      }
-      String name = s.substring(nameStart, valueStart - 1);
-      if (valueStart >= valueEnd) {
-        // ?name&name1=
-        params.add(name, "");
-      }
-      else {
-        String value = s.substring(valueStart, valueEnd);
-        params.add(name, value);
-      }
-    }
-  }
 
   /**
    * Register web-specific scopes ("request", "session")

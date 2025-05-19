@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +20,7 @@ package infra.web;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import infra.mock.web.HttpMockRequestImpl;
-import infra.util.MultiValueMap;
 import infra.web.bind.RequestBindingException;
 import infra.web.mock.MockRequestContext;
 
@@ -272,19 +269,6 @@ class RequestContextUtilsTests {
 
     assertThat(RequestContextUtils.getStringParameter(context, "paramEmpty")).isEmpty();
     assertThat(RequestContextUtils.getRequiredStringParameter(context, "paramEmpty")).isEmpty();
-  }
-
-  @Test
-  void parseParameters() {
-    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-
-    RequestContextUtils.parseParameters(parameters, "most-popular");
-    assertThat(parameters).hasSize(1).containsKey("most-popular");
-
-    parameters.clear();
-    RequestContextUtils.parseParameters(parameters, "most-popular&name=value&name=");
-    assertThat(parameters).hasSize(2).containsKeys("name", "most-popular")
-            .containsValues(List.of(""), List.of("value", ""));
   }
 
 }

@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -56,7 +55,6 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.RequestContext;
-import infra.web.RequestContextUtils;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -90,6 +88,10 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.internal.PlatformDependent;
+
+import static io.netty.util.internal.StringUtil.SPACE;
+import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
  * Netty Request context
@@ -106,6 +108,26 @@ public class NettyRequestContext extends RequestContext {
    * @since 5.0
    */
   private static final int nioFileChunkSize = TodayStrategies.getInt("infra.web.ssl.nio-file-chunked-size", 4096);
+
+  /**
+   * RFC 3986 (the URI standard) makes no mention of using '+' to encode a space in a URI query component. The
+   * whatwg HTML standard, however, defines the query to be encoded with the
+   * {@code application/x-www-form-urlencoded} serializer defined in the whatwg URL standard, which does use '+'
+   * to encode a space instead of {@code %20}.
+   * <p>This flag controls whether the decoding should happen according to HTML rules, which decodes the '+' to a
+   * space. The default is {@code true}.
+   *
+   * @since 5.0
+   */
+  private static final boolean htmlQueryDecoding = TodayStrategies.getFlag("infra.web.htmlQueryDecoding", true);
+
+  /**
+   * Maximum number of query parameters allowed, to mitigate HashDOS.
+   * 1024 by default.
+   *
+   * @since 5.0
+   */
+  private static final int maxQueryParams = TodayStrategies.getInt("infra.web.maxQueryParams", 1024);
 
   /**
    * For Chunk file written
@@ -337,9 +359,11 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected MultiValueMap<String, String> readParameters() {
-    String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
+    String queryString = getQueryString();
     MultiValueMap<String, String> parameters = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
-    RequestContextUtils.parseParameters(parameters, queryString);
+    if (StringUtils.isNotEmpty(queryString)) {
+      parseParameters(parameters, queryString);
+    }
 
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD
@@ -736,6 +760,103 @@ public class NettyRequestContext extends RequestContext {
   private static boolean isTransferEncodingChunked(HttpHeaders responseHeaders) {
     return responseHeaders.containsValue(
             DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, true);
+  }
+
+  static void parseParameters(MultiValueMap<String, String> params, String s) {
+    int paramsLimit = maxQueryParams;
+    int nameStart = 0;
+    int valueStart = -1;
+    int i;
+    int len = s.length();
+    loop:
+    for (i = 0; i < len; i++) {
+      switch (s.charAt(i)) {
+        case '=':
+          if (nameStart == i) {
+            nameStart = i + 1;
+          }
+          else if (valueStart < nameStart) {
+            valueStart = i + 1;
+          }
+          break;
+        case ';':
+        case '&':
+          if (addParam(s, nameStart, valueStart, i, params)) {
+            paramsLimit--;
+            if (paramsLimit == 0) {
+              return;
+            }
+          }
+          nameStart = i + 1;
+          break;
+        case '#':
+          break loop;
+        default:
+          // continue
+      }
+    }
+    addParam(s, nameStart, valueStart, i, params);
+  }
+
+  private static boolean addParam(String s, int nameStart, int valueStart, int valueEnd, MultiValueMap<String, String> params) {
+    if (nameStart >= valueEnd) {
+      return false;
+    }
+    if (valueStart <= nameStart) {
+      valueStart = valueEnd + 1;
+    }
+    String name = decodeComponent(s, nameStart, valueStart - 1, htmlQueryDecoding);
+    String value = decodeComponent(s, valueStart, valueEnd, htmlQueryDecoding);
+    params.add(name, value);
+    return true;
+  }
+
+  private static String decodeComponent(String s, int from, int toExcluded, boolean plusToSpace) {
+    int len = toExcluded - from;
+    if (len <= 0) {
+      return Constant.BLANK;
+    }
+    int firstEscaped = -1;
+    for (int i = from; i < toExcluded; i++) {
+      char c = s.charAt(i);
+      if (c == '%' || (c == '+' && plusToSpace)) {
+        firstEscaped = i;
+        break;
+      }
+    }
+    if (firstEscaped == -1) {
+      return s.substring(from, toExcluded);
+    }
+
+    // Each encoded byte takes 3 characters (e.g. "%20")
+    int decodedCapacity = (toExcluded - firstEscaped) / 3;
+    byte[] buf = PlatformDependent.allocateUninitializedArray(decodedCapacity);
+    int bufIdx;
+
+    StringBuilder strBuf = new StringBuilder(len);
+    strBuf.append(s, from, firstEscaped);
+
+    for (int i = firstEscaped; i < toExcluded; i++) {
+      char c = s.charAt(i);
+      if (c != '%') {
+        strBuf.append(c != '+' || !plusToSpace ? c : SPACE);
+        continue;
+      }
+
+      bufIdx = 0;
+      do {
+        if (i + 3 > toExcluded) {
+          throw new IllegalArgumentException("unterminated escape sequence at index %d of: %s".formatted(i, s));
+        }
+        buf[bufIdx++] = decodeHexByte(s, i + 1);
+        i += 3;
+      }
+      while (i < toExcluded && s.charAt(i) == '%');
+      i--;
+
+      strBuf.append(new String(buf, 0, bufIdx, StandardCharsets.UTF_8));
+    }
+    return strBuf.toString();
   }
 
   private static final class TrailerHeaders extends io.netty.handler.codec.http.DefaultHttpHeaders {
