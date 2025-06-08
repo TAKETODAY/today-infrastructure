@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import infra.core.Pair;
 import infra.core.Triple;
 import infra.logging.LoggerFactory;
+import infra.util.function.ThrowingRunnable;
 import infra.util.function.ThrowingSupplier;
 import lombok.SneakyThrows;
 
@@ -56,6 +57,10 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -1413,7 +1418,8 @@ class FutureTests {
 
   @Test
   void onCancelled() {
-    Future.ok().onCancelled(Assertions::fail);
+    Future.ok().onCancelled(() -> Assertions.fail());
+    Future.ok().onCancelled((w) -> Assertions.fail());
 
     AtomicBoolean flag = new AtomicBoolean(false);
     var promise = forPromise(directExecutor())
@@ -1421,7 +1427,11 @@ class FutureTests {
     promise.cancel();
     assertThat(flag).isTrue();
 
-    assertThatThrownBy(() -> Future.ok().onCancelled(null))
+    assertThatThrownBy(() -> Future.ok().onCancelled((ThrowingRunnable) null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("cancelledCallback is required");
+
+    assertThatThrownBy(() -> Future.ok().onCancelled((FailureCallback) null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("cancelledCallback is required");
   }
@@ -1998,6 +2008,237 @@ class FutureTests {
             .hasMessage("msg");
 
     assertThat(integerPromise).isCancelled();
+  }
+
+  @Test
+  void cancel_behavior() throws Exception {
+    // 测试基本的取消操作
+    Promise<String> promise = Future.forPromise();
+    assertThat(promise.cancel()).isTrue(); // 首次取消应成功
+    assertThat(promise.cancel()).isFalse(); // 重复取消应返回false
+    assertThat(promise).isDone();
+    assertThat(promise).isCancelled();
+    assertThat(promise.isSuccess()).isFalse();
+    assertThat(promise.isFailed()).isTrue();
+    assertThat(promise.getCause()).isInstanceOf(CancellationException.class);
+
+    // 测试已完成的Future不能被取消
+    Promise<String> completedPromise = Future.forPromise();
+    completedPromise.setSuccess("done");
+    assertThat(completedPromise.cancel()).isFalse();
+    assertThat(completedPromise).isNotCancelled();
+    assertThat(completedPromise.getNow()).isEqualTo("done");
+
+    // 测试已失败的Future不能被取消
+    Promise<String> failedPromise = Future.forPromise();
+    failedPromise.setFailure(new RuntimeException());
+    assertThat(failedPromise.cancel()).isFalse();
+    assertThat(failedPromise).isNotCancelled();
+
+    // 测试取消会传播到子Future
+    Promise<String> parent = Future.forPromise();
+    Future<Integer> child = parent.map(String::length);
+
+    assertThat(parent.cancel()).isTrue();
+    assertThat(parent.await()).isCancelled();
+    assertThat(child.await()).isCancelled();
+
+    // 测试带中断的取消
+    CountDownLatch latch = new CountDownLatch(1);
+    AtomicBoolean interrupted = new AtomicBoolean(false);
+
+    CountDownLatch finalLatch1 = latch;
+    Future<?> future = Future.run(() -> {
+      try {
+        finalLatch1.countDown();
+        Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+        interrupted.set(true);
+        Thread.currentThread().interrupt();
+      }
+    });
+
+    latch.await();
+    assertThat(future.cancel(true)).isTrue();
+    assertThat(future).isCancelled();
+    Thread.sleep(100);
+    assertThat(interrupted).isTrue();
+
+    // 测试不带中断的取消
+    latch = new CountDownLatch(1);
+    interrupted.set(false);
+
+    CountDownLatch finalLatch = latch;
+    future = Future.run(() -> {
+      try {
+        finalLatch.countDown();
+        Thread.sleep(10000);
+      }
+      catch (InterruptedException e) {
+        interrupted.set(true);
+      }
+    });
+
+    latch.await();
+    assertThat(future.cancel(false)).isTrue();
+    assertThat(future).isCancelled();
+    Thread.sleep(100);
+    assertThat(interrupted).isFalse();
+  }
+
+  @Test
+  void cancelWithoutCancellationShouldReturnTrue() {
+    var future = Future.forPromise();
+    assertThat(future.cancel()).isTrue();
+    assertThat(future.isCancelled()).isTrue();
+    assertThat(future.isDone()).isTrue();
+  }
+
+  @Test
+  void cancelWithNoCancellationShouldSetNullAsCancellationCause() {
+    var future = Future.forPromise();
+    future.cancel();
+    assertThat(future.getCause()).isInstanceOf(CancellationException.class);
+  }
+
+  @Test
+  void cancelWithCancellationShouldSetSpecifiedCause() {
+    var future = Future.forPromise();
+    var cause = new IllegalStateException("Cancelled");
+    future.cancel(cause);
+    assertThat(future.getCause()).isSameAs(cause);
+  }
+
+  @Test
+  void cancelCompletedFutureShouldReturnFalse() {
+    var future = Future.forPromise();
+    future.trySuccess("OK");
+    assertThat(future.cancel()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isSuccess()).isTrue();
+  }
+
+  @Test
+  void cancelFailedFutureShouldReturnFalse() {
+    var future = Future.forPromise();
+    future.tryFailure(new RuntimeException());
+    assertThat(future.cancel()).isFalse();
+    assertThat(future.isCancelled()).isFalse();
+    assertThat(future.isFailure()).isTrue();
+  }
+
+  @Test
+  void cancelTwiceShouldReturnFalse() {
+    var future = Future.forPromise();
+    assertThat(future.cancel()).isTrue();
+    assertThat(future.cancel()).isFalse();
+  }
+
+  @Test
+  void cancelWithMayInterruptIfRunningShouldInterruptTask() {
+    var future = Future.forPromise();
+    assertThat(future.cancel(true)).isTrue();
+    assertThat(future.isCancelled()).isTrue();
+    // Check internal state to verify task was interrupted
+    assertThat(future.state).isEqualTo(AbstractFuture.INTERRUPTED);
+  }
+
+  @Test
+  void cancelWithoutMayInterruptIfRunningShouldNotInterruptTask() {
+    var future = Future.forPromise();
+    assertThat(future.cancel(false)).isTrue();
+    assertThat(future.isCancelled()).isTrue();
+    // Check internal state to verify task wasn't interrupted
+    assertThat(future.state).isEqualTo(AbstractFuture.CANCELLED);
+  }
+
+  @Test
+  void cancelShouldTriggerListeners() {
+    var future = Future.forPromise();
+    var completed = new AtomicBoolean();
+
+    future.onCompleted((f) -> completed.set(true));
+    future.cancel();
+    future.awaitUninterruptibly();
+    assertThat(completed).isTrue();
+  }
+
+  @Test
+  void shouldCancelFutureWithCancellationCause() {
+    Promise<String> promise = Future.forPromise();
+    var cause = new IllegalStateException("Cancelled");
+    assertTrue(promise.cancel(cause));
+    assertTrue(promise.isCancelled());
+    assertTrue(promise.isDone());
+    assertSame(cause, promise.getCause());
+  }
+
+  @Test
+  void shouldNotCancelCompletedFuture() {
+    Promise<String> promise = Future.forPromise();
+    promise.trySuccess("success");
+    assertFalse(promise.cancel());
+    assertFalse(promise.isCancelled());
+    assertTrue(promise.isSuccess());
+  }
+
+  @Test
+  void shouldNotCancelFailedFuture() {
+    Promise<String> promise = Future.forPromise();
+    promise.tryFailure(new RuntimeException());
+    assertFalse(promise.cancel());
+    assertFalse(promise.isCancelled());
+    assertTrue(promise.isFailure());
+  }
+
+  @Test
+  void shouldNotCancelAlreadyCancelledFuture() {
+    Promise<String> promise = Future.forPromise();
+    promise.cancel();
+    assertFalse(promise.cancel());
+    assertTrue(promise.isCancelled());
+  }
+
+  @Test
+  void shouldInterruptFutureWhenCancellingWithMayInterruptIfRunning() {
+    Promise<String> promise = Future.forPromise();
+    assertTrue(promise.cancel(true));
+    assertTrue(promise.isCancelled());
+    assertTrue(promise.isDone());
+  }
+
+  @Test
+  void shouldNotInterruptFutureWhenCancellingWithoutMayInterruptIfRunning() {
+    Promise<String> promise = Future.forPromise();
+    assertTrue(promise.cancel(false));
+    assertTrue(promise.isCancelled());
+    assertTrue(promise.isDone());
+  }
+
+  @Test
+  void shouldThrowCancellationExceptionOnGetAfterCancel() {
+    Promise<String> promise = Future.forPromise();
+    promise.cancel();
+    assertThrows(CancellationException.class, promise::join);
+  }
+
+  @Test
+  void shouldThrowCancellationCauseOnGetAfterCancelWithCause() {
+    Promise<String> promise = Future.forPromise();
+    var cause = new IllegalStateException("Cancelled");
+    promise.cancel(cause);
+    var thrown = assertThrows(IllegalStateException.class, promise::join);
+    assertSame(cause, thrown);
+  }
+
+  @Test
+  void shouldNotifyListenersOnCancel() {
+    Promise<String> promise = Future.forPromise(directExecutor());
+    AtomicBoolean notified = new AtomicBoolean();
+    promise.onCompleted((f) -> notified.set(true));
+    promise.cancel();
+    assertTrue(notified.get());
   }
 
   static Executor directExecutor() {
