@@ -28,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
 import infra.lang.Nullable;
+import infra.util.ExceptionUtils;
 
 /**
  * Abstract {@link Future} implementation which allow for cancellation.
@@ -109,11 +110,12 @@ public abstract class AbstractFuture<V> extends Future<V> {
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
     if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
       return false;
     }
     try {
+      result = cancellation;
       // in case call to interrupt throws exception
       if (mayInterruptIfRunning) {
         interruptTask();
@@ -143,6 +145,9 @@ public abstract class AbstractFuture<V> extends Future<V> {
       return (Throwable) result;
     }
     else if (s >= CANCELLED) {
+      if (result instanceof Throwable) {
+        return (Throwable) result;
+      }
       return new LeanCancellationException();
     }
     return null;
@@ -281,7 +286,10 @@ public abstract class AbstractFuture<V> extends Future<V> {
       return (V) result;
     }
     if (s >= CANCELLED) {
-      throw new CancellationException();
+      if (result instanceof Throwable) {
+        throw ExceptionUtils.sneakyThrow((Throwable) result);
+      }
+      throw new LeanCancellationException();
     }
     throw new ExecutionException((Throwable) result);
   }
