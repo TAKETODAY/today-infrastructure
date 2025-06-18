@@ -31,7 +31,6 @@ dependencies {
   optional(project(":today-websocket"))
   optional(project(":today-framework"))
 
-  optional('info.picocli:picocli')
   optional("jakarta.activation:jakarta.activation-api")
   optional("jakarta.el:jakarta.el-api")
   optional("jakarta.inject:jakarta.inject-api")
