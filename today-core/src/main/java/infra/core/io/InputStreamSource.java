@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 
 import infra.lang.Constant;
 import infra.util.function.ThrowingConsumer;
@@ -68,21 +69,84 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
   InputStream getInputStream() throws IOException;
 
   /**
-   * Get {@link Reader}
+   * Returns a {@link Reader} for the content of the underlying resource using the
+   * default charset ({@link Constant#DEFAULT_CHARSET}). This method is a convenience
+   * overload of {@link #getReader(Charset)} and is equivalent to calling
+   * {@code getReader(Constant.DEFAULT_CHARSET)}.
    *
-   * @throws IOException If an input exception occurs
+   * <p>This method is typically used when reading text-based resources where the
+   * default charset is sufficient. It ensures that the content is interpreted
+   * correctly according to the default encoding.
+   *
+   * <h3>Usage Example</h3>
+   *
+   * Reading the content of a resource as a string using the default charset:
+   * <pre>{@code
+   * try (Reader reader = inputStreamSource.getReader()) {
+   *   StringBuilder content = new StringBuilder();
+   *   char[] buffer = new char[1024];
+   *   int charsRead;
+   *   while ((charsRead = reader.read(buffer)) != -1) {
+   *     content.append(buffer, 0, charsRead);
+   *   }
+   *   System.out.println(content.toString());
+   * }
+   * catch (IOException e) {
+   *   e.printStackTrace();
+   * }
+   * }</pre>
+   *
+   * <p><b>Note:</b> The returned {@link Reader} should be closed after use to release
+   * any underlying resources. Using a try-with-resources block is recommended.
+   *
+   * @return a {@link Reader} for the underlying resource's content using the
+   * default charset
+   * @throws IOException if an I/O error occurs while opening the reader or
+   * accessing the underlying resource
+   * @see #getReader(Charset)
+   * @see Constant#DEFAULT_CHARSET
    */
   default Reader getReader() throws IOException {
-    return getReader(Constant.DEFAULT_ENCODING);
+    return getReader(Constant.DEFAULT_CHARSET);
   }
 
   /**
-   * Get {@link Reader}
+   * Returns a {@link Reader} for the content of the underlying resource using the specified charset.
+   * This method wraps the {@link InputStream} returned by {@link #getInputStream()} with an
+   * {@link InputStreamReader}, applying the provided charset for decoding the byte stream into characters.
    *
-   * @param encoding Charset string
-   * @throws IOException If an input exception occurs
+   * <p>This method is particularly useful when reading text-based resources where a specific character
+   * encoding is required. It ensures that the content is interpreted correctly according to the given charset.
+   *
+   * <h3>Usage Example</h3>
+   *
+   * Reading the content of a resource as a string using a custom charset:
+   * <pre>{@code
+   * Charset utf16Charset = StandardCharsets.UTF_16;
+   * try (Reader reader = inputStreamSource.getReader(utf16Charset)) {
+   *   StringBuilder content = new StringBuilder();
+   *   char[] buffer = new char[1024];
+   *   int charsRead;
+   *   while ((charsRead = reader.read(buffer)) != -1) {
+   *     content.append(buffer, 0, charsRead);
+   *   }
+   *   System.out.println(content.toString());
+   * }
+   * catch (IOException e) {
+   *   e.printStackTrace();
+   * }
+   * }</pre>
+   *
+   * <p><b>Note:</b> The returned {@link Reader} should be closed after use to release any underlying
+   * resources. Using a try-with-resources block is recommended.
+   *
+   * @param encoding the charset to use for decoding the byte stream into characters (must not be {@code null})
+   * @return a {@link Reader} for the underlying resource's content using the specified charset
+   * @throws IOException if an I/O error occurs while opening the reader or accessing the underlying resource
+   * @see #getInputStream()
+   * @see InputStreamReader
    */
-  default Reader getReader(String encoding) throws IOException {
+  default Reader getReader(Charset encoding) throws IOException {
     return new InputStreamReader(getInputStream(), encoding);
   }
 
@@ -135,7 +199,39 @@ public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
   }
 
   /**
-   * @param out the output stream, non-null
+   * Accepts an {@link OutputStream} and transfers all bytes from the underlying
+   * input stream to the provided output stream. This method delegates the transfer
+   * logic to the {@link #transferTo(OutputStream)} method, which reads all bytes
+   * from the input stream and writes them to the output stream in the order they
+   * are read.
+   *
+   * <p>This method does not close either the input or output stream. If an I/O
+   * error occurs during the transfer, it is strongly recommended to promptly close
+   * both streams to avoid resource leaks or inconsistent states.
+   *
+   * <p><b>Note:</b> This method may block indefinitely while reading from the input
+   * stream or writing to the output stream. The behavior in cases where the streams
+   * are asynchronously closed or the thread is interrupted is implementation-specific
+   * and therefore not guaranteed.
+   *
+   * <h3>Usage Example</h3>
+   *
+   * Transferring the content of an {@code InputStreamSource} to a file:
+   * <pre>{@code
+   * InputStreamSource source = ...; // Obtain the InputStreamSource
+   * Path outputPath = Paths.get("output.txt");
+   * try (OutputStream out = Files.newOutputStream(outputPath)) {
+   *   source.acceptWithException(out);
+   *   System.out.println("Data successfully written to " + outputPath);
+   * }
+   * catch (Exception e) {
+   *   e.printStackTrace();
+   * }
+   * }</pre>
+   *
+   * @param out the output stream to which the data will be transferred (must not be null)
+   * @throws Exception if an I/O error occurs during the transfer or if the provided
+   * output stream is null
    * @see #transferTo(OutputStream)
    */
   @Override

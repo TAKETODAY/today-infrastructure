@@ -173,7 +173,7 @@ final class CompleteFuture<V> extends Future<V> {
    * @param mayInterruptIfRunning this value has no effect in this implementation.
    */
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning) {
     return false;
   }
 

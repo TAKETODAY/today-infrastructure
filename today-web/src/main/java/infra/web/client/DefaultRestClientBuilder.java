@@ -157,6 +157,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   private boolean detectEmptyMessageBody = true;
 
   @Nullable
+  private Object defaultApiVersion;
+
+  @Nullable
   private ApiVersionInserter apiVersionInserter;
 
   public DefaultRestClientBuilder() {
@@ -172,6 +175,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.bufferingPredicate = other.bufferingPredicate;
     this.detectEmptyMessageBody = other.detectEmptyMessageBody;
     this.apiVersionInserter = other.apiVersionInserter;
+    this.defaultApiVersion = other.defaultApiVersion;
 
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
@@ -309,6 +313,12 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Override
   public RestClient.Builder defaultCookies(MultiValueMap<String, String> cookies) {
     initCookies().setAll(cookies);
+    return this;
+  }
+
+  @Override
+  public RestClient.Builder defaultApiVersion(@Nullable Object version) {
+    this.defaultApiVersion = version;
     return this;
   }
 
@@ -500,7 +510,8 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     return new DefaultRestClient(requestFactory, this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders, defaultCookies, this.defaultRequest, this.statusHandlers, bufferingPredicate,
-            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody, apiVersionInserter);
+            messageConverters, new DefaultRestClientBuilder(this), ignoreStatus, detectEmptyMessageBody,
+            apiVersionInserter, defaultApiVersion);
   }
 
   private ClientHttpRequestFactory initRequestFactory() {

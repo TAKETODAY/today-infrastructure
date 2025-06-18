@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ import infra.core.Ordered;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
-import infra.util.StringUtils;
+import infra.util.PatternMatchUtils;
 import infra.web.RequestContext;
 import infra.web.RequestContextUtils;
 
@@ -450,6 +450,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * @see #loadView
    * @see #requiredViewClass
    */
+  @Nullable
   @Override
   protected View createView(String viewName, Locale locale) throws Exception {
     // If this resolver is not supposed to handle the given view,
@@ -479,11 +480,11 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * @param viewName the name of the view to retrieve
    * @param locale the Locale to retrieve the view for
    * @return whether this resolver applies to the specified view
-   * @see StringUtils#simpleMatch(String, String)
+   * @see PatternMatchUtils#simpleMatch(String, String)
    */
   protected boolean canHandle(String viewName, Locale locale) {
     String[] viewNames = getViewNames();
-    return viewNames == null || StringUtils.simpleMatch(viewNames, viewName);
+    return viewNames == null || PatternMatchUtils.simpleMatch(viewNames, viewName);
   }
 
   /**

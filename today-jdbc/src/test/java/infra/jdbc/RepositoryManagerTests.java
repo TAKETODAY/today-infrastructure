@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -219,10 +219,10 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public void testExecuteScalar() {
     createAndFillUserTable();
 
-    Object o = repositoryManager.createNamedQuery("select text from User where id = 2").fetchScalar();
+    Object o = repositoryManager.createNamedQuery("select text from User where id = 2").scalar();
     assertEquals(o.getClass(), String.class);
 
-    Object o2 = repositoryManager.createNamedQuery("select 10").fetchScalar();
+    Object o2 = repositoryManager.createNamedQuery("select 10").scalar();
     assertEquals(o2, 10);
 
     deleteUserTable();
@@ -320,7 +320,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public void testExecuteAndFetchResultSet() {
     List<Integer> list = repositoryManager.createNamedQuery(
                     "select 1 val from (values(0)) union select 2 from (values(0)) union select 3 from (values(0))")
-            .fetchScalars(Integer.class);
+            .scalars(Integer.class);
 
     assertEquals((int) list.get(0), 1);
     assertEquals((int) list.get(1), 2);
@@ -336,7 +336,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
                     "select 3 ord, null from (values(0)) union " +
                     "select 4 ord, 'two' from (values(0)) " +
                     ") order by ord" // explicit ordering since nulls seem to mess with ordering
-    ).fetchScalars(String.class);
+    ).scalars(String.class);
 
     assertEquals(4, list.size());
 
@@ -474,7 +474,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .addParameter("id", 1)
             .addParameter("date", (Date) null).executeUpdate();
 
-    Date d = (Date) repositoryManager.createNamedQuery("select somedate from nullDateTest where id = 1").fetchScalar();
+    Date d = (Date) repositoryManager.createNamedQuery("select somedate from nullDateTest where id = 1").scalar();
     assertNull(d);
   }
 
@@ -588,7 +588,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .rollback();
 
     long rowCount = (Long) repositoryManager.createNamedQuery(
-            "select count(*) from test_rollback_table").fetchScalar();
+            "select count(*) from test_rollback_table").scalar();
 
     assertEquals(1, rowCount);
   }
@@ -795,7 +795,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     }
 
     assertTrue(failed);
-    long rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    long rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").scalar();
     assertEquals(0, rowCount);
 
     repositoryManager.runInTransaction((connection, argument) -> {
@@ -804,7 +804,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
               .executeUpdate();
     });
 
-    rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").scalar();
     assertEquals(1, rowCount);
 
     String argument = "argument test";
@@ -817,11 +817,11 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
       String insertedValue = connection.createNamedQuery("select value from runinsidetransactiontable where id = :id")
               .addParameter("id", id)
-              .fetchScalar(String.class);
+              .scalar(String.class);
       assertEquals("argument test", insertedValue);
     }, argument);
 
-    rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").fetchScalar();
+    rowCount = (Long) repositoryManager.createNamedQuery("select count(*) from runinsidetransactiontable").scalar();
     assertEquals(2, rowCount);
   }
 
@@ -852,14 +852,14 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
   @Test
   public void testDynamicExecuteScalar() {
-    Object origVal = repositoryManager.createNamedQuery("select 1").fetchScalar();
+    Object origVal = repositoryManager.createNamedQuery("select 1").scalar();
     assertEquals(Integer.class, origVal.getClass());
     assertEquals(1, origVal);
 
-    Long intVal = repositoryManager.createNamedQuery("select 1").fetchScalar(Long.class);
+    Long intVal = repositoryManager.createNamedQuery("select 1").scalar(Long.class);
     assertEquals((Long) 1l, intVal);
 
-    Short shortVal = repositoryManager.createNamedQuery("select 2").fetchScalar(Short.class);
+    Short shortVal = repositoryManager.createNamedQuery("select 2").scalar(Short.class);
     Short expected = 2;
     assertEquals(expected, shortVal);
   }
@@ -898,7 +898,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
     }
 
-    int c = repositoryManager.createNamedQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
+    int c = repositoryManager.createNamedQuery("select count(*) from testExceptionInRunnable").scalar(Integer.class);
     assertEquals(0, c);
 
     repositoryManager.runInTransaction((connection, argument) -> {
@@ -916,7 +916,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
       }
     });
 
-    c = repositoryManager.createNamedQuery("select count(*) from testExceptionInRunnable").fetchScalar(Integer.class);
+    c = repositoryManager.createNamedQuery("select count(*) from testExceptionInRunnable").scalar(Integer.class);
     assertEquals(1, c);
 
   }
@@ -941,11 +941,11 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .addParameter("val", TestEnum.WORLD).addParameter("val2", TestEnum.WORLD.ordinal()).addToBatch().executeBatch();
 
     TestEnum testEnum = repositoryManager.createNamedQuery("select 'HELLO' from (values(0))")
-            .fetchScalar(TestEnum.class);
+            .scalar(TestEnum.class);
     assertThat(testEnum).isEqualTo(TestEnum.HELLO);
 
     TestEnum testEnum2 = repositoryManager.createNamedQuery("select NULL from (values(0))")
-            .fetchScalar(TestEnum.class);
+            .scalar(TestEnum.class);
     assertThat(testEnum2).isNull();
 
     TypeHandlerManager handlerRegistry = new TypeHandlerManager();
@@ -1535,7 +1535,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
       String val = connection.createNamedQuery("select val from testClob where id = :id")
               .addParameter("id", 1)
-              .fetchScalar(String.class);
+              .scalar(String.class);
 
       assertThat(val).isEqualTo("something");
     }

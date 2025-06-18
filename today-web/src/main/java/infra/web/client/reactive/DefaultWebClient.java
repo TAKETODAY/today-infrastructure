@@ -93,13 +93,16 @@ class DefaultWebClient implements WebClient {
   private final List<DefaultResponseSpec.StatusHandler> defaultStatusHandlers;
 
   @Nullable
+  private final Object defaultApiVersion;
+
+  @Nullable
   private final ApiVersionInserter apiVersionInserter;
 
   DefaultWebClient(ExchangeFunction exchangeFunction, UriBuilderFactory uriBuilderFactory,
           @Nullable HttpHeaders defaultHeaders, @Nullable MultiValueMap<String, String> defaultCookies,
           @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest,
           @Nullable Map<Predicate<HttpStatusCode>, Function<ClientResponse, Mono<? extends Throwable>>> statusHandlerMap,
-          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter) {
+          DefaultWebClientBuilder builder, @Nullable ApiVersionInserter apiVersionInserter, Object defaultApiVersion) {
 
     this.builder = builder;
     this.exchangeFunction = exchangeFunction;
@@ -109,6 +112,7 @@ class DefaultWebClient implements WebClient {
     this.defaultRequest = defaultRequest;
     this.apiVersionInserter = apiVersionInserter;
     this.defaultStatusHandlers = initStatusHandlers(statusHandlerMap);
+    this.defaultApiVersion = defaultApiVersion;
   }
 
   private static List<DefaultResponseSpec.StatusHandler> initStatusHandlers(
@@ -474,9 +478,10 @@ class DefaultWebClient implements WebClient {
 
     private URI initURI() {
       URI uriToUse = this.uri != null ? this.uri : uriBuilderFactory.expand("");
-      if (this.apiVersion != null) {
+      Object version = getApiVersionOrDefault();
+      if (version != null) {
         Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
-        uriToUse = apiVersionInserter.insertVersion(this.apiVersion, uriToUse);
+        uriToUse = apiVersionInserter.insertVersion(version, uriToUse);
       }
       return uriToUse;
     }
@@ -489,10 +494,16 @@ class DefaultWebClient implements WebClient {
       if (this.headers != null && !this.headers.isEmpty()) {
         headers.putAll(this.headers);
       }
-      if (apiVersion != null) {
+      Object version = getApiVersionOrDefault();
+      if (version != null) {
         Assert.state(apiVersionInserter != null, "No ApiVersionInserter configured");
-        apiVersionInserter.insertVersion(apiVersion, headers);
+        apiVersionInserter.insertVersion(version, headers);
       }
+    }
+
+    @Nullable
+    private Object getApiVersionOrDefault() {
+      return this.apiVersion != null ? this.apiVersion : DefaultWebClient.this.defaultApiVersion;
     }
 
   }

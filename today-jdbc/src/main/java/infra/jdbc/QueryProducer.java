@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,39 @@
 package infra.jdbc;
 
 /**
+ * An interface responsible for producing SQL queries and named queries.
+ * <p>
+ * This interface provides methods to create instances of {@link Query} and {@link NamedQuery}.
+ * It is recommended to use these methods in conjunction with the {@link JdbcConnection} class,
+ * ensuring proper resource management using try-with-resources blocks.
+ * </p>
+ *
+ * <p>
+ * Example usage:
+ * </p>
+ * <pre>{@code
+ * try (Connection con = repositoryManager.open()) {
+ *   // Create a query and fetch results
+ *   return repositoryManager.createQuery("SELECT * FROM users", true)
+ *                            .fetch(User.class);
+ * }
+ * }</pre>
+ *
+ * <p>
+ * Another example with named queries:
+ * </p>
+ * <pre>{@code
+ * try (Connection con = repositoryManager.open()) {
+ *   // Create a named query and fetch results
+ *   return repositoryManager.createNamedQuery("SELECT * FROM products WHERE id = :id")
+ *                            .fetch(Product.class);
+ * }
+ * }</pre>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Query
+ * @see NamedQuery
+ * @see JdbcConnection
  * @since 4.0 2023/1/22 14:00
  */
 public interface QueryProducer {

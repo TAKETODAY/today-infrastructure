@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ class HttpMockResponseTests {
     response.setContentType(contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-    assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
   @Test
@@ -117,13 +117,13 @@ class HttpMockResponseTests {
     response.setHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-    assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
     response = new MockHttpResponseImpl();
     response.addHeader(CONTENT_TYPE, contentType);
     assertThat(response.getContentType()).isEqualTo(contentType);
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo(contentType);
-    assertThat(response.getCharacterEncoding()).isEqualTo(Constant.DEFAULT_ENCODING);
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,16 +37,76 @@ import infra.core.annotation.Order;
 @FunctionalInterface
 public interface CommandLineRunner extends ApplicationRunner {
 
+  /**
+   * Executes the command-line runner logic with the provided application arguments.
+   * This method serves as a bridge between {@link ApplicationArguments} and raw string arguments,
+   * delegating the execution to the {@link #run(String...)} method by extracting the raw arguments
+   * from the {@link ApplicationArguments} instance.
+   *
+   * <p>This default implementation is particularly useful when implementing the {@link CommandLineRunner}
+   * interface, allowing developers to focus on processing raw arguments in the {@link #run(String...)}
+   * method while maintaining compatibility with {@link ApplicationArguments}.
+   *
+   * <p><strong>Usage Example:</strong>
+   * <pre>{@code
+   * @Component
+   * public class MyRunner implements CommandLineRunner {
+   *   @Override
+   *   public void run(String... args) throws Exception {
+   *     System.out.println("Application started with arguments:");
+   *     for (String arg : args) {
+   *       System.out.println(arg);
+   *     }
+   *   }
+   * }
+   * }</pre>
+   *
+   * <p>In this example, the {@code MyRunner} class implements the {@link CommandLineRunner} interface.
+   * The {@code run} method processes the raw arguments passed to the application. When invoked through
+   * the Infra application context, the default implementation of this method ensures that the raw
+   * arguments are correctly extracted and passed to the custom logic defined in the {@code run(String...)} method.
+   *
+   * @param args an {@link ApplicationArguments} object encapsulating the arguments passed to the application
+   * @throws Exception if an error occurs during the execution of the runner logic
+   * @see ApplicationArguments#getSourceArgs()
+   * @see #run(String...)
+   */
   @Override
   default void run(ApplicationArguments args) throws Exception {
     run(args.getSourceArgs());
   }
 
   /**
-   * Callback used to run the bean.
+   * Executes the command-line runner logic with the provided raw arguments.
+   * This method is invoked when the application starts, allowing custom logic
+   * to be executed based on the arguments passed to the application.
    *
-   * @param args incoming main method arguments
-   * @throws Exception on error
+   * <p>This method is typically implemented by beans that need to perform
+   * initialization tasks or process command-line arguments during application startup.
+   *
+   * <p><strong>Usage Example:</strong>
+   * <pre>{@code
+   * @Component
+   * public class MyRunner implements CommandLineRunner {
+   *   @Override
+   *   public void run(String... args) throws Exception {
+   *     System.out.println("Application started with arguments:");
+   *     for (String arg : args) {
+   *       System.out.println(arg);
+   *     }
+   *   }
+   * }
+   * }</pre>
+   *
+   * <p>In this example, the {@code MyRunner} class implements the {@link CommandLineRunner}
+   * interface. The {@code run} method processes the raw arguments passed to the application.
+   * When invoked through the Infra application context, the method ensures that the arguments
+   * are correctly handled and processed.
+   *
+   * @param args an array of raw arguments passed to the application
+   * @throws Exception if an error occurs during the execution of the runner logic
+   * @see ApplicationArguments#getSourceArgs()
+   * @see CommandLineRunner
    */
   void run(String... args) throws Exception;
 

@@ -76,7 +76,48 @@ import infra.web.util.UriComponentsBuilder;
 import static infra.lang.Constant.DEFAULT_CHARSET;
 
 /**
- * Context holder for request-specific state.
+ * RequestContext encapsulates the context of an HTTP request, providing access to request-related
+ * information such as headers, cookies, query parameters, and other metadata. It also provides
+ * methods for managing the response, including setting cookies and tracking request processing time.
+ *
+ * <p>This class is designed to be used in web applications to facilitate handling HTTP requests
+ * and responses in a structured and consistent manner. It supports various features like CORS,
+ * multipart requests, asynchronous processing, and more.</p>
+ *
+ * <p><b>Example Usage:</b></p>
+ * <pre>{@code
+ *   RequestContext context = ...;
+ *
+ *   // Access request details
+ *   String requestURI = context.getRequestURI();
+ *   String method = context.getHttpMethod();
+ *   System.out.println("Request URI: " + requestURI);
+ *   System.out.println("HTTP Method: " + method);
+ *
+ *   // Add a cookie to the response
+ *   context.addCookie("sessionId", "12345");
+ *
+ *   // Retrieve a specific cookie from the request
+ *   HttpCookie sessionCookie = context.getCookie("sessionId");
+ *   if (sessionCookie != null) {
+ *     System.out.println("Session ID: " + sessionCookie.getValue());
+ *   }
+ *
+ *   // Remove a cookie from the response
+ *   List<HttpCookie> removedCookies = context.removeCookie("sessionId");
+ *   if (removedCookies != null) {
+ *     System.out.println("Removed cookies: " + removedCookies.size());
+ *   }
+ * }</pre>
+ *
+ * <p><b>Key Features:</b></p>
+ * <ul>
+ *   <li>Access to request and response headers, cookies, and query parameters.</li>
+ *   <li>Support for multipart and asynchronous requests.</li>
+ *   <li>Tracking of request processing time and completion status.</li>
+ *   <li>Management of CORS and pre-flight requests.</li>
+ *   <li>Integration with application context and dispatcher handler.</li>
+ * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-06-22 15:48
@@ -353,7 +394,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * @see #getRequestURI()
+   * Returns the {@code RequestPath} associated with the current request.
+   * <p>
+   * This method retrieves the {@code RequestPath} instance, initializing it if necessary.
+   * If the {@code RequestPath} has not been previously set, it will be read using
+   * the {@code readRequestPath()} method and cached for future use.
+   *
+   * @return the {@code RequestPath} instance associated with the current request.
    */
   public RequestPath getRequestPath() {
     RequestPath requestPath = this.requestPath;
@@ -368,18 +415,44 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return RequestPath.parse(getRequestURI(), null);
   }
 
+  /**
+   * Sets the matching metadata for this handler. The matching metadata provides
+   * information about how a handler is matched to a specific request or context.
+   * This method allows setting or updating the metadata, which can be null if no
+   * matching information is available.
+   *
+   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
+   */
   public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
     this.matchingMetadata = handlerMatchingMetadata;
   }
 
+  /**
+   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
+   * if available. This metadata typically contains information about how a
+   * handler matches certain criteria, such as request mappings in a web
+   * application context.
+   *
+   * <p>If no matching metadata has been set, this method will return
+   * {@code null}. Ensure proper null checks when using the returned value.</p>
+   *
+   * @return the {@code HandlerMatchingMetadata} associated with this instance,
+   * or {@code null} if no metadata is available
+   */
   @Nullable
   public HandlerMatchingMetadata getMatchingMetadata() {
     return this.matchingMetadata;
   }
 
   /**
-   * @throws IllegalStateException if HandlerMatchingMetadata is not set
-   * @since 4.0
+   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
+   *
+   * <p>This method retrieves the metadata that describes how a handler matches
+   * a specific request. If the metadata is not set, an exception is thrown to
+   * indicate that it is required.
+   *
+   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
+   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
    */
   public HandlerMatchingMetadata matchingMetadata() {
     HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
@@ -491,10 +564,23 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * remove the specified cookie from response
+   * Removes all cookies with the specified name from the internal list of response cookies.
+   * If no cookies match the given name, or if the internal cookie list is null,
+   * the method will return null. Otherwise, it returns a list of removed cookies.
    *
-   * @param name cookie name
-   * @return removed cookie
+   * <p>Example usage:
+   * <pre>{@code
+   *   // Assuming responseCookies contains: [cookie1(name="id"), cookie2(name="session")]
+   *   List<HttpCookie> removed = removeCookie("id");
+   *
+   *   // After execution:
+   *   // removed contains: [cookie1(name="id")]
+   *   // responseCookies now contains: [cookie2(name="session")]
+   * }</pre>
+   *
+   * @param name the name of the cookies to be removed; must not be null
+   * @return a list of {@link HttpCookie} objects that were removed, or null
+   * if no cookies were found or the internal cookie list is null
    */
   @Nullable
   public List<HttpCookie> removeCookie(String name) {
@@ -511,10 +597,55 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return null;
   }
 
+  /**
+   * Checks if there are any response cookies available.
+   *
+   * <p>This method returns true if the {@code responseCookies} object is not null,
+   * indicating that there are cookies present in the response. Otherwise, it returns false.
+   *
+   * <p><b>Example Usage:</b>
+   * <pre>{@code
+   * if (httpRequest.hasResponseCookie()) {
+   *   // Process the response cookies
+   *   System.out.println("Response contains cookies.");
+   * }
+   * else {
+   *   // Handle the case where no cookies are present
+   *   System.out.println("No cookies in the response.");
+   * }
+   * }</pre>
+   *
+   * @return true if response cookies are present, false otherwise
+   */
   public boolean hasResponseCookie() {
     return responseCookies != null;
   }
 
+  /**
+   * Returns the list of response cookies associated with this object. If no
+   * cookies have been set previously, an empty list is initialized and returned.
+   *
+   * <p>This method ensures that a non-null list is always available for use.
+   * The returned list can be modified directly to add or remove cookies.
+   *
+   * <p><strong>Example Usage:</strong>
+   * <pre>{@code
+   *   // Retrieve the response cookies
+   *   ArrayList<HttpCookie> cookies = responseCookies();
+   *
+   *   // Add a new cookie to the list
+   *   cookies.add(new HttpCookie("sessionId", "12345"));
+   *
+   *   // Iterate through the cookies
+   *   for (HttpCookie cookie : responseCookies()) {
+   *     System.out.println("Cookie Name: " + cookie.getName());
+   *     System.out.println("Cookie Value: " + cookie.getValue());
+   *   }
+   * }</pre>
+   *
+   * @return a modifiable list of {@link HttpCookie} objects representing the
+   * response cookies. If no cookies exist, an empty list is returned.
+   */
   public ArrayList<HttpCookie> responseCookies() {
     var responseCookies = this.responseCookies;
     if (responseCookies == null) {
@@ -727,8 +858,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
   // -----------------------------------------------------
 
   /**
-   * @return return whether this request is multipart
-   * @since 4.0
+   * Determines whether the current request is a multipart request.
+   *
+   * This method checks if the request's content type starts with "multipart/".
+   * For GET and HEAD requests, it automatically returns false as these methods
+   * do not support multipart content. The result is cached internally to avoid
+   * redundant computations for subsequent calls.
+   *
+   * @return true if the request is a multipart request, false otherwise.
    */
   public boolean isMultipart() {
     Boolean multipartFlag = this.multipartFlag;
@@ -746,6 +883,24 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * Returns the {@code MultipartRequest} instance associated with the current object.
+   * If no instance exists, it creates one using the {@code createMultipartRequest()}
+   * method and caches it for future use.
+   *
+   * <p>This method ensures that only one {@code MultipartRequest} instance is created
+   * and reused, following the lazy initialization pattern.
+   *
+   * <p><b>Example Usage:</b>
+   *
+   * <pre>{@code
+   *   // Assuming 'handler' is an instance of the class containing this method
+   *   MultipartRequest request = getMultipartRequest();
+   *
+   *   // Use the request object to process multipart data
+   *   String fileData = request.getFileData("fileKey");
+   * }</pre>
+   *
+   * @return the cached or newly created {@code MultipartRequest} instance
    * @see #isMultipart()
    * @since 4.0
    */
@@ -759,9 +914,27 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * create MultipartRequest
+   * Creates a new instance of a multipart request object.
+   * This method is intended to be implemented by subclasses, which should
+   * provide the specific logic for constructing and returning a
+   * {@code MultipartRequest} object.
    *
-   * @since 4.0
+   * <p>Example usage:
+   * <pre>{@code
+   * public class CustomMultipartRequestCreator extends BaseClass {
+   *   @Override
+   *   protected MultipartRequest createMultipartRequest() {
+   *     // Custom implementation to create and return a MultipartRequest
+   *     MultipartRequest request = new MultipartRequest();
+   *     request.addPart("file", new File("example.txt"));
+   *     request.addPart("metadata", "additional data");
+   *     return request;
+   *   }
+   * }
+   * }</pre>
+   *
+   * @return a new instance of {@code MultipartRequest}, configured and ready
+   * for use in handling multipart data operations
    */
   protected abstract MultipartRequest createMultipartRequest();
 
@@ -783,6 +956,24 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
+  /**
+   * Returns the current {@code AsyncWebRequest} instance associated with this context.
+   * If no asynchronous web request has been initialized yet, this method will create
+   * a new instance using {@code createAsyncWebRequest()} and store it for future use.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   // Retrieve the async web request
+   *   AsyncWebRequest asyncRequest = context.getAsyncWebRequest();
+   *
+   *   // Perform operations on the async request
+   *   asyncRequest.setAttribute("key", "value");
+   *   String value = (String) asyncRequest.getAttribute("key");
+   * }</pre>
+   *
+   * @return the current {@code AsyncWebRequest} instance, or a newly created instance
+   * if none has been initialized yet
+   */
   public AsyncWebRequest getAsyncWebRequest() {
     var asyncRequest = this.asyncRequest;
     if (asyncRequest == null) {
@@ -792,8 +983,46 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return asyncRequest;
   }
 
+  /**
+   * Creates and returns a new asynchronous web request instance.
+   * This method is intended to be implemented by subclasses to provide
+   * a specific implementation of {@link AsyncWebRequest}.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * public class CustomAsyncWebRequestCreator {
+   *   protected AsyncWebRequest createAsyncWebRequest() {
+   *     return new CustomAsyncWebRequest();
+   *   }
+   * }
+   * }</pre>
+   *
+   * @return a new instance of {@link AsyncWebRequest} to handle asynchronous
+   * web requests
+   */
   protected abstract AsyncWebRequest createAsyncWebRequest();
 
+  /**
+   * Returns the {@code WebAsyncManager} associated with this instance, lazily
+   * initializing it if necessary. If the internal {@code WebAsyncManager} has not
+   * been created yet, this method will invoke {@code createWebAsyncManager()} to
+   * initialize it and store it for future use.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   // Retrieve the WebAsyncManager instance
+   *   WebAsyncManager asyncManager = getAsyncManager();
+   *
+   *   // Use the WebAsyncManager to manage asynchronous operations
+   *   asyncManager.startCallableProcessing(() -> {
+   *     // Perform some asynchronous task
+   *     return "Task Completed";
+   *   });
+   * }</pre>
+   *
+   * @return the {@code WebAsyncManager} instance associated with this object,
+   * ensuring it is initialized before returning
+   */
   public WebAsyncManager getAsyncManager() {
     WebAsyncManager webAsyncManager = this.webAsyncManager;
     if (webAsyncManager == null) {
@@ -860,7 +1089,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-
   }
 
   /**
@@ -978,10 +1206,22 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public abstract String getContentType();
 
   /**
-   * Get request HTTP headers
+   * Returns the HTTP headers associated with the current request. If the headers
+   * have not been initialized yet, they will be created and cached for subsequent
+   * calls to this method.
    *
-   * @return request read only HTTP header ,never be {@code null}
-   * @since 3.0
+   * <p>This method ensures that the headers are only created once, improving
+   * performance by avoiding redundant operations.
+   *
+   * <p><strong>Example Usage:</strong>
+   * <pre>{@code
+   * HttpHeaders headers = requestHeaders();
+   * headers.forEach((key, value) -> {
+   *   System.out.println(key + ": " + value);
+   * });
+   * }</pre>
+   *
+   * @return the {@link HttpHeaders} object containing the request headers
    */
   public HttpHeaders requestHeaders() {
     HttpHeaders requestHeaders = this.requestHeaders;
@@ -993,9 +1233,26 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * template method for create request http-headers
+   * Creates and returns the HTTP headers required for a request.
+   * This method is intended to be implemented by subclasses to
+   * define specific headers needed for different types of requests.
+   * <p>
+   * The returned {@code HttpHeaders} object can include common headers
+   * such as "Content-Type", "Authorization", or any custom headers
+   * required by the API being accessed.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * protected HttpHeaders createRequestHeaders() {
+   *   HttpHeaders headers = new HttpHeaders();
+   *   headers.set("Content-Type", "application/json");
+   *   headers.set("Authorization", "Bearer token123");
+   *   return headers;
+   * }
+   * }</pre>
    *
-   * @since 3.0
+   * @return an instance of {@link HttpHeaders} containing the necessary
+   * headers for the request
    */
   protected abstract HttpHeaders createRequestHeaders();
 
@@ -1026,6 +1283,20 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   // checkNotModified
+
+  /**
+   * Checks if the current object has not been modified.
+   *
+   * <p>This method returns the value of the internal flag {@code notModified},
+   * which indicates whether the object remains in its original state since
+   * it was last reset or initialized.
+   *
+   * @return {@code true} if the object has not been modified,
+   * {@code false} otherwise.
+   */
+  public boolean isNotModified() {
+    return this.notModified;
+  }
 
   /**
    * Check whether the requested resource has been modified given the
@@ -1267,10 +1538,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     }
   }
 
-  public boolean isNotModified() {
-    return this.notModified;
-  }
-
   private long parseDateHeader(String headerName) {
     long dateValue = -1;
     HttpHeaders httpHeaders = requestHeaders();
@@ -1320,17 +1587,57 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return -1;
   }
 
-  /** @since 4.0 */
+  /**
+   * Sets the binding context for this component. The binding context is used to
+   * manage data bindings between the component and its associated data model.
+   *
+   * <p>If {@code null} is passed, any existing binding context will be cleared.</p>
+   *
+   * @param bindingContext the {@link BindingContext} to set, or {@code null} to clear
+   * the current binding context
+   */
   public void setBinding(@Nullable BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 
-  /** @since 4.0 */
+  /**
+   * Checks if the current instance has a binding context established.
+   *
+   * This method evaluates whether the {@code bindingContext} is initialized
+   * (i.e., not null). It is typically used to determine if the object is ready
+   * for binding-related operations.
+   *
+   * @return {@code true} if the {@code bindingContext} is not null, indicating
+   * that a binding context exists; {@code false} otherwise.
+   * @since 4.0
+   */
   public boolean hasBinding() {
     return bindingContext != null;
   }
 
   /**
+   * Returns the current {@link BindingContext} associated with this instance.
+   *
+   * <p>This method provides access to the binding context, which may be used to manage
+   * data bindings or retrieve information about the current binding state. If no binding
+   * context is set, the method will return {@code null}.
+   *
+   * <p><strong>Example Usage:</strong>
+   * <pre>{@code
+   *   // Retrieve the binding context
+   *   BindingContext context = getBinding();
+   *
+   *   if (context != null) {
+   *     // Perform operations with the binding context
+   *     System.out.println("Binding context found: " + context);
+   *   }
+   *   else {
+   *     System.out.println("No binding context is currently set.");
+   *   }
+   * }</pre>
+   *
+   * @return the current {@link BindingContext}, or {@code null} if no binding context
+   * is associated with this instance
    * @since 4.0
    */
   @Nullable
@@ -1339,6 +1646,13 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
+   * Returns the {@link BindingContext} associated with this instance.
+   *
+   * <p>This method retrieves the binding context, ensuring that it has been
+   * initialized. If the binding context is not set, an exception is thrown
+   * to indicate that a valid context is required.</p>
+   *
+   * @return the non-null {@link BindingContext} instance associated with this object
    * @throws IllegalStateException if BindingContext is not set
    * @since 4.0
    */
@@ -1774,11 +2088,23 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Remove a response header with the given name.
+   * Removes the header with the specified name from the response headers.
    *
-   * @param name the name of the header
-   * @see HttpHeaders#remove
-   * @since 4.0
+   * <p>This method checks if the {@code responseHeaders} map is not null and then
+   * removes the header entry associated with the provided name. If the header does
+   * not exist or {@code responseHeaders} is null, no action is taken.</p>
+   *
+   * <p>Example usage:</p>
+   *
+   * <pre>{@code
+   *   // Assume responseHeaders contains {"Content-Type": "text/plain", "Authorization": "Bearer token"}
+   *   removeHeader("Authorization");
+   *
+   *   // After the call, responseHeaders will contain:
+   *   // {"Content-Type": "text/plain"}
+   * }</pre>
+   *
+   * @param name the name of the header to be removed
    */
   public void removeHeader(String name) {
     if (responseHeaders != null) {
@@ -1800,9 +2126,30 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Get request HTTP headers
+   * Returns the HTTP response headers associated with this instance.
+   * If the headers have not been initialized yet, they will be created
+   * and cached for subsequent calls.
    *
-   * @since 3.0
+   * <p>This method ensures that the headers are only created once, providing
+   * a thread-safe and efficient way to access the response headers.</p>
+   *
+   * <p>Example usage:</p>
+   *
+   * <pre>{@code
+   *   // Retrieve the response headers
+   *   HttpHeaders headers = response.responseHeaders();
+   *
+   *   // Add a custom header to the response
+   *   headers.add("Custom-Header", "HeaderValue");
+   *
+   *   // Check if a specific header exists
+   *   if (headers.containsKey("Custom-Header")) {
+   *     System.out.println("Custom-Header is present");
+   *   }
+   * }</pre>
+   *
+   * @return the {@link HttpHeaders} object representing the response headers.
+   * This will never be {@code null}.
    */
   public HttpHeaders responseHeaders() {
     HttpHeaders responseHeaders = this.responseHeaders;
@@ -1874,7 +2221,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @since 4.0
    */
-  protected void writeHeaders() { }
+  protected void writeHeaders() {
+  }
 
   @Override
   public String toString() {

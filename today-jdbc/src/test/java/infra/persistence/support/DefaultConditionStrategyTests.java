@@ -43,13 +43,14 @@ class DefaultConditionStrategyTests {
     EntityProperty name = entityMetadata.findProperty("name");
     assertThat(name).isNotNull();
 
-    assertThat(strategy.resolve(name, "  ")).isNull();
-    assertThat(strategy.resolve(name, "\n")).isNull();
-    assertThat(strategy.resolve(name, "\t\n\r")).isNull();
-    assertThat(strategy.resolve(name, "\t\n\r ")).isNull();
-    assertThat(strategy.resolve(name, " ")).isNull();
+    boolean logicalAnd = true;
+    assertThat(strategy.resolve(logicalAnd, name, "  ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\n")).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r")).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, " ")).isNull();
 
-    var condition = strategy.resolve(name, "name");
+    var condition = strategy.resolve(logicalAnd, name, "name");
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(name);
@@ -66,16 +67,14 @@ class DefaultConditionStrategyTests {
     EntityProperty number = entityMetadata.findProperty("number");
     assertThat(number).isNotNull();
 
-
-    var condition = strategy.resolve(number, 2);
+    boolean logicalAnd = true;
+    var condition = strategy.resolve(logicalAnd, number, 2);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(number);
     assertThat(condition.value).isEqualTo(2);
     assertThat(condition.restriction).isEqualTo(Restriction.equal("number"));
   }
-
-
 
   static class Model {
 

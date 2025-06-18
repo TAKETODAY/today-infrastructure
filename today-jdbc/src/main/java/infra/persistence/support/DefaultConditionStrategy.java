@@ -31,11 +31,11 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object value) {
+  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
-    return new Condition(value, Restriction.equal(entityProperty.columnName), entityProperty);
+    return new Condition(value, Restriction.equal(entityProperty.columnName), entityProperty, logicalAnd);
   }
 
 }

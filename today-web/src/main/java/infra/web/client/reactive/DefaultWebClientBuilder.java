@@ -105,6 +105,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private ApiVersionInserter apiVersionInserter;
 
+  @Nullable
+  private Object defaultApiVersion;
+
   public DefaultWebClientBuilder() {
   }
 
@@ -125,6 +128,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     }
 
     this.defaultRequest = other.defaultRequest;
+    this.defaultApiVersion = other.defaultApiVersion;
     this.apiVersionInserter = other.apiVersionInserter;
     this.defaultCookies = (other.defaultCookies != null ? new LinkedMultiValueMap<>(other.defaultCookies) : null);
     this.statusHandlers = (other.statusHandlers != null ? new LinkedHashMap<>(other.statusHandlers) : null);
@@ -178,6 +182,12 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Override
   public WebClient.Builder defaultHeaders(HttpHeaders headers) {
     initHeaders().setAll(headers);
+    return this;
+  }
+
+  @Override
+  public WebClient.Builder defaultApiVersion(Object version) {
+    this.defaultApiVersion = version;
     return this;
   }
 
@@ -325,7 +335,8 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
 
     return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
-            this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this), apiVersionInserter);
+            this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this),
+            apiVersionInserter, defaultApiVersion);
   }
 
   private ExchangeFunction filterExchangeFunction(ExchangeFunction exchange) {

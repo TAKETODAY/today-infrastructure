@@ -30,20 +30,60 @@ import infra.lang.Nullable;
 import infra.util.ClassUtils;
 
 /**
- * Default EntityHolderFactory
- * <p>
+ * A factory class responsible for creating {@link EntityMetadata} instances for entity classes.
+ * This class provides customizable strategies for property filtering, table name generation,
+ * column name discovery, ID property detection, and type handling.
+ *
+ * <p>The default configuration includes:
  * <ul>
- * <li> {@link TableNameGenerator} to generate table name
- * <li> {@link IdPropertyDiscover} to find the ID property
- * <li> {@link ColumnNameDiscover} to find column name
- * <li> {@link PropertyFilter} to filter the property
+ *   <li>A {@link PropertyFilter} that filters out properties named "class" and those annotated
+ *       with a transient annotation.</li>
+ *   <li>A {@link TableNameGenerator} using the default strategy.</li>
+ *   <li>An {@link IdPropertyDiscover} that detects ID properties based on an annotation or
+ *       a default property name.</li>
+ *   <li>A {@link ColumnNameDiscover} that uses annotations or converts camelCase to underscore
+ *       for column names.</li>
+ *   <li>A shared instance of {@link TypeHandlerManager} for resolving type handlers.</li>
  * </ul>
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * <p>This class allows customization of its strategies through setter methods. For example:
+ * <pre>{@code
+ * DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
+ *
+ * // Customize the table name generator
+ * factory.setTableNameGenerator(new CustomTableNameGenerator());
+ *
+ * // Customize the property filter
+ * factory.setPropertyFilter(PropertyFilter.filteredNames(Set.of("version")));
+ *
+ * // Create metadata for an entity class
+ * EntityMetadata metadata = factory.createEntityMetadata(MyEntity.class);
+ * }</pre>
+ *
+ * <p>When creating metadata, the factory performs the following steps:
+ * <ol>
+ *   <li>Determines the table name for the entity class using the configured
+ *       {@link TableNameGenerator}.</li>
+ *   <li>Iterates over the properties of the entity class, filtering them using the
+ *       {@link PropertyFilter}.</li>
+ *   <li>Determines the column name for each property using the {@link ColumnNameDiscover}.</li>
+ *   <li>Identifies the ID property using the {@link IdPropertyDiscover}.</li>
+ *   <li>Creates an {@link EntityMetadata} instance containing all relevant information.</li>
+ * </ol>
+ *
+ * <p>If the table name or column names cannot be determined, or if multiple ID properties are
+ * detected, an {@link IllegalEntityException} is thrown.
+ *
+ * <p><strong>Note:</strong> This implementation supports entities with a single ID property.
+ * If no ID property is found, it attempts to resolve one from a referenced metadata (if applicable).
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see EntityMetadata
  * @see PropertyFilter
  * @see TableNameGenerator
  * @see IdPropertyDiscover
  * @see ColumnNameDiscover
+ * @see TypeHandlerManager
  * @since 4.0 2022/9/5 11:38
  */
 public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
@@ -62,9 +102,34 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
 
   /**
-   * set the ColumnNameDiscover to find the column name
+   * Sets the {@link ColumnNameDiscover} to determine the column name for each property
+   * in the entity metadata generation process.
+   * <p>
+   * The provided {@code ColumnNameDiscover} will be used to resolve the column names
+   * for properties. If a property's column name cannot be determined, it may be excluded
+   * from the entity metadata.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
    *
-   * @param columnNameDiscover ColumnNameDiscover
+   * // Use camelCase to underscore naming strategy
+   * factory.setColumnNameDiscover(ColumnNameDiscover.camelCaseToUnderscore());
+   *
+   * // Use property name as column name
+   * factory.setColumnNameDiscover(ColumnNameDiscover.forPropertyName());
+   *
+   * // Combine multiple strategies using a resolving chain
+   * ColumnNameDiscover compositeDiscover = ColumnNameDiscover.forColumnAnnotation()
+   *         .and(ColumnNameDiscover.camelCaseToUnderscore());
+   * factory.setColumnNameDiscover(compositeDiscover);
+   * }</pre>
+   * <p>
+   * Note: The {@code columnNameDiscover} parameter must not be null. If null is passed,
+   * an {@link IllegalArgumentException} will be thrown.
+   *
+   * @param columnNameDiscover the {@link ColumnNameDiscover} to set; must not be null
+   * @throws IllegalArgumentException if the provided {@code columnNameDiscover} is null
    */
   public void setColumnNameDiscover(ColumnNameDiscover columnNameDiscover) {
     Assert.notNull(columnNameDiscover, "columnNameDiscover is required");
@@ -72,9 +137,34 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   /**
-   * set the IdPropertyDiscover to determine the ID property
+   * Sets the {@link IdPropertyDiscover} to determine which property in the entity
+   * should be treated as the ID property during the metadata generation process.
+   * <p>
+   * The provided {@code IdPropertyDiscover} will be used to identify the ID property
+   * for entities. If no property is identified as an ID, the entity metadata may
+   * not include an ID column.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
    *
-   * @param idPropertyDiscover a new IdPropertyDiscover
+   * // Use a specific property name as the ID
+   * factory.setIdPropertyDiscover(IdPropertyDiscover.forPropertyName("userId"));
+   *
+   * // Use the @Id annotation to determine the ID property
+   * factory.setIdPropertyDiscover(IdPropertyDiscover.forIdAnnotation());
+   *
+   * // Combine multiple strategies using a resolving chain
+   * IdPropertyDiscover compositeDiscover = IdPropertyDiscover.forIdAnnotation()
+   *         .and(IdPropertyDiscover.forPropertyName("customId"));
+   * factory.setIdPropertyDiscover(compositeDiscover);
+   * }</pre>
+   * <p>
+   * Note: The {@code idPropertyDiscover} parameter must not be null. If null is passed,
+   * an {@link IllegalArgumentException} will be thrown.
+   *
+   * @param idPropertyDiscover the {@link IdPropertyDiscover} to set; must not be null
+   * @throws IllegalArgumentException if the provided {@code idPropertyDiscover} is null
    */
   public void setIdPropertyDiscover(IdPropertyDiscover idPropertyDiscover) {
     Assert.notNull(idPropertyDiscover, "idPropertyDiscover is required");
@@ -82,9 +172,32 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   /**
-   * set the PropertyFilter to filter the property
+   * Sets the PropertyFilter to determine which properties should be excluded
+   * from being mapped to database columns.
+   * <p>
+   * The provided {@code PropertyFilter} will be used to filter out properties
+   * that do not map to database columns. If a property is filtered, it will
+   * not be included in the entity metadata generated by this factory.
+   * <p>
+   * Example usage:
+   * <pre>{@code
+   * DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
    *
-   * @param propertyFilter a PropertyFilter
+   * // Filter properties annotated with @Transient
+   * factory.setPropertyFilter(PropertyFilter.forTransientAnnotation());
+   *
+   * // Filter specific property names
+   * Set<String> filteredNames = Set.of("password", "tempField");
+   * factory.setPropertyFilter(PropertyFilter.filteredNames(filteredNames));
+   *
+   * // Combine multiple filters using a resolving chain
+   * PropertyFilter combinedFilter = PropertyFilter.forTransientAnnotation()
+   *         .and(PropertyFilter.filteredNames(Set.of("password")));
+   * factory.setPropertyFilter(combinedFilter);
+   * }</pre>
+   *
+   * @param propertyFilter the PropertyFilter to set; must not be null
+   * @throws IllegalArgumentException if the provided {@code propertyFilter} is null
    */
   public void setPropertyFilter(PropertyFilter propertyFilter) {
     Assert.notNull(propertyFilter, "propertyFilter is required");

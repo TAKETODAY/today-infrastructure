@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -205,6 +205,7 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
    * immediately after this method returns
    * @see #prepareProxyFactory
    */
-  protected void customizeProxyFactory(ProxyFactory proxyFactory) { }
+  protected void customizeProxyFactory(ProxyFactory proxyFactory) {
+  }
 
 }

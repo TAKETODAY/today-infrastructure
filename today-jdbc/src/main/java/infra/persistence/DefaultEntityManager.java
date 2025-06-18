@@ -64,7 +64,31 @@ import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
 
 /**
- * Default EntityManager implementation
+ * Default implementation of the EntityManager interface, providing a comprehensive
+ * set of operations for managing entities in a data store. This class supports
+ * persistence, retrieval, updating, and deletion of entities, as well as advanced
+ * querying capabilities such as sorting, pagination, and mapping results to custom
+ * structures.
+ *
+ * <p>
+ * The class is highly configurable, allowing customization of behavior through
+ * various setters for properties like platform, update strategy, batch processing,
+ * and transaction configuration. It also supports event listeners for batch
+ * persistence operations and integrates with repositories for entity management.
+ *
+ * <p>
+ * Key Features:
+ * - Entity persistence with support for auto-generated IDs and customizable update strategies.
+ * - Batch processing with configurable limits for batched commands.
+ * - Advanced query capabilities, including sorting, pagination, and result mapping.
+ * - Support for conditional queries and dynamic query handlers.
+ * - Transaction management with configurable transaction definitions.
+ * - Event listeners for monitoring batch persistence operations.
+ *
+ * <p>
+ * This class is designed to be flexible and extensible, making it suitable for a
+ * wide range of data access scenarios. It abstracts the underlying data store
+ * interactions, providing a consistent API for entity management.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/10 22:28
@@ -112,23 +136,78 @@ public class DefaultEntityManager implements EntityManager {
   public DefaultEntityManager(RepositoryManager repositoryManager, Platform platform) {
     this.dataSource = repositoryManager.getDataSource();
     this.repositoryManager = repositoryManager;
-    this.platform = platform;
+    setPlatform(platform);
   }
 
+  /**
+   * Sets the platform for this instance. If the provided platform is {@code null},
+   * a default platform will be determined based on the classpath using
+   * {@link Platform#forClasspath()}.
+   *
+   * <p>This method is useful when you want to explicitly define the platform or
+   * rely on the default behavior when no specific platform is provided.</p>
+   *
+   * @param platform the platform to set, or {@code null} to use the default platform
+   */
   public void setPlatform(@Nullable Platform platform) {
     this.platform = platform == null ? Platform.forClasspath() : platform;
   }
 
+  /**
+   * Sets the default update strategy for properties. This method ensures that
+   * a non-null {@link PropertyUpdateStrategy} is set as the default strategy.
+   * If a null value is passed, an exception will be thrown.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   PropertyUpdateStrategy strategy = new CustomUpdateStrategy();
+   *   propertyManager.setDefaultUpdateStrategy(strategy);
+   *
+   *   // Now the default strategy is applied to all relevant property updates
+   * }</pre>
+   *
+   * @param defaultUpdateStrategy the strategy to be used as the default for
+   * property updates; must not be null
+   * @throws IllegalArgumentException if the provided strategy is null
+   */
   public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
     Assert.notNull(defaultUpdateStrategy, "defaultUpdateStrategy is required");
     this.defaultUpdateStrategy = defaultUpdateStrategy;
   }
 
+  /**
+   * Sets the default {@link Pageable} to be used when no specific pageable
+   * configuration is provided. This method ensures that the given
+   * {@code defaultPageable} is not null, throwing an exception if it is.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   Pageable defaultPageable = Pageable.of(1, 10);
+   *   myService.setDefaultPageable(defaultPageable);
+   *
+   *   // Now, any subsequent operations in myService will use the above
+   *   // default pageable unless explicitly overridden.
+   * }</pre>
+   *
+   * @param defaultPageable the {@link Pageable} instance to set as the default;
+   * must not be null
+   * @throws IllegalArgumentException if {@code defaultPageable} is null
+   */
   public void setDefaultPageable(Pageable defaultPageable) {
     Assert.notNull(defaultPageable, "defaultPageable is required");
     this.defaultPageable = defaultPageable;
   }
 
+  /**
+   * Sets the {@code EntityMetadataFactory} to be used for creating entity metadata.
+   * This method also initializes a new instance of {@code QueryStatementFactories}
+   * using the provided {@code EntityMetadataFactory} and existing property extractors.
+   *
+   * <p>If the provided {@code EntityMetadataFactory} is {@code null}, an
+   * {@code IllegalArgumentException} will be thrown.</p>
+   *
+   * @param entityMetadataFactory the {@code EntityMetadataFactory} to set; must not be null
+   */
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
@@ -165,10 +244,41 @@ public class DefaultEntityManager implements EntityManager {
     this.maxBatchRecords = maxBatchRecords;
   }
 
+  /**
+   * Returns the maximum number of records allowed in a batch.
+   *
+   * This method retrieves the value of the {@code maxBatchRecords} property,
+   * which defines the upper limit of records that can be processed in a single
+   * batch operation. This is useful for configuring batch processing limits
+   * in applications that handle large datasets.
+   *
+   * @return the maximum number of records allowed in a batch
+   */
   public int getMaxBatchRecords() {
     return this.maxBatchRecords;
   }
 
+  /**
+   * Adds one or more batch persist listeners to the internal list of listeners.
+   * If no listeners have been registered yet, this method initializes the listener list.
+   * The method ensures that all provided listeners are added to the existing collection.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * BatchPersistListener listener1 = entities -> {
+   *   // Handle batch persist event for listener1
+   * };
+   * BatchPersistListener listener2 = entities -> {
+   *   // Handle batch persist event for listener2
+   * };
+   *
+   * someObject.addBatchPersistListeners(listener1, listener2);
+   * }</pre>
+   *
+   * @param listeners a variable number of {@link BatchPersistListener} instances
+   * to be added to the listener list. If null or empty,
+   * this method has no effect.
+   */
   public void addBatchPersistListeners(BatchPersistListener... listeners) {
     if (batchPersistListeners == null) {
       batchPersistListeners = new ArrayList<>();
@@ -176,6 +286,23 @@ public class DefaultEntityManager implements EntityManager {
     CollectionUtils.addAll(batchPersistListeners, listeners);
   }
 
+  /**
+   * Adds a collection of batch persist listeners to the current list of listeners.
+   * If no listeners are currently registered, this method initializes a new list
+   * before adding the provided listeners.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   List<BatchPersistListener> listeners = new ArrayList<>();
+   *   listeners.add(new MyBatchPersistListener());
+   *   listeners.add(new AnotherBatchPersistListener());
+   *
+   *   manager.addBatchPersistListeners(listeners);
+   * }</pre>
+   *
+   * @param listeners a collection of {@link BatchPersistListener} objects to be added
+   * to the internal list of batch persist listeners. Must not be null.
+   */
   public void addBatchPersistListeners(Collection<BatchPersistListener> listeners) {
     if (batchPersistListeners == null) {
       batchPersistListeners = new ArrayList<>();
@@ -183,6 +310,27 @@ public class DefaultEntityManager implements EntityManager {
     batchPersistListeners.addAll(listeners);
   }
 
+  /**
+   * Sets the collection of batch persist listeners for this object.
+   * If the provided collection is null, any existing listeners will be cleared.
+   * Otherwise, the current listener list will be replaced with the contents
+   * of the provided collection.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   *   List<BatchPersistListener> listeners = new ArrayList<>();
+   *   listeners.add(new MyBatchPersistListener());
+   *
+   *   myObject.setBatchPersistListeners(listeners);
+   * }</pre>
+   *
+   * <p>This method ensures that the internal listener list is properly
+   * initialized or cleared before adding new listeners, preventing potential
+   * memory leaks or unintended behavior.
+   *
+   * @param listeners a collection of {@link BatchPersistListener} objects to set,
+   * or null to clear all existing listeners
+   */
   public void setBatchPersistListeners(@Nullable Collection<BatchPersistListener> listeners) {
     if (listeners == null) {
       this.batchPersistListeners = null;
@@ -198,6 +346,19 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
+  /**
+   * Sets the SQL statement logger for this component.
+   * This method ensures that the provided logger is not null,
+   * throwing an exception if the requirement is not met.
+   *
+   * <p>Example usage:
+   * <pre>{@code
+   * SqlStatementLogger logger = new SqlStatementLogger(...);
+   * component.setStatementLogger(logger);
+   * }</pre>
+   *
+   * @param stmtLogger the SQL statement logger to be set
+   */
   public void setStatementLogger(SqlStatementLogger stmtLogger) {
     Assert.notNull(stmtLogger, "SqlStatementLogger is required");
     this.stmtLogger = stmtLogger;
@@ -214,10 +375,22 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   /**
-   * Add ConditionPropertyExtractor
+   * Adds a custom {@link ConditionPropertyExtractor} to the internal list of property extractors.
+   * This method is used to register an extractor that can be utilized for extracting condition
+   * properties during processing. The provided extractor must not be null.
    *
-   * @param extractor ConditionPropertyExtractor
-   * @since 5.0
+   * <p>Example usage:
+   * <pre>{@code
+   * ConditionPropertyExtractor<MyCondition> extractor = condition -> {
+   *   // Implement logic to extract properties from the condition
+   *   return Collections.singletonMap("key", "value");
+   * };
+   *
+   * processor.addConditionPropertyExtractor(extractor);
+   * }</pre>
+   *
+   * @param extractor the {@link ConditionPropertyExtractor} to be added; must not be null
+   * @throws IllegalArgumentException if the provided extractor is null
    */
   @SuppressWarnings("rawtypes")
   public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
@@ -226,10 +399,27 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   /**
-   * Set ConditionPropertyExtractors
+   * Sets the list of condition property extractors to be used for extracting
+   * properties from conditions. If the provided list is {@code null}, the current
+   * list of extractors will be cleared.
    *
-   * @param extractors ConditionPropertyExtractor list
-   * @since 5.0
+   * <p>This method is useful when you want to customize or replace the existing
+   * set of property extractors with a new set. For example, you can define your
+   * own extractors to handle specific types of conditions.</p>
+   *
+   * <p>Example usage:</p>
+   *
+   * <pre>{@code
+   *   List<ConditionPropertyExtractor> customExtractors = Arrays.asList(
+   *     new CustomExtractor1(),
+   *     new CustomExtractor2()
+   *   );
+   *
+   *   processor.setConditionPropertyExtractors(customExtractors);
+   * }</pre>
+   *
+   * @param extractors the list of {@link ConditionPropertyExtractor} instances to set,
+   * or {@code null} to clear the current list
    */
   @SuppressWarnings("rawtypes")
   public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
@@ -253,6 +443,18 @@ public class DefaultEntityManager implements EntityManager {
     return persist(entity, defaultUpdateStrategy(entity), autoGenerateId);
   }
 
+  /**
+   * Persists the given entity to the data store using the specified property update strategy.
+   * If the strategy is not provided, a default strategy may be used. The method delegates
+   * the persistence operation to an overloaded method, passing the entity, strategy, and
+   * auto-generation flag for the identifier.
+   *
+   * @param entity the entity to be persisted; must not be null
+   * @param strategy the strategy to apply for updating properties during persistence;
+   * can be null if no specific strategy is required
+   * @return the number of records affected by the persistence operation
+   * @throws DataAccessException if an error occurs while accessing the data store
+   */
   @Override
   public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
     return persist(entity, strategy, autoGenerateId);

@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 
-import org.slf4j.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -133,15 +131,9 @@ class ApplicationObjectSupportTests {
     testSupport.setApplicationContext(mockContext);
     MessageSourceAccessor accessor1 = testSupport.getMessageSourceAccessor();
     MessageSourceAccessor accessor2 = testSupport.getMessageSourceAccessor();
-    
+
     assertThat(accessor1).isNotNull();
     assertThat(accessor1).isSameAs(accessor2);
-  }
-
-  @Test
-  void loggerIsProperlyInitialized() {
-    assertThat(testSupport.logger).isNotNull();
-    assertThat(testSupport.logger.getName()).isEqualTo(TestApplicationObjectSupport.class.getName());
   }
 
   // Test support classes

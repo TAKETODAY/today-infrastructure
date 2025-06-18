@@ -48,7 +48,74 @@ import infra.lang.Enumerable;
 import infra.lang.Nullable;
 
 /**
- * {@link TypeHandler} Manager
+ * A manager for handling and resolving {@link TypeHandler} instances. This class provides
+ * methods to register, retrieve, and manage type handlers for various types, including
+ * enums and custom types. It also supports smart type handlers and integrates with
+ * {@link TypeHandlerResolver} for advanced resolution logic.
+ *
+ * <p>This class is designed to be used as a singleton, with a shared instance available
+ * via {@link #sharedInstance}. It is thread-safe for concurrent access.</p>
+ *
+ * <h3>Usage Examples</h3>
+ *
+ * Registering a custom type handler:
+ * <pre>{@code
+ * TypeHandlerManager manager = TypeHandlerManager.sharedInstance;
+ * manager.register(String.class, new CustomStringTypeHandler());
+ * }</pre>
+ *
+ * Setting a default enum type handler:
+ * <pre>{@code
+ * TypeHandlerManager manager = TypeHandlerManager.sharedInstance;
+ * manager.setDefaultEnumTypeHandler(EnumOrdinalTypeHandler.class);
+ * }</pre>
+ *
+ * Resolving a type handler for a specific type:
+ * <pre>{@code
+ * TypeHandlerManager manager = TypeHandlerManager.sharedInstance;
+ * TypeHandler<MyCustomType> handler = manager.getTypeHandler(MyCustomType.class);
+ * }</pre>
+ *
+ * Using smart type handlers for property-based resolution:
+ * <pre>{@code
+ * TypeHandlerManager manager = TypeHandlerManager.sharedInstance;
+ * manager.register(new SmartTypeHandler() {
+ *   @Override
+ *   public boolean supportsProperty(BeanProperty property) {
+ *     return property.getName().equals("specialProperty");
+ *   }
+ *
+ *   @Override
+ *   public Object convert(Object value) {
+ *     return "Handled: " + value;
+ *   }
+ * });
+ * }</pre>
+ *
+ * Clearing all registered type handlers:
+ * <pre>{@code
+ * TypeHandlerManager manager = TypeHandlerManager.sharedInstance;
+ * manager.clear();
+ * }</pre>
+ *
+ * <h3>Key Features</h3>
+ * <ul>
+ *   <li>Supports registration of type handlers for specific Java types.</li>
+ *   <li>Provides fallback mechanisms for unknown types using {@link UnknownTypeHandler}.</li>
+ *   <li>Integrates with {@link SmartTypeHandler} for dynamic property-based resolution.</li>
+ *   <li>Allows customization of default enum type handlers.</li>
+ *   <li>Thread-safe and suitable for use in multi-threaded environments.</li>
+ * </ul>
+ *
+ * <h3>Notes</h3>
+ * <ul>
+ *   <li>The {@link #getInstance(Class, Class)} method is used internally to instantiate
+ *       type handlers with appropriate constructor arguments.</li>
+ *   <li>The {@link #clear()} method resets the state of the manager, removing all registered
+ *       type handlers and resolvers.</li>
+ *   <li>Default type handlers for common types (e.g., Boolean, String) are registered
+ *       automatically via {@link #registerDefaults(TypeHandlerManager)}.</li>
+ * </ul>
  *
  * @author Clinton Begin
  * @author Kazuki Shimizu

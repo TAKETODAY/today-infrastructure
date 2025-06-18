@@ -266,7 +266,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
     }
 
     @Override
-    public Reader getReader(String encoding) throws IOException {
+    public Reader getReader(Charset encoding) throws IOException {
       return original.getReader(encoding);
     }
 

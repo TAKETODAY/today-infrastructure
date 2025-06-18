@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ public class HttpEntity<T> {
   /**
    * The empty {@code HttpEntity}, with no body or headers.
    */
-  public static final HttpEntity<?> EMPTY = new HttpEntity<>();
+  public static final HttpEntity<?> EMPTY = new HttpEntity<>(HttpHeaders.empty());
 
   @Nullable
   private final T body;
@@ -104,6 +104,11 @@ public class HttpEntity<T> {
   public HttpEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers) {
     this.body = body;
     this.headers = CollectionUtils.isNotEmpty(headers) ? HttpHeaders.copyOf(headers) : null;
+  }
+
+  private HttpEntity(HttpHeaders headers) {
+    this.body = null;
+    this.headers = headers;
   }
 
   /**

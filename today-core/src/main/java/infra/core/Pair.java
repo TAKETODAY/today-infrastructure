@@ -39,7 +39,7 @@ import infra.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/24 14:45
  */
-public final class Pair<A, B> implements Map.Entry<A, B>, Serializable {
+public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
 
   @SuppressWarnings({ "rawtypes" })
   public static final Pair EMPTY = of(null, null);
@@ -51,7 +51,7 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Serializable {
 
   public final B second;
 
-  private Pair(A first, B second) {
+  public Pair(A first, B second) {
     this.first = first;
     this.second = second;
   }

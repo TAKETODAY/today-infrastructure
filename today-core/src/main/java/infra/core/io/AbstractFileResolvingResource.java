@@ -30,6 +30,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardOpenOption;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import infra.util.ResourceUtils;
 
@@ -88,15 +89,10 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
         if (con instanceof JarURLConnection jarCon) {
           // For JarURLConnection, do not check content-length but rather the
           // existence of the entry (or the jar root in case of no entryName).
-          try {
-            if (jarCon.getEntryName() == null) {
-              // Jar root: check for the existence of any actual jar entries.
-              return jarCon.getJarFile().entries().hasMoreElements();
-            }
-            return (jarCon.getJarEntry() != null);
-          }
-          finally {
-            jarCon.getJarFile().close();
+          // getJarFile() called for enforced presence check of the jar file,
+          // throwing a NoSuchFileException otherwise (turned to false below).
+          try (JarFile ignored = jarCon.getJarFile()) {
+            return (jarCon.getEntryName() == null || jarCon.getJarEntry() != null);
           }
         }
         else if (con.getContentLengthLong() > 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +91,100 @@ class PropertyUpdateStrategyTests {
             .isTrue();
 
     userModel.setName("name");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isTrue();
+  }
+
+  @Test
+  void isId_whenPropertyIsId_shouldReturnTrue() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isId();
+    UserModel userModel = new UserModel();
+
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isTrue();
+  }
+
+  @Test
+  void isId_whenPropertyIsNotId_shouldReturnFalse() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isId();
+    UserModel userModel = new UserModel();
+
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isFalse();
+  }
+
+  @Test
+  void never_shouldReturnFalseForAnyEntityAndProperty() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.never();
+    UserModel userModel = new UserModel();
+
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+
+    userModel.setId(1);
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+
+    userModel.setName("name");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isFalse();
+  }
+
+  @Test
+  void notId_shouldReturnFalseForIdProperty() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.notId();
+    UserModel userModel = new UserModel();
+
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+  }
+
+  @Test
+  void notId_shouldReturnTrueForNonIdProperty() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.notId();
+    UserModel userModel = new UserModel();
+
+    userModel.setName("name");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isTrue();
+  }
+
+  @Test
+  void valueEquals_whenValueMatches_shouldReturnTrue() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isEqual("expected");
+    UserModel userModel = new UserModel();
+
+    userModel.setName("expected");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isTrue();
+  }
+
+  @Test
+  void valueEquals_whenValueDoesNotMatch_shouldReturnFalse() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isEqual("expected");
+    UserModel userModel = new UserModel();
+
+    userModel.setName("actual");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isFalse();
+  }
+
+  @Test
+  void valueNotEquals_whenValueMatches_shouldReturnFalse() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isNotEqual("expected");
+    UserModel userModel = new UserModel();
+
+    userModel.setName("expected");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isFalse();
+  }
+
+  @Test
+  void valueNotEquals_whenValueDoesNotMatch_shouldReturnTrue() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.isNotEqual("expected");
+    UserModel userModel = new UserModel();
+
+    userModel.setName("actual");
     assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
             .isTrue();
   }

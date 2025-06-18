@@ -55,13 +55,15 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
- * The result of an asynchronous operation.
- * <p>
- * An asynchronous operation is one that might be completed outside
+ * Represents the result of an asynchronous operation. This class provides methods to
+ * check the completion status, retrieve the result, and register callbacks for specific
+ * events such as success, failure, or cancellation.
+ *
+ * <p>An asynchronous operation is one that might be completed outside
  * a given thread of execution. The operation can either be performing
  * computation, or I/O, or both.
- * <p>
- * A {@link Future} is either <em>uncompleted</em> or <em>completed</em>.
+ *
+ * <p>A {@link Future} is either <em>uncompleted</em> or <em>completed</em>.
  * When an operation begins, a new future object is created. The new
  * future is uncompleted initially - it is neither succeeded, failed, nor
  * cancelled because the operation is not finished yet. If the operation
@@ -146,6 +148,45 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * }
  * }</pre>
  *
+ * <p>Example usage:
+ * <pre>{@code
+ * Future<String> future = performAsyncOperation();
+ *
+ * // Register a success callback
+ * future.onSuccess(result -> {
+ *   System.out.println("Operation succeeded with result: " + result);
+ * });
+ *
+ * // Register a failure callback
+ * future.onFailure(cause -> {
+ *   System.err.println("Operation failed with cause: " + cause.getMessage());
+ * });
+ *
+ * // Synchronize and handle the result
+ * try {
+ *   future.sync();
+ *   if (future.isSuccess()) {
+ *     System.out.println("Sync completed successfully.");
+ *   }
+ * } catch (InterruptedException e) {
+ *   Thread.currentThread().interrupt();
+ *   System.err.println("Thread was interrupted while waiting for the future.");
+ * }
+ * }</pre>
+ *
+ * <p>Key Features:
+ * <ul>
+ *   <li>Supports checking the completion status via methods like {@link #isDone()},
+ *       {@link #isSuccess()}, and {@link #isCancelled()}.</li>
+ *   <li>Provides mechanisms to retrieve the cause of failure using {@link #getCause()}.</li>
+ *   <li>Allows registering callbacks for various events such as success, failure,
+ *       cancellation, and completion.</li>
+ *   <li>Supports synchronous waiting using {@link #await()} and {@link #sync()}.</li>
+ * </ul>
+ *
+ * <p>This class is thread-safe and can be used in multithreaded environments.
+ *
+ *
  * <p>Inspired by {@code com.google.common.util.concurrent.ListenableFuture}.
  * and {@code io.netty.util.concurrent.Future}
  *
@@ -213,9 +254,25 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   public abstract boolean isFailed();
 
   /**
-   * Returns {@code true} if and only if the operation was completed and failed.
+   * Checks if the current operation is considered a failure.
+   * An operation is deemed a failure if it has failed (as indicated
+   * by {@link #isFailed()}) and has not been cancelled (as indicated
+   * by {@link #isCancelled()}).
    *
-   * @return Returns {@code true} if and only if the operation was completed and failed.
+   * <p>Example usage:
+   * <pre>{@code
+   * Future status = new OperationStatus();
+   *
+   * if (status.isFailure()) {
+   *   System.out.println("The operation has failed.");
+   * }
+   * else {
+   *   System.out.println("The operation is either successful or cancelled.");
+   * }
+   * }</pre>
+   *
+   * @return true if the operation has failed and was not cancelled,
+   * false otherwise.
    * @see AbstractFuture#tryFailure(Throwable)
    * @since 5.0
    */
@@ -376,6 +433,23 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     return onCompleted(future -> {
       if (future.isCancelled()) {
         callback.run();
+      }
+    });
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with cancelled callbacks.
+   *
+   * @param callback the cancelled callback
+   * @return this future object.
+   * @see #isCancelled()
+   * @since 5.0
+   */
+  public final Future<V> onCancelled(FailureCallback callback) {
+    Assert.notNull(callback, "cancelledCallback is required");
+    return onCompleted(future -> {
+      if (future.isCancelled()) {
+        callback.onFailure(future.getCause());
       }
     });
   }
@@ -642,7 +716,33 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * otherwise {@code false}.
    */
   public boolean cancel() {
-    return cancel(true);
+    return cancel(null, true);
+  }
+
+  /**
+   * Attempts to cancel execution of this task.  This method has no
+   * effect if the task is already completed or cancelled, or could
+   * not be cancelled for some other reason. Otherwise, if this
+   * task has not started when {@code cancel} is called, this task
+   * should never run. If the task has already started, then
+   * attempt to stop the task
+   *
+   * <p>The return value from this method does not necessarily
+   * indicate whether the task is now cancelled; use {@link
+   * #isCancelled}.
+   *
+   * <p>If the cancellation was successful it will fail the future with
+   * a {@link CancellationException} if {@code cancellation} not given.
+   *
+   * @return {@code false} if the task could not be cancelled,
+   * typically because it has already completed; {@code true}
+   * otherwise. If two or more threads cause a task to be cancelled,
+   * then at least one of them returns {@code true}. Implementations
+   * may provide stronger guarantees.
+   * @since 5.0
+   */
+  public boolean cancel(@Nullable Throwable cancellation) {
+    return cancel(cancellation, true);
   }
 
   /**
@@ -652,7 +752,39 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * a {@link CancellationException}.
    */
   @Override
-  public abstract boolean cancel(boolean mayInterruptIfRunning);
+  public boolean cancel(boolean mayInterruptIfRunning) {
+    return cancel(null, mayInterruptIfRunning);
+  }
+
+  /**
+   * Attempts to cancel execution of this task.  This method has no
+   * effect if the task is already completed or cancelled, or could
+   * not be cancelled for some other reason.  Otherwise, if this
+   * task has not started when {@code cancel} is called, this task
+   * should never run.  If the task has already started, then the
+   * {@code mayInterruptIfRunning} parameter determines whether the
+   * thread executing this task (when known by the implementation)
+   * is interrupted in an attempt to stop the task.
+   *
+   * <p>The return value from this method does not necessarily
+   * indicate whether the task is now cancelled; use {@link
+   * #isCancelled}.
+   *
+   * <p>If the cancellation was successful it will fail the future with
+   * a {@link CancellationException} if {@code cancellation} not given.
+   *
+   * @param mayInterruptIfRunning {@code true} if the thread
+   * executing this task should be interrupted (if the thread is
+   * known to the implementation); otherwise, in-progress tasks are
+   * allowed to complete
+   * @return {@code false} if the task could not be cancelled,
+   * typically because it has already completed; {@code true}
+   * otherwise. If two or more threads cause a task to be cancelled,
+   * then at least one of them returns {@code true}. Implementations
+   * may provide stronger guarantees.
+   * @since 5.0
+   */
+  public abstract boolean cancel(@Nullable Throwable cancellation, boolean mayInterruptIfRunning);
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete

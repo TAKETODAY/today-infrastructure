@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,37 @@ import infra.util.ClassUtils;
 import infra.util.StringUtils;
 
 /**
- * SQL generate strategy
+ * An abstract class representing a database platform. This class provides
+ * utility methods and configurations for handling SQL syntax and database-specific
+ * behaviors. It serves as a base for concrete platform implementations such as
+ * {@code MySQLPlatform}, {@code OraclePlatform}, and {@code PostgreSQLPlatform}.
  *
- * @author TODAY 2021/10/10 13:11
- * @since 4.0
+ * <p>This class includes constants, static utility methods, and abstract methods
+ * that must be implemented by subclasses to handle platform-specific SQL generation.
+ *
+ * <p><b>Usage Example:</b>
+ * Below is an example of how to use the {@code Platform} class to determine the
+ * appropriate database platform based on the classpath:
+ * <pre>{@code
+ * Platform platform = Platform.forClasspath();
+ * String truncateStatement = platform.getTruncateTableStatement("example_table");
+ * System.out.println(truncateStatement);
+ * }</pre>
+ *
+ * <p><b>Subclassing Example:</b>
+ * To create a custom platform implementation, extend this class and override
+ * necessary methods. For example:
+ * <pre>{@code
+ * public class CustomPlatform extends Platform {
+ *   @Override
+ *   public String getForUpdateString() {
+ *     return " FOR UPDATE NOWAIT";
+ *   }
+ * }
+ * }</pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 4.0 2021/10/10 13:11
  */
 public abstract class Platform {
 
@@ -41,10 +68,6 @@ public abstract class Platform {
    * Characters used as closing for quoting SQL identifiers
    */
   public static final String CLOSED_QUOTE = "`\"]";
-//  private static final Pattern SINGLE_QUOTE_PATTERN = Pattern.compile(
-//          "'",
-//          Pattern.LITERAL
-//  );
 
   private static final Pattern ESCAPE_CLOSING_COMMENT_PATTERN = Pattern.compile("\\*/");
   private static final Pattern ESCAPE_OPENING_COMMENT_PATTERN = Pattern.compile("/\\*");
@@ -86,6 +109,28 @@ public abstract class Platform {
     return new ANSIJoinFragment();
   }
 
+  /**
+   * Determines the database platform based on the classpath. This method checks for the presence
+   * of specific JDBC driver classes in the classpath and returns an appropriate {@link Platform}
+   * instance corresponding to the detected database.
+   *
+   * <p>Usage example:</p>
+   * <pre>{@code
+   *   Platform platform = Platform.forClasspath();
+   *   if (platform instanceof MySQLPlatform) {
+   *     System.out.println("MySQL database platform detected.");
+   *   } else if (platform instanceof OraclePlatform) {
+   *     System.out.println("Oracle database platform detected.");
+   *   } else if (platform instanceof PostgreSQLPlatform) {
+   *     System.out.println("PostgreSQL database platform detected.");
+   *   }
+   * }</pre>
+   *
+   * <p>If no supported database platform is detected, an {@link IllegalStateException} is thrown.</p>
+   *
+   * @return a {@link Platform} instance representing the detected database platform
+   * @throws IllegalStateException if the database platform cannot be determined from the classpath
+   */
   public static Platform forClasspath() {
     if (ClassUtils.isPresent("com.mysql.cj.jdbc.Driver")) {
       return new MySQLPlatform();

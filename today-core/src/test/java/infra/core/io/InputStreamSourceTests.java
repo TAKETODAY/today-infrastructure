@@ -65,7 +65,7 @@ class InputStreamSourceTests {
   void getReaderWithCustomEncodingReadsCorrectly() throws IOException {
     InputStreamSource source = () -> new ByteArrayInputStream("test".getBytes(StandardCharsets.ISO_8859_1));
 
-    try (Reader reader = source.getReader("ISO-8859-1")) {
+    try (Reader reader = source.getReader(StandardCharsets.ISO_8859_1)) {
       assertThat(FileCopyUtils.copyToString(reader)).isEqualTo("test");
     }
   }

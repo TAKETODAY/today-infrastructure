@@ -215,6 +215,7 @@ class ApplicationTests {
   void customBanner(CapturedOutput output) {
     Application application = spy(new Application(ExampleConfig.class));
     application.setApplicationType(ApplicationType.NORMAL);
+    assertThat(application.getApplicationType()).isEqualTo(ApplicationType.NORMAL);
     this.context = application.run("--banner.location=classpath:test-banner.txt");
     assertThat(output).startsWith("Running a Test!");
   }
@@ -223,6 +224,7 @@ class ApplicationTests {
   void customBannerWithProperties(CapturedOutput output) {
     Application application = spy(new Application(ExampleConfig.class));
     application.setApplicationType(ApplicationType.NORMAL);
+    assertThat(application.getApplicationType()).isEqualTo(ApplicationType.NORMAL);
     this.context = application.run("--banner.location=classpath:test-banner-with-placeholder.txt",
             "--test.property=123456");
     assertThat(output).containsPattern("Running a Test!\\s+123456");
@@ -233,6 +235,7 @@ class ApplicationTests {
   void logsActiveProfilesWithoutProfileAndSingleDefault(CapturedOutput output) {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
+    assertThat(application.getApplicationType()).isEqualTo(ApplicationType.NORMAL);
     this.context = application.run();
     assertThat(output).contains("No active profile set, falling back to 1 default profile: \"default\"");
   }
@@ -922,7 +925,7 @@ class ApplicationTests {
     MockEnvironment environment = new MockEnvironment();
     environment.getPropertySources().addFirst(
             new MapPropertySource(DefaultPropertiesPropertySource.NAME, Collections.singletonMap("bar", "foo")));
-    Application application = ApplicationBuilder.from(ExampleConfig.class)
+    Application application = ApplicationBuilder.forSources(ExampleConfig.class)
             .environment(environment)
             .properties("baz=bing")
             .type(ApplicationType.NORMAL).build();
@@ -1408,6 +1411,7 @@ class ApplicationTests {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
     application.setKeepAlive(true);
+    assertThat(application.isKeepAlive()).isTrue();
     this.context = application.run();
     assertThat(getCurrentThreads()).filteredOn((thread) -> thread.getName().equals("keep-alive")).isNotEmpty();
     this.context.close();

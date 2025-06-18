@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +78,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Reader getReader(String encoding) throws IOException {
+  public Reader getReader(Charset encoding) throws IOException {
     return getDelegate().getReader(encoding);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ import infra.stereotype.Controller;
 import infra.stereotype.Repository;
 import infra.stereotype.Service;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
+import infra.util.PatternMatchUtils;
 
 /**
  * A bean definition scanner that detects bean candidates on the classpath,
@@ -361,7 +361,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
     beanDefinition.applyDefaults(beanDefinitionDefaults);
     if (autowireCandidatePatterns != null) {
-      beanDefinition.setAutowireCandidate(StringUtils.simpleMatch(autowireCandidatePatterns, beanName));
+      beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(autowireCandidatePatterns, beanName));
     }
   }
 

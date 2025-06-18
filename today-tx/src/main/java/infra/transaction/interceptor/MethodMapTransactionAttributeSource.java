@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.transaction.interceptor;
@@ -33,7 +33,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.util.ObjectUtils;
-import infra.util.StringUtils;
+import infra.util.PatternMatchUtils;
 
 /**
  * Simple {@link TransactionAttributeSource} implementation that
@@ -217,10 +217,10 @@ public class MethodMapTransactionAttributeSource
    * @param methodName the method name of the class
    * @param mappedName the name in the descriptor
    * @return if the names match
-   * @see StringUtils#simpleMatch(String, String)
+   * @see PatternMatchUtils#simpleMatch(String, String)
    */
   protected boolean isMatch(String methodName, String mappedName) {
-    return StringUtils.simpleMatch(mappedName, methodName);
+    return PatternMatchUtils.simpleMatch(mappedName, methodName);
   }
 
   @Override

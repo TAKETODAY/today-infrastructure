@@ -25,7 +25,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.FactoryBean;
 import infra.lang.Assert;
 import infra.lang.Nullable;
-import infra.util.StringUtils;
+import infra.util.PatternMatchUtils;
 
 /**
  * Auto proxy creator that identifies beans to proxy via a list of names.
@@ -150,7 +150,7 @@ public class BeanNameAutoProxyCreator extends AbstractAutoProxyCreator {
    * @return if the names match
    */
   protected boolean isMatch(String beanName, String mappedName) {
-    return StringUtils.simpleMatch(mappedName, beanName);
+    return PatternMatchUtils.simpleMatch(mappedName, beanName);
   }
 
 }

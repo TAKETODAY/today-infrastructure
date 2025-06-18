@@ -25,6 +25,7 @@ import java.util.List;
 
 import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.NotAcceptableApiVersionException;
 import infra.web.accept.SemanticApiVersionParser;
@@ -48,8 +49,8 @@ class VersionRequestConditionTests {
 
   private static DefaultApiVersionStrategy initVersionStrategy(@Nullable String defaultValue) {
     return new DefaultApiVersionStrategy(
-            List.of(request -> request.getParameter("api-version")),
-            new SemanticApiVersionParser(), true, defaultValue);
+            List.of(exchange -> exchange.getParameters().getFirst("api-version")),
+            new SemanticApiVersionParser(), true, defaultValue, false);
   }
 
   @Test
@@ -92,11 +93,9 @@ class VersionRequestConditionTests {
   private void testMatch(
           String requestVersion, String conditionVersion, boolean notCompatible, boolean notAcceptable) {
 
-    HttpMockRequestImpl request = requestWithVersion(requestVersion);
-
-    MockRequestContext context = new MockRequestContext(null, request, null);
+    RequestContext exchange = exchangeWithVersion(requestVersion);
     VersionRequestCondition condition = condition(conditionVersion);
-    VersionRequestCondition match = condition.getMatchingCondition(context);
+    VersionRequestCondition match = condition.getMatchingCondition(exchange);
 
     if (notCompatible) {
       assertThat(match).isNull();
@@ -106,16 +105,16 @@ class VersionRequestConditionTests {
     assertThat(match).isSameAs(condition);
 
     if (notAcceptable) {
-      assertThatThrownBy(() -> condition.handleMatch(context)).isInstanceOf(NotAcceptableApiVersionException.class);
+      assertThatThrownBy(() -> condition.handleMatch(exchange)).isInstanceOf(NotAcceptableApiVersionException.class);
       return;
     }
-    condition.handleMatch(context);
+
+    condition.handleMatch(exchange);
   }
 
   @Test
   void missingRequiredVersion() {
-    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(
-            new MockRequestContext(null, new HttpMockRequestImpl("GET", "/path"), null)))
+    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(exchange()))
             .hasMessage("400 BAD_REQUEST \"API version is required.\"");
   }
 
@@ -124,16 +123,14 @@ class VersionRequestConditionTests {
     String version = "1.2";
     this.strategy = initVersionStrategy(version);
     VersionRequestCondition condition = condition(version);
-    VersionRequestCondition match = condition.getMatchingCondition(
-            new MockRequestContext(null, new HttpMockRequestImpl("GET", "/path"), null));
+    VersionRequestCondition match = condition.getMatchingCondition(exchange());
 
     assertThat(match).isSameAs(condition);
   }
 
   @Test
   void unsupportedVersion() {
-    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(
-            new MockRequestContext(null, requestWithVersion("1.3"), null)))
+    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(exchangeWithVersion("1.3")))
             .hasMessage("400 BAD_REQUEST \"Invalid API version: '1.3.0'.\"");
   }
 
@@ -148,8 +145,7 @@ class VersionRequestConditionTests {
   private void testCompare(String expected, String... versions) {
     List<VersionRequestCondition> list = Arrays.stream(versions)
             .map(this::condition)
-            .sorted((c1, c2) -> c1.compareTo(c2,
-                    new MockRequestContext(null, new HttpMockRequestImpl(), null)))
+            .sorted((c1, c2) -> c1.compareTo(c2, exchange()))
             .toList();
 
     assertThat(list.get(0)).isEqualTo(condition(expected));
@@ -164,10 +160,14 @@ class VersionRequestConditionTests {
     return new VersionRequestCondition();
   }
 
-  private HttpMockRequestImpl requestWithVersion(String v) {
+  private static MockRequestContext exchange() {
+    return new MockRequestContext(new HttpMockRequestImpl("GET", "/path"));
+  }
+
+  private MockRequestContext exchangeWithVersion(String v) {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
     request.addParameter("api-version", v);
-    return request;
+    return new MockRequestContext(request);
   }
 
 }

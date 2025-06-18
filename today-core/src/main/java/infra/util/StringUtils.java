@@ -118,11 +118,28 @@ public abstract class StringUtils {
   }
 
   /**
-   * Split with {@link Constant#SPLIT_REGEXP}
+   * Splits the given source string into an array of substrings based on
+   * a predefined delimiter. If the source string is null, an empty string
+   * array is returned.
    *
-   * @param source source string
-   * @return if source is null this will returns
-   * {@link Constant#EMPTY_STRING_ARRAY}
+   * <p>Example usage:
+   * <pre>{@code
+   * String input = "apple,banana,cherry";
+   * String[] result = split(input);
+   * for (String item : result) {
+   *   System.out.println(item);
+   * }
+   * }</pre>
+   * Output:
+   * <pre>
+   * apple
+   * banana
+   * cherry
+   * </pre>
+   *
+   * @param source the string to be split; can be null
+   * @return an array of substrings if the source is not null;
+   * otherwise, an empty string array
    */
   public static String[] split(@Nullable String source) {
     if (source == null) {
@@ -132,13 +149,34 @@ public abstract class StringUtils {
   }
 
   /**
-   * Split with {@link Constant#SPLIT_REGEXP}
+   * Splits the given source string into a list of substrings based on
+   * splittable characters. If the source is null, an empty list is returned.
+   * If the source is empty or contains no splitable characters, the returned
+   * list will contain the original source string.
    *
-   * @param source source string
-   * @return if source is null this will returns
-   * {@link Collections#emptyList()}
-   * @see Collections#emptyList()
-   * @since 4.0
+   * <p>Example usage:</p>
+   *
+   * <pre>{@code
+   * String input = "apple,banana,cherry";
+   * List<String> result = splitAsList(input);
+   * System.out.println(result);
+   * // Output: [apple, banana, cherry]
+   *
+   * String singleInput = "singleWord";
+   * List<String> singleResult = splitAsList(singleInput);
+   * System.out.println(singleResult);
+   * // Output: [singleWord]
+   *
+   * String nullInput = null;
+   * List<String> nullResult = splitAsList(nullInput);
+   * System.out.println(nullResult);
+   * // Output: []
+   * }</pre>
+   *
+   * @param source the string to be split; can be null or empty
+   * @return a list of substrings split by splitable characters,
+   * or a list containing the original string if no splits occur,
+   * or an empty list if the input is null
    */
   public static List<String> splitAsList(@Nullable String source) {
     if (source == null) {
@@ -1228,74 +1266,6 @@ public abstract class StringUtils {
     else {
       return relativePath;
     }
-  }
-
-  //
-
-  /**
-   * Match a String against the given pattern, supporting the following simple
-   * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
-   * arbitrary number of pattern parts), as well as direct equality.
-   *
-   * @param pattern the pattern to match against
-   * @param str the String to match
-   * @return whether the String matches the given pattern
-   */
-  public static boolean simpleMatch(@Nullable String pattern, @Nullable String str) {
-    if (pattern == null || str == null) {
-      return false;
-    }
-
-    int firstIndex = pattern.indexOf('*');
-    if (firstIndex == -1) {
-      return pattern.equals(str);
-    }
-
-    if (firstIndex == 0) {
-      if (pattern.length() == 1) {
-        return true;
-      }
-      int nextIndex = pattern.indexOf('*', 1);
-      if (nextIndex == -1) {
-        return str.endsWith(pattern.substring(1));
-      }
-      String part = pattern.substring(1, nextIndex);
-      if (part.isEmpty()) {
-        return simpleMatch(pattern.substring(nextIndex), str);
-      }
-      int partIndex = str.indexOf(part);
-      while (partIndex != -1) {
-        if (simpleMatch(pattern.substring(nextIndex), str.substring(partIndex + part.length()))) {
-          return true;
-        }
-        partIndex = str.indexOf(part, partIndex + 1);
-      }
-      return false;
-    }
-
-    return str.length() >= firstIndex
-            && pattern.substring(0, firstIndex).equals(str.substring(0, firstIndex))
-            && simpleMatch(pattern.substring(firstIndex), str.substring(firstIndex));
-  }
-
-  /**
-   * Match a String against the given patterns, supporting the following simple
-   * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
-   * arbitrary number of pattern parts), as well as direct equality.
-   *
-   * @param patterns the patterns to match against
-   * @param str the String to match
-   * @return whether the String matches any of the given patterns
-   */
-  public static boolean simpleMatch(@Nullable String[] patterns, String str) {
-    if (patterns != null) {
-      for (String pattern : patterns) {
-        if (simpleMatch(pattern, str)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   public static String generateRandomString(int length) {
