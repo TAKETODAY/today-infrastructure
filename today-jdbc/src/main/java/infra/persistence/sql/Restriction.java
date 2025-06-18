@@ -474,6 +474,44 @@ public interface Restriction {
   }
 
   /**
+   * Creates a custom BETWEEN restriction.
+   *
+   * <p><b>Usage Example:</b>
+   * <pre>{@code
+   *   Restriction restriction = Restriction.between("age");
+   *   StringBuilder sqlBuffer = new StringBuilder();
+   *   restriction.render(sqlBuffer);
+   *   // The resulting SQL fragment might look like:
+   *   // "`age` BETWEEN ? AND ?"
+   * }</pre>
+   *
+   * @param columnName the name of the column to apply the "between" restriction to. Must not be null.
+   * @return a new {@code Restriction} instance representing the custom condition.
+   */
+  static Restriction between(String columnName) {
+    return forOperator(columnName, " BETWEEN", " ? AND ?");
+  }
+
+  /**
+   * Creates a custom NOT-BETWEEN restriction.
+   *
+   * <p><b>Usage Example:</b>
+   * <pre>{@code
+   *   Restriction restriction = Restriction.notBetween("age");
+   *   StringBuilder sqlBuffer = new StringBuilder();
+   *   restriction.render(sqlBuffer);
+   *   // The resulting SQL fragment might look like:
+   *   // "`age` NOT BETWEEN ? AND ?"
+   * }</pre>
+   *
+   * @param columnName the name of the column to apply the "between" restriction to. Must not be null.
+   * @return a new {@code Restriction} instance representing the custom condition.
+   */
+  static Restriction notBetween(String columnName) {
+    return forOperator(columnName, " NOT BETWEEN", " ? AND ?");
+  }
+
+  /**
    * Combines two {@code Restriction} objects using a logical AND operation.
    * This method creates a new {@code LogicalRestriction} that represents the
    * conjunction of the two input restrictions.

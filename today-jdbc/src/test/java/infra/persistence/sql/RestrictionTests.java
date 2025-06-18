@@ -239,7 +239,7 @@ class RestrictionTests {
     Restriction r2 = Restriction.equal("b", "2");
     Restriction r3 = Restriction.equal("c", "3");
 
-    Restriction combined = Restriction.and(Restriction.and(r1, r2), r3);
+    Restriction combined = Restriction.and(infra.persistence.sql.Restriction.and(r1, r2), r3);
     combined.render(sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 AND `b` = 2) AND `c` = 3)");
@@ -252,7 +252,7 @@ class RestrictionTests {
     Restriction r2 = Restriction.equal("b", "2");
     Restriction r3 = Restriction.equal("c", "3");
 
-    Restriction combined = Restriction.or(Restriction.or(r1, r2), r3);
+    Restriction combined = Restriction.or(infra.persistence.sql.Restriction.or(r1, r2), r3);
     combined.render(sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 OR `b` = 2) OR `c` = 3)");
@@ -265,7 +265,7 @@ class RestrictionTests {
     Restriction r2 = Restriction.equal("b", "2");
     Restriction r3 = Restriction.equal("c", "3");
 
-    Restriction combined = Restriction.or(Restriction.and(r1, r2), r3);
+    Restriction combined = Restriction.or(infra.persistence.sql.Restriction.and(r1, r2), r3);
     combined.render(sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 AND `b` = 2) OR `c` = 3)");
@@ -368,7 +368,7 @@ class RestrictionTests {
 
   @Test
   void singleRestrictionOr_shouldRenderCorrectly() {
-    Restriction restriction = Restriction.or(Restriction.equal("col", "val"));
+    Restriction restriction = Restriction.or(infra.persistence.sql.Restriction.equal("col", "val"));
     StringBuilder sqlBuffer = new StringBuilder();
 
     restriction.render(sqlBuffer);
@@ -381,7 +381,7 @@ class RestrictionTests {
   void renderWhereClause_withMixedLogicalOperators_shouldRenderCorrectly() {
     List<Restriction> restrictions = Arrays.asList(
             Restriction.equal("a", "1"),
-            Restriction.or(Restriction.equal("b", "2")),
+            Restriction.or(infra.persistence.sql.Restriction.equal("b", "2")),
             Restriction.and(
                     Restriction.equal("c", "3"),
                     Restriction.equal("d", "4")
@@ -398,7 +398,7 @@ class RestrictionTests {
   @Test
   void multipleOr_withSingleRestriction_shouldRenderCorrectly() {
     Restriction r1 = Restriction.equal("a", "1");
-    Restriction combined = Restriction.or(Restriction.or(r1));
+    Restriction combined = Restriction.or(infra.persistence.sql.Restriction.or(r1));
     StringBuilder sqlBuffer = new StringBuilder();
 
     combined.render(sqlBuffer);
@@ -485,7 +485,7 @@ class RestrictionTests {
   @Test
   void renderWhereClause_withSingleOrRestriction_shouldRenderCorrectlyWithoutParentheses() {
     List<Restriction> restrictions = Arrays.asList(
-            Restriction.or(Restriction.equal("col", "val"))
+            Restriction.or(infra.persistence.sql.Restriction.equal("col", "val"))
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
@@ -652,4 +652,19 @@ class RestrictionTests {
     assertThat(sqlBuffer.toString())
             .isEqualTo("`col` = val AND `col` = val AND `col` = val");
   }
+
+  @Test
+  void between() {
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(List.of(Restriction.between("age")));
+    assertThat(sqlBuffer.toString())
+            .isEqualTo("`age` BETWEEN ? AND ?");
+  }
+
+  @Test
+  void notBetween() {
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(List.of(Restriction.notBetween("age")));
+    assertThat(sqlBuffer.toString())
+            .isEqualTo("`age` NOT BETWEEN ? AND ?");
+  }
+
 }
