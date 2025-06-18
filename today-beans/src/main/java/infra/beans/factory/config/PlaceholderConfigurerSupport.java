@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.annotation.Value;
 import infra.core.StringValueResolver;
+import infra.core.env.AbstractPropertyResolver;
 import infra.core.env.PropertySource;
 import infra.lang.Nullable;
 
@@ -163,10 +164,11 @@ public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfi
   }
 
   /**
-   * Specify the escape character to use to ignore placeholder prefix
-   * or value separator, or {@code null} if no escaping should take
-   * place.
-   * <p>Default is {@link #DEFAULT_ESCAPE_CHARACTER}.
+   * Set the escape character to use to ignore the
+   * {@linkplain #setPlaceholderPrefix(String) placeholder prefix} and the
+   * {@linkplain #setValueSeparator(String) value separator}, or {@code null}
+   * if no escaping should take place.
+   * <p>The default is determined by {@link AbstractPropertyResolver#getDefaultEscapeCharacter()}.
    */
   public void setEscapeCharacter(@Nullable Character escsEscapeCharacter) {
     this.escapeCharacter = escsEscapeCharacter;
