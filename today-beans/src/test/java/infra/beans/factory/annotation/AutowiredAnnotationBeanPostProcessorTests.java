@@ -950,6 +950,32 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
+  void constructorResourceInjectionWithCandidateAndNoFallback() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ConstructorWithoutFallbackBean.class));
+    RootBeanDefinition tb = new RootBeanDefinition(NullFactoryMethods.class);
+    tb.setFactoryMethodName("createTestBean");
+    bf.registerBeanDefinition("testBean", tb);
+
+    bf.getBean("testBean");
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> bf.getBean("annotatedBean"))
+            .satisfies(methodParameterDeclaredOn(ConstructorWithoutFallbackBean.class));
+  }
+
+  @Test
+  void constructorResourceInjectionWithNameMatchingCandidateAndNoFallback() {
+    bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ConstructorWithoutFallbackBean.class));
+    RootBeanDefinition tb = new RootBeanDefinition(NullFactoryMethods.class);
+    tb.setFactoryMethodName("createTestBean");
+    bf.registerBeanDefinition("testBean3", tb);
+
+    bf.getBean("testBean3");
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> bf.getBean("annotatedBean"))
+            .satisfies(methodParameterDeclaredOn(ConstructorWithoutFallbackBean.class));
+  }
+
+  @Test
   void constructorResourceInjectionWithSometimesNullBeanEarly() {
     RootBeanDefinition bd = new RootBeanDefinition(ConstructorWithNullableArgument.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -3029,7 +3055,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     protected ITestBean testBean3;
 
-    @Autowired(required = false)
     public ConstructorWithoutFallbackBean(ITestBean testBean3) {
       this.testBean3 = testBean3;
     }
@@ -3041,13 +3066,14 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   public static class ConstructorWithNullableArgument {
 
+    @Nullable
     protected ITestBean testBean3;
 
-    @Autowired(required = false)
     public ConstructorWithNullableArgument(@Nullable ITestBean testBean3) {
       this.testBean3 = testBean3;
     }
 
+    @Nullable
     public ITestBean getTestBean3() {
       return this.testBean3;
     }
