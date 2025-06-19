@@ -290,7 +290,6 @@ class PropertySourcesPlaceholderConfigurerTests {
   }
 
   @Test
-  // https://github.com/spring-projects/spring-framework/issues/27947
   public void ignoreUnresolvablePlaceholdersInAtValueAnnotation__falseIsDefault() {
     MockPropertySource mockPropertySource = new MockPropertySource("test");
     mockPropertySource.setProperty("my.key", "${enigma}");
@@ -307,7 +306,6 @@ class PropertySourcesPlaceholderConfigurerTests {
   }
 
   @Test
-  // https://github.com/spring-projects/spring-framework/issues/27947
   public void ignoreUnresolvablePlaceholdersInAtValueAnnotation_true() {
     MockPropertySource mockPropertySource = new MockPropertySource("test");
     mockPropertySource.setProperty("my.key", "${enigma}");

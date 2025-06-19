@@ -48,15 +48,15 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * single character (other than {@link Character#MIN_VALUE}). For example,
    * supplying the following JVM system property via the command line sets the
    * default escape character to {@code '@'}.
-   * <pre style="code">-Dspring.placeholder.escapeCharacter.default=@</pre>
+   * <pre style="code">-Dinfra.placeholder.escapeCharacter.default=@</pre>
    * <p>To disable escape character support, set the value to an empty string
    * &mdash; for example, by supplying the following JVM system property via
    * the command line.
-   * <pre style="code">-Dspring.placeholder.escapeCharacter.default=</pre>
+   * <pre style="code">-Dinfra.placeholder.escapeCharacter.default=</pre>
    * <p>If the property is not set, {@code '\'} will be used as the default
    * escape character.
    * <p>May alternatively be configured via a
-   * {@link infra.lang.TodayStrategies spring.properties} file
+   * {@link infra.lang.TodayStrategies today.properties} file
    * in the root of the classpath.
    *
    * @see #getDefaultEscapeCharacter()
@@ -357,7 +357,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    * to use when parsing strings for property placeholder resolution.
    * <p>This method attempts to retrieve the default escape character configured
    * via the {@value #DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME} JVM system
-   * property or Spring property.
+   * property or Infra property.
    * <p>Falls back to {@code '\'} if the property has not been set.
    *
    * @return the configured default escape character, {@code null} if escape character
