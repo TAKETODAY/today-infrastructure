@@ -181,6 +181,11 @@ public class NettyDataBuffer extends DataBuffer {
   }
 
   @Override
+  public byte[] readBytes() {
+    return ByteBufUtil.getBytes(this.byteBuf);
+  }
+
+  @Override
   public NettyDataBuffer read(byte[] destination) {
     this.byteBuf.readBytes(destination);
     return this;

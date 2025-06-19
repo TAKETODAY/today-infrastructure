@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,6 +129,11 @@ public class DataBufferWrapper extends DataBuffer {
   @Override
   public byte read() {
     return this.delegate.read();
+  }
+
+  @Override
+  public byte[] readBytes() {
+    return delegate.readBytes();
   }
 
   @Override
@@ -290,4 +295,15 @@ public class DataBufferWrapper extends DataBuffer {
   public DataBuffer touch(Object hint) {
     return delegate.touch(hint);
   }
+
+  @Override
+  public DataBuffer duplicate() {
+    return delegate.duplicate();
+  }
+
+  @Override
+  public DataBuffer retainedDuplicate() {
+    return delegate.retainedDuplicate();
+  }
+
 }
