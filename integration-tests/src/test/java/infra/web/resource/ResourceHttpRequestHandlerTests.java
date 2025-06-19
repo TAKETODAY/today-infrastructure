@@ -480,6 +480,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
+      requestContext.requestCompleted();
       assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -502,6 +503,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
+      requestContext.requestCompleted();
       assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
