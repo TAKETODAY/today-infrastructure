@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,9 @@ package infra.aop.aspectj;
 
 import org.aspectj.weaver.tools.ShadowMatch;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import infra.aop.support.ExpressionPointcut;
 import infra.lang.Nullable;
 
 /**
@@ -35,7 +33,33 @@ import infra.lang.Nullable;
  */
 public abstract class ShadowMatchUtils {
 
-  private static final Map<Key, ShadowMatch> shadowMatchCache = new ConcurrentHashMap<>(256);
+  private static final Map<Object, ShadowMatch> shadowMatchCache = new ConcurrentHashMap<>(256);
+
+  /**
+   * Find a {@link ShadowMatch} for the specified key.
+   *
+   * @param key the key to use
+   * @return the {@code ShadowMatch} to use for the specified key,
+   * or {@code null} if none found
+   */
+  @Nullable
+  static ShadowMatch getShadowMatch(Object key) {
+    return shadowMatchCache.get(key);
+  }
+
+  /**
+   * Associate the {@link ShadowMatch} with the specified key.
+   * If an entry already exists, the given {@code shadowMatch} is ignored.
+   *
+   * @param key the key to use
+   * @param shadowMatch the shadow match to use for this key
+   * if none already exists
+   * @return the shadow match to use for the specified key
+   */
+  static ShadowMatch setShadowMatch(Object key, ShadowMatch shadowMatch) {
+    ShadowMatch existing = shadowMatchCache.putIfAbsent(key, shadowMatch);
+    return (existing != null ? existing : shadowMatch);
+  }
 
   /**
    * Clear the cache of computed {@link ShadowMatch} instances.
@@ -43,36 +67,5 @@ public abstract class ShadowMatchUtils {
   public static void clearCache() {
     shadowMatchCache.clear();
   }
-
-  /**
-   * Return the {@link ShadowMatch} for the specified {@link ExpressionPointcut}
-   * and {@link Method} or {@code null} if none is found.
-   *
-   * @param expression the expression
-   * @param method the method
-   * @return the {@code ShadowMatch} to use for the specified expression and method
-   */
-  @Nullable
-  static ShadowMatch getShadowMatch(ExpressionPointcut expression, Method method) {
-    return shadowMatchCache.get(new Key(expression, method));
-  }
-
-  /**
-   * Associate the {@link ShadowMatch} to the specified {@link ExpressionPointcut}
-   * and method. If an entry already exists, the given {@code shadowMatch} is
-   * ignored.
-   *
-   * @param expression the expression
-   * @param method the method
-   * @param shadowMatch the shadow match to use for this expression and method
-   * if none already exists
-   * @return the shadow match to use for the specified expression and method
-   */
-  static ShadowMatch setShadowMatch(ExpressionPointcut expression, Method method, ShadowMatch shadowMatch) {
-    ShadowMatch existing = shadowMatchCache.putIfAbsent(new Key(expression, method), shadowMatch);
-    return (existing != null ? existing : shadowMatch);
-  }
-
-  private record Key(ExpressionPointcut expression, Method method) { }
 
 }
