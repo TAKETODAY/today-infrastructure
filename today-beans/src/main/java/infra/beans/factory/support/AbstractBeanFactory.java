@@ -1599,24 +1599,34 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
     if (factory.isSingleton() && containsSingleton(beanName)) {
-      this.singletonLock.lock();
+      Boolean lockFlag = isCurrentThreadAllowedToHoldSingletonLock();
+      boolean locked;
+      if (lockFlag == null) {
+        this.singletonLock.lock();
+        locked = true;
+      }
+      else {
+        locked = lockFlag && this.singletonLock.tryLock();
+      }
       try {
-        Object object = this.objectFromFactoryBeanCache.get(beanName);
+        Object object = objectFromFactoryBeanCache.get(beanName);
         if (object == null) {
           object = doGetObjectFromFactoryBean(factory, beanName);
           // Only post-process and store if not put there already during getObject() call above
-          // (e.g. because of circular reference processing triggered by custom getBean calls)
+          // (for example, because of circular reference processing triggered by custom getBean calls)
           Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
           if (alreadyThere != null) {
             object = alreadyThere;
           }
           else {
             if (shouldPostProcess) {
-              if (isSingletonCurrentlyInCreation(beanName)) {
-                // Temporarily return non-post-processed object, not storing it yet..
-                return object;
+              if (locked) {
+                if (isSingletonCurrentlyInCreation(beanName)) {
+                  // Temporarily return non-post-processed object, not storing it yet
+                  return object;
+                }
+                beforeSingletonCreation(beanName);
               }
-              beforeSingletonCreation(beanName);
               try {
                 object = postProcessObjectFromFactoryBean(object, beanName);
               }
@@ -1625,7 +1635,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                         "Post-processing of FactoryBean's singleton object failed", ex);
               }
               finally {
-                afterSingletonCreation(beanName);
+                if (locked) {
+                  afterSingletonCreation(beanName);
+                }
               }
             }
             if (containsSingleton(beanName)) {
@@ -1636,7 +1648,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         return object;
       }
       finally {
-        this.singletonLock.unlock();
+        if (locked) {
+          this.singletonLock.unlock();
+        }
       }
     }
     else {

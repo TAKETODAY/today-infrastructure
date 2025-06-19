@@ -1774,10 +1774,19 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
   @Nullable
   private FactoryBean<?> getFactoryBeanForTypeCheck(String beanName, RootBeanDefinition def) {
     if (def.isSingleton()) {
-      boolean locked = singletonLock.tryLock();
-      if (!locked) {
-        return null;
+      Boolean lockFlag = isCurrentThreadAllowedToHoldSingletonLock();
+      if (lockFlag == null) {
+        this.singletonLock.lock();
       }
+      else {
+        boolean locked = (lockFlag && this.singletonLock.tryLock());
+        if (!locked) {
+          // Avoid shortcut FactoryBean instance but allow for subsequent type-based resolution.
+          resolveBeanClass(beanName, def);
+          return null;
+        }
+      }
+
       try {
         BeanWrapper beanWrapper = this.factoryBeanInstanceCache.get(beanName);
         if (beanWrapper != null && beanWrapper.getWrappedInstance() instanceof FactoryBean<?> factory) {

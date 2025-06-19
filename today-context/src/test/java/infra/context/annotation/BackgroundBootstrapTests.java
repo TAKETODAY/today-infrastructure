@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanCurrentlyInCreationException;
+import infra.beans.factory.FactoryBean;
 import infra.beans.factory.ObjectProvider;
 import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -229,15 +230,27 @@ class BackgroundBootstrapTests {
     }
 
     @Bean
-    public TestBean testBean4() {
+    public FactoryBean<TestBean> testBean4() {
       try {
         Thread.sleep(2000);
       }
       catch (InterruptedException ex) {
         Thread.currentThread().interrupt();
       }
-      return new TestBean();
+      TestBean testBean = new TestBean();
+      return new FactoryBean<>() {
+        @Override
+        public TestBean getObject() {
+          return testBean;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+          return testBean.getClass();
+        }
+      };
     }
+    
   }
 
   @Configuration(proxyBeanMethods = false)
