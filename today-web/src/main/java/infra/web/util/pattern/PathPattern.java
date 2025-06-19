@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,17 +43,17 @@ import infra.util.StringUtils;
  * <li>{@code ?} matches one character</li>
  * <li>{@code *} matches zero or more characters within a path segment</li>
  * <li>{@code **} matches zero or more <em>path segments</em> until the end of the path</li>
- * <li><code>{spring}</code> matches a <em>path segment</em> and captures it as a variable named "spring"</li>
- * <li><code>{spring:[a-z]+}</code> matches the regexp {@code [a-z]+} as a path variable named "spring"</li>
- * <li><code>{*spring}</code> matches zero or more <em>path segments</em> until the end of the path
- * and captures it as a variable named "spring"</li>
+ * <li><code>{infra}</code> matches a <em>path segment</em> and captures it as a variable named "infra"</li>
+ * <li><code>{infra:[a-z]+}</code> matches the regexp {@code [a-z]+} as a path variable named "infra"</li>
+ * <li><code>{*infra}</code> matches zero or more <em>path segments</em> until the end of the path
+ * and captures it as a variable named "infra"</li>
  * </ul>
  *
  * <p><strong>Note:</strong> In contrast to
  * {@link AntPathMatcher}, {@code **} is supported only
  * at the end of a pattern. For example {@code /pages/{**}} is valid but
  * {@code /pages/{**}/details} is not. The same applies also to the capturing
- * variant <code>{*spring}</code>. The aim is to eliminate ambiguity when
+ * variant <code>{*infra}</code>. The aim is to eliminate ambiguity when
  * comparing patterns for specificity.
  *
  * <h3>Examples</h3>
@@ -64,14 +64,14 @@ import infra.util.StringUtils;
  * {@code resources} directory</li>
  * <li><code>/resources/&#42;&#42;</code> &mdash; matches all files
  * underneath the {@code /resources/} path, including {@code /resources/image.png}
- * and {@code /resources/css/spring.css}</li>
+ * and {@code /resources/css/infra.css}</li>
  * <li><code>/resources/{&#42;path}</code> &mdash; matches all files
  * underneath the {@code /resources/}, as well as {@code /resources}, and captures
  * their relative path in a variable named "path"; {@code /resources/image.png}
- * will match with "path" &rarr; "/image.png", and {@code /resources/css/spring.css}
- * will match with "path" &rarr; "/css/spring.css"</li>
- * <li><code>/resources/{filename:\\w+}.dat</code> will match {@code /resources/spring.dat}
- * and assign the value {@code "spring"} to the {@code filename} variable</li>
+ * will match with "path" &rarr; "/image.png", and {@code /resources/css/infra.css}
+ * will match with "path" &rarr; "/css/infra.css"</li>
+ * <li><code>/resources/{filename:\\w+}.dat</code> will match {@code /resources/infra.dat}
+ * and assign the value {@code "infra"} to the {@code filename} variable</li>
  * </ul>
  *
  * @author Andy Clement
@@ -226,9 +226,9 @@ public class PathPattern implements Comparable<PathPattern> {
   @Nullable
   public PathMatchInfo matchAndExtract(PathContainer pathContainer) {
     if (this.head == null) {
-      return hasLength(pathContainer)
-                     && !(this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer))
-             ? null : PathMatchInfo.EMPTY;
+      return hasLength(pathContainer) &&
+              !(this.matchOptionalTrailingSeparator && pathContainerIsJustSeparator(pathContainer))
+              ? null : PathMatchInfo.EMPTY;
     }
     else if (!hasLength(pathContainer)) {
       if (this.head instanceof WildcardTheRestPathElement || this.head instanceof CaptureTheRestPathElement) {
@@ -394,19 +394,50 @@ public class PathPattern implements Comparable<PathPattern> {
   }
 
   /**
-   * Combine this pattern with another.
+   * Combine this pattern with the one given as parameter, returning a new
+   * {@code PathPattern} instance that concatenates or merges both.
+   * This operation is not commutative, meaning {@code pattern1.combine(pattern2)}
+   * is not equal to {@code pattern2.combine(pattern1)}.
+   *
+   * <p>Combining two "fixed" patterns effectively concatenates them:
+   * <ul>
+   *     <li><code> "/projects" + "/today-infrastructure" => "/projects/today-infrastructure"</code>
+   *     </ul>
+   * Combining a "fixed" pattern with a "matching" pattern concatenates them:
+   * <ul>
+   *     <li><code> "/projects" + "/{project}" => "/projects/{project}"</code>
+   * </ul>
+   * Combining a "matching" pattern with a "fixed" pattern merges them:
+   * <ul>
+   *     <li><code> "/projects/&#42;" + "/today-infrastructure" => "/projects/today-infrastructure"</code>
+   *     <li><code> "/projects/&#42;.html" + "/today-infrastructure.html" => "/projects/today-infrastructure.html"</code>
+   * </ul>
+   * Combining two "matching" patterns merges them:
+   * <ul>
+   *     <li><code> "/projects/&#42;&#42;" + "/&#42;.html" => "/projects/&#42;.html"</code>
+   *     <li><code> "/projects/&#42;" + "/{project}" => "/projects/{project}"</code>
+   *     <li><code> "/projects/&#42;.html" + "/today-infrastructure.&#42;" => "/projects/today-infrastructure.html"</code>
+   * </ul>
+   * Note, if a pattern does not end with a "matching" segment, it is considered as a "fixed" one:
+   * <ul>
+   *     <li><code> "/projects/&#42;/releases" + "/{id}" => "/projects/&#42;/releases/{id}"</code>
+   * </ul>
+   *
+   * @param otherPattern the pattern to be combined with the current one
+   * @return the new {@code PathPattern} that combines both patterns
+   * @throws IllegalArgumentException if the combination is not allowed
    */
-  public PathPattern combine(PathPattern pattern2string) {
-    // If one of them is empty the result is the other. If both empty the result is ""
-    if (StringUtils.isEmpty(patternString)) {
-      if (StringUtils.isEmpty(pattern2string.patternString)) {
-        return parser.parse("");
+  public PathPattern combine(PathPattern otherPattern) {
+    // If one of them is empty, the result is the other. If both are empty, the result is ""
+    if (StringUtils.isEmpty(this.patternString)) {
+      if (StringUtils.isEmpty(otherPattern.patternString)) {
+        return this.parser.parse("");
       }
       else {
-        return pattern2string;
+        return otherPattern;
       }
     }
-    else if (StringUtils.isEmpty(pattern2string.patternString)) {
+    else if (StringUtils.isEmpty(otherPattern.patternString)) {
       return this;
     }
 
@@ -415,41 +446,55 @@ public class PathPattern implements Comparable<PathPattern> {
     // However:
     // /usr + /user => /usr/user
     // /{foo} + /bar => /{foo}/bar
-    if (capturedVariableCount == 0
-            && !patternString.equals(pattern2string.patternString)
-            && matches(PathContainer.parsePath(pattern2string.patternString))) {
-      return pattern2string;
+    if (!this.patternString.equals(otherPattern.patternString) && this.capturedVariableCount == 0
+            && matches(PathContainer.parsePath(otherPattern.patternString))) {
+      return otherPattern;
     }
 
     // /hotels/* + /booking => /hotels/booking
     // /hotels/* + booking => /hotels/booking
-    if (endsWithSeparatorWildcard) {
-      return parser.parse(concat(
-              patternString.substring(0, patternString.length() - 2),
-              pattern2string.patternString));
+    if (this.endsWithSeparatorWildcard) {
+      String prefix = this.patternString.length() > 2 ?
+              this.patternString.substring(0, this.patternString.length() - 2) :
+              String.valueOf(getSeparator());
+      return this.parser.parse(concat(prefix, otherPattern.patternString));
+    }
+
+    // /hotels/** +  "/booking/rooms => /hotels/booking/rooms
+    if (this.catchAll) {
+      return this.parser.parse(concat(this.patternString.substring(0, this.patternString.length() - 3),
+              otherPattern.patternString));
     }
 
     // /hotels + /booking => /hotels/booking
     // /hotels + booking => /hotels/booking
-    int starDotPos1 = patternString.indexOf("*.");  // Are there any file prefix/suffix things to consider?
-    if (capturedVariableCount != 0 || starDotPos1 == -1 || getSeparator() == '.') {
-      return parser.parse(concat(patternString, pattern2string.patternString));
+    int firstStarDotPos = this.patternString.indexOf("*.");  // Are there any file prefix/suffix things to consider?
+    if (this.capturedVariableCount != 0 || firstStarDotPos == -1 || getSeparator() == '.') {
+      return this.parser.parse(concat(this.patternString, otherPattern.patternString));
     }
 
     // /*.html + /hotel => /hotel.html
     // /*.html + /hotel.* => /hotel.html
-    String firstExtension = patternString.substring(starDotPos1 + 1);  // looking for the first extension
-    String p2string = pattern2string.patternString;
-    int dotPos2 = p2string.indexOf('.');
-    String file2 = dotPos2 == -1 ? p2string : p2string.substring(0, dotPos2);
-    String secondExtension = dotPos2 == -1 ? "" : p2string.substring(dotPos2);
-    boolean firstExtensionWild = firstExtension.equals(".*") || firstExtension.isEmpty();
-    boolean secondExtensionWild = secondExtension.equals(".*") || secondExtension.isEmpty();
-    if (!firstExtensionWild && !secondExtensionWild) {
+    int secondDotPos = otherPattern.patternString.indexOf('.');
+
+    String firstExtension = this.patternString.substring(firstStarDotPos + 1);  // looking for the first extension
+    String secondExtension = (secondDotPos == -1 ? "" : otherPattern.patternString.substring(secondDotPos));
+    boolean isFirstExtensionWildcard = (firstExtension.equals(".*") || firstExtension.isEmpty());
+    boolean isSecondExtensionWildcard = (secondExtension.equals(".*") || secondExtension.isEmpty());
+    if (!isFirstExtensionWildcard && !isSecondExtensionWildcard) {
       throw new IllegalArgumentException(
-              "Cannot combine patterns: " + patternString + " and " + pattern2string);
+              "Cannot combine patterns: %s and %s".formatted(this.patternString, otherPattern));
     }
-    return parser.parse(file2 + (firstExtensionWild ? secondExtension : firstExtension));
+
+    String firstPath = this.patternString.substring(0, this.patternString.lastIndexOf(getSeparator()));
+    String secondPath = otherPattern.patternString.substring(0, otherPattern.patternString.lastIndexOf(getSeparator()));
+    if (!this.parser.parse(firstPath).matches(PathContainer.parsePath(secondPath))) {
+      throw new IllegalArgumentException(
+              "Cannot combine patterns: %s and %s".formatted(this.patternString, otherPattern));
+    }
+
+    String secondFile = (secondDotPos == -1 ? otherPattern.patternString : otherPattern.patternString.substring(0, secondDotPos));
+    return this.parser.parse(secondFile + (isFirstExtensionWildcard ? secondExtension : firstExtension));
   }
 
   @Override
