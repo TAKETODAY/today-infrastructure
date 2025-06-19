@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.core.io.buffer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Objects;
 
 import infra.lang.Assert;
 
@@ -102,6 +104,41 @@ final class DataBufferInputStream extends InputStream {
       dataBuffer.release();
     }
     this.closed = true;
+  }
+
+  @Override
+  public byte[] readNBytes(int len) throws IOException {
+    if (len < 0) {
+      throw new IllegalArgumentException("len < 0");
+    }
+    checkClosed();
+    int size = Math.min(available(), len);
+    byte[] out = new byte[size];
+    this.dataBuffer.read(out);
+    return out;
+  }
+
+  @Override
+  public long skip(long n) throws IOException {
+    checkClosed();
+    if (n <= 0) {
+      return 0L;
+    }
+    int skipped = Math.min(available(), n > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) n);
+    this.dataBuffer.readPosition(this.dataBuffer.readPosition() + skipped);
+    return skipped;
+  }
+
+  @Override
+  public long transferTo(OutputStream out) throws IOException {
+    Objects.requireNonNull(out, "out");
+    checkClosed();
+    if (available() == 0) {
+      return 0L;
+    }
+    byte[] buf = readAllBytes();
+    out.write(buf);
+    return buf.length;
   }
 
   private void checkClosed() throws IOException {
