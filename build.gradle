@@ -70,17 +70,19 @@ configure(allprojects) {
 
 configure([rootProject] + javaProjects) {
   apply plugin: "java"
-  apply plugin: 'jacoco'
   apply plugin: 'infra.building.conventions'
   apply plugin: 'infra.building.optional-dependencies'
   apply from: "${rootDir}/gradle/toolchains.gradle"
 
-  if (testFixturesProjects.contains(it)) {
-    apply plugin: "java-test-fixtures"
+  if (it.hasProperty("code-coverage")) {
+    apply plugin: 'jacoco'
+    jacocoTestReport {
+      enabled = false
+    }
   }
 
-  jacocoTestReport {
-    enabled = false
+  if (testFixturesProjects.contains(it)) {
+    apply plugin: "java-test-fixtures"
   }
 
   dependencies {

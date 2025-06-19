@@ -49,7 +49,7 @@ jobs:
         uses: gradle/gradle-build-action@v3.1.0
 
       - name: Test Coverage
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 testCodeCoverageReport --scan --stacktrace
+        run: ./gradlew -DCI=true -Pcode-coverage --no-daemon --max-workers=4 testCodeCoverageReport --scan --stacktrace
 
       - name: Report Coverage to Coveralls
         uses: coverallsapp/github-action@v2
