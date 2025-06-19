@@ -402,7 +402,7 @@ class ConfigurationClassBeanDefinitionReader {
         }
         catch (Throwable ex) {
           throw new IllegalStateException("Could not instantiate BeanDefinitionReader class [%s]"
-                  .formatted(readerClass.getName()));
+                  .formatted(readerClass.getName()), ex);
         }
       }
 
