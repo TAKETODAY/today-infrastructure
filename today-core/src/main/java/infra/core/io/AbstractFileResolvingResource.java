@@ -91,8 +91,14 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
           // existence of the entry (or the jar root in case of no entryName).
           // getJarFile() called for enforced presence check of the jar file,
           // throwing a NoSuchFileException otherwise (turned to false below).
-          try (JarFile ignored = jarCon.getJarFile()) {
-            return (jarCon.getEntryName() == null || jarCon.getJarEntry() != null);
+          JarFile jarFile = jarCon.getJarFile();
+          try {
+            return jarCon.getEntryName() == null || jarCon.getJarEntry() != null;
+          }
+          finally {
+            if (!jarCon.getUseCaches()) {
+              jarFile.close();
+            }
           }
         }
         else if (con.getContentLengthLong() > 0) {
