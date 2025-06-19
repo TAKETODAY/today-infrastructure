@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import infra.util.ReflectionUtils;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class AutowiredArgumentsCodeGenerator {
@@ -59,21 +60,18 @@ public class AutowiredArgumentsCodeGenerator {
     return generateCode(parameterTypes, startIndex, "args");
   }
 
-  public CodeBlock generateCode(Class<?>[] parameterTypes, int startIndex,
-          String variableName) {
-
+  public CodeBlock generateCode(Class<?>[] parameterTypes, int startIndex, String variableName) {
     Assert.notNull(parameterTypes, "'parameterTypes' is required");
     Assert.notNull(variableName, "'variableName' is required");
     boolean ambiguous = isAmbiguous();
     CodeBlock.Builder code = CodeBlock.builder();
     for (int i = startIndex; i < parameterTypes.length; i++) {
-      code.add((i != startIndex) ? ", " : "");
+      code.add(i > startIndex ? ", " : "");
       if (!ambiguous) {
-        code.add("$L.get($L)", variableName, i - startIndex);
+        code.add("$L.get($L)", variableName, i);
       }
       else {
-        code.add("$L.get($L, $T.class)", variableName, i - startIndex,
-                parameterTypes[i]);
+        code.add("$L.get($L, $T.class)", variableName, i, parameterTypes[i]);
       }
     }
     return code.build();

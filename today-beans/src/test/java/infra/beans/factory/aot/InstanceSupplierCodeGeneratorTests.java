@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,11 +129,13 @@ class InstanceSupplierCodeGeneratorTests {
   @Test
   void generateWhenHasConstructorWithInnerClassAndParameter() {
     BeanDefinition beanDefinition = new RootBeanDefinition(EnvironmentAwareComponent.class);
+    StandardEnvironment environment = new StandardEnvironment();
     this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
-    this.beanFactory.registerSingleton("environment", new StandardEnvironment());
+    this.beanFactory.registerSingleton("environment", environment);
     compile(beanDefinition, (instanceSupplier, compiled) -> {
       Object bean = getBean(beanDefinition, instanceSupplier);
       assertThat(bean).isInstanceOf(EnvironmentAwareComponent.class);
+      assertThat(bean).hasFieldOrPropertyWithValue("environment", environment);
       assertThat(compiled.getSourceFile()).contains(
               "getBeanFactory().getBean(InnerComponentConfiguration.class).new EnvironmentAwareComponent(");
     });
@@ -157,11 +159,13 @@ class InstanceSupplierCodeGeneratorTests {
   @Test
   void generateWhenHasNonPublicConstructorWithInnerClassAndParameter() {
     BeanDefinition beanDefinition = new RootBeanDefinition(EnvironmentAwareComponentWithoutPublicConstructor.class);
+    StandardEnvironment environment = new StandardEnvironment();
     this.beanFactory.registerSingleton("configuration", new InnerComponentConfiguration());
-    this.beanFactory.registerSingleton("environment", new StandardEnvironment());
+    this.beanFactory.registerSingleton("environment", environment);
     compile(beanDefinition, (instanceSupplier, compiled) -> {
       Object bean = getBean(beanDefinition, instanceSupplier);
       assertThat(bean).isInstanceOf(EnvironmentAwareComponentWithoutPublicConstructor.class);
+      assertThat(bean).hasFieldOrPropertyWithValue("environment", environment);
       assertThat(compiled.getSourceFile()).doesNotContain(
               "getBeanFactory().getBean(InnerComponentConfiguration.class)");
     });
