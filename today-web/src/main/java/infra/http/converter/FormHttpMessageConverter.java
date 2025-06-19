@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import infra.core.io.Resource;
 import infra.http.ContentDisposition;
@@ -486,15 +487,52 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     outputMessage.getHeaders().setContentType(contentType);
 
     if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
-      streaming.setBody(outputStream -> {
-        writeParts(outputStream, parts, boundary);
-        writeEnd(outputStream, boundary);
+      boolean repeatable = checkPartsRepeatable(parts);
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          FormHttpMessageConverter.this.writeParts(outputStream, parts, boundary);
+          writeEnd(outputStream, boundary);
+        }
+
+        @Override
+        public boolean repeatable() {
+          return repeatable;
+        }
       });
     }
     else {
       writeParts(outputMessage.getBody(), parts, boundary);
       writeEnd(outputMessage.getBody(), boundary);
     }
+  }
+
+  @SuppressWarnings({ "unchecked", "ConstantValue" })
+  private <T> boolean checkPartsRepeatable(MultiValueMap<String, Object> map) {
+    return map.entrySet().stream().allMatch(e -> e.getValue().stream().filter(Objects::nonNull).allMatch(part -> {
+      HttpHeaders headers = null;
+      Object body = part;
+      if (part instanceof HttpEntity<?> entity) {
+        headers = entity.getHeaders();
+        body = entity.getBody();
+        Assert.state(body != null, "Empty body for part '" + e.getKey() + "': " + part);
+      }
+      HttpMessageConverter<?> converter = findConverterFor(e.getKey(), headers, body);
+      return (converter instanceof AbstractHttpMessageConverter<?> ahmc &&
+              ((AbstractHttpMessageConverter<T>) ahmc).supportsRepeatableWrites((T) body));
+    }));
+  }
+
+  @Nullable
+  private HttpMessageConverter<?> findConverterFor(String name, @Nullable HttpHeaders headers, Object body) {
+    Class<?> partType = body.getClass();
+    MediaType contentType = headers != null ? headers.getContentType() : null;
+    for (HttpMessageConverter<?> converter : this.partConverters) {
+      if (converter.canWrite(partType, contentType)) {
+        return converter;
+      }
+    }
+    return null;
   }
 
   /**
@@ -525,26 +563,26 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     if (partBody == null) {
       throw new IllegalStateException("Empty body for part '%s': %s".formatted(name, partEntity));
     }
-    Class<?> partType = partBody.getClass();
-    MediaType partContentType = partEntity.getContentType();
-    for (HttpMessageConverter converter : partConverters) {
-      if (converter.canWrite(partType, partContentType)) {
-        Charset charset = isFilenameCharsetSet() ? StandardCharsets.US_ASCII : this.charset;
-        var multipartMessage = new MultipartHttpOutputMessage(os, charset);
-        var cd = ContentDisposition.formData().name(name);
-        String filename = getFilename(partBody);
-        if (filename != null) {
-          cd.filename(filename, this.multipartCharset);
-        }
-        multipartMessage.headers.setContentDisposition(cd.build());
-        multipartMessage.headers.setAll(partEntity.headers());
-        converter.write(partBody, partContentType, multipartMessage);
-        return;
+    HttpHeaders partHeaders = partEntity.getHeaders();
+    MediaType partContentType = partHeaders.getContentType();
+    HttpMessageConverter converter = findConverterFor(name, partHeaders, partBody);
+    if (converter != null) {
+      Charset charset = isFilenameCharsetSet() ? StandardCharsets.US_ASCII : this.charset;
+      HttpOutputMessage multipartMessage = new MultipartHttpOutputMessage(os, charset);
+      String filename = getFilename(partBody);
+      ContentDisposition.Builder cd = ContentDisposition.formData().name(name);
+      if (filename != null) {
+        cd.filename(filename, this.multipartCharset);
       }
+      multipartMessage.getHeaders().setContentDisposition(cd.build());
+      if (!partHeaders.isEmpty()) {
+        multipartMessage.getHeaders().putAll(partHeaders);
+      }
+      converter.write(partBody, partContentType, multipartMessage);
+      return;
     }
-    throw new HttpMessageNotWritableException(
-            "Could not write request: no suitable HttpMessageConverter found for request type [%s]"
-                    .formatted(partType.getName()));
+    throw new HttpMessageNotWritableException("Could not write request: no suitable HttpMessageConverter found for request type [%s]"
+            .formatted(partBody.getClass().getName()));
   }
 
   /**

@@ -39,6 +39,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
+import infra.http.StreamingHttpOutputMessage;
 import infra.http.converter.xml.SourceHttpMessageConverter;
 import infra.mock.api.fileupload.FileItem;
 import infra.mock.api.fileupload.FileUpload;
@@ -66,7 +67,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  */
-public class FormHttpMessageConverterTests {
+class FormHttpMessageConverterTests {
 
   private final FormHttpMessageConverter converter = new AllEncompassingFormHttpMessageConverter();
 
@@ -183,7 +184,7 @@ public class FormHttpMessageConverterTests {
     parameters.put("charset", StandardCharsets.UTF_8.name());
     parameters.put("foo", "bar");
 
-    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    StreamingMockHttpOutputMessage outputMessage = new StreamingMockHttpOutputMessage();
     this.converter.write(parts, new MediaType("multipart", "form-data", parameters), outputMessage);
 
     final MediaType contentType = outputMessage.getHeaders().getContentType();
@@ -264,7 +265,7 @@ public class FormHttpMessageConverterTests {
     parameters.put("charset", StandardCharsets.UTF_8.name());
     parameters.put("foo", "bar");
 
-    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    StreamingMockHttpOutputMessage outputMessage = new StreamingMockHttpOutputMessage();
     this.converter.write(parts,
             new MediaType("multipart", "form-data", parameters), outputMessage);
 
@@ -441,6 +442,26 @@ public class FormHttpMessageConverterTests {
   private void assertCannotWrite(MediaType mediaType) {
     Class<?> clazz = MultiValueMap.class;
     assertThat(this.converter.canWrite(clazz, mediaType)).as(clazz.getSimpleName() + " : " + mediaType).isFalse();
+  }
+
+  private static class StreamingMockHttpOutputMessage extends MockHttpOutputMessage implements StreamingHttpOutputMessage {
+
+    private boolean repeatable;
+
+    public boolean wasRepeatable() {
+      return this.repeatable;
+    }
+
+    @Override
+    public void setBody(Body body) {
+      try {
+        this.repeatable = body.repeatable();
+        body.writeTo(getBody());
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
   }
 
   private static class MockHttpOutputMessageRequestContext implements UploadContext {
