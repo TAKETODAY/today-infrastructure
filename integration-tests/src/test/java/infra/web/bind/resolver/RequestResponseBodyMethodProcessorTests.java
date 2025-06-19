@@ -397,7 +397,6 @@ class RequestResponseBodyMethodProcessorTests {
   }
 
   @Test
-    // gh-29588
   void problemDetailWhenJsonAndProblemJsonRequested() throws Throwable {
     this.mockRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
@@ -409,6 +408,12 @@ class RequestResponseBodyMethodProcessorTests {
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
+  @Test
+  void problemDetailWhenProblemXmlRequested() throws Throwable {
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_PROBLEM_XML_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_XML_VALUE);
+  }
+
   private void testProblemDetailMediaType(String expectedContentType) throws Throwable {
 
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -417,7 +422,8 @@ class RequestResponseBodyMethodProcessorTests {
 
     RequestResponseBodyMethodProcessor processor =
             new RequestResponseBodyMethodProcessor(
-                    Collections.singletonList(new MappingJackson2HttpMessageConverter()));
+                    List.of(new MappingJackson2HttpMessageConverter(),
+                            new MappingJackson2XmlHttpMessageConverter()));
 
     Method method = getClass().getDeclaredMethod("handleAndReturnProblemDetail");
 
@@ -445,12 +451,6 @@ class RequestResponseBodyMethodProcessorTests {
               	"instance": "/path"
               }""", this.mockResponse.getContentAsString(), false);
     }
-  }
-
-  @Test
-  void problemDetailWhenProblemXmlRequested() throws Throwable {
-    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_PROBLEM_XML_VALUE);
-    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_XML_VALUE);
   }
 
   @Test
