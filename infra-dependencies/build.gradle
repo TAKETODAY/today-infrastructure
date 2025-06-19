@@ -548,7 +548,7 @@ bom {
 }
 
 dependencies {
-  api(platform("com.fasterxml.jackson:jackson-bom:2.18.0"))
+  api(platform("com.fasterxml.jackson:jackson-bom:2.19.0"))
   api(platform("io.micrometer:micrometer-bom:1.12.3"))
   api(platform("io.netty:netty-bom:4.1.119.Final"))
   api(platform("io.projectreactor:reactor-bom:2024.0.2"))

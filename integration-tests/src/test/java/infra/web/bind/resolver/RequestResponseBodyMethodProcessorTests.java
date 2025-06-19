@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -338,7 +338,6 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
   }
 
-
   @Test
   public void handleReturnValueImage() throws Throwable {
     this.mockRequest.addHeader("Accept", "*/*");
@@ -446,6 +445,12 @@ class RequestResponseBodyMethodProcessorTests {
               	"instance": "/path"
               }""", this.mockResponse.getContentAsString(), false);
     }
+  }
+
+  @Test
+  void problemDetailWhenProblemXmlRequested() throws Throwable {
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_PROBLEM_XML_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_XML_VALUE);
   }
 
   @Test
