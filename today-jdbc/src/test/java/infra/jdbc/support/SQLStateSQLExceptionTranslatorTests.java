@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import infra.dao.DataAccessResourceFailureException;
 import infra.dao.DataIntegrityViolationException;
 import infra.dao.DuplicateKeyException;
 import infra.dao.PessimisticLockingFailureException;
+import infra.dao.QueryTimeoutException;
 import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
 import infra.lang.Nullable;
@@ -107,6 +108,11 @@ public class SQLStateSQLExceptionTranslatorTests {
   @Test
   void translateCannotAcquireLock() {
     assertTranslation("40001", CannotAcquireLockException.class);
+  }
+
+  @Test
+  void translateQueryTimeout() {
+    assertTranslation("57014", QueryTimeoutException.class);
   }
 
   @Test
