@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ package infra.scheduling.config;
  * Configuration constants for internal sharing across subpackages.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public abstract class TaskManagementConfigUtils {
@@ -29,13 +30,13 @@ public abstract class TaskManagementConfigUtils {
    * The bean name of the internally managed Scheduled annotation processor.
    */
   public static final String SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "infra.context.annotation.internalScheduledAnnotationProcessor";
+          "infra.scheduling.config.internalScheduledAnnotationProcessor";
 
   /**
    * The bean name of the internally managed Async annotation processor.
    */
   public static final String ASYNC_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "infra.context.annotation.internalAsyncAnnotationProcessor";
+          "infra.scheduling.config.internalAsyncAnnotationProcessor";
 
   /**
    * The bean name of the internally managed AspectJ async execution aspect.
