@@ -87,8 +87,7 @@ public abstract class BodyInserters {
   /**
    * Inserter to write the given value.
    * <p>Alternatively, consider using the {@code bodyValue(Object)} shortcuts on
-   * {@link WebClient WebClient} and
-   * {@link infra.web.handler.function.ServerResponse ServerResponse}.
+   * {@link WebClient WebClient}
    *
    * @param body the value to write
    * @param <T> the type of the body
@@ -102,9 +101,36 @@ public abstract class BodyInserters {
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromValue(T body) {
     Assert.notNull(body, "'body' is required");
-    Assert.isNull(registry.getAdapter(body.getClass()), "'body' should be an object, for reactive types use a variant specifying a publisher/producer and its related element type");
+    Assert.isNull(registry.getAdapter(body.getClass()),
+            "'body' should be an object, for reactive types use a variant specifying a publisher/producer and its related element type");
     return (message, context) ->
             writeWithMessageWriters(message, context, Mono.just(body), ResolvableType.forInstance(body), null);
+  }
+
+  /**
+   * Inserter to write the given value.
+   * <p>Alternatively, consider using the {@code bodyValue(Object, ParameterizedTypeReference)} shortcuts on
+   * {@link infra.web.client.reactive.WebClient WebClient}
+   *
+   * @param body the value to write
+   * @param bodyType the type of the body, used to capture the generic type
+   * @param <T> the type of the body
+   * @return the inserter to write a single value
+   * @throws IllegalArgumentException if {@code body} is a {@link Publisher} or an
+   * instance of a type supported by {@link ReactiveAdapterRegistry#getSharedInstance()},
+   * for which {@link #fromPublisher(Publisher, ParameterizedTypeReference)} or
+   * {@link #fromProducer(Object, ParameterizedTypeReference)} should be used.
+   * @see #fromPublisher(Publisher, ParameterizedTypeReference)
+   * @see #fromProducer(Object, ParameterizedTypeReference)
+   * @since 5.0
+   */
+  public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromValue(T body, ParameterizedTypeReference<T> bodyType) {
+    Assert.notNull(body, "'body' is required");
+    Assert.notNull(bodyType, "'bodyType' is required");
+    Assert.isNull(registry.getAdapter(body.getClass()),
+            "'body' should be an object, for reactive types use a variant specifying a publisher/producer and its related element type");
+    return (message, context) ->
+            writeWithMessageWriters(message, context, Mono.just(body), ResolvableType.forType(bodyType), null);
   }
 
   /**
