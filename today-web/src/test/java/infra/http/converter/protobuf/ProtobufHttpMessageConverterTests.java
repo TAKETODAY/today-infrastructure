@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,19 +43,20 @@ import static org.mockito.Mockito.mock;
  * @author Andreas Ahlenstorf
  * @author Sebastien Deleuze
  */
-@SuppressWarnings("deprecation")
-public class ProtobufHttpMessageConverterTests {
+class ProtobufHttpMessageConverterTests {
 
   private ProtobufHttpMessageConverter converter = new ProtobufHttpMessageConverter();
 
   private final ExtensionRegistry extensionRegistry = mock();
 
   private final Msg testMsg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
+  private final MediaType testPlusProtoMediaType = MediaType.parseMediaType("application/vnd.example.public.v1+x-protobuf");
 
   @Test
   void canRead() {
     assertThat(this.converter.canRead(Msg.class, null)).isTrue();
     assertThat(this.converter.canRead(Msg.class, ProtobufHttpMessageConverter.PROTOBUF)).isTrue();
+    assertThat(this.converter.canRead(Msg.class, this.testPlusProtoMediaType)).isTrue();
     assertThat(this.converter.canRead(Msg.class, MediaType.APPLICATION_JSON)).isTrue();
     assertThat(this.converter.canRead(Msg.class, MediaType.TEXT_PLAIN)).isTrue();
   }
@@ -64,6 +65,7 @@ public class ProtobufHttpMessageConverterTests {
   void canWrite() {
     assertThat(this.converter.canWrite(Msg.class, null)).isTrue();
     assertThat(this.converter.canWrite(Msg.class, ProtobufHttpMessageConverter.PROTOBUF)).isTrue();
+    assertThat(this.converter.canWrite(Msg.class, this.testPlusProtoMediaType)).isTrue();
     assertThat(this.converter.canWrite(Msg.class, MediaType.APPLICATION_JSON)).isTrue();
     assertThat(this.converter.canWrite(Msg.class, MediaType.TEXT_PLAIN)).isTrue();
   }
@@ -73,7 +75,7 @@ public class ProtobufHttpMessageConverterTests {
     byte[] body = this.testMsg.toByteArray();
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
     inputMessage.getHeaders().setContentType(ProtobufHttpMessageConverter.PROTOBUF);
-    Msg result = (Msg) this.converter.read(Msg.class, inputMessage);
+    var result = this.converter.read(Msg.class, inputMessage);
     assertThat(result).isEqualTo(this.testMsg);
   }
 
@@ -81,7 +83,7 @@ public class ProtobufHttpMessageConverterTests {
   void readNoContentType() throws IOException {
     byte[] body = this.testMsg.toByteArray();
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
-    Message result = (Message) this.converter.read(Msg.class, inputMessage);
+    var result = this.converter.read(Msg.class, inputMessage);
     assertThat(result).isEqualTo(this.testMsg);
   }
 
@@ -128,7 +130,7 @@ public class ProtobufHttpMessageConverterTests {
   }
 
   @Test
-  void defaultContentType() throws Exception {
+  void defaultContentType() {
     assertThat(this.converter.getDefaultContentType(this.testMsg))
             .isEqualTo(ProtobufHttpMessageConverter.PROTOBUF);
   }

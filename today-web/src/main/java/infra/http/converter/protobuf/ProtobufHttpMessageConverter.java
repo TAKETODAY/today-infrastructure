@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,6 +79,11 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   public static final MediaType PROTOBUF = MediaType.APPLICATION_PROTOBUF;
 
   /**
+   * The media-type for protobuf {@code application/*+x-protobuf}.
+   */
+  public static final MediaType PLUS_PROTOBUF = new MediaType("application", "*+x-protobuf");
+
+  /**
    * The HTTP header containing the protobuf schema.
    */
   public static final String X_PROTOBUF_SCHEMA_HEADER = "X-Protobuf-Schema";
@@ -128,9 +133,9 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
       this.protobufFormatSupport = null;
     }
 
-    setSupportedMediaTypes(Arrays.asList(
-            this.protobufFormatSupport != null ?
-                    this.protobufFormatSupport.supportedMediaTypes() : new MediaType[] { PROTOBUF, TEXT_PLAIN }));
+    setSupportedMediaTypes(Arrays.asList(this.protobufFormatSupport != null
+            ? this.protobufFormatSupport.supportedMediaTypes()
+            : new MediaType[] { PROTOBUF, PLUS_PROTOBUF, TEXT_PLAIN }));
 
     this.extensionRegistry = (extensionRegistry == null ? ExtensionRegistry.newInstance() : extensionRegistry);
   }
@@ -172,7 +177,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     Message.Builder builder = getMessageBuilder(clazz);
-    if (PROTOBUF.isCompatibleWith(contentType)) {
+    if (PROTOBUF.isCompatibleWith(contentType)
+            || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
       builder.mergeFrom(inputMessage.getBody(), this.extensionRegistry);
     }
     else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
@@ -223,7 +229,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
       Assert.state(contentType != null, "No content type");
     }
 
-    if (PROTOBUF.isCompatibleWith(contentType)) {
+    if (PROTOBUF.isCompatibleWith(contentType)
+            || PLUS_PROTOBUF.isCompatibleWith(contentType)) {
       if (populateProtoHeader) {
         setProtoHeader(outputMessage, message);
       }
@@ -304,7 +311,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     @Override
     public MediaType[] supportedMediaTypes() {
-      return new MediaType[] { PROTOBUF, TEXT_PLAIN, APPLICATION_JSON };
+      return new MediaType[] { PROTOBUF, PLUS_PROTOBUF, TEXT_PLAIN, APPLICATION_JSON };
     }
 
     @Override
