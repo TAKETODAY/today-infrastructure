@@ -525,6 +525,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * of the resource will be written to the response with caching headers
    * set to expire one year in the future.
    */
+  @Nullable
   @Override
   public Object handleRequest(RequestContext request) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
@@ -541,15 +542,15 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // Supported methods and required session
     checkRequest(request);
 
+    // Apply cache settings, if any
+    prepareResponse(request);
+
     // Header phase
     String eTag = getETag(resource);
     if (request.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
       log.trace("Resource not modified");
       return NONE_RETURN_VALUE;
     }
-
-    // Apply cache settings, if any
-    prepareResponse(request);
 
     // Check the media type for the resource
     MediaType mediaType = getMediaType(request, resource);
