@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.ParameterizedTypeReference;
 import infra.core.io.Resource;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
@@ -78,14 +79,17 @@ public class HttpRequestValues {
   @Nullable
   private final Object version;
 
+  @Nullable
+  private final ParameterizedTypeReference<?> bodyValueType;
+
   /**
    * Construct {@link HttpRequestValues}.
    */
   protected HttpRequestValues(@Nullable HttpMethod httpMethod, @Nullable URI uri,
           @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate,
           Map<String, String> uriVariables, HttpHeaders headers, MultiValueMap<String, String> cookies,
-          Map<String, Object> attributes, @Nullable Object bodyValue, @Nullable Object version) {
-
+          Map<String, Object> attributes, @Nullable Object bodyValue,
+          @Nullable ParameterizedTypeReference<?> bodyValueType, @Nullable Object version) {
     Assert.isTrue(uri != null || uriTemplate != null, "Neither URI nor URI template");
 
     this.httpMethod = httpMethod;
@@ -97,6 +101,7 @@ public class HttpRequestValues {
     this.cookies = cookies;
     this.attributes = attributes;
     this.bodyValue = bodyValue;
+    this.bodyValueType = bodyValueType;
     this.version = version;
   }
 
@@ -174,6 +179,16 @@ public class HttpRequestValues {
   @Nullable
   public Object getBodyValue() {
     return this.bodyValue;
+  }
+
+  /**
+   * Return the type for the {@linkplain #getBodyValue() body value}.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  public ParameterizedTypeReference<?> getBodyValueType() {
+    return this.bodyValueType;
   }
 
   @Nullable
@@ -254,6 +269,9 @@ public class HttpRequestValues {
 
     @Nullable
     private Object bodyValue;
+
+    @Nullable
+    private ParameterizedTypeReference<?> bodyValueType;
 
     @Nullable
     private Object version;
@@ -397,7 +415,7 @@ public class HttpRequestValues {
      * {@link infra.web.client.ApiVersionFormatter}.
      * @since 5.0
      */
-    public Builder setApiVersion(Object version) {
+    public Builder setApiVersion(@Nullable Object version) {
       this.version = version;
       return this;
     }
@@ -405,8 +423,19 @@ public class HttpRequestValues {
     /**
      * Set the request body as an Object to be serialized.
      */
-    public Builder setBodyValue(Object bodyValue) {
+    public Builder setBodyValue(@Nullable Object bodyValue) {
       this.bodyValue = bodyValue;
+      return this;
+    }
+
+    /**
+     * Variant of {@link #setBodyValue(Object)} with the body type.
+     *
+     * @since 5.0
+     */
+    public Builder setBodyValue(@Nullable Object bodyValue, @Nullable ParameterizedTypeReference<?> valueType) {
+      setBodyValue(bodyValue);
+      this.bodyValueType = valueType;
       return this;
     }
 
@@ -488,7 +517,7 @@ public class HttpRequestValues {
               new HashMap<>(this.attributes) : Collections.emptyMap());
 
       return createRequestValues(this.httpMethod, uri, uriBuilderFactory,
-              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
+              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, bodyValueType, version);
     }
 
     protected boolean hasParts() {
@@ -530,10 +559,10 @@ public class HttpRequestValues {
     protected HttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod,
             @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate,
             Map<String, String> uriVars, HttpHeaders headers, MultiValueMap<String, String> cookies,
-            Map<String, Object> attributes, @Nullable Object bodyValue, @Nullable Object version) {
+            Map<String, Object> attributes, @Nullable Object bodyValue, @Nullable ParameterizedTypeReference<?> bodyValueType, @Nullable Object version) {
 
       return new HttpRequestValues(httpMethod, uri, uriBuilderFactory,
-              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
+              uriTemplate, uriVars, headers, cookies, attributes, bodyValue, bodyValueType, version);
     }
   }
 

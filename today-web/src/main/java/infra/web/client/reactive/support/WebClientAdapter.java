@@ -134,7 +134,7 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     return newRequest(requestValues).exchange();
   }
 
-  @SuppressWarnings("ReactiveStreamsUnusedPublisher")
+  @SuppressWarnings({ "rawtypes", "unchecked", "ReactiveStreamsUnusedPublisher" })
   private WebClient.RequestBodySpec newRequest(HttpRequestValues values) {
     HttpMethod httpMethod = values.getHttpMethod();
     Assert.notNull(httpMethod, "HttpMethod is required");
@@ -167,7 +167,13 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     }
 
     if (values.getBodyValue() != null) {
-      bodySpec.bodyValue(values.getBodyValue());
+      if (values.getBodyValueType() != null) {
+        var body = values.getBodyValue();
+        bodySpec.bodyValue(body, (ParameterizedTypeReference) values.getBodyValueType());
+      }
+      else {
+        bodySpec.bodyValue(values.getBodyValue());
+      }
     }
     else if (values instanceof ReactiveHttpRequestValues rrv) {
       Publisher<?> body = rrv.getBodyPublisher();

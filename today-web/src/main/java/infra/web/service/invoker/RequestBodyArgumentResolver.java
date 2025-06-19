@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ReactiveAdapter;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.ReactiveStreams;
+import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.web.annotation.RequestBody;
@@ -56,6 +57,11 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
 
   @Override
   public boolean resolve(@Nullable Object argument, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
+    if (parameter.getParameterType().equals(StreamingHttpOutputMessage.Body.class)) {
+      requestValues.setBodyValue(argument);
+      return true;
+    }
+
     RequestBody annot = parameter.getParameterAnnotation(RequestBody.class);
     if (annot == null) {
       return false;
@@ -65,15 +71,15 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
       if (this.reactiveAdapterRegistry != null) {
         ReactiveAdapter adapter = this.reactiveAdapterRegistry.getAdapter(parameter.getParameterType());
         if (adapter != null) {
-          MethodParameter nestedParameter = parameter.nested();
+          MethodParameter nestedParam = parameter.nested();
 
           String message = "Async type for @RequestBody should produce value(s)";
           Assert.isTrue(!adapter.isNoValue(), message);
-          Assert.isTrue(nestedParameter.getNestedParameterType() != Void.class, message);
+          Assert.isTrue(nestedParam.getNestedParameterType() != Void.class, message);
 
-          if (requestValues instanceof ReactiveHttpRequestValues.Builder reactiveRequestValues) {
-            reactiveRequestValues.setBodyPublisher(
-                    adapter.toPublisher(argument), asParameterizedTypeRef(nestedParameter));
+          if (requestValues instanceof ReactiveHttpRequestValues.Builder rrv) {
+            rrv.setBodyPublisher(
+                    adapter.toPublisher(argument), asParameterizedTypeRef(nestedParam));
           }
           else {
             throw new IllegalStateException(
@@ -85,7 +91,7 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
       }
 
       // Not a reactive type
-      requestValues.setBodyValue(argument);
+      requestValues.setBodyValue(argument, asParameterizedTypeRef(parameter));
     }
 
     return true;
