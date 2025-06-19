@@ -41,6 +41,12 @@ import infra.beans.factory.annotation.Autowired;
  *
  * <p>May be declared at the class level or as a meta-annotation.
  *
+ * <p>As of 5.0, {@code @Import} annotations declared on interfaces
+ * implemented by {@code @Configuration} classes are also supported. Locally declared
+ * {@code @Import} annotations are processed after {@code @Import} annotations on
+ * interfaces, which allows local imports to override beans registered via
+ * {@code @Import} annotations inherited from interfaces.
+ *
  * <p>If XML or other non-{@code @Configuration} bean definition resources need to be
  * imported, use the {@link ImportResource @ImportResource} annotation instead.
  *
