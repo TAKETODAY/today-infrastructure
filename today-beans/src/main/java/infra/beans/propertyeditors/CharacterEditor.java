@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.beans.propertyeditors;
 
 import java.beans.PropertyEditorSupport;
+import java.util.HexFormat;
 
 import infra.beans.BeanWrapperImpl;
 import infra.lang.Nullable;
@@ -96,12 +97,12 @@ public class CharacterEditor extends PropertyEditorSupport {
     return (value != null ? value.toString() : "");
   }
 
-  private boolean isUnicodeCharacterSequence(String sequence) {
+  private static boolean isUnicodeCharacterSequence(String sequence) {
     return (sequence.startsWith(UNICODE_PREFIX) && sequence.length() == UNICODE_LENGTH);
   }
 
   private void setAsUnicode(String text) {
-    int code = Integer.parseInt(text.substring(UNICODE_PREFIX.length()), 16);
+    int code = HexFormat.fromHexDigits(text, UNICODE_PREFIX.length(), text.length());
     setValue((char) code);
   }
 
