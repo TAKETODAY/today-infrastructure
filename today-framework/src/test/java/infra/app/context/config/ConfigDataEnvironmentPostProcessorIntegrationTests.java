@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import infra.app.Application;
 import infra.app.ApplicationType;
+import infra.app.TestApplicationEnvironment;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Configuration;
@@ -796,7 +797,6 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   }
 
   @Test
-    // gh-26960
   void runWhenHasProfileSpecificImportWithCustomImportResolvesProfileSpecific() {
     ConfigurableApplicationContext context = this.application
             .run("--app.config.name=application-profile-specific-import-with-custom-import");
@@ -806,7 +806,6 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   }
 
   @Test
-    // gh-26593
   void runWhenHasFilesInRootAndConfigWithProfiles() {
     ConfigurableApplicationContext context = this.application
             .run("--app.config.name=file-in-root-and-config-with-profile", "--infra.profiles.active=p1,p2");
@@ -819,6 +818,21 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     assertThat(environment.containsProperty("config-file-in-root-and-config-with-profile-p2")).isTrue();
     assertThat(environment.getProperty("v1")).isEqualTo("config-file-in-root-and-config-with-profile-p2");
     assertThat(environment.getProperty("v2")).isEqualTo("file-in-root-and-config-with-profile-p2");
+  }
+
+  @Test
+  void runWhenProfileActivatedViaSystemEnvironmentVariableWithPrefix() {
+    this.application.setEnvironmentPrefix("example.prefix");
+    this.application.setEnvironment(new TestApplicationEnvironment() {
+
+      @Override
+      public Map<String, Object> getSystemEnvironment() {
+        return Map.of("EXAMPLE_PREFIX_INFRA_PROFILES_ACTIVE", "other,dev");
+      }
+
+    });
+    ConfigurableApplicationContext context = this.application.run();
+    assertThat(context.getEnvironment().getActiveProfiles()).contains("dev", "other");
   }
 
   private Condition<ConfigurableEnvironment> matchingPropertySource(final String sourceName) {
