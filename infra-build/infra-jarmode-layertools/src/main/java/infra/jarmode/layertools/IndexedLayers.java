@@ -19,7 +19,6 @@ package infra.jarmode.layertools;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
@@ -49,7 +48,10 @@ class IndexedLayers implements Layers {
 
   private final Map<String, List<String>> layers = new LinkedHashMap<>();
 
-  IndexedLayers(String indexFile) {
+  private final String indexFileLocation;
+
+  IndexedLayers(String indexFile, String indexFileLocation) {
+    this.indexFileLocation = indexFileLocation;
     String[] lines = Arrays.stream(indexFile.split("\n"))
             .map((line) -> line.replace("\r", ""))
             .filter(StringUtils::hasText)
@@ -61,9 +63,8 @@ class IndexedLayers implements Layers {
         this.layers.put(line.substring(3, line.length() - 2), contents);
       }
       else if (line.startsWith("  - ")) {
-        if (contents == null) {
-          contents = new ArrayList<>();
-        }
+        Assert.state(contents != null,
+                "Contents must not be null. Check if the index file is malformed!");
         contents.add(line.substring(5, line.length() - 1));
       }
       else {
@@ -74,16 +75,17 @@ class IndexedLayers implements Layers {
   }
 
   @Override
+  public String getApplicationLayerName() {
+    return getLayer(this.indexFileLocation);
+  }
+
+  @Override
   public Iterator<String> iterator() {
     return this.layers.keySet().iterator();
   }
 
   @Override
-  public String getLayer(ZipEntry entry) {
-    return getLayer(entry.getName());
-  }
-
-  private String getLayer(String name) {
+  public String getLayer(String name) {
     for (Map.Entry<String, List<String>> entry : this.layers.entrySet()) {
       for (String candidate : entry.getValue()) {
         if (candidate.equals(name) || (candidate.endsWith("/") && name.startsWith(candidate))) {
@@ -103,19 +105,21 @@ class IndexedLayers implements Layers {
    */
   @Nullable
   static IndexedLayers get(Context context) {
-    try {
-      try (JarFile jarFile = new JarFile(context.getArchiveFile())) {
-        Manifest manifest = jarFile.getManifest();
-        String location = manifest.getMainAttributes().getValue("Infra-App-Layers-Index");
-        ZipEntry entry = (location != null) ? jarFile.getEntry(location) : null;
-        if (entry != null) {
-          try (InputStream in = jarFile.getInputStream(entry)) {
-            String indexFile = StreamUtils.copyToString(in, StandardCharsets.UTF_8);
-            return new IndexedLayers(indexFile);
-          }
-        }
+    try (JarFile jarFile = new JarFile(context.getArchiveFile())) {
+      Manifest manifest = jarFile.getManifest();
+      if (manifest == null) {
+        return null;
       }
-      return null;
+      String indexFileLocation = manifest.getMainAttributes().getValue("Infra-App-Layers-Index");
+      if (indexFileLocation == null) {
+        return null;
+      }
+      ZipEntry entry = jarFile.getEntry(indexFileLocation);
+      if (entry == null) {
+        return null;
+      }
+      String indexFile = StreamUtils.copyToString(jarFile.getInputStream(entry), StandardCharsets.UTF_8);
+      return new IndexedLayers(indexFile, indexFileLocation);
     }
     catch (FileNotFoundException | NoSuchFileException ex) {
       return null;
