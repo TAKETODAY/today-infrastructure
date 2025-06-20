@@ -19,6 +19,7 @@ package infra.app.json;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -50,7 +51,11 @@ import infra.util.function.ThrowingConsumer;
  */
 class JsonValueWriter {
 
+  private static final int DEFAULT_MAX_NESTING_DEPTH = 500;
+
   private final Appendable out;
+
+  private final int maxNestingDepth;
 
   private MemberPath path = MemberPath.ROOT;
 
@@ -64,7 +69,19 @@ class JsonValueWriter {
    * @param out the {@link Appendable} used to receive the JSON output
    */
   JsonValueWriter(Appendable out) {
+    this(out, DEFAULT_MAX_NESTING_DEPTH);
+  }
+
+  /**
+   * Create a new {@link JsonValueWriter} instance.
+   *
+   * @param out the {@link Appendable} used to receive the JSON output
+   * @param maxNestingDepth the maximum allowed nesting depth for JSON objects and
+   * arrays
+   */
+  JsonValueWriter(Appendable out, int maxNestingDepth) {
     this.out = out;
+    this.maxNestingDepth = maxNestingDepth;
   }
 
   void pushProcessors(JsonWriterFiltersAndProcessors jsonProcessors) {
@@ -121,7 +138,7 @@ class JsonValueWriter {
         throw new UncheckedIOException(ex);
       }
     }
-    else if (value instanceof Iterable<?> iterable) {
+    else if (value instanceof Iterable<?> iterable && canWriteAsArray(iterable)) {
       writeArray(iterable::forEach);
     }
     else if (ObjectUtils.isArray(value)) {
@@ -138,6 +155,10 @@ class JsonValueWriter {
     }
   }
 
+  private boolean canWriteAsArray(Iterable<?> iterable) {
+    return !(iterable instanceof Path);
+  }
+
   /**
    * Start a new {@link Series} (JSON object or array).
    *
@@ -148,6 +169,10 @@ class JsonValueWriter {
    */
   void start(@Nullable Series series) {
     if (series != null) {
+      int nestingDepth = this.activeSeries.size();
+      Assert.state(nestingDepth <= this.maxNestingDepth,
+              () -> "JSON nesting depth (%s) exceeds maximum depth of %s (current path: %s)"
+                      .formatted(nestingDepth, this.maxNestingDepth, this.path));
       this.activeSeries.push(new ActiveSeries(series));
       append(series.openChar);
     }
@@ -195,7 +220,7 @@ class JsonValueWriter {
 
   <E> void writeElement(E element) {
     ActiveSeries activeSeries = this.activeSeries.peek();
-    Assert.notNull(activeSeries, "No series has been started");
+    Assert.state(activeSeries != null, "No series has been started");
     this.path = activeSeries.updatePath(this.path);
     activeSeries.incrementIndexAndAddCommaIfRequired();
     write(element);
@@ -236,7 +261,7 @@ class JsonValueWriter {
     if (!isFilteredPath()) {
       String processedName = processName(name.toString());
       ActiveSeries activeSeries = this.activeSeries.peek();
-      Assert.notNull(activeSeries, "No series has been started");
+      Assert.state(activeSeries != null, "No series has been started");
       activeSeries.incrementIndexAndAddCommaIfRequired();
       Assert.state(activeSeries.addName(processedName),
               () -> "The name '" + processedName + "' has already been written");
@@ -256,7 +281,6 @@ class JsonValueWriter {
         switch (ch) {
           case '"' -> this.out.append("\\\"");
           case '\\' -> this.out.append("\\\\");
-          case '/' -> this.out.append("\\/");
           case '\b' -> this.out.append("\\b");
           case '\f' -> this.out.append("\\f");
           case '\n' -> this.out.append("\\n");
@@ -325,7 +349,8 @@ class JsonValueWriter {
     return name;
   }
 
-  private <V> V processValue(V value) {
+  @Nullable
+  private <V> V processValue(@Nullable V value) {
     for (JsonWriterFiltersAndProcessors filtersAndProcessors : this.filtersAndProcessors) {
       for (ValueProcessor<?> valueProcessor : filtersAndProcessors.valueProcessors()) {
         value = processValue(value, valueProcessor);
@@ -334,8 +359,9 @@ class JsonValueWriter {
     return value;
   }
 
+  @Nullable
   @SuppressWarnings({ "unchecked", "unchecked" })
-  private <V> V processValue(V value, ValueProcessor<?> valueProcessor) {
+  private <V> V processValue(@Nullable V value, ValueProcessor<?> valueProcessor) {
     return (V) LambdaSafe.callback(ValueProcessor.class, valueProcessor, this.path, value)
             .invokeAnd((call) -> call.processValue(this.path, value))
             .get(value);
