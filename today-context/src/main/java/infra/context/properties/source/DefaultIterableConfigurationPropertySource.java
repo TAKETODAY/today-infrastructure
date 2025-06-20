@@ -175,7 +175,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return false;
   }
 
-  private ConfigurationPropertyName[] getConfigurationPropertyNames() {
+  public ConfigurationPropertyName[] getConfigurationPropertyNames() {
     if (!isImmutablePropertySource()) {
       return getCache().getConfigurationPropertyNames(getPropertySource().getPropertyNames());
     }
@@ -203,7 +203,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return cache;
   }
 
-  private boolean isImmutablePropertySource() {
+  public boolean isImmutablePropertySource() {
     EnumerablePropertySource<?> source = getPropertySource();
     if (source instanceof OriginLookup<?> originLookup) {
       return originLookup.isImmutable();
