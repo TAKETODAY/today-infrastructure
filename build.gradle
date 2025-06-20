@@ -100,6 +100,11 @@ configure([rootProject] + javaProjects) {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.platform:junit-platform-suite-engine")
+    // 去除 测试警告
+    testRuntimeOnly("com.google.code.findbugs:jsr305")
+    testRuntimeOnly("com.google.code.findbugs:findbugs")
+    testRuntimeOnly('org.jboss.logging:jboss-logging:3.5.3.Final')
+
     // JSR-305 only used for non-required meta-annotations
     compileOnly("com.google.code.findbugs:jsr305")
     compileOnly("com.google.code.findbugs:findbugs")
