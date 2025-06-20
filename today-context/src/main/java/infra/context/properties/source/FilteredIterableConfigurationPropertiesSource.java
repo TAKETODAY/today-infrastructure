@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,11 @@
 
 package infra.context.properties.source;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import infra.lang.Nullable;
 
 /**
  * A filtered {@link IterableConfigurationPropertySource}.
@@ -31,13 +34,45 @@ import java.util.stream.Stream;
 class FilteredIterableConfigurationPropertiesSource extends FilteredConfigurationPropertiesSource
         implements IterableConfigurationPropertySource {
 
-  FilteredIterableConfigurationPropertiesSource(
-          IterableConfigurationPropertySource source, Predicate<ConfigurationPropertyName> filter) {
+  @Nullable
+  private ConfigurationPropertyName[] filteredNames;
+
+  private int numerOfFilteredNames;
+
+  FilteredIterableConfigurationPropertiesSource(IterableConfigurationPropertySource source,
+          Predicate<ConfigurationPropertyName> filter) {
     super(source, filter);
+    ConfigurationPropertyName[] filterableNames = getFilterableNames(source);
+    if (filterableNames != null) {
+      this.filteredNames = new ConfigurationPropertyName[filterableNames.length];
+      this.numerOfFilteredNames = 0;
+      for (ConfigurationPropertyName name : filterableNames) {
+        if (name == null) {
+          break;
+        }
+        if (filter.test(name)) {
+          this.filteredNames[this.numerOfFilteredNames++] = name;
+        }
+      }
+    }
+  }
+
+  @Nullable
+  private ConfigurationPropertyName[] getFilterableNames(IterableConfigurationPropertySource source) {
+    if (source instanceof DefaultIterableConfigurationPropertySource dicps && dicps.isImmutablePropertySource()) {
+      return dicps.getConfigurationPropertyNames();
+    }
+    if (source instanceof FilteredIterableConfigurationPropertiesSource filteredSource) {
+      return filteredSource.filteredNames;
+    }
+    return null;
   }
 
   @Override
   public Stream<ConfigurationPropertyName> stream() {
+    if (this.filteredNames != null) {
+      return Arrays.stream(this.filteredNames, 0, this.numerOfFilteredNames);
+    }
     return getSource().stream().filter(getFilter());
   }
 
@@ -48,6 +83,10 @@ class FilteredIterableConfigurationPropertiesSource extends FilteredConfiguratio
 
   @Override
   public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
+    if (this.filteredNames != null) {
+      return ConfigurationPropertyState.search(this.filteredNames,
+              0, this.numerOfFilteredNames, name::isAncestorOf);
+    }
     return ConfigurationPropertyState.search(this, name::isAncestorOf);
   }
 

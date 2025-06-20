@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ final class BindConverter {
     this.delegates = delegates;
   }
 
-  public boolean canConvert(Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
+  public boolean canConvert(@Nullable Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
     TypeDescriptor sourceType = TypeDescriptor.forObject(source);
     TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
     for (ConversionService service : this.delegates) {
@@ -90,7 +90,7 @@ final class BindConverter {
   }
 
   @Nullable
-  public <T> T convert(Object source, Bindable<T> target) {
+  public <T> T convert(@Nullable Object source, Bindable<T> target) {
     return convert(source, target.getType(), target.getAnnotations());
   }
 
