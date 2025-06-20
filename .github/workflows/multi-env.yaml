@@ -46,4 +46,4 @@ jobs:
         uses: gradle/gradle-build-action@v3.1.0
 
       - name: Build with Gradle
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 check --scan --stacktrace
+        run: ./gradlew -DCI=true --no-daemon --no-parallel check --scan --stacktrace
