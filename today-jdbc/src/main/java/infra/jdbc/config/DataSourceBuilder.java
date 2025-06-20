@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -203,7 +203,10 @@ public final class DataSourceBuilder<T extends DataSource> {
             && applied.contains(DataSourceProperty.URL)) {
       String url = properties.get(dataSource, DataSourceProperty.URL);
       DatabaseDriver driver = DatabaseDriver.fromJdbcUrl(url);
-      properties.set(dataSource, DataSourceProperty.DRIVER_CLASS_NAME, driver.getDriverClassName());
+      String driverClassName = driver.getDriverClassName();
+      if (driverClassName != null) {
+        properties.set(dataSource, DataSourceProperty.DRIVER_CLASS_NAME, driver.getDriverClassName());
+      }
     }
     return dataSource;
   }

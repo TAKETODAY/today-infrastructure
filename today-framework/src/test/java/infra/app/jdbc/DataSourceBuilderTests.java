@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -411,6 +411,15 @@ class DataSourceBuilderTests {
     Assertions.assertThat(c3p0DataSource.getUser()).isEqualTo("test");
     Assertions.assertThat(c3p0DataSource.getPassword()).isEqualTo("secret");
     Assertions.assertThat(c3p0DataSource.getDriverClass()).isEqualTo("com.example.Driver");
+  }
+
+  @Test
+  void buildWhenJdbcUrlIsFromUnknownDriverLeavesDriverClassNameUnset() {
+    this.dataSource = DataSourceBuilder.create()
+            .url("jdbc:example://localhost:1234/example")
+            .type(HikariDataSource.class)
+            .build();
+    assertThat(((HikariDataSource) this.dataSource).getDriverClassName()).isNull();
   }
 
   private DataSource wrap(DataSource target) {
