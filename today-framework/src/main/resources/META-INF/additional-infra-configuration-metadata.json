@@ -211,7 +211,7 @@
       "name": "app.name",
       "type": "java.lang.String",
       "sourceType": "infra.app.context.ContextIdApplicationContextInitializer",
-      "description": "Application name."
+      "description": "Application name. Typically used with logging to help identify the application."
     },
     {
       "name": "app.version",
