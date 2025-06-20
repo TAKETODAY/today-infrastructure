@@ -206,6 +206,14 @@ class ValidationAutoConfigurationTests {
   }
 
   @Test
+  void validationUseDefaultAdaptToConstraintViolationsValue() {
+    this.contextRunner.withUserConfiguration(AnotherSampleServiceConfiguration.class).run((context) -> {
+      MethodValidationPostProcessor postProcessor = context.getBean(MethodValidationPostProcessor.class);
+      assertThat(postProcessor).hasFieldOrPropertyWithValue("adaptConstraintViolations", false);
+    });
+  }
+
+  @Test
   void userDefinedMethodValidationPostProcessorTakesPrecedence() {
     this.contextRunner.withUserConfiguration(SampleConfiguration.class).run((context) -> {
       assertThat(context.getBeansOfType(Validator.class)).hasSize(1);

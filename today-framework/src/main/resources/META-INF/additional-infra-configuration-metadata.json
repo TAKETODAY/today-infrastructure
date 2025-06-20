@@ -377,6 +377,12 @@
       "description": "Auto-configuration classes to exclude."
     },
     {
+      "name": "infra.validation.method.adapt-constraint-violations",
+      "type": "java.lang.Boolean",
+      "description": "Whether to adapt ConstraintViolations to MethodValidationResult.",
+      "defaultValue": false
+    },
+    {
       "name": "jackson.constructor-detector",
       "defaultValue": "default"
     },
