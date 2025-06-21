@@ -607,4 +607,7 @@ class CollectionBinderTests {
 
   }
 
+  record Name(String first, String last) {
+
+  }
 }
