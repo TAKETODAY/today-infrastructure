@@ -30,7 +30,6 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnResource;
 import infra.context.condition.SearchStrategy;
-import infra.context.properties.EnableConfigurationProperties;
 import infra.core.env.Environment;
 import infra.stereotype.Component;
 import infra.validation.MessageInterpolatorFactory;
@@ -51,7 +50,6 @@ import jakarta.validation.executable.ExecutableValidator;
  * @since 4.0
  */
 @DisableDIAutoConfiguration
-@EnableConfigurationProperties(ValidationProperties.class)
 @ConditionalOnClass(ExecutableValidator.class)
 @ConditionalOnResource("classpath:META-INF/services/jakarta.validation.spi.ValidationProvider")
 @Import(PrimaryDefaultValidatorPostProcessor.class)
@@ -82,14 +80,16 @@ public class ValidationAutoConfiguration {
   @Component
   @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
   public static MethodValidationPostProcessor methodValidationPostProcessor(Environment environment,
-          ObjectProvider<Validator> validator, ValidationProperties validationProperties,
-          Collection<MethodValidationExcludeFilter> excludeFilters) {
+          ObjectProvider<Validator> validator, Collection<MethodValidationExcludeFilter> excludeFilters) {
 
     var processor = new FilteredMethodValidationPostProcessor(excludeFilters);
     boolean proxyTargetClass = environment.getFlag("infra.aop.proxy-target-class", true);
+    boolean adaptConstraintViolations = environment.getFlag(
+            "infra.validation.method.adapt-constraint-violations", false);
+
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidatorProvider(validator);
-    processor.setAdaptConstraintViolations(validationProperties.getMethod().isAdaptConstraintViolations());
+    processor.setAdaptConstraintViolations(adaptConstraintViolations);
     return processor;
   }
 

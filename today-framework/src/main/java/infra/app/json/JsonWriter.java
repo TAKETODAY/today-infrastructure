@@ -1018,7 +1018,7 @@ public interface JsonWriter<T> {
      * @param value the value being written (may be {@code null})
      * @return the processed value
      */
-    T processValue(MemberPath path, T value);
+    T processValue(MemberPath path, @Nullable T value);
 
     /**
      * Return a new processor from this one that only applied to members with the

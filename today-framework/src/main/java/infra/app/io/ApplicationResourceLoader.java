@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 import infra.core.io.ClassPathResource;
@@ -159,7 +160,10 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
   private static ResourceLoader of(ResourceLoader resourceLoader, TodayStrategies strategies, boolean preferFileResolution) {
     Assert.notNull(resourceLoader, "'resourceLoader' is required");
     Assert.notNull(strategies, "'strategies' is required");
-    return new ProtocolResolvingResourceLoader(resourceLoader, strategies.load(ProtocolResolver.class), preferFileResolution);
+    List<ProtocolResolver> protocolResolvers = strategies.load(ProtocolResolver.class);
+    List<FilePathResolver> filePathResolvers = preferFileResolution
+            ? strategies.load(FilePathResolver.class) : Collections.emptyList();
+    return new ProtocolResolvingResourceLoader(resourceLoader, protocolResolvers, filePathResolvers);
   }
 
   /**
@@ -249,41 +253,45 @@ public class ApplicationResourceLoader extends DefaultResourceLoader {
 
     private final List<ProtocolResolver> protocolResolvers;
 
-    private final boolean preferFileResolution;
+    private final List<FilePathResolver> filePathResolvers;
 
-    ProtocolResolvingResourceLoader(ResourceLoader resourceLoader,
-            List<ProtocolResolver> protocolResolvers, boolean preferFileResolution) {
+    ProtocolResolvingResourceLoader(ResourceLoader resourceLoader, List<ProtocolResolver> protocolResolvers,
+            List<FilePathResolver> filePathResolvers) {
       this.resourceLoader = resourceLoader;
       this.protocolResolvers = protocolResolvers;
-      this.preferFileResolution = preferFileResolution;
-    }
-
-    @Override
-    public Resource getResource(String location) {
-      if (StringUtils.isNotEmpty(location)) {
-        for (ProtocolResolver protocolResolver : protocolResolvers) {
-          Resource resource = protocolResolver.resolve(location, this);
-          if (resource != null) {
-            return resource;
-          }
-        }
-      }
-
-      Resource resource = resourceLoader.getResource(location);
-      if (preferFileResolution && isClassPathResourceByPath(location, resource)) {
-        resource = new ApplicationResource(location);
-      }
-      return resource;
-    }
-
-    private boolean isClassPathResourceByPath(String location, Resource resource) {
-      return resource instanceof ClassPathResource && !location.startsWith(CLASSPATH_URL_PREFIX);
+      this.filePathResolvers = filePathResolvers;
     }
 
     @Nullable
     @Override
     public ClassLoader getClassLoader() {
       return this.resourceLoader.getClassLoader();
+    }
+
+    @Override
+    public Resource getResource(String location) {
+      if (StringUtils.isNotEmpty(location)) {
+        for (ProtocolResolver protocolResolver : this.protocolResolvers) {
+          Resource resource = protocolResolver.resolve(location, this);
+          if (resource != null) {
+            return resource;
+          }
+        }
+      }
+      Resource resource = this.resourceLoader.getResource(location);
+      String filePath = getFilePath(location, resource);
+      return filePath != null ? new ApplicationResource(filePath) : resource;
+    }
+
+    @Nullable
+    private String getFilePath(String location, Resource resource) {
+      for (FilePathResolver filePathResolver : this.filePathResolvers) {
+        String filePath = filePathResolver.resolveFilePath(location, resource);
+        if (filePath != null) {
+          return filePath;
+        }
+      }
+      return null;
     }
 
   }

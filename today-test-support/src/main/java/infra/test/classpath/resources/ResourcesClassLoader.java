@@ -20,18 +20,21 @@ package infra.test.classpath.resources;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import infra.core.SmartClassLoader;
 import infra.lang.Nullable;
 
 /**
  * A {@link ClassLoader} that provides access to {@link Resources resources}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
-class ResourcesClassLoader extends ClassLoader {
+class ResourcesClassLoader extends ClassLoader implements SmartClassLoader {
 
   private final Resources resources;
 
@@ -68,6 +71,16 @@ class ResourcesClassLoader extends ClassLoader {
       urls.addAll(Collections.list(getParent().getResources(name)));
     }
     return Collections.enumeration(urls);
+  }
+
+  @Override
+  public ClassLoader getOriginalClassLoader() {
+    return getParent();
+  }
+
+  @Override
+  public Class<?> publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain) {
+    return defineClass(name, b, 0, b.length, protectionDomain);
   }
 
 }

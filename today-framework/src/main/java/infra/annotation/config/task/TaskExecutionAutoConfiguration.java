@@ -22,6 +22,8 @@ import java.util.concurrent.Executor;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
+import infra.beans.factory.config.BeanFactoryPostProcessor;
+import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Conditional;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Lazy;
@@ -109,6 +111,18 @@ public class TaskExecutionAutoConfiguration {
       builder = builder.virtualThreads(true);
     }
     return builder;
+  }
+
+  @Component
+  public static BeanFactoryPostProcessor bootstrapExecutorAliasPostProcessor() {
+    return beanFactory -> {
+      boolean hasBootstrapExecutor = beanFactory.containsBean(ConfigurableApplicationContext.BOOTSTRAP_EXECUTOR_BEAN_NAME);
+      boolean hasApplicationTaskExecutor = beanFactory.containsBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME);
+      if (!hasBootstrapExecutor && hasApplicationTaskExecutor) {
+        beanFactory.registerAlias(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME,
+                ConfigurableApplicationContext.BOOTSTRAP_EXECUTOR_BEAN_NAME);
+      }
+    };
   }
 
   @Lazy

@@ -35,6 +35,8 @@ import infra.core.io.FileSystemResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.TodayStrategies;
+import infra.test.classpath.resources.ResourcePath;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -106,6 +108,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
+  @WithResource(name = "a-file")
   void shouldLoadClasspathLocations() {
     Resource resource = ApplicationResourceLoader.of().getResource("classpath:a-file");
     assertThat(resource.exists()).isTrue();
@@ -118,8 +121,9 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
+  @WithResource(name = "a-file", content = "some content")
   void shouldLoadClasspathLocationsWithWorkingDirectory() {
-    ClassLoader classLoader = getClass().getClassLoader();
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     Resource resource = ApplicationResourceLoader
             .of(classLoader, TodayStrategies.forDefaultResourceLocation(classLoader),
                     Path.of("/working-directory"))
@@ -174,6 +178,8 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
+  @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
+          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
   void getWithClassPathIncludesProtocolResolvers() throws IOException {
     ClassLoader classLoader = new TestClassLoader(this::useTestProtocolResolversFactories);
     ResourceLoader loader = ApplicationResourceLoader.of(classLoader);
@@ -189,15 +195,18 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithClassPathAndFactoriesLoaderIncludesProtocolResolvers() throws IOException {
-    TodayStrategies strategies = TodayStrategies.forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES);
+  @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
+          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
+  void getWithClassPathAndTodayStrategiesIncludesProtocolResolvers() throws IOException {
+    TodayStrategies strategies = TodayStrategies
+            .forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES, Thread.currentThread().getContextClassLoader());
     ResourceLoader loader = ApplicationResourceLoader.of((ClassLoader) null, strategies);
     Resource resource = loader.getResource("reverse:test");
     assertThat(contentAsString(resource)).isEqualTo("tset");
   }
 
   @Test
-  void getWithClassPathAndFactoriesLoaderWhenFactoriesLoaderIsNullThrowsException() {
+  void getWithClassPathAndTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ApplicationResourceLoader.of((ClassLoader) null, null))
             .withMessage("'strategies' is required");
   }
@@ -223,7 +232,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndFactoriesLoaderIncludesProtocolResolvers() throws IOException {
+  void getWithResourceLoaderAndTodayStrategiesIncludesProtocolResolvers() throws IOException {
     DefaultResourceLoader delegate = new TestResourceLoader();
     ResourceLoader loader = ApplicationResourceLoader.of(delegate);
     Resource resource = loader.getResource("base64:" + TEST_BASE_64_VALUE);
@@ -231,7 +240,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndFactoriesLoaderWhenResourceLoaderIsNullThrowsException() {
+  void getWithResourceLoaderAndTodayStrategiesWhenResourceLoaderIsNullThrowsException() {
     TodayStrategies strategies = TodayStrategies
             .forResourceLocation(TEST_PROTOCOL_RESOLVERS_FACTORIES);
     assertThatIllegalArgumentException()
@@ -240,7 +249,7 @@ class ApplicationResourceLoaderTests {
   }
 
   @Test
-  void getWithResourceLoaderAndFactoriesLoaderWhenFactoriesLoaderIsNullThrowsException() {
+  void getWithResourceLoaderAndTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ApplicationResourceLoader.of(new TestResourceLoader(), null))
             .withMessage("'strategies' is required");
@@ -249,14 +258,17 @@ class ApplicationResourceLoaderTests {
   @Test
   void getResourceWhenPathIsRelative() throws IOException {
     ResourceLoader loader = ApplicationResourceLoader.of();
-    String name = "src/test/resources/" + TEST_PROTOCOL_RESOLVERS_FACTORIES;
+    String name = "relative/path/file.txt";
     Resource resource = loader.getResource(name);
-    assertThat(resource.getFile()).isEqualTo(new File(name));
+    File resourceFile = resource.getFile();
+    assertThat(resourceFile).isRelative();
+    assertThat(resourceFile).isEqualTo(new File(name));
   }
 
   @Test
-  void getResourceWhenPathIsAbsolute() throws IOException {
-    File file = new File("src/test/resources/" + TEST_PROTOCOL_RESOLVERS_FACTORIES);
+  @WithResource(name = TEST_PROTOCOL_RESOLVERS_FACTORIES,
+          content = "infra.core.io.ProtocolResolver=infra.app.io.ReverseStringProtocolResolver")
+  void getResourceWhenPathIsAbsolute(@ResourcePath(TEST_PROTOCOL_RESOLVERS_FACTORIES) File file) throws IOException {
     ResourceLoader loader = ApplicationResourceLoader.of();
     Resource resource = loader.getResource(file.getAbsolutePath());
     assertThat(resource.getFile()).hasSameBinaryContentAs(file);

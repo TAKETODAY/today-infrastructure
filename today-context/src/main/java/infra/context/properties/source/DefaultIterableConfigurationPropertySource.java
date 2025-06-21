@@ -175,7 +175,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return false;
   }
 
-  private ConfigurationPropertyName[] getConfigurationPropertyNames() {
+  public ConfigurationPropertyName[] getConfigurationPropertyNames() {
     if (!isImmutablePropertySource()) {
       return getCache().getConfigurationPropertyNames(getPropertySource().getPropertyNames());
     }
@@ -203,7 +203,7 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
     return cache;
   }
 
-  private boolean isImmutablePropertySource() {
+  public boolean isImmutablePropertySource() {
     EnumerablePropertySource<?> source = getPropertySource();
     if (source instanceof OriginLookup<?> originLookup) {
       return originLookup.isImmutable();
@@ -279,11 +279,15 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
             if (configurationPropertyName != null && !configurationPropertyName.isEmpty()) {
               add(mappings, configurationPropertyName, propertyName);
               reverseMappings.put(propertyName, configurationPropertyName);
-              addParents(descendants, configurationPropertyName);
             }
           }
         }
       }
+
+      for (String propertyName : propertyNames) {
+        addParents(descendants, reverseMappings.get(propertyName));
+      }
+
       ConfigurationPropertyName[] configurationPropertyNames = this.immutable
               ? reverseMappings.values().toArray(new ConfigurationPropertyName[0]) : null;
       lastUpdated = this.immutable ? null : propertyNames;
@@ -300,8 +304,8 @@ class DefaultIterableConfigurationPropertySource extends DefaultConfigurationPro
       return source != null ? new LinkedHashMap<>(source) : new LinkedHashMap<>(size);
     }
 
-    private void addParents(@Nullable Set<ConfigurationPropertyName> descendants, ConfigurationPropertyName name) {
-      if (descendants == null || name.isEmpty()) {
+    private void addParents(@Nullable Set<ConfigurationPropertyName> descendants, @Nullable ConfigurationPropertyName name) {
+      if (descendants == null || name == null || name.isEmpty()) {
         return;
       }
       ConfigurationPropertyName parent = name.getParent();

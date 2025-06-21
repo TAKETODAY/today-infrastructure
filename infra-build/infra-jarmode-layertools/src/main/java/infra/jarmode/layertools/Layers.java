@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,24 @@ interface Layers extends Iterable<String> {
    * @param entry the entry to check
    * @return the layer that the entry is in
    */
-  String getLayer(ZipEntry entry);
+  default String getLayer(ZipEntry entry) {
+    return getLayer(entry.getName());
+  }
+
+  /**
+   * Return the layer that the entry with the given name is in.
+   *
+   * @param entryName the name of the entry to check
+   * @return the layer that the entry is in
+   */
+  String getLayer(String entryName);
+
+  /**
+   * Return the name of the application layer.
+   *
+   * @return the name of the application layer
+   */
+  String getApplicationLayerName();
 
   /**
    * Return a {@link Layers} instance for the currently running application.

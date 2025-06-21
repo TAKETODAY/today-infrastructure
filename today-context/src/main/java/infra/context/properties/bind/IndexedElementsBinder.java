@@ -19,10 +19,11 @@ package infra.context.properties.bind;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import infra.context.properties.source.ConfigurationProperty;
 import infra.context.properties.source.ConfigurationPropertyName;
@@ -31,8 +32,6 @@ import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.IterableConfigurationPropertySource;
 import infra.core.ResolvableType;
 import infra.lang.Nullable;
-import infra.util.LinkedMultiValueMap;
-import infra.util.MultiValueMap;
 
 /**
  * Base class for {@link AggregateBinder AggregateBinders} that read a sequential run of
@@ -105,30 +104,58 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     Object aggregate = convert(value, aggregateType, target.getAnnotations());
     ResolvableType collectionType = ResolvableType.forClassWithGenerics(collection.getClass(), elementType);
     Collection<Object> elements = convert(aggregate, collectionType);
-    if (elements != null) {
-      collection.addAll(elements);
-    }
+    collection.addAll(elements);
   }
 
   private void bindIndexed(ConfigurationPropertySource source, ConfigurationPropertyName root,
           AggregateElementBinder elementBinder, IndexedCollectionSupplier collection, ResolvableType elementType) {
-    int firstUnboundIndex = 0;
-    boolean hasBindingGap = false;
+    Set<String> knownIndexedChildren = Collections.emptySet();
+    if (source instanceof IterableConfigurationPropertySource iterableSource) {
+      source = iterableSource.filter(root::isAncestorOf);
+      knownIndexedChildren = getKnownIndexedChildren(iterableSource, root);
+    }
     for (int i = 0; i < Integer.MAX_VALUE; i++) {
       ConfigurationPropertyName name = appendIndex(root, i);
       Object value = elementBinder.bind(name, Bindable.of(elementType), source);
-      if (value != null) {
-        collection.get().add(value);
-        hasBindingGap = hasBindingGap || firstUnboundIndex > 0;
-        continue;
-      }
-      firstUnboundIndex = (firstUnboundIndex <= 0) ? i : firstUnboundIndex;
-      if (i - firstUnboundIndex > 10) {
+      if (value == null) {
         break;
       }
+      if (!knownIndexedChildren.isEmpty()) {
+        knownIndexedChildren.remove(name.getLastElement(Form.UNIFORM));
+      }
+      collection.get().add(value);
     }
-    if (hasBindingGap) {
-      assertNoUnboundChildren(source, root, firstUnboundIndex);
+    if (source instanceof IterableConfigurationPropertySource iterableSource) {
+      assertNoUnboundChildren(knownIndexedChildren, iterableSource, root);
+    }
+  }
+
+  private Set<String> getKnownIndexedChildren(IterableConfigurationPropertySource filteredSource, ConfigurationPropertyName root) {
+    HashSet<String> knownIndexedChildren = new HashSet<>();
+    for (ConfigurationPropertyName name : filteredSource) {
+      ConfigurationPropertyName choppedName = name.chop(root.getNumberOfElements() + 1);
+      if (choppedName.isLastElementIndexed()) {
+        knownIndexedChildren.add(choppedName.getLastElement(Form.UNIFORM));
+      }
+    }
+    return knownIndexedChildren;
+  }
+
+  private void assertNoUnboundChildren(Set<String> unboundIndexedChildren,
+          IterableConfigurationPropertySource filteredSource, ConfigurationPropertyName root) {
+    if (unboundIndexedChildren.isEmpty()) {
+      return;
+    }
+    TreeSet<ConfigurationProperty> unboundProperties = new TreeSet<>();
+    for (ConfigurationPropertyName name : filteredSource) {
+      ConfigurationPropertyName choppedName = name.chop(root.getNumberOfElements() + 1);
+      if (choppedName.isLastElementIndexed()
+              && unboundIndexedChildren.contains(choppedName.getLastElement(Form.UNIFORM))) {
+        unboundProperties.add(filteredSource.getConfigurationProperty(name));
+      }
+    }
+    if (!unboundProperties.isEmpty()) {
+      throw new UnboundConfigurationPropertiesException(unboundProperties);
     }
   }
 
@@ -136,43 +163,8 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     return root.append((i < INDEXES.length) ? INDEXES[i] : "[" + i + "]");
   }
 
-  private void assertNoUnboundChildren(ConfigurationPropertySource source, ConfigurationPropertyName root, int firstUnboundIndex) {
-    MultiValueMap<String, ConfigurationPropertyName> knownIndexedChildren = getKnownIndexedChildren(source, root);
-    for (int i = 0; i < firstUnboundIndex; i++) {
-      ConfigurationPropertyName name = appendIndex(root, i);
-      knownIndexedChildren.remove(name.getLastElement(Form.UNIFORM));
-    }
-    assertNoUnboundChildren(source, knownIndexedChildren);
-  }
-
-  private MultiValueMap<String, ConfigurationPropertyName> getKnownIndexedChildren(ConfigurationPropertySource source, ConfigurationPropertyName root) {
-    MultiValueMap<String, ConfigurationPropertyName> children = new LinkedMultiValueMap<>();
-    if (!(source instanceof IterableConfigurationPropertySource iterableSource)) {
-      return children;
-    }
-    for (ConfigurationPropertyName name : iterableSource.filter(root::isAncestorOf)) {
-      ConfigurationPropertyName choppedName = name.chop(root.getNumberOfElements() + 1);
-      if (choppedName.isLastElementIndexed()) {
-        String key = choppedName.getLastElement(Form.UNIFORM);
-        children.add(key, name);
-      }
-    }
-    return children;
-  }
-
-  private void assertNoUnboundChildren(ConfigurationPropertySource source,
-          MultiValueMap<String, ConfigurationPropertyName> children) {
-    if (!children.isEmpty()) {
-      throw new UnboundConfigurationPropertiesException(children.values()
-              .stream()
-              .flatMap(List::stream)
-              .map(source::getConfigurationProperty)
-              .collect(Collectors.toCollection(TreeSet::new)));
-    }
-  }
-
   @Nullable
-  private <C> C convert(Object value, ResolvableType type, Annotation... annotations) {
+  private <C> C convert(@Nullable Object value, ResolvableType type, Annotation... annotations) {
     value = context.getPlaceholdersResolver().resolvePlaceholders(value);
     return context.getConverter().convert(value, type, annotations);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,8 +62,9 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
     this.helper = PropertyPlaceholderHandler.shared(true);
   }
 
+  @Nullable
   @Override
-  public Object resolvePlaceholders(Object value) {
+  public Object resolvePlaceholders(@Nullable Object value) {
     if (value instanceof String) {
       return this.helper.replacePlaceholders((String) value, this::resolvePlaceholder);
     }

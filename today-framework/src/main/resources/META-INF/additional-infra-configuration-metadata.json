@@ -211,7 +211,7 @@
       "name": "app.name",
       "type": "java.lang.String",
       "sourceType": "infra.app.context.ContextIdApplicationContextInitializer",
-      "description": "Application name."
+      "description": "Application name. Typically used with logging to help identify the application."
     },
     {
       "name": "app.version",
@@ -375,6 +375,12 @@
       "type": "java.util.List<java.lang.Class>",
       "sourceType": "infra.context.annotation.config.AutoConfigurationImportSelector",
       "description": "Auto-configuration classes to exclude."
+    },
+    {
+      "name": "infra.validation.method.adapt-constraint-violations",
+      "type": "java.lang.Boolean",
+      "description": "Whether to adapt ConstraintViolations to MethodValidationResult.",
+      "defaultValue": false
     },
     {
       "name": "jackson.constructor-detector",

@@ -15,24 +15,16 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.annotation.config.validation;
-
-import org.junit.jupiter.api.Test;
-
-import infra.validation.beanvalidation.MethodValidationPostProcessor;
-
-import static org.assertj.core.api.Assertions.assertThat;
+package infra.context.properties.sample.generic;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 5.0 2025/2/23 17:45
+ * Properties with unresolved generic types that use identical generic parameter names but
+ * differ in their positions.
+ *
+ * @param <C> mapping name type
+ * @param <B> mapping value type
+ * @author Dmytro Nosan
  */
-class ValidationPropertiesTests {
-
-  @Test
-  void adaptConstraintViolationsPropertyDefaultMatchesPostProcessorDefault() {
-    assertThat(new MethodValidationPostProcessor()).extracting("adaptConstraintViolations")
-            .isEqualTo(new ValidationProperties().getMethod().isAdaptConstraintViolations());
-  }
+public class MixGenericNameProperties<B, C extends Number> extends AbstractGenericProperties<String, C, B> {
 
 }
