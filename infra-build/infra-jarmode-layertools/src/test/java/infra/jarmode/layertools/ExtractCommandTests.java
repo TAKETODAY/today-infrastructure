@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -221,14 +221,19 @@ class ExtractCommandTests {
     }
 
     @Override
-    public String getLayer(ZipEntry entry) {
-      if (entry.getName().startsWith("a")) {
+    public String getLayer(String entryName) {
+      if (entryName.startsWith("a")) {
         return "a";
       }
-      if (entry.getName().startsWith("b")) {
+      if (entryName.startsWith("b")) {
         return "b";
       }
       return "c";
+    }
+
+    @Override
+    public String getApplicationLayerName() {
+      return "application";
     }
 
   }

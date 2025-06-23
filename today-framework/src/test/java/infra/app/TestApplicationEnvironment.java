@@ -15,35 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.context.properties.bind;
-
-import infra.core.env.PropertyResolver;
-import infra.lang.Nullable;
+package infra.app;
 
 /**
- * Optional strategy that used by a {@link Binder} to resolve property placeholders.
+ * Public version {@link ApplicationEnvironment} for tests to use.
  *
  * @author Phillip Webb
- * @author Madhura Bhave
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PropertySourcesPlaceholdersResolver
- * @since 4.0
  */
-@FunctionalInterface
-public interface PlaceholdersResolver {
-
-  /**
-   * No-op {@link PropertyResolver}.
-   */
-  PlaceholdersResolver NONE = value -> value;
-
-  /**
-   * Called to resolve any placeholders in the given value.
-   *
-   * @param value the source value
-   * @return a value with placeholders resolved
-   */
-  @Nullable
-  Object resolvePlaceholders(@Nullable Object value);
+public class TestApplicationEnvironment extends ApplicationEnvironment {
 
 }

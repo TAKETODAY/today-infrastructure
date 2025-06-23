@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.env.Environment;
 import infra.core.env.PropertySource;
 import infra.lang.Nullable;
+import infra.origin.OriginLookup;
 import infra.util.CollectionUtils;
 
 /**
@@ -402,7 +403,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    */
   static ConfigDataEnvironmentContributor ofExisting(PropertySource<?> propertySource, ConversionService conversionService) {
     return new ConfigDataEnvironmentContributor(Kind.EXISTING, null, null, false, propertySource,
-            ConfigurationPropertySource.from(propertySource), null, null, null, conversionService);
+            asConfigurationPropertySource(propertySource), null, null, null, conversionService);
   }
 
   /**
@@ -420,10 +421,18 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
   static ConfigDataEnvironmentContributor ofUnboundImport(@Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
           boolean profileSpecific, ConfigData configData, int propertySourceIndex, ConversionService conversionService) {
     PropertySource<?> propertySource = configData.getPropertySources().get(propertySourceIndex);
-    Options options = configData.getOptions(propertySource);
-    ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(propertySource);
+    ConfigData.Options options = configData.getOptions(propertySource);
     return new ConfigDataEnvironmentContributor(Kind.UNBOUND_IMPORT, location, resource, profileSpecific,
-            propertySource, configurationPropertySource, null, options, null, conversionService);
+            propertySource, asConfigurationPropertySource(propertySource), null, options, null, conversionService);
+  }
+
+  @Nullable
+  private static ConfigurationPropertySource asConfigurationPropertySource(PropertySource<?> propertySource) {
+    ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(propertySource);
+    if (configurationPropertySource != null && propertySource instanceof OriginLookup<?> originLookup) {
+      configurationPropertySource = configurationPropertySource.withPrefix(originLookup.getPrefix());
+    }
+    return configurationPropertySource;
   }
 
   /**

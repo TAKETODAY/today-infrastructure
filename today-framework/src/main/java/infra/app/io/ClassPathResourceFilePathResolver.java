@@ -15,35 +15,30 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package infra.context.properties.bind;
+package infra.app.io;
 
-import infra.core.env.PropertyResolver;
+import infra.core.io.ClassPathResource;
+import infra.core.io.Resource;
+import infra.core.io.ResourceLoader;
 import infra.lang.Nullable;
 
 /**
- * Optional strategy that used by a {@link Binder} to resolve property placeholders.
+ * {@link FilePathResolver} for {@link ClassPathResource}.
  *
  * @author Phillip Webb
- * @author Madhura Bhave
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PropertySourcesPlaceholdersResolver
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
  */
-@FunctionalInterface
-public interface PlaceholdersResolver {
+class ClassPathResourceFilePathResolver implements FilePathResolver {
 
-  /**
-   * No-op {@link PropertyResolver}.
-   */
-  PlaceholdersResolver NONE = value -> value;
-
-  /**
-   * Called to resolve any placeholders in the given value.
-   *
-   * @param value the source value
-   * @return a value with placeholders resolved
-   */
   @Nullable
-  Object resolvePlaceholders(@Nullable Object value);
+  @Override
+  public String resolveFilePath(String location, Resource resource) {
+    return (resource instanceof ClassPathResource && !isClassPathUrl(location)) ? location : null;
+  }
+
+  private boolean isClassPathUrl(String location) {
+    return location.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX);
+  }
 
 }

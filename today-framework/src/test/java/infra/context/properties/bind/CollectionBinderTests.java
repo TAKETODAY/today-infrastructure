@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,6 +123,39 @@ class CollectionBinderTests {
               assertThat(property.getName().toString()).isEqualTo("foo[3]");
               assertThat(property.getValue()).isEqualTo("3");
             });
+  }
+
+  @Test
+  void bindToCollectionWhenNonKnownIndexedChildNotBoundThrowsException() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo[0].first", "Spring");
+    source.put("foo[0].last", "Boot");
+    source.put("foo[1].missing", "bad");
+    this.sources.add(source);
+    assertThatExceptionOfType(BindException.class)
+            .isThrownBy(() -> this.binder.bind("foo", Bindable.listOf(Name.class)))
+            .satisfies((ex) -> {
+              Set<ConfigurationProperty> unbound = ((UnboundConfigurationPropertiesException) ex.getCause())
+                      .getUnboundProperties();
+              assertThat(unbound).hasSize(1);
+              ConfigurationProperty property = unbound.iterator().next();
+              assertThat(property.getName()).hasToString("foo[1].missing");
+              assertThat(property.getValue()).isEqualTo("bad");
+            });
+  }
+
+  @Test
+  void bindToNestedCollectionWhenNonKnownIndexed() {
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("foo[0].items[0]", "a");
+    source.put("foo[0].items[1]", "b");
+    source.put("foo[0].string", "test");
+    this.sources.add(source);
+    List<ExampleCollectionBean> list = this.binder.bind("foo", Bindable.listOf(ExampleCollectionBean.class)).get();
+    assertThat(list).hasSize(1);
+    ExampleCollectionBean bean = list.get(0);
+    assertThat(bean.getItems()).containsExactly("a", "b", "d");
+    assertThat(bean.getString()).isEqualTo("test");
   }
 
   @Test
@@ -436,6 +469,8 @@ class CollectionBinderTests {
 
     private Set<String> itemsSet = new LinkedHashSet<>();
 
+    private String string;
+
     List<String> getItems() {
       return this.items;
     }
@@ -450,6 +485,14 @@ class CollectionBinderTests {
 
     void setItemsSet(Set<String> itemsSet) {
       this.itemsSet = itemsSet;
+    }
+
+    String getString() {
+      return this.string;
+    }
+
+    void setString(String string) {
+      this.string = string;
     }
 
   }
@@ -564,4 +607,7 @@ class CollectionBinderTests {
 
   }
 
+  record Name(String first, String last) {
+
+  }
 }
