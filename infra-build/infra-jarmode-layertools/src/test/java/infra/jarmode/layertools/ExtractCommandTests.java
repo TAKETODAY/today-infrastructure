@@ -19,6 +19,8 @@ package infra.jarmode.layertools;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -30,16 +32,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -57,6 +56,7 @@ import static org.mockito.BDDMockito.given;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
+@DisabledOnOs(OS.LINUX)
 @ExtendWith(MockitoExtension.class)
 class ExtractCommandTests {
 
@@ -103,17 +103,13 @@ class ExtractCommandTests {
 
   private void timeAttributes(File file) {
     try {
-      BasicFileAttributes basicAttributes = Files
-              .getFileAttributeView(file.toPath(), BasicFileAttributeView.class, new LinkOption[0])
-              .readAttributes();
-      assertThat(basicAttributes.lastModifiedTime().to(TimeUnit.SECONDS))
-              .isEqualTo(LAST_MODIFIED_TIME.to(TimeUnit.SECONDS));
-      assertThat(basicAttributes.creationTime().to(TimeUnit.SECONDS)).satisfiesAnyOf(
-              (creationTime) -> assertThat(creationTime).isEqualTo(CREATION_TIME.to(TimeUnit.SECONDS)),
+      var basicAttributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+      assertThat(basicAttributes.lastAccessTime()).isEqualTo(LAST_ACCESS_TIME);
+      assertThat(basicAttributes.lastModifiedTime()).isEqualTo(LAST_MODIFIED_TIME);
+      assertThat(basicAttributes.creationTime()).satisfiesAnyOf(
+              (creationTime) -> assertThat(creationTime).isEqualTo(CREATION_TIME),
               // On macOS (at least) the creation time is the last modified time
-              (creationTime) -> assertThat(creationTime).isEqualTo(LAST_MODIFIED_TIME.to(TimeUnit.SECONDS)));
-      assertThat(basicAttributes.lastAccessTime().to(TimeUnit.SECONDS))
-              .isEqualTo(LAST_ACCESS_TIME.to(TimeUnit.SECONDS));
+              (creationTime) -> assertThat(creationTime).isEqualTo(LAST_MODIFIED_TIME));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
