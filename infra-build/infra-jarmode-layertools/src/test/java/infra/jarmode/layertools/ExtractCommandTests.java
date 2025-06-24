@@ -57,7 +57,7 @@ import static org.mockito.BDDMockito.given;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-@DisabledOnOs(OS.LINUX)
+//@DisabledOnOs(OS.LINUX)
 @ExtendWith(MockitoExtension.class)
 class ExtractCommandTests {
 
