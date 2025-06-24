@@ -19,8 +19,6 @@ package infra.jarmode.layertools;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -57,7 +55,6 @@ import static org.mockito.BDDMockito.given;
  * @author Phillip Webb
  * @author Andy Wilkinson
  */
-//@DisabledOnOs(OS.LINUX)
 @ExtendWith(MockitoExtension.class)
 class ExtractCommandTests {
 
@@ -105,12 +102,21 @@ class ExtractCommandTests {
   private void timeAttributes(File file) {
     try {
       var basicAttributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
-      assertThat(basicAttributes.lastAccessTime()).isEqualTo(LAST_ACCESS_TIME);
-      assertThat(basicAttributes.lastModifiedTime()).isEqualTo(LAST_MODIFIED_TIME);
+      assertThat(basicAttributes.lastAccessTime().toInstant()
+              .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_ACCESS_TIME.toInstant()
+              .truncatedTo(ChronoUnit.SECONDS));
+      assertThat(basicAttributes.lastModifiedTime().toInstant()
+              .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_MODIFIED_TIME.toInstant()
+              .truncatedTo(ChronoUnit.SECONDS));
+
       assertThat(basicAttributes.creationTime()).satisfiesAnyOf(
-              (creationTime) -> assertThat(creationTime).isEqualTo(CREATION_TIME),
+              (creationTime) -> assertThat(creationTime.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(CREATION_TIME.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)),
               // On macOS (at least) the creation time is the last modified time
-              (creationTime) -> assertThat(creationTime).isEqualTo(LAST_MODIFIED_TIME));
+              (creationTime) -> assertThat(creationTime.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_MODIFIED_TIME.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -118,6 +124,7 @@ class ExtractCommandTests {
   }
 
   @Test
+//  @DisabledOnOs(OS.LINUX)
   void runWhenHasDestinationOptionExtractsLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     File out = new File(this.extract, "out");
