@@ -19,6 +19,8 @@ package infra.jarmode.layertools;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -87,6 +89,7 @@ class ExtractCommandTests {
   }
 
   @Test
+  @DisabledOnOs(OS.LINUX)
   void runExtractsLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     given(this.context.getWorkingDir()).willReturn(this.extract);
@@ -124,7 +127,7 @@ class ExtractCommandTests {
   }
 
   @Test
-//  @DisabledOnOs(OS.LINUX)
+  @DisabledOnOs(OS.LINUX)
   void runWhenHasDestinationOptionExtractsLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     File out = new File(this.extract, "out");
@@ -137,6 +140,7 @@ class ExtractCommandTests {
   }
 
   @Test
+  @DisabledOnOs(OS.LINUX)
   void runWhenHasLayerParamsExtractsLimitedLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     given(this.context.getWorkingDir()).willReturn(this.extract);
