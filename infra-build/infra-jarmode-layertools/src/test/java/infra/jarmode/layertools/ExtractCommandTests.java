@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.function.Consumer;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -176,7 +177,7 @@ class ExtractCommandTests {
 
   private File createJarFile(String name, Consumer<ZipOutputStream> streamHandler) throws Exception {
     File file = new File(this.temp, name);
-    try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file))) {
+    try (JarOutputStream out = new JarOutputStream(new FileOutputStream(file))) {
       out.putNextEntry(entry("a/"));
       out.closeEntry();
       out.putNextEntry(entry("a/a.jar"));
