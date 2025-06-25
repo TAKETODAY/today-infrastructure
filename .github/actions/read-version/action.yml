@@ -17,6 +17,8 @@ runs:
       shell: bash
       run: |
         version=$(sed -n 's/version=\(.*\)/\1/p' gradle.properties)
+        snapshot=$(echo $version | grep -q 'SNAPSHOT' && echo 'true' || echo 'false')
         echo "Version is $version"
+        echo "snapshot = $snapshot"
         echo "version=$version" >> $GITHUB_OUTPUT
-        echo "snapshot=$(echo $version | grep -q 'SNAPSHOT' && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "snapshot=$snapshot" >> $GITHUB_OUTPUT

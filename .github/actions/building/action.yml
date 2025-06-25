@@ -21,6 +21,24 @@ inputs:
     description: 'Whether to publish artifacts ready for deployment to Artifactory'
     required: false
     default: 'false'
+  token-password:
+    description: 'Password for authentication with central.sonatype.com'
+    required: false
+  token-username:
+    description: 'Username for authentication with central.sonatype.com'
+    required: false
+  signing-keyId:
+    description: 'signing keyId'
+    required: false
+  signing-password:
+    description: 'signing password'
+    required: false
+  gpg-passphrase:
+    description: 'Environment variable name for the GPG private key passphrase. Default is $GPG_PASSPHRASE.'
+    required: false
+  gpg-private-key:
+    description: 'GPG private key to import. Default is empty string.'
+    required: false
 outputs:
   build-scan-url:
     description: 'URL, if any, of the build scan produced by the build'
@@ -38,6 +56,8 @@ runs:
         java-version: |
           ${{ inputs.java-early-access == 'true' && format('{0}-ea', inputs.java-version) || inputs.java-version }}
           ${{ inputs.java-toolchain == 'true' && '17' || '' }}
+        gpg-passphrase: ${{ inputs.gpg-passphrase }}
+        gpg-private-key: ${{ inputs.gpg-private-key }}
 
     - name: Print JDK Version
       shell: bash
@@ -57,13 +77,8 @@ runs:
       if: ${{ inputs.publish == 'true' }}
       shell: bash
       run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories 
-            -PrepoUsername=$SNAPSHOTS_USERNAME -PrepoPassword=$SNAPSHOTS_TOKEN -Psigning.keyId=$SIGNID -Psigning.password=$SIGNPWD
-      env:
-        SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
-        SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
-        MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        SIGNID: ${{secrets.SIGNID}}
-        SIGNPWD: ${{secrets.SIGNPWD}}
+            -PrepoUsername=${{ inputs.token-username }} -PrepoPassword=${{ inputs.token-password }} 
+            -Psigning.keyId=${{ inputs.signing-password }}  -Psigning.password=${{ inputs.signing-password }}
 
     - name: Read Version From gradle.properties
       id: read-version

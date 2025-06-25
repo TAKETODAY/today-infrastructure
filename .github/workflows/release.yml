@@ -19,6 +19,12 @@ jobs:
         uses: ./.github/actions/building
         with:
           publish: true
+          signing-keyId: ${{ secrets.SIGNID }}
+          signing-password: ${{ secrets.SIGNPWD }}
+          token-username: ${{ secrets.SNAPSHOTS_USERNAME }}
+          token-password: ${{ secrets.SNAPSHOTS_TOKEN }}
+          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
 
     outputs:
       version: ${{ steps.build-and-publish.outputs.version }}
