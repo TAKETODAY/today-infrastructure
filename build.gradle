@@ -3,7 +3,7 @@ plugins {
   id 'de.undercouch.download' version '5.4.0'
   id 'io.freefair.aspectj' version '8.13' apply false
   id 'me.champeau.mrjar' version '0.1.1'
-  id "org.jreleaser" version "1.18.0" //apply false
+  id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
 }
 
 ext {
@@ -135,4 +135,15 @@ configure(moduleProjects) {
 configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
+}
+
+if (isReleaseVersion) {
+  nexusPublishing {
+    repositories {
+      sonatype {
+        username = repoUsername
+        password = repoPassword
+      }
+    }
+  }
 }

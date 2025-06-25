@@ -17,7 +17,6 @@ jobs:
   check:
     if: github.repository_owner == 'TAKETODAY'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
     strategy:
       matrix:
         os: [ ubuntu-latest, macOS-latest ] #, windows-latest
