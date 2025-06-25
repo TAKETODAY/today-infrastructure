@@ -2,7 +2,7 @@
 
 import java.time.OffsetDateTime
 
-apply plugin: "signing"
+//apply plugin: "signing"
 apply plugin: 'java-library'
 
 // Currently commented out due to ZipException: archive is not a ZIP archive
@@ -72,14 +72,6 @@ publishing {
       from components.java
       artifact sourcesJar
       artifact javadocJar
-    }
-  }
-}
-
-if (isReleaseVersion) {
-  signing {
-    for (Publication publication in publishing.publications) {
-      sign(publication)
     }
   }
 }

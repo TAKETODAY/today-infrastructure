@@ -1,8 +1,9 @@
-apply plugin: "signing"
+//apply plugin: "signing"
 apply plugin: "maven-publish"
+apply plugin: "org.jreleaser"
 
-String repoUsername = properties["repoUsername"]
-String repoPassword = properties["repoPassword"]
+String repoUsername = properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
+String repoPassword = properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
 
 publishing.publications.withType(MavenPublication.class) {
   pom {
@@ -58,14 +59,58 @@ tasks.withType(GenerateModuleMetadata).configureEach {
 publishing {
   repositories {
     maven {
-      url = isSnapshot
-          ? 'https://oss.sonatype.org/content/repositories/snapshots/'
-          : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+      url = layout.buildDirectory.dir('deployment-repository')
+      name = "deployment"
+    }
+  }
+}
 
-      credentials {
-        username = repoUsername
-        password = repoPassword
+//configureDeploymentRepository(project)
+//
+//static void configureDeploymentRepository(Project project) {
+//  project.plugins.withType(MavenPublishPlugin.class).configureEach {
+//    PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+//    if (project.hasProperty("deploymentRepository")) {
+//      publishing.repositories.maven {
+//        it.url = project.property("deploymentRepository")
+//        it.name = "deployment"
+//      }
+//    }
+//  }
+//}
+
+jreleaser {
+  signing {
+    active = 'ALWAYS'
+    armored = true
+  }
+  deploy {
+    maven {
+
+      mavenCentral {
+        release {
+          active = 'RELEASE'
+          url = 'https://central.sonatype.com/api/v1/publisher'
+          username = repoUsername
+          password = repoPassword
+          stagingRepository('build/deployment-repository')
+        }
       }
+
+      nexus2 {
+        snapshot {
+          active = 'SNAPSHOT'
+          snapshotUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+          applyMavenCentralRules = true
+          snapshotSupported = true
+          closeRepository = true
+          releaseRepository = true
+          username = repoUsername
+          password = repoPassword
+          stagingRepository('build/deployment-repository')
+        }
+      }
+
     }
   }
 }
