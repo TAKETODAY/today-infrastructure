@@ -139,8 +139,8 @@ configure(rootProject) {
 
 
 nexusPublishing {
-  String repoUsername = properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
-  String repoPassword = properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
+  String repoUsername = project.properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
+  String repoPassword = project.properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
 
   repositories {
     sonatype {
