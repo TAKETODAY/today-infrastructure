@@ -1,9 +1,6 @@
 apply plugin: "signing"
 apply plugin: "maven-publish"
 
-String repoUsername = properties["repoUsername"]
-String repoPassword = properties["repoPassword"]
-
 publishing.publications.withType(MavenPublication.class) {
   pom {
     afterEvaluate {
@@ -55,17 +52,3 @@ tasks.withType(GenerateModuleMetadata).configureEach {
   enabled = false
 }
 
-publishing {
-  repositories {
-    maven {
-      url = isSnapshot
-          ? 'https://oss.sonatype.org/content/repositories/snapshots/'
-          : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-
-      credentials {
-        username = repoUsername
-        password = repoPassword
-      }
-    }
-  }
-}

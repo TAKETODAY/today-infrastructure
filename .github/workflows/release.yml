@@ -1,0 +1,52 @@
+name: Release
+on:
+  push:
+    tags:
+      - v5.0-Draft.[0-9]+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+jobs:
+  build-and-stage-release:
+    name: Build and Stage Release
+    if: github.repository_owner == 'TAKETODAY'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
+      - name: Build and Publish
+        id: build-and-publish
+        uses: ./.github/actions/building
+        with:
+          publish: true
+
+    outputs:
+      version: ${{ steps.build-and-publish.outputs.version }}
+
+  sync-to-maven-central:
+    name: Sync to Maven Central
+    needs:
+      - build-and-stage-release
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Await Sync to Maven Central
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/today-core/{0}/today-core-{0}.jar', needs.build-and-stage-release.outputs.version) }}
+
+  publish-gradle-plugin:
+    name: Publish Gradle Plugin
+    needs:
+      - build-and-stage-release
+      - sync-to-maven-central
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v4
+      - name: Publish
+        uses: ./.github/actions/publish-gradle-plugin
+        with:
+          gradle-plugin-publish-key: ${{ secrets.GRADLE_PLUGIN_PUBLISH_KEY }}
+          gradle-plugin-publish-secret: ${{ secrets.GRADLE_PLUGIN_PUBLISH_SECRET }}
+          plugin-version: ${{ needs.build-and-stage-release.outputs.version }}
+

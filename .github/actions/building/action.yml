@@ -1,0 +1,71 @@
+name: 'Build'
+description: 'Builds the project, optionally publishing it to a local deployment repository'
+inputs:
+  java-distribution:
+    description: 'Java distribution to use'
+    required: false
+    default: 'liberica'
+  java-early-access:
+    description: 'Whether the Java version is in early access'
+    required: false
+    default: 'false'
+  java-toolchain:
+    description: 'Whether a Java toolchain should be used'
+    required: false
+    default: 'false'
+  java-version:
+    description: 'Java version to compile and test with'
+    required: false
+    default: '24'
+  publish:
+    description: 'Whether to publish artifacts ready for deployment to Artifactory'
+    required: false
+    default: 'false'
+outputs:
+  build-scan-url:
+    description: 'URL, if any, of the build scan produced by the build'
+    value: ${{ (inputs.publish == 'true' && steps.publish.outputs.build-scan-url) || steps.build.outputs.build-scan-url }}
+  version:
+    description: 'Version that was built'
+    value: ${{ steps.read-version.outputs.version }}
+runs:
+  using: composite
+  steps:
+    - name: Set Up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: ${{ inputs.java-early-access == 'true' && 'temurin' || (inputs.java-distribution || 'liberica') }}
+        java-version: |
+          ${{ inputs.java-early-access == 'true' && format('{0}-ea', inputs.java-version) || inputs.java-version }}
+          ${{ inputs.java-toolchain == 'true' && '17' || '' }}
+
+    - name: Print JDK Version
+      shell: bash
+      run: java -version
+
+    - name: Set Up Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build
+      id: build
+      if: ${{ inputs.publish == 'false' }}
+      shell: bash
+      run: ./gradlew -DCI=true --no-daemon --no-parallel check --scan
+
+    - name: Publish
+      id: publish
+      if: ${{ inputs.publish == 'true' }}
+      shell: bash
+      run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories 
+            -PrepoUsername=$SNAPSHOTS_USERNAME -PrepoPassword=$SNAPSHOTS_TOKEN -Psigning.keyId=$SIGNID -Psigning.password=$SIGNPWD
+      env:
+        SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
+        SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        SIGNID: ${{secrets.SIGNID}}
+        SIGNPWD: ${{secrets.SIGNPWD}}
+
+    - name: Read Version From gradle.properties
+      id: read-version
+      uses: ./.github/actions/read-version
+
