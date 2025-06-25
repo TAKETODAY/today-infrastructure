@@ -25,6 +25,9 @@ jobs:
           token-password: ${{ secrets.SNAPSHOTS_TOKEN }}
           gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          server-id: release
+          server-username: ${{ secrets.SNAPSHOTS_USERNAME }}
+          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
 
     outputs:
       version: ${{ steps.build-and-publish.outputs.version }}
