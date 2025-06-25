@@ -50,4 +50,3 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           SIGNID: ${{secrets.SIGNID}}
           SIGNPWD: ${{secrets.SIGNPWD}}
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
