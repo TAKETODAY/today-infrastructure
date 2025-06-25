@@ -7,7 +7,7 @@ plugins {
 // tag::publishing[]
 publishing {
   publications {
-    bootJava(MavenPublication) {
+    infraJava(MavenPublication) {
       artifact tasks.named("infraJar")
     }
   }
@@ -21,7 +21,7 @@ publishing {
 
 tasks.register("publishingConfiguration") {
   doLast {
-    println publishing.publications.bootJava
+    println publishing.publications.infraJava
     println publishing.repositories.maven.url
   }
 }
