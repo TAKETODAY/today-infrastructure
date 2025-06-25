@@ -50,7 +50,7 @@ buildscript {
   repositories {
     mavenLocal()
     maven {
-      url "https://oss.sonatype.org/content/repositories/snapshots/"
+      url "https://central.sonatype.com/repository/maven-snapshots/"
     }
     mavenCentral()
   }
@@ -71,7 +71,7 @@ apply plugin: 'io.spring.dependency-management' // 有了该插件可以自动�
 
 repositories {
   mavenLocal()
-  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://central.sonatype.com/repository/maven-snapshots/" }
   maven { url "https://maven.aliyun.com/repository/public" }
   mavenCentral()
 }
