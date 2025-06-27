@@ -24,12 +24,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import infra.http.MediaType;
 import infra.lang.Nullable;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.InvalidApiVersionException;
+import infra.web.accept.MediaTypeParamApiVersionResolver;
 import infra.web.accept.PathApiVersionResolver;
 import infra.web.accept.SemanticApiVersionParser;
 
@@ -84,6 +86,19 @@ public class ApiVersionConfigurer {
    */
   public ApiVersionConfigurer usePathSegment(int index) {
     this.versionResolvers.add(new PathApiVersionResolver(index));
+    return this;
+  }
+
+  /**
+   * Add resolver to extract the version from a media type parameter found in
+   * the Accept or Content-Type headers.
+   *
+   * @param compatibleMediaType the media type to extract the parameter from with
+   * the match established via {@link MediaType#isCompatibleWith(MediaType)}
+   * @param paramName the name of the parameter
+   */
+  public ApiVersionConfigurer useMediaTypeParameter(MediaType compatibleMediaType, String paramName) {
+    this.versionResolvers.add(new MediaTypeParamApiVersionResolver(compatibleMediaType, paramName));
     return this;
   }
 
