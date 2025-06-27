@@ -498,7 +498,7 @@ class ApplicationContextAotGeneratorTests {
   @CompileWithForkedClassLoader
   class ConfigurationClassCglibProxy {
 
-    private static final String CGLIB_CONFIGURATION_CLASS_SUFFIX = "$$SpringCGLIB$$0";
+    private static final String CGLIB_CONFIGURATION_CLASS_SUFFIX = "$$Infra$$0";
 
     @Test
     void processAheadOfTimeWhenHasCglibProxyWriteProxyAndGenerateReflectionHints() throws IOException {
@@ -506,8 +506,8 @@ class ApplicationContextAotGeneratorTests {
       applicationContext.registerBean(CglibConfiguration.class);
       TestGenerationContext context = processAheadOfTime(applicationContext);
       isRegisteredCglibClass(context, CglibConfiguration.class.getName() + CGLIB_CONFIGURATION_CLASS_SUFFIX);
-      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$SpringCGLIB$$FastClass$$0");
-      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$SpringCGLIB$$FastClass$$1");
+      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$MethodAccess$$0");
+      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$MethodAccess$$1");
     }
 
     private void isRegisteredCglibClass(TestGenerationContext context, String cglibClassName) throws IOException {
