@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import infra.beans.BeansException;
 import infra.beans.factory.BeanFactory;
+import infra.beans.factory.BeanNotOfRequiredTypeException;
 import infra.beans.factory.InjectionPoint;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.annotation.NonOrdered;
@@ -259,7 +260,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
   /**
    * Resolve the specified bean name, as a candidate result of the matching
    * algorithm for this dependency, to a bean instance from the given factory.
-   * <p>The default implementation calls {@link BeanFactory#getBean(String)}.
+   * <p>The default implementation calls {@link BeanFactory#getBean(String, Class)}.
    * Subclasses may provide additional arguments or other customizations.
    *
    * @param beanName the bean name, as a candidate result for this dependency
@@ -270,9 +271,15 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    * @see BeanFactory#getBean(String)
    */
   @Nullable
-  public Object resolveCandidate(
-          String beanName, Class<?> requiredType, BeanFactory beanFactory) throws BeansException {
-    return beanFactory.getBean(beanName);
+  public Object resolveCandidate(String beanName, Class<?> requiredType, BeanFactory beanFactory) throws BeansException {
+    try {
+      // Need to provide required type for SmartFactoryBean
+      return beanFactory.getBean(beanName, requiredType);
+    }
+    catch (BeanNotOfRequiredTypeException ex) {
+      // Probably a null bean...
+      return beanFactory.getBean(beanName);
+    }
   }
 
   /**

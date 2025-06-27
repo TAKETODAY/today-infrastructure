@@ -1173,22 +1173,57 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  @Modifiable
+  @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeansOfType(ResolvableType.forRawClass(type), includeNonSingletons, allowEagerInit);
+    var beanNames = getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+    Map<String, T> result = CollectionUtils.newLinkedHashMap(beanNames.size());
+    for (String beanName : beanNames) {
+      try {
+        Object beanInstance = type != null ? getBean(beanName, type) : getBean(beanName);
+        if (beanInstance != null) {
+          result.put(beanName, (T) beanInstance);
+        }
+      }
+      catch (BeanNotOfRequiredTypeException ex) {
+        // Ignore - probably a Null Bean
+      }
+      catch (BeanCreationException ex) {
+        Throwable rootCause = ex.getMostSpecificCause();
+        if (rootCause instanceof BeanCurrentlyInCreationException bce) {
+          String exBeanName = bce.getBeanName();
+          if (exBeanName != null && isCurrentlyInCreation(exBeanName)) {
+            if (log.isTraceEnabled()) {
+              log.trace("Ignoring match to currently created bean '{}': ", exBeanName, ex.getMessage());
+            }
+            onSuppressedException(ex);
+            // Ignore: indicates a circular reference when autowiring constructors.
+            // We want to find matches other than the currently created bean itself.
+            continue;
+          }
+        }
+        throw ex;
+      }
+    }
+    return result;
   }
 
   @Override
   @Modifiable
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+    Class<?> type = requiredType.getRawClass();
     Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
     Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.size());
     for (String beanName : beanNames) {
       try {
-        Object beanInstance = getBean(beanName);
+        Object beanInstance = type != null ? getBean(beanName, type) : getBean(beanName);
         if (beanInstance != null) {
           beans.put(beanName, (T) beanInstance);
         }
+      }
+      catch (BeanNotOfRequiredTypeException ex) {
+        // Ignore - probably a Null Bean
       }
       catch (BeanCreationException ex) {
         Throwable rootCause = ex.getMostSpecificCause();

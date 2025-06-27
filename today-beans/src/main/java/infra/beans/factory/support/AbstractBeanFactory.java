@@ -52,6 +52,7 @@ import infra.beans.factory.BeanNotOfRequiredTypeException;
 import infra.beans.factory.DependenciesBeanPostProcessor;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.FactoryBean;
+import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.HierarchicalBeanFactory;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.NoSuchBeanDefinitionException;
@@ -345,7 +346,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
         // unwrap cache value (represent a null bean)
         if (beanInstance != NullValue.INSTANCE) {
-          beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
+          beanInstance = handleFactoryBean(name, beanName, requiredType, merged, beanInstance);
         }
       }
       catch (BeansException e) {
@@ -369,7 +370,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
           log.trace("Returning cached instance of singleton bean '{}'", beanName);
         }
       }
-      beanInstance = handleFactoryBean(name, beanName, null, beanInstance);
+      beanInstance = handleFactoryBean(name, beanName, requiredType, null, beanInstance);
     }
     return adaptBeanInstance(beanName, beanInstance, requiredType);
   }
@@ -440,6 +441,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       // Determine target for FactoryBean match if necessary.
       if (beanInstance instanceof FactoryBean<?> factoryBean) {
         if (!isFactoryDereference) {
+          if (factoryBean instanceof SmartFactoryBean<?> sfb && sfb.supportsType(typeToMatch.toClass())) {
+            return true;
+          }
           Class<?> type = getTypeForFactoryBean(factoryBean);
           if (type == null) {
             return false;
@@ -1549,7 +1553,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @return the object to expose for the bean
    */
   @Nullable
-  protected Object handleFactoryBean(String name, String beanName,
+  protected Object handleFactoryBean(String name, String beanName, @Nullable Class<?> requiredType,
           @Nullable RootBeanDefinition definition, Object beanInstance) throws BeansException {
     // Don't let calling code try to dereference the factory if the bean isn't a factory.
     if (BeanFactoryUtils.isFactoryDereference(name)) {
@@ -1577,7 +1581,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
         // get bean from FactoryBean
         boolean synthetic = (definition != null && definition.isSynthetic());
-        beanInstance = getObjectFromFactoryBean(factory, beanName, !synthetic);
+        beanInstance = getObjectFromFactoryBean(factory, requiredType, beanName, !synthetic);
       }
       // unwrap cache value
       if (beanInstance == NullValue.INSTANCE) {
@@ -1597,7 +1601,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeanCreationException if FactoryBean object creation failed
    * @see FactoryBean#getObject()
    */
-  protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+  protected Object getObjectFromFactoryBean(FactoryBean<?> factory, @Nullable Class<?> requiredType, String beanName, boolean shouldPostProcess) {
     if (factory.isSingleton() && containsSingleton(beanName)) {
       Boolean lockFlag = isCurrentThreadAllowedToHoldSingletonLock();
       boolean locked;
@@ -1609,12 +1613,14 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         locked = lockFlag && this.singletonLock.tryLock();
       }
       try {
-        Object object = objectFromFactoryBeanCache.get(beanName);
+        // A SmartFactoryBean may return multiple object types -> do not cache.
+        boolean smart = factory instanceof SmartFactoryBean;
+        Object object = !smart ? objectFromFactoryBeanCache.get(beanName) : null;
         if (object == null) {
-          object = doGetObjectFromFactoryBean(factory, beanName);
+          object = doGetObjectFromFactoryBean(factory, requiredType, beanName);
           // Only post-process and store if not put there already during getObject() call above
           // (for example, because of circular reference processing triggered by custom getBean calls)
-          Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
+          Object alreadyThere = !smart ? objectFromFactoryBeanCache.get(beanName) : null;
           if (alreadyThere != null) {
             object = alreadyThere;
           }
@@ -1640,7 +1646,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
                 }
               }
             }
-            if (containsSingleton(beanName)) {
+            if (!smart && containsSingleton(beanName)) {
               objectFromFactoryBeanCache.put(beanName, object);
             }
           }
@@ -1654,7 +1660,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       }
     }
     else {
-      Object object = doGetObjectFromFactoryBean(factory, beanName);
+      Object object = doGetObjectFromFactoryBean(factory, requiredType, beanName);
       if (shouldPostProcess) {
         try {
           object = postProcessObjectFromFactoryBean(object, beanName);
@@ -1676,10 +1682,14 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeanCreationException if FactoryBean object creation failed
    * @see FactoryBean#getObject()
    */
-  private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, String beanName) throws BeanCreationException {
+  private Object doGetObjectFromFactoryBean(FactoryBean<?> factory, @Nullable Class<?> requiredType, String beanName) throws BeanCreationException {
     Object object;
     try {
-      object = factory.getObject();
+      object = (requiredType != null && factory instanceof SmartFactoryBean<?> sfb) ?
+              sfb.getObject(requiredType) : factory.getObject();
+    }
+    catch (FactoryBeanNotInitializedException ex) {
+      throw new BeanCurrentlyInCreationException(beanName, ex.toString());
     }
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "FactoryBean threw exception on object creation", ex);

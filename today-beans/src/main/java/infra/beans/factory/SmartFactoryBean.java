@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.beans.factory;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
+import infra.lang.Nullable;
 
 /**
  * Extension of the {@link FactoryBean} interface. Implementations may
@@ -82,6 +83,45 @@ public interface SmartFactoryBean<T> extends FactoryBean<T> {
    */
   default boolean isEagerInit() {
     return false;
+  }
+
+  /**
+   * Return an instance of the given type, if supported by this factory.
+   * <p>By default, this supports the primary type exposed by the factory, as
+   * indicated by {@link #getObjectType()} and returned by {@link #getObject()}.
+   * Specific factories may support additional types for dependency injection.
+   *
+   * @param type the requested type
+   * @return a corresponding instance managed by this factory,
+   * or {@code null} if none available
+   * @throws Exception in case of creation errors
+   * @see #getObject()
+   * @see #supportsType(Class)
+   * @since 5.0
+   */
+  @Nullable
+  @SuppressWarnings("unchecked")
+  default <S> S getObject(Class<S> type) throws Exception {
+    Class<?> objectType = getObjectType();
+    return objectType != null && type.isAssignableFrom(objectType) ? (S) getObject() : null;
+  }
+
+  /**
+   * Determine whether this factory supports the requested type.
+   * <p>By default, this supports the primary type exposed by the factory, as
+   * indicated by {@link #getObjectType()}. Specific factories may support
+   * additional types for dependency injection.
+   *
+   * @param type the requested type
+   * @return {@code true} if {@link #getObject(Class)} is able to
+   * return a corresponding instance, {@code false} otherwise
+   * @see #getObject(Class)
+   * @see #getObjectType()
+   * @since 5.0
+   */
+  default boolean supportsType(Class<?> type) {
+    Class<?> objectType = getObjectType();
+    return objectType != null && type.isAssignableFrom(objectType);
   }
 
 }

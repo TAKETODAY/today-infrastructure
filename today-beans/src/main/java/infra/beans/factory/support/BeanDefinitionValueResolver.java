@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -417,7 +417,7 @@ public class BeanDefinitionValueResolver {
       Object innerBean = beanFactory.createBean(actualInnerBeanName, mergedDef, null);
       if (innerBean instanceof FactoryBean<?> factoryBean) {
         boolean synthetic = mergedDef.isSynthetic();
-        innerBean = beanFactory.getObjectFromFactoryBean(factoryBean, actualInnerBeanName, !synthetic);
+        innerBean = beanFactory.getObjectFromFactoryBean(factoryBean, null, actualInnerBeanName, !synthetic);
       }
       if (innerBean == NullValue.INSTANCE) {
         innerBean = null;
@@ -425,8 +425,7 @@ public class BeanDefinitionValueResolver {
       return innerBean;
     }
     catch (BeansException ex) {
-      throw new BeanCreationException(
-              beanDefinition.getResourceDescription(), beanName,
+      throw new BeanCreationException(beanDefinition.getResourceDescription(), beanName,
               "Cannot create inner bean '" + innerBeanName + "' " +
                       (mergedDef != null && mergedDef.getBeanClassName() != null ? "of type [" + mergedDef.getBeanClassName() + "] " : "") +
                       "while setting " + argName, ex);

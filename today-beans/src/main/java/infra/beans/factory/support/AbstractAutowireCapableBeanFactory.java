@@ -830,14 +830,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    */
   @Nullable
   @Override
-  protected Object handleFactoryBean(String name, String beanName,
+  protected Object handleFactoryBean(String name, String beanName, @Nullable Class<?> requiredType,
           @Nullable RootBeanDefinition definition, Object beanInstance) throws BeansException {
 
     String currentlyCreatedBean = this.currentlyCreatedBean.get();
     if (currentlyCreatedBean != null) {
       registerDependentBean(beanName, currentlyCreatedBean);
     }
-    return super.handleFactoryBean(name, beanName, definition, beanInstance);
+    return super.handleFactoryBean(name, beanName, requiredType, definition, beanInstance);
   }
 
   /**
