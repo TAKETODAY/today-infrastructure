@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.beans.factory.support;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import infra.lang.Assert;
@@ -56,6 +58,21 @@ public class ReplaceOverride extends MethodOverride {
   }
 
   /**
+   * Construct a new ReplaceOverride.
+   *
+   * @param methodName the name of the method to override
+   * @param methodReplacerBeanName the bean name of the {@link MethodReplacer}
+   * @param typeIdentifiers a list of type identifiers for parameter types
+   * @since 5.0
+   */
+  public ReplaceOverride(String methodName, String methodReplacerBeanName, List<String> typeIdentifiers) {
+    super(methodName);
+    Assert.notNull(methodReplacerBeanName, "Method replacer bean name is required");
+    this.methodReplacerBeanName = methodReplacerBeanName;
+    this.typeIdentifiers.addAll(typeIdentifiers);
+  }
+
+  /**
    * Return the name of the bean implementing MethodReplacer.
    */
   public String getMethodReplacerBeanName() {
@@ -70,6 +87,16 @@ public class ReplaceOverride extends MethodOverride {
    */
   public void addTypeIdentifier(String identifier) {
     this.typeIdentifiers.add(identifier);
+  }
+
+  /**
+   * Return the list of registered type identifiers (fragments of a class string).
+   *
+   * @see #addTypeIdentifier
+   * @since 5.0
+   */
+  public List<String> getTypeIdentifiers() {
+    return Collections.unmodifiableList(this.typeIdentifiers);
   }
 
   @Override
