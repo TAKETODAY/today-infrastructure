@@ -1180,7 +1180,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   private OrderSourceProvider createFactoryAwareOrderSourceProvider(Map<String, ?> beans) {
-    return new FactoryAwareOrderSourceProvider(beans);
+    IdentityHashMap<Object, String> instancesToBeanNames = new IdentityHashMap<>(beans.size());
+    for (var entry : beans.entrySet()) {
+      instancesToBeanNames.put(entry.getValue(), entry.getKey());
+    }
+    return new FactoryAwareOrderSourceProvider(instancesToBeanNames);
   }
 
   @Override
@@ -2458,9 +2462,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @see #getOrder(String)
    * @since 5.0
    */
-  public int getOrder(String beanName, Object beanInstance) {
-    OrderComparator comparator = (getDependencyComparator() instanceof OrderComparator orderComparator ?
-            orderComparator : OrderComparator.INSTANCE);
+  public int getOrder(String beanName, @Nullable Object beanInstance) {
+    OrderComparator comparator = getDependencyComparator() instanceof OrderComparator oc ? oc : OrderComparator.INSTANCE;
     return comparator.getOrder(beanInstance,
             new FactoryAwareOrderSourceProvider(Collections.singletonMap(beanInstance, beanName)));
   }
@@ -2885,19 +2888,16 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
 
-    private final IdentityHashMap<Object, String> instancesToBeanNames;
+    private final Map<Object, String> instancesToBeanNames;
 
-    public FactoryAwareOrderSourceProvider(Map<String, ?> beans) {
-      this.instancesToBeanNames = new IdentityHashMap<>();
-      for (Map.Entry<String, ?> entry : beans.entrySet()) {
-        instancesToBeanNames.put(entry.getValue(), entry.getKey());
-      }
+    public FactoryAwareOrderSourceProvider(Map<Object, String> instancesToBeanNames) {
+      this.instancesToBeanNames = instancesToBeanNames;
     }
 
     @Override
     @Nullable
     public Object getOrderSource(Object obj) {
-      String beanName = this.instancesToBeanNames.get(obj);
+      String beanName = instancesToBeanNames.get(obj);
       if (beanName == null) {
         return null;
       }

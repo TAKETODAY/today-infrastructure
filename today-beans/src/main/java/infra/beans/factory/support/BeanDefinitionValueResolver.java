@@ -350,29 +350,33 @@ public class BeanDefinitionValueResolver {
     try {
       Object bean;
       Class<?> beanType = ref.getBeanType();
+      String resolvedName = String.valueOf(doEvaluate(ref.getBeanName()));
       if (ref.isToParent()) {
         BeanFactory parent = beanFactory.getParentBeanFactory();
         if (parent == null) {
-          throw new BeanCreationException(beanDefinition.getResourceDescription(),
-                  "Cannot resolve reference to bean " + ref +
-                          " in parent factory: no parent factory available");
+          throw new BeanCreationException(this.beanDefinition.getResourceDescription(),
+                  beanName, "Cannot resolve reference to bean %s in parent factory: no parent factory available".formatted(ref));
         }
         if (beanType != null) {
-          bean = parent.getBean(beanType);
+          bean = parent.containsBean(resolvedName) ?
+                  parent.getBean(resolvedName, beanType) : parent.getBean(beanType);
         }
         else {
-          bean = parent.getBean(String.valueOf(doEvaluate(ref.getBeanName())));
+          bean = parent.getBean(resolvedName);
         }
       }
       else {
-        String resolvedName;
         if (beanType != null) {
-          NamedBeanHolder<?> namedBean = beanFactory.resolveNamedBean(beanType);
-          bean = namedBean.getBeanInstance();
-          resolvedName = namedBean.getBeanName();
+          if (beanFactory.containsBean(resolvedName)) {
+            bean = beanFactory.getBean(resolvedName, beanType);
+          }
+          else {
+            NamedBeanHolder<?> namedBean = beanFactory.resolveNamedBean(beanType);
+            bean = namedBean.getBeanInstance();
+            resolvedName = namedBean.getBeanName();
+          }
         }
         else {
-          resolvedName = String.valueOf(doEvaluate(ref.getBeanName()));
           bean = beanFactory.getBean(resolvedName);
         }
         beanFactory.registerDependentBean(resolvedName, beanName);
@@ -380,7 +384,8 @@ public class BeanDefinitionValueResolver {
       return bean;
     }
     catch (BeansException ex) {
-      throw new BeanCreationException(beanDefinition.getResourceDescription(), beanName,
+      throw new BeanCreationException(
+              this.beanDefinition.getResourceDescription(), this.beanName,
               "Cannot resolve reference to bean '" + ref.getBeanName() + "' while setting " + argName, ex);
     }
   }
