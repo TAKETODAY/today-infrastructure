@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Named;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -44,6 +45,7 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.StreamingHttpOutputMessage;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInterceptor;
 import infra.http.client.ClientHttpResponse;
@@ -51,6 +53,7 @@ import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.client.JdkClientHttpRequestFactory;
 import infra.http.client.ReactorClientHttpRequestFactory;
 import infra.util.CollectionUtils;
+import infra.util.FastByteArrayOutputStream;
 import infra.util.FileCopyUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -522,6 +525,31 @@ class RestClientIntegrationTests {
       assertThat(request.getBody().readUtf8()).isEqualTo("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}");
       assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
       assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
+    });
+  }
+
+  @ParameterizedRestClientTest
+  void postStreamingBody(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+    prepareResponse(response -> response.setResponseCode(200));
+
+    StreamingHttpOutputMessage.Body testBody = out -> {
+      assertThat(out).as("Not a streaming response").isNotInstanceOf(FastByteArrayOutputStream.class);
+      new ByteArrayInputStream("test-data".getBytes(UTF_8)).transferTo(out);
+    };
+
+    ResponseEntity<Void> result = this.restClient.post()
+            .uri("/streaming/body")
+            .body(testBody)
+            .retrieve()
+            .toBodilessEntity();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/streaming/body");
+      assertThat(request.getBody().readUtf8()).isEqualTo("test-data");
     });
   }
 
