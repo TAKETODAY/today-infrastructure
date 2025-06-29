@@ -29,6 +29,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
+import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
@@ -79,6 +80,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    *
    * @return an info in case of a match; or {@code null} otherwise.
    */
+  @Nullable
   @Override
   protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, RequestContext request) {
     return info.getMatchingCondition(request);
@@ -122,6 +124,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * @throws HttpMediaTypeNotAcceptableException if there are matches by URL
    * but not by consumable/producible media types
    */
+  @Nullable
   @Override
   protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, RequestContext request) {
     if (CollectionUtils.isEmpty(infos)) {
@@ -175,9 +178,10 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   private static class PartialMatchHelper {
 
-    private final ArrayList<PartialMatch> partialMatches = new ArrayList<>();
+    private final ArrayList<PartialMatch> partialMatches;
 
     public PartialMatchHelper(Set<RequestMappingInfo> infos, RequestContext request) {
+      this.partialMatches = new ArrayList<>(infos.size());
       for (RequestMappingInfo info : infos) {
         if (info.getPathPatternsCondition().getMatchingCondition(request) != null) {
           partialMatches.add(new PartialMatch(info, request));
@@ -379,7 +383,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     }
 
     private static Set<HttpMethod> initAllowedHttpMethods(Set<String> declaredMethods) {
-      var result = new LinkedHashSet<HttpMethod>(declaredMethods.size());
+      var result = CollectionUtils.<HttpMethod>newLinkedHashSet(declaredMethods.size());
       if (declaredMethods.isEmpty()) {
         for (HttpMethod method : HttpMethod.values()) {
           if (method != HttpMethod.TRACE) {
