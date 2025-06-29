@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+      - 'dev/**'
+      - 'fix/**'
+      - 'feat/**'
+      - 'feature/**'
+
+jobs:
+  check:
+    if: github.repository_owner == 'TAKETODAY'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macOS-latest ] #, windows-latest
+        java:
+          - version: 21
+            toolchain: true
+          - version: 24
+            toolchain: true
+      fail-fast: false
+      max-parallel: 4
+    name: JDK ${{ matrix.java.version }} on ${{ matrix.os }}
+
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4.1.2
+
+      - name: Build
+        id: build
+        uses: ./.github/actions/building
+        with:
+          java-early-access: ${{ matrix.java.early-access || 'false' }}
+          java-distribution: ${{ matrix.java.distribution }}
+          java-toolchain: ${{ matrix.java.toolchain }}
+          java-version: ${{ matrix.java.version }}

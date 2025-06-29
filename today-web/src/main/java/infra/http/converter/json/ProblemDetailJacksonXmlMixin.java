@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.http.converter.json;
@@ -23,6 +20,7 @@ package infra.http.converter.json;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
@@ -49,32 +47,33 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
  * @since 4.0
  */
 @JsonInclude(NON_EMPTY)
-@JacksonXmlRootElement(localName = "problem", namespace = ProblemDetailJacksonXmlMixin.RFC_7807_NAMESPACE)
+@JsonRootName(value = "problem", namespace = ProblemDetailJacksonXmlMixin.NAMESPACE)
+@JacksonXmlRootElement(localName = "problem", namespace = ProblemDetailJacksonXmlMixin.NAMESPACE)
 public interface ProblemDetailJacksonXmlMixin {
 
-  /** RFC 7807 namespace. */
-  String RFC_7807_NAMESPACE = "urn:ietf:rfc:7807";
+  /** RFC 7807 (obsoleted by RFC 9457) namespace. */
+  String NAMESPACE = "urn:ietf:rfc:7807";
 
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   URI getType();
 
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   String getTitle();
 
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   int getStatus();
 
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   String getDetail();
 
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   URI getInstance();
 
   @JsonAnySetter
   void setProperty(String name, @Nullable Object value);
 
   @JsonAnyGetter
-  @JacksonXmlProperty(namespace = RFC_7807_NAMESPACE)
+  @JacksonXmlProperty(namespace = NAMESPACE)
   Map<String, Object> getProperties();
 
 }

@@ -50,7 +50,7 @@ public class RequestMappingInfoHandlerMethodMappingNamingStrategyTests {
     RequestMappingInfo rmi = new RequestMappingInfo("foo",
             new PathPatternsRequestCondition(), new RequestMethodsRequestCondition(),
             new ParamsRequestCondition(), new HeadersRequestCondition(),
-            new ConsumesRequestCondition(), new ProducesRequestCondition(), new VersionRequestCondition(),
+            new ConsumesRequestCondition(), new ProducesRequestCondition(), new VersionRequestCondition(null, null),
             new RequestConditionHolder(null), new BuilderConfiguration(), true);
 
     HandlerMethodMappingNamingStrategy<RequestMappingInfo> strategy = new RequestMappingInfoHandlerMethodMappingNamingStrategy();
@@ -67,7 +67,7 @@ public class RequestMappingInfoHandlerMethodMappingNamingStrategyTests {
             new PathPatternsRequestCondition(), new RequestMethodsRequestCondition(),
             new ParamsRequestCondition(), new HeadersRequestCondition(),
             new ConsumesRequestCondition(), new ProducesRequestCondition(),
-            new VersionRequestCondition(),
+            new VersionRequestCondition(null, null),
             new RequestConditionHolder(null), new BuilderConfiguration(), true);
 
     var strategy = new RequestMappingInfoHandlerMethodMappingNamingStrategy();

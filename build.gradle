@@ -69,16 +69,18 @@ configure(allprojects) {
 
 configure([rootProject] + javaProjects) {
   apply plugin: "java"
-  apply plugin: 'jacoco'
   apply plugin: 'infra.building.conventions'
   apply plugin: 'infra.building.optional-dependencies'
 
-  if (testFixturesProjects.contains(it)) {
-    apply plugin: "java-test-fixtures"
+  if (it.hasProperty("code-coverage")) {
+    apply plugin: 'jacoco'
+    jacocoTestReport {
+      enabled = false
+    }
   }
 
-  jacocoTestReport {
-    enabled = false
+  if (testFixturesProjects.contains(it)) {
+    apply plugin: "java-test-fixtures"
   }
 
   dependencies {
@@ -94,6 +96,11 @@ configure([rootProject] + javaProjects) {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.platform:junit-platform-suite-engine")
+    // 去除 测试警告
+    testRuntimeOnly("com.google.code.findbugs:jsr305")
+    testRuntimeOnly("com.google.code.findbugs:findbugs")
+    testRuntimeOnly('org.jboss.logging:jboss-logging:3.5.3.Final')
+
     // JSR-305 only used for non-required meta-annotations
     compileOnly("com.google.code.findbugs:jsr305")
     compileOnly("com.google.code.findbugs:findbugs")
@@ -108,7 +115,7 @@ configure([rootProject] + javaProjects) {
       "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.15.2/",
       "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.15.2/",
       "https://www.javadoc.io/doc/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.15.2/",
-      "https://hc.apache.org/httpcomponents-client-5.4.x/current/httpclient5/apidocs/"
+      "https://hc.apache.org/httpcomponents-client-5.5.x/current/httpclient5/apidocs/"
 
   ] as String[]
 }
@@ -126,13 +133,17 @@ configure(rootProject) {
   apply plugin: 'infra.building.api-diff'
 }
 
-if (isReleaseVersion) {
-  nexusPublishing {
-    repositories {
-      sonatype {
-        username = repoUsername
-        password = repoPassword
-      }
+
+nexusPublishing {
+  String repoUsername = project.properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
+  String repoPassword = project.properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
+
+  repositories {
+    sonatype {
+      username.set(repoUsername)
+      password.set(repoPassword)
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
     }
   }
 }

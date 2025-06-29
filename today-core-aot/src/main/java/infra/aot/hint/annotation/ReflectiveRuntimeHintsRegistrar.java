@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,12 +125,9 @@ public class ReflectiveRuntimeHintsRegistrar {
     return new Entry(element, processorToUse);
   }
 
-  @SuppressWarnings("unchecked")
   private ReflectiveProcessor instantiateClass(Class<?> type) {
     try {
-      Constructor<ReflectiveProcessor> constructor = (Constructor<ReflectiveProcessor>) type.getDeclaredConstructor();
-      ReflectionUtils.makeAccessible(constructor);
-      return constructor.newInstance();
+      return (ReflectiveProcessor) ReflectionUtils.accessibleConstructor(type).newInstance();
     }
     catch (Exception ex) {
       throw new IllegalStateException("Failed to instantiate " + type, ex);
@@ -152,6 +149,7 @@ public class ReflectiveRuntimeHintsRegistrar {
 
   }
 
-  private record Entry(AnnotatedElement element, ReflectiveProcessor processor) { }
+  private record Entry(AnnotatedElement element, ReflectiveProcessor processor) {
+  }
 
 }

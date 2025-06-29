@@ -827,6 +827,35 @@ public interface WebClient {
 
     /**
      * Shortcut for {@link #body(BodyInserter)} with a
+     * {@linkplain BodyInserters#fromValue value inserter}.
+     * For example:
+     * <pre>{@code
+     * List<Person> list = ... ;
+     *
+     * Mono<Void> result = client.post()
+     *     .uri("/persons/{id}", id)
+     *     .contentType(MediaType.APPLICATION_JSON)
+     *     .bodyValue(list, new ParameterizedTypeReference<List<Person>>() {};)
+     *     .retrieve()
+     *     .bodyToMono(Void.class);
+     * }</pre>
+     * <p>For multipart requests consider providing
+     * {@link infra.util.MultiValueMap MultiValueMap} prepared
+     * with {@link infra.http.client.MultipartBodyBuilder
+     * MultipartBodyBuilder}.
+     *
+     * @param body the value to write to the request body
+     * @param bodyType the type of the body, used to capture the generic type
+     * @param <T> the type of the body
+     * @return this builder
+     * @throws IllegalArgumentException if {@code body} is a
+     * {@link Publisher} or producer known to {@link ReactiveAdapterRegistry}
+     * @since 5.0
+     */
+    <T> RequestHeadersSpec<?> bodyValue(T body, ParameterizedTypeReference<T> bodyType);
+
+    /**
+     * Shortcut for {@link #body(BodyInserter)} with a
      * {@linkplain BodyInserters#fromPublisher Publisher inserter}.
      * For example:
      * <pre>{@code

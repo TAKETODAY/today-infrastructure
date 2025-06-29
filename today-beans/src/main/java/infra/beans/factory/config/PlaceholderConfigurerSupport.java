@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,10 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.annotation.Value;
 import infra.core.StringValueResolver;
+import infra.core.env.AbstractPropertyResolver;
 import infra.core.env.PropertySource;
 import infra.lang.Nullable;
+import infra.util.PropertyPlaceholderHandler;
 
 /**
  * Abstract base class for property resource configurers that resolve placeholders
@@ -98,16 +100,13 @@ import infra.lang.Nullable;
 public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfigurer implements BeanNameAware, BeanFactoryAware {
 
   /** Default placeholder prefix: {@value}. */
-  public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
+  public static final String DEFAULT_PLACEHOLDER_PREFIX = PropertyPlaceholderHandler.PLACEHOLDER_PREFIX;
 
   /** Default placeholder suffix: {@value}. */
-  public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
+  public static final String DEFAULT_PLACEHOLDER_SUFFIX = PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX;
 
   /** Default value separator: {@value}. */
-  public static final String DEFAULT_VALUE_SEPARATOR = ":";
-
-  /** Default escape character: {@code '\'}. */
-  public static final char DEFAULT_ESCAPE_CHARACTER = '\\';
+  public static final String DEFAULT_VALUE_SEPARATOR = PropertyPlaceholderHandler.VALUE_SEPARATOR;
 
   /** Defaults to {@value #DEFAULT_PLACEHOLDER_PREFIX}. */
   protected String placeholderPrefix = DEFAULT_PLACEHOLDER_PREFIX;
@@ -119,9 +118,11 @@ public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfi
   @Nullable
   protected String valueSeparator = DEFAULT_VALUE_SEPARATOR;
 
-  /** Defaults to {@link #DEFAULT_ESCAPE_CHARACTER}. */
+  /**
+   * The default is determined by {@link AbstractPropertyResolver#getDefaultEscapeCharacter()}.
+   */
   @Nullable
-  protected Character escapeCharacter = DEFAULT_ESCAPE_CHARACTER;
+  protected Character escapeCharacter = AbstractPropertyResolver.getDefaultEscapeCharacter();
 
   protected boolean trimValues = false;
 
@@ -163,10 +164,11 @@ public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfi
   }
 
   /**
-   * Specify the escape character to use to ignore placeholder prefix
-   * or value separator, or {@code null} if no escaping should take
-   * place.
-   * <p>Default is {@link #DEFAULT_ESCAPE_CHARACTER}.
+   * Set the escape character to use to ignore the
+   * {@linkplain #setPlaceholderPrefix(String) placeholder prefix} and the
+   * {@linkplain #setValueSeparator(String) value separator}, or {@code null}
+   * if no escaping should take place.
+   * <p>The default is determined by {@link AbstractPropertyResolver#getDefaultEscapeCharacter()}.
    */
   public void setEscapeCharacter(@Nullable Character escsEscapeCharacter) {
     this.escapeCharacter = escsEscapeCharacter;

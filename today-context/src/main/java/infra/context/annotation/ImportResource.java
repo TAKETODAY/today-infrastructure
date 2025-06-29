@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,11 +79,17 @@ public @interface ImportResource {
 
   /**
    * {@link BeanDefinitionReader} implementation to use when processing
-   * resources specified via the {@link #value} attribute.
-   * <p>By default, the reader will be adapted to the resource path specified:
-   * resources will be processed with an
-   * {@link XmlBeanDefinitionReader XmlBeanDefinitionReader}.
-   *
+   * resources specified via the {@link #locations() locations} or
+   * {@link #value() value} attribute.
+   * <p>The configured {@code BeanDefinitionReader} type must declare a
+   * constructor that accepts a single
+   * {@link infra.beans.factory.support.BeanDefinitionRegistry
+   * BeanDefinitionRegistry} argument.
+   * all other resources will be processed
+   * with an {@link infra.beans.factory.xml.XmlBeanDefinitionReader
+   * XmlBeanDefinitionReader}.
+   *F
+   * @see #locations
    * @see #value
    */
   Class<? extends BeanDefinitionReader> reader() default BeanDefinitionReader.class;

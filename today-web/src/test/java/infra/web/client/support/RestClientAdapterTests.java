@@ -29,13 +29,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URI;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Nullable;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
@@ -168,7 +171,6 @@ class RestClientAdapterTests {
   }
 
   @ParameterizedAdapterTest
-    // gh-30342
   void multipart(MockWebServer server, Service service) throws Exception {
     MultipartFile file = new MockMultipartFile(
             "testFileName", "originalTestFileName", MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
@@ -263,6 +265,36 @@ class RestClientAdapterTests {
     assertThat(request.getHeader("X-API-Version")).isEqualTo("1.2");
   }
 
+  @ParameterizedAdapterTest
+  void postSet(MockWebServer server, Service service) throws InterruptedException {
+    Set<Person> persons = new LinkedHashSet<>();
+    persons.add(new Person("John"));
+    persons.add(new Person("Richard"));
+    service.postPersonSet(persons);
+
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getMethod()).isEqualTo("POST");
+    assertThat(request.getPath()).isEqualTo("/persons");
+    assertThat(request.getBody().readUtf8()).isEqualTo("[{\"name\":\"John\"},{\"name\":\"Richard\"}]");
+  }
+
+  @ParameterizedAdapterTest
+  void postOutputStream(MockWebServer server, Service service) throws Exception {
+    String body = "test stream";
+    service.postOutputStream(outputStream -> outputStream.write(body.getBytes()));
+
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).isEqualTo("/output-stream");
+    assertThat(request.getBody().readUtf8()).isEqualTo(body);
+  }
+
+  private Service initService(MockWebServer server) {
+    String url = server.url("/").toString();
+    RestClient restClient = RestClient.builder().baseURI(url).build();
+    RestClientAdapter adapter = RestClientAdapter.create(restClient);
+    return HttpServiceProxyFactory.forAdapter(adapter).build().createClient(Service.class);
+  }
+
   private static MockWebServer anotherServer() {
     MockWebServer server = new MockWebServer();
     MockResponse response = new MockResponse();
@@ -310,6 +342,16 @@ class RestClientAdapterTests {
 
     @GetExchange("/greeting")
     ResponseEntity<String> getWithIgnoredUriBuilderFactory(URI uri, UriBuilderFactory uriBuilderFactory);
+
+    @PostExchange(url = "/output-stream")
+    void postOutputStream(StreamingHttpOutputMessage.Body body);
+
+    @PostExchange(url = "/persons", contentType = MediaType.APPLICATION_JSON_VALUE)
+    void postPersonSet(@RequestBody Set<Person> set);
+
+  }
+
+  record Person(String name) {
   }
 
 }

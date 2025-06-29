@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package infra.context.properties.bind;
 
 import infra.core.env.PropertyResolver;
+import infra.lang.Nullable;
 
 /**
  * Optional strategy that used by a {@link Binder} to resolve property placeholders.
@@ -42,6 +43,7 @@ public interface PlaceholdersResolver {
    * @param value the source value
    * @return a value with placeholders resolved
    */
-  Object resolvePlaceholders(Object value);
+  @Nullable
+  Object resolvePlaceholders(@Nullable Object value);
 
 }

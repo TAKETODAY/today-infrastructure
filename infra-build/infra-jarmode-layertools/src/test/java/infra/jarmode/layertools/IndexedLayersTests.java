@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package infra.jarmode.layertools;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,52 +47,52 @@ class IndexedLayersTests {
 
   @Test
   void createWhenIndexFileIsEmptyThrowsException() {
-    assertThatIllegalStateException().isThrownBy(() -> new IndexedLayers(" \n "))
+    assertThatIllegalStateException().isThrownBy(() -> new IndexedLayers(" \n ", "APP-INF/classes"))
             .withMessage("Empty layer index file loaded");
   }
 
   @Test
   void createWhenIndexFileIsMalformedThrowsException() {
-    assertThatIllegalStateException().isThrownBy(() -> new IndexedLayers("test"))
+    assertThatIllegalStateException().isThrownBy(() -> new IndexedLayers("test", "APP-INF/classes"))
             .withMessage("Layer index file is malformed");
   }
 
   @Test
   void iteratorReturnsLayers() throws Exception {
-    IndexedLayers layers = new IndexedLayers(getIndex());
+    IndexedLayers layers = new IndexedLayers(getIndex(), "APP-INF/classes");
     assertThat(layers).containsExactly("test", "empty", "application");
   }
 
   @Test
   void getLayerWhenMatchesNameReturnsLayer() throws Exception {
-    IndexedLayers layers = new IndexedLayers(getIndex());
+    IndexedLayers layers = new IndexedLayers(getIndex(), "APP-INF/classes");
     assertThat(layers.getLayer(mockEntry("APP-INF/lib/a.jar"))).isEqualTo("test");
     assertThat(layers.getLayer(mockEntry("APP-INF/classes/Demo.class"))).isEqualTo("application");
   }
 
   @Test
   void getLayerWhenMatchesNameForMissingLayerThrowsException() throws Exception {
-    IndexedLayers layers = new IndexedLayers(getIndex());
+    IndexedLayers layers = new IndexedLayers(getIndex(), "APP-INF/classes");
     assertThatIllegalStateException().isThrownBy(() -> layers.getLayer(mockEntry("file.jar")))
             .withMessage("No layer defined in index for file " + "'file.jar'");
   }
 
   @Test
   void getLayerWhenMatchesDirectoryReturnsLayer() throws Exception {
-    IndexedLayers layers = new IndexedLayers(getIndex());
+    IndexedLayers layers = new IndexedLayers(getIndex(), "APP-INF/classes");
     assertThat(layers.getLayer(mockEntry("META-INF/MANIFEST.MF"))).isEqualTo("application");
     assertThat(layers.getLayer(mockEntry("META-INF/a/sub/directory/and/a/file"))).isEqualTo("application");
   }
 
   @Test
   void getLayerWhenFileHasSpaceReturnsLayer() throws Exception {
-    IndexedLayers layers = new IndexedLayers(getIndex());
+    IndexedLayers layers = new IndexedLayers(getIndex(), "APP-INF/classes");
     assertThat(layers.getLayer(mockEntry("a b/c d"))).isEqualTo("application");
   }
 
   @Test
   void getShouldReturnIndexedLayersFromContext() throws Exception {
-    Context context = Mockito.mock(Context.class);
+    Context context = mock(Context.class);
     given(context.getArchiveFile()).willReturn(createWarFile("test.war"));
     IndexedLayers layers = IndexedLayers.get(context);
     assertThat(layers.getLayer(mockEntry("WEB-INF/lib/a.jar"))).isEqualTo("test");

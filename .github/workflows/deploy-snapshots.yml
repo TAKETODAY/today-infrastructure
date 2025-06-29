@@ -1,21 +1,3 @@
-# Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-# Copyright © TODAY & 2017 - 2023 All Rights Reserved.
-#
-# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see [http://www.gnu.org/licenses/]
-
 name: Deploy
 
 on:
@@ -28,25 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources
-        uses: actions/checkout@v4.1.2
-      - name: Set up JDK 17 and Maven Central Repository
-        uses: actions/setup-java@v4.2.1
-        with:
-          java-version: 17
-          distribution: adopt
-          server-id: snapshots
-          server-username: SNAPSHOTS_USERNAME
-          server-password: SNAPSHOTS_TOKEN
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3.1.0
+        uses: actions/checkout@v4
 
-      - name: Deploy snapshots
-        run: ./gradlew --no-daemon publishMavenPublicationToMavenRepository --max-workers=4 -PrepoUsername=$SNAPSHOTS_USERNAME -PrepoPassword=$SNAPSHOTS_TOKEN -Psigning.keyId=$SIGNID -Psigning.password=$SIGNPWD
-        env:
-          SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
-          SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          SIGNID: ${{secrets.SIGNID}}
-          SIGNPWD: ${{secrets.SIGNPWD}}
+      - name: Read Version
+        id: read-version
+        uses: ./.github/actions/read-version
+
+      - name: Deploy snapshot
+        if: ${{ steps.read-version.outputs.snapshot == 'true' }}
+        uses: ./.github/actions/building
+        with:
+          java-version: 21
+          publish: true
+          server-id: snapshots
+          server-username:  ${{ secrets.SNAPSHOTS_USERNAME }}
+          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
+          signing-keyId: ${{ secrets.SIGNID }}
+          signing-password: ${{ secrets.SIGNPWD }}
+          token-username: ${{ secrets.SNAPSHOTS_USERNAME }}
+          token-password: ${{ secrets.SNAPSHOTS_TOKEN }}
+          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+

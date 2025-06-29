@@ -51,6 +51,9 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
 
   private final Set<Comparable<?>> detectedVersions = new TreeSet<>();
 
+  @Nullable
+  private final ApiVersionDeprecationHandler deprecationHandler;
+
   /**
    * Create an instance.
    *
@@ -66,17 +69,19 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
    * mappings for supported version validation (true), or use only explicitly
    * configured versions (false).
    */
-  public DefaultApiVersionStrategy(List<ApiVersionResolver> versionResolvers, ApiVersionParser<?> versionParser,
-          boolean versionRequired, @Nullable String defaultVersion, boolean detectSupportedVersions) {
+  public DefaultApiVersionStrategy(List<ApiVersionResolver> versionResolvers,
+          ApiVersionParser<?> versionParser, boolean versionRequired, @Nullable String defaultVersion,
+          boolean detectSupportedVersions, @Nullable ApiVersionDeprecationHandler deprecationHandler) {
 
     Assert.notEmpty(versionResolvers, "At least one ApiVersionResolver is required");
     Assert.notNull(versionParser, "ApiVersionParser is required");
 
     this.versionResolvers = new ArrayList<>(versionResolvers);
     this.versionParser = versionParser;
-    this.versionRequired = (versionRequired && defaultVersion == null);
-    this.defaultVersion = (defaultVersion != null ? versionParser.parseVersion(defaultVersion) : null);
+    this.versionRequired = versionRequired && defaultVersion == null;
+    this.defaultVersion = defaultVersion != null ? versionParser.parseVersion(defaultVersion) : null;
     this.detectSupportedVersions = detectSupportedVersions;
+    this.deprecationHandler = deprecationHandler;
   }
 
   @Nullable
@@ -119,6 +124,16 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     }
   }
 
+  /**
+   * Whether the strategy is configured to detect supported versions.
+   * If this is set to {@code false} then {@link #addMappedVersion} is ignored
+   * and the list of supported versions can be built explicitly through calls
+   * to {@link #addSupportedVersion}.
+   */
+  public boolean detectSupportedVersions() {
+    return this.detectSupportedVersions;
+  }
+
   @Nullable
   @Override
   public String resolveVersion(RequestContext request) {
@@ -149,6 +164,13 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
 
     if (!isSupportedVersion(requestVersion)) {
       throw new InvalidApiVersionException(requestVersion.toString());
+    }
+  }
+
+  @Override
+  public void handleDeprecations(Comparable<?> version, RequestContext request) {
+    if (deprecationHandler != null) {
+      deprecationHandler.handleVersion(version, request);
     }
   }
 

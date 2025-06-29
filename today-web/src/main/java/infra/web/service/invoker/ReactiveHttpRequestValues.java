@@ -53,9 +53,10 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
           @Nullable String uriTemplate, Map<String, String> uriVars,
           HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
           @Nullable Object bodyValue, @Nullable Publisher<?> body,
+          @Nullable ParameterizedTypeReference<?> bodyValueType,
           @Nullable ParameterizedTypeReference<?> elementType, @Nullable Object version) {
 
-    super(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars, headers, cookies, attributes, bodyValue, version);
+    super(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars, headers, cookies, attributes, bodyValue, bodyValueType, version);
     this.body = body;
     this.bodyElementType = elementType;
   }
@@ -201,7 +202,7 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
      * {@linkplain #setBodyPublisher(Publisher, ParameterizedTypeReference)}.
      */
     @Override
-    public Builder setBodyValue(Object bodyValue) {
+    public Builder setBodyValue(@Nullable Object bodyValue) {
       super.setBodyValue(bodyValue);
       this.body = null;
       this.bodyElementType = null;
@@ -251,10 +252,10 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
     protected ReactiveHttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod, @Nullable URI uri,
             @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate, Map<String, String> uriVars,
             HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-            @Nullable Object bodyValue, @Nullable Object version) {
+            @Nullable Object bodyValue, @Nullable ParameterizedTypeReference<?> bodyValueType, @Nullable Object version) {
 
       return new ReactiveHttpRequestValues(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
-              headers, cookies, attributes, bodyValue, this.body, this.bodyElementType, version);
+              headers, cookies, attributes, bodyValue, this.body, bodyValueType, this.bodyElementType, version);
     }
   }
 

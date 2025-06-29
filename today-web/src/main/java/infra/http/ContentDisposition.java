@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.BitSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -66,6 +67,7 @@ public final class ContentDisposition {
     for (int i = 33; i <= 126; i++) {
       PRINTABLE.set(i);
     }
+    PRINTABLE.set(34, false); // "
     PRINTABLE.set(61, false); // =
     PRINTABLE.set(63, false); // ?
     PRINTABLE.set(95, false); // _
@@ -384,9 +386,10 @@ public final class ContentDisposition {
         index++;
       }
       else if (b == '%' && index < value.length - 2) {
-        char[] array = new char[] { (char) value[index + 1], (char) value[index + 2] };
         try {
-          baos.write(Integer.parseInt(String.valueOf(array), 16));
+          int high = HexFormat.fromHexDigit(value[index + 1]);
+          int low = HexFormat.fromHexDigit(value[index + 2]);
+          baos.write(high << 4 | low);
         }
         catch (NumberFormatException ex) {
           throw new IllegalArgumentException(INVALID_HEADER_FIELD_PARAMETER_FORMAT, ex);

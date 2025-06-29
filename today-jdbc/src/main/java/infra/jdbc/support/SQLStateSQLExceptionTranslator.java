@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,17 +114,20 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
         }
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
       }
-      else if (DATA_ACCESS_RESOURCE_FAILURE_CODES.contains(classCode)) {
-        return new DataAccessResourceFailureException(buildMessage(task, sql, ex), ex);
-      }
-      else if (TRANSIENT_DATA_ACCESS_RESOURCE_CODES.contains(classCode)) {
-        return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
-      }
       else if (PESSIMISTIC_LOCKING_FAILURE_CODES.contains(classCode)) {
         if (indicatesCannotAcquireLock(sqlState)) {
           return new CannotAcquireLockException(buildMessage(task, sql, ex), ex);
         }
         return new PessimisticLockingFailureException(buildMessage(task, sql, ex), ex);
+      }
+      else if (DATA_ACCESS_RESOURCE_FAILURE_CODES.contains(classCode)) {
+        if (indicatesQueryTimeout(sqlState)) {
+          return new QueryTimeoutException(buildMessage(task, sql, ex), ex);
+        }
+        return new DataAccessResourceFailureException(buildMessage(task, sql, ex), ex);
+      }
+      else if (TRANSIENT_DATA_ACCESS_RESOURCE_CODES.contains(classCode)) {
+        return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
       }
     }
 
@@ -181,6 +184,16 @@ public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLException
    */
   static boolean indicatesCannotAcquireLock(@Nullable String sqlState) {
     return "40001".equals(sqlState);
+  }
+
+  /**
+   * Check whether the given SQL state indicates a {@link QueryTimeoutException},
+   * with SQL state 57014 as a specific indication.
+   *
+   * @param sqlState the SQL state value
+   */
+  static boolean indicatesQueryTimeout(@Nullable String sqlState) {
+    return "57014".equals(sqlState);
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,22 +27,26 @@ public class AutowiredComponent {
 
   private Integer counter;
 
+  @Autowired
+  public void setEnvironment(Environment environment) {
+    this.environment = environment;
+  }
+
   public Environment getEnvironment() {
     return this.environment;
   }
 
   @Autowired
-  public void setEnvironment(Environment environment) {
-    this.environment = environment;
+  public void setCounter(Integer counter) {
+    this.counter = counter;
   }
 
   public Integer getCounter() {
     return this.counter;
   }
 
-  @Autowired
-  public void setCounter(Integer counter) {
-    this.counter = counter;
+  public Integer getCounter(Integer ignored) {
+    return this.counter;
   }
 
 }

@@ -116,12 +116,12 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   private BeanFactory beanFactory;
 
   @Nullable
-  private transient ClassLoader pointcutClassLoader;
+  private transient volatile ClassLoader pointcutClassLoader;
 
   @Nullable
-  private transient PointcutExpression pointcutExpression;
+  private transient volatile PointcutExpression pointcutExpression;
 
-  private transient boolean pointcutParsingFailed = false;
+  private transient volatile boolean pointcutParsingFailed = false;
 
   /**
    * Create a new default AspectJExpressionPointcut.
@@ -199,11 +199,14 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
    * Lazily build the underlying AspectJ pointcut expression.
    */
   private PointcutExpression obtainPointcutExpression() {
-    if (this.pointcutExpression == null) {
-      this.pointcutClassLoader = determinePointcutClassLoader();
-      this.pointcutExpression = buildPointcutExpression(this.pointcutClassLoader);
+    PointcutExpression pointcutExpression = this.pointcutExpression;
+    if (pointcutExpression == null) {
+      ClassLoader pointcutClassLoader = determinePointcutClassLoader();
+      pointcutExpression = buildPointcutExpression(pointcutClassLoader);
+      this.pointcutClassLoader = pointcutClassLoader;
+      this.pointcutExpression = pointcutExpression;
     }
-    return this.pointcutExpression;
+    return pointcutExpression;
   }
 
   /**
@@ -466,40 +469,24 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
   }
 
   private ShadowMatch getShadowMatch(Method targetMethod, Method originalMethod) {
-    ShadowMatch shadowMatch = ShadowMatchUtils.getShadowMatch(this, targetMethod);
+    ShadowMatchKey key = new ShadowMatchKey(this, targetMethod);
+    ShadowMatch shadowMatch = ShadowMatchUtils.getShadowMatch(key);
     if (shadowMatch == null) {
-      PointcutExpression fallbackExpression = null;
-      Method methodToMatch = targetMethod;
-      try {
+      PointcutExpression pointcutExpression = obtainPointcutExpression();
+      synchronized(pointcutExpression) {
+        shadowMatch = ShadowMatchUtils.getShadowMatch(key);
+        if (shadowMatch != null) {
+          return shadowMatch;
+        }
+        PointcutExpression fallbackExpression = null;
+        Method methodToMatch = targetMethod;
         try {
-          shadowMatch = obtainPointcutExpression().matchesMethodExecution(methodToMatch);
-        }
-        catch (ReflectionWorldException ex) {
-          // Failed to introspect target method, probably because it has been loaded
-          // in a special ClassLoader. Let's try the declaring ClassLoader instead...
           try {
-            fallbackExpression = getFallbackPointcutExpression(methodToMatch.getDeclaringClass());
-            if (fallbackExpression != null) {
-              shadowMatch = fallbackExpression.matchesMethodExecution(methodToMatch);
-            }
-          }
-          catch (ReflectionWorldException ex2) {
-            fallbackExpression = null;
-          }
-        }
-        if (targetMethod != originalMethod
-                && (shadowMatch == null || (Proxy.isProxyClass(targetMethod.getDeclaringClass())
-                && (shadowMatch.neverMatches() || containsAnnotationPointcut())))) {
-          // Fall back to the plain original method in case of no resolvable match or a
-          // negative match on a proxy class (which doesn't carry any annotations on its
-          // redeclared methods), as well as for annotation pointcuts.
-          methodToMatch = originalMethod;
-          try {
-            shadowMatch = obtainPointcutExpression().matchesMethodExecution(methodToMatch);
+            shadowMatch = pointcutExpression.matchesMethodExecution(methodToMatch);
           }
           catch (ReflectionWorldException ex) {
-            // Could neither introspect the target class nor the proxy class ->
-            // let's try the original method's declaring class before we give up...
+            // Failed to introspect target method, probably because it has been loaded
+            // in a special ClassLoader. Let's try the declaring ClassLoader instead...
             try {
               fallbackExpression = getFallbackPointcutExpression(methodToMatch.getDeclaringClass());
               if (fallbackExpression != null) {
@@ -510,20 +497,45 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
               fallbackExpression = null;
             }
           }
+          if (targetMethod != originalMethod && (shadowMatch == null ||
+                  (Proxy.isProxyClass(targetMethod.getDeclaringClass()) &&
+                          (shadowMatch.neverMatches() || containsAnnotationPointcut())))) {
+            // Fall back to the plain original method in case of no resolvable match or a
+            // negative match on a proxy class (which doesn't carry any annotations on its
+            // redeclared methods), as well as for annotation pointcuts.
+            methodToMatch = originalMethod;
+            try {
+              shadowMatch = pointcutExpression.matchesMethodExecution(methodToMatch);
+            }
+            catch (ReflectionWorldException ex) {
+              // Could neither introspect the target class nor the proxy class ->
+              // let's try the original method's declaring class before we give up...
+              try {
+                fallbackExpression = getFallbackPointcutExpression(methodToMatch.getDeclaringClass());
+                if (fallbackExpression != null) {
+                  shadowMatch = fallbackExpression.matchesMethodExecution(methodToMatch);
+                }
+              }
+              catch (ReflectionWorldException ex2) {
+                fallbackExpression = null;
+              }
+            }
+          }
         }
+        catch (Throwable ex) {
+          // Possibly AspectJ 1.8.10 encountering an invalid signature
+          log.debug("PointcutExpression matching rejected target method", ex);
+          fallbackExpression = null;
+        }
+        if (shadowMatch == null) {
+          shadowMatch = new ShadowMatchImpl(org.aspectj.util.FuzzyBoolean.NO, null, null, null);
+        }
+        else if (shadowMatch.maybeMatches() && fallbackExpression != null) {
+          shadowMatch = new DefensiveShadowMatch(shadowMatch,
+                  fallbackExpression.matchesMethodExecution(methodToMatch));
+        }
+        shadowMatch = ShadowMatchUtils.setShadowMatch(key, shadowMatch);
       }
-      catch (Throwable ex) {
-        // Possibly AspectJ 1.8.10 encountering an invalid signature
-        log.debug("PointcutExpression matching rejected target method", ex);
-        fallbackExpression = null;
-      }
-      if (shadowMatch == null) {
-        shadowMatch = new ShadowMatchImpl(org.aspectj.util.FuzzyBoolean.NO, null, null, null);
-      }
-      else if (shadowMatch.maybeMatches() && fallbackExpression != null) {
-        shadowMatch = new DefensiveShadowMatch(shadowMatch, fallbackExpression.matchesMethodExecution(methodToMatch));
-      }
-      shadowMatch = ShadowMatchUtils.setShadowMatch(this, targetMethod, shadowMatch);
     }
     return shadowMatch;
   }
@@ -708,6 +720,9 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
       this.primary.setMatchingContext(aMatchContext);
       this.other.setMatchingContext(aMatchContext);
     }
+  }
+
+  private record ShadowMatchKey(AspectJExpressionPointcut expression, Method method) {
   }
 
 }

@@ -50,6 +50,7 @@ import infra.validation.BindingResult;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Multipart;
 import infra.web.util.UriBuilder;
@@ -69,9 +70,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
-  private HttpMethod method;
-
-  private URI uri;
+  @Nullable
+  private final ApiVersionStrategy versionStrategy;
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
@@ -86,9 +86,14 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private byte[] body = new byte[0];
 
+  private HttpMethod method;
+
+  private URI uri;
+
   public DefaultServerRequestBuilder(ServerRequest other) {
     Assert.notNull(other, "ServerRequest is required");
     this.requestContext = other.exchange();
+    this.versionStrategy = other.apiVersionStrategy();
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
     this.uri = other.uri();
@@ -187,7 +192,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
   @Override
   public ServerRequest build() {
     return new BuiltServerRequest(this.requestContext, this.method, this.uri, this.headers, this.cookies,
-            this.attributes, this.params, this.remoteAddress, this.body, this.messageConverters);
+            this.attributes, this.params, this.remoteAddress, this.body, this.messageConverters, versionStrategy);
   }
 
   private static final class BuiltServerRequest implements ServerRequest {
@@ -213,11 +218,13 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Nullable
     private final InetSocketAddress remoteAddress;
 
-    public BuiltServerRequest(RequestContext requestContext,
-            HttpMethod method, URI uri, HttpHeaders headers,
-            MultiValueMap<String, HttpCookie> cookies,
-            Map<String, Object> attributes, MultiValueMap<String, String> params,
-            @Nullable InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
+    @Nullable
+    private final ApiVersionStrategy versionStrategy;
+
+    public BuiltServerRequest(RequestContext requestContext, HttpMethod method, URI uri, HttpHeaders headers,
+            MultiValueMap<String, HttpCookie> cookies, Map<String, Object> attributes, MultiValueMap<String, String> params,
+            @Nullable InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters,
+            @Nullable ApiVersionStrategy versionStrategy) {
 
       this.uri = uri;
       this.body = body;
@@ -229,6 +236,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       this.params = new LinkedMultiValueMap<>(params);
       this.cookies = new LinkedMultiValueMap<>(cookies);
       this.attributes = new LinkedHashMap<>(attributes);
+      this.versionStrategy = versionStrategy;
     }
 
     @Override
@@ -274,6 +282,12 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Override
     public List<HttpMessageConverter<?>> messageConverters() {
       return this.messageConverters;
+    }
+
+    @Nullable
+    @Override
+    public ApiVersionStrategy apiVersionStrategy() {
+      return versionStrategy;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -404,12 +404,12 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       interceptors.add(firstInterceptor);
     }
 
-    HandlerInterceptor[] interceptorsArr = getHandlerInterceptors(handler);
-    if (interceptorsArr != null) {
+    HandlerInterceptor[] ia = getHandlerInterceptors(handler);
+    if (ia != null) {
       if (interceptors == null) {
-        interceptors = new ArrayList<>(interceptorsArr.length + 2);
+        interceptors = new ArrayList<>(ia.length + 2);
       }
-      for (HandlerInterceptor interceptor : interceptorsArr) {
+      for (HandlerInterceptor interceptor : ia) {
         interceptors.add(interceptor);
       }
     }
@@ -422,8 +422,9 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
         interceptors.addAll(global);
       }
     }
-    return new HandlerExecutionChain(handler,
-            interceptors == null ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
+
+    return new HandlerExecutionChain(handler, interceptors == null
+            ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
   @Nullable

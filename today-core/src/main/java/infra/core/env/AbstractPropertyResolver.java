@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import infra.core.conversion.support.ConfigurableConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.lang.TodayStrategies;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.PlaceholderResolver;
@@ -39,6 +40,48 @@ import infra.util.PropertyPlaceholderHandler;
  * @since 4.0
  */
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver, PlaceholderResolver {
+
+  /**
+   * JVM system property used to change the <em>default</em> escape character
+   * for property placeholder support: {@value}.
+   * <p>To configure a custom escape character, supply a string containing a
+   * single character (other than {@link Character#MIN_VALUE}). For example,
+   * supplying the following JVM system property via the command line sets the
+   * default escape character to {@code '@'}.
+   * <pre style="code">-Dinfra.placeholder.escapeCharacter.default=@</pre>
+   * <p>To disable escape character support, set the value to an empty string
+   * &mdash; for example, by supplying the following JVM system property via
+   * the command line.
+   * <pre style="code">-Dinfra.placeholder.escapeCharacter.default=</pre>
+   * <p>If the property is not set, {@code '\'} will be used as the default
+   * escape character.
+   * <p>May alternatively be configured via a
+   * {@link infra.lang.TodayStrategies today.properties} file
+   * in the root of the classpath.
+   *
+   * @see #getDefaultEscapeCharacter()
+   * @since 5.0
+   */
+  public static final String DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME =
+          "infra.placeholder.escapeCharacter.default";
+
+  /**
+   * Since {@code null} is a valid value for {@link #defaultEscapeCharacter},
+   * this constant provides a way to represent an undefined (or not yet set)
+   * value. Consequently, {@link #getDefaultEscapeCharacter()} prevents the use
+   * of {@link Character#MIN_VALUE} as the actual escape character.
+   *
+   * @since 5.0
+   */
+  static final Character UNDEFINED_ESCAPE_CHARACTER = Character.MIN_VALUE;
+
+  /**
+   * Cached value for the default escape character.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  static volatile Character defaultEscapeCharacter = UNDEFINED_ESCAPE_CHARACTER;
 
   @Nullable
   private volatile ConfigurableConversionService conversionService;
@@ -308,5 +351,61 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    */
   @Nullable
   protected abstract String getPropertyAsRawString(String key);
+
+  /**
+   * Get the default {@linkplain #setEscapeCharacter(Character) escape character}
+   * to use when parsing strings for property placeholder resolution.
+   * <p>This method attempts to retrieve the default escape character configured
+   * via the {@value #DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME} JVM system
+   * property or Infra property.
+   * <p>Falls back to {@code '\'} if the property has not been set.
+   *
+   * @return the configured default escape character, {@code null} if escape character
+   * support has been disabled, or {@code '\'} if the property has not been set
+   * @throws IllegalArgumentException if the property is configured with an
+   * invalid value, such as {@link Character#MIN_VALUE} or a string containing
+   * more than one character
+   * @see #DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME
+   * @see PropertyPlaceholderHandler#ESCAPE_CHARACTER
+   * @see infra.lang.TodayStrategies
+   * @since 5.0
+   */
+  @Nullable
+  public static Character getDefaultEscapeCharacter() throws IllegalArgumentException {
+    Character escapeCharacter = defaultEscapeCharacter;
+    if (UNDEFINED_ESCAPE_CHARACTER.equals(escapeCharacter)) {
+      String value = TodayStrategies.getProperty(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME);
+      if (value != null) {
+        if (value.isEmpty()) {
+          // Disable escape character support by default.
+          escapeCharacter = null;
+        }
+        else if (value.length() == 1) {
+          try {
+            // Use custom default escape character.
+            escapeCharacter = value.charAt(0);
+          }
+          catch (Exception ex) {
+            throw new IllegalArgumentException("Failed to process value [%s] for property [%s]: %s"
+                    .formatted(value, DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME, ex.getMessage()), ex);
+          }
+          Assert.isTrue(!escapeCharacter.equals(Character.MIN_VALUE),
+                  () -> "Value for property [%s] must not be Character.MIN_VALUE"
+                          .formatted(DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME));
+        }
+        else {
+          throw new IllegalArgumentException(
+                  "Value [%s] for property [%s] must be a single character or an empty string"
+                          .formatted(value, DEFAULT_PLACEHOLDER_ESCAPE_CHARACTER_PROPERTY_NAME));
+        }
+      }
+      else {
+        // Use standard default value for the escape character.
+        escapeCharacter = PropertyPlaceholderHandler.ESCAPE_CHARACTER;
+      }
+      defaultEscapeCharacter = escapeCharacter;
+    }
+    return escapeCharacter;
+  }
 
 }

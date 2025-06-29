@@ -48,8 +48,7 @@ public class SemanticApiVersionParser implements ApiVersionParser<SemanticApiVer
     String minor = matcher.group(3);
     String patch = matcher.group(5);
 
-    return new Version(
-            Integer.parseInt(major),
+    return new Version(Integer.parseInt(major),
             (minor != null ? Integer.parseInt(minor) : 0),
             (patch != null ? Integer.parseInt(patch) : 0));
   }
@@ -68,28 +67,16 @@ public class SemanticApiVersionParser implements ApiVersionParser<SemanticApiVer
    */
   public static final class Version implements Comparable<Version> {
 
-    private final int major;
+    public final int major;
 
-    private final int minor;
+    public final int minor;
 
-    private final int patch;
+    public final int patch;
 
     Version(int major, int minor, int patch) {
       this.major = major;
       this.minor = minor;
       this.patch = patch;
-    }
-
-    public int getMajor() {
-      return this.major;
-    }
-
-    public int getMinor() {
-      return this.minor;
-    }
-
-    public int getPatch() {
-      return this.patch;
     }
 
     @Override
@@ -107,10 +94,10 @@ public class SemanticApiVersionParser implements ApiVersionParser<SemanticApiVer
 
     @Override
     public boolean equals(Object other) {
-      return (this == other || (other instanceof Version otherVersion &&
-              this.major == otherVersion.major &&
-              this.minor == otherVersion.minor &&
-              this.patch == otherVersion.patch));
+      return (this == other || (other instanceof Version ov &&
+              this.major == ov.major &&
+              this.minor == ov.minor &&
+              this.patch == ov.patch));
     }
 
     @Override

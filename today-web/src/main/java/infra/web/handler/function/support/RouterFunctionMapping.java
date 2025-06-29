@@ -31,6 +31,8 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.lang.Nullable;
 import infra.util.CollectionUtils;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionStrategy;
+import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.RouterFunction;
@@ -60,6 +62,9 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
   private List<HttpMessageConverter<?>> messageConverters = Collections.emptyList();
 
   private boolean detectHandlerFunctionsInAncestorContexts = false;
+
+  @Nullable
+  private ApiVersionStrategy apiVersionStrategy;
 
   /**
    * Create an empty {@code RouterFunctionMapping}.
@@ -120,6 +125,16 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
     this.detectHandlerFunctionsInAncestorContexts = detectHandlerFunctionsInAncestorContexts;
   }
 
+  /**
+   * Configure a strategy to manage API versioning.
+   *
+   * @param strategy the strategy to use
+   * @since 5.0
+   */
+  public void setApiVersionStrategy(@Nullable ApiVersionStrategy strategy) {
+    this.apiVersionStrategy = strategy;
+  }
+
   @Override
   public void afterPropertiesSet() throws Exception {
     if (this.routerFunction == null) {
@@ -131,6 +146,11 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
     if (this.routerFunction != null) {
       PathPatternParser patternParser = getPatternParser();
       RouterFunctions.changeParser(this.routerFunction, patternParser);
+      if (apiVersionStrategy instanceof DefaultApiVersionStrategy davs) {
+        if (davs.detectSupportedVersions()) {
+          this.routerFunction.accept(new SupportedVersionVisitor(davs));
+        }
+      }
     }
   }
 
@@ -191,7 +211,18 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
   @Override
   protected Object getHandlerInternal(RequestContext context) throws Exception {
     if (routerFunction != null) {
-      ServerRequest request = ServerRequest.create(context, messageConverters);
+      if (apiVersionStrategy != null) {
+        Comparable<?> version = (Comparable<?>) context.getAttribute(API_VERSION_ATTRIBUTE);
+        if (version == null) {
+          version = apiVersionStrategy.resolveParseAndValidateVersion(context);
+          if (version != null) {
+            context.setAttribute(API_VERSION_ATTRIBUTE, version);
+            apiVersionStrategy.handleDeprecations(version, context);
+          }
+        }
+      }
+
+      ServerRequest request = ServerRequest.create(context, messageConverters, apiVersionStrategy);
       HandlerFunction<?> handlerFunction = routerFunction.route(request).orElse(null);
       if (handlerFunction != null) {
         context.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, request);

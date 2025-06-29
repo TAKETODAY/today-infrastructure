@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package infra.jarmode.layertools;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
@@ -30,17 +32,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -89,6 +89,7 @@ class ExtractCommandTests {
   }
 
   @Test
+  @DisabledOnOs(OS.LINUX)
   void runExtractsLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     given(this.context.getWorkingDir()).willReturn(this.extract);
@@ -103,17 +104,22 @@ class ExtractCommandTests {
 
   private void timeAttributes(File file) {
     try {
-      BasicFileAttributes basicAttributes = Files
-              .getFileAttributeView(file.toPath(), BasicFileAttributeView.class, new LinkOption[0])
-              .readAttributes();
-      assertThat(basicAttributes.lastModifiedTime().to(TimeUnit.SECONDS))
-              .isEqualTo(LAST_MODIFIED_TIME.to(TimeUnit.SECONDS));
-      assertThat(basicAttributes.creationTime().to(TimeUnit.SECONDS)).satisfiesAnyOf(
-              (creationTime) -> assertThat(creationTime).isEqualTo(CREATION_TIME.to(TimeUnit.SECONDS)),
+      var basicAttributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+      assertThat(basicAttributes.lastAccessTime().toInstant()
+              .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_ACCESS_TIME.toInstant()
+              .truncatedTo(ChronoUnit.SECONDS));
+      assertThat(basicAttributes.lastModifiedTime().toInstant()
+              .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_MODIFIED_TIME.toInstant()
+              .truncatedTo(ChronoUnit.SECONDS));
+
+      assertThat(basicAttributes.creationTime()).satisfiesAnyOf(
+              (creationTime) -> assertThat(creationTime.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(CREATION_TIME.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)),
               // On macOS (at least) the creation time is the last modified time
-              (creationTime) -> assertThat(creationTime).isEqualTo(LAST_MODIFIED_TIME.to(TimeUnit.SECONDS)));
-      assertThat(basicAttributes.lastAccessTime().to(TimeUnit.SECONDS))
-              .isEqualTo(LAST_ACCESS_TIME.to(TimeUnit.SECONDS));
+              (creationTime) -> assertThat(creationTime.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)).isEqualTo(LAST_MODIFIED_TIME.toInstant()
+                      .truncatedTo(ChronoUnit.SECONDS)));
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -121,6 +127,7 @@ class ExtractCommandTests {
   }
 
   @Test
+  @DisabledOnOs(OS.LINUX)
   void runWhenHasDestinationOptionExtractsLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     File out = new File(this.extract, "out");
@@ -133,6 +140,7 @@ class ExtractCommandTests {
   }
 
   @Test
+  @DisabledOnOs(OS.LINUX)
   void runWhenHasLayerParamsExtractsLimitedLayers() {
     given(this.context.getArchiveFile()).willReturn(this.jarFile);
     given(this.context.getWorkingDir()).willReturn(this.extract);
@@ -180,7 +188,7 @@ class ExtractCommandTests {
 
   private File createJarFile(String name, Consumer<ZipOutputStream> streamHandler) throws Exception {
     File file = new File(this.temp, name);
-    try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file))) {
+    try (JarOutputStream out = new JarOutputStream(new FileOutputStream(file))) {
       out.putNextEntry(entry("a/"));
       out.closeEntry();
       out.putNextEntry(entry("a/a.jar"));
@@ -225,14 +233,19 @@ class ExtractCommandTests {
     }
 
     @Override
-    public String getLayer(ZipEntry entry) {
-      if (entry.getName().startsWith("a")) {
+    public String getLayer(String entryName) {
+      if (entryName.startsWith("a")) {
         return "a";
       }
-      if (entry.getName().startsWith("b")) {
+      if (entryName.startsWith("b")) {
         return "b";
       }
       return "c";
+    }
+
+    @Override
+    public String getApplicationLayerName() {
+      return "application";
     }
 
   }

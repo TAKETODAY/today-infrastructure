@@ -88,8 +88,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   private static final String SCOPED_TARGET_NAME_PREFIX = "scopedTarget.";
 
-  private static final HandlerMethod PREFLIGHT_AMBIGUOUS_MATCH =
-          new HandlerMethod(new EmptyHandler(), ReflectionUtils.getMethod(EmptyHandler.class, "handle"));
+  private static final HandlerMethod PREFLIGHT_AMBIGUOUS_MATCH = new HandlerMethod(
+          new EmptyHandler(), ReflectionUtils.getMethod(EmptyHandler.class, "handle"));
 
   private static final CorsConfiguration ALLOW_CORS_CONFIG = new CorsConfiguration();
 
@@ -165,9 +165,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Return a (read-only) map with all mappings and HandlerMethod's.
    */
   public Map<T, HandlerMethod> getHandlerMethods() {
-    return Collections.unmodifiableMap(
-            mappingRegistry.registrations.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().handlerMethod)));
+    return Collections.unmodifiableMap(mappingRegistry.registrations.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().handlerMethod)));
   }
 
   /**
@@ -504,6 +503,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
             && mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
+  @Nullable
   @Override
   protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);

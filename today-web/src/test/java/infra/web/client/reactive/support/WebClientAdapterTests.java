@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import infra.http.MediaType;
@@ -34,6 +36,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestAttribute;
+import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.client.reactive.WebClient;
@@ -203,6 +206,22 @@ class WebClientAdapterTests {
     assertThat(this.anotherServer.getRequestCount()).isEqualTo(0);
   }
 
+  @Test
+  void postSet() throws InterruptedException {
+    prepareResponse(response -> response.setResponseCode(201));
+
+    Set<Person> persons = new LinkedHashSet<>();
+    persons.add(new Person("John"));
+    persons.add(new Person("Richard"));
+
+    initService().postPersonSet(persons);
+
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getMethod()).isEqualTo("POST");
+    assertThat(request.getPath()).isEqualTo("/persons");
+    assertThat(request.getBody().readUtf8()).isEqualTo("[{\"name\":\"John\"},{\"name\":\"Richard\"}]");
+  }
+
   private static MockWebServer anotherServer() {
     MockWebServer anotherServer = new MockWebServer();
     MockResponse response = new MockResponse();
@@ -254,6 +273,21 @@ class WebClientAdapterTests {
     @GetExchange("/greeting")
     String getWithIgnoredUriBuilderFactory(URI uri, UriBuilderFactory uriBuilderFactory);
 
+    @PostExchange("/persons")
+    void postPersonSet(@RequestBody Set<Person> set);
   }
 
+  static final class Person {
+
+    private final String name;
+
+    Person(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+
+  }
 }

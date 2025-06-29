@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,9 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpRequestFactory.class);
 
   private static final Function<HttpClient, HttpClient> defaultInitializer =
-          client -> client.compress(true).responseTimeout(Duration.ofSeconds(10));
+          client -> client.compress(true)
+                  .responseTimeout(Duration.ofSeconds(10))
+                  .proxyWithSystemProperties();
 
   @Nullable
   private final ReactorResourceFactory resourceFactory;

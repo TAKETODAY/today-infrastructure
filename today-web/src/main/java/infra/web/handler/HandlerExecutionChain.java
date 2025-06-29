@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,16 +79,6 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   }
 
   /**
-   * Create a new HandlerExecutionChain.
-   *
-   * @param interceptors the array of interceptors to apply
-   * (in the given order) before the handler itself executes
-   */
-  public HandlerExecutionChain withInterceptors(@Nullable HandlerInterceptor[] interceptors) {
-    return new HandlerExecutionChain(handler, interceptors);
-  }
-
-  /**
    * Delegates to the handler's {@code toString()} implementation.
    */
   @Override
@@ -100,7 +90,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   @Nullable
   @Override
   public Object handleRequest(RequestContext request) throws Throwable {
-    HandlerInterceptor[] interceptors = this.interceptors;
+    var interceptors = this.interceptors;
     if (interceptors == null) {
       return handlerAdapter.handle(request, handler);
     }
@@ -118,6 +108,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
       super(interceptors, handler);
     }
 
+    @Nullable
     @Override
     protected Object invokeHandler(RequestContext context, Object handler) throws Throwable {
       return handlerAdapter.handle(context, handler);

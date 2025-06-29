@@ -28,8 +28,12 @@ import infra.util.StringUtils;
  * {@link PropertySource} instances. Necessary in cases where multiple property sources
  * share the same name, e.g. when multiple values are supplied to {@code @PropertySource}.
  *
- * <p> instead of plain {@link PropertySource}, exposing {@link #getPropertyNames()} based on the
- * accumulated property names from all contained sources (as far as possible).
+ * this class extends {@link EnumerablePropertySource} instead
+ * of plain {@link PropertySource}, exposing {@link #getPropertyNames()} based on the
+ * accumulated property names from all contained sources - and failing with an
+ * {@code IllegalStateException} against any non-{@code EnumerablePropertySource}.
+ * <b>When used through the {@code EnumerablePropertySource} contract, all contained
+ * sources are expected to be of type {@code EnumerablePropertySource} as well.</b>
  *
  * @author Chris Beams
  * @author Juergen Hoeller

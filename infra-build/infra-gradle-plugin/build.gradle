@@ -17,22 +17,11 @@
 
 plugins {
   id "java-gradle-plugin"
-//  id "com.gradle.plugin-publish" version "1.2.1"
+//  id "com.gradle.plugin-publish" version "1.3.1"
 }
 
 description = "TODAY Infrastructure Applications Gradle Plugins"
 
-configurations.configureEach {
-  resolutionStrategy {
-    eachDependency { dependency ->
-      // Downgrade Jackson as Gradle cannot cope with 2.15.0's multi-version
-      // jar files with bytecode in META-INF/versions/19
-      if (dependency.requested.group.startsWith("com.fasterxml.jackson")) {
-        dependency.useVersion("2.14.2")
-      }
-    }
-  }
-}
 
 dependencies {
 

@@ -1525,6 +1525,7 @@ class StandardBeanFactoryTests {
     bd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
     bd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("bean2", bd2);
+
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
             .containsExactly("highest", "lowest");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(clazz -> !DerivedTestBean.class.isAssignableFrom(clazz))
@@ -1533,6 +1534,9 @@ class StandardBeanFactoryTests {
             .containsExactly("highest", "lowest");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED, false).map(TestBean::getName))
             .containsExactly("lowest");
+
+    assertThat(lbf.getOrder("bean1")).isEqualTo(Ordered.LOWEST_PRECEDENCE);
+    assertThat(lbf.getOrder("bean2")).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
   }
 
   @Test
@@ -1545,12 +1549,16 @@ class StandardBeanFactoryTests {
     rbd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.LOWEST_PRECEDENCE);
     rbd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("highestPrecedenceFactory", rbd2);
+
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED).map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
     assertThat(lbf.getBeanProvider(TestBean.class).orderedStream(ObjectProvider.UNFILTERED, false).map(TestBean::getName))
             .containsExactly("fromLowestPrecedenceTestBeanFactoryBean");
+
+    assertThat(lbf.getOrder("lowestPrecedenceFactory")).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
+    assertThat(lbf.getOrder("highestPrecedenceFactory")).isEqualTo(Ordered.LOWEST_PRECEDENCE);
   }
 
   @Test

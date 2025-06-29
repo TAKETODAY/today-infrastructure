@@ -515,15 +515,22 @@ class ConfigurationClassParser {
    * <p>For example, it is common for a {@code @Configuration} class to declare direct
    * {@code @Import}s in addition to meta-imports originating from an {@code @Enable}
    * annotation.
+   * <p>As of 5.0, {@code @Import} annotations declared on interfaces
+   * implemented by the configuration class are also considered. This allows imports to
+   * be triggered indirectly via marker interfaces or shared base interfaces.
    *
    * @param sourceClass the class to search
    * @param imports the imports collected so far
-   * @param visited used to track visited classes to prevent infinite recursion
+   * @param visited used to track visited classes and interfaces to prevent infinite
+   * recursion
    * @throws IOException if there is any problem reading metadata from the named class
    */
   private void collectImports(SourceClass sourceClass, Set<SourceClass> imports, Set<SourceClass> visited) throws IOException {
     if (visited.add(sourceClass)) {
-      for (SourceClass annotation : sourceClass.getAnnotationsAsSourceClass()) {
+      for (SourceClass ifc : sourceClass.getInterfaces()) {
+        collectImports(ifc, imports, visited);
+      }
+      for (SourceClass annotation : sourceClass.getAnnotations()) {
         String annName = annotation.metadata.getClassName();
         if (!annName.equals(Import.class.getName())) {
           collectImports(annotation, imports, visited);
@@ -1043,7 +1050,7 @@ class ConfigurationClassParser {
       return result;
     }
 
-    public Set<SourceClass> getAnnotationsAsSourceClass() {
+    public Set<SourceClass> getAnnotations() {
       LinkedHashSet<SourceClass> result = new LinkedHashSet<>();
       if (source instanceof Class<?> sourceClass) {
         for (Annotation ann : sourceClass.getDeclaredAnnotations()) {

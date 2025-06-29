@@ -755,11 +755,12 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public RouterFunctionMapping routerFunctionMapping() {
+  public RouterFunctionMapping routerFunctionMapping(@Qualifier("mvcApiVersionStrategy") @Nullable ApiVersionStrategy versionStrategy) {
 
     RouterFunctionMapping mapping = new RouterFunctionMapping();
     mapping.setOrder(3);
     mapping.setMessageConverters(getMessageConverters());
+    mapping.setApiVersionStrategy(versionStrategy);
 
     initHandlerMapping(mapping);
     return mapping;

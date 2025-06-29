@@ -53,6 +53,7 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class PropertySource<T> {
+
   private static final Logger log = LoggerFactory.getLogger(PropertySource.class);
 
   protected final String name;

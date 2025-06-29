@@ -352,6 +352,11 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
 
   private Object instantiate(RegisteredBean registeredBean, Executable executable, Object[] args) {
     if (executable instanceof Constructor<?> constructor) {
+      if (registeredBean.getBeanFactory() instanceof AbstractAutowireCapableBeanFactory aacb
+              && registeredBean.getMergedBeanDefinition().hasMethodOverrides()) {
+        return aacb.getInstantiationStrategy().instantiate(registeredBean.getMergedBeanDefinition(),
+                registeredBean.getBeanName(), registeredBean.getBeanFactory());
+      }
       return BeanUtils.newInstance(constructor, args);
     }
     if (executable instanceof Method method) {

@@ -1,0 +1,101 @@
+name: 'Build'
+description: 'Builds the project, optionally publishing it to a local deployment repository'
+inputs:
+  java-distribution:
+    description: 'Java distribution to use'
+    required: false
+    default: 'liberica'
+  java-early-access:
+    description: 'Whether the Java version is in early access'
+    required: false
+    default: 'false'
+  java-toolchain:
+    description: 'Whether a Java toolchain should be used'
+    required: false
+    default: 'false'
+  java-version:
+    description: 'Java version to compile and test with'
+    required: false
+    default: '24'
+  publish:
+    description: 'Whether to publish artifacts ready for deployment to Artifactory'
+    required: false
+    default: 'false'
+  token-password:
+    description: 'Password for authentication with central.sonatype.com'
+    required: false
+  token-username:
+    description: 'Username for authentication with central.sonatype.com'
+    required: false
+  signing-keyId:
+    description: 'signing keyId'
+    required: false
+  signing-password:
+    description: 'signing password'
+    required: false
+  gpg-passphrase:
+    description: 'Environment variable name for the GPG private key passphrase. Default is $GPG_PASSPHRASE.'
+    required: false
+  gpg-private-key:
+    description: 'GPG private key to import. Default is empty string.'
+    required: false
+  server-id:
+    description: 'ID of the distributionManagement repository in the pom.xml file. Default is `github`'
+    required: false
+    default: 'github'
+  server-username:
+    description: 'Environment variable name for the username for authentication to the Apache Maven repository. Default is $GITHUB_ACTOR'
+    required: false
+    default: 'GITHUB_ACTOR'
+  server-password:
+    description: 'Environment variable name for password or token for authentication to the Apache Maven repository. Default is $GITHUB_TOKEN'
+    required: false
+    default: 'GITHUB_TOKEN'
+outputs:
+  build-scan-url:
+    description: 'URL, if any, of the build scan produced by the build'
+    value: ${{ (inputs.publish == 'true' && steps.publish.outputs.build-scan-url) || steps.build.outputs.build-scan-url }}
+  version:
+    description: 'Version that was built'
+    value: ${{ steps.read-version.outputs.version }}
+runs:
+  using: composite
+  steps:
+    - name: Set Up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: ${{ inputs.java-early-access == 'true' && 'temurin' || (inputs.java-distribution || 'liberica') }}
+        java-version: |
+          ${{ inputs.java-early-access == 'true' && format('{0}-ea', inputs.java-version) || inputs.java-version }}
+          ${{ inputs.java-toolchain == 'true' && '17' || '' }}
+        gpg-passphrase: ${{ inputs.gpg-passphrase }}
+        gpg-private-key: ${{ inputs.gpg-private-key }}
+        server-id: ${{ inputs.server-id }}
+        server-username: ${{ inputs.server-username }}
+        server-password: ${{ inputs.server-password }}
+
+    - name: Print JDK Version
+      shell: bash
+      run: java -version
+
+    - name: Set Up Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build
+      id: build
+      if: ${{ inputs.publish == 'false' }}
+      shell: bash
+      run: ./gradlew -DCI=true --no-daemon --no-parallel check --scan
+
+    - name: Publish
+      id: publish
+      if: ${{ inputs.publish == 'true' }}
+      shell: bash
+      run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories 
+            -PrepoUsername=${{ inputs.token-username }} -PrepoPassword=${{ inputs.token-password }} 
+            -Psigning.keyId=${{ inputs.signing-password }} -Psigning.password=${{ inputs.signing-password }}
+
+    - name: Read Version From gradle.properties
+      id: read-version
+      uses: ./.github/actions/read-version
+

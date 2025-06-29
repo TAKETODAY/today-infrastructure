@@ -26,6 +26,7 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.ResponseEntity;
+import infra.http.StreamingHttpOutputMessage;
 import infra.lang.Assert;
 import infra.lang.Nullable;
 import infra.util.concurrent.Future;
@@ -111,6 +112,7 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
     return newRequest(values).async(asyncExecutor).toEntity(bodyType);
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private RestClient.RequestBodySpec newRequest(HttpRequestValues values) {
     HttpMethod httpMethod = values.getHttpMethod();
     Assert.notNull(httpMethod, "HttpMethod is required");
@@ -150,8 +152,17 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
       bodySpec.header(HttpHeaders.COOKIE, String.join("; ", cookies));
     }
 
-    if (values.getBodyValue() != null) {
-      bodySpec.body(values.getBodyValue());
+    var body = values.getBodyValue();
+    if (body != null) {
+      if (body instanceof StreamingHttpOutputMessage.Body sb) {
+        bodySpec.body(sb);
+      }
+      else if (values.getBodyValueType() != null) {
+        bodySpec.body(body, (ParameterizedTypeReference) values.getBodyValueType());
+      }
+      else {
+        bodySpec.body(body);
+      }
     }
 
     if (values.getApiVersion() != null) {

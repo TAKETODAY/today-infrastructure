@@ -114,3 +114,6 @@ infra.app.logging.LoggingSystemFactory=\
 
 infra.core.io.ProtocolResolver=\
   infra.app.io.Base64ProtocolResolver
+
+infra.app.io.FilePathResolver=\
+infra.app.io.ClassPathResourceFilePathResolver

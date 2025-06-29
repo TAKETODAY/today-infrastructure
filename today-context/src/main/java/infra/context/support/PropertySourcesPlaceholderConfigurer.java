@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.PlaceholderConfigurerSupport;
 import infra.context.EnvironmentAware;
 import infra.core.StringValueResolver;
+import infra.core.conversion.ConversionService;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.ConfigurablePropertyResolver;
 import infra.core.env.Environment;
 import infra.core.env.PropertiesPropertySource;
-import infra.core.env.PropertyResolver;
 import infra.core.env.PropertySource;
 import infra.core.env.PropertySources;
 import infra.core.env.PropertySourcesPropertyResolver;
@@ -124,28 +124,10 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
     if (this.propertySources == null) {
       this.propertySources = new PropertySources();
       if (this.environment != null) {
-        PropertyResolver propertyResolver = this.environment;
-        // If the ignoreUnresolvablePlaceholders flag is set to true, we have to create a
-        // local PropertyResolver to enforce that setting, since the Environment is most
-        // likely not configured with ignoreUnresolvablePlaceholders set to true.
-        // See https://github.com/spring-projects/spring-framework/issues/27947
-        if (this.ignoreUnresolvablePlaceholders &&
-                (this.environment instanceof ConfigurableEnvironment configurableEnvironment)) {
-          PropertySourcesPropertyResolver resolver =
-                  new PropertySourcesPropertyResolver(configurableEnvironment.getPropertySources());
-          resolver.setIgnoreUnresolvableNestedPlaceholders(true);
-          propertyResolver = resolver;
-        }
-        PropertyResolver propertyResolverToUse = propertyResolver;
-        this.propertySources.addLast(
-                new PropertySource<>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
-                  @Override
-                  @Nullable
-                  public String getProperty(String key) {
-                    return propertyResolverToUse.getProperty(key);
-                  }
-                }
-        );
+        PropertySource<?> environmentPropertySource = this.environment instanceof ConfigurableEnvironment ce
+                ? new ConfigurableEnvironmentPropertySource(ce)
+                : new FallbackEnvironmentPropertySource(this.environment);
+        this.propertySources.addLast(environmentPropertySource);
       }
       try {
         PropertySource<?> localPropertySource =
@@ -187,11 +169,10 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
     propertyResolver.setPlaceholderSuffix(placeholderSuffix);
     propertyResolver.setEscapeCharacter(escapeCharacter);
 
-
     StringValueResolver valueResolver = strVal -> {
       String resolved = ignoreUnresolvablePlaceholders ?
-                        propertyResolver.resolvePlaceholders(strVal) :
-                        propertyResolver.resolveRequiredPlaceholders(strVal);
+              propertyResolver.resolvePlaceholders(strVal) :
+              propertyResolver.resolveRequiredPlaceholders(strVal);
       if (this.trimValues) {
         resolved = resolved.trim();
       }
@@ -224,6 +205,96 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
   public PropertySources getAppliedPropertySources() throws IllegalStateException {
     Assert.state(this.appliedPropertySources != null, "PropertySources have not yet been applied");
     return this.appliedPropertySources;
+  }
+
+  /**
+   * Custom {@link PropertySource} that delegates to the
+   * {@link ConfigurableEnvironment#getPropertySources() PropertySources} in a
+   * {@link ConfigurableEnvironment}.
+   *
+   * @since 5.0
+   */
+  private static class ConfigurableEnvironmentPropertySource extends PropertySource<ConfigurableEnvironment> {
+
+    ConfigurableEnvironmentPropertySource(ConfigurableEnvironment environment) {
+      super(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, environment);
+    }
+
+    @Override
+    public boolean containsProperty(String name) {
+      for (PropertySource<?> propertySource : super.source.getPropertySources()) {
+        if (propertySource.containsProperty(name)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    @Nullable
+    // Declare String as covariant return type, since a String is actually required.
+    public String getProperty(String name) {
+      for (PropertySource<?> propertySource : super.source.getPropertySources()) {
+        Object candidate = propertySource.getProperty(name);
+        if (candidate != null) {
+          return convertToString(candidate);
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Convert the supplied value to a {@link String} using the {@link ConversionService}
+     * from the {@link Environment}.
+     * <p>This is a modified version of
+     * {@link infra.core.env.AbstractPropertyResolver#convertValueIfNecessary(Object, Class)}.
+     *
+     * @param value the value to convert
+     * @return the converted value, or the original value if no conversion is necessary
+     */
+    @Nullable
+    private String convertToString(Object value) {
+      if (value instanceof String string) {
+        return string;
+      }
+      return super.source.getConversionService().convert(value, String.class);
+    }
+
+    @Override
+    public String toString() {
+      return "ConfigurableEnvironmentPropertySource {propertySources=" + super.source.getPropertySources() + "}";
+    }
+  }
+
+  /**
+   * Fallback {@link PropertySource} that delegates to a raw {@link Environment}.
+   * <p>Should never apply in a regular scenario, since the {@code Environment}
+   * in an {@code ApplicationContext} should always be a {@link ConfigurableEnvironment}.
+   *
+   * @since 5.0
+   */
+  private static class FallbackEnvironmentPropertySource extends PropertySource<Environment> {
+
+    FallbackEnvironmentPropertySource(Environment environment) {
+      super(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, environment);
+    }
+
+    @Override
+    public boolean containsProperty(String name) {
+      return super.source.containsProperty(name);
+    }
+
+    @Nullable
+    @Override
+    // Declare String as covariant return type, since a String is actually required.
+    public String getProperty(String name) {
+      return super.source.getProperty(name);
+    }
+
+    @Override
+    public String toString() {
+      return "FallbackEnvironmentPropertySource {environment=" + super.source + "}";
+    }
   }
 
 }

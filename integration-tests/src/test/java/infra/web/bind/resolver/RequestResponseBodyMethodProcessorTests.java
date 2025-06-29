@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -338,7 +338,6 @@ class RequestResponseBodyMethodProcessorTests {
     assertThat(mockResponse.getHeader("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
   }
 
-
   @Test
   public void handleReturnValueImage() throws Throwable {
     this.mockRequest.addHeader("Accept", "*/*");
@@ -398,7 +397,6 @@ class RequestResponseBodyMethodProcessorTests {
   }
 
   @Test
-    // gh-29588
   void problemDetailWhenJsonAndProblemJsonRequested() throws Throwable {
     this.mockRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
@@ -410,6 +408,12 @@ class RequestResponseBodyMethodProcessorTests {
     testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
+  @Test
+  void problemDetailWhenProblemXmlRequested() throws Throwable {
+    this.mockRequest.addHeader("Accept", MediaType.APPLICATION_PROBLEM_XML_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_XML_VALUE);
+  }
+
   private void testProblemDetailMediaType(String expectedContentType) throws Throwable {
 
     ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -418,7 +422,8 @@ class RequestResponseBodyMethodProcessorTests {
 
     RequestResponseBodyMethodProcessor processor =
             new RequestResponseBodyMethodProcessor(
-                    Collections.singletonList(new MappingJackson2HttpMessageConverter()));
+                    List.of(new MappingJackson2HttpMessageConverter(),
+                            new MappingJackson2XmlHttpMessageConverter()));
 
     Method method = getClass().getDeclaredMethod("handleAndReturnProblemDetail");
 

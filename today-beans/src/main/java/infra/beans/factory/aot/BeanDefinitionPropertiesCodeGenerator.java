@@ -51,6 +51,9 @@ import infra.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.AutowireCandidateQualifier;
 import infra.beans.factory.support.InstanceSupplier;
+import infra.beans.factory.support.LookupOverride;
+import infra.beans.factory.support.MethodOverride;
+import infra.beans.factory.support.ReplaceOverride;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.core.ReactiveStreams;
 import infra.javapoet.CodeBlock;
@@ -133,6 +136,7 @@ class BeanDefinitionPropertiesCodeGenerator {
     addPropertyValues(code, beanDefinition);
     addAttributes(code, beanDefinition);
     addQualifiers(code, beanDefinition);
+    addMethodOverrides(code, beanDefinition);
     return code.build();
   }
 
@@ -256,6 +260,36 @@ class BeanDefinitionPropertiesCodeGenerator {
         }
         code.addStatement("$L.addQualifier(new $T($L))", BEAN_DEFINITION_VARIABLE,
                 AutowireCandidateQualifier.class, CodeBlock.join(arguments, ", "));
+      }
+    }
+  }
+
+  private void addMethodOverrides(CodeBlock.Builder code, RootBeanDefinition beanDefinition) {
+    if (beanDefinition.hasMethodOverrides()) {
+      for (MethodOverride methodOverride : beanDefinition.getMethodOverrides().getOverrides()) {
+        if (methodOverride instanceof LookupOverride lookupOverride) {
+          ArrayList<CodeBlock> arguments = new ArrayList<>();
+          arguments.add(CodeBlock.of("$S", lookupOverride.getMethodName()));
+          arguments.add(CodeBlock.of("$S", lookupOverride.getBeanName()));
+          code.addStatement("$L.getMethodOverrides().addOverride(new $T($L))", BEAN_DEFINITION_VARIABLE,
+                  LookupOverride.class, CodeBlock.join(arguments, ", "));
+        }
+        else if (methodOverride instanceof ReplaceOverride replaceOverride) {
+          ArrayList<CodeBlock> arguments = new ArrayList<>();
+          arguments.add(CodeBlock.of("$S", replaceOverride.getMethodName()));
+          arguments.add(CodeBlock.of("$S", replaceOverride.getMethodReplacerBeanName()));
+          List<String> typeIdentifiers = replaceOverride.getTypeIdentifiers();
+          if (!typeIdentifiers.isEmpty()) {
+            arguments.add(CodeBlock.of("java.util.List.of($S)",
+                    StringUtils.collectionToDelimitedString(typeIdentifiers, ", ")));
+          }
+          code.addStatement("$L.getMethodOverrides().addOverride(new $T($L))", BEAN_DEFINITION_VARIABLE,
+                  ReplaceOverride.class, CodeBlock.join(arguments, ", "));
+        }
+        else {
+          throw new UnsupportedOperationException("Unexpected MethodOverride subclass: " +
+                  methodOverride.getClass().getName());
+        }
       }
     }
   }

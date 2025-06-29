@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,10 @@ public class InnerComponentConfiguration {
 
   public class EnvironmentAwareComponent {
 
+    final Environment environment;
+
     public EnvironmentAwareComponent(Environment environment) {
+      this.environment = environment;
     }
   }
 
@@ -41,7 +44,10 @@ public class InnerComponentConfiguration {
 
   public class EnvironmentAwareComponentWithoutPublicConstructor {
 
+    final Environment environment;
+
     EnvironmentAwareComponentWithoutPublicConstructor(Environment environment) {
+      this.environment = environment;
     }
   }
 

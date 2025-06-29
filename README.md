@@ -7,7 +7,7 @@
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Deploy](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml)
 [![Coveralls](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml)
-[![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/multi-env.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/multi-env.yaml)
+[![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://app.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 
@@ -50,7 +50,7 @@ buildscript {
   repositories {
     mavenLocal()
     maven {
-      url "https://oss.sonatype.org/content/repositories/snapshots/"
+      url "https://central.sonatype.com/repository/maven-snapshots/"
     }
     mavenCentral()
   }
@@ -71,7 +71,7 @@ apply plugin: 'io.spring.dependency-management' // 有了该插件可以自动�
 
 repositories {
   mavenLocal()
-  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://central.sonatype.com/repository/maven-snapshots/" }
   maven { url "https://maven.aliyun.com/repository/public" }
   mavenCentral()
 }

@@ -16,6 +16,8 @@
  */
 package infra.core.io;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -316,6 +318,16 @@ class PathMatchingPatternResourceLoaderTests {
     @TempDir
     Path temp;
 
+    @BeforeAll
+    static void suppressJarCaches() {
+      URLConnection.setDefaultUseCaches("jar", false);
+    }
+
+    @AfterAll
+    static void restoreJarCaches() {
+      URLConnection.setDefaultUseCaches("jar", true);
+    }
+
     @Test
     void javaDashJarFindsClassPathManifestEntries() throws Exception {
       Path lib = this.temp.resolve("lib");
@@ -339,6 +351,7 @@ class PathMatchingPatternResourceLoaderTests {
         StreamUtils.copy("test", StandardCharsets.UTF_8, jar);
         jar.closeEntry();
       }
+
       assertThat(new FileSystemResource(path).exists()).isTrue();
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/file.txt").exists()).isTrue();
@@ -346,6 +359,14 @@ class PathMatchingPatternResourceLoaderTests {
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isFalse();
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/file.txt").exists()).isFalse();
       assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + "X" + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/none.txt").exists()).isFalse();
+
+      Resource resource = new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR + "assets/file.txt");
+      try (InputStream is = resource.getInputStream()) {
+        assertThat(resource.exists()).isTrue();
+        assertThat(resource.createRelative("file.txt").exists()).isTrue();
+        assertThat(new UrlResource(ResourceUtils.JAR_URL_PREFIX + ResourceUtils.FILE_URL_PREFIX + path + ResourceUtils.JAR_URL_SEPARATOR).exists()).isTrue();
+        is.readAllBytes();
+      }
     }
 
     private void writeApplicationJar(Path path) throws Exception {
@@ -382,8 +403,7 @@ class PathMatchingPatternResourceLoaderTests {
               + copyClasses(LoggerFactory.class, "commons-logging");
     }
 
-    private String copyClasses(Class<?> sourceClass, String destinationName)
-            throws URISyntaxException, IOException {
+    private String copyClasses(Class<?> sourceClass, String destinationName) throws URISyntaxException, IOException {
       Path destination = this.temp.resolve(destinationName);
       String resourcePath = ClassUtils.convertClassNameToResourcePath(
               sourceClass.getName()) + ClassUtils.CLASS_FILE_SUFFIX;
@@ -412,7 +432,6 @@ class PathMatchingPatternResourceLoaderTests {
       }
       return destinationName + "/ ";
     }
-
   }
 
   private void assertFilenameIn(Resource resource, String... filenames) {

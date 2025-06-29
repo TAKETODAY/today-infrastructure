@@ -55,6 +55,7 @@ import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.async.AsyncWebRequest;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Multipart;
@@ -85,10 +86,20 @@ class DefaultServerRequest implements ServerRequest {
   private final List<HttpMessageConverter<?>> messageConverters;
 
   @Nullable
+  private final ApiVersionStrategy versionStrategy;
+
+  @Nullable
   private MultiValueMap<String, Multipart> parts;
 
-  DefaultServerRequest(RequestContext requestContext, List<HttpMessageConverter<?>> messageConverters) {
+  public DefaultServerRequest(RequestContext servletRequest, List<HttpMessageConverter<?>> messageConverters) {
+    this(servletRequest, messageConverters, null);
+  }
+
+  public DefaultServerRequest(RequestContext requestContext,
+          List<HttpMessageConverter<?>> messageConverters, @Nullable ApiVersionStrategy versionStrategy) {
+
     this.requestContext = requestContext;
+    this.versionStrategy = versionStrategy;
     this.params = requestContext.getParameters();
     this.requestPath = requestContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
@@ -153,6 +164,12 @@ class DefaultServerRequest implements ServerRequest {
   @Override
   public List<HttpMessageConverter<?>> messageConverters() {
     return this.messageConverters;
+  }
+
+  @Nullable
+  @Override
+  public ApiVersionStrategy apiVersionStrategy() {
+    return this.versionStrategy;
   }
 
   @Override

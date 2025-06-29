@@ -1,0 +1,24 @@
+name: read-version
+author: today
+description: Read project version
+
+outputs:
+  version:
+    description: 'Version of this project'
+    value: ${{ steps.read-version.outputs.version }}
+  snapshot:
+    description: 'Version is snapshot'
+    value: ${{ steps.read-version.outputs.snapshot }}
+runs:
+  using: composite
+  steps:
+    - name: Read Version From gradle.properties
+      id: read-version
+      shell: bash
+      run: |
+        version=$(sed -n 's/version=\(.*\)/\1/p' gradle.properties)
+        snapshot=$(echo $version | grep -q 'SNAPSHOT' && echo 'true' || echo 'false')
+        echo "Version is $version"
+        echo "snapshot = $snapshot"
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "snapshot=$snapshot" >> $GITHUB_OUTPUT

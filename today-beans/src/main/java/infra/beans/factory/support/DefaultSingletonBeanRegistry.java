@@ -283,6 +283,12 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
             }
             this.lenientCreationLock.lock();
             try {
+              if (log.isInfoEnabled()) {
+                Set<String> lockedBeans = new HashSet<>(this.singletonsCurrentlyInCreation);
+                lockedBeans.removeAll(this.singletonsInLenientCreation);
+                log.info("Obtaining singleton bean '{}' in thread \"{}\" while other thread holds singleton " +
+                        "lock for other beans {}", beanName, currentThread.getName(), lockedBeans);
+              }
               this.singletonsInLenientCreation.add(beanName);
             }
             finally {
