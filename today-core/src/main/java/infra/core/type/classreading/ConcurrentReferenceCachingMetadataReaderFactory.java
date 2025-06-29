@@ -91,6 +91,11 @@ public class ConcurrentReferenceCachingMetadataReaderFactory implements Metadata
     return metadataReader;
   }
 
+  @Override
+  public ResourceLoader getResourceLoader() {
+    return delegate.getResourceLoader();
+  }
+
   /**
    * Create the meta-data reader.
    *

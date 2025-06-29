@@ -17,14 +17,11 @@
 
 package infra.core.type.classreading;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import infra.core.io.DefaultResourceLoader;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.lang.Nullable;
-import infra.util.ClassUtils;
 
 /**
  * Implementation of the {@link MetadataReaderFactory} interface,
@@ -34,15 +31,13 @@ import infra.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class ClassFileMetadataReaderFactory implements MetadataReaderFactory {
-
-  private final ResourceLoader resourceLoader;
+public class ClassFileMetadataReaderFactory extends AbstractMetadataReaderFactory {
 
   /**
    * Create a new ClassFileMetadataReaderFactory for the default class loader.
    */
   public ClassFileMetadataReaderFactory() {
-    this.resourceLoader = new DefaultResourceLoader();
+    super();
   }
 
   /**
@@ -52,7 +47,7 @@ public class ClassFileMetadataReaderFactory implements MetadataReaderFactory {
    * (also determines the ClassLoader to use)
    */
   public ClassFileMetadataReaderFactory(@Nullable ResourceLoader resourceLoader) {
-    this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
+    super(resourceLoader);
   }
 
   /**
@@ -61,46 +56,11 @@ public class ClassFileMetadataReaderFactory implements MetadataReaderFactory {
    * @param classLoader the ClassLoader to use
    */
   public ClassFileMetadataReaderFactory(@Nullable ClassLoader classLoader) {
-    this.resourceLoader =
-            (classLoader != null ? new DefaultResourceLoader(classLoader) : new DefaultResourceLoader());
-  }
-
-  /**
-   * Return the ResourceLoader that this MetadataReaderFactory has been
-   * constructed with.
-   */
-  public final ResourceLoader getResourceLoader() {
-    return this.resourceLoader;
-  }
-
-  @Override
-  public MetadataReader getMetadataReader(String className) throws IOException {
-    try {
-      String resourcePath = ResourceLoader.CLASSPATH_URL_PREFIX +
-              ClassUtils.convertClassNameToResourcePath(className) + ClassUtils.CLASS_FILE_SUFFIX;
-      Resource resource = this.resourceLoader.getResource(resourcePath);
-      return getMetadataReader(resource);
-    }
-    catch (FileNotFoundException ex) {
-      // Maybe an inner class name using the dot name syntax? Need to use the dollar syntax here...
-      // ClassUtils.forName has an equivalent check for resolution into Class references later on.
-      int lastDotIndex = className.lastIndexOf('.');
-      if (lastDotIndex != -1) {
-        String innerClassName =
-                className.substring(0, lastDotIndex) + '$' + className.substring(lastDotIndex + 1);
-        String innerClassResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX +
-                ClassUtils.convertClassNameToResourcePath(innerClassName) + ClassUtils.CLASS_FILE_SUFFIX;
-        Resource innerClassResource = this.resourceLoader.getResource(innerClassResourcePath);
-        if (innerClassResource.exists()) {
-          return getMetadataReader(innerClassResource);
-        }
-      }
-      throw ex;
-    }
+    super(classLoader);
   }
 
   @Override
   public MetadataReader getMetadataReader(Resource resource) throws IOException {
-    return new ClassFileMetadataReader(resource, this.resourceLoader.getClassLoader());
+    return new ClassFileMetadataReader(resource, getResourceLoader().getClassLoader());
   }
 }
