@@ -46,7 +46,6 @@ import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.DefaultApiVersionStrategy;
-import infra.web.accept.InvalidApiVersionException;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
@@ -217,32 +216,16 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Override
   protected HandlerMethod getHandlerInternal(RequestContext request) {
     if (this.apiVersionStrategy != null) {
-      Comparable<?> requestVersion = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
-      if (requestVersion == null) {
-        requestVersion = getApiVersion(request, this.apiVersionStrategy);
-        if (requestVersion != null) {
-          request.setAttribute(API_VERSION_ATTRIBUTE, requestVersion);
-          apiVersionStrategy.handleDeprecations(requestVersion, request);
+      Comparable<?> version = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
+      if (version == null) {
+        version = apiVersionStrategy.resolveParseAndValidateVersion(request);
+        if (version != null) {
+          request.setAttribute(API_VERSION_ATTRIBUTE, version);
+          apiVersionStrategy.handleDeprecations(version, request);
         }
       }
     }
     return super.getHandlerInternal(request);
-  }
-
-  @Nullable
-  private static Comparable<?> getApiVersion(RequestContext request, ApiVersionStrategy versionStrategy) {
-    String value = versionStrategy.resolveVersion(request);
-    if (value == null) {
-      return versionStrategy.getDefaultVersion();
-    }
-    try {
-      Comparable<?> version = versionStrategy.parseVersion(value);
-      versionStrategy.validateVersion(version, request);
-      return version;
-    }
-    catch (Exception ex) {
-      throw new InvalidApiVersionException(value, null, ex);
-    }
   }
 
   /**

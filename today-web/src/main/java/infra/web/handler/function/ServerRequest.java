@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
 import infra.web.RequestContext;
+import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.Multipart;
 import infra.web.multipart.MultipartRequest;
@@ -123,6 +124,14 @@ public interface ServerRequest extends ServerResponse.Context {
    */
   @Override
   List<HttpMessageConverter<?>> messageConverters();
+
+  /**
+   * Return the configured {@link ApiVersionStrategy}, or {@code null}.
+   *
+   * @since 5.0
+   */
+  @Nullable
+  ApiVersionStrategy apiVersionStrategy();
 
   /**
    * Extract the body as an object of the given type.
@@ -386,6 +395,22 @@ public interface ServerRequest extends ServerResponse.Context {
    */
   static ServerRequest create(RequestContext context, List<HttpMessageConverter<?>> messageReaders) {
     return new DefaultServerRequest(context, messageReaders);
+  }
+
+  /**
+   * Create a new {@code ServerRequest} based on the given {@code RequestContext} and
+   * message converters.
+   *
+   * @param context the request
+   * @param messageReaders the message readers
+   * @param versionStrategy a strategy to use to parse version
+   * @return the created {@code ServerRequest}
+   * @since 5.0
+   */
+  static ServerRequest create(RequestContext context, List<HttpMessageConverter<?>> messageReaders,
+          @Nullable ApiVersionStrategy versionStrategy) {
+
+    return new DefaultServerRequest(context, messageReaders, versionStrategy);
   }
 
   /**

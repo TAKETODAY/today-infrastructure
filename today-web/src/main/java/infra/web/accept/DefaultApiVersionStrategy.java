@@ -124,6 +124,16 @@ public class DefaultApiVersionStrategy implements ApiVersionStrategy {
     }
   }
 
+  /**
+   * Whether the strategy is configured to detect supported versions.
+   * If this is set to {@code false} then {@link #addMappedVersion} is ignored
+   * and the list of supported versions can be built explicitly through calls
+   * to {@link #addSupportedVersion}.
+   */
+  public boolean detectSupportedVersions() {
+    return this.detectSupportedVersions;
+  }
+
   @Nullable
   @Override
   public String resolveVersion(RequestContext request) {

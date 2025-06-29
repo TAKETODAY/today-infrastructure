@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package infra.web.handler.function;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,11 +30,15 @@ import infra.http.MediaType;
 import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
+import infra.web.accept.ApiVersionStrategy;
+import infra.web.accept.DefaultApiVersionStrategy;
+import infra.web.accept.SemanticApiVersionParser;
 import infra.web.mock.MockRequestContext;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.PathPatternsTestUtils;
 
 import static infra.http.MediaType.TEXT_XML_VALUE;
+import static infra.web.HandlerMapping.API_VERSION_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -212,6 +217,25 @@ class RequestPredicatesTests {
 
     predicate = RequestPredicates.param("foo", s -> s.equals("baz"));
     assertThat(predicate.test(request)).isFalse();
+  }
+
+  @Test
+  void version() {
+    assertThat(RequestPredicates.version("1.1").test(serverRequest("1.1"))).isTrue();
+    assertThat(RequestPredicates.version("1.1+").test(serverRequest("1.5"))).isTrue();
+    assertThat(RequestPredicates.version("1.1").test(serverRequest("1.5"))).isFalse();
+  }
+
+  private static ServerRequest serverRequest(String version) {
+    ApiVersionStrategy strategy = new DefaultApiVersionStrategy(
+            List.of(exchange -> null), new SemanticApiVersionParser(), true, null, false, null);
+
+    HttpMockRequestImpl mockRequest =
+            PathPatternsTestUtils.initRequest("GET", null, "/path", true,
+                    req -> req.setAttribute(API_VERSION_ATTRIBUTE, strategy.parseVersion(version)));
+
+    return new DefaultServerRequest(new MockRequestContext(null, mockRequest,
+            new MockHttpResponseImpl()), Collections.emptyList(), strategy);
   }
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
