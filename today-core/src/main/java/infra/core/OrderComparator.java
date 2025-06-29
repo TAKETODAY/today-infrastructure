@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,8 +95,9 @@ public class OrderComparator implements Comparator<Object> {
    *
    * @param obj the object to check
    * @return the order value, or {@code Ordered.LOWEST_PRECEDENCE} as fallback
+   * @since 5.0
    */
-  private int getOrder(@Nullable Object obj, @Nullable OrderSourceProvider sourceProvider) {
+  public int getOrder(@Nullable Object obj, @Nullable OrderSourceProvider sourceProvider) {
     Integer order = null;
     if (obj != null && sourceProvider != null) {
       Object orderSource = sourceProvider.getOrderSource(obj);

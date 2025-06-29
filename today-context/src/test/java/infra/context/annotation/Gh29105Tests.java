@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package infra.context.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import infra.core.annotation.Order;
 
@@ -38,19 +34,22 @@ public class Gh29105Tests {
 
   @Test
   void beanProviderWithParentContextReuseOrder() {
-    AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
-    parent.register(DefaultConfiguration.class);
-    parent.register(CustomConfiguration.class);
-    parent.refresh();
+    AnnotationConfigApplicationContext parent =
+            new AnnotationConfigApplicationContext(DefaultConfiguration.class, CustomConfiguration.class);
 
     AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
     child.setParent(parent);
     child.register(DefaultConfiguration.class);
     child.refresh();
 
-    List<Class<?>> orderedTypes = child.getBeanProvider(MyService.class)
-            .orderedStream().map(Object::getClass).collect(Collectors.toList());
+    Stream<Class<?>> orderedTypes = child.getBeanProvider(MyService.class).orderedStream().map(Object::getClass);
     assertThat(orderedTypes).containsExactly(CustomService.class, DefaultService.class);
+
+    assertThat(child.getBeanFactory().getOrder("defaultService")).isEqualTo(0);
+    assertThat(child.getBeanFactory().getOrder("customService")).isEqualTo(-1);
+
+    child.close();
+    parent.close();
   }
 
   interface MyService { }
@@ -80,4 +79,5 @@ public class Gh29105Tests {
     }
 
   }
+
 }
