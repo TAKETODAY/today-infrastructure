@@ -20,17 +20,20 @@ package infra.web.handler.method;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
 import infra.mock.api.MockException;
 import infra.mock.api.http.HttpMockResponse;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockHttpResponseImpl;
 import infra.mock.web.MockMockConfig;
+import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.RestController;
+import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
-import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.mock.MockDispatcher;
 import infra.web.mock.support.AnnotationConfigWebApplicationContext;
 
@@ -76,6 +79,12 @@ public class RequestMappingVersionHandlerMethodTests {
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
+  @Test
+  void deprecation() throws Exception {
+    assertThat(requestWithVersion("1").getHeader("Link"))
+            .isEqualTo("<https://example.org/deprecation>; rel=\"deprecation\"; type=\"text/html\"");
+  }
+
   private MockHttpResponseImpl requestWithVersion(String version) throws MockException {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("X-API-VERSION", version);
@@ -89,7 +98,13 @@ public class RequestMappingVersionHandlerMethodTests {
 
     @Override
     public void configureApiVersioning(ApiVersionConfigurer configurer) {
-      configurer.useRequestHeader("X-API-Version").addSupportedVersions("1", "1.1", "1.3", "1.6");
+
+      StandardApiVersionDeprecationHandler handler = new StandardApiVersionDeprecationHandler();
+      handler.configureVersion("1").setDeprecationLink(URI.create("https://example.org/deprecation"));
+
+      configurer.useRequestHeader("X-API-Version")
+              .addSupportedVersions("1", "1.1", "1.3", "1.6")
+              .setDeprecationHandler(handler);
     }
   }
 

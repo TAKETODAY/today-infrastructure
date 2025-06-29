@@ -222,6 +222,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
         requestVersion = getApiVersion(request, this.apiVersionStrategy);
         if (requestVersion != null) {
           request.setAttribute(API_VERSION_ATTRIBUTE, requestVersion);
+          apiVersionStrategy.handleDeprecations(requestVersion, request);
         }
       }
     }

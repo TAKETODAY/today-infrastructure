@@ -404,12 +404,12 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       interceptors.add(firstInterceptor);
     }
 
-    HandlerInterceptor[] interceptorsArr = getHandlerInterceptors(handler);
-    if (interceptorsArr != null) {
+    HandlerInterceptor[] ia = getHandlerInterceptors(handler);
+    if (ia != null) {
       if (interceptors == null) {
-        interceptors = new ArrayList<>(interceptorsArr.length + 2);
+        interceptors = new ArrayList<>(ia.length + 2);
       }
-      for (HandlerInterceptor interceptor : interceptorsArr) {
+      for (HandlerInterceptor interceptor : ia) {
         interceptors.add(interceptor);
       }
     }
