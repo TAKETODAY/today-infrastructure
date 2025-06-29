@@ -393,10 +393,10 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Nullable
   @SuppressWarnings("unchecked")
-  protected final <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
-    if (bean == NullValue.INSTANCE) {
+  protected final <T> T adaptBeanInstance(String name, @Nullable Object bean, @Nullable Class<?> requiredType) {
+    if (bean == NullValue.INSTANCE || bean == null) {
       if (requiredType != null) {
-        throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+        throw new BeanNotOfRequiredTypeException(name, requiredType, NullValue.class);
       }
       return null;
     }
