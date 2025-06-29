@@ -325,7 +325,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       public T get() throws BeansException {
         Set<String> beanNames = getBeanNamesForType(requiredType);
         if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType);
+          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
         }
         else if (beanNames.size() > 1) {
           throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
@@ -354,7 +354,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       public T getIfAvailable() throws BeansException {
         Set<String> beanNames = getBeanNamesForType(requiredType);
         if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames));
+          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
         }
         else if (beanNames.size() > 1) {
           throw new NoUniqueBeanDefinitionException(requiredType, beanNames);
@@ -369,7 +369,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
       public T getIfUnique() throws BeansException {
         Set<String> beanNames = getBeanNamesForType(requiredType);
         if (beanNames.size() == 1) {
-          return (T) getBean(CollectionUtils.firstElement(beanNames));
+          return (T) getBean(CollectionUtils.firstElement(beanNames), requiredType.toClass());
         }
         else {
           return null;
@@ -378,7 +378,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
       @Override
       public Stream<T> stream() {
-        return getBeanNamesForType(requiredType).stream().map(name -> (T) getBean(name));
+        return getBeanNamesForType(requiredType).stream().map(name -> (T) getBean(name, requiredType.toClass()));
       }
 
     };

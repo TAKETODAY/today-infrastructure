@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,13 @@ import infra.lang.Nullable;
  * Immutable placeholder class used for a property value object when it's
  * a reference to another bean in the factory, to be resolved at runtime.
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/27 21:02</a>
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @author Rod Johnson
+ * @author Juergen Hoeller
  * @see BeanDefinition#getPropertyValues()
  * @see BeanFactory#getBean(String)
  * @see BeanFactory#getBean(Class)
- * @since 4.0
+ * @since 4.0 2021/11/27 21:02
  */
 public class RuntimeBeanReference implements BeanReference {
 
@@ -85,10 +87,58 @@ public class RuntimeBeanReference implements BeanReference {
    * parent factory
    */
   public RuntimeBeanReference(Class<?> beanType, boolean toParent) {
-    Assert.notNull(beanType, "'beanType' must not be empty");
+    Assert.notNull(beanType, "'beanType' is required");
     this.beanName = beanType.getName();
     this.beanType = beanType;
     this.toParent = toParent;
+  }
+
+  /**
+   * Create a new RuntimeBeanReference to a bean of the given type.
+   *
+   * @param beanName name of the target bean
+   * @param beanType type of the target bean
+   * @since 5.0
+   */
+  public RuntimeBeanReference(String beanName, Class<?> beanType) {
+    this(beanName, beanType, false);
+  }
+
+  /**
+   * Create a new RuntimeBeanReference to a bean of the given type,
+   * with the option to mark it as reference to a bean in the parent factory.
+   *
+   * @param beanName name of the target bean
+   * @param beanType type of the target bean
+   * @param toParent whether this is an explicit reference to a bean in the
+   * parent factory
+   * @since 5.0
+   */
+  public RuntimeBeanReference(String beanName, Class<?> beanType, boolean toParent) {
+    Assert.hasText(beanName, "'beanName' must not be empty");
+    Assert.notNull(beanType, "'beanType' is required");
+    this.beanName = beanName;
+    this.beanType = beanType;
+    this.toParent = toParent;
+  }
+
+  /**
+   * Return the requested bean name, or the fully-qualified type name
+   * in case of by-type resolution.
+   *
+   * @see #getBeanType()
+   */
+  @Override
+  public String getBeanName() {
+    return this.beanName;
+  }
+
+  /**
+   * Return the requested bean type if resolution by type is demanded.
+   */
+  @Nullable
+  public Class<?> getBeanType() {
+    return this.beanType;
   }
 
   /**
@@ -96,16 +146,6 @@ public class RuntimeBeanReference implements BeanReference {
    */
   public boolean isToParent() {
     return this.toParent;
-  }
-
-  @Nullable
-  public Class<?> getBeanType() {
-    return beanType;
-  }
-
-  @Override
-  public String getBeanName() {
-    return beanName;
   }
 
   /**
@@ -116,23 +156,17 @@ public class RuntimeBeanReference implements BeanReference {
     this.source = source;
   }
 
-  @Override
   @Nullable
+  @Override
   public Object getSource() {
     return this.source;
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof RuntimeBeanReference that)) {
-      return false;
-    }
-    return beanName.equals(that.beanName)
-            && beanType == that.beanType
-            && toParent == that.toParent;
+    return this == other || (other instanceof RuntimeBeanReference that
+            && this.beanName.equals(that.beanName) && this.beanType == that.beanType
+            && this.toParent == that.toParent);
   }
 
   @Override
@@ -145,15 +179,6 @@ public class RuntimeBeanReference implements BeanReference {
   @Override
   public String toString() {
     return '<' + getBeanName() + '>';
-  }
-  // static
-
-  public static RuntimeBeanReference from(String beanName) {
-    return new RuntimeBeanReference(beanName);
-  }
-
-  public static RuntimeBeanReference from(Class<?> beanType) {
-    return new RuntimeBeanReference(beanType);
   }
 
 }
