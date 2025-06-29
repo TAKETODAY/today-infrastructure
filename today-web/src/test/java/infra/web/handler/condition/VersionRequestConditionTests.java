@@ -17,6 +17,7 @@
 
 package infra.web.handler.condition;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,14 +26,14 @@ import java.util.List;
 
 import infra.lang.Nullable;
 import infra.mock.web.HttpMockRequestImpl;
+import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.accept.NotAcceptableApiVersionException;
 import infra.web.accept.SemanticApiVersionParser;
 import infra.web.mock.MockRequestContext;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -47,10 +48,10 @@ class VersionRequestConditionTests {
     this.strategy = initVersionStrategy(null);
   }
 
-  private static DefaultApiVersionStrategy initVersionStrategy(@Nullable String defaultValue) {
+  private static DefaultApiVersionStrategy initVersionStrategy(@Nullable String defaultVersion) {
     return new DefaultApiVersionStrategy(
-            List.of(exchange -> exchange.getParameters().getFirst("api-version")),
-            new SemanticApiVersionParser(), true, defaultValue, false);
+            List.of(request -> request.getParameter("api-version")),
+            new SemanticApiVersionParser(), true, defaultVersion, false, null);
   }
 
   @Test
@@ -72,32 +73,40 @@ class VersionRequestConditionTests {
 
   @Test
   void fixedVersionMatch() {
-    String conditionVersion = "1.2";
+    VersionRequestCondition condition = condition("1.2");
     this.strategy.addSupportedVersion("1.1", "1.3");
 
-    testMatch("v1.1", conditionVersion, true, false);
-    testMatch("v1.2", conditionVersion, false, false);
-    testMatch("v1.3", conditionVersion, false, true);
+    testMatch("v1.1", condition, false, false);
+    testMatch("v1.2", condition, true, false);
+    testMatch("v1.3", condition, true, true); // match initially, reject if chosen
   }
 
   @Test
   void baselineVersionMatch() {
-    String conditionVersion = "1.2+";
+    VersionRequestCondition condition = condition("1.2+");
     this.strategy.addSupportedVersion("1.1", "1.3");
 
-    testMatch("v1.1", conditionVersion, true, false);
-    testMatch("v1.2", conditionVersion, false, false);
-    testMatch("v1.3", conditionVersion, false, false);
+    testMatch("v1.1", condition, false, false);
+    testMatch("v1.2", condition, true, false);
+    testMatch("v1.3", condition, true, false);
+  }
+
+  @Test
+  void notVersionedMatch() {
+    VersionRequestCondition condition = new VersionRequestCondition(null, this.strategy);
+    this.strategy.addSupportedVersion("1.1", "1.3");
+
+    testMatch("v1.1", condition, true, false);
+    testMatch("v1.3", condition, true, false);
   }
 
   private void testMatch(
-          String requestVersion, String conditionVersion, boolean notCompatible, boolean notAcceptable) {
+          String requestVersion, VersionRequestCondition condition, boolean matches, boolean notAcceptable) {
 
-    RequestContext exchange = exchangeWithVersion(requestVersion);
-    VersionRequestCondition condition = condition(conditionVersion);
-    VersionRequestCondition match = condition.getMatchingCondition(exchange);
+    RequestContext request = requestWithVersion(requestVersion);
+    VersionRequestCondition match = condition.getMatchingCondition(request);
 
-    if (notCompatible) {
+    if (!matches) {
       assertThat(match).isNull();
       return;
     }
@@ -105,17 +114,11 @@ class VersionRequestConditionTests {
     assertThat(match).isSameAs(condition);
 
     if (notAcceptable) {
-      assertThatThrownBy(() -> condition.handleMatch(exchange)).isInstanceOf(NotAcceptableApiVersionException.class);
+      Assertions.assertThatThrownBy(() -> condition.handleMatch(request)).isInstanceOf(NotAcceptableApiVersionException.class);
       return;
     }
 
-    condition.handleMatch(exchange);
-  }
-
-  @Test
-  void missingRequiredVersion() {
-    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(exchange()))
-            .hasMessage("400 BAD_REQUEST \"API version is required.\"");
+    condition.handleMatch(request);
   }
 
   @Test
@@ -126,12 +129,6 @@ class VersionRequestConditionTests {
     VersionRequestCondition match = condition.getMatchingCondition(exchange());
 
     assertThat(match).isSameAs(condition);
-  }
-
-  @Test
-  void unsupportedVersion() {
-    assertThatThrownBy(() -> condition("1.2").getMatchingCondition(exchangeWithVersion("1.3")))
-            .hasMessage("400 BAD_REQUEST \"Invalid API version: '1.3.0'.\"");
   }
 
   @Test
@@ -157,15 +154,17 @@ class VersionRequestConditionTests {
   }
 
   private VersionRequestCondition emptyCondition() {
-    return new VersionRequestCondition();
+    return new VersionRequestCondition(null, this.strategy);
   }
 
   private static MockRequestContext exchange() {
     return new MockRequestContext(new HttpMockRequestImpl("GET", "/path"));
   }
 
-  private MockRequestContext exchangeWithVersion(String v) {
+  private MockRequestContext requestWithVersion(String v) {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
+    request.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, this.strategy.parseVersion(v));
+
     request.addParameter("api-version", v);
     return new MockRequestContext(request);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,14 @@ public interface HandlerMapping {
    * @see DispatcherHandler#setDetectAllHandlerMapping(boolean)
    */
   String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
+
+  /**
+   * Name of the {@link RequestContext} attribute that contains the
+   * resolved and parsed API version.
+   *
+   * @since 5.0
+   */
+  String API_VERSION_ATTRIBUTE = HandlerMapping.class.getName() + ".apiVersion";
 
   /**
    * Return a handler and any interceptors for this request. The choice may be made

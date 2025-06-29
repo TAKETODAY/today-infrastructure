@@ -23,9 +23,10 @@ import java.util.Set;
 
 import infra.lang.Assert;
 import infra.lang.Nullable;
+import infra.util.StringUtils;
+import infra.web.HandlerMapping;
 import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.accept.InvalidApiVersionException;
 import infra.web.accept.NotAcceptableApiVersionException;
 import infra.web.annotation.RequestMapping;
 
@@ -40,12 +41,6 @@ import infra.web.annotation.RequestMapping;
  */
 public final class VersionRequestCondition extends AbstractRequestCondition<VersionRequestCondition> {
 
-  private static final String VERSION_ATTRIBUTE_NAME = VersionRequestCondition.class.getName() + ".VERSION";
-
-  private static final String NO_VERSION_ATTRIBUTE = "NO_VERSION";
-
-  private static final ApiVersionStrategy NO_OP_VERSION_STRATEGY = new NoOpApiVersionStrategy();
-
   @Nullable
   private final String versionValue;
 
@@ -54,24 +49,26 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
 
   private final boolean baselineVersion;
 
-  private final ApiVersionStrategy versionStrategy;
-
   private final Set<String> content;
 
-  public VersionRequestCondition() {
-    this.versionValue = null;
-    this.version = null;
-    this.baselineVersion = false;
-    this.versionStrategy = NO_OP_VERSION_STRATEGY;
-    this.content = Collections.emptySet();
-  }
-
-  public VersionRequestCondition(String configuredVersion, ApiVersionStrategy versionStrategy) {
-    this.baselineVersion = configuredVersion.endsWith("+");
-    this.versionValue = updateVersion(configuredVersion, this.baselineVersion);
-    this.version = versionStrategy.parseVersion(this.versionValue);
-    this.versionStrategy = versionStrategy;
-    this.content = Set.of(configuredVersion);
+  /**
+   * Constructor with the version, if set on the {@code @RequestMapping}, and
+   * the {@code ApiVersionStrategy}, if API versioning is enabled.
+   */
+  public VersionRequestCondition(@Nullable String version, @Nullable ApiVersionStrategy strategy) {
+    if (StringUtils.hasText(version)) {
+      Assert.isTrue(strategy != null, "ApiVersionStrategy is required for mapping by version");
+      this.baselineVersion = version.endsWith("+");
+      this.versionValue = updateVersion(version, this.baselineVersion);
+      this.version = strategy.parseVersion(this.versionValue);
+      this.content = Set.of(version);
+    }
+    else {
+      this.versionValue = null;
+      this.version = null;
+      this.baselineVersion = false;
+      this.content = Collections.emptySet();
+    }
   }
 
   private static String updateVersion(String version, boolean baselineVersion) {
@@ -100,37 +97,17 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
   @Nullable
   @Override
   public VersionRequestCondition getMatchingCondition(RequestContext request) {
-    if (this.version == null) {
+    Comparable<?> requestVersion = (Comparable<?>) request.getAttribute(HandlerMapping.API_VERSION_ATTRIBUTE);
+
+    if (this.version == null || requestVersion == null) {
       return this;
     }
 
-    Comparable<?> version = (Comparable<?>) request.getAttribute(VERSION_ATTRIBUTE_NAME);
-    if (version == null) {
-      String value = this.versionStrategy.resolveVersion(request);
-      version = (value != null ? parseVersion(value) : this.versionStrategy.getDefaultVersion());
-      this.versionStrategy.validateVersion(version, request);
-      version = (version != null ? version : NO_VERSION_ATTRIBUTE);
-      request.setAttribute(VERSION_ATTRIBUTE_NAME, (version));
-    }
+    // Always use a baseline match here in order to select the highest version (baseline or fixed)
+    // The fixed version match is enforced at the end in handleMatch()
 
-    if (version == NO_VERSION_ATTRIBUTE) {
-      return this;
-    }
-
-    // At this stage, match all versions as baseline versions.
-    // Strict matching for fixed versions is enforced at the end in handleMatch.
-
-    int result = compareVersions(this.version, version);
+    int result = compareVersions(this.version, requestVersion);
     return (result <= 0 ? this : null);
-  }
-
-  private Comparable<?> parseVersion(String value) {
-    try {
-      return this.versionStrategy.parseVersion(value);
-    }
-    catch (Exception ex) {
-      throw new InvalidApiVersionException(value, null, ex);
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -170,35 +147,11 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
    */
   public void handleMatch(RequestContext request) {
     if (this.version != null && !this.baselineVersion) {
-      Comparable<?> version = (Comparable<?>) request.getAttribute(VERSION_ATTRIBUTE_NAME);
+      Comparable<?> version = (Comparable<?>) request.getAttribute(HandlerMapping.API_VERSION_ATTRIBUTE);
       Assert.state(version != null, "No API version attribute");
       if (!this.version.equals(version)) {
         throw new NotAcceptableApiVersionException(version.toString());
       }
-    }
-  }
-
-  private static final class NoOpApiVersionStrategy implements ApiVersionStrategy {
-
-    @Nullable
-    @Override
-    public String resolveVersion(RequestContext request) {
-      return null;
-    }
-
-    @Override
-    public String parseVersion(String version) {
-      return version;
-    }
-
-    @Override
-    public void validateVersion(@Nullable Comparable<?> requestVersion, RequestContext request) {
-    }
-
-    @Nullable
-    @Override
-    public Comparable<?> getDefaultVersion() {
-      return null;
     }
   }
 

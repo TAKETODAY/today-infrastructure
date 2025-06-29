@@ -83,9 +83,9 @@ class SemanticApiVersionParserTests {
   @Test
   void skipMultipleNonDigitCharacters() {
     Version version = parser.parseVersion("version-v1.2.3");
-    assertThat(version.getMajor()).isEqualTo(1);
-    assertThat(version.getMinor()).isEqualTo(2);
-    assertThat(version.getPatch()).isEqualTo(3);
+    assertThat(version.major).isEqualTo(1);
+    assertThat(version.minor).isEqualTo(2);
+    assertThat(version.patch).isEqualTo(3);
   }
 
   @Test
@@ -100,9 +100,9 @@ class SemanticApiVersionParserTests {
 
   private void testParse(String input, int major, int minor, int patch) {
     Version actual = this.parser.parseVersion(input);
-    assertThat(actual.getMajor()).isEqualTo(major);
-    assertThat(actual.getMinor()).isEqualTo(minor);
-    assertThat(actual.getPatch()).isEqualTo(patch);
+    assertThat(actual.major).isEqualTo(major);
+    assertThat(actual.minor).isEqualTo(minor);
+    assertThat(actual.patch).isEqualTo(patch);
   }
 
   @ParameterizedTest

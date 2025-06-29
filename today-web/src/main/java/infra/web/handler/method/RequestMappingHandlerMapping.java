@@ -42,9 +42,11 @@ import infra.lang.Nullable;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
+import infra.web.RequestContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.DefaultApiVersionStrategy;
+import infra.web.accept.InvalidApiVersionException;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
@@ -211,6 +213,37 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     return new InvocableHandlerMethod(handler, method, parameterFactory);
   }
 
+  @Nullable
+  @Override
+  protected HandlerMethod getHandlerInternal(RequestContext request) {
+    if (this.apiVersionStrategy != null) {
+      Comparable<?> requestVersion = (Comparable<?>) request.getAttribute(API_VERSION_ATTRIBUTE);
+      if (requestVersion == null) {
+        requestVersion = getApiVersion(request, this.apiVersionStrategy);
+        if (requestVersion != null) {
+          request.setAttribute(API_VERSION_ATTRIBUTE, requestVersion);
+        }
+      }
+    }
+    return super.getHandlerInternal(request);
+  }
+
+  @Nullable
+  private static Comparable<?> getApiVersion(RequestContext request, ApiVersionStrategy versionStrategy) {
+    String value = versionStrategy.resolveVersion(request);
+    if (value == null) {
+      return versionStrategy.getDefaultVersion();
+    }
+    try {
+      Comparable<?> version = versionStrategy.parseVersion(value);
+      versionStrategy.validateVersion(version, request);
+      return version;
+    }
+    catch (Exception ex) {
+      throw new InvalidApiVersionException(value, null, ex);
+    }
+  }
+
   /**
    * Uses method and type-level @{@link RequestMapping} annotations to create
    * the RequestMappingInfo.
@@ -311,9 +344,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * a directly declared annotation, a meta-annotation, or the synthesized
    * result of merging annotation attributes within an annotation hierarchy.
    */
-  protected RequestMappingInfo createRequestMappingInfo(
-          RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
-
+  protected RequestMappingInfo createRequestMappingInfo(RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
     var builder = RequestMappingInfo.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
             .params(requestMapping.params())
             .methods(requestMapping.method())
@@ -336,9 +367,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * or synthesized result of merging annotation attributes within an
    * annotation hierarchy.
    */
-  protected RequestMappingInfo createRequestMappingInfo(
-          HttpExchange httpExchange, @Nullable RequestCondition<?> customCondition) {
-
+  protected RequestMappingInfo createRequestMappingInfo(HttpExchange httpExchange, @Nullable RequestCondition<?> customCondition) {
     var builder = RequestMappingInfo.paths(
                     resolveEmbeddedValuesInPatterns(toStringArray(httpExchange.value())))
             .methods(toMethodArray(httpExchange.method()))
@@ -421,6 +450,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     }
   }
 
+  @Nullable
   @Override
   protected CorsConfiguration initCorsConfiguration(Object handler,
           HandlerMethod handlerMethod, Method method, RequestMappingInfo mappingInfo) {

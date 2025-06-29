@@ -64,4 +64,15 @@ public interface ApiVersionStrategy {
   @Nullable
   Comparable<?> getDefaultVersion();
 
+  /**
+   * Check if the requested API version is deprecated, and if so handle it
+   * accordingly, e.g. by setting response headers to signal the deprecation,
+   * to specify relevant dates and provide links to further details.
+   *
+   * @param version the resolved and parsed request version
+   * @param request the current request
+   * @see ApiVersionDeprecationHandler
+   */
+  void handleDeprecations(Comparable<?> version, RequestContext request);
+
 }

@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import infra.http.MediaType;
 import infra.lang.Nullable;
+import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
 import infra.web.accept.ApiVersionStrategy;
@@ -34,6 +34,7 @@ import infra.web.accept.InvalidApiVersionException;
 import infra.web.accept.MediaTypeParamApiVersionResolver;
 import infra.web.accept.PathApiVersionResolver;
 import infra.web.accept.SemanticApiVersionParser;
+import infra.web.accept.StandardApiVersionDeprecationHandler;
 
 /**
  * Configure API versioning.
@@ -44,7 +45,7 @@ import infra.web.accept.SemanticApiVersionParser;
  */
 public class ApiVersionConfigurer {
 
-  private final List<ApiVersionResolver> versionResolvers = new ArrayList<>();
+  private final ArrayList<ApiVersionResolver> versionResolvers = new ArrayList<>();
 
   @Nullable
   private ApiVersionParser<?> versionParser;
@@ -58,8 +59,11 @@ public class ApiVersionConfigurer {
 
   private boolean detectSupportedVersions = true;
 
+  @Nullable
+  private ApiVersionDeprecationHandler deprecationHandler;
+
   /**
-   * Add a resolver that extracts the API version from a request header.
+   * Add resolver to extract the version from a request header.
    *
    * @param headerName the header name to check
    */
@@ -69,7 +73,7 @@ public class ApiVersionConfigurer {
   }
 
   /**
-   * Add a resolver that extracts the API version from a request parameter.
+   * Add resolver to extract the version from a request parameter.
    *
    * @param paramName the parameter name to check
    */
@@ -79,7 +83,7 @@ public class ApiVersionConfigurer {
   }
 
   /**
-   * Add a resolver that extracts the API version from a path segment.
+   * Add resolver to extract the version from a path segment.
    *
    * @param index the index of the path segment to check; e.g. for URL's like
    * "/{version}/..." use index 0, for "/api/{version}/..." index 1.
@@ -162,7 +166,7 @@ public class ApiVersionConfigurer {
    * request mappings, may need to be declared here instead as a supported
    * version.
    *
-   * @param versions supported version values to add
+   * @param versions supported versions to add
    */
   public ApiVersionConfigurer addSupportedVersions(String... versions) {
     Collections.addAll(this.supportedVersions, versions);
@@ -183,17 +187,32 @@ public class ApiVersionConfigurer {
     return this;
   }
 
+  /**
+   * Configure a handler to add handling for requests with a deprecated API
+   * version. Typically, this involves sending hints and information about
+   * the deprecation in response headers.
+   *
+   * @param handler the handler to use
+   * @see StandardApiVersionDeprecationHandler
+   */
+  public ApiVersionConfigurer setDeprecationHandler(@Nullable ApiVersionDeprecationHandler handler) {
+    this.deprecationHandler = handler;
+    return this;
+  }
+
   @Nullable
-  public ApiVersionStrategy getApiVersionStrategy() {
+  protected ApiVersionStrategy getApiVersionStrategy() {
     if (this.versionResolvers.isEmpty()) {
       return null;
     }
 
-    DefaultApiVersionStrategy strategy = new DefaultApiVersionStrategy(this.versionResolvers,
-            (this.versionParser != null ? this.versionParser : new SemanticApiVersionParser()),
-            this.versionRequired, this.defaultVersion, this.detectSupportedVersions);
+    var strategy = new DefaultApiVersionStrategy(this.versionResolvers,
+            this.versionParser != null ? this.versionParser : new SemanticApiVersionParser(),
+            this.versionRequired, this.defaultVersion, this.detectSupportedVersions, this.deprecationHandler);
 
-    this.supportedVersions.forEach(strategy::addSupportedVersion);
+    for (String supportedVersion : supportedVersions) {
+      strategy.addSupportedVersion(supportedVersion);
+    }
 
     return strategy;
   }

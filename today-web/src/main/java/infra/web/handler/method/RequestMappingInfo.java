@@ -66,7 +66,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
   private static final PathPatternsRequestCondition EMPTY_PATH_PATTERNS = new PathPatternsRequestCondition();
   private static final RequestMethodsRequestCondition EMPTY_REQUEST_METHODS = new RequestMethodsRequestCondition();
 
-  private static final VersionRequestCondition EMPTY_VERSION = new VersionRequestCondition();
+  private static final VersionRequestCondition EMPTY_VERSION = new VersionRequestCondition(null, null);
 
   @Nullable
   private final String name;
