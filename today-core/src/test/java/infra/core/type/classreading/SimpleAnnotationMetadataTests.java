@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +31,8 @@ class SimpleAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
   @Override
   protected AnnotationMetadata get(Class<?> source) {
     try {
-      return new SimpleMetadataReaderFactory(
-              source.getClassLoader()).getMetadataReader(
-              source.getName()).getAnnotationMetadata();
+      return MetadataReaderFactory.create(source.getClassLoader())
+              .getMetadataReader(source.getName()).getAnnotationMetadata();
     }
     catch (Exception ex) {
       throw new IllegalStateException(ex);
