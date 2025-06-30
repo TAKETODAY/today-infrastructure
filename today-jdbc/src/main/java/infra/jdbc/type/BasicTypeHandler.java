@@ -38,7 +38,7 @@ import infra.lang.Nullable;
  * @author Kzuki Shimizu
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
+public abstract class BasicTypeHandler<T> implements TypeHandler<T> {
 
   @Override
   public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T arg) throws SQLException {

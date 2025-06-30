@@ -28,7 +28,7 @@ import java.time.Year;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class YearTypeHandler extends BaseTypeHandler<Year> {
+public class YearTypeHandler extends BasicTypeHandler<Year> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Year arg) throws SQLException {

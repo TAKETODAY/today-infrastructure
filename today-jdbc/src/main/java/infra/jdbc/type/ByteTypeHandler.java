@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ByteTypeHandler extends BaseTypeHandler<Byte> {
+public class ByteTypeHandler extends BasicTypeHandler<Byte> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Byte arg) throws SQLException {

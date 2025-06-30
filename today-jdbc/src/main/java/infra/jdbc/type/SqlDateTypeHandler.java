@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class SqlDateTypeHandler extends BaseTypeHandler<Date> {
+public class SqlDateTypeHandler extends BasicTypeHandler<Date> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Date arg) throws SQLException {

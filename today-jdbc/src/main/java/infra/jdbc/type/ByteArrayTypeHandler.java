@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ByteArrayTypeHandler extends BaseTypeHandler<byte[]> {
+public class ByteArrayTypeHandler extends BasicTypeHandler<byte[]> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, byte[] arg) throws SQLException {

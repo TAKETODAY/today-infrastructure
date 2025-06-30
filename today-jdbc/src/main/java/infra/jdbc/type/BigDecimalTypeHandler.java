@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class BigDecimalTypeHandler extends BaseTypeHandler<BigDecimal> {
+public class BigDecimalTypeHandler extends BasicTypeHandler<BigDecimal> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, BigDecimal arg) throws SQLException {

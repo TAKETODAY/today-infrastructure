@@ -28,7 +28,7 @@ import java.sql.Time;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class SqlTimeTypeHandler extends BaseTypeHandler<Time> {
+public class SqlTimeTypeHandler extends BasicTypeHandler<Time> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Time arg) throws SQLException {

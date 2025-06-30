@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/2/12 13:51
  */
-public class BytesInputStreamTypeHandler extends BaseTypeHandler<InputStream> {
+public class BytesInputStreamTypeHandler extends BasicTypeHandler<InputStream> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int parameterIndex, InputStream arg) throws SQLException {

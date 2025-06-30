@@ -31,7 +31,7 @@ import infra.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class UnknownTypeHandler extends BaseTypeHandler<Object> {
+public class UnknownTypeHandler extends BasicTypeHandler<Object> {
 
   private boolean useColumnLabel = true;
 

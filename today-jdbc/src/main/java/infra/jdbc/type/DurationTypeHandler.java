@@ -31,7 +31,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/11 14:23
  */
-public class DurationTypeHandler extends BaseTypeHandler<Duration> {
+public class DurationTypeHandler extends BasicTypeHandler<Duration> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Duration arg) throws SQLException {

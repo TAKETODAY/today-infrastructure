@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
+public class IntegerTypeHandler extends BasicTypeHandler<Integer> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Integer arg) throws SQLException {

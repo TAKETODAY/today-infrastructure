@@ -29,7 +29,7 @@ import java.util.Date;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class DateTypeHandler extends BaseTypeHandler<Date> {
+public class DateTypeHandler extends BasicTypeHandler<Date> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Date arg) throws SQLException {

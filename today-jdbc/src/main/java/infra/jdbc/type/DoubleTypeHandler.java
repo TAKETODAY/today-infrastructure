@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class DoubleTypeHandler extends BaseTypeHandler<Double> {
+public class DoubleTypeHandler extends BasicTypeHandler<Double> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Double arg) throws SQLException {

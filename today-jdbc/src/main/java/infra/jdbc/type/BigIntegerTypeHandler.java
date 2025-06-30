@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class BigIntegerTypeHandler extends BaseTypeHandler<BigInteger> {
+public class BigIntegerTypeHandler extends BasicTypeHandler<BigInteger> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, BigInteger arg) throws SQLException {
