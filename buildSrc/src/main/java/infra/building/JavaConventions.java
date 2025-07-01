@@ -94,7 +94,6 @@ public class JavaConventions {
    */
   private static void applyToolchainConventions(Project project) {
     project.getExtensions().getByType(JavaPluginExtension.class).toolchain(toolchain -> {
-//			toolchain.getVendor().set(JvmVendorSpec.BELLSOFT);
       toolchain.getLanguageVersion().set(DEFAULT_LANGUAGE_VERSION);
     });
   }
