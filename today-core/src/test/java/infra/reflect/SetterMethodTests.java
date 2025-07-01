@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -78,10 +77,6 @@ class SetterMethodTests {
     static volatile char _staticVolatileChar;
     static volatile Object _staticVolatileObj;
 
-    public static void set_staticInt(int _staticInt) {
-      POJO1._staticInt = _staticInt;
-    }
-
     public void set_boolean(boolean _boolean) {
       this._boolean = _boolean;
     }
@@ -116,74 +111,6 @@ class SetterMethodTests {
 
     public void set_short(short _short) {
       this._short = _short;
-    }
-
-    public static void set_staticBoolean(boolean _staticBoolean) {
-      POJO1._staticBoolean = _staticBoolean;
-    }
-
-    public static void set_staticByte(byte _staticByte) {
-      POJO1._staticByte = _staticByte;
-    }
-
-    public static void set_staticChar(char _staticChar) {
-      POJO1._staticChar = _staticChar;
-    }
-
-    public static void set_staticDouble(double _staticDouble) {
-      POJO1._staticDouble = _staticDouble;
-    }
-
-    public static void set_staticFloat(float _staticFloat) {
-      POJO1._staticFloat = _staticFloat;
-    }
-
-    public static void set_staticLong(long _staticLong) {
-      POJO1._staticLong = _staticLong;
-    }
-
-    public static void set_staticObj(Object _staticObj) {
-      POJO1._staticObj = _staticObj;
-    }
-
-    public static void set_staticShort(short _staticShort) {
-      POJO1._staticShort = _staticShort;
-    }
-
-    public static void set_staticVolatileBoolean(boolean _staticVolatileBoolean) {
-      POJO1._staticVolatileBoolean = _staticVolatileBoolean;
-    }
-
-    public static void set_staticVolatileByte(byte _staticVolatileByte) {
-      POJO1._staticVolatileByte = _staticVolatileByte;
-    }
-
-    public static void set_staticVolatileChar(char _staticVolatileChar) {
-      POJO1._staticVolatileChar = _staticVolatileChar;
-    }
-
-    public static void set_staticVolatileDouble(double _staticVolatileDouble) {
-      POJO1._staticVolatileDouble = _staticVolatileDouble;
-    }
-
-    public static void set_staticVolatileFloat(float _staticVolatileFloat) {
-      POJO1._staticVolatileFloat = _staticVolatileFloat;
-    }
-
-    public static void set_staticVolatileInt(int _staticVolatileInt) {
-      POJO1._staticVolatileInt = _staticVolatileInt;
-    }
-
-    public static void set_staticVolatileLong(long _staticVolatileLong) {
-      POJO1._staticVolatileLong = _staticVolatileLong;
-    }
-
-    public static void set_staticVolatileObj(Object _staticVolatileObj) {
-      POJO1._staticVolatileObj = _staticVolatileObj;
-    }
-
-    public static void set_staticVolatileShort(short _staticVolatileShort) {
-      POJO1._staticVolatileShort = _staticVolatileShort;
     }
 
     public void set_volatileBoolean(boolean _volatileBoolean) {
@@ -256,78 +183,6 @@ class SetterMethodTests {
 
     public short get_short() {
       return _short;
-    }
-
-    public static boolean is_staticBoolean() {
-      return _staticBoolean;
-    }
-
-    public static byte get_staticByte() {
-      return _staticByte;
-    }
-
-    public static char get_staticChar() {
-      return _staticChar;
-    }
-
-    public static double get_staticDouble() {
-      return _staticDouble;
-    }
-
-    public static float get_staticFloat() {
-      return _staticFloat;
-    }
-
-    public static int get_staticInt() {
-      return _staticInt;
-    }
-
-    public static long get_staticLong() {
-      return _staticLong;
-    }
-
-    public static Object get_staticObj() {
-      return _staticObj;
-    }
-
-    public static short get_staticShort() {
-      return _staticShort;
-    }
-
-    public static boolean is_staticVolatileBoolean() {
-      return _staticVolatileBoolean;
-    }
-
-    public static byte get_staticVolatileByte() {
-      return _staticVolatileByte;
-    }
-
-    public static char get_staticVolatileChar() {
-      return _staticVolatileChar;
-    }
-
-    public static double get_staticVolatileDouble() {
-      return _staticVolatileDouble;
-    }
-
-    public static float get_staticVolatileFloat() {
-      return _staticVolatileFloat;
-    }
-
-    public static int get_staticVolatileInt() {
-      return _staticVolatileInt;
-    }
-
-    public static long get_staticVolatileLong() {
-      return _staticVolatileLong;
-    }
-
-    public static Object get_staticVolatileObj() {
-      return _staticVolatileObj;
-    }
-
-    public static short get_staticVolatileShort() {
-      return _staticVolatileShort;
     }
 
     public boolean is_volatileBoolean() {
