@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2024 the original author or authors.
+ * Copyright 2017 - 2025 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ObjectTypeHandler extends BaseTypeHandler<Object> {
+public class ObjectTypeHandler extends BasicTypeHandler<Object> {
   public static final ObjectTypeHandler sharedInstance = new ObjectTypeHandler();
 
   @Override

@@ -30,7 +30,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/1/6 16:52
  */
-public class UUIDTypeHandler extends BaseTypeHandler<UUID> {
+public class UUIDTypeHandler extends BasicTypeHandler<UUID> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int parameterIndex, UUID arg) throws SQLException {

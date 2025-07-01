@@ -13,10 +13,15 @@ on:
       - 'feat/**'
       - 'feature/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     if: github.repository_owner == 'TAKETODAY'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       matrix:
         os: [ ubuntu-latest, macOS-latest ] #, windows-latest

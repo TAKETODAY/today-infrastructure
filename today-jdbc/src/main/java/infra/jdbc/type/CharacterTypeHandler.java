@@ -29,7 +29,7 @@ import infra.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class CharacterTypeHandler extends BaseTypeHandler<Character> {
+public class CharacterTypeHandler extends BasicTypeHandler<Character> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Character arg) throws SQLException {

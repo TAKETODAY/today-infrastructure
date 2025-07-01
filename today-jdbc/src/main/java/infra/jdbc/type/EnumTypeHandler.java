@@ -34,7 +34,7 @@ import infra.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
+public class EnumTypeHandler<E extends Enum<E>> extends BasicTypeHandler<E> {
 
   private final Class<E> type;
 

@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
+public class BooleanTypeHandler extends BasicTypeHandler<Boolean> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Boolean arg) throws SQLException {

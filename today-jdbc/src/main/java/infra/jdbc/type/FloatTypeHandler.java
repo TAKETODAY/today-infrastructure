@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * @author Clinton Begin
  */
-public class FloatTypeHandler extends BaseTypeHandler<Float> {
+public class FloatTypeHandler extends BasicTypeHandler<Float> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Float arg) throws SQLException {

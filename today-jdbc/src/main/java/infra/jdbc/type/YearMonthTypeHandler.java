@@ -34,7 +34,7 @@ import java.time.YearMonth;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class YearMonthTypeHandler extends BaseTypeHandler<YearMonth> {
+public class YearMonthTypeHandler extends BasicTypeHandler<YearMonth> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, YearMonth arg) throws SQLException {

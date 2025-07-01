@@ -28,7 +28,7 @@ import java.sql.Timestamp;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class SqlTimestampTypeHandler extends BaseTypeHandler<Timestamp> {
+public class SqlTimestampTypeHandler extends BasicTypeHandler<Timestamp> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Timestamp arg) throws SQLException {

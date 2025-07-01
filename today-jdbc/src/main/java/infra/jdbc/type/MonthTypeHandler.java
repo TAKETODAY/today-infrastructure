@@ -28,7 +28,7 @@ import java.time.Month;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MonthTypeHandler extends BaseTypeHandler<Month> {
+public class MonthTypeHandler extends BasicTypeHandler<Month> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Month arg) throws SQLException {

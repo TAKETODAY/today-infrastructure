@@ -39,7 +39,7 @@ import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
-import infra.jdbc.type.BaseTypeHandler;
+import infra.jdbc.type.BasicTypeHandler;
 import infra.jdbc.type.SmartTypeHandler;
 import infra.lang.Nullable;
 import infra.persistence.model.Gender;
@@ -820,7 +820,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
   }
 
-  static class Base64ValueHandler extends BaseTypeHandler<Base64Value> implements SmartTypeHandler<Base64Value> {
+  static class Base64ValueHandler extends BasicTypeHandler<Base64Value> implements SmartTypeHandler<Base64Value> {
 
     @Override
     public boolean supportsProperty(BeanProperty property) {
