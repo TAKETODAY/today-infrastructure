@@ -20,10 +20,14 @@ package infra.web.handler.function.support;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
 import infra.context.annotation.Bean;
 import infra.mock.api.MockContext;
 import infra.mock.web.HttpMockRequestImpl;
 import infra.mock.web.MockContextImpl;
+import infra.mock.web.MockHttpResponseImpl;
+import infra.web.accept.StandardApiVersionDeprecationHandler;
 import infra.web.config.annotation.ApiVersionConfigurer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
@@ -69,6 +73,24 @@ public class RouterFunctionMappingVersionTests {
     testGetHandler("1.5", "1.5");
   }
 
+  @Test
+  void deprecation() throws Exception {
+    HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
+    request.addHeader("X-API-Version", "1");
+
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+
+    MockRequestContext context = new MockRequestContext(request, response);
+    HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
+    assertThat(chain).isNotNull();
+
+    context.requestCompleted();
+
+    assertThat(((TestHandler) chain.getRawHandler()).body()).isEqualTo("none");
+    assertThat(response.getHeader("Link"))
+            .isEqualTo("<https://example.org/deprecation>; rel=\"deprecation\"; type=\"text/html\"");
+  }
+
   private void testGetHandler(String version, String expectedBody) throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("X-API-Version", version);
@@ -82,7 +104,12 @@ public class RouterFunctionMappingVersionTests {
 
     @Override
     public void configureApiVersioning(ApiVersionConfigurer configurer) {
-      configurer.useRequestHeader("X-API-Version").addSupportedVersions("1", "1.1", "1.3");
+      StandardApiVersionDeprecationHandler handler = new StandardApiVersionDeprecationHandler();
+      handler.configureVersion("1").setDeprecationLink(URI.create("https://example.org/deprecation"));
+
+      configurer.useRequestHeader("X-API-Version")
+              .addSupportedVersions("1", "1.1", "1.3")
+              .setDeprecationHandler(handler);
     }
 
     @Bean
