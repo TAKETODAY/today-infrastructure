@@ -1045,18 +1045,18 @@ public class TodayStrategies {
       }
     }
 
-    TodayStrategies todayStrategies = loaders.get(resourceLocation);
-    if (todayStrategies == null) {
+    TodayStrategies strategies = loaders.get(resourceLocation);
+    if (strategies == null) {
       synchronized(loaders) {
-        todayStrategies = loaders.get(resourceLocation);
-        if (todayStrategies == null) {
-          todayStrategies = new TodayStrategies(classLoader, loadResource(classLoader, resourceLocation));
-          loaders.put(resourceLocation, todayStrategies);
+        strategies = loaders.get(resourceLocation);
+        if (strategies == null) {
+          strategies = new TodayStrategies(classLoader, loadResource(classLoader, resourceLocation));
+          loaders.put(resourceLocation, strategies);
         }
       }
     }
 
-    return todayStrategies;
+    return strategies;
   }
 
   protected static Map<String, List<String>> loadResource(ClassLoader classLoader, String resourceLocation) {

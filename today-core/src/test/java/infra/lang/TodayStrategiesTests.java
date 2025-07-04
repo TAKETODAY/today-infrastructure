@@ -19,6 +19,7 @@ package infra.lang;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -172,6 +173,25 @@ class TodayStrategiesTests {
     TodayStrategies forNull = TodayStrategies.forDefaultResourceLocation(null);
     TodayStrategies forDefault = TodayStrategies.forDefaultResourceLocation(ClassUtils.getDefaultClassLoader());
     assertThat(forNull).isSameAs(forDefault);
+  }
+
+  @Test
+  @Disabled
+  void staleClassLoaderIsUsedWithCachedResult() {
+    ClassLoader defaultClassLoader = ClassUtils.getDefaultClassLoader();
+    ClassLoader cl1 = new ClassLoader() {
+    };
+    TodayStrategies factories1 = TodayStrategies.forDefaultResourceLocation(defaultClassLoader);
+    assertThat(factories1).extracting("classLoader").isEqualTo(defaultClassLoader);
+    ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(cl1);
+      TodayStrategies factories2 = TodayStrategies.forDefaultResourceLocation(null);
+      assertThat(factories2).extracting("classLoader").isNull();
+    }
+    finally {
+      Thread.currentThread().setContextClassLoader(previousClassLoader);
+    }
   }
 
   @Test
