@@ -580,7 +580,7 @@ public class TodayStrategies {
       Object value = entry.getValue();
       if (key != null && value != null) {
         // split as string list
-        List<String> strategyValues = StringUtils.splitAsList(value.toString());
+        var strategyValues = StringUtils.commaDelimitedListToStringArray(value.toString());
         for (String strategyValue : strategyValues) {
           strategyValue = strategyValue.trim(); // trim whitespace
           if (StringUtils.isNotEmpty(strategyValue)) {

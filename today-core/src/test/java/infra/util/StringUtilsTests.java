@@ -84,33 +84,6 @@ class StringUtilsTests {
   }
 
   @Test
-  void test_Split() {
-
-    String split[] = StringUtils.split("today;yhj,take");
-    assert split.length == 3;
-    assert split[0].equals("today");
-    assert split[1].equals("yhj");
-    assert split[2].equals("take");
-
-    String split_[] = StringUtils.split("todayyhjtake;");
-    assert split_.length == 1;
-    assert split_[0].equals("todayyhjtake");
-
-    assert StringUtils.split(null) == Constant.EMPTY_STRING_ARRAY;
-
-  }
-
-  @Test
-  void testArrayToString() {
-
-    String[] split = StringUtils.split("today;yhj,take");
-    assert StringUtils.arrayToCommaDelimitedString(split).equals("today,yhj,take");
-    assert StringUtils.isEmpty(StringUtils.arrayToCommaDelimitedString(null));
-
-    assert StringUtils.arrayToCommaDelimitedString(new String[] { "today" }).equals("today");
-  }
-
-  @Test
   void testCleanPath() {
 
     assert StringUtils.cleanPath(null) == (null);
